@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'HomePage.dart';
+import 'home_page.dart';
 
 void main() {
   runApp(App());
@@ -14,7 +14,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Chat journal',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
       ),
       home: HomePage(
         title: 'Home',
