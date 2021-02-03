@@ -116,6 +116,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-1.0.11",
+      "packageUri": "lib/",
+      "languageVersion": "2.1"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///C:/Users/User/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -134,10 +140,40 @@
       "languageVersion": "2.1"
     },
     {
+      "name": "http",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/http-0.12.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.4"
+    },
+    {
+      "name": "http_parser",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/http_parser-3.1.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.3"
+    },
+    {
+      "name": "image_picker",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.6.7+22",
+      "packageUri": "lib/",
+      "languageVersion": "2.1"
+    },
+    {
+      "name": "image_picker_platform_interface",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker_platform_interface-1.1.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.5"
+    },
+    {
       "name": "integration_test",
       "rootUri": "file:///C:/Users/User/flutter/packages/integration_test",
       "packageUri": "lib/",
       "languageVersion": "2.10"
+    },
+    {
+      "name": "intl",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/intl-0.16.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.5"
     },
     {
       "name": "io",
@@ -210,6 +246,12 @@
       "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/platform-3.0.0-nullsafety.4",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "plugin_platform_interface",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/plugin_platform_interface-1.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.1"
     },
     {
       "name": "pool",
@@ -344,7 +386,7 @@
       "languageVersion": "2.7"
     }
   ],
-  "generated": "2021-01-27T01:30:38.824993Z",
+  "generated": "2021-02-02T10:23:53.879727Z",
   "generator": "pub",
   "generatorVersion": "2.12.0-133.7.beta"
 }

@@ -10,6 +10,9 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FavoritesManager">
+    <favorites_list name="project_app" />
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -32,12 +35,16 @@
   <component name="PropertiesComponent">
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/assets/images" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\FlutterDev\ProjectApp\project_app\assets\images" />
       <recent name="D:\FlutterDev\ProjectApp\project_app\resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\FlutterDev\ProjectApp\project_app\assets\images" />
     </key>
   </component>
   <component name="SvnConfiguration">
@@ -58,7 +65,21 @@
       <option name="project" value="LOCAL" />
       <updated>1611746159915</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Commit 2. Add method _buildFloatActButHomePage and changed the scope of _build methods for HomePage class.">
+      <created>1611789945348</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1611789945348</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Commit 3. implemented EventPage.">
+      <created>1612342817298</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1612342817299</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -67,62 +88,108 @@
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
+        <entry key="1">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
+    <option name="OPEN_TABS">
+      <set>
+        <option value="1" />
+      </set>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Commit 1" />
-    <option name="LAST_COMMIT_MESSAGE" value="Commit 1" />
+    <MESSAGE value="Commit 2. Add method _buildFloatActButHomePage and changed the scope of _build methods for HomePage class." />
+    <MESSAGE value="Commit 3. implemented EventPage." />
+    <option name="LAST_COMMIT_MESSAGE" value="Commit 3. implemented EventPage." />
   </component>
   <component name="WindowStateProjectService">
     <state x="528" y="215" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1611705525470">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="528" y="215" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1611705525470" />
-    <state x="381" y="9" key="CommitChangelistDialog2" timestamp="1611746158060">
+    <state x="308" y="14" key="CommitChangelistDialog2" timestamp="1612342815451">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="381" y="9" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1611746158060" />
+    <state x="308" y="14" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1612342815451" />
     <state x="549" y="154" key="FileChooserDialogImpl" timestamp="1611745837907">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="154" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1611745837907" />
-    <state width="1491" height="317" key="GridCell.Tab.0.bottom" timestamp="1611751434218">
+    <state width="1491" height="284" key="GridCell.Tab.0.bottom" timestamp="1612342829105">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="317" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1611751434218" />
-    <state width="1491" height="317" key="GridCell.Tab.0.center" timestamp="1611751434218">
+    <state width="1491" height="284" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1612342829105" />
+    <state width="1491" height="284" key="GridCell.Tab.0.center" timestamp="1612342829105">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="317" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1611751434218" />
-    <state width="1491" height="317" key="GridCell.Tab.0.left" timestamp="1611751434218">
+    <state width="1491" height="284" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1612342829105" />
+    <state width="1491" height="284" key="GridCell.Tab.0.left" timestamp="1612342829105">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="317" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1611751434218" />
-    <state width="1491" height="317" key="GridCell.Tab.0.right" timestamp="1611751434218">
+    <state width="1491" height="284" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1612342829105" />
+    <state width="1491" height="284" key="GridCell.Tab.0.right" timestamp="1612342829105">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="317" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1611751434218" />
-    <state x="88" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1611736811420">
+    <state width="1491" height="284" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1612342829105" />
+    <state x="349" y="155" key="IDE.errors.dialog" timestamp="1612313818287">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="88" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1611736811420" />
-    <state x="578" y="329" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1611746231217">
+    <state x="349" y="155" key="IDE.errors.dialog/0.0.1536.824@0.0.1536.824" timestamp="1612313818287" />
+    <state x="361" y="134" key="Vcs.Push.Dialog.v2" timestamp="1612342825271">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="578" y="329" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.824@0.0.1536.824" timestamp="1611746231217" />
-    <state x="425" y="187" key="run.anything.popup" timestamp="1611741670344">
+    <state x="361" y="134" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1612342825271" />
+    <state x="93" y="93" width="1350" height="638" key="com.android.tools.idea.avdmanager.AvdListDialog" timestamp="1611876711480">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="425" y="187" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1611741670344" />
-    <state x="425" y="65" width="672" height="676" key="search.everywhere.popup" timestamp="1611708052820">
+    <state x="93" y="93" width="1350" height="638" key="com.android.tools.idea.avdmanager.AvdListDialog/0.0.1536.824@0.0.1536.824" timestamp="1611876711480" />
+    <state x="88" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1612258619412">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="425" y="65" width="672" height="676" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1611708052820" />
+    <state x="88" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1612258619412" />
+    <state x="578" y="329" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1612082890088">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="578" y="329" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.824@0.0.1536.824" timestamp="1612082890088" />
+    <state x="425" y="187" key="run.anything.popup" timestamp="1612313457946">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="425" y="187" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1612313457946" />
+    <state x="425" y="65" width="672" height="676" key="search.everywhere.popup" timestamp="1612339481295">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="425" y="65" width="672" height="676" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1612339481295" />
   </component>
 </project>

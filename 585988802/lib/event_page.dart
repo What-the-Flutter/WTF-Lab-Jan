@@ -1,9 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:project_app/event_message.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
 
+import 'package:project_app/custom_dialog.dart';
+
+//temporary checklist for functionality
 List<EventMessage> eventMessagesList = [
   EventMessage('Family', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
       'Visit relatives', false),
@@ -39,7 +44,8 @@ class _EventPage extends State<EventPage> {
   bool isWriting = false;
   bool isFavoriteButPressed = false;
   EventMessage _bottomSheetEventMessage;
-
+  File _imageFile;
+  final picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +53,33 @@ class _EventPage extends State<EventPage> {
       backgroundColor: Theme.of(context).primaryColor,
       appBar: _buildAppBarEventPage(),
       body: _buildEventPageBody(),
+    );
+  }
+
+  Widget _buildAppBarEventPage() {
+    return AppBar(
+      title: Container(
+        child: Text(widget.title),
+        alignment: Alignment.centerLeft,
+      ),
+      elevation: 0.0,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.search),
+          onPressed: () {},
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.bookmark_border_outlined,
+            color: isFavoriteButPressed ? Colors.orangeAccent : Colors.white,
+          ),
+          onPressed: () {
+            setState(() {
+              isFavoriteButPressed = !isFavoriteButPressed;
+            });
+          },
+        ),
+      ],
     );
   }
 
@@ -88,24 +121,83 @@ class _EventPage extends State<EventPage> {
   }
 
   Widget _buildEventAndFavoriteMessage(EventMessage eventMessage) {
-    if (widget.title == eventMessage.nameOfSuggestion &&
-        eventMessage.isFavorite &&
-        isFavoriteButPressed) {
+    if ((widget.title == eventMessage.nameOfSuggestion &&
+            eventMessage.isFavorite &&
+            isFavoriteButPressed) ||
+        (widget.title == eventMessage.nameOfSuggestion &&
+            !isFavoriteButPressed)) {
       return _buildEventMessage(eventMessage);
     } else {
-      if (widget.title == eventMessage.nameOfSuggestion &&
-          !isFavoriteButPressed) {
-        return _buildEventMessage(eventMessage);
-      } else {
-        return Container();
-      }
+      return Container();
     }
   }
 
-  void _setIsWriting(bool isWriting) {
-    setState(() {
-      this.isWriting = isWriting;
-    });
+  Widget _buildEventMessage(EventMessage eventMessage) {
+    return GestureDetector(
+      onLongPress: () {
+        setState(() {
+          return _buildBottomSheet(context, eventMessage);
+        });
+      },
+      child: Row(
+        children: [
+          Container(
+            margin: EdgeInsets.only(
+              top: 10.0,
+              bottom: 10.0,
+              left: 10.0,
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
+            decoration: BoxDecoration(
+              color: Color(0xFFFFEFEE),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25.0),
+                topRight: Radius.circular(25.0),
+                bottomRight: Radius.circular(25.0),
+              ),
+            ),
+            child: SizedBox(
+              width: 220,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    eventMessage.time,
+                    style: TextStyle(
+                      color: Colors.blueGrey,
+                      fontSize: 15.0,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Text(
+                    eventMessage.text,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 17.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          IconButton(
+            icon: eventMessage.isFavorite
+                ? Icon(
+                    Icons.bookmark,
+                    color: Colors.orangeAccent,
+                  )
+                : Icon(Icons.bookmark_border_outlined),
+            onPressed: () {
+              setState(() {
+                eventMessage.isFavorite = !eventMessage.isFavorite;
+              });
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildEventMessageComposer() {
@@ -135,24 +227,11 @@ class _EventPage extends State<EventPage> {
                   icon: Icon(Icons.photo),
                   iconSize: 25.0,
                   color: Colors.white,
-                  onPressed: () {},
+                  onPressed: () => _showImageSelectionDialog(),
                 ),
         ],
       ),
     );
-  }
-
-  void _sendIconPressed() {
-    eventMessagesList.insert(
-        0,
-        EventMessage(
-            widget.title,
-            DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-            _textEditingController.text,
-            false),
-    );
-    _textEditingController.clear();
-    _setIsWriting(false);
   }
 
   Widget _buildInpEventMessageTextField() {
@@ -184,103 +263,71 @@ class _EventPage extends State<EventPage> {
     );
   }
 
-  Widget _buildEventMessage(EventMessage eventMessage) {
-    return GestureDetector(
-      onLongPress: () {
-        setState(() {
-          return _buildBottomSheet(context, eventMessage);
-        });
+  void _sendIconPressed() {
+    eventMessagesList.insert(
+      0,
+      EventMessage(
+          widget.title,
+          DateFormat.yMMMd().add_jm().format(new DateTime.now()),
+          _textEditingController.text,
+          false),
+    );
+    _textEditingController.clear();
+    _setIsWriting(false);
+  }
+
+  void _setIsWriting(bool isWriting) {
+    setState(() {
+      this.isWriting = isWriting;
+    });
+  }
+
+  _showImageSelectionDialog() {
+    return showGeneralDialog(
+      barrierDismissible: false,
+      context: context,
+      transitionDuration: Duration(milliseconds: 800),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.elasticOut,
+            reverseCurve: Curves.easeOutCubic,
+          ),
+          child: _buildCustomDialogImageSelect(),
+        );
       },
-      child: Row(
-        children: [
-          Container(
-            margin: EdgeInsets.only(
-              top: 10.0,
-              bottom: 10.0,
-              left: 10.0,
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
-            decoration: BoxDecoration(
-              color: Color(0xFFFFEFEE),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(25.0),
-                topRight: Radius.circular(25.0),
-                bottomRight: Radius.circular(25.0),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  eventMessage.time,
-                  style: TextStyle(
-                    color: Colors.blueGrey,
-                    fontSize: 15.0,
-                  ),
-                ),
-                SizedBox(
-                  height: 5.0,
-                ),
-                Text(
-                  eventMessage.text,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 17.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: eventMessage.isFavorite
-                ? Icon(
-                    Icons.bookmark,
-                    color: Colors.orangeAccent,
-                  )
-                : Icon(Icons.bookmark_border_outlined),
-            onPressed: () {
-              setState(() {
-                eventMessage.isFavorite = !eventMessage.isFavorite;
-              });
-            },
-          ),
-        ],
-      ),
+      pageBuilder: (BuildContext context, Animation animation,
+          Animation secondaryAnimation) {
+        return null;
+      },
     );
   }
 
-  Widget _buildAppBarEventPage() {
-    return AppBar(
-      title: Container(
-        child: Text(widget.title),
-        alignment: Alignment.centerLeft,
+  Widget _buildCustomDialogImageSelect() {
+    return CustomDialog.imageSelect(
+      title: "Adding an image",
+      content: "Select an image source",
+      firstBtnText: "Gallery",
+      secondBtnText: "Camera",
+      icon: Icon(
+        Icons.photo,
+        color: Colors.white,
+        size: 60,
       ),
-      elevation: 0.0,
-      actions: [
-        IconButton(
-          icon: Icon(Icons.search),
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: isFavoriteButPressed
-              ? Icon(
-                  Icons.bookmark_border_outlined,
-                  color: Colors.orangeAccent,
-                )
-              : Icon(
-                  Icons.bookmark_border_outlined,
-                ),
-          onPressed: () {
-            setState(() {
-              isFavoriteButPressed = !isFavoriteButPressed;
-            });
-          },
-        ),
-      ],
+      firstBtnFunc: _selectedGallery,
+      secondBtnFunc: _selectedCamera,
+      isEditMessage: false,
     );
   }
 
-  _buildBottomSheet(BuildContext context, EventMessage eventMessage) {
+  //temporary check of the function
+  void _selectedGallery() => print('Gallery');
+
+  //temporary check of the function
+  void _selectedCamera() => print('Camera');
+
+  void _buildBottomSheet(BuildContext context, EventMessage eventMessage) {
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -288,54 +335,58 @@ class _EventPage extends State<EventPage> {
         builder: (BuildContext context) {
           return Container(
             decoration: BoxDecoration(
-              color: Color.fromRGBO(255, 90, 90, 1),
+              color: Color.fromRGBO(236, 67, 67, 0.9),
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(25.0),
                 topLeft: Radius.circular(25.0),
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                _buildListTile(
-                  context,
-                  'Forward',
-                  Icons.arrow_back_outlined,
-                  _forwardEventMessage,
-                  eventMessage,
-                ),
-                _buildListTile(
-                  context,
-                  'Copy',
-                  Icons.copy,
-                  _copyEventMessage,
-                  eventMessage,
-                ),
-                _buildListTile(
-                  context,
-                  'Edit',
-                  Icons.edit,
-                  _editEventMessage,
-                  eventMessage,
-                ),
-                _buildListTile(
-                  context,
-                  'Add to favorites',
-                  Icons.bookmark_border_outlined,
-                  _addToFavorites,
-                  eventMessage,
-                ),
-                _buildListTile(
-                  context,
-                  'Delete',
-                  Icons.delete,
-                  _deleteEventMessage,
-                  eventMessage,
-                ),
-              ],
-            ),
+            child: _buildStructureBottomSheet(eventMessage),
           );
         });
+  }
+
+  Widget _buildStructureBottomSheet(EventMessage eventMessage) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        _buildListTile(
+          context,
+          'Forward',
+          Icons.arrow_back_outlined,
+          _forwardEventMessage,
+          eventMessage,
+        ),
+        _buildListTile(
+          context,
+          'Copy',
+          Icons.copy,
+          _copyEventMessage,
+          eventMessage,
+        ),
+        _buildListTile(
+          context,
+          'Edit',
+          Icons.edit,
+          _editEventMessage,
+          eventMessage,
+        ),
+        _buildListTile(
+          context,
+          'Add to favorites',
+          Icons.bookmark_border_outlined,
+          _addToFavorites,
+          eventMessage,
+        ),
+        _buildListTile(
+          context,
+          'Delete',
+          Icons.delete,
+          _deleteEventMessage,
+          eventMessage,
+        ),
+      ],
+    );
   }
 
   ListTile _buildListTile(BuildContext context, String name, IconData icon,
@@ -374,10 +425,53 @@ class _EventPage extends State<EventPage> {
 
   _editEventMessage() {
     setState(() {
-      _textEditingController.text;
-      print('editEventMessage');
+      _showEditEventMessageCustomDialog(_bottomSheetEventMessage);
     });
   }
+
+  _showEditEventMessageCustomDialog(EventMessage eventMessage) {
+    _textEditingController.text = eventMessage.text;
+    return showGeneralDialog(
+      barrierDismissible: false,
+      context: context,
+      transitionDuration: Duration(milliseconds: 800),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.elasticOut,
+            reverseCurve: Curves.easeOutCubic,
+          ),
+          child: CustomDialog.editEventMessage(
+            title: "Edit the text",
+            content: "Edit your event message",
+            firstBtnText: "Cancel",
+            secondBtnText: "Edit",
+            icon: Icon(
+              Icons.edit,
+              color: Colors.white,
+              size: 60,
+            ),
+            firstBtnFunc: _selectedCancel,
+            secondBtnFunc: _selectedEdit,
+            isEditMessage: true,
+            textEditControl: _textEditingController,
+            eventMessage: eventMessage,
+          ),
+        );
+      },
+      pageBuilder: (BuildContext context, Animation animation,
+          Animation secondaryAnimation) {
+        return null;
+      },
+    );
+  }
+
+  //temporary check of the function
+  void _selectedCancel() => print('Cancel');
+
+  //temporary check of the function
+  void _selectedEdit() => print('Edit');
 
   _addToFavorites() {
     setState(() {
