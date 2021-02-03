@@ -28,6 +28,14 @@ class _HomePageState extends State<HomePage> {
         'Sport', 'No Events. Click to create one.', 'assets/images/gym.png'),
     ListViewSuggestions('Travel', 'No Events. Click to create one.',
         'assets/images/airplane.png'),
+    ListViewSuggestions('Entertainment', 'No Events. Click to create one.',
+        'assets/images/game_controller.png'),
+    ListViewSuggestions('Study', 'No Events. Click to create one.',
+        'assets/images/university.png'),
+    ListViewSuggestions('Work', 'No Events. Click to create one.',
+        'assets/images/work.png'),
+    ListViewSuggestions('Supermarket', 'No Events. Click to create one.',
+        'assets/images/supermarket.png'),
   ];
 
   @override
