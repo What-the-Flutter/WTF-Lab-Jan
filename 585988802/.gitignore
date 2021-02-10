@@ -8,14 +8,11 @@ assets
 
 .build
 
-
 integration_test
 
 ios
 
 test
-
-windows
 
 .flutter-plugins
 
@@ -27,6 +24,6 @@ windows
 
 analysis_options.yaml
 
-project_app.iml.iml
+project_app.iml
 
 pubspec.lock

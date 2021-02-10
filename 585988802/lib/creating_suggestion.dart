@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'custom_theme_provider.dart';
-import 'list_view_suggestions.dart';
+import 'list_view_suggestion.dart';
 
 class CreatingPage extends StatefulWidget {
-  final List<ListViewSuggestions> suggestionsList;
+  final List<ListViewSuggestion> suggestionsList;
 
   CreatingPage({Key key, this.suggestionsList}) : super(key: key);
 
@@ -15,7 +15,7 @@ class CreatingPage extends StatefulWidget {
 }
 
 class _CreatingPageState extends State<CreatingPage> {
-  final List<ListViewSuggestions> suggestionsList;
+  final List<ListViewSuggestion> suggestionsList;
   final TextEditingController _textEditingController = TextEditingController();
   String _currentImagePath = 'assets/images/journal.png';
   bool _isWriting = false;
@@ -123,10 +123,10 @@ class _CreatingPageState extends State<CreatingPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    suggestionsList.add(ListViewSuggestions(
-                        _textEditingController.text,
-                        'No Events. Click to create one.',
-                        _currentImagePath));
+                    suggestionsList.add(ListViewSuggestion(
+                      _textEditingController.text,
+                      _currentImagePath,
+                    ));
                     Navigator.of(context).pop();
                   });
                 },

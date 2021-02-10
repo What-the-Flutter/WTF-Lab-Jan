@@ -7,7 +7,8 @@ import 'creating_suggestion.dart';
 import 'custom_dialog.dart';
 import 'custom_theme_provider.dart';
 import 'event_page.dart';
-import 'list_view_suggestions.dart';
+import 'info_about_suggestion_dialog.dart';
+import 'list_view_suggestion.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -21,49 +22,41 @@ class HomePage extends StatefulWidget {
 ///This class implements the main logic of the [HomePage].
 class _HomePageState extends State<HomePage> {
   int _currentIndexBotNavBar = 0;
-  ListViewSuggestions _bottomSheetSuggestions;
+  ListViewSuggestion _selectedSuggestion;
   final TextEditingController _textEditingController = TextEditingController();
 
   //Temporary list to test functionality.
-  List<ListViewSuggestions> suggestionsList = [
-    ListViewSuggestions(
-        'Family', 'No Events. Click to create one.', 'assets/images/baby.png'),
-    ListViewSuggestions(
-        'Food', 'No Events. Click to create one.', 'assets/images/burger.png'),
-    ListViewSuggestions(
-        'Sport', 'No Events. Click to create one.', 'assets/images/gym.png'),
-    ListViewSuggestions('Travel', 'No Events. Click to create one.',
-        'assets/images/airplane.png'),
-    ListViewSuggestions('Entertainment', 'No Events. Click to create one.',
-        'assets/images/game_controller.png'),
-    ListViewSuggestions('Study', 'No Events. Click to create one.',
-        'assets/images/university.png'),
-    ListViewSuggestions(
-        'Work', 'No Events. Click to create one.', 'assets/images/work.png'),
-    ListViewSuggestions('Supermarket', 'No Events. Click to create one.',
-        'assets/images/supermarket.png'),
+  List<ListViewSuggestion> suggestionsList = [
+    ListViewSuggestion('Family', 'assets/images/baby.png'),
+    ListViewSuggestion('Food', 'assets/images/burger.png'),
+    ListViewSuggestion('Sport', 'assets/images/gym.png'),
+    ListViewSuggestion('Travel', 'assets/images/airplane.png'),
+    ListViewSuggestion('Entertainment', 'assets/images/game_controller.png'),
+    ListViewSuggestion('Study', 'assets/images/university.png'),
+    ListViewSuggestion('Work', 'assets/images/work.png'),
+    ListViewSuggestion('Supermarket', 'assets/images/supermarket.png'),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: _appBar(widget.title),
-      drawer: drawer,
-      body: _homePageBody(suggestionsList),
-      bottomNavigationBar: bottomNavigationBar,
-      floatingActionButton: floatingActionButton,
+      appBar: _appBar,
+      drawer: _drawer,
+      body: _homePageBody,
+      bottomNavigationBar: _bottomNavigationBar,
+      floatingActionButton: _floatingActionButton,
     );
   }
 
   ///Builds AppBar for [HomePage].
-  AppBar _appBar(String title) {
+  AppBar get _appBar {
     return AppBar(
       iconTheme: Theme.of(context).iconTheme,
       backgroundColor: Theme.of(context).appBarTheme.color,
       title: Container(
         child: Text(
-          title,
+          widget.title,
           style: TextStyle(
             color: Provider.of<ThemeProvider>(context).isDarkMode
                 ? Theme.of(context).accentColor
@@ -80,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   ///Builds Drawer.
-  Drawer get drawer {
+  Drawer get _drawer {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -192,7 +185,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.wb_sunny_outlined),
+            leading: Icon(CupertinoIcons.circle_righthalf_fill),
             title: Text(
               'Change Theme',
               style: TextStyle(
@@ -206,7 +199,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   ///Builds floatingActionButton to add a new event category.
-  FloatingActionButton get floatingActionButton {
+  FloatingActionButton get _floatingActionButton {
     return FloatingActionButton(
       tooltip: 'New Suggestion',
       child: Icon(
@@ -230,7 +223,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _homePageBody(List list) {
+  Column get _homePageBody {
     return Column(
       children: <Widget>[
         Expanded(
@@ -286,8 +279,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         child: ListView.builder(
+          reverse: true,
           itemCount: suggestionsList.length,
           itemBuilder: (context, index) {
+            suggestionsList.sort((a, b) => (a.isPinned).compareTo(b.isPinned));
             return _row(suggestionsList, index);
           },
         ),
@@ -296,7 +291,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   ///Builds suggestion card.
-  Widget _row(List<ListViewSuggestions> list, int index) {
+  Widget _row(List<ListViewSuggestion> list, int index) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -310,21 +305,34 @@ class _HomePageState extends State<HomePage> {
           list[index].nameOfSuggestion,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(list[index].infoOfSuggestion),
+        subtitle: Text(
+          list[index].eventMessagesList.isNotEmpty
+              ? (list[index].eventMessagesList.first.isImageMessage
+                  ? 'Image'
+                  : list[index].eventMessagesList.first.text)
+              : list[index].infoOfSuggestion,
+          maxLines: 1,
+        ),
+        trailing: list[index].isPinned == 1
+            ? Icon(
+                Icons.push_pin,
+                color: Theme.of(context).iconTheme.color,
+              )
+            : Icon(null),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
         ),
-        onTap: () {
-          setState(() {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EventPage(
-                  title: list[index].nameOfSuggestion,
-                ),
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EventPage(
+                title: list[index].nameOfSuggestion,
+                listViewSuggestion: list[index],
               ),
-            );
-          });
+            ),
+          );
+          setState(() {});
         },
         onLongPress: () {
           setState(() {
@@ -336,7 +344,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showBottomSheet(
-      BuildContext context, ListViewSuggestions listViewSuggestions) {
+      BuildContext context, ListViewSuggestion listViewSuggestions) {
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -355,15 +363,38 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  Column _structureBottomSheet(ListViewSuggestions listViewSuggestions) {
+  Column _structureBottomSheet(ListViewSuggestion listViewSuggestions) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 5.0),
+          child: ListTile(
+            leading: Image.asset(listViewSuggestions.imagePathOfSuggestion),
+            title: Text(
+              listViewSuggestions.nameOfSuggestion,
+              maxLines: 4,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 25.0),
+            ),
+          ),
+        ),
         _listTile(
           context,
           'Info',
           Icons.info_outline,
-          () {},
+          _showInfoAboutSuggestion,
+          null,
+        ),
+        _listTile(
+          context,
+          listViewSuggestions.isPinned == 1
+              ? 'Unpin suggestion'
+              : 'Pin suggestion',
+          Icons.push_pin,
+          listViewSuggestions.isPinned == 1 ? _unpinSuggestion : _pinSuggestion,
           null,
         ),
         _listTile(
@@ -385,8 +416,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   ListTile _listTile(BuildContext context, String name, IconData icon,
-      Function action, ListViewSuggestions listViewSuggestions) {
-    _bottomSheetSuggestions = listViewSuggestions;
+      Function action, ListViewSuggestion listViewSuggestion) {
+    _selectedSuggestion = listViewSuggestion;
     return ListTile(
       leading: Icon(
         icon,
@@ -405,15 +436,50 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<Object> _showInfoAboutSuggestion() {
+    return showGeneralDialog(
+      barrierDismissible: false,
+      context: context,
+      transitionDuration: Duration(milliseconds: 800),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.elasticOut,
+            reverseCurve: Curves.easeOutCubic,
+          ),
+          child: InfoAboutSuggestionDialog(
+            currentSuggestion: _selectedSuggestion,
+          ),
+        );
+      },
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return null;
+      },
+    );
+  }
+
+  void _pinSuggestion() {
+    setState(() {
+      _selectedSuggestion.isPinned = 1;
+    });
+  }
+
+  void _unpinSuggestion() {
+    setState(() {
+      _selectedSuggestion.isPinned = 0;
+    });
+  }
+
   void _editSuggestion() {
     setState(() {
-      _showEditSuggestionCustomDialog(_bottomSheetSuggestions);
+      _showEditSuggestionCustomDialog(_selectedSuggestion);
     });
   }
 
   Future<Object> _showEditSuggestionCustomDialog(
-      ListViewSuggestions listViewSuggestions) {
-    _textEditingController.text = listViewSuggestions.nameOfSuggestion;
+      ListViewSuggestion listViewSuggestion) {
+    _textEditingController.text = listViewSuggestion.nameOfSuggestion;
     return showGeneralDialog(
       barrierDismissible: false,
       context: context,
@@ -450,29 +516,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   //temporary check of the function
-  void _selectedCancel() => print('Cancel');
+  void _selectedCancel() => print('selected');
 
   void _selectedEdit() {
     setState(() {
       if (_textEditingController.text.isNotEmpty) {
-        var lastNameOfSuggestion = _bottomSheetSuggestions.nameOfSuggestion;
-        var index = suggestionsList.indexOf(_bottomSheetSuggestions);
+        var index = suggestionsList.indexOf(_selectedSuggestion);
         suggestionsList[index].nameOfSuggestion = _textEditingController.text;
-        for (var eventMessage in eventMessagesList) {
-          if (eventMessage.nameOfSuggestion == lastNameOfSuggestion) {
-            eventMessage.nameOfSuggestion = _textEditingController.text;
-          }
-        }
         _textEditingController.clear();
       }
     });
   }
 
   void _deleteSuggestion() {
-    setState(() => suggestionsList.remove(_bottomSheetSuggestions));
+    setState(() => suggestionsList.remove(_selectedSuggestion));
   }
 
-  BottomNavigationBar get bottomNavigationBar {
+  BottomNavigationBar get _bottomNavigationBar {
     return BottomNavigationBar(
       backgroundColor: Provider.of<ThemeProvider>(context).isDarkMode
           ? Theme.of(context).scaffoldBackgroundColor

@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'custom_theme_provider.dart';
 import 'event_message.dart';
 
 // ignore: must_be_immutable
@@ -101,7 +103,9 @@ class _CustomDialog extends State<CustomDialog> {
         Container(
           margin: EdgeInsets.only(top: 40),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
+            color: Provider.of<ThemeProvider>(context).isDarkMode
+                ? Color.fromRGBO(151, 157, 155, 1)
+                : Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(25.0),
           ),
           padding: EdgeInsets.only(top: 60, left: 20, right: 20),

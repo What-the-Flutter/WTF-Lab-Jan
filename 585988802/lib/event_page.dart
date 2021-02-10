@@ -10,45 +10,28 @@ import 'custom_dialog.dart';
 
 import 'custom_theme_provider.dart';
 import 'event_message.dart';
-
-//temporary checklist for functionality
-List<EventMessage> eventMessagesList = [
-  EventMessage('Family', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'Visit relatives', false, false),
-  EventMessage('Family', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'Call grandmothers', true, false),
-  EventMessage('Family', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'Eat everyone in a good mood', false, false),
-  EventMessage('Food', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'dine for 15\$', false, false),
-  EventMessage('Food', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'buy food for dinner', false, false),
-  EventMessage('Sport', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'Football practice at 19 PM', true, false),
-  EventMessage('Sport', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'Swim 4 km', false, false),
-  EventMessage('Sport', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'bicycle 30 km', true, false),
-  EventMessage('Travel', DateFormat.yMMMd().add_jm().format(DateTime.now()),
-      'Book a hotel in munich', true, false),
-];
+import 'list_view_suggestion.dart';
 
 class EventPage extends StatefulWidget {
   final String title;
+  final ListViewSuggestion listViewSuggestion;
 
-  EventPage({Key key, this.title}) : super(key: key);
+  EventPage({Key key, this.title, this.listViewSuggestion}) : super(key: key);
 
   @override
-  _EventPage createState() => _EventPage();
+  _EventPage createState() => _EventPage(listViewSuggestion);
 }
 
 class _EventPage extends State<EventPage> {
   final TextEditingController _textEditingController = TextEditingController();
+  final ListViewSuggestion _listViewSuggestion;
   EventMessage _bottomSheetEventMessage;
   bool _isWriting = false;
-  bool isFavoriteButPressed = false;
-  bool isEditing = false;
+  bool _isFavoriteButPressed = false;
+  bool _isEditing = false;
   File _imageFile;
+
+  _EventPage(this._listViewSuggestion);
 
   @override
   Widget build(BuildContext context) {
@@ -83,13 +66,13 @@ class _EventPage extends State<EventPage> {
         IconButton(
           icon: Icon(
             Icons.bookmark_border_outlined,
-            color: isFavoriteButPressed
+            color: _isFavoriteButPressed
                 ? Colors.orangeAccent
                 : Theme.of(context).iconTheme.color,
           ),
           onPressed: () {
             setState(() {
-              isFavoriteButPressed = !isFavoriteButPressed;
+              _isFavoriteButPressed = !_isFavoriteButPressed;
             });
           },
         ),
@@ -99,7 +82,7 @@ class _EventPage extends State<EventPage> {
 
   GestureDetector get eventPageBody {
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
+      onTap: () => FocusScope.of(context).nextFocus(),
       child: Column(
         children: [
           Expanded(
@@ -126,30 +109,29 @@ class _EventPage extends State<EventPage> {
     return ListView.builder(
       reverse: true,
       padding: EdgeInsets.only(top: 15.0),
-      itemCount: eventMessagesList.length,
+      itemCount: _listViewSuggestion.eventMessagesList.length,
       itemBuilder: (context, index) {
-        final eventMessage = eventMessagesList[index];
+        final eventMessage = _listViewSuggestion.eventMessagesList[index];
         return _eventAndFavoriteMessage(eventMessage);
       },
     );
   }
 
   Widget _eventAndFavoriteMessage(EventMessage eventMessage) {
-    if ((widget.title == eventMessage.nameOfSuggestion &&
-            eventMessage.isFavorite &&
-            isFavoriteButPressed) ||
-        (widget.title == eventMessage.nameOfSuggestion &&
-            !isFavoriteButPressed)) {
-      return _eventMessage(eventMessage);
+    if ((eventMessage.isFavorite && _isFavoriteButPressed) ||
+        (!_isFavoriteButPressed)) {
+      return _eventMessage(eventMessage, false);
     } else {
       return Container();
     }
   }
 
-  Widget _eventMessage(EventMessage eventMessage) {
+  Widget _eventMessage(EventMessage eventMessage, bool isSelected) {
     return GestureDetector(
       onLongPress: () {
-        setState(() => _bottomSheet(context, eventMessage));
+        isSelected
+            ? () {}
+            : setState(() => _bottomSheet(context, eventMessage));
       },
       child: Row(
         children: [
@@ -187,6 +169,7 @@ class _EventPage extends State<EventPage> {
                       ? Image(image: FileImage(eventMessage.image.file))
                       : Text(
                           eventMessage.text,
+                          maxLines: isSelected ? 2 : null,
                           style: TextStyle(
                             color: Theme.of(context).accentColor,
                             fontSize: 17.0,
@@ -196,24 +179,26 @@ class _EventPage extends State<EventPage> {
               ),
             ),
           ),
-          IconButton(
-            icon: eventMessage.isFavorite
-                ? Icon(
-                    Icons.bookmark,
-                    color: Colors.orangeAccent,
-                  )
-                : Icon(
-                    Icons.bookmark_border_outlined,
-                    color: Provider.of<ThemeProvider>(context).isDarkMode
-                        ? Theme.of(context).accentColor
-                        : Colors.black54,
-                  ),
-            onPressed: () {
-              setState(() {
-                eventMessage.isFavorite = !eventMessage.isFavorite;
-              });
-            },
-          ),
+          isSelected
+              ? Container()
+              : IconButton(
+                  icon: eventMessage.isFavorite
+                      ? Icon(
+                          Icons.bookmark,
+                          color: Colors.orangeAccent,
+                        )
+                      : Icon(
+                          Icons.bookmark_border_outlined,
+                          color: Provider.of<ThemeProvider>(context).isDarkMode
+                              ? Theme.of(context).accentColor
+                              : Colors.black54,
+                        ),
+                  onPressed: () {
+                    setState(() {
+                      eventMessage.isFavorite = !eventMessage.isFavorite;
+                    });
+                  },
+                ),
         ],
       ),
     );
@@ -254,7 +239,7 @@ class _EventPage extends State<EventPage> {
     return Expanded(
       child: TextField(
         controller:
-            isEditing ? TextEditingController() : _textEditingController,
+            _isEditing ? TextEditingController() : _textEditingController,
         textCapitalization: TextCapitalization.sentences,
         onChanged: (value) {
           (value.isNotEmpty && value.trim() != '')
@@ -281,10 +266,9 @@ class _EventPage extends State<EventPage> {
   }
 
   void _sendIconPressed() {
-    eventMessagesList.insert(
+    _listViewSuggestion.eventMessagesList.insert(
       0,
       EventMessage(
-        widget.title,
         DateFormat.yMMMd().add_jm().format(DateTime.now()),
         _textEditingController.text,
         false,
@@ -356,10 +340,9 @@ class _EventPage extends State<EventPage> {
   void addImageInEventMessagesList(PickedFile file) {
     if (file != null) {
       imageFile = File(file.path);
-      eventMessagesList.insert(
+      _listViewSuggestion.eventMessagesList.insert(
         0,
         EventMessage(
-          widget.title,
           DateFormat.yMMMd().add_jm().format(DateTime.now()),
           null,
           false,
@@ -393,6 +376,19 @@ class _EventPage extends State<EventPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
+        eventMessage.isImageMessage
+            ? Padding(
+                padding: EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Image',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 25.0,
+                  ),
+                ),
+              )
+            : _eventMessage(eventMessage, true),
         listTile(
           context,
           'Forward',
@@ -479,7 +475,7 @@ class _EventPage extends State<EventPage> {
   }
 
   Future<Object> _showEditEventMessageCustomDialog(EventMessage eventMessage) {
-    isEditing = true;
+    _isEditing = true;
     _textEditingController.text = eventMessage.text;
     return showGeneralDialog(
       barrierDismissible: false,
@@ -522,11 +518,13 @@ class _EventPage extends State<EventPage> {
   void _selectedEdit() {
     setState(() {
       if (_textEditingController.text.isNotEmpty) {
-        var index = eventMessagesList.indexOf(_bottomSheetEventMessage);
-        eventMessagesList[index].text = _textEditingController.text;
+        var index = _listViewSuggestion.eventMessagesList
+            .indexOf(_bottomSheetEventMessage);
+        _listViewSuggestion.eventMessagesList[index].text =
+            _textEditingController.text;
         _textEditingController.clear();
       }
-      isEditing = false;
+      _isEditing = false;
     });
   }
 
@@ -539,7 +537,7 @@ class _EventPage extends State<EventPage> {
 
   void _deleteEventMessage() {
     setState(() {
-      eventMessagesList.remove(_bottomSheetEventMessage);
+      _listViewSuggestion.eventMessagesList.remove(_bottomSheetEventMessage);
     });
   }
 }
