@@ -1,12 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_app/event_message.dart';
+import 'package:provider/provider.dart';
+import 'custom_theme_provider.dart';
+import 'event_message.dart';
 
+// ignore: must_be_immutable
 class CustomDialog extends StatefulWidget {
   final String title, content, firstBtnText, secondBtnText;
   final Icon icon;
   final dynamic firstBtnFunc, secondBtnFunc;
-  bool isEditMessage;
+  final bool isEditMessage;
+  String nameOfSuggestion;
   TextEditingController textEditControl;
   EventMessage eventMessage;
 
@@ -21,30 +25,45 @@ class CustomDialog extends StatefulWidget {
     this.isEditMessage,
   });
 
-  CustomDialog.editEventMessage(
-      {this.title,
-      this.content,
-      this.firstBtnText,
-      this.secondBtnText,
-      this.icon,
-      this.firstBtnFunc,
-      this.secondBtnFunc,
-      this.isEditMessage,
-      this.textEditControl,
-      this.eventMessage});
+  CustomDialog.editEventMessage({
+    this.title,
+    this.content,
+    this.firstBtnText,
+    this.secondBtnText,
+    this.icon,
+    this.firstBtnFunc,
+    this.secondBtnFunc,
+    this.isEditMessage,
+    this.textEditControl,
+    this.eventMessage,
+  });
+
+  CustomDialog.editSuggestion({
+    this.title,
+    this.content,
+    this.firstBtnText,
+    this.secondBtnText,
+    this.icon,
+    this.firstBtnFunc,
+    this.secondBtnFunc,
+    this.isEditMessage,
+    this.textEditControl,
+    this.nameOfSuggestion,
+  });
 
   @override
   _CustomDialog createState() => _CustomDialog(
-      title,
-      content,
-      firstBtnText,
-      secondBtnText,
-      icon,
-      firstBtnFunc,
-      secondBtnFunc,
-      isEditMessage,
-      textEditControl,
-      eventMessage);
+        title,
+        content,
+        firstBtnText,
+        secondBtnText,
+        icon,
+        firstBtnFunc,
+        secondBtnFunc,
+        isEditMessage,
+        textEditControl,
+        eventMessage,
+      );
 }
 
 class _CustomDialog extends State<CustomDialog> {
@@ -56,34 +75,37 @@ class _CustomDialog extends State<CustomDialog> {
   EventMessage eventMessage;
 
   _CustomDialog(
-      this.title,
-      this.content,
-      this.firstBtnText,
-      this.secondBtnText,
-      this.icon,
-      this.firstBtnFunc,
-      this.secondBtnFunc,
-      this.isEditMessage,
-      this.textEditControl,
-      this.eventMessage);
+    this.title,
+    this.content,
+    this.firstBtnText,
+    this.secondBtnText,
+    this.icon,
+    this.firstBtnFunc,
+    this.secondBtnFunc,
+    this.isEditMessage,
+    this.textEditControl,
+    this.eventMessage,
+  );
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       elevation: 0,
       backgroundColor: Colors.transparent,
-      child: _buildDialogContent(context),
+      child: _dialogContent(context),
     );
   }
 
-  Widget _buildDialogContent(BuildContext context) {
+  Widget _dialogContent(BuildContext context) {
     return Stack(
       alignment: Alignment.topCenter,
       children: <Widget>[
         Container(
           margin: EdgeInsets.only(top: 40),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Provider.of<ThemeProvider>(context).isDarkMode
+                ? Color.fromRGBO(151, 157, 155, 1)
+                : Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(25.0),
           ),
           padding: EdgeInsets.only(top: 60, left: 20, right: 20),
@@ -101,19 +123,10 @@ class _CustomDialog extends State<CustomDialog> {
                     ),
               isEditMessage
                   ? TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Enter text',
+                      ),
                       controller: textEditControl,
-                      onChanged: (value) {
-                        setState(() {
-                          // eventMessage.text = value;
-                          // textEditControl.clear();
-                        });
-                      },
-                      onSubmitted: (value) {
-                        setState(() {
-                          eventMessage.text = value;
-                          textEditControl.clear();
-                        });
-                      },
                     )
                   : Text(
                       content,
@@ -122,22 +135,45 @@ class _CustomDialog extends State<CustomDialog> {
                     ),
               ButtonBar(
                 buttonMinWidth: 100,
-                alignment: MainAxisAlignment.spaceEvenly,
+                alignment: isEditMessage
+                    ? MainAxisAlignment.spaceEvenly
+                    : MainAxisAlignment.center,
                 children: <Widget>[
                   FlatButton(
-                    child: Text(firstBtnText),
+                    child: Text(
+                      firstBtnText,
+                      style: TextStyle(
+                          color: Theme.of(context).scaffoldBackgroundColor),
+                    ),
                     onPressed: () {
                       firstBtnFunc();
                       Navigator.of(context).pop();
                     },
                   ),
                   FlatButton(
-                    child: Text(secondBtnText),
+                    child: Text(
+                      secondBtnText,
+                      style: TextStyle(
+                          color: Theme.of(context).scaffoldBackgroundColor),
+                    ),
                     onPressed: () {
                       secondBtnFunc();
                       Navigator.of(context).pop();
                     },
                   ),
+                  isEditMessage
+                      ? Container()
+                      : FlatButton(
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
                 ],
               ),
             ],
@@ -146,6 +182,7 @@ class _CustomDialog extends State<CustomDialog> {
         CircleAvatar(
           maxRadius: 40.0,
           child: icon,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
       ],
     );

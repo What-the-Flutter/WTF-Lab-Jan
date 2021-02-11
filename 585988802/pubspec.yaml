@@ -18,7 +18,7 @@ dependencies:
 
   intl: ^0.16.1
   cupertino_icons: ^1.0.1
-
+  provider: ^4.3.2+3
 
 
 dev_dependencies:

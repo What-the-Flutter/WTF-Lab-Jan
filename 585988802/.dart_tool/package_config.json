@@ -212,6 +212,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "nested",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/nested-0.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.2"
+    },
+    {
       "name": "node_interop",
       "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/node_interop-1.2.1",
       "packageUri": "lib/",
@@ -264,6 +270,12 @@
       "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/process-4.0.0-nullsafety.4",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "provider",
+      "rootUri": "file:///C:/Users/User/flutter/.pub-cache/hosted/pub.dartlang.org/provider-4.3.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.7"
     },
     {
       "name": "pub_semver",
@@ -386,7 +398,7 @@
       "languageVersion": "2.7"
     }
   ],
-  "generated": "2021-02-02T10:23:53.879727Z",
+  "generated": "2021-02-08T10:09:42.210559Z",
   "generator": "pub",
   "generatorVersion": "2.12.0-133.7.beta"
 }

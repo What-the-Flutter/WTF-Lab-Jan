@@ -1,65 +1,60 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:project_app/event_message.dart';
 import 'package:intl/intl.dart';
-import 'dart:io';
+import 'package:provider/provider.dart';
+import 'custom_dialog.dart';
 
-import 'package:project_app/custom_dialog.dart';
-
-//temporary checklist for functionality
-List<EventMessage> eventMessagesList = [
-  EventMessage('Family', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'Visit relatives', false),
-  EventMessage('Family', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'Call grandmothers', true),
-  EventMessage('Family', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'Eat everyone in a good mood', false),
-  EventMessage('Food', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'dine for 15\$', false),
-  EventMessage('Food', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'buy food for dinner', false),
-  EventMessage('Sport', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'Football practice at 19 PM', true),
-  EventMessage('Sport', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'Swim 4 km', false),
-  EventMessage('Sport', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'bicycle 30 km', true),
-  EventMessage('Travel', DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-      'Book a hotel in munich', true),
-];
+import 'custom_theme_provider.dart';
+import 'event_message.dart';
+import 'list_view_suggestion.dart';
 
 class EventPage extends StatefulWidget {
   final String title;
+  final ListViewSuggestion listViewSuggestion;
 
-  EventPage({Key key, this.title}) : super(key: key);
+  EventPage({Key key, this.title, this.listViewSuggestion}) : super(key: key);
 
   @override
-  _EventPage createState() => _EventPage();
+  _EventPage createState() => _EventPage(listViewSuggestion);
 }
 
 class _EventPage extends State<EventPage> {
-  TextEditingController _textEditingController = TextEditingController();
-  bool isWriting = false;
-  bool isFavoriteButPressed = false;
+  final TextEditingController _textEditingController = TextEditingController();
+  final ListViewSuggestion _listViewSuggestion;
   EventMessage _bottomSheetEventMessage;
+  bool _isWriting = false;
+  bool _isFavoriteButPressed = false;
+  bool _isEditing = false;
   File _imageFile;
-  final picker = ImagePicker();
+
+  _EventPage(this._listViewSuggestion);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      appBar: _buildAppBarEventPage(),
-      body: _buildEventPageBody(),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: appBar,
+      body: eventPageBody,
     );
   }
 
-  Widget _buildAppBarEventPage() {
+  AppBar get appBar {
     return AppBar(
+      backgroundColor: Theme.of(context).appBarTheme.color,
+      iconTheme: Theme.of(context).iconTheme,
       title: Container(
-        child: Text(widget.title),
+        child: Text(
+          widget.title,
+          style: TextStyle(
+            color: Provider.of<ThemeProvider>(context).isDarkMode
+                ? Theme.of(context).accentColor
+                : Theme.of(context).primaryColor,
+          ),
+        ),
         alignment: Alignment.centerLeft,
       ),
       elevation: 0.0,
@@ -71,11 +66,13 @@ class _EventPage extends State<EventPage> {
         IconButton(
           icon: Icon(
             Icons.bookmark_border_outlined,
-            color: isFavoriteButPressed ? Colors.orangeAccent : Colors.white,
+            color: _isFavoriteButPressed
+                ? Colors.orangeAccent
+                : Theme.of(context).iconTheme.color,
           ),
           onPressed: () {
             setState(() {
-              isFavoriteButPressed = !isFavoriteButPressed;
+              _isFavoriteButPressed = !_isFavoriteButPressed;
             });
           },
         ),
@@ -83,61 +80,58 @@ class _EventPage extends State<EventPage> {
     );
   }
 
-  Widget _buildEventPageBody() {
+  GestureDetector get eventPageBody {
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
+      onTap: () => FocusScope.of(context).nextFocus(),
       child: Column(
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).backgroundColor,
                 borderRadius: BorderRadius.all(
                   Radius.circular(25.0),
                 ),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                child: _buildEventMessageListView(),
+                child: eventMessageListView,
               ),
             ),
           ),
-          _buildEventMessageComposer(),
+          eventMessageComposer,
         ],
       ),
     );
   }
 
-  Widget _buildEventMessageListView() {
+  Widget get eventMessageListView {
     return ListView.builder(
       reverse: true,
       padding: EdgeInsets.only(top: 15.0),
-      itemCount: eventMessagesList.length,
+      itemCount: _listViewSuggestion.eventMessagesList.length,
       itemBuilder: (context, index) {
-        EventMessage eventMessage = eventMessagesList[index];
-        return _buildEventAndFavoriteMessage(eventMessage);
+        final eventMessage = _listViewSuggestion.eventMessagesList[index];
+        return _eventAndFavoriteMessage(eventMessage);
       },
     );
   }
 
-  Widget _buildEventAndFavoriteMessage(EventMessage eventMessage) {
-    if ((widget.title == eventMessage.nameOfSuggestion &&
-            eventMessage.isFavorite &&
-            isFavoriteButPressed) ||
-        (widget.title == eventMessage.nameOfSuggestion &&
-            !isFavoriteButPressed)) {
-      return _buildEventMessage(eventMessage);
+  Widget _eventAndFavoriteMessage(EventMessage eventMessage) {
+    if ((eventMessage.isFavorite && _isFavoriteButPressed) ||
+        (!_isFavoriteButPressed)) {
+      return _eventMessage(eventMessage, false);
     } else {
       return Container();
     }
   }
 
-  Widget _buildEventMessage(EventMessage eventMessage) {
+  Widget _eventMessage(EventMessage eventMessage, bool isSelected) {
     return GestureDetector(
       onLongPress: () {
-        setState(() {
-          return _buildBottomSheet(context, eventMessage);
-        });
+        isSelected
+            ? () {}
+            : setState(() => _bottomSheet(context, eventMessage));
       },
       child: Row(
         children: [
@@ -149,7 +143,7 @@ class _EventPage extends State<EventPage> {
             ),
             padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
             decoration: BoxDecoration(
-              color: Color(0xFFFFEFEE),
+              color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(25.0),
                 topRight: Radius.circular(25.0),
@@ -171,78 +165,86 @@ class _EventPage extends State<EventPage> {
                   SizedBox(
                     height: 5.0,
                   ),
-                  Text(
-                    eventMessage.text,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 17.0,
-                    ),
-                  ),
+                  eventMessage.isImageMessage
+                      ? Image(image: FileImage(eventMessage.image.file))
+                      : Text(
+                          eventMessage.text,
+                          maxLines: isSelected ? 2 : null,
+                          style: TextStyle(
+                            color: Theme.of(context).accentColor,
+                            fontSize: 17.0,
+                          ),
+                        ),
                 ],
               ),
             ),
           ),
-          IconButton(
-            icon: eventMessage.isFavorite
-                ? Icon(
-                    Icons.bookmark,
-                    color: Colors.orangeAccent,
-                  )
-                : Icon(Icons.bookmark_border_outlined),
-            onPressed: () {
-              setState(() {
-                eventMessage.isFavorite = !eventMessage.isFavorite;
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEventMessageComposer() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5.0),
-      height: 70.0,
-      color: Theme.of(context).primaryColor,
-      child: Row(
-        children: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add_circle),
-            iconSize: 25.0,
-            color: Colors.white,
-            onPressed: () {},
-          ),
-          _buildInpEventMessageTextField(),
-          isWriting
-              ? IconButton(
-                  icon: Icon(Icons.send),
-                  iconSize: 25.0,
-                  color: Colors.white,
-                  onPressed: () {
-                    _sendIconPressed();
-                  },
-                )
+          isSelected
+              ? Container()
               : IconButton(
-                  icon: Icon(Icons.photo),
-                  iconSize: 25.0,
-                  color: Colors.white,
-                  onPressed: () => _showImageSelectionDialog(),
+                  icon: eventMessage.isFavorite
+                      ? Icon(
+                          Icons.bookmark,
+                          color: Colors.orangeAccent,
+                        )
+                      : Icon(
+                          Icons.bookmark_border_outlined,
+                          color: Provider.of<ThemeProvider>(context).isDarkMode
+                              ? Theme.of(context).accentColor
+                              : Colors.black54,
+                        ),
+                  onPressed: () {
+                    setState(() {
+                      eventMessage.isFavorite = !eventMessage.isFavorite;
+                    });
+                  },
                 ),
         ],
       ),
     );
   }
 
-  Widget _buildInpEventMessageTextField() {
+  Container get eventMessageComposer {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5.0),
+      height: 70.0,
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Row(
+        children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.widgets_outlined),
+            iconSize: 25.0,
+            onPressed: () {},
+          ),
+          inputEventMessageTextField,
+          _isWriting
+              ? IconButton(
+                  icon: Icon(Icons.send),
+                  iconSize: 25.0,
+                  onPressed: _sendIconPressed,
+                  tooltip: 'Add message',
+                )
+              : IconButton(
+                  icon: Icon(Icons.photo),
+                  iconSize: 25.0,
+                  onPressed: _showImageSelectionDialog,
+                  tooltip: 'Add image',
+                ),
+        ],
+      ),
+    );
+  }
+
+  Expanded get inputEventMessageTextField {
     return Expanded(
       child: TextField(
-        controller: _textEditingController,
+        controller:
+            _isEditing ? TextEditingController() : _textEditingController,
         textCapitalization: TextCapitalization.sentences,
         onChanged: (value) {
-          (value.length > 0 && value.trim() != "")
-              ? _setIsWriting(true)
-              : _setIsWriting(false);
+          (value.isNotEmpty && value.trim() != '')
+              ? isWriting = true
+              : isWriting = false;
         },
         decoration: InputDecoration(
           hintText: 'Enter event',
@@ -251,7 +253,7 @@ class _EventPage extends State<EventPage> {
           ),
           border: OutlineInputBorder(
             borderRadius: const BorderRadius.all(
-              const Radius.circular(25.0),
+              Radius.circular(25.0),
             ),
             borderSide: BorderSide.none,
           ),
@@ -264,25 +266,26 @@ class _EventPage extends State<EventPage> {
   }
 
   void _sendIconPressed() {
-    eventMessagesList.insert(
+    _listViewSuggestion.eventMessagesList.insert(
       0,
       EventMessage(
-          widget.title,
-          DateFormat.yMMMd().add_jm().format(new DateTime.now()),
-          _textEditingController.text,
-          false),
+        DateFormat.yMMMd().add_jm().format(DateTime.now()),
+        _textEditingController.text,
+        false,
+        false,
+      ),
     );
     _textEditingController.clear();
-    _setIsWriting(false);
+    isWriting = false;
   }
 
-  void _setIsWriting(bool isWriting) {
+  set isWriting(bool isWriting) {
     setState(() {
-      this.isWriting = isWriting;
+      _isWriting = isWriting;
     });
   }
 
-  _showImageSelectionDialog() {
+  Future<Object> _showImageSelectionDialog() {
     return showGeneralDialog(
       barrierDismissible: false,
       context: context,
@@ -294,22 +297,21 @@ class _EventPage extends State<EventPage> {
             curve: Curves.elasticOut,
             reverseCurve: Curves.easeOutCubic,
           ),
-          child: _buildCustomDialogImageSelect(),
+          child: customDialogImageSelect,
         );
       },
-      pageBuilder: (BuildContext context, Animation animation,
-          Animation secondaryAnimation) {
+      pageBuilder: (context, animation, secondaryAnimation) {
         return null;
       },
     );
   }
 
-  Widget _buildCustomDialogImageSelect() {
+  Widget get customDialogImageSelect {
     return CustomDialog.imageSelect(
-      title: "Adding an image",
-      content: "Select an image source",
-      firstBtnText: "Gallery",
-      secondBtnText: "Camera",
+      title: 'Adding an image',
+      content: 'Select an image source',
+      firstBtnText: 'Gallery',
+      secondBtnText: 'Camera',
       icon: Icon(
         Icons.photo,
         color: Colors.white,
@@ -321,64 +323,107 @@ class _EventPage extends State<EventPage> {
     );
   }
 
-  //temporary check of the function
-  void _selectedGallery() => print('Gallery');
+  set imageFile(File image) {
+    setState(() => _imageFile = image);
+  }
 
-  //temporary check of the function
-  void _selectedCamera() => print('Camera');
+  Future _selectedGallery() async {
+    final file = await ImagePicker().getImage(source: ImageSource.gallery);
+    addImageInEventMessagesList(file);
+  }
 
-  void _buildBottomSheet(BuildContext context, EventMessage eventMessage) {
+  Future _selectedCamera() async {
+    final file = await ImagePicker().getImage(source: ImageSource.camera);
+    addImageInEventMessagesList(file);
+  }
+
+  void addImageInEventMessagesList(PickedFile file) {
+    if (file != null) {
+      imageFile = File(file.path);
+      _listViewSuggestion.eventMessagesList.insert(
+        0,
+        EventMessage(
+          DateFormat.yMMMd().add_jm().format(DateTime.now()),
+          null,
+          false,
+          true,
+          FileImage(File(_imageFile.path)),
+        ),
+      );
+    }
+  }
+
+  void _bottomSheet(BuildContext context, EventMessage eventMessage) {
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         context: context,
-        builder: (BuildContext context) {
+        builder: (context) {
           return Container(
             decoration: BoxDecoration(
-              color: Color.fromRGBO(236, 67, 67, 0.9),
+              color: Theme.of(context).bottomSheetTheme.backgroundColor,
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(25.0),
                 topLeft: Radius.circular(25.0),
               ),
             ),
-            child: _buildStructureBottomSheet(eventMessage),
+            child: structureBottomSheet(eventMessage),
           );
         });
   }
 
-  Widget _buildStructureBottomSheet(EventMessage eventMessage) {
+  Widget structureBottomSheet(EventMessage eventMessage) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        _buildListTile(
+        eventMessage.isImageMessage
+            ? Padding(
+                padding: EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Image',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 25.0,
+                  ),
+                ),
+              )
+            : _eventMessage(eventMessage, true),
+        listTile(
           context,
           'Forward',
           Icons.arrow_back_outlined,
           _forwardEventMessage,
           eventMessage,
         ),
-        _buildListTile(
+        eventMessage.isImageMessage
+            ? Container()
+            : listTile(
+                context,
+                'Copy',
+                Icons.copy,
+                _copyEventMessage,
+                eventMessage,
+              ),
+        eventMessage.isImageMessage
+            ? Container()
+            : listTile(
+                context,
+                'Edit',
+                Icons.edit,
+                _editEventMessage,
+                eventMessage,
+              ),
+        listTile(
           context,
-          'Copy',
-          Icons.copy,
-          _copyEventMessage,
-          eventMessage,
-        ),
-        _buildListTile(
-          context,
-          'Edit',
-          Icons.edit,
-          _editEventMessage,
-          eventMessage,
-        ),
-        _buildListTile(
-          context,
-          'Add to favorites',
+          eventMessage.isFavorite
+              ? 'Remove from favorites'
+              : 'Add to favorites',
           Icons.bookmark_border_outlined,
           _addToFavorites,
           eventMessage,
         ),
-        _buildListTile(
+        listTile(
           context,
           'Delete',
           Icons.delete,
@@ -389,18 +434,18 @@ class _EventPage extends State<EventPage> {
     );
   }
 
-  ListTile _buildListTile(BuildContext context, String name, IconData icon,
+  ListTile listTile(BuildContext context, String name, IconData icon,
       Function action, EventMessage eventMessage) {
     _bottomSheetEventMessage = eventMessage;
     return ListTile(
       leading: Icon(
         icon,
-        color: Colors.white,
+        color: Theme.of(context).iconTheme.color,
       ),
       title: Text(
         name,
         style: TextStyle(
-          color: Colors.white,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
       onTap: () {
@@ -410,26 +455,27 @@ class _EventPage extends State<EventPage> {
     );
   }
 
-  _forwardEventMessage() {
+  void _forwardEventMessage() {
     setState(() {
       //will be implemented
       print('forwardEventMessage');
     });
   }
 
-  _copyEventMessage() {
+  void _copyEventMessage() {
     setState(() {
-      Clipboard.setData(new ClipboardData(text: _bottomSheetEventMessage.text));
+      Clipboard.setData(ClipboardData(text: _bottomSheetEventMessage.text));
     });
   }
 
-  _editEventMessage() {
+  void _editEventMessage() {
     setState(() {
       _showEditEventMessageCustomDialog(_bottomSheetEventMessage);
     });
   }
 
-  _showEditEventMessageCustomDialog(EventMessage eventMessage) {
+  Future<Object> _showEditEventMessageCustomDialog(EventMessage eventMessage) {
+    _isEditing = true;
     _textEditingController.text = eventMessage.text;
     return showGeneralDialog(
       barrierDismissible: false,
@@ -443,10 +489,10 @@ class _EventPage extends State<EventPage> {
             reverseCurve: Curves.easeOutCubic,
           ),
           child: CustomDialog.editEventMessage(
-            title: "Edit the text",
-            content: "Edit your event message",
-            firstBtnText: "Cancel",
-            secondBtnText: "Edit",
+            title: 'Edit the text',
+            content: 'Edit your event message',
+            firstBtnText: 'Cancel',
+            secondBtnText: 'Save',
             icon: Icon(
               Icons.edit,
               color: Colors.white,
@@ -460,8 +506,7 @@ class _EventPage extends State<EventPage> {
           ),
         );
       },
-      pageBuilder: (BuildContext context, Animation animation,
-          Animation secondaryAnimation) {
+      pageBuilder: (context, animation, secondaryAnimation) {
         return null;
       },
     );
@@ -470,19 +515,29 @@ class _EventPage extends State<EventPage> {
   //temporary check of the function
   void _selectedCancel() => print('Cancel');
 
-  //temporary check of the function
-  void _selectedEdit() => print('Edit');
+  void _selectedEdit() {
+    setState(() {
+      if (_textEditingController.text.isNotEmpty) {
+        var index = _listViewSuggestion.eventMessagesList
+            .indexOf(_bottomSheetEventMessage);
+        _listViewSuggestion.eventMessagesList[index].text =
+            _textEditingController.text;
+        _textEditingController.clear();
+      }
+      _isEditing = false;
+    });
+  }
 
-  _addToFavorites() {
+  void _addToFavorites() {
     setState(() {
       _bottomSheetEventMessage.isFavorite =
           !_bottomSheetEventMessage.isFavorite;
     });
   }
 
-  _deleteEventMessage() {
+  void _deleteEventMessage() {
     setState(() {
-      eventMessagesList.remove(_bottomSheetEventMessage);
+      _listViewSuggestion.eventMessagesList.remove(_bottomSheetEventMessage);
     });
   }
 }
