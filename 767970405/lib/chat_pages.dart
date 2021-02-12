@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_chat_journal/customIcon/my_flutter_app_icons.dart';
+import 'screen_message.dart';
+import 'customIcon/my_flutter_app_icons.dart';
 
 class ChatPages extends StatefulWidget {
   @override
@@ -22,7 +23,7 @@ class _ChatPagesState extends State<ChatPages> {
           if (i == 0) return _buildBot();
           return _buildRow(pages[i - 1]);
         },
-        separatorBuilder: (BuildContext context, int index) => Divider());
+        separatorBuilder: (context, index) => Divider());
   }
 
   Widget _buildBot() {
@@ -56,7 +57,15 @@ class _ChatPagesState extends State<ChatPages> {
 
   Widget _buildRow(PropertyPage page) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (context) {
+              return ScreenMessage();
+            },
+          ),
+        );
+      },
       child: ListTile(
         title: Text(
           page.text,
