@@ -1,5 +1,6 @@
 .dart_tool
 
+
 .idea
 
 .android
@@ -28,4 +29,3 @@ analysis_options.yaml
 chat_journal.iml
 
 pubspec.lock
-
