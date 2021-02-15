@@ -43,7 +43,12 @@ class _EventPageState extends State<EventPage> {
       title: Wrap(
         children: [
           Icon(page.icon),
-          Text(page.title),
+          Text(
+            page.title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );

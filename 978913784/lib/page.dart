@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class JournalPage {
   String title;
   IconData icon;
+  bool isPinned = false;
   final List<Event> _events = <Event>[];
 
   JournalPage(this.title, this.icon);

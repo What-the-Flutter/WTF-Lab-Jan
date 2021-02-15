@@ -19,18 +19,20 @@ final List<IconData> iconList = [
 ];
 
 class EditPage extends StatefulWidget {
-  EditPage({@required this.page});
+  EditPage({@required this.page, @required this.title});
 
   final JournalPage page;
+  final String title;
 
   @override
-  _EditPageState createState() => _EditPageState(page);
+  _EditPageState createState() => _EditPageState(page, title);
 }
 
 class _EditPageState extends State<EditPage> {
-  _EditPageState(this.page);
+  _EditPageState(this.page, this.title);
 
   final JournalPage page;
+  final String title;
   final _controller = TextEditingController();
   bool isAllowed = true;
 
@@ -43,12 +45,21 @@ class _EditPageState extends State<EditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: _appBar,
+      body: _body,
+      backgroundColor: AppThemeData.of(context).mainColor,
+    );
+  }
+
+  Widget get _appBar => AppBar(
         leading: IconButton(
           onPressed: () => setState(() {
             Navigator.pop(context, false);
           }),
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppThemeData.of(context).accentTextColor,
+          ),
         ),
         backgroundColor: AppThemeData.of(context).accentColor,
         actions: [
@@ -57,82 +68,109 @@ class _EditPageState extends State<EditPage> {
               page.title = _controller.text;
               Navigator.pop(context, isAllowed);
             }),
-            icon: Icon(isAllowed ? Icons.check : Icons.close),
+            icon: Icon(
+              isAllowed ? Icons.check : Icons.close,
+              color: AppThemeData.of(context).accentTextColor,
+            ),
           ),
         ],
-        title: Text('New page'),
-      ),
-      body: Container(
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppThemeData.of(context).accentTextColor,
+          ),
+        ),
+      );
+
+  Widget get _body => Container(
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: CircleAvatar(
-                    maxRadius: 20,
-                    foregroundColor: AppThemeData.of(context).accentTextColor,
-                    backgroundColor: AppThemeData.of(context).accentColor,
-                    child: Icon(
-                      page.icon,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 5,
-                  child: TextField(
-                    onChanged: (text) {
-                      setState(() {
-                        isAllowed = text.isNotEmpty;
-                      });
-                    },
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Write page name...',
-                      hintStyle: TextStyle(
-                        color: AppThemeData.of(context)
-                            .mainTextColor
-                            .withOpacity(0.5),
-                      ),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _pageInfo,
             Expanded(
-              child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 5,
-                  ),
-                  itemCount: iconList.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
+              child: GridView.extent(
+                maxCrossAxisExtent: 60,
+                padding: EdgeInsets.all(10),
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                children: [
+                  ...iconList.map(
+                    (e) => GestureDetector(
                       onTap: () {
                         setState(() {
-                          page.icon = iconList[index];
+                          page.icon = e;
                         });
                       },
                       child: Center(
                         child: Wrap(
                           children: [
                             CircleAvatar(
-                              maxRadius: 20,
+                              maxRadius: 30,
                               backgroundColor:
                                   AppThemeData.of(context).accentColor,
                               foregroundColor:
                                   AppThemeData.of(context).accentTextColor,
-                              child: Icon(iconList[index]),
+                              child: Icon(e),
                             )
                           ],
                         ),
                       ),
-                    );
-                  }),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
+      );
+
+  Widget get _pageInfo {
+    Widget _textField() => TextField(
+          onChanged: (text) {
+            setState(() {
+              isAllowed = text.isNotEmpty;
+            });
+          },
+          cursorColor: AppThemeData.of(context).accentTextColor,
+          style: TextStyle(
+            color: AppThemeData.of(context).accentTextColor,
+            fontWeight: FontWeight.bold,
+          ),
+          controller: _controller,
+          decoration: InputDecoration(
+            hintText: 'Write page name...',
+            hintStyle: TextStyle(
+              color: AppThemeData.of(context).accentTextColor.withOpacity(0.5),
+            ),
+            border: InputBorder.none,
+          ),
+        );
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        ),
+        color: AppThemeData.of(context).accentColor,
+      ),
+      padding: EdgeInsets.all(5),
+      margin: EdgeInsets.all(5),
+      child: Row(
+        children: [
+          CircleAvatar(
+            maxRadius: 20,
+            foregroundColor: AppThemeData.of(context).accentTextColor,
+            backgroundColor: AppThemeData.of(context).accentColor,
+            child: Icon(
+              page.icon,
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: _textField(),
+          ),
+        ],
       ),
     );
   }
