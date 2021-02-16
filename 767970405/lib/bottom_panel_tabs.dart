@@ -41,10 +41,12 @@ class _BottomPanelTabsState extends State<BottomPanelTabs> {
           ),
         )
       ],
-      onTap: (int index) {
-        setState(() {
-          _currentIndex = index;
-        });
+      onTap: (index) {
+        setState(
+              () {
+            _currentIndex = index;
+          },
+        );
       },
     );
   }
