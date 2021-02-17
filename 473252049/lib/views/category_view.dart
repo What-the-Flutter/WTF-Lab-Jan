@@ -13,7 +13,7 @@ class CategoryView extends StatelessWidget {
       onLongPress: () => showModalBottomSheet(
           context: context,
           builder: (BuildContext context) {
-            return _bottomSheet(_category);
+            return _bottomSheetContent(_category);
           }),
       child: Container(
         constraints: BoxConstraints(
@@ -61,7 +61,7 @@ class CategoryView extends StatelessWidget {
   }
 }
 
-Widget _bottomSheet(Category category) {
+Widget _bottomSheetContent(Category category) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
