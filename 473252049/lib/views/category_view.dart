@@ -1,3 +1,4 @@
+import 'package:chat_journal/pages/category_chat_page.dart';
 import 'package:flutter/material.dart';
 import '../model/category.dart';
 
@@ -9,7 +10,10 @@ class CategoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => CategoryChatPage(_category)));
+      },
       onLongPress: () => showModalBottomSheet(
           context: context,
           builder: (BuildContext context) {

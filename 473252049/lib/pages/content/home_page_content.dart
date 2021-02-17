@@ -14,13 +14,13 @@ class HomePageContent extends StatelessWidget {
       itemCount: _categories.length + 1,
       separatorBuilder: (context, index) => Divider(),
       itemBuilder: (context, index) => index == 0
-          ? _questionnaireBot(context)
+          ? _questionnaireBotButton(context)
           : CategoryView(_categories[index - 1]),
     );
   }
 }
 
-Widget _questionnaireBot(BuildContext context) {
+Widget _questionnaireBotButton(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
     child: TextButton(
