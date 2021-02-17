@@ -13,7 +13,7 @@ class Category {
   List<Record> get records => _records;
 
   void addRecord(Record record) {
-    _records.add(record);
+    _records.insert(0, record);
   }
 
   void removeRecord(Record record) {

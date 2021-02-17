@@ -43,7 +43,9 @@ class CategoryView extends StatelessWidget {
                   Text(_category.name,
                       style: Theme.of(context).textTheme.headline5),
                   Text(
-                    'Lorem ipsum dolor sit amet consectetur adipiscing elit',
+                    _category.records.isEmpty
+                        ? 'No events. Tap to create first'
+                        : _category.records.last.message,
                     style: Theme.of(context).textTheme.bodyText1,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
