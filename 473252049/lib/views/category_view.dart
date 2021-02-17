@@ -1,4 +1,5 @@
 import 'package:chat_journal/pages/category_chat_page.dart';
+import 'package:chat_journal/views/category_bottom_sheet_view.dart';
 import 'package:flutter/material.dart';
 import '../model/category.dart';
 
@@ -17,7 +18,7 @@ class CategoryView extends StatelessWidget {
       onLongPress: () => showModalBottomSheet(
           context: context,
           builder: (BuildContext context) {
-            return _bottomSheetContent(_category);
+            return CategoryBottomSheetView(_category);
           }),
       child: Container(
         constraints: BoxConstraints(
@@ -65,32 +66,4 @@ class CategoryView extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _bottomSheetContent(Category category) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      ListTile(
-        leading: Icon(Icons.info),
-        title: Text('Info'),
-      ),
-      ListTile(
-        leading: Icon(Icons.pin_drop),
-        title: Text('Pin/Unpin Page'),
-      ),
-      ListTile(
-        leading: Icon(Icons.archive),
-        title: Text('Archive Page'),
-      ),
-      ListTile(
-        leading: Icon(Icons.edit),
-        title: Text('Edit Page'),
-      ),
-      ListTile(
-        leading: Icon(Icons.delete),
-        title: Text('Delete Page'),
-      ),
-    ],
-  );
 }
