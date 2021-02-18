@@ -30,43 +30,9 @@ class CategoryChatPage extends StatelessWidget {
         verticalDirection: VerticalDirection.up,
         children: [
           CreateMessageView(),
-          ChatView(_category),
+          ChatView(_category, key: chatViewStateKey),
         ],
       ),
-      // persistentFooterButtons: [
-      //   Row(
-      //     children: [
-      //       SizedBox(
-      //         width: 40,
-      //         height: 40,
-      //         child: AspectRatio(
-      //           aspectRatio: 1,
-      //           child: TextButton(
-      //             child: Icon(Icons.photo_camera),
-      //             onPressed: () {},
-      //           ),
-      //         ),
-      //       ),
-      //       SizedBox(
-      //         width: MediaQuery.of(context).size.width - 100,
-      //         child: TextField(
-      //           decoration: InputDecoration(hintText: 'Input new record'),
-      //         ),
-      //       ),
-      //       SizedBox(
-      //         width: 40,
-      //         height: 40,
-      //         child: AspectRatio(
-      //           aspectRatio: 1,
-      //           child: TextButton(
-      //             child: Icon(Icons.send),
-      //             onPressed: () {},
-      //           ),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ],
     );
   }
 }

@@ -10,7 +10,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final _children = [
-    HomePageContent(mockCategories),
+    HomePageContent(mockCategories, key: homePageContentStateKey),
     Placeholder(),
     Placeholder(),
     Placeholder(),

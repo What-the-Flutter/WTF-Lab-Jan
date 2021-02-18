@@ -1,40 +1,62 @@
+import 'package:chat_journal/model/record.dart';
+import 'package:chat_journal/pages/content/home_page_content.dart';
+import 'package:chat_journal/views/chat_view.dart';
 import 'package:flutter/material.dart';
 
-class CreateMessageView extends StatelessWidget {
+class CreateMessageView extends StatefulWidget {
+  @override
+  _CreateMessageViewState createState() => _CreateMessageViewState();
+}
+
+class _CreateMessageViewState extends State<CreateMessageView> {
+  final _formKey = GlobalKey<FormState>();
+  final _textEditingController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 60,
-          height: 60,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: TextButton(
-              child: Icon(Icons.photo_camera),
-              onPressed: () {},
+    return Form(
+      key: _formKey,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: TextButton(
+                child: Icon(Icons.photo_camera),
+                onPressed: () {},
+              ),
             ),
           ),
-        ),
-        Expanded(
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: 'Enter Event',
+          Expanded(
+            child: TextFormField(
+              decoration: InputDecoration(
+                hintText: 'Enter Event',
+              ),
+              controller: _textEditingController,
             ),
           ),
-        ),
-        SizedBox(
-          width: 60,
-          height: 60,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: TextButton(
-              child: Icon(Icons.send),
-              onPressed: () {},
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: TextButton(
+                child: Icon(Icons.send),
+                onPressed: () {
+                  chatViewStateKey.currentState.setState(() {
+                    chatViewStateKey.currentState.widget.category
+                        .addRecord(Record(_textEditingController.text));
+                    _textEditingController.clear();
+                  });
+                  homePageContentStateKey.currentState.setState(() {});
+                },
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

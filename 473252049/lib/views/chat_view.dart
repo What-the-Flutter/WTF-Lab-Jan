@@ -3,27 +3,27 @@ import '../views/record_view.dart';
 
 import 'package:flutter/material.dart';
 
-class ChatView extends StatefulWidget {
-  final Category _category;
+final chatViewStateKey = GlobalKey<_ChatViewState>();
 
-  ChatView(this._category);
+class ChatView extends StatefulWidget {
+  final Category category;
+
+  ChatView(this.category, {Key key}) : super(key: key);
 
   @override
-  _ChatViewState createState() => _ChatViewState(_category);
+  _ChatViewState createState() => _ChatViewState();
 }
 
 class _ChatViewState extends State<ChatView> {
-  Category _category;
-
-  _ChatViewState(this._category);
-
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView(
         reverse: true,
         children: [
-          ..._category.records.map((record) => RecordView(record)).toList()
+          ...widget.category.records
+              .map((record) => RecordView(record))
+              .toList()
         ],
       ),
     );
