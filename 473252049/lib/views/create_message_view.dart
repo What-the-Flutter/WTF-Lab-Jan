@@ -45,12 +45,8 @@ class _CreateMessageViewState extends State<CreateMessageView> {
               child: TextButton(
                 child: Icon(Icons.send),
                 onPressed: () {
-                  chatViewStateKey.currentState.setState(() {
-                    chatViewStateKey.currentState.widget.category
-                        .addRecord(Record(_textEditingController.text));
-                    _textEditingController.clear();
-                  });
-                  homePageContentStateKey.currentState.setState(() {});
+                  addRecord(Record(_textEditingController.text));
+                  _textEditingController.clear();
                 },
               ),
             ),
@@ -59,4 +55,11 @@ class _CreateMessageViewState extends State<CreateMessageView> {
       ),
     );
   }
+}
+
+void addRecord(Record record) {
+  chatViewStateKey.currentState.setState(() {
+    chatViewStateKey.currentState.widget.category.addRecord(record);
+  });
+  homePageContentStateKey.currentState.setState(() {});
 }

@@ -13,7 +13,10 @@ class CategoryView extends StatelessWidget {
     return TextButton(
       onPressed: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => CategoryChatPage(_category)));
+            builder: (context) => CategoryChatPage(
+                  _category,
+                  key: categoryChatPageKey,
+                )));
       },
       onLongPress: () => showModalBottomSheet(
           context: context,
