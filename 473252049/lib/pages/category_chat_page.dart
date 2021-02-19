@@ -7,18 +7,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-final categoryChatPageKey = GlobalKey<_CategoryChatPageState>();
-var categoryChatPageState = categoryChatPageKey.currentState;
+final categoryChatPageStateKey = GlobalKey<_CategoryChatPageState>();
+var categoryChatPageState = categoryChatPageStateKey.currentState;
 var categoryChatPage = categoryChatPageState.widget;
 
-class CategoryChatPage extends StatefulWidget {
-  final Category _category;
+var onlyFavoritesAreShowing = false;
 
-  bool get hasHighlightedRecord => _category.highlightedRecords.isNotEmpty;
+class CategoryChatPage extends StatefulWidget {
+  final Category category;
+
+  bool get hasHighlightedRecord => category.highlightedRecords.isNotEmpty;
 
   bool get hasNotHighlightedRecord => !hasHighlightedRecord;
 
-  const CategoryChatPage(this._category, {Key key}) : super(key: key);
+  CategoryChatPage(this.category, {Key key}) : super(key: key);
 
   @override
   _CategoryChatPageState createState() => _CategoryChatPageState();
@@ -29,17 +31,23 @@ class _CategoryChatPageState extends State<CategoryChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: widget.hasNotHighlightedRecord
-          ? defaultAppBar(widget._category.name)
+          ? defaultAppBar(widget.category.name)
           : recordIsActiveAppBar(),
       body: Column(
         verticalDirection: VerticalDirection.up,
         children: [
-          CreateMessageView(),
-          ChatView(widget._category, key: chatViewStateKey),
+          CreateMessageView(key: createMessageViewStateKey),
+          ChatView(widget.category.records, key: chatViewStateKey),
         ],
       ),
     );
   }
+}
+
+void updateCategoryChatPage() {
+  categoryChatPageState = categoryChatPageStateKey.currentState;
+  categoryChatPage = categoryChatPageState.widget;
+  categoryChatPageState.setState(() {});
 }
 
 AppBar defaultAppBar(String categoryName) {
@@ -55,7 +63,7 @@ AppBar recordIsActiveAppBar() {
     leading: IconButton(
       icon: Icon(Icons.close),
       onPressed: () {
-        categoryChatPage._category.unhighlight();
+        categoryChatPage.category.unhighlight();
         updateCategoryChatPage();
       },
     ),
@@ -70,7 +78,18 @@ List<Widget> defaultActions() {
     ),
     IconButton(
       icon: Icon(Icons.bookmark_outline),
-      onPressed: () {},
+      onPressed: () {
+        onlyFavoritesAreShowing = !onlyFavoritesAreShowing;
+        chatViewStateKey.currentState.setState(() {
+          if (onlyFavoritesAreShowing) {
+            chatViewStateKey.currentState.widget.records =
+                categoryChatPage.category.records;
+          } else {
+            chatViewStateKey.currentState.widget.records =
+                categoryChatPage.category.favoritesRecords;
+          }
+        });
+      },
     ),
   ];
 }
@@ -78,25 +97,34 @@ List<Widget> defaultActions() {
 List<Widget> recordIsActiveActions() {
   return [
     IconButton(icon: Icon(Icons.reply), onPressed: () {}),
+    if (categoryChatPage.category.highlightedRecords.length < 2)
+      IconButton(
+          icon: Icon(Icons.edit),
+          onPressed: () {
+            textFieldController.value = TextEditingValue(
+                text:
+                    categoryChatPage.category.highlightedRecords.first.message);
+            createMessageViewStateKey.currentState.isEditing = true;
+          }),
     IconButton(
         icon: Icon(Icons.copy),
         onPressed: () {
-          copyRecordsToClipboard(categoryChatPage._category.highlightedRecords);
-          categoryChatPage._category.unhighlight();
+          copyRecordsToClipboard(categoryChatPage.category.highlightedRecords);
+          categoryChatPage.category.unhighlight();
           updateCategoryChatPage();
           showCopiedToClipboardSnackBar();
         }),
     IconButton(
         icon: Icon(Icons.bookmark_border),
         onPressed: () {
-          categoryChatPage._category.changeHighlightedIsFavorite();
-          categoryChatPage._category.unhighlight();
+          categoryChatPage.category.changeHighlightedIsFavorite();
+          categoryChatPage.category.unhighlight();
           updateCategoryChatPage();
         }),
     IconButton(
         icon: Icon(Icons.delete),
         onPressed: () {
-          categoryChatPage._category.removeHighlighted();
+          categoryChatPage.category.removeHighlighted();
           updateCategoryChatPage();
         }),
   ];

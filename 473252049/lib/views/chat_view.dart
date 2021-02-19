@@ -2,13 +2,17 @@ import '../model/category.dart';
 import '../views/record_view.dart';
 
 import 'package:flutter/material.dart';
+import '../model/record.dart';
 
 final chatViewStateKey = GlobalKey<_ChatViewState>();
+var chatViewState = chatViewStateKey.currentState;
+var chatView = chatViewState.widget;
 
 class ChatView extends StatefulWidget {
-  final Category category;
+  List<Record> records;
+  bool favorites = false;
 
-  ChatView(this.category, {Key key}) : super(key: key);
+  ChatView(this.records, {Key key}) : super(key: key);
 
   @override
   _ChatViewState createState() => _ChatViewState();
@@ -21,11 +25,15 @@ class _ChatViewState extends State<ChatView> {
       child: ListView(
         reverse: true,
         children: [
-          ...widget.category.records
-              .map((record) => RecordView(record))
-              .toList()
+          ...widget.records.map((record) => RecordView(record)).toList()
         ],
       ),
     );
   }
+}
+
+void updateChatView() {
+  chatViewState = chatViewStateKey.currentState;
+  chatView = chatViewState.widget;
+  chatViewState.setState(() {});
 }

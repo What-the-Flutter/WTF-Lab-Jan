@@ -1,16 +1,26 @@
 import 'package:chat_journal/model/record.dart';
+import 'package:chat_journal/pages/category_chat_page.dart';
 import 'package:chat_journal/pages/content/home_page_content.dart';
 import 'package:chat_journal/views/chat_view.dart';
+import 'package:chat_journal/views/record_view.dart';
 import 'package:flutter/material.dart';
 
+final createMessageViewStateKey = GlobalKey<_CreateMessageViewState>();
+
 class CreateMessageView extends StatefulWidget {
+  CreateMessageView({Key key}) : super(key: key);
+
   @override
   _CreateMessageViewState createState() => _CreateMessageViewState();
 }
 
+final textFieldController = TextEditingController();
+final formKey = GlobalKey<FormState>();
+
 class _CreateMessageViewState extends State<CreateMessageView> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = formKey;
   final _textEditingController = TextEditingController();
+  var isEditing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +47,7 @@ class _CreateMessageViewState extends State<CreateMessageView> {
                 decoration: InputDecoration(
                   hintText: 'Enter Event',
                 ),
-                controller: _textEditingController,
+                controller: textFieldController,
                 maxLines: null,
               ),
             ),
@@ -50,8 +60,19 @@ class _CreateMessageViewState extends State<CreateMessageView> {
               child: TextButton(
                 child: Icon(Icons.send),
                 onPressed: () {
-                  addRecord(Record(_textEditingController.text));
-                  _textEditingController.clear();
+                  if (isEditing) {
+                    categoryChatPage.category.highlightedRecords.first.message =
+                        textFieldController.text;
+                    categoryChatPage.category.unhighlight();
+                    isEditing = false;
+                  } else {
+                    categoryChatPageStateKey.currentState.widget.category
+                        .addRecord(Record(textFieldController.text));
+                  }
+                  updateCategoryChatPage();
+                  textFieldController.clear();
+                  homePageContentStateKey.currentState.setState(() {});
+                  print(categoryChatPage.category.records.length);
                 },
               ),
             ),
@@ -60,11 +81,4 @@ class _CreateMessageViewState extends State<CreateMessageView> {
       ),
     );
   }
-}
-
-void addRecord(Record record) {
-  chatViewStateKey.currentState.setState(() {
-    chatViewStateKey.currentState.widget.category.addRecord(record);
-  });
-  homePageContentStateKey.currentState.setState(() {});
 }

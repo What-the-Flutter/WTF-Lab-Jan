@@ -15,12 +15,15 @@ class Category {
   List<Record> get highlightedRecords =>
       _records.where((r) => r.isHighlighted).toList();
 
+  List<Record> get favoritesRecords =>
+      _records.where((r) => r.isFavorite).toList();
+
   void addRecord(Record record) {
     _records.insert(0, record);
   }
 
   void unhighlight() {
-    for (var record in _records) {
+    for (var record in highlightedRecords) {
       record.isHighlighted = false;
     }
   }

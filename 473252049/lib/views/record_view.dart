@@ -1,5 +1,6 @@
 import 'package:chat_bubbles/bubbles/bubble_normal.dart';
 import 'package:chat_journal/pages/category_chat_page.dart';
+import 'package:chat_journal/views/chat_view.dart';
 import 'package:flutter_chat_bubble/bubble_type.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
@@ -67,10 +68,4 @@ class _RecordViewState extends State<RecordView> {
       ),
     );
   }
-}
-
-void updateCategoryChatPage() {
-  categoryChatPageState = categoryChatPageKey.currentState;
-  categoryChatPage = categoryChatPageState.widget;
-  categoryChatPageState.setState(() {});
 }
