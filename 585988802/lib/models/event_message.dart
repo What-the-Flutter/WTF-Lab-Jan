@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'category.dart';
 
 class EventMessage {
-  // String nameOfSuggestion;
   String time;
   String text;
   bool isFavorite;
   FileImage image;
   bool isImageMessage;
+  Category category;
 
-  EventMessage(this.time, this.text, this.isFavorite,
-      this.isImageMessage,
-      [this.image]);
+  EventMessage(this.time, this.text, this.isFavorite, this.isImageMessage,
+      [this.image, this.category]);
 }

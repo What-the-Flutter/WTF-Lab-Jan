@@ -2,17 +2,7 @@
 
 .idea
 
-.android
-
-assets
-
 .build
-
-integration_test
-
-ios
-
-test
 
 .flutter-plugins
 
@@ -27,3 +17,9 @@ analysis_options.yaml
 project_app.iml
 
 pubspec.lock
+/ios/
+/integration_test/
+/assets/
+/test/
+/web/
+/android/

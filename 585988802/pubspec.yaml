@@ -19,6 +19,10 @@ dependencies:
   intl: ^0.16.1
   cupertino_icons: ^1.0.1
   provider: ^4.3.2+3
+  flutter_slidable: ^0.5.7
+  bloc: ^6.0.0
+  flutter_bloc: ^6.0.0
+  equatable: ^1.0.0
 
 
 dev_dependencies:
