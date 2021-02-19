@@ -27,13 +27,9 @@
   <component name="ChangeListManager">
     <list default="true" id="44f63016-6dfc-453c-a28f-6d4dc35bd933" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/lib/bottom_panel_tabs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/bottom_panel_tabs.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/767970405/lib/chat_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/chat_pages.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/767970405/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/767970405/lib/screen_message.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/screen_message.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugin_registrant.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +58,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="dart.analysis.tool.window.visible" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../durt_first_app" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RunManager">
@@ -85,6 +82,14 @@
       <option name="presentableId" value="Default" />
       <updated>1613664658912</updated>
     </task>
+    <task id="LOCAL-00001" summary="A modified approach to the treatment of selected messages and refactor code.">
+      <created>1613712614027</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1613712614027</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -114,7 +119,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Add" />
     <MESSAGE value="Add files" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add files" />
+    <MESSAGE value="A modified approach to the treatment of selected messages and refactor code." />
+    <option name="LAST_COMMIT_MESSAGE" value="A modified approach to the treatment of selected messages and refactor code." />
   </component>
   <component name="WindowStateProjectService">
     <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1613664874855">
@@ -129,22 +135,26 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="93" y="93" width="1350" height="638" key="DiffContextDialog/0.0.1536.824@0.0.1536.824" timestamp="1613704084820" />
-    <state width="1491" height="56" key="GridCell.Tab.0.bottom" timestamp="1613712448879">
+    <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1613724265340">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="56" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1613712448879" />
-    <state width="1491" height="56" key="GridCell.Tab.0.center" timestamp="1613712448879">
+    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1613724265340" />
+    <state width="1491" height="223" key="GridCell.Tab.0.bottom" timestamp="1613726211410">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="56" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1613712448879" />
-    <state width="1491" height="56" key="GridCell.Tab.0.left" timestamp="1613712448878">
+    <state width="1491" height="223" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1613726211410" />
+    <state width="1491" height="223" key="GridCell.Tab.0.center" timestamp="1613726211410">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="56" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1613712448878" />
-    <state width="1491" height="56" key="GridCell.Tab.0.right" timestamp="1613712448879">
+    <state width="1491" height="223" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1613726211410" />
+    <state width="1491" height="223" key="GridCell.Tab.0.left" timestamp="1613726211410">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="56" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1613712448879" />
+    <state width="1491" height="223" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1613726211410" />
+    <state width="1491" height="223" key="GridCell.Tab.0.right" timestamp="1613726211410">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1491" height="223" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1613726211410" />
     <state x="575" y="130" key="git4idea.branch.GitBranchIsNotFullyMergedDialog" timestamp="1613705521915">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

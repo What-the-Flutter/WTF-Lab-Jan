@@ -8,13 +8,20 @@ import 'list_item.dart';
 enum ModeOperation { input, selection, edit }
 
 class ScreenMessage extends StatefulWidget {
+  static const routeName = '/ScreenMsg';
+  final String title;
+  final List<ListItem<String>> messages;
+
+  const ScreenMessage({Key key, this.title, this.messages}) : super(key: key);
+
   @override
-  _ScreenMessageState createState() => _ScreenMessageState();
+  _ScreenMessageState createState() => _ScreenMessageState(title, messages);
 }
 
 class _ScreenMessageState extends State<ScreenMessage> {
   final _controller = TextEditingController();
-  final List<ListItem<String>> _messages = <ListItem<String>>[];
+  final List<ListItem<String>> _messages;
+  final String _title;
   ModeOperation _currentMode = ModeOperation.input;
   int _countDeletedMessage = 0;
 
@@ -22,6 +29,8 @@ class _ScreenMessageState extends State<ScreenMessage> {
   String _clipBoard = '';
 
   final _picker = ImagePicker();
+
+  _ScreenMessageState(this._title, this._messages);
 
   @override
   void dispose() {
@@ -219,7 +228,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
     return AppBar(
       //leading: Icon(Icons.arrow_back_outlined),
       title: Center(
-        child: Text('Hello'),
+        child: Text(_title),
       ),
       actions: <Widget>[
         Padding(

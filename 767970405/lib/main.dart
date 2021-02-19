@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'bottom_add_chat.dart';
 import 'bottom_panel_tabs.dart';
 import 'chat_pages.dart';
+import 'screen_message.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,6 +30,22 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: StartWindow(),
+      onGenerateRoute: (settings) {
+        if(settings.name == ScreenMessage.routeName) {
+          final PropertyPage args = settings.arguments;
+          return MaterialPageRoute<void>(
+              builder: (context) {
+                return ScreenMessage(
+                  title: args.title,
+                  messages: args.message,
+                );
+              }
+          );
+        } else {
+          assert(false, 'Need to implement ${settings.name}');
+          return null;
+        }
+      },
     );
   }
 }
