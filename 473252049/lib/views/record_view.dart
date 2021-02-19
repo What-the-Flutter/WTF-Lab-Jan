@@ -52,6 +52,8 @@ class _RecordViewState extends State<RecordView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                if (widget._record.image != null)
+                  Image.file(widget._record.image),
                 Text(widget._record.message),
                 if (widget._record.isFavorite)
                   Icon(

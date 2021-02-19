@@ -20,7 +20,7 @@ class CategoryView extends StatelessWidget {
       },
       onLongPress: () => showModalBottomSheet(
           context: context,
-          builder: (BuildContext context) {
+          builder: (context) {
             return CategoryBottomSheetView(_category);
           }),
       child: Container(
@@ -49,7 +49,9 @@ class CategoryView extends StatelessWidget {
                   Text(
                     _category.records.isEmpty
                         ? 'No events. Tap to create first'
-                        : _category.records.first.message,
+                        : _category.records.first.message.isEmpty
+                            ? 'Image record'
+                            : _category.records.first.message,
                     style: Theme.of(context).textTheme.bodyText1,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

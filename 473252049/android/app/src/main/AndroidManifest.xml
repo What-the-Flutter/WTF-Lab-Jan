@@ -2,7 +2,8 @@
     package="by.ilyin.chat_journal">
    <application
         android:label="chat_journal"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+       android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
