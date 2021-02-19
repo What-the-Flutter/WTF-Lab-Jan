@@ -27,9 +27,12 @@ class _RecordViewState extends State<RecordView> {
         },
         onTap: () {
           setState(() {
-            widget._record.isHighlighted
-                ? widget._record.isHighlighted = false
-                : null;
+            if (widget._record.isHighlighted) {
+              widget._record.isHighlighted = false;
+            } else if (categoryChatPageKey
+                .currentState.widget.isRecordHighlighted) {
+              widget._record.isHighlighted = true;
+            }
           });
           updateCategoryChatPage();
         },

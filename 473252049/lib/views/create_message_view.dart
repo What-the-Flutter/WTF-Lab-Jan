@@ -17,6 +17,7 @@ class _CreateMessageViewState extends State<CreateMessageView> {
     return Form(
       key: _formKey,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           SizedBox(
             width: 60,
@@ -30,11 +31,15 @@ class _CreateMessageViewState extends State<CreateMessageView> {
             ),
           ),
           Expanded(
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: 'Enter Event',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  hintText: 'Enter Event',
+                ),
+                controller: _textEditingController,
+                maxLines: null,
               ),
-              controller: _textEditingController,
             ),
           ),
           SizedBox(

@@ -10,6 +10,11 @@ final categoryChatPageKey = GlobalKey<_CategoryChatPageState>();
 class CategoryChatPage extends StatefulWidget {
   final Category _category;
 
+  bool get isRecordHighlighted =>
+      _category.records.where((r) => r.isHighlighted == true).isNotEmpty;
+
+  bool get isNotRecordHighlighted => !isRecordHighlighted;
+
   const CategoryChatPage(this._category, {Key key}) : super(key: key);
 
   @override
@@ -17,17 +22,18 @@ class CategoryChatPage extends StatefulWidget {
 }
 
 class _CategoryChatPageState extends State<CategoryChatPage> {
-  bool get isRecordHighlighted =>
-      widget._category.records.where((r) => r.isHighlighted == true).isNotEmpty;
-
-  bool get isNotRecordHighlighted => !isRecordHighlighted;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: isNotRecordHighlighted
+      appBar: widget.isNotRecordHighlighted
           ? defaultAppBar(widget._category.name)
-          : recordIsActiveAppBar(() {}),
+          : recordIsActiveAppBar(() {
+              setState(() {
+                for (var record in widget._category.records) {
+                  record.isHighlighted = false;
+                }
+              });
+            }),
       body: Column(
         verticalDirection: VerticalDirection.up,
         children: [
