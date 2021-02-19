@@ -44,7 +44,22 @@ class _RecordViewState extends State<RecordView> {
         child: ChatBubble(
           alignment: Alignment.centerRight,
           clipper: ChatBubbleClipper4(type: BubbleType.sendBubble),
-          child: Text(widget._record.message),
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(widget._record.message),
+                if (widget._record.isFavorite)
+                  Icon(
+                    Icons.bookmark,
+                    size: 10,
+                  ),
+              ],
+            ),
+          ),
           backGroundColor: widget._record.isHighlighted
               ? Theme.of(context).highlightColor
               : Theme.of(context).backgroundColor,

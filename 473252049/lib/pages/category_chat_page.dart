@@ -55,9 +55,7 @@ AppBar recordIsActiveAppBar() {
     leading: IconButton(
       icon: Icon(Icons.close),
       onPressed: () {
-        categoryChatPageState.setState(() {
-          categoryChatPage._category.unhighlight();
-        });
+        categoryChatPage._category.unhighlight();
         updateCategoryChatPage();
       },
     ),
@@ -88,7 +86,13 @@ List<Widget> recordIsActiveActions() {
           updateCategoryChatPage();
           showCopiedToClipboardSnackBar();
         }),
-    IconButton(icon: Icon(Icons.favorite_border), onPressed: () {}),
+    IconButton(
+        icon: Icon(Icons.bookmark_border),
+        onPressed: () {
+          categoryChatPage._category.changeHighlightedIsFavorite();
+          categoryChatPage._category.unhighlight();
+          updateCategoryChatPage();
+        }),
     IconButton(
         icon: Icon(Icons.delete),
         onPressed: () {

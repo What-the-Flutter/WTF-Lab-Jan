@@ -39,6 +39,12 @@ class Category {
     removeRecords(highlightedRecords);
   }
 
+  void changeHighlightedIsFavorite() {
+    for (var record in highlightedRecords) {
+      record.changeIsFavorite();
+    }
+  }
+
   void addRecordFromMessage(String recordMessage) {
     _records.add(Record(recordMessage));
   }
