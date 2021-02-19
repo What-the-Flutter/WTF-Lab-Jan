@@ -4,6 +4,7 @@ import 'package:chat_journal/views/create_message_view.dart';
 import 'package:chat_journal/views/record_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 final categoryChatPageKey = GlobalKey<_CategoryChatPageState>();
 
@@ -78,8 +79,32 @@ List<Widget> defaultActions() {
 List<Widget> recordIsActiveActions() {
   return [
     IconButton(icon: Icon(Icons.reply), onPressed: () {}),
-    IconButton(icon: Icon(Icons.copy), onPressed: () {}),
+    IconButton(
+        icon: Icon(Icons.copy),
+        onPressed: () {
+          var buffer = StringBuffer();
+          buffer.writeAll(
+              categoryChatPageKey
+                  .currentState.widget._category.highlightedRecords
+                  .map((r) => r.message)
+                  .toList()
+                  .reversed,
+              '\n');
+          Clipboard.setData(ClipboardData(text: buffer.toString()));
+          categoryChatPageKey.currentState.setState(() {
+            categoryChatPageKey.currentState.widget._category.unhighlight();
+          });
+          showCopiedToClipboardSnackBar();
+        }),
     IconButton(icon: Icon(Icons.favorite_border), onPressed: () {}),
     IconButton(icon: Icon(Icons.delete), onPressed: () {}),
   ];
+}
+
+void showCopiedToClipboardSnackBar() {
+  Scaffold.of(chatViewStateKey.currentContext).showSnackBar(SnackBar(
+    content: Text('Added to clipboard'),
+    behavior: SnackBarBehavior.floating,
+    action: SnackBarAction(label: 'OK', onPressed: () {}),
+  ));
 }

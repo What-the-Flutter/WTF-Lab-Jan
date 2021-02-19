@@ -12,8 +12,17 @@ class Category {
 
   List<Record> get records => _records;
 
+  List<Record> get highlightedRecords =>
+      _records.where((r) => r.isHighlighted).toList();
+
   void addRecord(Record record) {
     _records.insert(0, record);
+  }
+
+  void unhighlight() {
+    for (var record in _records) {
+      record.isHighlighted = false;
+    }
   }
 
   void removeRecord(Record record) {
