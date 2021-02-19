@@ -1,5 +1,11 @@
 import 'package:chat_bubbles/bubbles/bubble_normal.dart';
 import 'package:chat_journal/pages/category_chat_page.dart';
+import 'package:flutter_chat_bubble/bubble_type.dart';
+import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
+import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_2.dart';
+import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_3.dart';
+import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_4.dart';
 
 import '../model/record.dart';
 import 'package:flutter/material.dart';
@@ -35,12 +41,13 @@ class _RecordViewState extends State<RecordView> {
           });
           updateCategoryChatPage();
         },
-        child: BubbleNormal(
-          color: widget._record.isHighlighted == true
+        child: ChatBubble(
+          alignment: Alignment.centerRight,
+          clipper: ChatBubbleClipper4(type: BubbleType.sendBubble),
+          child: Text(widget._record.message),
+          backGroundColor: widget._record.isHighlighted
               ? Theme.of(context).highlightColor
               : Theme.of(context).backgroundColor,
-          isSender: true,
-          text: widget._record.message,
         ),
       ),
     );
