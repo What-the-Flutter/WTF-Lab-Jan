@@ -29,8 +29,7 @@ class _RecordViewState extends State<RecordView> {
           setState(() {
             if (widget._record.isHighlighted) {
               widget._record.isHighlighted = false;
-            } else if (categoryChatPageKey
-                .currentState.widget.isRecordHighlighted) {
+            } else if (categoryChatPage.hasHighlightedRecord) {
               widget._record.isHighlighted = true;
             }
           });
@@ -49,5 +48,7 @@ class _RecordViewState extends State<RecordView> {
 }
 
 void updateCategoryChatPage() {
-  categoryChatPageKey.currentState.setState(() {});
+  categoryChatPageState = categoryChatPageKey.currentState;
+  categoryChatPage = categoryChatPageState.widget;
+  categoryChatPageState.setState(() {});
 }

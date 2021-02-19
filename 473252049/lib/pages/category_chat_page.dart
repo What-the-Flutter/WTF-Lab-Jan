@@ -1,4 +1,5 @@
 import 'package:chat_journal/model/category.dart';
+import 'package:chat_journal/model/record.dart';
 import 'package:chat_journal/views/chat_view.dart';
 import 'package:chat_journal/views/create_message_view.dart';
 import 'package:chat_journal/views/record_view.dart';
@@ -7,14 +8,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 final categoryChatPageKey = GlobalKey<_CategoryChatPageState>();
+var categoryChatPageState = categoryChatPageKey.currentState;
+var categoryChatPage = categoryChatPageState.widget;
 
 class CategoryChatPage extends StatefulWidget {
   final Category _category;
 
-  bool get isRecordHighlighted =>
-      _category.records.where((r) => r.isHighlighted == true).isNotEmpty;
+  bool get hasHighlightedRecord => _category.highlightedRecords.isNotEmpty;
 
-  bool get isNotRecordHighlighted => !isRecordHighlighted;
+  bool get hasNotHighlightedRecord => !hasHighlightedRecord;
 
   const CategoryChatPage(this._category, {Key key}) : super(key: key);
 
@@ -26,15 +28,9 @@ class _CategoryChatPageState extends State<CategoryChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: widget.isNotRecordHighlighted
+      appBar: widget.hasNotHighlightedRecord
           ? defaultAppBar(widget._category.name)
-          : recordIsActiveAppBar(() {
-              setState(() {
-                for (var record in widget._category.records) {
-                  record.isHighlighted = false;
-                }
-              });
-            }),
+          : recordIsActiveAppBar(),
       body: Column(
         verticalDirection: VerticalDirection.up,
         children: [
@@ -53,12 +49,17 @@ AppBar defaultAppBar(String categoryName) {
   );
 }
 
-AppBar recordIsActiveAppBar(void Function() onCloseTap) {
+AppBar recordIsActiveAppBar() {
   return AppBar(
     actions: recordIsActiveActions(),
     leading: IconButton(
       icon: Icon(Icons.close),
-      onPressed: onCloseTap,
+      onPressed: () {
+        categoryChatPageState.setState(() {
+          categoryChatPage._category.unhighlight();
+        });
+        updateCategoryChatPage();
+      },
     ),
   );
 }
@@ -82,23 +83,25 @@ List<Widget> recordIsActiveActions() {
     IconButton(
         icon: Icon(Icons.copy),
         onPressed: () {
-          var buffer = StringBuffer();
-          buffer.writeAll(
-              categoryChatPageKey
-                  .currentState.widget._category.highlightedRecords
-                  .map((r) => r.message)
-                  .toList()
-                  .reversed,
-              '\n');
-          Clipboard.setData(ClipboardData(text: buffer.toString()));
-          categoryChatPageKey.currentState.setState(() {
-            categoryChatPageKey.currentState.widget._category.unhighlight();
-          });
+          copyRecordsToClipboard(categoryChatPage._category.highlightedRecords);
+          categoryChatPage._category.unhighlight();
+          updateCategoryChatPage();
           showCopiedToClipboardSnackBar();
         }),
     IconButton(icon: Icon(Icons.favorite_border), onPressed: () {}),
-    IconButton(icon: Icon(Icons.delete), onPressed: () {}),
+    IconButton(
+        icon: Icon(Icons.delete),
+        onPressed: () {
+          categoryChatPage._category.removeHighlighted();
+          updateCategoryChatPage();
+        }),
   ];
+}
+
+void copyRecordsToClipboard(List<Record> records) {
+  var buffer = StringBuffer();
+  buffer.writeAll(records.map((r) => r.message).toList().reversed, '\n');
+  Clipboard.setData(ClipboardData(text: buffer.toString()));
 }
 
 void showCopiedToClipboardSnackBar() {

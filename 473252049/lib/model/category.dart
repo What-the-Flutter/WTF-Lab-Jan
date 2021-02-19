@@ -25,8 +25,18 @@ class Category {
     }
   }
 
-  void removeRecord(Record record) {
+  void remove(Record record) {
     _records.remove(record);
+  }
+
+  void removeRecords(List<Record> records) {
+    for (var record in records) {
+      _records.remove(record);
+    }
+  }
+
+  void removeHighlighted() {
+    removeRecords(highlightedRecords);
   }
 
   void addRecordFromMessage(String recordMessage) {
