@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_chat_journal/create_new_page.dart';
 
 import 'bottom_add_chat.dart';
 import 'bottom_panel_tabs.dart';
@@ -18,29 +19,31 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.teal,
         accentColor: Colors.amberAccent,
         textTheme: TextTheme(
-            subtitle1: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-            bodyText2: TextStyle(
-              color: Colors.black.withOpacity(0.4),
-              fontSize: 16,
-            ),
+          subtitle1: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+          bodyText2: TextStyle(
+            color: Colors.black.withOpacity(0.4),
+            fontSize: 16,
+          ),
         ),
       ),
       home: StartWindow(),
       onGenerateRoute: (settings) {
-        if(settings.name == ScreenMessage.routeName) {
+        if (settings.name == ScreenMessage.routeName) {
           final PropertyPage args = settings.arguments;
-          return MaterialPageRoute<void>(
-              builder: (context) {
-                return ScreenMessage(
-                  title: args.title,
-                  messages: args.message,
-                );
-              }
-          );
+          return MaterialPageRoute(builder: (context) {
+            return ScreenMessage(
+              title: args.title,
+              messages: args.message,
+            );
+          });
+        } else if (settings.name == CreateNewPage.routName) {
+          return MaterialPageRoute(builder: (context) {
+            return CreateNewPage();
+          });
         } else {
           assert(false, 'Need to implement ${settings.name}');
           return null;

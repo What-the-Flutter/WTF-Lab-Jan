@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'create_new_page.dart';
 
 class ButtonAddChat extends StatelessWidget {
   @override
@@ -10,7 +11,12 @@ class ButtonAddChat extends StatelessWidget {
         Icons.add,
         color: Colors.black,
       ),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.pushNamed(
+          context,
+          CreateNewPage.routName,
+        );
+      },
     );
   }
 }
