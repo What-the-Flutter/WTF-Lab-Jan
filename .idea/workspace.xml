@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:main" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7ba408ca-3219-41f8-9bee-89578df761b2" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/WTF-Lab-Jan.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/WTF-Lab-Jan.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/585988802/.dart_tool/package_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.dart_tool/package_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/585988802/.dart_tool/package_config_subset" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.dart_tool/package_config_subset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/585988802/.dart_tool/version" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.dart_tool/version" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/585988802/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.flutter-plugins" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/585988802/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.flutter-plugins-dependencies" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/585988802/.packages" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.packages" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/585988802/android/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/android/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/585988802/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/pubspec.lock" afterDir="false" />
+    </list>
+    <list id="d97f9af9-4a72-4d58-b5bf-24f1fea4a5eb" name="Revert &quot;formatted code&quot;" comment="Revert &quot;formatted code&quot;&#10;&#10;This reverts commit 9be19ba0" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="WTFLAB-4" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1of5AGG1skWs1qySbtC0aWYiIqE" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="dart.analysis.tool.window.visible" value="false" />
+    <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="FlutterRunConfigurationType" factoryName="Flutter">
+      <option name="filePath" value="$PROJECT_DIR$/767970405/lib/main.dart" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter" nameIsGenerated="true">
+      <option name="filePath" value="$PROJECT_DIR$/767970405/lib/main.dart" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7ba408ca-3219-41f8-9bee-89578df761b2" name="Default Changelist" comment="" />
+      <created>1613664658912</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1613664658912</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1613664874855">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1613664874855" />
+    <state x="498" y="202" key="#com.intellij.ide.util.TreeFileChooserDialog" timestamp="1613664856722">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="498" y="202" key="#com.intellij.ide.util.TreeFileChooserDialog/0.0.1536.824@0.0.1536.824" timestamp="1613664856722" />
+    <state x="93" y="93" width="1350" height="638" key="DiffContextDialog" timestamp="1613704084820">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="93" y="93" width="1350" height="638" key="DiffContextDialog/0.0.1536.824@0.0.1536.824" timestamp="1613704084820" />
+    <state x="541" y="125" key="git4idea.branch.GitSmartOperationDialog" timestamp="1613704053221">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="541" y="125" key="git4idea.branch.GitSmartOperationDialog/0.0.1536.824@0.0.1536.824" timestamp="1613704053221" />
+  </component>
+</project>
