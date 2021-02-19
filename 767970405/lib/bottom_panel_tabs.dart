@@ -7,7 +7,7 @@ class BottomPanelTabs extends StatefulWidget {
 }
 
 class _BottomPanelTabsState extends State<BottomPanelTabs> {
-  var _currentIndex = 0;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class _BottomPanelTabsState extends State<BottomPanelTabs> {
       ],
       onTap: (index) {
         setState(
-              () {
+          () {
             _currentIndex = index;
           },
         );

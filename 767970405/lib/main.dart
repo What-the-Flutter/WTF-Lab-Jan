@@ -25,7 +25,8 @@ class MyApp extends StatelessWidget {
             bodyText2: TextStyle(
               color: Colors.black.withOpacity(0.4),
               fontSize: 16,
-            )),
+            ),
+        ),
       ),
       home: StartWindow(),
     );

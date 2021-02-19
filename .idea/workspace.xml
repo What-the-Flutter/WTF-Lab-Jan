@@ -20,34 +20,31 @@
       <path>
         <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
         <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="BRANCH:main" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:feature" type="e8cecc67:BranchNodeDescriptor" />
       </path>
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7ba408ca-3219-41f8-9bee-89578df761b2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/WTF-Lab-Jan.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/WTF-Lab-Jan.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/585988802/.dart_tool/package_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.dart_tool/package_config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/585988802/.dart_tool/package_config_subset" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.dart_tool/package_config_subset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/585988802/.dart_tool/version" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.dart_tool/version" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/585988802/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.flutter-plugins" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/585988802/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.flutter-plugins-dependencies" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/585988802/.packages" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/.packages" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/585988802/android/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/android/local.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/585988802/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/585988802/pubspec.lock" afterDir="false" />
+    <list default="true" id="44f63016-6dfc-453c-a28f-6d4dc35bd933" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/bottom_panel_tabs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/bottom_panel_tabs.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/chat_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/chat_pages.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/screen_message.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/screen_message.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
-    <list id="d97f9af9-4a72-4d58-b5bf-24f1fea4a5eb" name="Revert &quot;formatted code&quot;" comment="Revert &quot;formatted code&quot;&#10;&#10;This reverts commit 9be19ba0" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[b6db485c]" />
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="WTFLAB-4" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -64,6 +61,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="dart.analysis.tool.window.visible" value="false" />
+    <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RunManager">
@@ -100,7 +98,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="feature" />
                       </list>
                     </value>
                   </entry>
@@ -112,6 +110,11 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add" />
+    <MESSAGE value="Add files" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add files" />
   </component>
   <component name="WindowStateProjectService">
     <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1613664874855">
@@ -126,6 +129,26 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="93" y="93" width="1350" height="638" key="DiffContextDialog/0.0.1536.824@0.0.1536.824" timestamp="1613704084820" />
+    <state width="1491" height="56" key="GridCell.Tab.0.bottom" timestamp="1613712448879">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1491" height="56" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1613712448879" />
+    <state width="1491" height="56" key="GridCell.Tab.0.center" timestamp="1613712448879">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1491" height="56" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1613712448879" />
+    <state width="1491" height="56" key="GridCell.Tab.0.left" timestamp="1613712448878">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1491" height="56" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1613712448878" />
+    <state width="1491" height="56" key="GridCell.Tab.0.right" timestamp="1613712448879">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1491" height="56" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1613712448879" />
+    <state x="575" y="130" key="git4idea.branch.GitBranchIsNotFullyMergedDialog" timestamp="1613705521915">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="575" y="130" key="git4idea.branch.GitBranchIsNotFullyMergedDialog/0.0.1536.824@0.0.1536.824" timestamp="1613705521915" />
     <state x="541" y="125" key="git4idea.branch.GitSmartOperationDialog" timestamp="1613704053221">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
