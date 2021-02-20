@@ -1,11 +1,11 @@
-import 'package:chat_journal/model/category.dart';
-import 'package:chat_journal/model/record.dart';
-import 'package:chat_journal/views/chat_view.dart';
-import 'package:chat_journal/views/create_message_view.dart';
-import 'package:chat_journal/views/record_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+
+import '../model/category.dart';
+import '../model/record.dart';
+import '../views/chat_view.dart';
+import '../views/create_message_view.dart';
 
 final categoryChatPageStateKey = GlobalKey<_CategoryChatPageState>();
 var categoryChatPageState = categoryChatPageStateKey.currentState;

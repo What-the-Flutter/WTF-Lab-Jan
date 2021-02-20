@@ -1,7 +1,8 @@
-import 'package:chat_journal/pages/category_chat_page.dart';
-import 'package:chat_journal/views/category_bottom_sheet_view.dart';
 import 'package:flutter/material.dart';
+
 import '../model/category.dart';
+import '../pages/category_chat_page.dart';
+import 'category_bottom_sheet_view.dart';
 
 class CategoryView extends StatelessWidget {
   final Category _category;

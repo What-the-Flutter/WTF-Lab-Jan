@@ -1,12 +1,10 @@
 import 'dart:io';
-
-import 'package:chat_journal/model/record.dart';
-import 'package:chat_journal/pages/category_chat_page.dart';
-import 'package:chat_journal/pages/content/home_page_content.dart';
-import 'package:chat_journal/views/chat_view.dart';
-import 'package:chat_journal/views/record_view.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../model/record.dart';
+import '../pages/category_chat_page.dart';
+import '../pages/content/home_page_content.dart';
 
 final createMessageViewStateKey = GlobalKey<_CreateMessageViewState>();
 
@@ -21,7 +19,6 @@ final textFieldController = TextEditingController();
 final formKey = GlobalKey<FormState>();
 
 class _CreateMessageViewState extends State<CreateMessageView> {
-  final _formKey = formKey;
   final _textEditingController = TextEditingController();
   var isEditing = false;
 
@@ -72,7 +69,7 @@ class _CreateMessageViewState extends State<CreateMessageView> {
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
+      key: formKey,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -85,7 +82,7 @@ class _CreateMessageViewState extends State<CreateMessageView> {
                 child: Icon(Icons.photo_camera),
                 onPressed: () async {
                   await getImage();
-                  await _showAddRecordWithImageDialog();
+                  _showAddRecordWithImageDialog();
                 },
               ),
             ),

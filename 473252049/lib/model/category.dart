@@ -1,5 +1,6 @@
-import 'record.dart';
 import 'package:flutter/material.dart';
+
+import 'record.dart';
 
 class Category {
   String name;

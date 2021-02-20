@@ -56,34 +56,32 @@ class _MainPageState extends State<MainPage> {
         currentIndex: _currentPageIndex,
         type: BottomNavigationBarType.fixed,
         items: [..._bottomNavigationBarItems()],
-        onTap: (index) => _onTabTap(index),
+        onTap: _onTabTap,
       ),
     );
   }
 }
 
 Widget _drawerHeader() {
-  return Container(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Text(
-          'Feb 16, 2021',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      Text(
+        'Feb 16, 2021',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
         ),
-        Text(
-          '(Click here to setup Drive backups)',
-          style: TextStyle(
-            fontWeight: FontWeight.w400,
-            fontSize: 12,
-          ),
+      ),
+      Text(
+        '(Click here to setup Drive backups)',
+        style: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: 12,
         ),
-      ],
-    ),
+      ),
+    ],
   );
 }
 
