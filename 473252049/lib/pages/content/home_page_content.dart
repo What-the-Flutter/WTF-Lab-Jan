@@ -3,19 +3,26 @@ import 'package:flutter/material.dart';
 import '../../model/category.dart';
 import '../../views/category_view.dart';
 
-class HomePageContent extends StatelessWidget {
-  final List<Category> _categories;
+final homePageContentStateKey = GlobalKey<_HomePageContentState>();
 
-  HomePageContent(this._categories);
+class HomePageContent extends StatefulWidget {
+  final List<Category> categories;
 
+  HomePageContent(this.categories, {Key key}) : super(key: key);
+
+  @override
+  _HomePageContentState createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemCount: _categories.length + 1,
+      itemCount: widget.categories.length + 1,
       separatorBuilder: (context, index) => Divider(),
       itemBuilder: (context, index) => index == 0
           ? _questionnaireBotButton(context)
-          : CategoryView(_categories[index - 1]),
+          : CategoryView(widget.categories[index - 1]),
     );
   }
 }

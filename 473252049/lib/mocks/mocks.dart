@@ -1,6 +1,7 @@
-import 'package:chat_journal/model/record.dart';
 import 'package:flutter/material.dart';
+
 import '../model/category.dart';
+import '../model/record.dart';
 
 List<Category> mockCategories = [
   Category.withRecords('Music', Icons.music_note, [

@@ -1,5 +1,6 @@
-import 'package:chat_journal/model/category.dart';
 import 'package:flutter/material.dart';
+
+import '../model/category.dart';
 
 class CategoryBottomSheetView extends StatelessWidget {
   final Category _category;

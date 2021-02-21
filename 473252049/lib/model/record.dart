@@ -1,5 +1,18 @@
+import 'dart:io';
+
 class Record {
   String message;
+  File image;
 
-  Record(this.message);
+  bool isHighlighted = false;
+  bool isFavorite = false;
+
+  Record(this.message, {this.image});
+
+  bool get isNotHighlighted => !isHighlighted;
+  bool get isNotFavorite => !isFavorite;
+
+  void changeIsFavorite() {
+    isFavorite = !isFavorite;
+  }
 }

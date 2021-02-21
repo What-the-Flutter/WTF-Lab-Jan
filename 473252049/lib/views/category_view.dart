@@ -1,7 +1,8 @@
-import 'package:chat_journal/pages/category_chat_page.dart';
-import 'package:chat_journal/views/category_bottom_sheet_view.dart';
 import 'package:flutter/material.dart';
+
 import '../model/category.dart';
+import '../pages/category_chat_page.dart';
+import 'category_bottom_sheet_view.dart';
 
 class CategoryView extends StatelessWidget {
   final Category _category;
@@ -13,11 +14,14 @@ class CategoryView extends StatelessWidget {
     return TextButton(
       onPressed: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => CategoryChatPage(_category)));
+            builder: (context) => CategoryChatPage(
+                  _category,
+                  key: categoryChatPageStateKey,
+                )));
       },
       onLongPress: () => showModalBottomSheet(
           context: context,
-          builder: (BuildContext context) {
+          builder: (context) {
             return CategoryBottomSheetView(_category);
           }),
       child: Container(
@@ -46,7 +50,9 @@ class CategoryView extends StatelessWidget {
                   Text(
                     _category.records.isEmpty
                         ? 'No events. Tap to create first'
-                        : _category.records.first.message,
+                        : _category.records.first.message.isEmpty
+                            ? 'Image record'
+                            : _category.records.first.message,
                     style: Theme.of(context).textTheme.bodyText1,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
