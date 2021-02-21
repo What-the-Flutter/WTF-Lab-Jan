@@ -1,27 +1,33 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import 'change_theme_button_widget.dart';
-import 'creating_suggestion.dart';
-import 'custom_dialog.dart';
-import 'custom_theme_provider.dart';
-import 'event_page.dart';
-import 'info_about_suggestion_dialog.dart';
-import 'list_view_suggestion.dart';
+import '../blocs/blocs.dart';
+import '../models/app_tab.dart';
+import '../models/list_view_suggestion.dart';
+import '../theme_provider/custom_theme_provider.dart';
+import '../widgets/change_theme_button_widget.dart';
+import '../widgets/custom_dialog.dart';
+import '../widgets/info_about_suggestion_dialog.dart';
+import '../widgets/tab_selector.dart';
+import 'creating_suggestion_screen.dart';
+import 'event_screen.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  HomeScreen({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-///This class implements the main logic of the [HomePage].
-class _HomePageState extends State<HomePage> {
-  int _currentIndexBotNavBar = 0;
+///This class implements the main logic of the [HomeScreen].
+class _HomeScreenState extends State<HomeScreen> {
+  // int _currentIndexBotNavBar = 0;
   ListViewSuggestion _selectedSuggestion;
   final TextEditingController _textEditingController = TextEditingController();
 
@@ -39,17 +45,23 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: _appBar,
-      drawer: _drawer,
-      body: _homePageBody,
-      bottomNavigationBar: _bottomNavigationBar,
-      floatingActionButton: _floatingActionButton,
-    );
+    return BlocBuilder<TabBloc, AppTab>(builder: (context, activeTab) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: _appBar,
+        drawer: _drawer,
+        body: _homePageBody,
+        bottomNavigationBar: TabSelector(
+          activeTab: activeTab,
+          onTabSelected: (tab) =>
+              BlocProvider.of<TabBloc>(context).add(TabUpdated(tab)),
+        ),
+        floatingActionButton: _floatingActionButton,
+      );
+    });
   }
 
-  ///Builds AppBar for [HomePage].
+  ///Builds AppBar for [HomeScreen].
   AppBar get _appBar {
     return AppBar(
       iconTheme: Theme.of(context).iconTheme,
@@ -213,7 +225,7 @@ class _HomePageState extends State<HomePage> {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CreatingPage(
+            builder: (context) => CreatingSuggestionScreen(
               suggestionsList: suggestionsList,
             ),
           ),
@@ -223,47 +235,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Column get _homePageBody {
-    return Column(
-      children: <Widget>[
-        Expanded(
-          flex: 1,
-          child: questionBotRaisedButton,
-        ),
-        Expanded(
-          flex: 8,
-          child: listViewSuggestions,
-        ),
-      ],
-    );
+  ClipRRect get _homePageBody {
+    return _listViewSuggestions;
   }
 
-  Container get questionBotRaisedButton {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        vertical: 7.0,
-      ),
-      child: RaisedButton.icon(
-        label: Text(
-          'Questionnaire Bot',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        textColor: Colors.black,
-        splashColor: Colors.redAccent,
-        icon: Icon(Icons.question_answer),
-        color: Colors.orangeAccent,
-        padding: const EdgeInsets.symmetric(horizontal: 30.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(10.0),
-          ),
-        ),
-        onPressed: () {},
-      ),
-    );
-  }
-
-  ClipRRect get listViewSuggestions {
+  ClipRRect get _listViewSuggestions {
     return ClipRRect(
       borderRadius: BorderRadius.only(
         topLeft: Radius.circular(25.0),
@@ -279,11 +255,14 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         child: ListView.builder(
-          reverse: true,
+          reverse: false,
           itemCount: suggestionsList.length,
           itemBuilder: (context, index) {
             suggestionsList.sort((a, b) => (a.isPinned).compareTo(b.isPinned));
-            return _row(suggestionsList, index);
+            var _localSuggestionsList =
+                List<ListViewSuggestion>.from(suggestionsList.reversed);
+
+            return _row(_localSuggestionsList, index);
           },
         ),
       ),
@@ -314,9 +293,12 @@ class _HomePageState extends State<HomePage> {
           maxLines: 1,
         ),
         trailing: list[index].isPinned == 1
-            ? Icon(
-                Icons.push_pin,
-                color: Theme.of(context).iconTheme.color,
+            ? Transform.rotate(
+                angle: 45 * pi / 180,
+                child: Icon(
+                  Icons.push_pin,
+                  color: Theme.of(context).iconTheme.color,
+                ),
               )
             : Icon(null),
         shape: RoundedRectangleBorder(
@@ -326,18 +308,17 @@ class _HomePageState extends State<HomePage> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EventPage(
+              builder: (context) => EventScreen(
                 title: list[index].nameOfSuggestion,
                 listViewSuggestion: list[index],
+                suggestionsList: suggestionsList,
               ),
             ),
           );
           setState(() {});
         },
         onLongPress: () {
-          setState(() {
-            _showBottomSheet(context, list[index]);
-          });
+          setState(() => _showBottomSheet(context, list[index]));
         },
       ),
     );
@@ -367,49 +348,66 @@ class _HomePageState extends State<HomePage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 5.0),
-          child: ListTile(
-            leading: Image.asset(listViewSuggestions.imagePathOfSuggestion),
-            title: Text(
-              listViewSuggestions.nameOfSuggestion,
-              maxLines: 4,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 25.0),
+        Expanded(
+          flex: 0,
+          child: Padding(
+            padding: EdgeInsets.only(top: 5.0),
+            child: ListTile(
+              leading: Image.asset(listViewSuggestions.imagePathOfSuggestion),
+              title: Text(
+                listViewSuggestions.nameOfSuggestion,
+                maxLines: 2,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 25.0),
+              ),
             ),
           ),
         ),
-        _listTile(
-          context,
-          'Info',
-          Icons.info_outline,
-          _showInfoAboutSuggestion,
-          null,
+        Expanded(
+          flex: 0,
+          child: _listTile(
+            context,
+            'Info',
+            Icons.info_outline,
+            _showInfoAboutSuggestion,
+            null,
+          ),
         ),
-        _listTile(
-          context,
-          listViewSuggestions.isPinned == 1
-              ? 'Unpin suggestion'
-              : 'Pin suggestion',
-          Icons.push_pin,
-          listViewSuggestions.isPinned == 1 ? _unpinSuggestion : _pinSuggestion,
-          null,
+        Expanded(
+          flex: 0,
+          child: _listTile(
+            context,
+            listViewSuggestions.isPinned == 1
+                ? 'Unpin suggestion'
+                : 'Pin suggestion',
+            Icons.push_pin,
+            listViewSuggestions.isPinned == 1
+                ? _unpinSuggestion
+                : _pinSuggestion,
+            null,
+          ),
         ),
-        _listTile(
-          context,
-          'Edit',
-          Icons.edit,
-          _editSuggestion,
-          listViewSuggestions,
+        Expanded(
+          flex: 0,
+          child: _listTile(
+            context,
+            'Edit',
+            Icons.edit,
+            _editSuggestion,
+            listViewSuggestions,
+          ),
         ),
-        _listTile(
-          context,
-          'Delete',
-          Icons.delete,
-          _deleteSuggestion,
-          listViewSuggestions,
+        Expanded(
+          flex: 0,
+          child: _listTile(
+            context,
+            'Delete',
+            Icons.delete,
+            _deleteSuggestion,
+            listViewSuggestions,
+          ),
         ),
       ],
     );
@@ -503,7 +501,6 @@ class _HomePageState extends State<HomePage> {
             ),
             firstBtnFunc: _selectedCancel,
             secondBtnFunc: _selectedEdit,
-            isEditMessage: true,
             textEditControl: _textEditingController,
             nameOfSuggestion: _textEditingController.text,
           ),
@@ -530,64 +527,5 @@ class _HomePageState extends State<HomePage> {
 
   void _deleteSuggestion() {
     setState(() => suggestionsList.remove(_selectedSuggestion));
-  }
-
-  BottomNavigationBar get _bottomNavigationBar {
-    return BottomNavigationBar(
-      backgroundColor: Provider.of<ThemeProvider>(context).isDarkMode
-          ? Theme.of(context).scaffoldBackgroundColor
-          : Theme.of(context).primaryColor,
-      currentIndex: _currentIndexBotNavBar,
-      type: BottomNavigationBarType.fixed,
-      fixedColor: Provider.of<ThemeProvider>(context).isDarkMode
-          ? Theme.of(context).floatingActionButtonTheme.backgroundColor
-          : Theme.of(context).scaffoldBackgroundColor,
-      items: botNavBarItem,
-      onTap: (index) {
-        setState(() => _currentIndexBotNavBar = index);
-      },
-    );
-  }
-
-  ///Builds [BottomNavigationBarItem] elements.
-  List<BottomNavigationBarItem> get botNavBarItem {
-    return <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
-        icon: Icon(
-          Icons.home_sharp,
-          color: Provider.of<ThemeProvider>(context).isDarkMode
-              ? Theme.of(context).floatingActionButtonTheme.backgroundColor
-              : Theme.of(context).scaffoldBackgroundColor,
-        ),
-        label: 'Home',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(
-          Icons.assignment_outlined,
-          color: Provider.of<ThemeProvider>(context).isDarkMode
-              ? Theme.of(context).floatingActionButtonTheme.backgroundColor
-              : Theme.of(context).scaffoldBackgroundColor,
-        ),
-        label: 'Daily',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(
-          Icons.timeline,
-          color: Provider.of<ThemeProvider>(context).isDarkMode
-              ? Theme.of(context).floatingActionButtonTheme.backgroundColor
-              : Theme.of(context).scaffoldBackgroundColor,
-        ),
-        label: 'Timeline',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(
-          Icons.explore,
-          color: Provider.of<ThemeProvider>(context).isDarkMode
-              ? Theme.of(context).floatingActionButtonTheme.backgroundColor
-              : Theme.of(context).scaffoldBackgroundColor,
-        ),
-        label: 'Explore',
-      ),
-    ];
   }
 }

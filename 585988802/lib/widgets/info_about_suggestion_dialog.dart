@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'custom_theme_provider.dart';
-import 'list_view_suggestion.dart';
+import '../models/list_view_suggestion.dart';
+import '../theme_provider/custom_theme_provider.dart';
 
 class InfoAboutSuggestionDialog extends StatefulWidget {
   final ListViewSuggestion currentSuggestion;
@@ -35,6 +35,7 @@ class _InfoAboutSuggestionDialogState extends State<InfoAboutSuggestionDialog> {
       alignment: Alignment.topCenter,
       children: <Widget>[
         Container(
+          constraints: BoxConstraints(minWidth: double.infinity),
           margin: EdgeInsets.only(top: 40),
           decoration: BoxDecoration(
             color: Provider.of<ThemeProvider>(context).isDarkMode
@@ -90,7 +91,7 @@ class _InfoAboutSuggestionDialogState extends State<InfoAboutSuggestionDialog> {
               SizedBox(
                 height: 10.0,
               ),
-              FlatButton(
+              TextButton(
                 child: Text(
                   'OK',
                   style: TextStyle(

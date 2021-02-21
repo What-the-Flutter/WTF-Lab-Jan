@@ -2,25 +2,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'custom_theme_provider.dart';
-import 'list_view_suggestion.dart';
+import '../models/list_view_suggestion.dart';
+import '../theme_provider/custom_theme_provider.dart';
 
-class CreatingPage extends StatefulWidget {
+class CreatingSuggestionScreen extends StatefulWidget {
   final List<ListViewSuggestion> suggestionsList;
 
-  CreatingPage({Key key, this.suggestionsList}) : super(key: key);
+  CreatingSuggestionScreen({Key key, this.suggestionsList}) : super(key: key);
 
   @override
-  _CreatingPageState createState() => _CreatingPageState(suggestionsList);
+  _CreatingSuggestionScreenState createState() =>
+      _CreatingSuggestionScreenState(suggestionsList);
 }
 
-class _CreatingPageState extends State<CreatingPage> {
+class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
   final List<ListViewSuggestion> suggestionsList;
   final TextEditingController _textEditingController = TextEditingController();
   String _currentImagePath = 'assets/images/journal.png';
   bool _isWriting = false;
 
-  _CreatingPageState(this.suggestionsList);
+  _CreatingSuggestionScreenState(this.suggestionsList);
 
   final List<String> _listImagesPath = [
     'assets/images/journal.png',
@@ -95,12 +96,12 @@ class _CreatingPageState extends State<CreatingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: appBar,
-      body: body,
+      appBar: _appBar,
+      body: _body,
     );
   }
 
-  AppBar get appBar {
+  AppBar get _appBar {
     return AppBar(
       iconTheme: Theme.of(context).iconTheme,
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
@@ -144,25 +145,25 @@ class _CreatingPageState extends State<CreatingPage> {
     );
   }
 
-  Column get body {
+  Column get _body {
     return Column(
       children: [
         Expanded(
           flex: 2,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
-            child: rowInpNewSuggestion,
+            child: _rowInpNewSuggestion,
           ),
         ),
         Expanded(
           flex: 7,
-          child: partIconSelection,
+          child: _partIconSelection,
         ),
       ],
     );
   }
 
-  Row get rowInpNewSuggestion {
+  Row get _rowInpNewSuggestion {
     return Row(
       children: [
         Expanded(
@@ -210,7 +211,7 @@ class _CreatingPageState extends State<CreatingPage> {
     setState(() => _isWriting = isWriting);
   }
 
-  ClipRRect get partIconSelection {
+  ClipRRect get _partIconSelection {
     return ClipRRect(
       borderRadius: BorderRadius.only(
         topLeft: Radius.circular(25.0),
@@ -225,12 +226,12 @@ class _CreatingPageState extends State<CreatingPage> {
             topRight: Radius.circular(25.0),
           ),
         ),
-        child: iconSelectionGridView,
+        child: _iconSelectionGridView,
       ),
     );
   }
 
-  GridView get iconSelectionGridView {
+  GridView get _iconSelectionGridView {
     return GridView.count(
       crossAxisCount: 4,
       crossAxisSpacing: 10.0,

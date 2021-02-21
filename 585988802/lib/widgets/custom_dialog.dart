@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'custom_theme_provider.dart';
-import 'event_message.dart';
+import '../models/event_message.dart';
+
 
 // ignore: must_be_immutable
 class CustomDialog extends StatefulWidget {
@@ -10,6 +9,7 @@ class CustomDialog extends StatefulWidget {
   final Icon icon;
   final dynamic firstBtnFunc, secondBtnFunc;
   final bool isEditMessage;
+  final bool isDeleteMessage;
   String nameOfSuggestion;
   TextEditingController textEditControl;
   EventMessage eventMessage;
@@ -22,7 +22,20 @@ class CustomDialog extends StatefulWidget {
     this.icon,
     this.firstBtnFunc,
     this.secondBtnFunc,
-    this.isEditMessage,
+    this.isEditMessage = false,
+    this.isDeleteMessage = false,
+  });
+
+  CustomDialog.deleteEventMessage({
+    this.title,
+    this.content,
+    this.firstBtnText,
+    this.secondBtnText,
+    this.icon,
+    this.firstBtnFunc,
+    this.secondBtnFunc,
+    this.isEditMessage = false,
+    this.isDeleteMessage = true,
   });
 
   CustomDialog.editEventMessage({
@@ -33,7 +46,8 @@ class CustomDialog extends StatefulWidget {
     this.icon,
     this.firstBtnFunc,
     this.secondBtnFunc,
-    this.isEditMessage,
+    this.isEditMessage = true,
+    this.isDeleteMessage = false,
     this.textEditControl,
     this.eventMessage,
   });
@@ -46,7 +60,8 @@ class CustomDialog extends StatefulWidget {
     this.icon,
     this.firstBtnFunc,
     this.secondBtnFunc,
-    this.isEditMessage,
+    this.isEditMessage = true,
+    this.isDeleteMessage = false,
     this.textEditControl,
     this.nameOfSuggestion,
   });
@@ -61,6 +76,7 @@ class CustomDialog extends StatefulWidget {
         firstBtnFunc,
         secondBtnFunc,
         isEditMessage,
+        isDeleteMessage,
         textEditControl,
         eventMessage,
       );
@@ -70,7 +86,8 @@ class _CustomDialog extends State<CustomDialog> {
   final String title, content, firstBtnText, secondBtnText;
   final Icon icon;
   final dynamic firstBtnFunc, secondBtnFunc;
-  bool isEditMessage;
+  final bool isEditMessage;
+  final bool isDeleteMessage;
   TextEditingController textEditControl;
   EventMessage eventMessage;
 
@@ -83,6 +100,7 @@ class _CustomDialog extends State<CustomDialog> {
     this.firstBtnFunc,
     this.secondBtnFunc,
     this.isEditMessage,
+    this.isDeleteMessage,
     this.textEditControl,
     this.eventMessage,
   );
@@ -103,9 +121,7 @@ class _CustomDialog extends State<CustomDialog> {
         Container(
           margin: EdgeInsets.only(top: 40),
           decoration: BoxDecoration(
-            color: Provider.of<ThemeProvider>(context).isDarkMode
-                ? Color.fromRGBO(151, 157, 155, 1)
-                : Theme.of(context).primaryColor,
+            color: Theme.of(context).dialogBackgroundColor,
             borderRadius: BorderRadius.circular(25.0),
           ),
           padding: EdgeInsets.only(top: 60, left: 20, right: 20),
@@ -135,11 +151,9 @@ class _CustomDialog extends State<CustomDialog> {
                     ),
               ButtonBar(
                 buttonMinWidth: 100,
-                alignment: isEditMessage
-                    ? MainAxisAlignment.spaceEvenly
-                    : MainAxisAlignment.center,
+                alignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text(
                       firstBtnText,
                       style: TextStyle(
@@ -150,7 +164,7 @@ class _CustomDialog extends State<CustomDialog> {
                       Navigator.of(context).pop();
                     },
                   ),
-                  FlatButton(
+                  TextButton(
                     child: Text(
                       secondBtnText,
                       style: TextStyle(
@@ -161,9 +175,9 @@ class _CustomDialog extends State<CustomDialog> {
                       Navigator.of(context).pop();
                     },
                   ),
-                  isEditMessage
+                  (isEditMessage || isDeleteMessage)
                       ? Container()
-                      : FlatButton(
+                      : TextButton(
                           child: Text(
                             'Cancel',
                             style: TextStyle(
