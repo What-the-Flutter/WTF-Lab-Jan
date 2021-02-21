@@ -245,7 +245,6 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
   Widget _inputAppBar() {
     return AppBar(
-      //leading: Icon(Icons.arrow_back_outlined),
       title: Center(
         child: Text(_title),
       ),
