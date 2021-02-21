@@ -13,8 +13,6 @@ class _BottomPanelTabsState extends State<BottomPanelTabs> {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: _currentIndex,
-      selectedItemColor: Colors.teal,
-      unselectedItemColor: Colors.grey,
       items: [
         BottomNavigationBarItem(
           label: 'Home',

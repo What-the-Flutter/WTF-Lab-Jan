@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:my_chat_journal/create_new_page.dart';
-
+import 'package:my_chat_journal/theme.dart';
+import 'package:provider/provider.dart';
 import 'bottom_add_chat.dart';
+
 import 'bottom_panel_tabs.dart';
 import 'chat_pages.dart';
+import 'create_new_page.dart';
+import 'event_page.dart';
 import 'screen_message.dart';
+import 'theme_model.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(ChangeNotifierProvider<ThemeModel>(
+      create: (context) => ThemeModel(), child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -15,34 +20,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chat Journal',
-      theme: ThemeData(
-        primaryColor: Colors.teal,
-        accentColor: Colors.amberAccent,
-        textTheme: TextTheme(
-          subtitle1: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-          bodyText2: TextStyle(
-            color: Colors.black.withOpacity(0.4),
-            fontSize: 16,
-          ),
-        ),
-      ),
+      theme: Provider.of<ThemeModel>(context).currentTheme,
       home: StartWindow(),
       onGenerateRoute: (settings) {
         if (settings.name == ScreenMessage.routeName) {
           final PropertyPage args = settings.arguments;
           return MaterialPageRoute(builder: (context) {
-            return ScreenMessage(
-              title: args.title,
-              messages: args.message,
-            );
+            return ScreenMessage(args.title, args.messages);
           });
         } else if (settings.name == CreateNewPage.routName) {
           return MaterialPageRoute(builder: (context) {
-            return CreateNewPage();
+            final PropertyPage args = settings.arguments;
+            if (args == null) {
+              return CreateNewPage();
+            } else {
+              return CreateNewPage(args);
+            }
           });
         } else {
           assert(false, 'Need to implement ${settings.name}');
@@ -64,12 +57,27 @@ class _StartWindowState extends State<StartWindow> {
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('Home')),
-        actions: <Widget>[Icon(Icons.invert_colors)],
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.invert_colors),
+            onPressed: () {
+              Provider.of<ThemeModel>(context, listen: false).toggleTheme();
+            },
+          ),
+        ],
         leading: Icon(Icons.menu),
       ),
       body: ChatPages(),
-      floatingActionButton: ButtonAddChat(),
+      floatingActionButton: ButtonAddChat(_addPage),
       bottomNavigationBar: BottomPanelTabs(),
     );
+  }
+
+  void _addPage(PropertyPage result) {
+    if (result.title.isNotEmpty) {
+      setState(() {
+        ChatPages.pages.add(result);
+      });
+    }
   }
 }

@@ -1,21 +1,26 @@
 import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
 import 'list_item.dart';
+import 'theme.dart';
+import 'theme_model.dart';
 
 enum ModeOperation { input, selection, edit }
 
 class ScreenMessage extends StatefulWidget {
   static const routeName = '/ScreenMsg';
-  final String title;
-  final List<ListItem<String>> messages;
+  final String _title;
+  final List<ListItem<String>> _messages;
 
-  const ScreenMessage({Key key, this.title, this.messages}) : super(key: key);
+  ScreenMessage(this._title, this._messages);
 
   @override
-  _ScreenMessageState createState() => _ScreenMessageState(title, messages);
+  _ScreenMessageState createState() => _ScreenMessageState(_title, _messages);
 }
 
 class _ScreenMessageState extends State<ScreenMessage> {
@@ -149,6 +154,20 @@ class _ScreenMessageState extends State<ScreenMessage> {
   }
 
   Widget _buildItem(ListItem msg) {
+    var color;
+    if (Provider.of<ThemeModel>(context).currentTheme == darkTheme) {
+      if (msg.isSelected) {
+        color = Colors.orangeAccent;
+      } else {
+        color = Colors.black;
+      }
+    } else {
+      if (msg.isSelected) {
+        color = Colors.green[200];
+      } else {
+        color = Colors.green[50];
+      }
+    }
     return Container(
       padding: EdgeInsets.all(10.0),
       child: Align(
@@ -163,7 +182,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
-              color: msg.isSelected ? Colors.green[200] : Colors.green[50],
+              color: color,
             ),
             padding: EdgeInsets.all(10.0),
             child: Column(
