@@ -9,9 +9,9 @@ import 'theme_model.dart';
 
 class ChatPages extends StatefulWidget {
   static List<PropertyPage> pages = <PropertyPage>[
-    PropertyPage(Icons.book_sharp, 'Journal', <ListItem<String>>[]),
-    PropertyPage(Icons.import_contacts_rounded, 'Notes', <ListItem<String>>[]),
-    PropertyPage(Icons.nature_people, 'Gratitude', <ListItem<String>>[]),
+    PropertyPage(Icons.book_sharp, 'Journal', <ListItem<String>>[], DateTime.now()),
+    PropertyPage(Icons.import_contacts_rounded, 'Notes', <ListItem<String>>[], DateTime.now()),
+    PropertyPage(Icons.nature_people, 'Gratitude', <ListItem<String>>[], DateTime.now()),
   ];
 
   @override

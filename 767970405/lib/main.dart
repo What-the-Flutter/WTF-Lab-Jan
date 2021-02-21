@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         if (settings.name == ScreenMessage.routeName) {
           final PropertyPage args = settings.arguments;
           return MaterialPageRoute(builder: (context) {
-            return ScreenMessage(args.title, args.messages);
+            return ScreenMessage(args);
           });
         } else if (settings.name == CreateNewPage.routName) {
           return MaterialPageRoute(builder: (context) {

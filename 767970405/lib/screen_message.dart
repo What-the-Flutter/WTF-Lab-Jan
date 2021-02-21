@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_chat_journal/event_page.dart';
 import 'package:provider/provider.dart';
 
 import 'list_item.dart';
@@ -14,13 +15,12 @@ enum ModeOperation { input, selection, edit }
 
 class ScreenMessage extends StatefulWidget {
   static const routeName = '/ScreenMsg';
-  final String _title;
-  final List<ListItem<String>> _messages;
+  final PropertyPage _page;
 
-  ScreenMessage(this._title, this._messages);
+  ScreenMessage(this._page);
 
   @override
-  _ScreenMessageState createState() => _ScreenMessageState(_title, _messages);
+  _ScreenMessageState createState() => _ScreenMessageState(_page.title, _page.messages);
 }
 
 class _ScreenMessageState extends State<ScreenMessage> {
@@ -245,6 +245,12 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
   Widget _inputAppBar() {
     return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.keyboard_backspace),
+        onPressed: () {
+          Navigator.pop(context, DateTime.now());
+        },
+      ),
       title: Center(
         child: Text(_title),
       ),

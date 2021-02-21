@@ -145,6 +145,7 @@ class _CreateNewPageState extends State<CreateNewPage> {
               icon,
               _controller.text,
               _page == null ? <ListItem<String>>[] : _page.messages,
+              DateTime.now(),
             ),
           );
         },

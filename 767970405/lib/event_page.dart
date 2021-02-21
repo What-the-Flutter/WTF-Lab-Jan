@@ -28,12 +28,13 @@ class _EventPageState extends State<EventPage> {
   Widget build(BuildContext context) {
     var page = ChatPages.pages[_index];
     return InkWell(
-      onTap: () {
-        Navigator.pushNamed(
+      onTap: () async {
+        var result = await Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
           arguments: page,
         );
+        page._lastModifiedTime = result as DateTime;
       },
       onLongPress: () => _showMenuAction(page),
       child: ListTile(
@@ -85,7 +86,9 @@ class _EventPageState extends State<EventPage> {
                 color: Colors.teal,
               ),
               title: 'Pin/Unpin Page',
-              onPressed: () {},
+              onPressed: () {
+                //ChatPages.pages.sort()
+              },
             ),
             createItem(
               icon: Icon(
@@ -109,8 +112,7 @@ class _EventPageState extends State<EventPage> {
                   arguments: page,
                 );
                 setState(() {
-                  ChatPages.pages.removeAt(_index);
-                  ChatPages.pages.insert(_index, result);
+                  ChatPages.pages[_index] = result;
                 });
               },
             ),
@@ -157,11 +159,11 @@ class _EventPageState extends State<EventPage> {
               ),
               ListTile(
                 title: Text('Created'),
-                subtitle: Text('data'),
+                subtitle: Text(page.creationTime),
               ),
               ListTile(
                 title: Text('Latest Event'),
-                subtitle: Text('Data'),
+                subtitle: Text(page.lastModifiedTime),
               ),
             ],
           ),
@@ -198,8 +200,20 @@ class PropertyPage {
   final IconData _icon;
   final String _title;
   final List<ListItem<String>> _messages;
+  final DateTime _creationTime;
+  DateTime _lastModifiedTime;
 
-  PropertyPage(this._icon, this._title, this._messages);
+  PropertyPage(this._icon, this._title, this._messages, this._creationTime) {
+   _lastModifiedTime = _creationTime;
+  }
+
+  String get creationTime => _creationTime.toString();
+
+  String get lastModifiedTime => _lastModifiedTime.toString();
+
+  set modifiedTime(DateTime lastModifiedTime) {
+    _lastModifiedTime = lastModifiedTime;
+  }
 
   String get title => _title;
 
