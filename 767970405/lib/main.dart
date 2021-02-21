@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_chat_journal/theme.dart';
 import 'package:provider/provider.dart';
-import 'bottom_add_chat.dart';
 
+import 'bottom_add_chat.dart';
 import 'bottom_panel_tabs.dart';
 import 'chat_pages.dart';
 import 'create_new_page.dart';

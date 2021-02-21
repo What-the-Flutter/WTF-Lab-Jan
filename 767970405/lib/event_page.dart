@@ -204,7 +204,7 @@ class PropertyPage {
   DateTime _lastModifiedTime;
 
   PropertyPage(this._icon, this._title, this._messages, this._creationTime) {
-   _lastModifiedTime = _creationTime;
+    _lastModifiedTime = _creationTime;
   }
 
   String get creationTime => _creationTime.toString();

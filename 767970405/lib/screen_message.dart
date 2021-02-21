@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_chat_journal/event_page.dart';
 import 'package:provider/provider.dart';
 
+import 'event_page.dart';
 import 'list_item.dart';
 import 'theme.dart';
 import 'theme_model.dart';
@@ -20,7 +19,8 @@ class ScreenMessage extends StatefulWidget {
   ScreenMessage(this._page);
 
   @override
-  _ScreenMessageState createState() => _ScreenMessageState(_page.title, _page.messages);
+  _ScreenMessageState createState() =>
+      _ScreenMessageState(_page.title, _page.messages);
 }
 
 class _ScreenMessageState extends State<ScreenMessage> {
