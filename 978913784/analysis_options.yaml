@@ -3,7 +3,6 @@ analyzer:
   exclude:
     - build/**
     - test/**
-    - vivafit_plugins/**
   errors:
     unused_field: ignore
     unused_element: ignore

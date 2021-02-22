@@ -76,8 +76,8 @@ AppThemeData lightTheme({Widget child}) {
   return AppThemeData(
     mainColor: Colors.white,
     mainTextColor: Colors.black,
-    accentColor: Colors.deepPurple,
-    accentLightColor: Colors.purple,
+    accentColor: Colors.purple.shade900,
+    accentLightColor: Colors.purple.shade600,
     accentTextColor: Colors.white,
     shadowColor: Colors.black,
     child: child,
