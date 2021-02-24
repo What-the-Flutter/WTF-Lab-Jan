@@ -1,32 +1,45 @@
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import 'event_page.dart';
 import 'list_item.dart';
+import 'theme.dart';
+import 'theme_model.dart';
 
 enum ModeOperation { input, selection, edit }
 
 class ScreenMessage extends StatefulWidget {
+  static const routeName = '/ScreenMsg';
+  final PropertyPage _page;
+
+  ScreenMessage(this._page);
+
   @override
-  _ScreenMessageState createState() => _ScreenMessageState();
+  _ScreenMessageState createState() =>
+      _ScreenMessageState(_page.title, _page.messages);
 }
 
 class _ScreenMessageState extends State<ScreenMessage> {
-  final controller = TextEditingController();
-  List<ListItem<String>> messages = <ListItem<String>>[];
-  List<ListItem<String>> bookmarkMessages = <ListItem<String>>[];
+  final _controller = TextEditingController();
+  final List<ListItem<String>> _messages;
+  final String _title;
   ModeOperation _currentMode = ModeOperation.input;
   int _countDeletedMessage = 0;
 
-  bool isBookmarkMsg = false;
-  String clipBoard = '';
+  bool _isBookmarkMsg = false;
+  String _clipBoard = '';
 
   final _picker = ImagePicker();
 
+  _ScreenMessageState(this._title, this._messages);
+
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -36,23 +49,25 @@ class _ScreenMessageState extends State<ScreenMessage> {
       appBar: _currentMode == ModeOperation.input
           ? _inputAppBar()
           : _currentMode == ModeOperation.selection
-          ? _selectionAppBar()
-          : _editAppBar(),
+              ? _selectionAppBar()
+              : _editAppBar(),
       body: Column(
         children: <Widget>[
           Expanded(
             child: ListView.builder(
               reverse: true,
-              itemCount:
-              isBookmarkMsg ? bookmarkMessages.length : messages.length,
+              itemCount: _messages.length,
               itemBuilder: (context, i) {
-                ListItem<String> data;
-                if (isBookmarkMsg) {
-                  data = bookmarkMessages[bookmarkMessages.length - i - 1];
+                var data = _messages[_messages.length - i - 1];
+                if (_isBookmarkMsg) {
+                  if (data.isFeatured) {
+                    return _buildItem(data);
+                  } else {
+                    return Container();
+                  }
                 } else {
-                  data = messages[messages.length - i - 1];
+                  return _buildItem(data);
                 }
-                return _buildItem(data);
               },
             ),
           ),
@@ -75,10 +90,10 @@ class _ScreenMessageState extends State<ScreenMessage> {
             flex: 5,
             child: TextField(
               enabled: _currentMode == ModeOperation.input ||
-                  _currentMode == ModeOperation.edit
+                      _currentMode == ModeOperation.edit
                   ? true
                   : false,
-              controller: controller,
+              controller: _controller,
               decoration: InputDecoration(
                 suffixIcon: IconButton(
                   icon: _currentMode != ModeOperation.edit
@@ -106,26 +121,26 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
   void _updateMessage() {
     setState(
-          () {
+      () {
         var index = -1;
-        for (var i = 0; i < messages.length; i++) {
-          if (messages[i].isSelected) {
+        for (var i = 0; i < _messages.length; i++) {
+          if (_messages[i].isSelected) {
             index = i;
             break;
           }
         }
-        messages[index].message = controller.text;
+        _messages[index].message = _controller.text;
         _currentMode = ModeOperation.selection;
-        controller.text = '';
+        _controller.text = '';
       },
     );
   }
 
   void _addNewMessage() {
     setState(
-          () {
-        messages.add(ListItem<String>(controller.text));
-        controller.text = '';
+      () {
+        _messages.add(ListItem<String>(_controller.text));
+        _controller.text = '';
       },
     );
   }
@@ -134,11 +149,25 @@ class _ScreenMessageState extends State<ScreenMessage> {
     final pickedFile = await _picker.getImage(source: ImageSource.gallery);
 
     setState(() {
-      messages.add(ListItem(pickedFile.path, isImage: true));
+      _messages.add(ListItem(pickedFile.path, isImage: true));
     });
   }
 
   Widget _buildItem(ListItem msg) {
+    var color;
+    if (Provider.of<ThemeModel>(context).currentTheme == darkTheme) {
+      if (msg.isSelected) {
+        color = Colors.orangeAccent;
+      } else {
+        color = Colors.black;
+      }
+    } else {
+      if (msg.isSelected) {
+        color = Colors.green[200];
+      } else {
+        color = Colors.green[50];
+      }
+    }
     return Container(
       padding: EdgeInsets.all(10.0),
       child: Align(
@@ -153,7 +182,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
-              color: msg.isSelected ? Colors.green[200] : Colors.green[50],
+              color: color,
             ),
             padding: EdgeInsets.all(10.0),
             child: Column(
@@ -177,13 +206,11 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
   void _changeBookmarkMessage(ListItem msg) {
     setState(
-          () {
+      () {
         if (msg.isFeatured) {
           msg.isFeatured = false;
-          bookmarkMessages.remove(msg);
         } else {
           msg.isFeatured = true;
-          bookmarkMessages.add(msg);
         }
       },
     );
@@ -191,7 +218,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
   void _changeStateListItem(msg) {
     setState(
-          () {
+      () {
         if (msg.isSelected) {
           _countDeletedMessage--;
           msg.isSelected = false;
@@ -208,7 +235,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
   void _selectingFirstItemToDeleted(ListItem msg) {
     setState(
-          () {
+      () {
         msg.isSelected = true;
         _countDeletedMessage++;
         _currentMode = ModeOperation.selection;
@@ -218,9 +245,14 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
   Widget _inputAppBar() {
     return AppBar(
-      //leading: Icon(Icons.arrow_back_outlined),
+      leading: IconButton(
+        icon: Icon(Icons.keyboard_backspace),
+        onPressed: () {
+          Navigator.pop(context, DateTime.now());
+        },
+      ),
       title: Center(
-        child: Text('Hello'),
+        child: Text(_title),
       ),
       actions: <Widget>[
         Padding(
@@ -230,16 +262,16 @@ class _ScreenMessageState extends State<ScreenMessage> {
         Padding(
           padding: EdgeInsets.only(right: 20),
           child: IconButton(
-            icon: isBookmarkMsg
+            icon: _isBookmarkMsg
                 ? Icon(
-              Icons.bookmark,
-              color: Colors.orangeAccent,
-            )
+                    Icons.bookmark,
+                    color: Colors.orangeAccent,
+                  )
                 : Icon(Icons.bookmark_border),
             onPressed: () {
               setState(
-                    () {
-                  isBookmarkMsg = !isBookmarkMsg;
+                () {
+                  _isBookmarkMsg = !_isBookmarkMsg;
                 },
               );
             },
@@ -296,15 +328,15 @@ class _ScreenMessageState extends State<ScreenMessage> {
               icon: Icon(Icons.edit),
               onPressed: () {
                 setState(
-                      () {
+                  () {
                     var index = -1;
-                    for (var i = 0; i < messages.length; i++) {
-                      if (messages[i].isSelected) {
+                    for (var i = 0; i < _messages.length; i++) {
+                      if (_messages[i].isSelected) {
                         index = i;
                         break;
                       }
                     }
-                    controller.text = messages[index].message;
+                    _controller.text = _messages[index].message;
                     _currentMode = ModeOperation.edit;
                   },
                 );
@@ -317,15 +349,15 @@ class _ScreenMessageState extends State<ScreenMessage> {
             icon: Icon(Icons.copy),
             onPressed: () {
               setState(
-                    () {
-                  for (var i = 0; i < messages.length; i++) {
-                    if (messages[i].isSelected) {
-                      clipBoard += messages[i].message;
-                      messages[i].isSelected = false;
+                () {
+                  for (var i = 0; i < _messages.length; i++) {
+                    if (_messages[i].isSelected) {
+                      _clipBoard += _messages[i].message;
+                      _messages[i].isSelected = false;
                     }
                   }
-                  Clipboard.setData(ClipboardData(text: clipBoard));
-                  clipBoard = '';
+                  Clipboard.setData(ClipboardData(text: _clipBoard));
+                  _clipBoard = '';
                   _countDeletedMessage = 0;
                   _currentMode = ModeOperation.input;
                 },
@@ -346,11 +378,10 @@ class _ScreenMessageState extends State<ScreenMessage> {
             icon: Icon(Icons.delete),
             onPressed: () {
               setState(
-                    () {
-                  for (var i = 0; i < messages.length; i++) {
-                    if (messages[i].isSelected) {
-                      bookmarkMessages.remove(messages[i]);
-                      messages.removeAt(i);
+                () {
+                  for (var i = 0; i < _messages.length; i++) {
+                    if (_messages[i].isSelected) {
+                      _messages.removeAt(i);
                       i--;
                     }
                   }
@@ -367,10 +398,10 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
   void _resetMode() {
     setState(
-          () {
-        for (var i = 0; i < messages.length; i++) {
-          if (messages[i].isSelected) {
-            messages[i].isSelected = false;
+      () {
+        for (var i = 0; i < _messages.length; i++) {
+          if (_messages[i].isSelected) {
+            _messages[i].isSelected = false;
           }
         }
         _countDeletedMessage = 0;
