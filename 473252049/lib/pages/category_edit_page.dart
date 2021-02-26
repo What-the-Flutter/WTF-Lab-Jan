@@ -35,9 +35,6 @@ class CategoryEditPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () {
-            BlocProvider.of<HomepageBloc>(context).add(
-              CategoryUpdateCancelled(),
-            );
             Navigator.of(context).pop();
           },
         ),

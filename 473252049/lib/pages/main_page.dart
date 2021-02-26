@@ -53,9 +53,6 @@ class _MainPageState extends State<MainPage> {
           ? FloatingActionButton(
               child: Icon(Icons.add),
               onPressed: () {
-                BlocProvider.of<HomepageBloc>(context).add(
-                  CategoryAddStarted(),
-                );
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) {

@@ -7,6 +7,7 @@ import '../model/category.dart';
 class CategoryAddPage extends StatelessWidget {
   final _defaultIcon = Icons.ac_unit;
   final _textEditingController = TextEditingController();
+  final FocusNode _categoryNameFocus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,6 @@ class CategoryAddPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () {
-            BlocProvider.of<HomepageBloc>(context).add(CategoryAddCancelled());
             Navigator.of(context).pop();
           },
         ),
@@ -38,6 +38,7 @@ class CategoryAddPage extends StatelessWidget {
         child: Column(
           children: [
             TextFormField(
+              focusNode: _categoryNameFocus..requestFocus(),
               controller: _textEditingController,
             ),
           ],
