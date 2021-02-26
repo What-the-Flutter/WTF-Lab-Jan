@@ -58,9 +58,6 @@ class CategoryBottomSheet extends StatelessWidget {
               title: Text('Edit Page'),
               onTap: () {
                 Navigator.of(context).pop();
-                BlocProvider.of<HomepageBloc>(context).add(
-                  CategoryUpdateStarted(category),
-                );
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) {
@@ -88,8 +85,6 @@ class CategoryBottomSheet extends StatelessWidget {
                         TextButton(
                           child: Text("Don't"),
                           onPressed: () {
-                            BlocProvider.of<HomepageBloc>(context)
-                                .add(CategoryDeleteCancelled());
                             Navigator.of(newContext).pop();
                             Navigator.of(context).pop();
                           },
