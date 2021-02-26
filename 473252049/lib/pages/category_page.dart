@@ -175,7 +175,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         minLines: 1,
                         maxLines: 8,
                         validator: (value) {
-                          if (value.isEmpty) {
+                          if (value.trim().isEmpty) {
                             return "Record can't be empty";
                           }
                           return null;
@@ -189,14 +189,14 @@ class _CategoryPageState extends State<CategoryPage> {
                         if (_formKey.currentState.validate()) {
                           if (state is RecordUpdateInProcess) {
                             BlocProvider.of<CategoryBloc>(context).add(
-                              RecordUpdated(
-                                  state.record, _textEditingController.text),
+                              RecordUpdated(state.record,
+                                  _textEditingController.text.trim()),
                             );
                             _messageFocus.unfocus();
                           } else {
                             BlocProvider.of<CategoryBloc>(context).add(
                               RecordAdded(
-                                Record(_textEditingController.text),
+                                Record(_textEditingController.text.trim()),
                               ),
                             );
                           }
@@ -208,11 +208,6 @@ class _CategoryPageState extends State<CategoryPage> {
                   ],
                 ),
               ),
-              if (Platform.isIOS &&
-                  MediaQuery.of(context).viewInsets.bottom == 0)
-                Container(
-                  height: 24,
-                ),
             ],
           ),
         );

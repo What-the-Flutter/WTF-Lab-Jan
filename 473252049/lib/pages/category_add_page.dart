@@ -5,6 +5,7 @@ import '../blocs/home_page_bloc/homepage_bloc.dart';
 import '../model/category.dart';
 
 class CategoryAddPage extends StatelessWidget {
+  final _formKey = GlobalKey<FormState>();
   final _defaultIcon = Icons.ac_unit;
   final _textEditingController = TextEditingController();
   final FocusNode _categoryNameFocus = FocusNode();
@@ -17,12 +18,14 @@ class CategoryAddPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              BlocProvider.of<HomepageBloc>(context).add(
-                CategoryAdded(
-                  Category(_textEditingController.text, icon: _defaultIcon),
-                ),
-              );
-              Navigator.of(context).pop();
+              if (_formKey.currentState.validate()) {
+                BlocProvider.of<HomepageBloc>(context).add(
+                  CategoryAdded(
+                    Category(_textEditingController.text, icon: _defaultIcon),
+                  ),
+                );
+                Navigator.of(context).pop();
+              }
             },
           ),
         ],
@@ -35,9 +38,17 @@ class CategoryAddPage extends StatelessWidget {
         title: Text('Add category'),
       ),
       body: Form(
+        key: _formKey,
         child: Column(
           children: [
             TextFormField(
+              maxLength: 14,
+              validator: (value) {
+                if (value.trim().isEmpty) {
+                  return "Category name can't be empty";
+                }
+                return null;
+              },
               focusNode: _categoryNameFocus..requestFocus(),
               controller: _textEditingController,
             ),

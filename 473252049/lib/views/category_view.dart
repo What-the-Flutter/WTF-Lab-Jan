@@ -68,6 +68,10 @@ class CategoryView extends StatelessWidget {
                             Icon(
                               Icons.pin_drop_outlined,
                               color: Theme.of(context).accentColor,
+                              size: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  .fontSize,
                             ),
                           Text(
                             category.name,

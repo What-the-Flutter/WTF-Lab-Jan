@@ -25,23 +25,28 @@ class RecordView extends StatelessWidget {
               .add(RecordSelectChanged(record));
         }
       },
-      child: Bubble(
-        color: record.isSelected ? Colors.blueGrey : Colors.white,
-        alignment: Alignment.bottomRight,
-        child: BlocBuilder<CategoryBloc, CategoryState>(
-          builder: (context, state) => Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                record.message,
-                textAlign: TextAlign.end,
-              ),
-              if (record.isFavorite)
-                Icon(
-                  Icons.bookmark,
-                  size: 12,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1.5),
+        child: Bubble(
+          color: record.isSelected
+              ? Theme.of(context).scaffoldBackgroundColor
+              : Theme.of(context).backgroundColor,
+          alignment: Alignment.bottomRight,
+          child: BlocBuilder<CategoryBloc, CategoryState>(
+            builder: (context, state) => Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  record.message,
+                  textAlign: TextAlign.end,
                 ),
-            ],
+                if (record.isFavorite)
+                  Icon(
+                    Icons.bookmark,
+                    size: 12,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
