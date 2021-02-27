@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../blocs/category_bloc/category_bloc.dart';
 import '../model/category.dart';
@@ -21,6 +22,21 @@ class _CategoryPageState extends State<CategoryPage> {
   final _formKey = GlobalKey<FormState>();
   final _messageFocus = FocusNode();
   final _textEditingController = TextEditingController();
+
+  File _image;
+  final picker = ImagePicker();
+
+  Future getImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -82,8 +98,9 @@ class _CategoryPageState extends State<CategoryPage> {
                           icon: Icon(Icons.bookmark_outlined),
                           onPressed: () {
                             for (var r in widget.category.selectedRecords) {
-                              BlocProvider.of<CategoryBloc>(context)
-                                  .add(RecordFavoriteChanged(r));
+                              BlocProvider.of<CategoryBloc>(context).add(
+                                RecordFavoriteChanged(r),
+                              );
                             }
                           },
                         ),
@@ -165,21 +182,40 @@ class _CategoryPageState extends State<CategoryPage> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.photo),
-                      onPressed: () {},
+                      onPressed: () async {
+                        await getImage();
+                        if (_image == null) return;
+                        showDialog(
+                          context: context,
+                          builder: (newContext) {
+                            return AlertDialog(
+                              actions: [
+                                TextButton(
+                                  child: Text('Send'),
+                                  onPressed: () {
+                                    BlocProvider.of<CategoryBloc>(context).add(
+                                      RecordAdded(
+                                        Record(_textEditingController.text,
+                                            image: _image),
+                                      ),
+                                    );
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                              content: Container(
+                                child: Image.file(_image),
+                                constraints: BoxConstraints(
+                                  maxHeight: 400,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
                     Expanded(
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Your record',
-                        ),
-                        minLines: 1,
-                        maxLines: 8,
-                        validator: (value) {
-                          if (value.trim().isEmpty) {
-                            return "Record can't be empty";
-                          }
-                          return null;
-                        },
+                      child: MessageTextFormField(
                         focusNode: _messageFocus,
                         controller: _textEditingController,
                       ),
@@ -212,6 +248,33 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class MessageTextFormField extends StatelessWidget {
+  final FocusNode focusNode;
+  final TextEditingController controller;
+
+  const MessageTextFormField({Key key, this.focusNode, this.controller})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      decoration: InputDecoration(
+        hintText: 'Your record',
+      ),
+      minLines: 1,
+      maxLines: 8,
+      validator: (value) {
+        if (value.trim().isEmpty) {
+          return "Record can't be empty";
+        }
+        return null;
+      },
+      focusNode: focusNode,
+      controller: controller,
     );
   }
 }

@@ -36,10 +36,16 @@ class RecordView extends StatelessWidget {
             builder: (context, state) => Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  record.message,
-                  textAlign: TextAlign.end,
-                ),
+                if (record.image != null)
+                  Container(
+                    constraints: BoxConstraints(maxHeight: 400),
+                    child: Image.file(record.image),
+                  ),
+                if (record.message.isNotEmpty)
+                  Text(
+                    record.message,
+                    textAlign: TextAlign.end,
+                  ),
                 if (record.isFavorite)
                   Icon(
                     Icons.bookmark,
