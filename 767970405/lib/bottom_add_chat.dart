@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'create_new_page.dart';
 
 class ButtonAddChat extends StatelessWidget {
-  final _addPage;
+  // onAddPage
+  final Function _addPage;
 
   ButtonAddChat(this._addPage);
 

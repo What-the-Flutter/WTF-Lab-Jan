@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'event_page.dart';
 import 'list_item.dart';
+import 'theme_model.dart';
 
 class CreateNewPage extends StatefulWidget {
   static const routName = 'createPage';
@@ -192,7 +194,7 @@ class _CreateNewPageState extends State<CreateNewPage> {
         ],
       ),
       decoration: BoxDecoration(
-        color: Colors.blueGrey,
+        color: Provider.of<ThemeModel>(context).currentTheme.cardColor,
         shape: BoxShape.circle,
       ),
     );
@@ -208,7 +210,7 @@ class _CreateNewPageState extends State<CreateNewPage> {
     });
   }
 }
-
+// настроить инкапсуляцию
 class PropertyLabelEvent {
   final IconData _iconData;
   bool _isVisible;

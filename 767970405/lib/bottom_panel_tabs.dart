@@ -40,10 +40,8 @@ class _BottomPanelTabsState extends State<BottomPanelTabs> {
         )
       ],
       onTap: (index) {
-        setState(
-          () {
-            _currentIndex = index;
-          },
+        setState(() =>
+            _currentIndex = index,
         );
       },
     );
