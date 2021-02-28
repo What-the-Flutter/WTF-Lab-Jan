@@ -1,48 +1,42 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../models/list_view_suggestion.dart';
+import '../models/suggestion.dart';
 
 class ForwardDialog extends StatefulWidget {
-  final String title, firstBtnText, secondBtnText;
+  final String title, firstBtnText;
   final Icon icon;
-  final dynamic firstBtnFunc, secondBtnFunc;
-  final List<ListViewSuggestion> suggestionsList;
+  final dynamic selectedFunction;
+  final List<Suggestion> suggestionsList;
 
   ForwardDialog({
     this.title,
     this.firstBtnText,
-    this.secondBtnText,
     this.icon,
-    this.firstBtnFunc,
-    this.secondBtnFunc,
+    this.selectedFunction,
     this.suggestionsList,
   });
 
   @override
-  _CustomDialog createState() => _CustomDialog(
+  _ForwardDialog createState() => _ForwardDialog(
         title,
         firstBtnText,
-        secondBtnText,
         icon,
-        firstBtnFunc,
-        secondBtnFunc,
+        selectedFunction,
         suggestionsList,
       );
 }
 
-class _CustomDialog extends State<ForwardDialog> {
-  final String title, firstBtnText, secondBtnText;
+class _ForwardDialog extends State<ForwardDialog> {
+  final String title, firstBtnText;
   final Icon icon;
-  final dynamic firstBtnFunc, secondBtnFunc;
-  final List<ListViewSuggestion> suggestionsList;
+  final dynamic _selectedFunction;
+  final List<Suggestion> suggestionsList;
 
-  _CustomDialog(
+  _ForwardDialog(
     this.title,
     this.firstBtnText,
-    this.secondBtnText,
     this.icon,
-    this.firstBtnFunc,
-    this.secondBtnFunc,
+    this._selectedFunction,
     this.suggestionsList,
   );
 
@@ -55,38 +49,12 @@ class _CustomDialog extends State<ForwardDialog> {
     );
   }
 
-  List<ListViewSuggestion> _suggestionsList;
-  ListViewSuggestion selectedListViewSuggestion;
+  List<Suggestion> _suggestionsList;
 
   @override
   void initState() {
     super.initState();
     _suggestionsList = suggestionsList;
-  }
-
-  void _setSelectedSuggestion(ListViewSuggestion listViewSuggestion) {
-    setState(() {
-      selectedListViewSuggestion = listViewSuggestion;
-    });
-  }
-
-  List<Widget> createRadioListSuggestion() {
-    var suggestionList = <Widget>[];
-    for (var listViewSuggestion in _suggestionsList) {
-      suggestionList.add(
-        RadioListTile(
-          value: listViewSuggestion,
-          groupValue: selectedListViewSuggestion,
-          title: Text(listViewSuggestion.nameOfSuggestion),
-          onChanged: (currentSuggestion) {
-            _setSelectedSuggestion(currentSuggestion);
-          },
-          selected: selectedListViewSuggestion == listViewSuggestion,
-          activeColor: Colors.redAccent,
-        ),
-      );
-    }
-    return suggestionList;
   }
 
   Widget _dialogContent(BuildContext context) {
@@ -112,7 +80,7 @@ class _CustomDialog extends State<ForwardDialog> {
                 height: 300.0,
                 child: SingleChildScrollView(
                   child: Column(
-                    children: createRadioListSuggestion(),
+                    children: createListSuggestion(),
                   ),
                 ),
               ),
@@ -129,6 +97,39 @@ class _CustomDialog extends State<ForwardDialog> {
     );
   }
 
+  List<Widget> createListSuggestion() {
+    var suggestionList = <Widget>[];
+    for (var listViewSuggestion in _suggestionsList) {
+      suggestionList.add(
+        Column(
+          children: <Widget>[
+            ListTile(
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+              leading: Image.asset(listViewSuggestion.imagePathOfSuggestion),
+              title: Text(
+                listViewSuggestion.nameOfSuggestion,
+                style: TextStyle(fontWeight: FontWeight.bold),
+                maxLines: 1,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              ),
+              onTap: () {
+                _selectedFunction(listViewSuggestion);
+                Navigator.of(context).pop();
+              },
+            ),
+            Divider(
+              color: Theme.of(context).dividerColor,
+            ),
+          ],
+        ),
+      );
+    }
+    return suggestionList;
+  }
+
   ButtonBar get _buttonBar {
     return ButtonBar(
       buttonMinWidth: 100,
@@ -140,23 +141,9 @@ class _CustomDialog extends State<ForwardDialog> {
             style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor),
           ),
           onPressed: () {
-            firstBtnFunc();
             Navigator.of(context).pop();
           },
         ),
-        selectedListViewSuggestion == null
-            ? Container()
-            : TextButton(
-                child: Text(
-                  secondBtnText,
-                  style: TextStyle(
-                      color: Theme.of(context).scaffoldBackgroundColor),
-                ),
-                onPressed: () {
-                  secondBtnFunc(selectedListViewSuggestion);
-                  Navigator.of(context).pop();
-                },
-              ),
       ],
     );
   }

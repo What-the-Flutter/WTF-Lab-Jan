@@ -9,9 +9,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../db_helper/db_helper.dart';
 import '../models/category.dart';
 import '../models/event_message.dart';
-import '../models/list_view_suggestion.dart';
+import '../models/suggestion.dart';
 import '../theme_provider/custom_theme_provider.dart';
 import '../widgets/custom_dialog.dart';
 import '../widgets/forward_dialog.dart';
@@ -19,8 +20,8 @@ import '../widgets/slidable_swipe_widget.dart';
 
 class EventScreen extends StatefulWidget {
   final String title;
-  final ListViewSuggestion listViewSuggestion;
-  final List<ListViewSuggestion> suggestionsList;
+  final Suggestion listViewSuggestion;
+  final List<Suggestion> suggestionsList;
 
   EventScreen(
       {Key key, this.title, this.listViewSuggestion, this.suggestionsList})
@@ -33,9 +34,10 @@ class EventScreen extends StatefulWidget {
 
 class _EventScreenState extends State<EventScreen> {
   final TextEditingController _textEditingController = TextEditingController();
-  final ListViewSuggestion _listViewSuggestion;
+  final Suggestion _listViewSuggestion;
   final SlidableController slidableController = SlidableController();
-  final List<ListViewSuggestion> _suggestionsList;
+  final List<Suggestion> _suggestionsList;
+  final DBHelper _dbHelper = DBHelper();
 
   List<EventMessage> _filteredEventMessageList;
   EventMessage _bottomSheetEventMessage;
@@ -64,6 +66,21 @@ class _EventScreenState extends State<EventScreen> {
     Category(nameOfCategory: 'Taxi', imagePath: 'assets/images/taxi1.png'),
   ];
 
+  void _updateEventMessageList() {
+    var dbEventMessageList = _dbHelper.dbEventMessagesList();
+    var eventMessageList = <EventMessage>[];
+    dbEventMessageList.then((dbCurrentEventMessageList) {
+      setState(() {
+        for (var i = 0; i < dbCurrentEventMessageList.length; i++) {
+          if (dbCurrentEventMessageList[i].nameOfSuggestion == widget.title) {
+            eventMessageList.insert(0, dbCurrentEventMessageList[i]);
+          }
+        }
+        _filteredEventMessageList = eventMessageList;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +95,7 @@ class _EventScreenState extends State<EventScreen> {
     setState(() {
       _filteredEventMessageList = _listViewSuggestion.eventMessagesList;
     });
+    _dbHelper.initializeDatabase();
     super.initState();
   }
 
@@ -158,7 +176,7 @@ class _EventScreenState extends State<EventScreen> {
   void _filterEventMessageList(value) {
     setState(() {
       _filteredEventMessageList = _listViewSuggestion.eventMessagesList
-          .where((suggestion) => suggestion.isImageMessage
+          .where((suggestion) => suggestion.isImageMessage == 1
               ? 'Image'.toLowerCase().contains(value.toLowerCase())
               : suggestion.text.toLowerCase().contains(value.toLowerCase()))
           .toList();
@@ -266,13 +284,13 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   Widget _eventAndFavoriteMessage(EventMessage eventMessage) {
-    if ((eventMessage.isFavorite && _isFavoriteButPressed) ||
+    if ((eventMessage.isFavorite == 1 && _isFavoriteButPressed) ||
         (!_isFavoriteButPressed)) {
       return SwipeWidget(
         child: _eventMessage(eventMessage, false),
         doSwipeSelectedAction: (action) =>
             doSwipeSelectedItemAction(context, eventMessage, action),
-        isImageMessage: eventMessage.isImageMessage,
+        isImageMessage: eventMessage.isImageMessage == 1,
         slidableController: slidableController,
       );
     } else {
@@ -340,8 +358,8 @@ class _EventScreenState extends State<EventScreen> {
       child: Row(
         children: [
           Expanded(
-              flex: eventMessage.category == null ? 0 : 2,
-              child: eventMessage.category == null
+              flex: eventMessage.nameOfCategory == null ? 0 : 2,
+              child: eventMessage.nameOfCategory == null
                   ? Container()
                   : Container(
                       margin: EdgeInsets.only(left: 5.0),
@@ -349,7 +367,7 @@ class _EventScreenState extends State<EventScreen> {
                         left: 5.0,
                       ),
                       height: 40,
-                      child: Image.asset(eventMessage.category.imagePath),
+                      child: Image.asset(eventMessage.categoryImagePath),
                     )),
           Expanded(
             flex: 10,
@@ -382,8 +400,8 @@ class _EventScreenState extends State<EventScreen> {
                     SizedBox(
                       height: 5.0,
                     ),
-                    eventMessage.isImageMessage
-                        ? Image(image: FileImage(eventMessage.image.file))
+                    eventMessage.isImageMessage == 1
+                        ? Image(image: FileImage(File(eventMessage.imagePath)))
                         : Text(
                             eventMessage.text,
                             maxLines: isSelected ? 2 : null,
@@ -402,7 +420,7 @@ class _EventScreenState extends State<EventScreen> {
             child: isSelected
                 ? Container()
                 : IconButton(
-                    icon: eventMessage.isFavorite
+                    icon: eventMessage.isFavorite == 1
                         ? Icon(
                             Icons.bookmark,
                             color: Colors.orangeAccent,
@@ -416,7 +434,10 @@ class _EventScreenState extends State<EventScreen> {
                           ),
                     onPressed: () {
                       setState(() {
-                        eventMessage.isFavorite = !eventMessage.isFavorite;
+                        eventMessage.isFavorite =
+                            (eventMessage.isFavorite == 1) ? 0 : 1;
+                        _dbHelper.updateEventMessage(eventMessage);
+                        _updateEventMessageList();
                       });
                     },
                   ),
@@ -506,18 +527,20 @@ class _EventScreenState extends State<EventScreen> {
 
   void _sendIconPressed() {
     _isSearchIconButtonPressed ? _closeSearchTextField() : () {};
-
-    _listViewSuggestion.eventMessagesList.insert(
-      0,
-      EventMessage(
-        DateFormat.yMMMd().add_jm().format(DateTime.now()),
-        _textEditingController.text,
-        false,
-        false,
-        null,
-        _selectedCategory,
-      ),
+    var eventMessage = EventMessage(
+      nameOfSuggestion: widget.title,
+      time: DateFormat.yMMMd().add_jm().format(DateTime.now()),
+      text: _textEditingController.text,
+      isFavorite: 0,
+      isImageMessage: 0,
+      imagePath: 'null',
+      categoryImagePath:
+          _selectedCategory == null ? null : _selectedCategory.imagePath,
+      nameOfCategory:
+          _selectedCategory == null ? null : _selectedCategory.nameOfCategory,
     );
+    _dbHelper.insertEventMessage(eventMessage);
+    _updateEventMessageList();
     _textEditingController.clear();
     isWriting = false;
     _isCategorySelected ? _closeSelectionOfCategory() : () {};
@@ -584,17 +607,19 @@ class _EventScreenState extends State<EventScreen> {
     _isSearchIconButtonPressed ? _closeSearchTextField() : () {};
     if (file != null) {
       imageFile = File(file.path);
-      _listViewSuggestion.eventMessagesList.insert(
-        0,
-        EventMessage(
-          DateFormat.yMMMd().add_jm().format(DateTime.now()),
-          null,
-          false,
-          true,
-          FileImage(File(_imageFile.path)),
-          _selectedCategory,
-        ),
-      );
+      _dbHelper.insertEventMessage(EventMessage(
+        nameOfSuggestion: widget.title,
+        time: DateFormat.yMMMd().add_jm().format(DateTime.now()),
+        text: '',
+        isFavorite: 0,
+        isImageMessage: 1,
+        imagePath: _imageFile.path,
+        categoryImagePath:
+            _selectedCategory == null ? null : _selectedCategory.imagePath,
+        nameOfCategory:
+            _selectedCategory == null ? null : _selectedCategory.nameOfCategory,
+      ));
+      _updateEventMessageList();
     }
     _isCategorySelected ? _closeSelectionOfCategory() : () {};
   }
@@ -623,8 +648,8 @@ class _EventScreenState extends State<EventScreen> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Expanded(
-          flex: eventMessage.isImageMessage ? 0 : 5,
-          child: eventMessage.isImageMessage
+          flex: eventMessage.isImageMessage == 1 ? 0 : 5,
+          child: eventMessage.isImageMessage == 1
               ? Padding(
                   padding: EdgeInsets.only(top: 5.0),
                   child: Center(
@@ -641,7 +666,7 @@ class _EventScreenState extends State<EventScreen> {
               : _eventMessage(eventMessage, true),
         ),
         Expanded(
-            flex: eventMessage.isImageMessage ? 0 : 3,
+            flex: eventMessage.isImageMessage == 1 ? 0 : 3,
             child: _listTile(
               context,
               'Forward',
@@ -650,8 +675,8 @@ class _EventScreenState extends State<EventScreen> {
               eventMessage,
             )),
         Expanded(
-          flex: eventMessage.isImageMessage ? 0 : 3,
-          child: eventMessage.isImageMessage
+          flex: eventMessage.isImageMessage == 1 ? 0 : 3,
+          child: eventMessage.isImageMessage == 1
               ? Container()
               : _listTile(
                   context,
@@ -662,8 +687,8 @@ class _EventScreenState extends State<EventScreen> {
                 ),
         ),
         Expanded(
-          flex: eventMessage.isImageMessage ? 0 : 3,
-          child: eventMessage.isImageMessage
+          flex: eventMessage.isImageMessage == 1 ? 0 : 3,
+          child: eventMessage.isImageMessage == 1
               ? Container()
               : _listTile(
                   context,
@@ -674,10 +699,10 @@ class _EventScreenState extends State<EventScreen> {
                 ),
         ),
         Expanded(
-          flex: eventMessage.isImageMessage ? 0 : 3,
+          flex: eventMessage.isImageMessage == 1 ? 0 : 3,
           child: _listTile(
             context,
-            eventMessage.isFavorite
+            eventMessage.isFavorite == 1
                 ? 'Remove from favorites'
                 : 'Add to favorites',
             Icons.bookmark_border_outlined,
@@ -686,7 +711,7 @@ class _EventScreenState extends State<EventScreen> {
           ),
         ),
         Expanded(
-          flex: eventMessage.isImageMessage ? 0 : 3,
+          flex: eventMessage.isImageMessage == 1 ? 0 : 3,
           child: _listTile(
             context,
             'Delete',
@@ -735,10 +760,8 @@ class _EventScreenState extends State<EventScreen> {
           child: ForwardDialog(
             title: 'Forward',
             firstBtnText: 'Cancel',
-            secondBtnText: 'Forward',
             icon: Icon(Icons.arrow_back_outlined),
-            firstBtnFunc: () {},
-            secondBtnFunc: _selectedForward,
+            selectedFunction: _selectedForward,
             suggestionsList: _suggestionsList,
           ),
         );
@@ -750,21 +773,31 @@ class _EventScreenState extends State<EventScreen> {
     setState(() {});
   }
 
-  void _selectedForward(ListViewSuggestion selectedListViewSuggestion) {
+  void _selectedForward(Suggestion selectedListViewSuggestion) {
     setState(() {
-      var selectedEventMessage = _bottomSheetEventMessage.isImageMessage
-          ? EventMessage(DateFormat.yMMMd().add_jm().format(DateTime.now()),
-              null, false, true, _bottomSheetEventMessage.image)
+      var selectedEventMessage = _bottomSheetEventMessage.isImageMessage == 1
+          ? EventMessage(
+              nameOfSuggestion: selectedListViewSuggestion.nameOfSuggestion,
+              time: DateFormat.yMMMd().add_jm().format(DateTime.now()),
+              text: '',
+              isFavorite: 0,
+              isImageMessage: 1,
+              imagePath: _bottomSheetEventMessage.imagePath,
+              categoryImagePath: _bottomSheetEventMessage.categoryImagePath,
+              nameOfCategory: _bottomSheetEventMessage.nameOfCategory,
+            )
           : EventMessage(
-              DateFormat.yMMMd().add_jm().format(DateTime.now()),
-              _bottomSheetEventMessage.text,
-              false,
-              false,
+              nameOfSuggestion: selectedListViewSuggestion.nameOfSuggestion,
+              time: DateFormat.yMMMd().add_jm().format(DateTime.now()),
+              text: _bottomSheetEventMessage.text,
+              isFavorite: 0,
+              isImageMessage: 0,
+              imagePath: 'null',
+              categoryImagePath: _bottomSheetEventMessage.categoryImagePath,
+              nameOfCategory: _bottomSheetEventMessage.nameOfCategory,
             );
-
-      _suggestionsList[_suggestionsList.indexOf(selectedListViewSuggestion)]
-          .eventMessagesList
-          .insert(0, selectedEventMessage);
+      _dbHelper.insertEventMessage(selectedEventMessage);
+      _updateEventMessageList();
     });
   }
 
@@ -828,10 +861,9 @@ class _EventScreenState extends State<EventScreen> {
   void _selectedEdit() {
     setState(() {
       if (_textEditingController.text.isNotEmpty) {
-        var index = _listViewSuggestion.eventMessagesList
-            .indexOf(_bottomSheetEventMessage);
-        _listViewSuggestion.eventMessagesList[index].text =
-            _textEditingController.text;
+        _bottomSheetEventMessage.text = _textEditingController.text;
+        _dbHelper.updateEventMessage(_bottomSheetEventMessage);
+        _updateEventMessageList();
         _textEditingController.clear();
       }
       _isEditing = false;
@@ -841,13 +873,17 @@ class _EventScreenState extends State<EventScreen> {
   void _addToFavorites() {
     setState(() {
       _bottomSheetEventMessage.isFavorite =
-          !_bottomSheetEventMessage.isFavorite;
+          (_bottomSheetEventMessage.isFavorite == 1) ? 0 : 1;
+      _dbHelper.updateEventMessage(_bottomSheetEventMessage);
+      _updateEventMessageList();
     });
   }
 
   void _deleteEventMessage() {
     setState(() {
+      _dbHelper.deleteEventMessage(_bottomSheetEventMessage);
       _listViewSuggestion.eventMessagesList.remove(_bottomSheetEventMessage);
+      _updateEventMessageList();
     });
   }
 }

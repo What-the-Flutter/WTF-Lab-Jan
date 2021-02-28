@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../models/list_view_suggestion.dart';
+import '../../models/suggestion.dart';
 
 abstract class SuggestionsState extends Equatable {
   const SuggestionsState();
@@ -11,9 +11,9 @@ abstract class SuggestionsState extends Equatable {
 class SuggestionsLoadInProgress extends SuggestionsState {}
 
 class SuggestionsLoadSuccess extends SuggestionsState {
-  final List<ListViewSuggestion> suggestions;
+  final List<Suggestion> suggestions;
 
-  const SuggestionsLoadSuccess([this.suggestions = const []]);
+  const SuggestionsLoadSuccess(this.suggestions);
 
   @override
   List<Object> get props => [suggestions];

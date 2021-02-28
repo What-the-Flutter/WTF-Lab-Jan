@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import '../preferences/theme_preferences/theme_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  ThemeMode themeMode = ThemeMode.light;
+  ThemeMode themeMode = getCurrentThemeModePreferences();
 
   bool get isDarkMode => themeMode == ThemeMode.dark;
 
   void toggleTheme(bool isOnPressed) {
+    changeThemePreferences(isOnPressed);
     themeMode = isOnPressed ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
@@ -30,6 +32,7 @@ final darkTheme = ThemeData(
   ),
   dialogBackgroundColor: Color.fromRGBO(151, 157, 155, 1),
   bottomAppBarColor: Color.fromRGBO(46, 46, 46, 1),
+  dividerColor: Colors.white38,
 );
 
 final lightTheme = ThemeData(
@@ -53,4 +56,5 @@ final lightTheme = ThemeData(
   ),
   dialogBackgroundColor: Colors.white,
   bottomAppBarColor: Colors.white,
+  dividerColor: Colors.white38,
 );

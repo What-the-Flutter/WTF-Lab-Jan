@@ -6,13 +6,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../blocs/blocs.dart';
+import '../db_helper/db_helper.dart';
+import '../main.dart';
 import '../models/app_tab.dart';
-import '../models/list_view_suggestion.dart';
+import '../models/event_message.dart';
+import '../models/suggestion.dart';
 import '../theme_provider/custom_theme_provider.dart';
 import '../widgets/change_theme_button_widget.dart';
 import '../widgets/custom_dialog.dart';
 import '../widgets/info_about_suggestion_dialog.dart';
 import '../widgets/tab_selector.dart';
+import 'creating_categories_screen.dart';
 import 'creating_suggestion_screen.dart';
 import 'event_screen.dart';
 
@@ -28,36 +32,67 @@ class HomeScreen extends StatefulWidget {
 ///This class implements the main logic of the [HomeScreen].
 class _HomeScreenState extends State<HomeScreen> {
   // int _currentIndexBotNavBar = 0;
-  ListViewSuggestion _selectedSuggestion;
   final TextEditingController _textEditingController = TextEditingController();
+  final DBHelper _dbHelper = DBHelper();
 
-  //Temporary list to test functionality.
-  List<ListViewSuggestion> suggestionsList = [
-    ListViewSuggestion('Family', 'assets/images/baby.png'),
-    ListViewSuggestion('Food', 'assets/images/burger.png'),
-    ListViewSuggestion('Sport', 'assets/images/gym.png'),
-    ListViewSuggestion('Travel', 'assets/images/airplane.png'),
-    ListViewSuggestion('Entertainment', 'assets/images/game_controller.png'),
-    ListViewSuggestion('Study', 'assets/images/university.png'),
-    ListViewSuggestion('Work', 'assets/images/work.png'),
-    ListViewSuggestion('Supermarket', 'assets/images/supermarket.png'),
-  ];
+  Suggestion _selectedSuggestion;
+  List<EventMessage> eventMessageList = [];
+
+  @override
+  void initState() {
+    _dbHelper.initializeDatabase();
+    _updateSuggestionList();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TabBloc, AppTab>(builder: (context, activeTab) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: _appBar,
-        drawer: _drawer,
-        body: _homePageBody,
-        bottomNavigationBar: TabSelector(
-          activeTab: activeTab,
-          onTabSelected: (tab) =>
-              BlocProvider.of<TabBloc>(context).add(TabUpdated(tab)),
-        ),
-        floatingActionButton: _floatingActionButton,
-      );
+    _distributeEventMessagesToSuggestions();
+    return BlocBuilder<TabBloc, AppTab>(
+      builder: (context, activeTab) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          appBar: _appBar,
+          drawer: _drawer,
+          body: _homePageBody,
+          bottomNavigationBar: TabSelector(
+            activeTab: activeTab,
+            onTabSelected: (tab) =>
+                BlocProvider.of<TabBloc>(context).add(TabUpdated(tab)),
+          ),
+          floatingActionButton: _floatingActionButton,
+        );
+      },
+    );
+  }
+
+  void _updateSuggestionList() {
+    var dbSuggestionList = _dbHelper.dbSuggestionsList();
+    dbSuggestionList.then((dbCurrentSuggestionList) {
+      setState(() {
+        suggestionsList = dbCurrentSuggestionList;
+      });
+    });
+    var dbEventMessagesList = _dbHelper.dbEventMessagesList();
+    dbEventMessagesList.then((dbCurrentEventMessageList) {
+      setState(() {
+        eventMessageList = dbCurrentEventMessageList;
+      });
+    });
+  }
+
+  void _distributeEventMessagesToSuggestions() {
+    setState(() {
+      for (var i = 0; i < suggestionsList.length; i++) {
+        var localEventMessageList = <EventMessage>[];
+        for (var j = 0; j < eventMessageList.length; j++) {
+          if (eventMessageList[j].nameOfSuggestion ==
+              suggestionsList[i].nameOfSuggestion) {
+            localEventMessageList.insert(0, eventMessageList[j]);
+          }
+        }
+        suggestionsList[i].eventMessagesList = localEventMessageList;
+      }
     });
   }
 
@@ -134,6 +169,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Theme.of(context).accentColor,
               ),
             ),
+          ),
+          ListTile(
+            leading: Icon(Icons.widgets_outlined),
+            title: Text(
+              'Categories',
+              style: TextStyle(
+                color: Theme.of(context).accentColor,
+              ),
+            ),
+            onTap:  () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreatingCategoriesScreen(),
+                ),
+              );
+              _updateSuggestionList();
+            },
           ),
           ListTile(
             leading: Icon(Icons.timeline),
@@ -230,47 +283,52 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         );
-        setState(() {});
+        _updateSuggestionList();
       },
     );
   }
 
-  ClipRRect get _homePageBody {
+  Widget get _homePageBody {
     return _listViewSuggestions;
   }
 
-  ClipRRect get _listViewSuggestions {
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(25.0),
-        topRight: Radius.circular(25.0),
-      ),
-      child: Container(
-        padding: EdgeInsets.only(left: 10.0, right: 10.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).backgroundColor,
+  Widget get _listViewSuggestions {
+    return BlocBuilder<SuggestionsBloc, SuggestionsState>(
+      builder: (context, suggestion) {
+        return ClipRRect(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(25.0),
             topRight: Radius.circular(25.0),
           ),
-        ),
-        child: ListView.builder(
-          reverse: false,
-          itemCount: suggestionsList.length,
-          itemBuilder: (context, index) {
-            suggestionsList.sort((a, b) => (a.isPinned).compareTo(b.isPinned));
-            var _localSuggestionsList =
-                List<ListViewSuggestion>.from(suggestionsList.reversed);
+          child: Container(
+            padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).backgroundColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25.0),
+                topRight: Radius.circular(25.0),
+              ),
+            ),
+            child: ListView.builder(
+              reverse: false,
+              itemCount: suggestionsList.length,
+              itemBuilder: (context, index) {
+                suggestionsList
+                    .sort((a, b) => (a.isPinned).compareTo(b.isPinned));
+                var _localSuggestionsList =
+                    List<Suggestion>.from(suggestionsList.reversed);
 
-            return _row(_localSuggestionsList, index);
-          },
-        ),
-      ),
+                return _row(_localSuggestionsList, index);
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
   ///Builds suggestion card.
-  Widget _row(List<ListViewSuggestion> list, int index) {
+  Widget _row(List<Suggestion> list, int index) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -286,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         subtitle: Text(
           list[index].eventMessagesList.isNotEmpty
-              ? (list[index].eventMessagesList.first.isImageMessage
+              ? (list[index].eventMessagesList.first.isImageMessage == 1
                   ? 'Image'
                   : list[index].eventMessagesList.first.text)
               : list[index].infoOfSuggestion,
@@ -315,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           );
-          setState(() {});
+          _updateSuggestionList();
         },
         onLongPress: () {
           setState(() => _showBottomSheet(context, list[index]));
@@ -324,8 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showBottomSheet(
-      BuildContext context, ListViewSuggestion listViewSuggestions) {
+  void _showBottomSheet(BuildContext context, Suggestion listViewSuggestions) {
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -344,7 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
   }
 
-  Column _structureBottomSheet(ListViewSuggestion listViewSuggestions) {
+  Column _structureBottomSheet(Suggestion listViewSuggestions) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -414,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   ListTile _listTile(BuildContext context, String name, IconData icon,
-      Function action, ListViewSuggestion listViewSuggestion) {
+      Function action, Suggestion listViewSuggestion) {
     _selectedSuggestion = listViewSuggestion;
     return ListTile(
       leading: Icon(
@@ -460,12 +517,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void _pinSuggestion() {
     setState(() {
       _selectedSuggestion.isPinned = 1;
+      _dbHelper.updateSuggestion(_selectedSuggestion);
     });
   }
 
   void _unpinSuggestion() {
     setState(() {
       _selectedSuggestion.isPinned = 0;
+      _dbHelper.updateSuggestion(_selectedSuggestion);
     });
   }
 
@@ -476,7 +535,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<Object> _showEditSuggestionCustomDialog(
-      ListViewSuggestion listViewSuggestion) {
+      Suggestion listViewSuggestion) {
     _textEditingController.text = listViewSuggestion.nameOfSuggestion;
     return showGeneralDialog(
       barrierDismissible: false,
@@ -518,14 +577,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void _selectedEdit() {
     setState(() {
       if (_textEditingController.text.isNotEmpty) {
-        var index = suggestionsList.indexOf(_selectedSuggestion);
-        suggestionsList[index].nameOfSuggestion = _textEditingController.text;
+        _selectedSuggestion.nameOfSuggestion = _textEditingController.text;
+        _dbHelper.updateSuggestion(_selectedSuggestion);
+        _updateSuggestionList();
         _textEditingController.clear();
       }
     });
   }
 
   void _deleteSuggestion() {
-    setState(() => suggestionsList.remove(_selectedSuggestion));
+    // BlocProvider.of<SuggestionsBloc>(context)
+    //     .add(SuggestionsDeleted(_selectedSuggestion));
+    setState(() {
+      _dbHelper.deleteSuggestion(_selectedSuggestion);
+      _updateSuggestionList();
+    });
   }
 }

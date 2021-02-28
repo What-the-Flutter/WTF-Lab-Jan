@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/list_view_suggestion.dart';
+import '../models/suggestion.dart';
 import '../theme_provider/custom_theme_provider.dart';
 
 class InfoAboutSuggestionDialog extends StatefulWidget {
-  final ListViewSuggestion currentSuggestion;
+  final Suggestion currentSuggestion;
 
   const InfoAboutSuggestionDialog({Key key, this.currentSuggestion})
       : super(key: key);
@@ -17,7 +17,7 @@ class InfoAboutSuggestionDialog extends StatefulWidget {
 }
 
 class _InfoAboutSuggestionDialogState extends State<InfoAboutSuggestionDialog> {
-  final ListViewSuggestion currentSuggestions;
+  final Suggestion currentSuggestions;
 
   _InfoAboutSuggestionDialogState(this.currentSuggestions);
 

@@ -3,28 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../db_helper/db_helper.dart';
-import '../models/suggestion.dart';
+import '../models/category.dart';
 import '../theme_provider/custom_theme_provider.dart';
 
-class CreatingSuggestionScreen extends StatefulWidget {
-  final List<Suggestion> suggestionsList;
-
-  CreatingSuggestionScreen({Key key, this.suggestionsList}) : super(key: key);
+class CreatingCategoriesScreen extends StatefulWidget {
+  CreatingCategoriesScreen({Key key}) : super(key: key);
 
   @override
-  _CreatingSuggestionScreenState createState() =>
-      _CreatingSuggestionScreenState(suggestionsList);
+  _CreatingCategoriesScreenState createState() =>
+      _CreatingCategoriesScreenState();
 }
 
-class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
-  final List<Suggestion> suggestionsList;
+class _CreatingCategoriesScreenState extends State<CreatingCategoriesScreen> {
   final TextEditingController _textEditingController = TextEditingController();
   final DBHelper _dbHelper = DBHelper();
 
   String _currentImagePath = 'assets/images/journal.png';
   bool _isWriting = false;
 
-  _CreatingSuggestionScreenState(this.suggestionsList);
+  _CreatingCategoriesScreenState();
 
   final List<String> _listImagesPath = [
     'assets/images/journal.png',
@@ -53,46 +50,19 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
     'assets/images/parrot.png',
     'assets/images/american_football.png',
     'assets/images/bask.png',
-    'assets/images/hockey.png',
-    'assets/images/ski.png',
-    'assets/images/snowboard.png',
-    'assets/images/soccer_ball.png',
-    'assets/images/racket.png',
-    'assets/images/gym.png',
-    'assets/images/finish.png',
-    'assets/images/game_controller.png',
-    'assets/images/piano.png',
-    'assets/images/e_guitar.png',
-    'assets/images/carnival.png',
-    'assets/images/disco.png',
-    'assets/images/dj.png',
-    'assets/images/headphones.png',
-    'assets/images/unicorn.png',
-    'assets/images/witch.png',
-    'assets/images/validate.png',
-    'assets/images/imagination.png',
-    'assets/images/university.png',
-    'assets/images/science.png',
-    'assets/images/command.png',
-    'assets/images/work.png',
-    'assets/images/bank.png',
-    'assets/images/company.png',
-    'assets/images/camera.png',
-    'assets/images/popcorn.png',
-    'assets/images/cinema.png',
-    'assets/images/park.png',
-    'assets/images/baby.png',
-    'assets/images/birthday_cupcake.png',
-    'assets/images/chauffeur.png',
-    'assets/images/hair.png',
-    'assets/images/barbershop.png',
-    'assets/images/mountain.png',
-    'assets/images/nurse.png',
-    'assets/images/nurse_wom.png',
-    'assets/images/t_shirt.png',
-    'assets/images/improvement.png',
-    'assets/images/clean.png',
-    'assets/images/washer.png',
+  ];
+
+  final List<Category> _categoryList = [
+    Category(nameOfCategory: 'Journal', imagePath: 'assets/images/journal.png'),
+    Category(nameOfCategory: 'Pig', imagePath: 'assets/images/pig.png'),
+    Category(
+        nameOfCategory: 'Money', imagePath: 'assets/images/money_invest.png'),
+    Category(nameOfCategory: 'Tea', imagePath: 'assets/images/tea.png'),
+    Category(nameOfCategory: 'Relax', imagePath: 'assets/images/relax.png'),
+    Category(nameOfCategory: 'Bar', imagePath: 'assets/images/beer.png'),
+    Category(nameOfCategory: 'Bus', imagePath: 'assets/images/bus.png'),
+    Category(nameOfCategory: 'Bike', imagePath: 'assets/images/bike.png'),
+    Category(nameOfCategory: 'Taxi', imagePath: 'assets/images/taxi1.png'),
   ];
 
   @override
@@ -110,7 +80,7 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       title: Container(
         child: Text(
-          'Create a new suggestion',
+          'Create a new categorie',
           style: TextStyle(
             color: Provider.of<ThemeProvider>(context).isDarkMode
                 ? Theme.of(context).accentColor
@@ -126,19 +96,7 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
                   Icons.check,
                 ),
                 onPressed: () {
-                  setState(() {
-                    _dbHelper.insertSuggestion(Suggestion(
-                      nameOfSuggestion: _textEditingController.text,
-                      imagePathOfSuggestion: _currentImagePath,
-                      isPinned: 0,
-                    ));
-                    // suggestionsList.add(ListViewSuggestion(
-                    //   _textEditingController.text,
-                    //   _currentImagePath,
-                    // ));
-
-                    Navigator.of(context).pop();
-                  });
+                  setState(() {});
                 },
               )
             : IconButton(
@@ -161,18 +119,24 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
           flex: 2,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
-            child: _rowInpNewSuggestion,
+            child: _rowInpNewCategorie,
           ),
         ),
+        _isWriting
+            ? Container()
+            : Expanded(
+                flex: 2,
+                child: _categoriesList,
+              ),
         Expanded(
-          flex: 7,
+          flex: 6,
           child: _partIconSelection,
         ),
       ],
     );
   }
 
-  Row get _rowInpNewSuggestion {
+  Row get _rowInpNewCategorie {
     return Row(
       children: [
         Expanded(
@@ -195,7 +159,7 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
                   : isWriting = false;
             },
             decoration: InputDecoration(
-              hintText: 'Enter name of Suggestion',
+              hintText: 'Enter name of Categorie',
               hintStyle: TextStyle(
                 color: Colors.white70,
               ),
@@ -220,6 +184,63 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
     setState(() => _isWriting = isWriting);
   }
 
+  ClipRRect get _categoriesList {
+    return ClipRRect(
+      borderRadius: BorderRadius.all(Radius.circular(25.0)),
+      child: Container(
+        padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+        margin: EdgeInsets.only(top: 5.0, bottom: 5.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).backgroundColor,
+          borderRadius: BorderRadius.all(Radius.circular(25.0)),
+        ),
+        child: _categoriesGridView,
+      ),
+    );
+  }
+
+  GridView get _categoriesGridView {
+    return GridView.count(
+      scrollDirection: Axis.horizontal,
+      crossAxisCount: 1,
+      crossAxisSpacing: 10.0,
+      mainAxisSpacing: 10.0,
+      shrinkWrap: true,
+      children: _categoryList
+          .map((category) => Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: GestureDetector(
+                  onTap: () => setState(() {}),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: CircleAvatar(
+                          radius: 25,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: 22,
+                            child: Image.asset(category.imagePath),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          category.nameOfCategory,
+                          style: TextStyle(
+                            color: Theme.of(context).accentColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ))
+          .toList(),
+    );
+  }
+
   ClipRRect get _partIconSelection {
     return ClipRRect(
       borderRadius: BorderRadius.only(
@@ -228,6 +249,7 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
       ),
       child: Container(
         padding: EdgeInsets.only(left: 10.0, right: 10.0),
+        margin: EdgeInsets.only(top: 5.0),
         decoration: BoxDecoration(
           color: Theme.of(context).backgroundColor,
           borderRadius: BorderRadius.only(
