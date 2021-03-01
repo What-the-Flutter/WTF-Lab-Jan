@@ -35,9 +35,6 @@ class TabSelector extends StatelessWidget {
                     : tab == AppTab.timeline
                         ? Icons.timeline
                         : Icons.explore,
-            // key: tab == AppTab.todos
-            //     ? ArchSampleKeys.todoTab
-            //     : ArchSampleKeys.statsTab,
             color: Provider.of<ThemeProvider>(context).isDarkMode
                 ? Theme.of(context).floatingActionButtonTheme.backgroundColor
                 : Theme.of(context).scaffoldBackgroundColor,

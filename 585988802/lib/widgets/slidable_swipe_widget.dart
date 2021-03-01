@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-enum SwipeSelectedAction { edit, delete, forward }
+enum SwipeSelectedAction { edit, delete }
 
 class SwipeWidget extends StatelessWidget {
   final Widget child;

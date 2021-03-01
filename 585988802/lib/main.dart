@@ -1,15 +1,30 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import 'blocs/blocs.dart';
 import 'blocs/tab/tab_bloc.dart';
+import 'models/suggestion.dart';
+import 'preferences/theme_preferences/theme_preferences.dart';
 import 'screens/home_screen.dart';
 import 'theme_provider/custom_theme_provider.dart';
 
-void main() {
+//Temporary list to test functionality.
+List<Suggestion> suggestionsList = [];
+
+void main() async {
   // Bloc.observer = CustomBlocObserver();
-  runApp(BlocProvider<TabBloc>(create: (context) => TabBloc(), child: App()));
+  WidgetsFlutterBinding.ensureInitialized();
+  await initThemePreferences();
+
+  runApp(MultiBlocProvider(providers: [
+    BlocProvider<SuggestionsBloc>(
+      create: (context) => SuggestionsBloc(suggestionsList: suggestionsList),
+    ),
+    BlocProvider<TabBloc>(
+      create: (context) => TabBloc(),
+    ),
+  ], child: App()));
 }
 
 ///Main class of app.

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../models/list_view_suggestion.dart';
+import '../../models/suggestion.dart';
 
 abstract class SuggestionsEvent extends Equatable {
   const SuggestionsEvent();
@@ -11,7 +11,7 @@ abstract class SuggestionsEvent extends Equatable {
 class SuggestionsLoadSuccessEvent extends SuggestionsEvent {}
 
 class SuggestionsAdded extends SuggestionsEvent {
-  final ListViewSuggestion suggestion;
+  final Suggestion suggestion;
 
   const SuggestionsAdded(this.suggestion);
 
@@ -23,7 +23,7 @@ class SuggestionsAdded extends SuggestionsEvent {
 }
 
 class SuggestionsUpdated extends SuggestionsEvent {
-  final ListViewSuggestion suggestion;
+  final Suggestion suggestion;
 
   const SuggestionsUpdated(this.suggestion);
 
@@ -35,7 +35,7 @@ class SuggestionsUpdated extends SuggestionsEvent {
 }
 
 class SuggestionsPinnedOrUnpinned extends SuggestionsEvent {
-  final ListViewSuggestion suggestion;
+  final Suggestion suggestion;
 
   const SuggestionsPinnedOrUnpinned(this.suggestion);
 
@@ -47,7 +47,7 @@ class SuggestionsPinnedOrUnpinned extends SuggestionsEvent {
 }
 
 class SuggestionsDeleted extends SuggestionsEvent {
-  final ListViewSuggestion suggestion;
+  final Suggestion suggestion;
 
   const SuggestionsDeleted(this.suggestion);
 

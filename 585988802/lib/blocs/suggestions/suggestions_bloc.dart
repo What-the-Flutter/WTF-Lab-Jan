@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../models/list_view_suggestion.dart';
+import '../../models/suggestion.dart';
 import 'suggestions_event.dart';
 import 'suggestions_state.dart';
 
 class SuggestionsBloc extends Bloc<SuggestionsEvent, SuggestionsState> {
-  List<ListViewSuggestion> suggestionsList;
+  //
+  List<Suggestion> suggestionsList;
 
   SuggestionsBloc({@required this.suggestionsList})
       : super(SuggestionsLoadInProgress());
@@ -23,6 +24,7 @@ class SuggestionsBloc extends Bloc<SuggestionsEvent, SuggestionsState> {
       yield* _mapSuggestionUpdatedToState(event);
     } else if (event is SuggestionsDeleted) {
       yield* _mapSuggestionDeletedToState(event);
+      print(suggestionsList.length);
     } else if (event is SuggestionsPinnedOrUnpinned) {
       yield* _mapSuggestionPinnedOrUnpinnedToState(event);
     }
@@ -30,8 +32,7 @@ class SuggestionsBloc extends Bloc<SuggestionsEvent, SuggestionsState> {
 
   Stream<SuggestionsState> _mapSuggestionLoadedToState() async* {
     try {
-      final suggestions = await suggestionsList;
-      yield SuggestionsLoadSuccess(suggestions.toList());
+      yield SuggestionsLoadSuccess(suggestionsList);
     } catch (_) {
       yield SuggestionsLoadFailure();
     }
@@ -40,25 +41,23 @@ class SuggestionsBloc extends Bloc<SuggestionsEvent, SuggestionsState> {
   Stream<SuggestionsState> _mapSuggestionAddedToState(
       SuggestionsAdded event) async* {
     if (state is SuggestionsLoadSuccess) {
-      final updatedSuggestions = List<ListViewSuggestion>.from(
+      final updatedSuggestions = List<Suggestion>.from(
           (state as SuggestionsLoadSuccess).suggestions)
         ..add(event.suggestion);
       yield SuggestionsLoadSuccess(updatedSuggestions);
-      _saveSuggestions(updatedSuggestions);
     }
   }
 
   Stream<SuggestionsState> _mapSuggestionUpdatedToState(
       SuggestionsUpdated event) async* {
     if (state is SuggestionsLoadSuccess) {
-      final List<ListViewSuggestion> updatedSuggestions =
+      final List<Suggestion> updatedSuggestions =
           (state as SuggestionsLoadSuccess).suggestions.map((suggestion) {
         return suggestion.nameOfSuggestion == event.suggestion.nameOfSuggestion
             ? event.suggestion.nameOfSuggestion
             : suggestion;
       }).toList();
       yield SuggestionsLoadSuccess(updatedSuggestions);
-      _saveSuggestions(updatedSuggestions);
     }
   }
 
@@ -70,26 +69,22 @@ class SuggestionsBloc extends Bloc<SuggestionsEvent, SuggestionsState> {
           .where((suggestion) =>
               suggestion.nameOfSuggestion != event.suggestion.nameOfSuggestion)
           .toList();
+      print(suggestionsList.length);
       yield SuggestionsLoadSuccess(updatedSuggestions);
-      _saveSuggestions(updatedSuggestions);
     }
   }
 
   Stream<SuggestionsState> _mapSuggestionPinnedOrUnpinnedToState(
       SuggestionsPinnedOrUnpinned event) async* {
     if (state is SuggestionsLoadSuccess) {
-      final List<ListViewSuggestion> updatedPinnedSuggestions =
+      final List<Suggestion> updatedPinnedSuggestions =
           (state as SuggestionsLoadSuccess).suggestions.map((suggestion) {
         return suggestion.isPinned == event.suggestion.isPinned
             ? event.suggestion.isPinned
             : suggestion;
       }).toList();
       yield SuggestionsLoadSuccess(updatedPinnedSuggestions);
-      _saveSuggestions(updatedPinnedSuggestions);
     }
   }
 
-  Future _saveSuggestions(List<ListViewSuggestion> suggestions) async {
-    return suggestionsList = suggestions;
-  }
 }
