@@ -1,66 +1,59 @@
+import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bubble/bubble_type.dart';
-import 'package:flutter_chat_bubble/chat_bubble.dart';
-import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_4.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../blocs/category_bloc/category_bloc.dart';
 import '../model/record.dart';
-import '../pages/category_chat_page.dart';
 
-class RecordView extends StatefulWidget {
-  final Record _record;
+class RecordView extends StatelessWidget {
+  final Record record;
 
-  const RecordView(this._record);
+  RecordView(this.record);
 
-  @override
-  _RecordViewState createState() => _RecordViewState();
-}
-
-class _RecordViewState extends State<RecordView> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: GestureDetector(
-        onLongPress: () {
-          setState(() {
-            widget._record.isHighlighted = true;
-          });
-          updateCategoryChatPage();
-        },
-        onTap: () {
-          setState(() {
-            if (widget._record.isHighlighted) {
-              widget._record.isHighlighted = false;
-            } else if (categoryChatPage.hasHighlightedRecord) {
-              widget._record.isHighlighted = true;
-            }
-          });
-          updateCategoryChatPage();
-        },
-        child: ChatBubble(
-          alignment: Alignment.centerRight,
-          clipper: ChatBubbleClipper4(type: BubbleType.sendBubble),
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.7,
-            ),
-            child: Column(
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onLongPress: () {
+        BlocProvider.of<CategoryBloc>(context).add(RecordSelectChanged(record));
+      },
+      onTap: () {
+        if (BlocProvider.of<CategoryBloc>(context)
+            .category
+            .hasSelectedRecords) {
+          return BlocProvider.of<CategoryBloc>(context)
+              .add(RecordSelectChanged(record));
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1.5),
+        child: Bubble(
+          color: record.isSelected
+              ? Theme.of(context).scaffoldBackgroundColor
+              : Theme.of(context).backgroundColor,
+          alignment: Alignment.bottomRight,
+          child: BlocBuilder<CategoryBloc, CategoryState>(
+            builder: (context, state) => Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                if (widget._record.image != null)
-                  Image.file(widget._record.image),
-                Text(widget._record.message),
-                if (widget._record.isFavorite)
+                if (record.image != null)
+                  Container(
+                    constraints: BoxConstraints(maxHeight: 400),
+                    child: Image.file(record.image),
+                  ),
+                if (record.message.isNotEmpty)
+                  Text(
+                    record.message,
+                    textAlign: TextAlign.end,
+                  ),
+                if (record.isFavorite)
                   Icon(
                     Icons.bookmark,
-                    size: 10,
+                    size: 12,
                   ),
               ],
             ),
           ),
-          backGroundColor: widget._record.isHighlighted
-              ? Theme.of(context).highlightColor
-              : Theme.of(context).backgroundColor,
         ),
       ),
     );

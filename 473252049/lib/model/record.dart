@@ -4,15 +4,19 @@ class Record {
   String message;
   File image;
 
-  bool isHighlighted = false;
+  bool isSelected = false;
   bool isFavorite = false;
 
   Record(this.message, {this.image});
 
-  bool get isNotHighlighted => !isHighlighted;
-  bool get isNotFavorite => !isFavorite;
+  void select() => isSelected = true;
+  void unselect() => isSelected = false;
 
-  void changeIsFavorite() {
-    isFavorite = !isFavorite;
+  void favorite() => isFavorite = true;
+  void unfavorite() => isFavorite = false;
+
+  @override
+  String toString() {
+    return message;
   }
 }

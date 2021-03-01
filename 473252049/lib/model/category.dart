@@ -1,55 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
-import 'record.dart';
+import '../extensions/list_get_element.dart';
+import '../model/record.dart';
 
-class Category {
+class Category implements Comparable {
   String name;
   IconData icon;
-  List<Record> _records;
+  List<Record> records;
+  bool isSelected = false;
+  bool isPinned = false;
 
-  Category(this.name, this.icon) : _records = [];
-
-  Category.withRecords(this.name, this.icon, this._records);
-
-  List<Record> get records => _records;
-
-  List<Record> get highlightedRecords =>
-      _records.where((r) => r.isHighlighted).toList();
-
-  List<Record> get favoritesRecords =>
-      _records.where((r) => r.isFavorite).toList();
-
-  void addRecord(Record record) {
-    _records.insert(0, record);
+  Category(this.name, {@required this.icon, this.records}) {
+    records ??= [];
   }
 
-  void unhighlight() {
-    for (var record in highlightedRecords) {
-      record.isHighlighted = false;
-    }
+  List<Record> get selectedRecords {
+    return records.where((r) => r.isSelected).toList();
   }
 
-  void remove(Record record) {
-    _records.remove(record);
+  bool get hasSelectedRecords {
+    return records.where((r) => r.isSelected).isNotEmpty;
   }
 
-  void removeRecords(List<Record> records) {
+  void add(Record record) {
+    records.insert(0, record);
+  }
+
+  void delete(Record record) {
+    records.remove(record);
+  }
+
+  void deleteAll(List<Record> records) {
     for (var record in records) {
-      _records.remove(record);
+      delete(record);
     }
   }
 
-  void removeHighlighted() {
-    removeRecords(highlightedRecords);
+  Record update(Record record, {@required String newMessage}) {
+    return records.get(record)..message = newMessage;
   }
 
-  void changeHighlightedIsFavorite() {
-    for (var record in highlightedRecords) {
-      record.changeIsFavorite();
+  void select(Record record) {
+    records.get(record).select();
+  }
+
+  void unselect(Record record) {
+    records.get(record).unselect();
+  }
+
+  void unselectAll() {
+    for (var r in selectedRecords) {
+      r.unselect();
     }
   }
 
-  void addRecordFromMessage(String recordMessage) {
-    _records.add(Record(recordMessage));
+  void favorite(Record record) {
+    records.get(record).favorite();
+  }
+
+  void unfavorite(Record record) {
+    records.get(record).unfavorite();
+  }
+
+  @override
+  int compareTo(Object other) {
+    if (isPinned == (other as Category).isPinned) {
+      return name.compareTo((other as Category).name);
+    }
+    if (isPinned) return -1;
+    return 1;
   }
 }
