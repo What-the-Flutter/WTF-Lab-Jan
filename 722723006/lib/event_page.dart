@@ -19,7 +19,6 @@ class _EventPageState extends State<EventPage> {
   final Note _note;
   final TextEditingController textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final bool _isEditingText = false;
   bool _eventSelected = true;
   int _indexOfSelectedElement = 0;
   bool _isEditing = false;
@@ -58,7 +57,7 @@ class _EventPageState extends State<EventPage> {
                 ),
               ),
             ),
-            child: _row,
+            child: _textFieldArea,
           ),
         ),
       ],
@@ -78,7 +77,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Row get _row {
+  Row get _textFieldArea {
     return Row(
       children: <Widget>[
         IconButton(
@@ -86,13 +85,14 @@ class _EventPageState extends State<EventPage> {
           iconSize: 25,
           color: Colors.blueGrey,
           onPressed: () {
-            setState(() {});
+            setState(
+              () {},
+            );
           },
         ),
         Expanded(
           child: TextField(
-            controller:
-                _isEditingText ? TextEditingController() : textController,
+            controller: textController,
             focusNode: _focusNode,
             decoration: InputDecoration(
               hintText: 'Enter event',
@@ -102,18 +102,21 @@ class _EventPageState extends State<EventPage> {
           ),
         ),
         IconButton(
-            icon: Icon(Icons.send),
-            iconSize: 29,
-            color: Colors.blueGrey,
-            onPressed: () {
-              if (_isEditing) {
-                setState(() {
+          icon: Icon(Icons.send),
+          iconSize: 29,
+          color: Colors.blueGrey,
+          onPressed: () {
+            if (_isEditing) {
+              setState(
+                () {
                   _editText(_indexOfSelectedElement);
-                });
-              } else {
-                setState(_sendEvent);
-              }
-            }),
+                },
+              );
+            } else {
+              setState(_sendEvent);
+            }
+          },
+        ),
       ],
     );
   }
@@ -129,10 +132,13 @@ class _EventPageState extends State<EventPage> {
       0,
       Event(
         text: textController.text,
-        time: DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now()),
+        time: DateFormat('yyyy-MM-dd kk:mm').format(
+          DateTime.now(),
+        ),
         isSelected: false,
       ),
     );
+    _note.subTittleEvent = _note.eventList[0].text;
     textController.clear();
   }
 
@@ -145,70 +151,80 @@ class _EventPageState extends State<EventPage> {
           elevation: 3,
           color: Colors.blueGrey[100],
           child: ListTile(
-              title: Text(event.text),
-              subtitle: Text(event.time),
-              onLongPress: () {
-                _indexOfSelectedElement = index;
-                //  _changeSelected(index);
-                _appBarChange();
-              }),
+            title: Text(event.text),
+            subtitle: Text(event.time),
+            onLongPress: () {
+              _indexOfSelectedElement = index;
+              _appBarChange();
+            },
+          ),
         ),
       ),
     );
   }
 
   void _appBarChange() {
-    setState(() {
-      _eventSelected = !_eventSelected;
-    });
+    setState(
+      () {
+        _eventSelected = !_eventSelected;
+      },
+    );
   }
 
   AppBar _appBarMenu(int index, {int count}) {
     return AppBar(
       leading: IconButton(
-          icon: Icon(Icons.clear),
-          onPressed: () {
-            _appBarChange();
-          }),
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          _appBarChange();
+        },
+      ),
       actions: <Widget>[
         IconButton(
-            icon: Icon(Icons.reply),
-            onPressed: () {
-              _appBarChange();
-            }),
+          icon: Icon(Icons.reply),
+          onPressed: () {
+            _appBarChange();
+          },
+        ),
         IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {
-              _appBarChange();
-              _editEvent(index);
-            }),
+          icon: Icon(Icons.edit),
+          onPressed: () {
+            _appBarChange();
+            _editEvent(index);
+          },
+        ),
         IconButton(
-            icon: Icon(Icons.copy),
-            onPressed: () {
-              _appBarChange();
-              _copyEvent(index);
-            }),
+          icon: Icon(Icons.copy),
+          onPressed: () {
+            _appBarChange();
+            _copyEvent(index);
+          },
+        ),
         IconButton(
-            icon: Icon(Icons.bookmark_border),
-            onPressed: () {
-              _appBarChange();
-            }),
+          icon: Icon(Icons.bookmark_border),
+          onPressed: () {
+            _appBarChange();
+          },
+        ),
         IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              _appBarChange();
-              _deleteEvent(index);
-            }),
+          icon: Icon(Icons.delete),
+          onPressed: () {
+            _appBarChange();
+            _deleteEvent(index);
+          },
+        ),
       ],
     );
   }
 
   void _editEvent(int index) {
-    setState(() {
-      _isEditing = true;
-      textController.text = _note.eventList[index].text;
-      _focusNode.requestFocus();
-    });
+    setState(
+      () {
+        _isEditing = true;
+        textController.text = _note.eventList[index].text;
+        _focusNode.requestFocus();
+      },
+    );
   }
 
   void _copyEvent(int index) {
@@ -217,5 +233,10 @@ class _EventPageState extends State<EventPage> {
 
   void _deleteEvent(int index) {
     _note.eventList.removeAt(index);
+    if (_note.eventList.isEmpty) {
+      _note.subTittleEvent = 'Add event';
+    } else {
+      _note.subTittleEvent = _note.eventList[0].text;
+    }
   }
 }
