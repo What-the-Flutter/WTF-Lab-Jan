@@ -1,27 +1,28 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/repository/property_message.dart';
+import 'package:my_chat_journal/repository/property_page.dart';
 import 'package:provider/provider.dart';
 
-import 'event_page.dart';
-import 'list_item.dart';
-import 'theme_model.dart';
+import 'logic/home_screen_cubit.dart';
+import 'presentation/theme/theme_model.dart';
 
 class CreateNewPage extends StatefulWidget {
   static const routName = 'createPage';
-  final PropertyPage _page;
+  final int _index;
 
-  CreateNewPage([this._page]);
+  CreateNewPage([this._index]);
 
   @override
-  _CreateNewPageState createState() => _CreateNewPageState(_page);
+  _CreateNewPageState createState() => _CreateNewPageState(_index);
 }
 
 class _CreateNewPageState extends State<CreateNewPage> {
   final _controller = TextEditingController();
-  final PropertyPage _page;
+  final int _index;
   IconData _iconData = Icons.done;
 
-  _CreateNewPageState([this._page]);
+  _CreateNewPageState([this._index]);
 
   final List<PropertyLabelEvent> _listIcon = <PropertyLabelEvent>[
     PropertyLabelEvent(Icons.title, true),
@@ -51,12 +52,13 @@ class _CreateNewPageState extends State<CreateNewPage> {
   @override
   void initState() {
     _controller.addListener(_changeButton);
-    if (_page != null) {
-      _controller.text = _page.title;
-      _listIcon[0]._isVisible = false;
+    if (_index != null) {
+      final page = BlocProvider.of<HomeScreenCubit>(context).eventPages[_index];
+      _controller.text = page.title;
+      _listIcon[0].isVisible = false;
       for (var i in _listIcon) {
-        if (i._iconData == _page.icon) {
-          i._isVisible = true;
+        if (i.iconData == page.icon) {
+          i.isVisible = true;
           break;
         }
       }
@@ -72,6 +74,10 @@ class _CreateNewPageState extends State<CreateNewPage> {
 
   @override
   Widget build(BuildContext context) {
+    var page;
+    if (_index != null) {
+      page = BlocProvider.of<HomeScreenCubit>(context).eventPages[_index];
+    }
     return Scaffold(
       body: Column(
         children: [
@@ -136,20 +142,29 @@ class _CreateNewPageState extends State<CreateNewPage> {
         onPressed: () {
           var icon = Icons.add;
           for (var i = 0; i < _listIcon.length; i++) {
-            if (_listIcon[i]._isVisible) {
-              icon = _listIcon[i]._iconData;
+            if (_listIcon[i].isVisible) {
+              icon = _listIcon[i].iconData;
               break;
             }
           }
-          Navigator.pop(
-            context,
-            PropertyPage(
-              icon,
-              _controller.text,
-              _page == null ? <ListItem<String>>[] : _page.messages,
-              DateTime.now(),
-            ),
-          );
+          if (_index == null) {
+            Navigator.pop(
+              context,
+              PropertyPage(
+                icon: icon,
+                title: _controller.text,
+                messages: <PropertyMessage>[],
+              ),
+            );
+          } else {
+            Navigator.pop(
+              context,
+              page.copyWith(
+                icon: icon,
+                title: _controller.text,
+              ),
+            );
+          }
         },
       ),
     );
@@ -165,21 +180,21 @@ class _CreateNewPageState extends State<CreateNewPage> {
         children: <Widget>[
           IconButton(
             icon: Icon(
-              labelEvent._iconData,
+              labelEvent.iconData,
               color: Colors.white,
             ),
             onPressed: () {
               setState(() {
                 var i = 0;
-                while (!_listIcon[i]._isVisible) {
+                while (!_listIcon[i].isVisible) {
                   i++;
                 }
-                _listIcon[i]._isVisible = false;
-                labelEvent._isVisible = !labelEvent._isVisible;
+                _listIcon[i].isVisible = false;
+                labelEvent.isVisible = !labelEvent.isVisible;
               });
             },
           ),
-          if (labelEvent._isVisible)
+          if (labelEvent.isVisible)
             Container(
               child: Icon(
                 Icons.done,
@@ -210,10 +225,18 @@ class _CreateNewPageState extends State<CreateNewPage> {
     });
   }
 }
+
+class ProxyData {
+  final IconData iconData;
+  final String title;
+
+  ProxyData({this.iconData, this.title});
+}
+
 // настроить инкапсуляцию
 class PropertyLabelEvent {
-  final IconData _iconData;
-  bool _isVisible;
+  final IconData iconData;
+  bool isVisible;
 
-  PropertyLabelEvent(this._iconData, [this._isVisible = false]);
+  PropertyLabelEvent(this.iconData, [this.isVisible = false]);
 }

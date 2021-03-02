@@ -1,16 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import 'event_page.dart';
-import 'list_item.dart';
-import 'theme.dart';
-import 'theme_model.dart';
-
-enum ModeOperation { input, selection, edit }
+import 'logic/screen_messages_cubit.dart';
+import 'presentation/theme/theme.dart';
+import 'presentation/theme/theme_model.dart';
+import 'repository/property_page.dart';
 
 class ScreenMessage extends StatefulWidget {
   static const routeName = '/ScreenMsg';
@@ -19,65 +15,61 @@ class ScreenMessage extends StatefulWidget {
   ScreenMessage(this._page);
 
   @override
-  _ScreenMessageState createState() =>
-      _ScreenMessageState(_page.title, _page.messages);
+  _ScreenMessageState createState() => _ScreenMessageState(_page);
 }
 
 class _ScreenMessageState extends State<ScreenMessage> {
-  final _controller = TextEditingController();
-  final List<ListItem<String>> _messages;
-  final String _title;
-  ModeOperation _currentMode = ModeOperation.input;
-  int _countDeletedMessage = 0;
-
-  bool _isBookmarkMsg = false;
-  String _clipBoard = '';
+  final PropertyPage _page;
 
   final _picker = ImagePicker();
 
-  _ScreenMessageState(this._title, this._messages);
+  _ScreenMessageState(this._page);
 
   @override
   void dispose() {
-    _controller.dispose();
+    context.read<ScreenMessagesCubit>().controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _currentMode == ModeOperation.input
-          ? _inputAppBar()
-          : _currentMode == ModeOperation.selection
-              ? _selectionAppBar()
-              : _editAppBar(),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: ListView.builder(
-              reverse: true,
-              itemCount: _messages.length,
-              itemBuilder: (context, i) {
-                var data = _messages[_messages.length - i - 1];
-                if (_isBookmarkMsg) {
-                  if (data.isFeatured) {
-                    return _buildItem(data);
-                  } else {
-                    return Container();
-                  }
-                } else {
-                  return _buildItem(data);
-                }
-              },
-            ),
+    return BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
+      builder: (context, state) {
+        final messages = context.read<ScreenMessagesCubit>().messages;
+        return Scaffold(
+          appBar: state is ScreenMessagesInput
+              ? _inputAppBar(state)
+              : state is ScreenMessagesSelected
+                  ? _selectionAppBar(state)
+                  : _editAppBar(),
+          body: Column(
+            children: <Widget>[
+              Expanded(
+                child: ListView.builder(
+                  reverse: true,
+                  itemCount: messages.length,
+                  itemBuilder: (context, i) {
+                    if (state.isBookmarkMsg) {
+                      if (messages[messages.length - i - 1].isFavor) {
+                        return _buildItem(messages.length - i - 1, state);
+                      } else {
+                        return Container();
+                      }
+                    } else {
+                      return _buildItem(messages.length - i - 1, state);
+                    }
+                  },
+                ),
+              ),
+              _buildPanelInput(state),
+            ],
           ),
-          _buildPanelInput(),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildPanelInput() {
+  Widget _buildPanelInput(ScreenMessagesState state) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
@@ -89,19 +81,19 @@ class _ScreenMessageState extends State<ScreenMessage> {
           Expanded(
             flex: 5,
             child: TextField(
-              enabled: _currentMode == ModeOperation.input ||
-                      _currentMode == ModeOperation.edit
-                  ? true
-                  : false,
-              controller: _controller,
+              enabled:
+                  state is ScreenMessagesInput || state is ScreenMessagesEdit
+                      ? true
+                      : false,
+              controller: context.read<ScreenMessagesCubit>().controller,
               decoration: InputDecoration(
                 suffixIcon: IconButton(
-                  icon: _currentMode != ModeOperation.edit
+                  icon: state is! ScreenMessagesEdit
                       ? Icon(Icons.arrow_forward_ios)
                       : Icon(Icons.check),
-                  onPressed: _currentMode != ModeOperation.edit
-                      ? _addNewMessage
-                      : _updateMessage,
+                  onPressed: state is! ScreenMessagesEdit
+                      ?  () => context.read<ScreenMessagesCubit>().addMessage()
+                      :  () => context.read<ScreenMessagesCubit>().updateMsg(),
                 ),
                 border: const OutlineInputBorder(),
               ),
@@ -110,50 +102,25 @@ class _ScreenMessageState extends State<ScreenMessage> {
           Expanded(
             flex: 1,
             child: IconButton(
-              icon: Icon(Icons.photo_camera),
-              onPressed: _showPhotoLibrary,
-            ),
+                icon: Icon(Icons.photo_camera),
+                onPressed: null //_showPhotoLibrary,
+                ),
           ),
         ],
       ),
     );
   }
 
-  void _updateMessage() {
-    setState(
-      () {
-        var index = -1;
-        for (var i = 0; i < _messages.length; i++) {
-          if (_messages[i].isSelected) {
-            index = i;
-            break;
-          }
-        }
-        _messages[index].message = _controller.text;
-        _currentMode = ModeOperation.selection;
-        _controller.text = '';
-      },
-    );
-  }
+  // void _showPhotoLibrary() async {
+  //   final pickedFile = await _picker.getImage(source: ImageSource.gallery);
+  //
+  //   setState(() {
+  //     _messages.add(ListItem(pickedFile.path, isImage: true));
+  //   });
+  // }
 
-  void _addNewMessage() {
-    setState(
-      () {
-        _messages.add(ListItem<String>(_controller.text));
-        _controller.text = '';
-      },
-    );
-  }
-
-  void _showPhotoLibrary() async {
-    final pickedFile = await _picker.getImage(source: ImageSource.gallery);
-
-    setState(() {
-      _messages.add(ListItem(pickedFile.path, isImage: true));
-    });
-  }
-
-  Widget _buildItem(ListItem msg) {
+  Widget _buildItem(int index, ScreenMessagesState state) {
+    final msg = context.read<ScreenMessagesCubit>().messages[index];
     var color;
     if (Provider.of<ThemeModel>(context).currentTheme == darkTheme) {
       if (msg.isSelected) {
@@ -173,12 +140,18 @@ class _ScreenMessageState extends State<ScreenMessage> {
       child: Align(
         alignment: Alignment.topLeft,
         child: GestureDetector(
-          onTap: _currentMode == ModeOperation.input
-              ? () => _changeBookmarkMessage(msg)
-              : () => _changeStateListItem(msg),
-          onLongPress: _currentMode == ModeOperation.input
-              ? () => _selectingFirstItemToDeleted(msg)
-              : () => _changeStateListItem(msg),
+          onTap: state is ScreenMessagesInput
+              ? () => context
+                  .read<ScreenMessagesCubit>()
+                  .changeBookmarkMessage(index)
+              : () => context
+                  .read<ScreenMessagesCubit>()
+                  .changeStateListItem(index),
+          onLongPress: state is ScreenMessagesInput
+              ? () => context.read<ScreenMessagesCubit>().changeState(index)
+              : () => context
+                  .read<ScreenMessagesCubit>()
+                  .changeStateListItem(index),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
@@ -188,9 +161,9 @@ class _ScreenMessageState extends State<ScreenMessage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                if (msg.isImage) Image.file(File(msg.message)),
+                //if (msg.isImage) Image.file(File(msg.message)),
                 Text(msg.message),
-                if (msg.isFeatured)
+                if (msg.isFavor)
                   Icon(
                     Icons.bookmark,
                     color: Colors.orangeAccent,
@@ -204,46 +177,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
     );
   }
 
-  void _changeBookmarkMessage(ListItem msg) {
-    setState(
-      () {
-        if (msg.isFeatured) {
-          msg.isFeatured = false;
-        } else {
-          msg.isFeatured = true;
-        }
-      },
-    );
-  }
-
-  void _changeStateListItem(msg) {
-    setState(
-      () {
-        if (msg.isSelected) {
-          _countDeletedMessage--;
-          msg.isSelected = false;
-        } else {
-          _countDeletedMessage++;
-          msg.isSelected = true;
-        }
-        if (_countDeletedMessage == 0) {
-          _currentMode = ModeOperation.input;
-        }
-      },
-    );
-  }
-
-  void _selectingFirstItemToDeleted(ListItem msg) {
-    setState(
-      () {
-        msg.isSelected = true;
-        _countDeletedMessage++;
-        _currentMode = ModeOperation.selection;
-      },
-    );
-  }
-
-  Widget _inputAppBar() {
+  Widget _inputAppBar(ScreenMessagesState state) {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.keyboard_backspace),
@@ -252,7 +186,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
         },
       ),
       title: Center(
-        child: Text(_title),
+        child: Text(_page.title),
       ),
       actions: <Widget>[
         Padding(
@@ -262,19 +196,15 @@ class _ScreenMessageState extends State<ScreenMessage> {
         Padding(
           padding: EdgeInsets.only(right: 20),
           child: IconButton(
-            icon: _isBookmarkMsg
+            icon: state.isBookmarkMsg
                 ? Icon(
                     Icons.bookmark,
                     color: Colors.orangeAccent,
                   )
                 : Icon(Icons.bookmark_border),
-            onPressed: () {
-              setState(
-                () {
-                  _isBookmarkMsg = !_isBookmarkMsg;
-                },
-              );
-            },
+            onPressed: () => context
+                .read<ScreenMessagesCubit>()
+                .changePresentationList(!state.isBookmarkMsg),
           ),
         ),
       ],
@@ -285,7 +215,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.keyboard_backspace),
-        onPressed: _resetMode,
+        onPressed: () => context.read<ScreenMessagesCubit>().resetMode(),
       ),
       title: Center(
         child: Text('Edit Mode'),
@@ -294,25 +224,21 @@ class _ScreenMessageState extends State<ScreenMessage> {
         Padding(
           padding: EdgeInsets.only(right: 15),
           child: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              setState(() {
-                _currentMode = ModeOperation.selection;
-              });
-            },
-          ),
+              icon: Icon(Icons.close),
+              onPressed: () =>
+                  context.read<ScreenMessagesCubit>().changeMode()),
         ),
       ],
     );
   }
 
-  Widget _selectionAppBar() {
+  Widget _selectionAppBar(ScreenMessagesState state) {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.close),
-        onPressed: _resetMode,
+        onPressed: () => context.read<ScreenMessagesCubit>().resetMode(),
       ),
-      title: Text('$_countDeletedMessage'),
+      title: Text('${state.countDeletedMsg}'),
       actions: <Widget>[
         Padding(
           padding: EdgeInsets.only(right: 10),
@@ -321,48 +247,20 @@ class _ScreenMessageState extends State<ScreenMessage> {
             onPressed: () {},
           ),
         ),
-        if (_countDeletedMessage < 2)
+        if (state.countDeletedMsg < 2)
           Padding(
             padding: EdgeInsets.only(right: 10),
             child: IconButton(
               icon: Icon(Icons.edit),
-              onPressed: () {
-                setState(
-                  () {
-                    var index = -1;
-                    for (var i = 0; i < _messages.length; i++) {
-                      if (_messages[i].isSelected) {
-                        index = i;
-                        break;
-                      }
-                    }
-                    _controller.text = _messages[index].message;
-                    _currentMode = ModeOperation.edit;
-                  },
-                );
-              },
+              onPressed: () =>
+                  context.read<ScreenMessagesCubit>().changeModeForEdit(),
             ),
           ),
         Padding(
           padding: EdgeInsets.only(right: 10),
           child: IconButton(
             icon: Icon(Icons.copy),
-            onPressed: () {
-              setState(
-                () {
-                  for (var i = 0; i < _messages.length; i++) {
-                    if (_messages[i].isSelected) {
-                      _clipBoard += _messages[i].message;
-                      _messages[i].isSelected = false;
-                    }
-                  }
-                  Clipboard.setData(ClipboardData(text: _clipBoard));
-                  _clipBoard = '';
-                  _countDeletedMessage = 0;
-                  _currentMode = ModeOperation.input;
-                },
-              );
-            },
+            onPressed: () => context.read<ScreenMessagesCubit>().createBuffer(),
           ),
         ),
         Padding(
@@ -376,37 +274,11 @@ class _ScreenMessageState extends State<ScreenMessage> {
           padding: EdgeInsets.only(right: 10),
           child: IconButton(
             icon: Icon(Icons.delete),
-            onPressed: () {
-              setState(
-                () {
-                  for (var i = 0; i < _messages.length; i++) {
-                    if (_messages[i].isSelected) {
-                      _messages.removeAt(i);
-                      i--;
-                    }
-                  }
-                  _countDeletedMessage = 0;
-                  _currentMode = ModeOperation.input;
-                },
-              );
-            },
+            onPressed: () =>
+                context.read<ScreenMessagesCubit>().removeMessages(),
           ),
         ),
       ],
-    );
-  }
-
-  void _resetMode() {
-    setState(
-      () {
-        for (var i = 0; i < _messages.length; i++) {
-          if (_messages[i].isSelected) {
-            _messages[i].isSelected = false;
-          }
-        }
-        _countDeletedMessage = 0;
-        _currentMode = ModeOperation.input;
-      },
     );
   }
 }

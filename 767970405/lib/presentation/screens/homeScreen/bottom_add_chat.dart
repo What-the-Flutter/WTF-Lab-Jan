@@ -1,13 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'create_new_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../create_new_page.dart';
+import '../../../logic/home_screen_cubit.dart';
+
 
 class ButtonAddChat extends StatelessWidget {
-  // onAddPage
-  final Function _addPage;
-
-  ButtonAddChat(this._addPage);
-
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
@@ -21,7 +19,7 @@ class ButtonAddChat extends StatelessWidget {
           context,
           CreateNewPage.routName,
         );
-        _addPage(result);
+        context.read<HomeScreenCubit>().addPage(result);
       },
     );
   }

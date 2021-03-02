@@ -1,50 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import 'chat_pages.dart';
-import 'create_new_page.dart';
-import 'list_item.dart';
-import 'screen_message.dart';
-import 'theme_model.dart';
+import '../../../create_new_page.dart';
+import '../../../logic/home_screen_cubit.dart';
+import '../../../repository/property_page.dart';
+import '../../../screen_message.dart';
+import '../../theme/theme_model.dart';
 
 class EventPage extends StatefulWidget {
   final int _index;
 
-  final _removeItem;
-
-  EventPage(this._index, this._removeItem);
+  EventPage(this._index);
 
   @override
-  _EventPageState createState() => _EventPageState(_index, _removeItem);
+  _EventPageState createState() => _EventPageState(_index);
 }
 
 class _EventPageState extends State<EventPage> {
   final int _index;
-  final _removeItem;
 
-  _EventPageState(this._index, this._removeItem);
+  _EventPageState(this._index);
 
   @override
   Widget build(BuildContext context) {
-    var page = ChatPages.pages[_index];
+    var page = BlocProvider.of<HomeScreenCubit>(context).eventPages[_index];
     return InkWell(
       onTap: () async {
-        var result = await Navigator.pushNamed(
+        final result = await Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
           arguments: page,
         );
-        page._lastModifiedTime = result as DateTime;
+        context.read<HomeScreenCubit>().editMessages(_index, result);
       },
       onLongPress: () => _showMenuAction(page),
-      child: ListTile(
-        title: Text(
-          page.title,
-        ),
-        subtitle: Text('No Events. Click to create one.'),
-        horizontalTitleGap: 5.0,
-        contentPadding: EdgeInsets.all(5.0),
-        leading: _createIcon(page.icon),
+      child: Stack(
+        alignment: Alignment.bottomRight,
+        children: <Widget>[
+          ListTile(
+            title: Text(
+              page.title,
+            ),
+            subtitle: Text('No Events. Click to create one.'),
+            horizontalTitleGap: 5.0,
+            contentPadding: EdgeInsets.all(5.0),
+            leading: _createIcon(page.icon),
+          ),
+          if (context.read<HomeScreenCubit>().state.isPin) Icon(Icons.push_pin),
+        ],
       ),
     );
   }
@@ -65,6 +69,7 @@ class _EventPageState extends State<EventPage> {
   }
 
   void _showMenuAction(PropertyPage page) {
+    final cubit = context.read<HomeScreenCubit>();
     showModalBottomSheet<void>(
       context: context,
       builder: (context) {
@@ -99,23 +104,20 @@ class _EventPageState extends State<EventPage> {
               onPressed: () {},
             ),
             createItem(
-              icon: Icon(
-                Icons.edit,
-                color: Colors.blue,
-              ),
-              title: 'Edit page',
-              onPressed: () async {
-                Navigator.pop(context);
-                final result = await Navigator.pushNamed(
-                  context,
-                  CreateNewPage.routName,
-                  arguments: page,
-                );
-                setState(() {
-                  ChatPages.pages[_index] = result;
-                });
-              },
-            ),
+                icon: Icon(
+                  Icons.edit,
+                  color: Colors.blue,
+                ),
+                title: 'Edit page',
+                onPressed: () async {
+                  Navigator.pop(context);
+                  final result = await Navigator.pushNamed(
+                    context,
+                    CreateNewPage.routName,
+                    arguments: _index,
+                  );
+                  cubit.editPage(_index, result);
+                }),
             createItem(
               icon: Icon(
                 Icons.delete,
@@ -124,7 +126,7 @@ class _EventPageState extends State<EventPage> {
               title: 'Delete Page',
               onPressed: () {
                 Navigator.pop(context);
-                _removeItem(_index);
+                context.read<HomeScreenCubit>().removePage(_index);
               },
             ),
           ],
@@ -159,11 +161,11 @@ class _EventPageState extends State<EventPage> {
               ),
               ListTile(
                 title: Text('Created'),
-                subtitle: Text(page.creationTime),
+                subtitle: Text(page.creationTime.toString()),
               ),
               ListTile(
                 title: Text('Latest Event'),
-                subtitle: Text(page.lastModifiedTime),
+                subtitle: Text(page.lastModifiedTime.toString()),
               ),
             ],
           ),
@@ -194,30 +196,4 @@ class _EventPageState extends State<EventPage> {
       onTap: onPressed,
     );
   }
-}
-
-class PropertyPage {
-  final IconData _icon;
-  final String _title;
-  final List<ListItem<String>> _messages;
-  final DateTime _creationTime;
-  DateTime _lastModifiedTime;
-
-  PropertyPage(this._icon, this._title, this._messages, this._creationTime) {
-    _lastModifiedTime = _creationTime;
-  }
-
-  String get creationTime => _creationTime.toString();
-
-  String get lastModifiedTime => _lastModifiedTime.toString();
-
-  set modifiedTime(DateTime lastModifiedTime) {
-    _lastModifiedTime = lastModifiedTime;
-  }
-
-  String get title => _title;
-
-  List<ListItem<String>> get messages => _messages;
-
-  IconData get icon => _icon;
 }

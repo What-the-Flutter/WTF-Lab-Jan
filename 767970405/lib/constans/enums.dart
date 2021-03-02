@@ -1,0 +1,1 @@
+enum ModeOperation { input, selection, edit }
