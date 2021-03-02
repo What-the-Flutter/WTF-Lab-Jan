@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../../customIcon/my_flutter_app_icons.dart';
-import '../../../logic/event_page_cubit.dart';
 import '../../../logic/home_screen_cubit.dart';
 import '../../theme/theme.dart';
 import '../../theme/theme_model.dart';

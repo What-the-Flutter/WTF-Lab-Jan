@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/logic/screen_messages_cubit.dart';
 import 'package:provider/provider.dart';
 
 import 'logic/home_screen_cubit.dart';

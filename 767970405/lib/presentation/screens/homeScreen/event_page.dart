@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import '../../../create_new_page.dart';
 import '../../../logic/home_screen_cubit.dart';
 import '../../../repository/property_page.dart';
-import '../../../screen_message.dart';
 import '../../theme/theme_model.dart';
+import '../create_new_page.dart';
+import '../screen_message.dart';
 
 class EventPage extends StatefulWidget {
   final int _index;

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/logic/event_page_cubit.dart';
-import 'package:my_chat_journal/logic/screen_messages_cubit.dart';
-import 'package:my_chat_journal/repository/property_page.dart';
 
-import '../../create_new_page.dart';
-import '../../screen_message.dart';
-import '../screens/homeScreen/event_page.dart';
+import '../../logic/screen_messages_cubit.dart';
+import '../../repository/property_page.dart';
+import '../screens/create_new_page.dart';
 import '../screens/homeScreen/home_screen.dart';
+import '../screens/screen_message.dart';
 
 class AppRouter {
   Route onGenerateRoute(RouteSettings settings) {

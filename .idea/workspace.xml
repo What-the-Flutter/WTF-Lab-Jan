@@ -20,69 +20,47 @@
       <path>
         <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
         <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="BRANCH:767970405" type="e8cecc67:BranchNodeDescriptor" />
       </path>
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7ba408ca-3219-41f8-9bee-89578df761b2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/767970405/lib/event_page.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/767970405/lib/theme.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/767970405/lib/theme_model.dart" afterDir="false" />
+    <list default="true" id="657758f8-ade2-4416-9599-751aeb58af2a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/lib/bottom_add_chat.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/bottom_add_chat.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/lib/bottom_panel_tabs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/bottom_panel_tabs.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/lib/chat_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/chat_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/lib/create_new_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/create_new_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/chat_pages.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/create_new_page.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/list_item.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/767970405/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/lib/screen_message.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/screen_message.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/767970405/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/presentation/router/app_router.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/presentation/router/app_router.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/presentation/screens/homeScreen/bottom_add_chat.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/presentation/screens/homeScreen/bottom_add_chat.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/presentation/screens/homeScreen/bottom_panel_tabs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/presentation/screens/homeScreen/bottom_panel_tabs.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/presentation/screens/homeScreen/chat_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/presentation/screens/homeScreen/chat_pages.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/presentation/screens/homeScreen/event_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/767970405/lib/presentation/screens/homeScreen/event_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/767970405/lib/screen_message.dart" beforeDir="false" />
     </list>
-    <list id="d97f9af9-4a72-4d58-b5bf-24f1fea4a5eb" name="Revert &quot;formatted code&quot;" comment="Revert &quot;formatted code&quot;&#10;&#10;This reverts commit 9be19ba0" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[b6db485c]" />
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Dart File" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="main" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectId" id="1of5AGG1skWs1qySbtC0aWYiIqE" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
   <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="dart.analysis.tool.window.visible" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../durt_first_app" />
-    <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Learn flutter\WTF-Lab-Jan\767970405\lib\presentation\screens" />
+      <recent name="D:\Learn flutter\WTF-Lab-Jan\767970405\lib\presentation\screens\homeScreen" />
+    </key>
   </component>
   <component name="RunManager">
-    <configuration default="true" type="FlutterRunConfigurationType" factoryName="Flutter">
-      <option name="filePath" value="$PROJECT_DIR$/767970405/lib/main.dart" />
-      <method v="2" />
-    </configuration>
-    <configuration name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter" nameIsGenerated="true">
+    <configuration name="Unnamed" type="FlutterRunConfigurationType" factoryName="Flutter" nameIsGenerated="true">
       <option name="filePath" value="$PROJECT_DIR$/767970405/lib/main.dart" />
       <method v="2" />
     </configuration>
@@ -91,26 +69,19 @@
     <configuration />
   </component>
   <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="7ba408ca-3219-41f8-9bee-89578df761b2" name="Default Changelist" comment="" />
-      <created>1613664658912</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1613664658912</updated>
-    </task>
-    <task id="LOCAL-00001" summary="A modified approach to the treatment of selected messages and refactor code.">
-      <created>1613712614027</created>
+    <task id="LOCAL-00001" summary="Bloc in ScreenMessage, HomeMessage">
+      <created>1614660426281</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1613712614027</updated>
+      <updated>1614660426281</updated>
     </task>
-    <task id="LOCAL-00002" summary="Navigation of the transition from the list of pages (list of chats) to the list of events (list of messages) is implemented)">
-      <created>1613727016437</created>
+    <task id="LOCAL-00002" summary="add git ignore">
+      <created>1614663143309</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1613727016437</updated>
+      <updated>1614663143309</updated>
     </task>
     <option name="localTasksCounter" value="3" />
     <servers />
@@ -120,19 +91,7 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="767970405" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
+            <State />
           </value>
         </entry>
       </map>
@@ -140,68 +99,50 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add new creating page" />
-    <MESSAGE value="Add files" />
-    <MESSAGE value="A modified approach to the treatment of selected messages and refactor code." />
-    <MESSAGE value="Navigation of the transition from the list of pages (list of chats) to the list of events (list of messages) is implemented)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Navigation of the transition from the list of pages (list of chats) to the list of events (list of messages) is implemented)" />
+    <MESSAGE value="Bloc in ScreenMessage, HomeMessage" />
+    <MESSAGE value="add git ignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="add git ignore" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1613664874855">
+    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1614661587590">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1613664874855" />
-    <state x="574" y="128" key="#com.intellij.ide.util.MemberChooser" timestamp="1613895483913">
+    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1614661587590" />
+    <state x="498" y="202" key="#com.intellij.ide.util.TreeFileChooserDialog" timestamp="1614661568906">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="574" y="128" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1613895483913" />
-    <state x="498" y="202" key="#com.intellij.ide.util.TreeFileChooserDialog" timestamp="1613664856722">
+    <state x="498" y="202" key="#com.intellij.ide.util.TreeFileChooserDialog/0.0.1536.824@0.0.1536.824" timestamp="1614661568906" />
+    <state width="1491" height="4" key="GridCell.Tab.0.bottom" timestamp="1614663160723">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="498" y="202" key="#com.intellij.ide.util.TreeFileChooserDialog/0.0.1536.824@0.0.1536.824" timestamp="1613664856722" />
-    <state x="586" y="159" key="AndroidProcessChooserDialog" timestamp="1613839232149">
+    <state width="1491" height="4" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1614663160723" />
+    <state width="1491" height="4" key="GridCell.Tab.0.center" timestamp="1614663160723">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="586" y="159" key="AndroidProcessChooserDialog/0.0.1536.824@0.0.1536.824" timestamp="1613839232149" />
-    <state x="93" y="93" width="1350" height="638" key="DiffContextDialog" timestamp="1613704084820">
+    <state width="1491" height="4" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1614663160723" />
+    <state width="1491" height="4" key="GridCell.Tab.0.left" timestamp="1614663160722">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="93" y="93" width="1350" height="638" key="DiffContextDialog/0.0.1536.824@0.0.1536.824" timestamp="1613704084820" />
-    <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1613724265340">
+    <state width="1491" height="4" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1614663160722" />
+    <state width="1491" height="4" key="GridCell.Tab.0.right" timestamp="1614663160723">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1613724265340" />
-    <state x="629" y="314" key="GitRewordDialog" timestamp="1613743425707">
+    <state width="1491" height="4" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1614663160723" />
+    <state x="571" y="115" key="RollbackChangesDialog" timestamp="1614660142990">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="629" y="314" key="GitRewordDialog/0.0.1536.824@0.0.1536.824" timestamp="1613743425707" />
-    <state width="1491" height="332" key="GridCell.Tab.0.bottom" timestamp="1613897260486">
+    <state x="571" y="115" key="RollbackChangesDialog/0.0.1536.824@0.0.1536.824" timestamp="1614660142990" />
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1614660443762">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="332" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1613897260486" />
-    <state width="1491" height="332" key="GridCell.Tab.0.center" timestamp="1613897260486">
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1614660443762" />
+    <state x="93" y="93" width="1350" height="638" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog" timestamp="1614660193061">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="332" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1613897260486" />
-    <state width="1491" height="332" key="GridCell.Tab.0.left" timestamp="1613897260485">
+    <state x="93" y="93" width="1350" height="638" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog/0.0.1536.824@0.0.1536.824" timestamp="1614660193061" />
+    <state x="585" y="307" key="git4idea.ui.GitResetDialog" timestamp="1614663217683">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1491" height="332" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1613897260485" />
-    <state width="1491" height="332" key="GridCell.Tab.0.right" timestamp="1613897260486">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1491" height="332" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1613897260486" />
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1613743451906">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1613743451906" />
-    <state x="575" y="130" key="git4idea.branch.GitBranchIsNotFullyMergedDialog" timestamp="1613705521915">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="575" y="130" key="git4idea.branch.GitBranchIsNotFullyMergedDialog/0.0.1536.824@0.0.1536.824" timestamp="1613705521915" />
-    <state x="541" y="125" key="git4idea.branch.GitSmartOperationDialog" timestamp="1613704053221">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="541" y="125" key="git4idea.branch.GitSmartOperationDialog/0.0.1536.824@0.0.1536.824" timestamp="1613704053221" />
+    <state x="585" y="307" key="git4idea.ui.GitResetDialog/0.0.1536.824@0.0.1536.824" timestamp="1614663217683" />
   </component>
 </project>
