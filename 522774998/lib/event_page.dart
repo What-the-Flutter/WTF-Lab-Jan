@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-import 'home_page.dart';
-
 class ListItem<T> {
   T message;
   String time;
@@ -19,8 +17,9 @@ enum Operation { input, delete, selection, edit }
 
 class EventListPage extends StatefulWidget {
   final String title;
+  final ThemeData theme;
 
-  EventListPage({Key key, this.title}) : super(key: key);
+  EventListPage({Key key, this.title, this.theme}) : super(key: key);
 
   @override
   _EventListPageState createState() => _EventListPageState();
@@ -35,41 +34,44 @@ class _EventListPageState extends State<EventListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar:
-          currentOperation == Operation.input ? inputAppBar() : editAppBar(),
-      body: Stack(
-        children: <Widget>[
-          Container(
-            color: Colors.deepPurple,
-          ),
-          Container(
-            alignment: Alignment.bottomCenter,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(50),
-                topRight: Radius.circular(50),
-              ),
-              color: Colors.white,
+    return MaterialApp(
+      theme: widget.theme,
+      home: Scaffold(
+        appBar:
+            currentOperation == Operation.input ? inputAppBar() : _editAppBar(),
+        body: Stack(
+          children: <Widget>[
+            Container(
+              color: Theme.of(context).primaryColor,
             ),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                    reverse: true,
-                    itemCount: messages.length,
-                    itemBuilder: (context, i) {
-                      ListItem<String> data;
-                      data = messages[messages.length - i - 1];
-                      return _buildEvent(data);
-                    },
-                  ),
+            Container(
+              alignment: Alignment.bottomCenter,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
                 ),
-                _buildInput(),
-              ],
+                color: Theme.of(context).backgroundColor,
+              ),
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: ListView.builder(
+                      reverse: true,
+                      itemCount: messages.length,
+                      itemBuilder: (context, i) {
+                        ListItem<String> data;
+                        data = messages[messages.length - i - 1];
+                        return eventItem(data);
+                      },
+                    ),
+                  ),
+                  inputItem(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -88,13 +90,7 @@ class _EventListPageState extends State<EventListPage> {
           Icons.arrow_back,
         ),
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (context) {
-                return HomePage(title: 'Home', subtitle: '');
-              },
-            ),
-          );
+          Navigator.pop(context);
         },
       ),
       actions: <Widget>[
@@ -106,24 +102,22 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  Widget editAppBar() {
+  Widget _editAppBar() {
     return AppBar(
       leading: IconButton(
         icon: Icon(
           Icons.close,
         ),
         onPressed: () {
-          setState(
-            () {
-              for (var i = 0; i < messages.length; i++) {
-                if (messages[i].isSelected) {
-                  messages[i].isSelected = false;
-                }
+          setState(() {
+            for (var i = 0; i < messages.length; i++) {
+              if (messages[i].isSelected) {
+                messages[i].isSelected = false;
               }
-              countSelectedMessage = 0;
-              currentOperation = Operation.input;
-            },
-          );
+            }
+            countSelectedMessage = 0;
+            currentOperation = Operation.input;
+          });
         },
       ),
       actions: <Widget>[
@@ -142,19 +136,19 @@ class _EventListPageState extends State<EventListPage> {
                   Icons.edit,
                 ),
                 onPressed: () {
-                  setState(
-                    () {
-                      int index;
-                      for (var i = 0; i < messages.length; i++) {
-                        if (messages[i].isSelected) {
-                          index = i;
-                          break;
-                        }
+                  setState(() {
+                    int index;
+                    for (var i = 0; i < messages.length; i++) {
+                      if (messages[i].isSelected) {
+                        index = i;
+                        break;
                       }
-                      controller.text = messages[index].message;
-                      currentOperation = Operation.edit;
-                    },
-                  );
+                    }
+                    controller.text = messages[index].message;
+                    controller.selection = TextSelection.fromPosition(
+                        TextPosition(offset: controller.text.length));
+                    currentOperation = Operation.edit;
+                  });
                 }),
           ),
         Container(
@@ -164,21 +158,19 @@ class _EventListPageState extends State<EventListPage> {
               Icons.copy,
             ),
             onPressed: () {
-              setState(
-                () {
-                  for (var i = 0; i < messages.length; i++) {
-                    if (messages[i].isSelected) {
-                      clipBoard += messages[i].message;
-                      clipBoard += ' ';
-                      messages[i].isSelected = false;
-                    }
+              setState(() {
+                for (var i = 0; i < messages.length; i++) {
+                  if (messages[i].isSelected) {
+                    clipBoard += messages[i].message;
+                    clipBoard += ' ';
+                    messages[i].isSelected = false;
                   }
-                  Clipboard.setData(ClipboardData(text: clipBoard));
-                  clipBoard = '';
-                  countSelectedMessage = 0;
-                  currentOperation = Operation.input;
-                },
-              );
+                }
+                Clipboard.setData(ClipboardData(text: clipBoard));
+                clipBoard = '';
+                countSelectedMessage = 0;
+                currentOperation = Operation.input;
+              });
             },
           ),
         ),
@@ -189,18 +181,16 @@ class _EventListPageState extends State<EventListPage> {
               Icons.delete,
             ),
             onPressed: () {
-              setState(
-                () {
-                  for (var i = 0; i < messages.length; i++) {
-                    if (messages[i].isSelected) {
-                      messages.removeAt(i);
-                      i--;
-                    }
+              setState(() {
+                for (var i = 0; i < messages.length; i++) {
+                  if (messages[i].isSelected) {
+                    messages.removeAt(i);
+                    i--;
                   }
-                  countSelectedMessage = 0;
-                  currentOperation = Operation.input;
-                },
-              );
+                }
+                countSelectedMessage = 0;
+                currentOperation = Operation.input;
+              });
             },
           ),
         ),
@@ -208,7 +198,7 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  Widget _buildEvent(ListItem msg) {
+  Widget eventItem(ListItem msg) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       alignment: Alignment.bottomLeft,
@@ -224,7 +214,9 @@ class _EventListPageState extends State<EventListPage> {
               bottomRight: Radius.circular(10),
             ),
             border: Border.all(
-              color: msg.isSelected ? Colors.deepPurple : Colors.orange,
+              color: msg.isSelected
+                  ? Theme.of(context).primaryColor
+                  : Colors.orange,
             ),
             color: msg.isSelected ? Colors.deepPurple[50] : Colors.orange[50],
           ),
@@ -247,7 +239,7 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  Widget _buildInput() {
+  Widget inputItem() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -285,59 +277,51 @@ class _EventListPageState extends State<EventListPage> {
   }
 
   void _changeListItemState(msg) {
-    setState(
-      () {
-        if (msg.isSelected) {
-          countSelectedMessage--;
-          msg.isSelected = false;
-        } else {
-          countSelectedMessage++;
-          msg.isSelected = true;
-        }
-        if (countSelectedMessage == 0) {
-          currentOperation = Operation.input;
-        }
-      },
-    );
+    setState(() {
+      if (msg.isSelected) {
+        countSelectedMessage--;
+        msg.isSelected = false;
+      } else {
+        countSelectedMessage++;
+        msg.isSelected = true;
+      }
+      if (countSelectedMessage == 0) {
+        currentOperation = Operation.input;
+      }
+    });
   }
 
   void selectFirstItem(ListItem msg) {
-    setState(
-      () {
-        msg.isSelected = true;
-        countSelectedMessage++;
-        currentOperation = Operation.selection;
-      },
-    );
+    setState(() {
+      msg.isSelected = true;
+      countSelectedMessage++;
+      currentOperation = Operation.selection;
+    });
   }
 
   void updateMessage() {
-    setState(
-      () {
-        int index;
-        for (var i = 0; i < messages.length; i++) {
-          if (messages[i].isSelected) {
-            index = i;
-            messages[i].isEdited = true;
-            messages[i].isSelected = false;
-            break;
-          }
+    setState(() {
+      int index;
+      for (var i = 0; i < messages.length; i++) {
+        if (messages[i].isSelected) {
+          index = i;
+          messages[i].isEdited = true;
+          messages[i].isSelected = false;
+          break;
         }
-        messages[index].message = controller.text;
-        countSelectedMessage = 0;
-        currentOperation = Operation.input;
-        controller.text = '';
-      },
-    );
+      }
+      messages[index].message = controller.text;
+      countSelectedMessage = 0;
+      currentOperation = Operation.input;
+      controller.text = '';
+    });
   }
 
   void addMessage() {
-    setState(
-      () {
-        messages.add(ListItem<String>(
-            controller.text, DateFormat('kk:mm').format(DateTime.now())));
-        controller.text = '';
-      },
-    );
+    setState(() {
+      messages.add(ListItem<String>(
+          controller.text, DateFormat('kk:mm').format(DateTime.now())));
+      controller.text = '';
+    });
   }
 }
