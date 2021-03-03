@@ -13,15 +13,16 @@ class EventsState {
 
   EventsState(this.events);
 
-  EventsState copyWith(
-      {bool isSearching,
-        int selectedIconIndex,
-      bool isOnEdit,
-      bool isOnSelectionMode,
-      bool showingFavourites,
-      List<Event> events,
-      List<Event> eventsToDisplay,
-      Set<Event> selected}) {
+  EventsState copyWith({
+    bool isSearching,
+    int selectedIconIndex,
+    bool isOnEdit,
+    bool isOnSelectionMode,
+    bool showingFavourites,
+    List<Event> events,
+    List<Event> eventsToDisplay,
+    Set<Event> selected,
+  }) {
     var state = EventsState(events ?? this.events);
     state.selectedIconIndex = selectedIconIndex ?? this.selectedIconIndex;
     state.isSearching = isSearching ?? this.isSearching;

@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tuple/tuple.dart';
 
 import '../app_theme.dart';
 import '../icon_list.dart';
 import '../page.dart';
-import 'edit_bloc.dart';
-import 'edit_event.dart';
+import 'edit_cubit.dart';
+import 'edit_state.dart';
 
 class EditPage extends StatefulWidget {
   EditPage({@required this.page, @required this.title});
@@ -21,24 +20,24 @@ class EditPage extends StatefulWidget {
 
 class _EditPageState extends State<EditPage> {
   _EditPageState(JournalPage page, this._title) {
-    bloc = EditBloc(Tuple2(page, true));
+    cubit = EditCubit(EditState(page,true));
   }
 
   final String _title;
   final _controller = TextEditingController();
 
-  EditBloc bloc;
+  EditCubit cubit;
 
   @override
   void initState() {
-    _controller.text = bloc.state.item1.title;
+    _controller.text = cubit.state.page.title;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      cubit: bloc,
+      cubit: cubit,
       builder: (context, state) {
         return Scaffold(
           appBar: _appBar,
@@ -53,7 +52,7 @@ class _EditPageState extends State<EditPage> {
     return AppBar(
       leading: IconButton(
         onPressed: () =>
-            Navigator.pop(context, Tuple2(bloc.state.item1, false)),
+            Navigator.pop(context, cubit.state),
         icon: Icon(
           Icons.arrow_back,
           color: AppThemeData.of(context).accentTextColor,
@@ -63,11 +62,11 @@ class _EditPageState extends State<EditPage> {
       actions: [
         IconButton(
           onPressed: () {
-            bloc.state.item1.title = _controller.text;
-            Navigator.pop(context, Tuple2(bloc.state.item1, bloc.state.item2));
+           cubit.renamePage(_controller.text);
+            Navigator.pop(context, cubit.state);
           },
           icon: Icon(
-            bloc.state.item2 ? Icons.check : Icons.close,
+            cubit.state.isAllowedToSave ? Icons.check : Icons.close,
             color: AppThemeData.of(context).accentTextColor,
           ),
         ),
@@ -98,7 +97,7 @@ class _EditPageState extends State<EditPage> {
                 ...iconList.map(
                   (e) => GestureDetector(
                     onTap: () {
-                      bloc.add(IconChanged(e));
+                      cubit.changeIcon(iconList.indexOf(e));
                     },
                     child: Center(
                       child: CircleAvatar(
@@ -123,7 +122,7 @@ class _EditPageState extends State<EditPage> {
     Widget _textField() {
       return TextField(
         onChanged: (text) {
-          bloc.add(AllowanceUpdated(text.isNotEmpty));
+          cubit.updateAllowance(text.isNotEmpty);
         },
         cursorColor: AppThemeData.of(context).accentTextColor,
         style: TextStyle(
@@ -157,7 +156,7 @@ class _EditPageState extends State<EditPage> {
             foregroundColor: AppThemeData.of(context).accentTextColor,
             backgroundColor: AppThemeData.of(context).accentColor,
             child: Icon(
-              bloc.state.item1.icon,
+              iconList[cubit.state.page.iconIndex],
             ),
           ),
           Expanded(

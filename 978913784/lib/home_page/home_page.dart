@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app_theme.dart';
 import '../edit_page/edit_page.dart';
 import '../event_page/event_page.dart';
+import '../icon_list.dart';
 import '../page.dart';
-import 'pages_bloc.dart';
-import 'pages_event.dart';
+import 'pages_cubit.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -24,6 +25,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _usingLightTheme = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBool();
+  }
+
+  void _loadBool() async {
+    var prefs = await SharedPreferences.getInstance();
+    _usingLightTheme = (prefs.getBool('usingLightTheme') ?? true);
+  }
+
+  void _changeTheme() async {
+    var prefs = await SharedPreferences.getInstance();
+    _usingLightTheme = !(prefs.getBool('usingLightTheme') ?? true);
+    prefs.setBool('usingLightTheme', _usingLightTheme);
+      AppThemeData.appThemeStateKey.currentState.setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return _scaffold;
@@ -45,7 +66,7 @@ class _HomePageState extends State<HomePage> {
       drawer: _drawer,
       bottomNavigationBar: _bottomNavigationBar,
       floatingActionButton: _floatingActionButton,
-      body: BlocBuilder<PagesBloc, List<JournalPage>>(
+      body: BlocBuilder<PagesCubit, List<JournalPage>>(
         builder: (context, state) {
           return _body;
         },
@@ -56,14 +77,9 @@ class _HomePageState extends State<HomePage> {
   Widget get _themeChangeButton {
     return IconButton(
       icon: Icon(
-        AppThemeData.usingLightTheme
-            ? Icons.wb_sunny_outlined
-            : Icons.bedtime_outlined,
+        _usingLightTheme ? Icons.wb_sunny_outlined : Icons.bedtime_outlined,
       ),
-      onPressed: () => setState(() {
-        AppThemeData.usingLightTheme = !AppThemeData.usingLightTheme;
-        AppThemeData.appThemeStateKey.currentState.setState(() {});
-      }),
+      onPressed: _changeTheme,
     );
   }
 
@@ -112,17 +128,17 @@ class _HomePageState extends State<HomePage> {
     return FloatingActionButton(
       onPressed: () async {
         var pageInfo = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EditPage(
-                  page: JournalPage('New page', Icons.notes),
-                  title: 'New page',
-                ),
-              ),
-            );
-          if (pageInfo.item2) {
-            BlocProvider.of<PagesBloc>(context).add(PageAdded(pageInfo.item1));
-          }
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditPage(
+              page: JournalPage('New page', 0),
+              title: 'New page',
+            ),
+          ),
+        );
+        if (pageInfo.isAllowedToSave) {
+          BlocProvider.of<PagesCubit>(context).addPage(pageInfo.page);
+        }
       },
       backgroundColor: AppThemeData.of(context).accentColor,
       tooltip: 'New page',
@@ -131,7 +147,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget get _body {
-    return BlocProvider.of<PagesBloc>(context).state.isEmpty
+    return BlocProvider.of<PagesCubit>(context).state.isEmpty
         ? Center(
             child: Text(
               'No pages yet...',
@@ -144,7 +160,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _pageModalBottomSheet(context, int index) {
-    var selected = BlocProvider.of<PagesBloc>(context).state[index];
+    var selected = BlocProvider.of<PagesCubit>(context).state[index];
 
     Widget _pinTile() {
       return ListTile(
@@ -162,7 +178,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           onTap: () async {
-            BlocProvider.of<PagesBloc>(context).add(PagePinned(selected));
+            BlocProvider.of<PagesCubit>(context).pinPage(selected);
             Navigator.pop(context);
           });
     }
@@ -180,18 +196,19 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           onTap: () async {
-            var editInfo = await Navigator.push(
+            var editState = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => EditPage(
-                      page: JournalPage(selected.title, selected.icon),
+                      page: JournalPage(selected.title, selected.iconIndex),
                       title: 'Edit',
                     ),
                   ),
                 ) ??
                 false;
-            if (editInfo.item2) {
-              BlocProvider.of<PagesBloc>(context).add(PageEdited(selected, editInfo.item1));
+            if (editState.isAllowedToSave) {
+              BlocProvider.of<PagesCubit>(context)
+                  .editPage(selected, editState.page);
             }
             Navigator.pop(context);
           });
@@ -210,7 +227,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           onTap: () {
-            BlocProvider.of<PagesBloc>(context).add(PageDeleted(selected));
+            BlocProvider.of<PagesCubit>(context).deletePage(selected);
             Navigator.pop(context);
           });
     }
@@ -225,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                 foregroundColor: AppThemeData.of(context).accentTextColor,
                 backgroundColor: AppThemeData.of(context).accentColor,
                 child: Icon(
-                  selected.icon,
+                  iconList[selected.iconIndex],
                 ),
               ),
               Expanded(
@@ -337,7 +354,7 @@ class _HomePageState extends State<HomePage> {
       maxCrossAxisExtent: 300,
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
-      itemCount: BlocProvider.of<PagesBloc>(context).state.length,
+      itemCount: BlocProvider.of<PagesCubit>(context).state.length,
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () async {
@@ -345,15 +362,15 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                   builder: (context) => EventPage(
-                      page: BlocProvider.of<PagesBloc>(context).state[index])),
+                      page: BlocProvider.of<PagesCubit>(context).state[index])),
             );
-            BlocProvider.of<PagesBloc>(context).add(PageUpdated());
+            BlocProvider.of<PagesCubit>(context).updatePages();
           },
           onLongPress: () {
             _pageModalBottomSheet(context, index);
           },
           child:
-              _gridViewItem(BlocProvider.of<PagesBloc>(context).state[index]),
+              _gridViewItem(BlocProvider.of<PagesCubit>(context).state[index]),
         );
       },
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
@@ -372,7 +389,7 @@ class _HomePageState extends State<HomePage> {
         child: Row(
           children: [
             Icon(
-              page.icon,
+              iconList[page.iconIndex],
               color: AppThemeData.of(context).accentTextColor,
             ),
             Expanded(
