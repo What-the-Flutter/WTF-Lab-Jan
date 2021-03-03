@@ -70,6 +70,7 @@ class JournalPage {
 
   Event get lastEvent => eventCount == 0 ? null : _events[0];
 
+
   List<Event> get events => _events;
 }
 
@@ -131,4 +132,5 @@ class Event {
   int get id => _id;
 
   DateTime get creationTime => _creationTime;
+
 }
