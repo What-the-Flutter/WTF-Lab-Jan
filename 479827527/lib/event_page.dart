@@ -19,6 +19,7 @@ class _EventPageState extends State<EventPage> {
   final FocusNode _focusNode = FocusNode();
   final NotePage _notePage;
   bool _isEventSelected = false;
+  bool _isEditing = false;
   var _selectedItemIndex = 0;
 
   _EventPageState(this._notePage);
@@ -42,35 +43,30 @@ class _EventPageState extends State<EventPage> {
   AppBar get _defaultAppBar {
     return AppBar(
       title: widget.title,
-      centerTitle: true,
-      backgroundColor: Colors.deepPurple,
     );
   }
 
   AppBar _editingTextAppBar(var index) {
     return AppBar(
-      backgroundColor: Colors.deepPurple,
       leading: IconButton(
         icon: Icon(
           Icons.clear,
-          color: Colors.white,
         ),
         onPressed: _changeAppBar,
       ),
       actions: <Widget>[
         IconButton(
-            icon: Icon(
-              Icons.edit,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              _changeAppBar();
-              _editEvent(index);
-            }),
+          icon: Icon(
+            Icons.edit,
+          ),
+          onPressed: () {
+            _changeAppBar();
+            _editEvent(index);
+          },
+        ),
         IconButton(
             icon: Icon(
               Icons.copy,
-              color: Colors.white,
             ),
             onPressed: () {
               _changeAppBar();
@@ -79,7 +75,6 @@ class _EventPageState extends State<EventPage> {
         IconButton(
             icon: Icon(
               Icons.bookmark_border,
-              color: Colors.white,
             ),
             onPressed: () {
               _changeAppBar();
@@ -88,7 +83,6 @@ class _EventPageState extends State<EventPage> {
         IconButton(
             icon: Icon(
               Icons.delete,
-              color: Colors.white,
             ),
             onPressed: () {
               _changeAppBar();
@@ -117,7 +111,6 @@ class _EventPageState extends State<EventPage> {
       scrollDirection: Axis.vertical,
       itemCount: _notePage.eventList.length,
       itemBuilder: (context, index) {
-        _selectedItemIndex = index;
         final _event = _notePage.eventList[index];
         return _showEventList(_event, index);
       },
@@ -126,32 +119,32 @@ class _EventPageState extends State<EventPage> {
 
   Widget _showEventList(Event event, var index) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+      padding: EdgeInsets.only(left: 10.0, right: 10.0),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Card(
           elevation: 3,
-          color: Colors.deepPurple,
           child: ListTile(
+            tileColor: Theme.of(context).appBarTheme.color,
             title: Text(
               event.text,
               style: TextStyle(
                 fontSize: 17,
-                color: Colors.white,
+                color:
+                    Theme.of(context).floatingActionButtonTheme.foregroundColor,
               ),
             ),
             subtitle: Text(
               event.time,
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.white,
+                color:
+                    Theme.of(context).floatingActionButtonTheme.foregroundColor,
               ),
             ),
             onLongPress: () {
               _selectedItemIndex = index;
-              setState(() {
-                _isEventSelected = !_isEventSelected;
-              });
+              _changeAppBar();
             },
           ),
         ),
@@ -165,34 +158,38 @@ class _EventPageState extends State<EventPage> {
         IconButton(
           icon: Icon(
             Icons.add_a_photo_rounded,
-            color: Colors.deepPurple,
           ),
           iconSize: 30,
-          color: Colors.deepPurple,
+          color:Theme.of(context).appBarTheme.color,
           onPressed: () {
             // add some data from user device
           },
         ),
         Expanded(
           child: TextField(
-            autocorrect: true,
-            enableSuggestions: true,
             controller: textController,
             focusNode: _focusNode,
             decoration: InputDecoration(
               hintText: 'Enter event...',
               border: InputBorder.none,
+              filled: false,
             ),
           ),
         ),
         IconButton(
           icon: Icon(
             Icons.send,
-            color: Colors.deepPurple,
           ),
           iconSize: 30,
+          color: Theme.of(context).floatingActionButtonTheme.backgroundColor,
           onPressed: () {
-            setState(_addEvent);
+            if (_isEditing) {
+              setState(() {
+                _editText(_selectedItemIndex);
+              });
+            } else {
+              setState(_addEvent);
+            }
           },
         ),
       ],
@@ -205,14 +202,24 @@ class _EventPageState extends State<EventPage> {
       Event(
         text: textController.text,
         time: DateFormat('dd-MM-yyyy kk:mm').format(DateTime.now()),
+        isSelectedEvent: false,
       ),
     );
     textController.clear();
   }
 
   void _editEvent(var index) {
+    setState(() {
+      _isEditing = true;
+      textController.text = _notePage.eventList[index].text;
+      _focusNode.requestFocus();
+    });
+  }
+
+  void _editText(var index) {
     _notePage.eventList[index].text = textController.text;
     textController.clear();
+    _isEditing = false;
   }
 
   void _copyEvent(var index) =>
