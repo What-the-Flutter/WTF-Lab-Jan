@@ -1,16 +1,16 @@
+import 'package:chat_journal/pages/category/category_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/category_bloc/category_bloc.dart';
 import '../blocs/home_page_bloc/homepage_bloc.dart';
 import '../components/category_bottom_sheet.dart';
 import '../model/category.dart';
-import '../pages/category_page.dart';
+import '../pages/category/category_page.dart';
 
-class CategoryView extends StatelessWidget {
+class CategoryWidget extends StatelessWidget {
   final Category category;
 
-  CategoryView(this.category);
+  CategoryWidget(this.category);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class CategoryView extends StatelessWidget {
           MaterialPageRoute(
             builder: (_) {
               return BlocProvider.value(
-                value: BlocProvider.of<CategoryBloc>(context),
+                value: BlocProvider.of<CategoryCubit>(context),
                 child: CategoryPage(category),
               );
             },
@@ -81,14 +81,14 @@ class CategoryView extends StatelessWidget {
                       );
                     },
                   ),
-                  BlocBuilder<CategoryBloc, CategoryState>(
+                  BlocBuilder<CategoryCubit, CategoryState>(
                     builder: (context, state) {
                       return Text(
-                        category.records.isEmpty
+                        state.category.records.isEmpty
                             ? 'No events. Tap to create first'
-                            : category.records.first.message.isEmpty
+                            : state.category.records.first.message.isEmpty
                                 ? 'Image record'
-                                : category.records.first.message,
+                                : state.category.records.first.message,
                         style: Theme.of(context).textTheme.bodyText1,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

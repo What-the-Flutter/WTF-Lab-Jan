@@ -1,13 +1,14 @@
 import 'dart:io';
 
+import 'package:chat_journal/pages/category/category_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../blocs/category_bloc/category_bloc.dart';
-import '../model/category.dart';
-import '../model/record.dart';
-import '../views/record_view.dart';
+//import '../blocs/category_bloc/category_bloc.dart';
+import '../../model/category.dart';
+import '../../model/record.dart';
+import '../../widgets/record_widget.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;
@@ -39,19 +40,17 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   @override
-  void initState() {
-    BlocProvider.of<CategoryBloc>(context).add(
-      AllRecordsUnselected(),
-    );
-    super.initState();
+  void deactivate() {
+    BlocProvider.of<CategoryCubit>(context).unselectAllRecords();
+    super.deactivate();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CategoryBloc, CategoryState>(
+    return BlocBuilder<CategoryCubit, CategoryState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: widget.category.hasSelectedRecords
+          appBar: state.category.hasSelectedRecords
               ? state is RecordUpdateInProcess
                   ? AppBar(
                       title: Text('Edit mode'),
@@ -59,12 +58,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         IconButton(
                           icon: Icon(Icons.close),
                           onPressed: () {
-                            BlocProvider.of<CategoryBloc>(context).add(
-                              RecordUpdateCancelled(),
-                            );
-                            BlocProvider.of<CategoryBloc>(context).add(
-                              AllRecordsUnselected(),
-                            );
+                            context.read<CategoryCubit>().cancelUpdateRecord();
                             _textEditingController.clear();
                             FocusScope.of(context).unfocus();
                           },
@@ -75,42 +69,41 @@ class _CategoryPageState extends State<CategoryPage> {
                       title: Text('Select'),
                       leading: IconButton(
                         onPressed: () {
-                          BlocProvider.of<CategoryBloc>(context)
-                              .add(AllRecordsUnselected());
+                          context.read<CategoryCubit>().unselectAllRecords();
                         },
                         icon: Icon(Icons.close),
                       ),
                       actions: [
-                        if (widget.category.selectedRecords.length < 2)
+                        if (state.category.selectedRecords.length < 2)
                           IconButton(
                             icon: Icon(Icons.edit),
                             onPressed: () {
-                              BlocProvider.of<CategoryBloc>(context).add(
-                                RecordUpdateStarted(
-                                    widget.category.selectedRecords.first),
-                              );
+                              context.read<CategoryCubit>().beginUpdateRecord(
+                                  state.category.selectedRecords.first);
+
                               _textEditingController.text =
-                                  widget.category.selectedRecords.first.message;
+                                  state.category.selectedRecords.first.message;
                               _messageFocus.requestFocus();
                             },
                           ),
                         IconButton(
                           icon: Icon(Icons.bookmark_outlined),
                           onPressed: () {
-                            for (var r in widget.category.selectedRecords) {
-                              BlocProvider.of<CategoryBloc>(context).add(
-                                RecordFavoriteChanged(r),
-                              );
-                            }
+                            context.read<CategoryCubit>().changeFavoriteRecords(
+                                state.category.selectedRecords);
+                            context.read<CategoryCubit>().unselectAllRecords();
                           },
                         ),
                         Builder(
                           builder: (context) => IconButton(
                             icon: Icon(Icons.copy),
                             onPressed: () {
-                              BlocProvider.of<CategoryBloc>(context).add(
-                                  RecordsCopied(
-                                      widget.category.selectedRecords));
+                              context
+                                  .read<CategoryCubit>()
+                                  .copyRecords(state.category.selectedRecords);
+                              context
+                                  .read<CategoryCubit>()
+                                  .unselectAllRecords();
                               Scaffold.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Copied to clipboard'),
@@ -135,21 +128,21 @@ class _CategoryPageState extends State<CategoryPage> {
                                     TextButton(
                                       child: Text("Don't"),
                                       onPressed: () {
-                                        BlocProvider.of<CategoryBloc>(context)
-                                            .add(
-                                          RecordsDeleteCancelled(),
-                                        );
+                                        context
+                                            .read<CategoryCubit>()
+                                            .unselectRecords(
+                                                state.category.selectedRecords);
                                         Navigator.of(newContext).pop();
                                       },
                                     ),
                                     TextButton(
                                       child: Text('Delete'),
                                       onPressed: () {
-                                        BlocProvider.of<CategoryBloc>(context)
-                                            .add(
-                                          RecordsDeleted(
-                                              widget.category.selectedRecords),
-                                        );
+                                        context
+                                            .read<CategoryCubit>()
+                                            .deleteRecords(
+                                                state.category.selectedRecords);
+
                                         Navigator.of(newContext).pop();
                                       },
                                     ),
@@ -162,16 +155,25 @@ class _CategoryPageState extends State<CategoryPage> {
                       ],
                     )
               : AppBar(
-                  title: Text(widget.category.name),
+                  title: Text(state.category.name),
                 ),
           body: Column(
             children: [
               Expanded(
-                child: ListView.builder(
-                  reverse: true,
-                  itemCount: widget.category.records.length,
-                  itemBuilder: (context, index) {
-                    return RecordView(widget.category.records[index]);
+                child: BlocBuilder<CategoryCubit, CategoryState>(
+                  builder: (context, state) {
+                    return ListView.builder(
+                      reverse: true,
+                      itemCount: state.category.records.length,
+                      itemBuilder: (context, index) {
+                        return BlocProvider.value(
+                          value: BlocProvider.of<CategoryCubit>(context),
+                          child: RecordWidget(
+                            record: state.category.records[index],
+                          ),
+                        );
+                      },
+                    );
                   },
                 ),
               ),
@@ -193,12 +195,11 @@ class _CategoryPageState extends State<CategoryPage> {
                                 TextButton(
                                   child: Text('Send'),
                                   onPressed: () {
-                                    BlocProvider.of<CategoryBloc>(context).add(
-                                      RecordAdded(
-                                        Record(_textEditingController.text,
-                                            image: _image),
-                                      ),
-                                    );
+                                    context.read<CategoryCubit>().addRecord(
+                                          Record(_textEditingController.text,
+                                              image: _image),
+                                        );
+                                    _textEditingController.clear();
                                     Navigator.of(context).pop();
                                   },
                                 ),
@@ -224,17 +225,16 @@ class _CategoryPageState extends State<CategoryPage> {
                       onPressed: () {
                         if (_formKey.currentState.validate()) {
                           if (state is RecordUpdateInProcess) {
-                            BlocProvider.of<CategoryBloc>(context).add(
-                              RecordUpdated(state.record,
-                                  _textEditingController.text.trim()),
-                            );
-                            _messageFocus.unfocus();
+                            context.read<CategoryCubit>().updateRecord(
+                                  state.category.selectedRecords.first,
+                                  _textEditingController.text,
+                                );
+                            context.read<CategoryCubit>().unselectAllRecords();
+                            FocusScope.of(context).unfocus();
                           } else {
-                            BlocProvider.of<CategoryBloc>(context).add(
-                              RecordAdded(
-                                Record(_textEditingController.text.trim()),
-                              ),
-                            );
+                            context
+                                .read<CategoryCubit>()
+                                .addRecord(Record(_textEditingController.text));
                           }
                           _textEditingController.clear();
                         }
