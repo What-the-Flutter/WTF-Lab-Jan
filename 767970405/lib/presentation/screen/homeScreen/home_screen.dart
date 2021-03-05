@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../../../logic/home_screen_cubit.dart';
 import '../../theme/theme_model.dart';
 import 'bottom_add_chat.dart';
 import 'bottom_panel_tabs.dart';
 import 'chat_pages.dart';
 
-class StartWindow extends StatefulWidget {
-  @override
-  _StartWindowState createState() => _StartWindowState();
-}
-
-class _StartWindowState extends State<StartWindow> {
+class StartWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +24,10 @@ class _StartWindowState extends State<StartWindow> {
         ],
         leading: Icon(Icons.menu),
       ),
-      body: ChatPages(),
+      body: BlocBuilder<HomeScreenCubit, HomeScreenInitial>(
+        builder: (context, state) => ChatPages(
+            pages: context.read<HomeScreenCubit>().repository.eventPages),
+      ),
       floatingActionButton: ButtonAddChat(),
       bottomNavigationBar: BottomPanelTabs(),
     );

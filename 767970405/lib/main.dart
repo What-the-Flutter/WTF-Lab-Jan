@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import 'logic/home_screen_cubit.dart';
 import 'presentation/router/app_router.dart';
 import 'presentation/theme/theme_model.dart';
+import 'repository/pages_repository.dart';
 
 void main() {
+  Bloc.observer = MyBlocObserver();
   runApp(ChangeNotifierProvider<ThemeModel>(
       create: (context) => ThemeModel(), child: MyApp()));
 }
@@ -19,18 +21,41 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (homeScreenContext) => HomeScreenCubit(),
+          create: (homeScreenContext) =>
+              HomeScreenCubit(repository: PagesRepository()),
         ),
       ],
       child: MaterialApp(
         title: 'Chat Journal',
-        theme: Provider
-            .of<ThemeModel>(context)
-            .currentTheme,
+        theme: Provider.of<ThemeModel>(context).currentTheme,
         onGenerateRoute: _appRouter.onGenerateRoute,
       ),
     );
   }
 }
 
+class MyBlocObserver extends BlocObserver {
+  @override
+  void onCreate(Cubit cubit) {
+    super.onCreate(cubit);
+    print('onCreate -- cubit: ${cubit.runtimeType}');
+  }
 
+  @override
+  void onChange(Cubit cubit, Change change) {
+    super.onChange(cubit, change);
+    print('onChange -- cubit: ${cubit.runtimeType}, change: $change');
+  }
+
+  @override
+  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
+    print('onError -- cubit: ${cubit.runtimeType}, error: $error');
+    super.onError(cubit, error, stackTrace);
+  }
+
+  @override
+  void onClose(Cubit cubit) {
+    super.onClose(cubit);
+    print('onClose -- cubit: ${cubit.runtimeType}');
+  }
+}

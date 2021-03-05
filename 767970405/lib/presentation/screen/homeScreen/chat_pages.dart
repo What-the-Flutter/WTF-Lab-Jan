@@ -3,33 +3,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../../customIcon/my_flutter_app_icons.dart';
+import '../../../logic/event_page_cubit.dart';
 import '../../../logic/home_screen_cubit.dart';
+import '../../../repository/property_page.dart';
 import '../../theme/theme.dart';
 import '../../theme/theme_model.dart';
 import 'event_page.dart';
 
-class ChatPages extends StatefulWidget {
-  @override
-  _ChatPagesState createState() => _ChatPagesState();
-}
+class ChatPages extends StatelessWidget {
+  final List<PropertyPage> pages;
 
-class _ChatPagesState extends State<ChatPages> {
+  const ChatPages({Key key, this.pages}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeScreenCubit, HomeScreenInitial>(
-      builder: (context, state) {
-        return ListView.separated(
-            itemCount: context.read<HomeScreenCubit>().eventPages.length + 1,
-            itemBuilder: (context, i) {
-              if (i == 0) return _buildBot();
-              return EventPage(i - 1);
+    return ListView.separated(
+      itemCount: pages.length + 1,
+      itemBuilder: (context, i) {
+        if (i == 0) return _buildBot(context);
+        return BlocProvider<EventPageCubit>(
+            create: (context) {
+              final cubit = EventPageCubit(
+                repository: context.read<HomeScreenCubit>().repository,
+                index: i - 1,
+              );
+              context.read<HomeScreenCubit>().list.add(cubit);
+              return cubit;
             },
-            separatorBuilder: (context, index) => Divider());
+            child: EventPage(i - 1));
       },
+      separatorBuilder: (context, index) => Divider(),
     );
   }
 
-  Widget _buildBot() {
+  Widget _buildBot(BuildContext context) {
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../logic/home_screen_cubit.dart';
-import '../create_new_page.dart';
 
+import '../../../logic/home_screen_cubit.dart';
+import '../../../repository/property_page.dart';
+import '../create_new_page.dart';
 
 class ButtonAddChat extends StatelessWidget {
   @override
@@ -17,6 +18,10 @@ class ButtonAddChat extends StatelessWidget {
         final result = await Navigator.pushNamed(
           context,
           CreateNewPage.routName,
+          arguments: PropertyPage(
+            title: '',
+            icon: Icons.title,
+          ),
         );
         context.read<HomeScreenCubit>().addPage(result);
       },

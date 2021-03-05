@@ -2,58 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../../../logic/event_page_cubit.dart';
 import '../../../logic/home_screen_cubit.dart';
-import '../../../repository/property_page.dart';
 import '../../theme/theme_model.dart';
 import '../create_new_page.dart';
 import '../screen_message.dart';
 
-class EventPage extends StatefulWidget {
+class EventPage extends StatelessWidget {
   final int _index;
 
   EventPage(this._index);
 
   @override
-  _EventPageState createState() => _EventPageState(_index);
-}
-
-class _EventPageState extends State<EventPage> {
-  final int _index;
-
-  _EventPageState(this._index);
-
-  @override
   Widget build(BuildContext context) {
-    var page = BlocProvider.of<HomeScreenCubit>(context).eventPages[_index];
     return InkWell(
-      onTap: () async {
-        final result = await Navigator.pushNamed(
+      onTap: () {
+        Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
-          arguments: page,
+          arguments:
+              context.read<HomeScreenCubit>().repository.eventPages[_index],
         );
-        context.read<HomeScreenCubit>().editMessages(_index, result);
       },
-      onLongPress: () => _showMenuAction(page),
-      child: Stack(
-        alignment: Alignment.bottomRight,
-        children: <Widget>[
-          ListTile(
-            title: Text(
-              page.title,
-            ),
-            subtitle: Text('No Events. Click to create one.'),
-            horizontalTitleGap: 5.0,
-            contentPadding: EdgeInsets.all(5.0),
-            leading: _createIcon(page.icon),
-          ),
-          if (context.read<HomeScreenCubit>().state.isPin) Icon(Icons.push_pin),
-        ],
+      onLongPress: () => _showMenuAction(context),
+      child: BlocBuilder<EventPageCubit, EventPageState>(
+        builder: (context, state) {
+          print('buildPage ${state.title} $_index');
+          return Stack(
+            alignment: Alignment.bottomRight,
+            children: <Widget>[
+              ListTile(
+                title: Text(
+                  state.title,
+                ),
+                subtitle: Text('No Events. Click to create one.'),
+                horizontalTitleGap: 5.0,
+                contentPadding: EdgeInsets.all(5.0),
+                leading: _createIcon(state.icon, context),
+              ),
+              if (state.isPin)
+                Icon(
+                  Icons.push_pin,
+                  color: Colors.blue,
+                ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _createIcon(IconData iconData) {
+  Widget _createIcon(IconData iconData, BuildContext context) {
     return Container(
       width: 75,
       height: 75,
@@ -68,8 +67,8 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  void _showMenuAction(PropertyPage page) {
-    final cubit = context.read<HomeScreenCubit>();
+  void _showMenuAction(BuildContext context) {
+    final cubit = context.read<EventPageCubit>();
     showModalBottomSheet<void>(
       context: context,
       builder: (context) {
@@ -77,54 +76,74 @@ class _EventPageState extends State<EventPage> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            createItem(
-              icon: Icon(
+            ListTile(
+              leading: Icon(
                 Icons.info,
                 color: Colors.teal,
               ),
-              title: 'info',
-              onPressed: () => _showDialogInfo(page),
+              title: Text(
+                'info',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+              ),
+              onTap: () => _showDialogInfo(cubit, context),
             ),
-            createItem(
-              icon: Icon(
+            ListTile(
+              leading: Icon(
                 Icons.attach_file,
                 color: Colors.teal,
               ),
-              title: 'Pin/Unpin Page',
-              onPressed: () {
-                //ChatPages.pages.sort()
+              title: Text(
+                'Pin/Unpin Page',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                cubit.pinPage(_index);
+                context.read<HomeScreenCubit>().updateList();
               },
             ),
-            createItem(
-              icon: Icon(
+            ListTile(
+              leading: Icon(
                 Icons.archive,
                 color: Colors.orange,
               ),
-              title: 'Archive Page',
-              onPressed: () {},
+              title: Text(
+                'Archive Page',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+              ),
+              onTap: () {},
             ),
-            createItem(
-                icon: Icon(
+            ListTile(
+                leading: Icon(
                   Icons.edit,
                   color: Colors.blue,
                 ),
-                title: 'Edit page',
-                onPressed: () async {
+                title: Text(
+                  'Edit page',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                ),
+                onTap: () async {
                   Navigator.pop(context);
                   final result = await Navigator.pushNamed(
                     context,
                     CreateNewPage.routName,
-                    arguments: _index,
+                    arguments: context
+                        .read<HomeScreenCubit>()
+                        .repository
+                        .eventPages[_index],
                   );
                   cubit.editPage(_index, result);
                 }),
-            createItem(
-              icon: Icon(
+            ListTile(
+              leading: Icon(
                 Icons.delete,
                 color: Colors.red,
               ),
-              title: 'Delete Page',
-              onPressed: () {
+              title: Text(
+                'Delete Page',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+              ),
+              onTap: () {
                 Navigator.pop(context);
                 context.read<HomeScreenCubit>().removePage(_index);
               },
@@ -135,7 +154,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  void _showDialogInfo(PropertyPage page) {
+  void _showDialogInfo(EventPageCubit cubit, BuildContext context) {
     Navigator.pop(context);
     showDialog<void>(
       context: context,
@@ -145,12 +164,12 @@ class _EventPageState extends State<EventPage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                title: Text(page.title),
+                title: Text(cubit.state.title),
                 leading: Container(
                   width: 75,
                   height: 75,
                   child: Icon(
-                    page.icon,
+                    cubit.state.icon,
                     color: Colors.white,
                   ),
                   decoration: BoxDecoration(
@@ -161,11 +180,15 @@ class _EventPageState extends State<EventPage> {
               ),
               ListTile(
                 title: Text('Created'),
-                subtitle: Text(page.creationTime.toString()),
+                subtitle: Text(BlocProvider.of<HomeScreenCubit>(context)
+                    .repository
+                    .eventPages[_index]
+                    .creationTime
+                    .toString()),
               ),
               ListTile(
                 title: Text('Latest Event'),
-                subtitle: Text(page.lastModifiedTime.toString()),
+                subtitle: Text(cubit.state.time.toString()),
               ),
             ],
           ),
