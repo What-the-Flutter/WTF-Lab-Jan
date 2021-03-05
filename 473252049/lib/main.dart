@@ -1,7 +1,7 @@
+import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'blocs/home_page_bloc/homepage_bloc.dart';
 import 'blocs/theme_mode_bloc/thememode_bloc.dart';
 import 'mocks/mocks.dart';
 import 'pages/main_page.dart';
@@ -71,8 +71,8 @@ class _MyAppState extends State<MyApp> {
             theme: ThemeData.light(),
             darkTheme: ThemeData.dark(),
             themeMode: thememodeBloc.themeMode,
-            home: BlocProvider<HomepageBloc>(
-              create: (context) => HomepageBloc(mockCategories),
+            home: BlocProvider(
+              create: (context) => HometabCubit(mockCategories),
               child: MainPage(),
             ),
           );

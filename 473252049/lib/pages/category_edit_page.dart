@@ -1,7 +1,7 @@
+import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/home_page_bloc/homepage_bloc.dart';
 import '../model/category.dart';
 
 class CategoryEditPage extends StatelessWidget {
@@ -21,13 +21,8 @@ class CategoryEditPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              BlocProvider.of<HomepageBloc>(context).add(
-                CategoryUpdated(
-                  category,
-                  newIconData: category.icon,
-                  newName: _textEditingController.text,
-                ),
-              );
+              BlocProvider.of<HometabCubit>(context).updateCategory(
+                  category, category.icon, _textEditingController.text);
               Navigator.of(context).pop();
             },
           ),

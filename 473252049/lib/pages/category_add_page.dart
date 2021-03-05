@@ -1,7 +1,7 @@
+import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/home_page_bloc/homepage_bloc.dart';
 import '../model/category.dart';
 
 class CategoryAddPage extends StatelessWidget {
@@ -19,11 +19,8 @@ class CategoryAddPage extends StatelessWidget {
             icon: Icon(Icons.check),
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                BlocProvider.of<HomepageBloc>(context).add(
-                  CategoryAdded(
-                    Category(_textEditingController.text, icon: _defaultIcon),
-                  ),
-                );
+                BlocProvider.of<HometabCubit>(context).addCategory(
+                    Category(_textEditingController.text, icon: _defaultIcon));
                 Navigator.of(context).pop();
               }
             },

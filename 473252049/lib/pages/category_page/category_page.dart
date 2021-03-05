@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:chat_journal/pages/category/category_cubit.dart';
+import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-//import '../blocs/category_bloc/category_bloc.dart';
 import '../../model/category.dart';
 import '../../model/record.dart';
 import '../../widgets/record_widget.dart';
+import 'category_cubit.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;

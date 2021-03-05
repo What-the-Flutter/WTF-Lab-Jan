@@ -1,12 +1,13 @@
-import 'package:chat_journal/pages/category/category_page.dart';
+import 'package:chat_journal/mocks/mocks.dart';
+import 'package:chat_journal/pages/category_page/category_page.dart';
+import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/home_page_bloc/homepage_bloc.dart';
 import '../components/main_page_bottom_navigation_bar.dart';
 import '../components/main_page_drawer.dart';
 import '../main.dart';
-import '../tabs/home_tab.dart';
+import '../tabs/home_tab/home_tab.dart';
 import 'category_add_page.dart';
 
 class MainPage extends StatefulWidget {
@@ -58,7 +59,7 @@ class _MainPageState extends State<MainPage> {
                   MaterialPageRoute(
                     builder: (_) {
                       return BlocProvider.value(
-                        value: BlocProvider.of<HomepageBloc>(context),
+                        value: BlocProvider.of<HometabCubit>(context),
                         child: CategoryAddPage(),
                       );
                     },

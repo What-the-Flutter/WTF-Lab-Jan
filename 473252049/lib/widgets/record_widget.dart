@@ -1,5 +1,5 @@
 import 'package:bubble/bubble.dart';
-import 'package:chat_journal/pages/category/category_cubit.dart';
+import 'package:chat_journal/pages/category_page/category_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
