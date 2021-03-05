@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BottomPanelTabs extends StatefulWidget {
@@ -41,9 +40,7 @@ class _BottomPanelTabsState extends State<BottomPanelTabs> {
       ],
       onTap: (index) {
         setState(
-          () {
-            _currentIndex = index;
-          },
+          () => _currentIndex = index,
         );
       },
     );
