@@ -89,4 +89,16 @@ class ChatsCubit extends Cubit<ChatsState> {
     }
     emit(RecordsChangeFavoriteSuccess(state.categories, category, records));
   }
+
+  void sendRecord(
+      {@required Category categoryFrom,
+      @required Category categoryTo,
+      @required List<Record> records}) {
+    for (var record in records) {
+      state.categories.get(categoryFrom).delete(record);
+      state.categories.get(categoryTo).add(record);
+    }
+    emit(RecordsSendSuccess(state.categories,
+        categoryFrom: categoryFrom, categoryTo: categoryTo, records: records));
+  }
 }

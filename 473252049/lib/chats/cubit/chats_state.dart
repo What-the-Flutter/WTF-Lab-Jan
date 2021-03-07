@@ -151,3 +151,18 @@ class RecordsChangeFavoriteSuccess extends ChatsState {
   @override
   List<Object> get props => [categories, category, records];
 }
+
+class RecordsSendSuccess extends ChatsState {
+  final Category categoryFrom;
+  final Category categoryTo;
+  final List<Record> records;
+
+  RecordsSendSuccess(List<Category> categories,
+      {@required this.categoryFrom,
+      @required this.categoryTo,
+      @required this.records})
+      : super(categories);
+
+  @override
+  List<Object> get props => [categories, categoryFrom, categoryTo, records];
+}

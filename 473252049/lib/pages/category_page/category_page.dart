@@ -10,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../model/category.dart';
 import '../../model/record.dart';
 import '../../widgets/record_widget.dart';
-//import 'category_cubit.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;
@@ -93,6 +92,9 @@ class _CategoryPageState extends State<CategoryPage> {
                               _messageFocus.requestFocus();
                             },
                           ),
+                        SendRecordIconButton(
+                          categoryFrom: widget.category,
+                        ),
                         IconButton(
                           icon: Icon(Icons.bookmark_outlined),
                           onPressed: () {
@@ -232,28 +234,6 @@ class _CategoryPageState extends State<CategoryPage> {
                                 ),
                               ],
                             );
-                            return AlertDialog(
-                              actions: [
-                                TextButton(
-                                  child: Text('Send'),
-                                  onPressed: () {
-                                    context.read<ChatsCubit>().addRecord(
-                                          widget.category,
-                                          Record(_textEditingController.text,
-                                              image: _image),
-                                        );
-                                    _textEditingController.clear();
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                              content: Container(
-                                child: Image.file(_image),
-                                constraints: BoxConstraints(
-                                  maxHeight: 400,
-                                ),
-                              ),
-                            );
                           },
                         );
                       },
@@ -323,6 +303,50 @@ class MessageTextFormField extends StatelessWidget {
       },
       focusNode: focusNode,
       controller: controller,
+    );
+  }
+}
+
+class SendRecordIconButton extends StatelessWidget {
+  final Category categoryFrom;
+
+  const SendRecordIconButton({Key key, @required this.categoryFrom})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.send),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (newContext) {
+            return SimpleDialog(
+              children: [
+                ...context.read<ChatsCubit>().state.categories.map(
+                  (category) {
+                    if (category == categoryFrom) {
+                      return Container();
+                    }
+                    return ListTile(
+                      title: Text(category.name),
+                      onTap: () {
+                        context.read<ChatsCubit>().sendRecord(
+                              categoryFrom: categoryFrom,
+                              categoryTo: category,
+                              records: categoryFrom.selectedRecords,
+                            );
+                        context.read<ChatsCubit>().unselectAllRecords(category);
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                ).toList(),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
