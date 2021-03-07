@@ -1,3 +1,4 @@
+import 'package:chat_journal/chats/cubit/chats_cubit.dart';
 import 'package:chat_journal/pages/category_page/category_cubit.dart';
 import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class CategoryWidget extends StatelessWidget {
               context: context,
               builder: (_) {
                 return BlocProvider.value(
-                  value: BlocProvider.of<HometabCubit>(context),
+                  value: BlocProvider.of<ChatsCubit>(context),
                   child: CategoryBottomSheet(category),
                 );
               },
@@ -30,12 +31,11 @@ class CategoryWidget extends StatelessWidget {
           },
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            print(category.name);
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) {
-                  return BlocProvider<CategoryCubit>(
-                    create: (context) => CategoryCubit(category),
+                  return BlocProvider.value(
+                    value: context.read<ChatsCubit>(),
                     child: CategoryPage(category),
                   );
                 },
@@ -63,40 +63,32 @@ class CategoryWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BlocBuilder<HometabCubit, HometabState>(
-                        builder: (context, state) {
-                          return Row(
-                            children: [
-                              if (category.isPinned)
-                                Icon(
-                                  Icons.pin_drop_outlined,
-                                  color: Theme.of(context).accentColor,
-                                  size: Theme.of(context)
-                                      .textTheme
-                                      .headline5
-                                      .fontSize,
-                                ),
-                              Text(
-                                category.name,
-                                style: Theme.of(context).textTheme.headline5,
-                              ),
-                            ],
-                          );
-                        },
+                      Row(
+                        children: [
+                          if (category.isPinned)
+                            Icon(
+                              Icons.pin_drop_outlined,
+                              color: Theme.of(context).accentColor,
+                              size: Theme.of(context)
+                                  .textTheme
+                                  .headline5
+                                  .fontSize,
+                            ),
+                          Text(
+                            category.name,
+                            style: Theme.of(context).textTheme.headline5,
+                          ),
+                        ],
                       ),
-                      BlocBuilder<HometabCubit, HometabState>(
-                        builder: (context, state) {
-                          return Text(
-                            category.records.isEmpty
-                                ? 'No events. Tap to create first'
-                                : category.records.first.message.isEmpty
-                                    ? 'Image record'
-                                    : category.records.first.message,
-                            style: Theme.of(context).textTheme.bodyText1,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          );
-                        },
+                      Text(
+                        category.records.isEmpty
+                            ? 'No events. Tap to create first'
+                            : category.records.first.message.isEmpty
+                                ? 'Image record'
+                                : category.records.first.message,
+                        style: Theme.of(context).textTheme.bodyText1,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

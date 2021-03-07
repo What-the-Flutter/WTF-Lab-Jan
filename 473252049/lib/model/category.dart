@@ -1,10 +1,13 @@
+import 'dart:io';
+
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../extensions/list_get_element.dart';
 import '../model/record.dart';
 
-class Category implements Comparable {
+class Category extends Equatable implements Comparable {
   String name;
   IconData icon;
   List<Record> records;
@@ -23,6 +26,9 @@ class Category implements Comparable {
     return records.where((r) => r.isSelected).isNotEmpty;
   }
 
+  void pin() => isPinned = true;
+  void unpin() => isPinned = false;
+
   void add(Record record) {
     records.insert(0, record);
   }
@@ -37,8 +43,10 @@ class Category implements Comparable {
     }
   }
 
-  Record update(Record record, {@required String newMessage}) {
-    return records.get(record)..message = newMessage;
+  Record update(Record record, {@required String newMessage, File newImage}) {
+    return records.get(record)
+      ..message = newMessage
+      ..image = newImage;
   }
 
   void select(Record record) {
@@ -63,6 +71,14 @@ class Category implements Comparable {
     records.get(record).unfavorite();
   }
 
+  void changeFavorite(Record record) {
+    if (record.isFavorite) {
+      records.get(record).unfavorite();
+    } else {
+      records.get(record).favorite();
+    }
+  }
+
   @override
   int compareTo(Object other) {
     if (isPinned == (other as Category).isPinned) {
@@ -70,5 +86,19 @@ class Category implements Comparable {
     }
     if (isPinned) return -1;
     return 1;
+  }
+
+  @override
+  int get hashCode => name.hashCode;
+
+  @override
+  List<Object> get props => [name];
+
+  @override
+  bool operator ==(Object other) {
+    if (other is Category) {
+      return name == other.name;
+    }
+    return false;
   }
 }

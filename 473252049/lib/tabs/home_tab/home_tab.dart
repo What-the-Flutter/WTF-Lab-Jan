@@ -1,3 +1,4 @@
+import 'package:chat_journal/chats/cubit/chats_cubit.dart';
 import 'package:chat_journal/mocks/mocks.dart';
 import 'package:chat_journal/model/category.dart';
 import 'package:chat_journal/pages/category_page/category_cubit.dart';
@@ -17,7 +18,7 @@ class HomeTab extends StatelessWidget {
 class CategoriesListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HometabCubit, HometabState>(
+    return BlocBuilder<ChatsCubit, ChatsState>(
       builder: (context, state) {
         print('rebuild categories list view');
         return ListView.separated(

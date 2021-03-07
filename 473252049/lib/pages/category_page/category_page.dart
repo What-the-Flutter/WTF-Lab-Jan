@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:chat_journal/chats/cubit/chats_cubit.dart';
 import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
+import 'package:chat_journal/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,7 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../model/category.dart';
 import '../../model/record.dart';
 import '../../widgets/record_widget.dart';
-import 'category_cubit.dart';
+//import 'category_cubit.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;
@@ -41,16 +43,16 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   void deactivate() {
-    BlocProvider.of<CategoryCubit>(context).unselectAllRecords();
+    context.read<ChatsCubit>().unselectAllRecords(widget.category);
     super.deactivate();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CategoryCubit, CategoryState>(
+    return BlocBuilder<ChatsCubit, ChatsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: state.category.hasSelectedRecords
+          appBar: widget.category.hasSelectedRecords
               ? state is RecordUpdateInProcess
                   ? AppBar(
                       title: Text('Edit mode'),
@@ -58,7 +60,9 @@ class _CategoryPageState extends State<CategoryPage> {
                         IconButton(
                           icon: Icon(Icons.close),
                           onPressed: () {
-                            context.read<CategoryCubit>().cancelUpdateRecord();
+                            context
+                                .read<ChatsCubit>()
+                                .unselectAllRecords(widget.category);
                             _textEditingController.clear();
                             FocusScope.of(context).unfocus();
                           },
@@ -69,41 +73,45 @@ class _CategoryPageState extends State<CategoryPage> {
                       title: Text('Select'),
                       leading: IconButton(
                         onPressed: () {
-                          context.read<CategoryCubit>().unselectAllRecords();
+                          context
+                              .read<ChatsCubit>()
+                              .unselectAllRecords(widget.category);
                         },
                         icon: Icon(Icons.close),
                       ),
                       actions: [
-                        if (state.category.selectedRecords.length < 2)
+                        if (widget.category.selectedRecords.length < 2)
                           IconButton(
                             icon: Icon(Icons.edit),
                             onPressed: () {
-                              context.read<CategoryCubit>().beginUpdateRecord(
-                                  state.category.selectedRecords.first);
+                              context.read<ChatsCubit>().beginUpdateRecord(
+                                  widget.category,
+                                  widget.category.selectedRecords.first);
 
                               _textEditingController.text =
-                                  state.category.selectedRecords.first.message;
+                                  widget.category.selectedRecords.first.message;
                               _messageFocus.requestFocus();
                             },
                           ),
                         IconButton(
                           icon: Icon(Icons.bookmark_outlined),
                           onPressed: () {
-                            context.read<CategoryCubit>().changeFavoriteRecords(
-                                state.category.selectedRecords);
-                            context.read<CategoryCubit>().unselectAllRecords();
+                            context.read<ChatsCubit>().changeFavoriteRecords(
+                                widget.category,
+                                widget.category.selectedRecords);
+                            context
+                                .read<ChatsCubit>()
+                                .unselectAllRecords(widget.category);
                           },
                         ),
                         Builder(
                           builder: (context) => IconButton(
                             icon: Icon(Icons.copy),
                             onPressed: () {
+                              copyToClipboard(widget.category.selectedRecords);
                               context
-                                  .read<CategoryCubit>()
-                                  .copyRecords(state.category.selectedRecords);
-                              context
-                                  .read<CategoryCubit>()
-                                  .unselectAllRecords();
+                                  .read<ChatsCubit>()
+                                  .unselectAllRecords(widget.category);
                               Scaffold.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Copied to clipboard'),
@@ -129,9 +137,9 @@ class _CategoryPageState extends State<CategoryPage> {
                                       child: Text("Don't"),
                                       onPressed: () {
                                         context
-                                            .read<CategoryCubit>()
-                                            .unselectRecords(
-                                                state.category.selectedRecords);
+                                            .read<ChatsCubit>()
+                                            .unselectAllRecords(
+                                                widget.category);
                                         Navigator.of(newContext).pop();
                                       },
                                     ),
@@ -139,9 +147,11 @@ class _CategoryPageState extends State<CategoryPage> {
                                       child: Text('Delete'),
                                       onPressed: () {
                                         context
-                                            .read<CategoryCubit>()
+                                            .read<ChatsCubit>()
                                             .deleteRecords(
-                                                state.category.selectedRecords);
+                                                widget.category,
+                                                widget
+                                                    .category.selectedRecords);
 
                                         Navigator.of(newContext).pop();
                                       },
@@ -155,24 +165,21 @@ class _CategoryPageState extends State<CategoryPage> {
                       ],
                     )
               : AppBar(
-                  title: Text(state.category.name),
+                  title: Text(widget.category.name),
                 ),
           body: Column(
             children: [
               Expanded(
-                child: BlocBuilder<CategoryCubit, CategoryState>(
-                  builder: (context, state) {
-                    return ListView.builder(
-                      reverse: true,
-                      itemCount: state.category.records.length,
-                      itemBuilder: (context, index) {
-                        return BlocProvider.value(
-                          value: BlocProvider.of<CategoryCubit>(context),
-                          child: RecordWidget(
-                            record: state.category.records[index],
-                          ),
-                        );
-                      },
+                child: ListView.builder(
+                  reverse: true,
+                  itemCount: widget.category.records.length,
+                  itemBuilder: (context, index) {
+                    return BlocProvider.value(
+                      value: context.read<ChatsCubit>(),
+                      child: RecordWidget(
+                        record: widget.category.records[index],
+                        category: widget.category,
+                      ),
                     );
                   },
                 ),
@@ -190,12 +197,48 @@ class _CategoryPageState extends State<CategoryPage> {
                         showDialog(
                           context: context,
                           builder: (newContext) {
+                            return SimpleDialog(
+                              children: [
+                                Container(
+                                  constraints: BoxConstraints(maxHeight: 400),
+                                  child: Image.file(_image),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: MessageTextFormField(
+                                          controller: _textEditingController,
+                                          focusNode: _messageFocus,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.send),
+                                        onPressed: () {
+                                          context.read<ChatsCubit>().addRecord(
+                                                widget.category,
+                                                Record(
+                                                    _textEditingController.text,
+                                                    image: _image),
+                                              );
+                                          _textEditingController.clear();
+                                          Navigator.of(context).pop();
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
                             return AlertDialog(
                               actions: [
                                 TextButton(
                                   child: Text('Send'),
                                   onPressed: () {
-                                    context.read<CategoryCubit>().addRecord(
+                                    context.read<ChatsCubit>().addRecord(
+                                          widget.category,
                                           Record(_textEditingController.text,
                                               image: _image),
                                         );
@@ -225,21 +268,26 @@ class _CategoryPageState extends State<CategoryPage> {
                       onPressed: () {
                         if (_formKey.currentState.validate()) {
                           if (state is RecordUpdateInProcess) {
-                            context.read<CategoryCubit>().updateRecord(
-                                  state.category.selectedRecords.first,
-                                  _textEditingController.text,
+                            context.read<ChatsCubit>().updateRecord(
+                                  widget.category,
+                                  widget.category.selectedRecords.first,
+                                  newMessage: _textEditingController.text,
                                 );
-                            context.read<CategoryCubit>().unselectAllRecords();
+                            context
+                                .read<ChatsCubit>()
+                                .unselectAllRecords(widget.category);
                             FocusScope.of(context).unfocus();
                           } else {
-                            context
-                                .read<CategoryCubit>()
-                                .addRecord(Record(_textEditingController.text));
+                            context.read<ChatsCubit>().addRecord(
+                                widget.category,
+                                Record(_textEditingController.text));
                           }
                           _textEditingController.clear();
                         }
                       },
-                      icon: Icon(Icons.send),
+                      icon: state is RecordUpdateInProcess
+                          ? Icon(Icons.check)
+                          : Icon(Icons.send),
                     ),
                   ],
                 ),

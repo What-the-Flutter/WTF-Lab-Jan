@@ -1,9 +1,11 @@
+import 'package:chat_journal/chats/cubit/chats_cubit.dart';
+import 'package:chat_journal/pages/category_add_edit_page.dart';
 import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:provider/provider.dart';
 import '../model/category.dart';
-import '../pages/category_edit_page.dart';
 
 class CategoryBottomSheet extends StatelessWidget {
   final Category category;
@@ -44,12 +46,10 @@ class CategoryBottomSheet extends StatelessWidget {
               title: Text(category.isPinned ? 'Unpin page' : 'Pin page'),
               onTap: () {
                 if (category.isPinned) {
-                  BlocProvider.of<HometabCubit>(context)
-                      .unpinCategory(category);
+                  context.read<ChatsCubit>().unpinCategory(category);
                 } else {
-                  BlocProvider.of<HometabCubit>(context).pinCategory(category);
+                  context.read<ChatsCubit>().pinCategory(category);
                 }
-                //BlocProvider.of<HometabCubit>(context).sortCategories();
                 Navigator.of(context).pop();
               },
             ),
@@ -66,9 +66,10 @@ class CategoryBottomSheet extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (_) {
                       return BlocProvider.value(
-                        value: BlocProvider.of<HometabCubit>(context),
-                        child: CategoryEditPage(
-                          category,
+                        value: context.read<ChatsCubit>(),
+                        child: CategoryAddEditPage(
+                          mode: CategoryAddEditMode.edit,
+                          category: category,
                         ),
                       );
                     },
@@ -96,8 +97,7 @@ class CategoryBottomSheet extends StatelessWidget {
                         TextButton(
                           child: Text('Delete'),
                           onPressed: () {
-                            BlocProvider.of<HometabCubit>(context)
-                                .deleteCategory(category);
+                            context.read<ChatsCubit>().deleteCategory(category);
                             Navigator.of(newContext).pop();
                             Navigator.of(context).pop();
                           },

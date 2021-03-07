@@ -1,4 +1,7 @@
+import 'package:chat_journal/blocs/theme_mode_bloc/thememode_bloc.dart';
+import 'package:chat_journal/chats/cubit/chats_cubit.dart';
 import 'package:chat_journal/mocks/mocks.dart';
+import 'package:chat_journal/pages/category_add_edit_page.dart';
 import 'package:chat_journal/pages/category_page/category_page.dart';
 import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +11,6 @@ import '../components/main_page_bottom_navigation_bar.dart';
 import '../components/main_page_drawer.dart';
 import '../main.dart';
 import '../tabs/home_tab/home_tab.dart';
-import 'category_add_page.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -35,14 +37,16 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat Exp'),
+        title: Text(currentPageIndex == 0 ? 'Home' : 'Other page'),
         actions: [
           IconButton(
-            icon: Icon(ThemeSwitcher.of(context).themeMode == ThemeMode.light
-                ? Icons.bedtime_outlined
-                : Icons.bedtime),
+            icon: Icon(
+                BlocProvider.of<ThememodeBloc>(context).state.themeMode ==
+                        ThemeMode.light
+                    ? Icons.bedtime_outlined
+                    : Icons.bedtime),
             onPressed: () {
-              ThemeSwitcher.of(context).switchThemeMode();
+              BlocProvider.of<ThememodeBloc>(context).add(ThememodeChanged());
             },
           ),
         ],
@@ -59,8 +63,10 @@ class _MainPageState extends State<MainPage> {
                   MaterialPageRoute(
                     builder: (_) {
                       return BlocProvider.value(
-                        value: BlocProvider.of<HometabCubit>(context),
-                        child: CategoryAddPage(),
+                        value: BlocProvider.of<ChatsCubit>(context),
+                        child: CategoryAddEditPage(
+                          mode: CategoryAddEditMode.add,
+                        ),
                       );
                     },
                   ),

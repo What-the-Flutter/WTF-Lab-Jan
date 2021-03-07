@@ -8,21 +8,17 @@ part 'thememode_event.dart';
 part 'thememode_state.dart';
 
 class ThememodeBloc extends Bloc<ThememodeEvent, ThememodeState> {
-  ThemeMode themeMode;
-
-  ThememodeBloc(this.themeMode) : super(ThememodeInitial());
+  ThememodeBloc(ThemeMode themeMode) : super(ThememodeInitial(themeMode));
 
   @override
   Stream<ThememodeState> mapEventToState(
     ThememodeEvent event,
   ) async* {
     if (event is ThememodeChanged) {
-      if (themeMode == ThemeMode.light) {
-        themeMode = ThemeMode.dark;
-        yield ThememodeSetDarkSuccess();
+      if (state.themeMode == ThemeMode.light) {
+        yield ThememodeSetDarkSuccess(ThemeMode.dark);
       } else {
-        themeMode = ThemeMode.light;
-        yield ThememodeSetLightSuccess();
+        yield ThememodeSetLightSuccess(ThemeMode.light);
       }
     }
   }
