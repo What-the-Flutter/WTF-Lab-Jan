@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../model/category.dart';
 import 'package:provider/provider.dart';
 
+import '../model/category.dart';
 import 'chats_cubit/chats_cubit.dart';
 
 enum CategoryAddEditMode { add, edit }

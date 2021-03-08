@@ -1,10 +1,10 @@
-import 'package:chat_journal/pages/chats_cubit/chats_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../components/category_bottom_sheet.dart';
 import '../model/category.dart';
 import '../pages/category_page.dart';
+import '../pages/chats_cubit/chats_cubit.dart';
 
 class CategoryWidget extends StatelessWidget {
   final Category category;

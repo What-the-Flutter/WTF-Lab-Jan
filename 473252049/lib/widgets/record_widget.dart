@@ -1,10 +1,11 @@
 import 'package:bubble/bubble.dart';
-import 'package:chat_journal/model/category.dart';
-import 'package:chat_journal/pages/chats_cubit/chats_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../model/category.dart';
 import '../model/record.dart';
+import '../pages/chats_cubit/chats_cubit.dart';
 
 class RecordWidget extends StatelessWidget {
   final Category category;
@@ -51,11 +52,24 @@ class RecordWidget extends StatelessWidget {
                   record.message,
                   textAlign: TextAlign.end,
                 ),
-              if (record.isFavorite)
-                Icon(
-                  Icons.bookmark,
-                  size: 12,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (record.isFavorite)
+                    Icon(
+                      Icons.bookmark,
+                      size: 12,
+                    ),
+                  Text(
+                    '${record.createDateTime.hour}:${record.createDateTime.minute}',
+                    style: Theme.of(context).textTheme.bodyText2.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

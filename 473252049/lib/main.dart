@@ -1,9 +1,9 @@
-import 'package:chat_journal/pages/chats_cubit/chats_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'blocs/theme_mode_bloc/thememode_bloc.dart';
 import 'mocks/mocks.dart';
+import 'pages/chats_cubit/chats_cubit.dart';
 import 'pages/main_page.dart';
 
 void main() {
