@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/category_bloc/category_bloc.dart';
-import '../blocs/home_page_bloc/homepage_bloc.dart';
-import '../views/category_view.dart';
+import '../pages/chats_cubit/chats_cubit.dart';
+import '../widgets/category_widget.dart';
 
 class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final categories = BlocProvider.of<HomepageBloc>(context).categories;
+    return CategoriesListView();
+  }
+}
 
-    return BlocBuilder<HomepageBloc, HomepageState>(
+class CategoriesListView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ChatsCubit, ChatsState>(
       builder: (context, state) {
+        print('rebuild categories list view');
         return ListView.separated(
           separatorBuilder: (context, index) => Divider(),
-          itemBuilder: (context, index) => BlocProvider<CategoryBloc>(
-            create: (context) => CategoryBloc(categories[index]),
-            child: CategoryView(categories[index]),
-          ),
-          itemCount: categories.length,
+          itemBuilder: (context, index) =>
+              CategoryWidget(state.categories[index]),
+          itemCount: state.categories.length,
         );
       },
     );

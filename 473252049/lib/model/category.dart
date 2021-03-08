@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
@@ -8,10 +10,12 @@ class Category implements Comparable {
   String name;
   IconData icon;
   List<Record> records;
+  final DateTime createDateTime;
   bool isSelected = false;
   bool isPinned = false;
 
-  Category(this.name, {@required this.icon, this.records}) {
+  Category(this.name, {@required this.icon, this.records})
+      : createDateTime = DateTime.now() {
     records ??= [];
   }
 
@@ -22,6 +26,9 @@ class Category implements Comparable {
   bool get hasSelectedRecords {
     return records.where((r) => r.isSelected).isNotEmpty;
   }
+
+  void pin() => isPinned = true;
+  void unpin() => isPinned = false;
 
   void add(Record record) {
     records.insert(0, record);
@@ -37,8 +44,10 @@ class Category implements Comparable {
     }
   }
 
-  Record update(Record record, {@required String newMessage}) {
-    return records.get(record)..message = newMessage;
+  Record update(Record record, {@required String newMessage, File newImage}) {
+    return records.get(record)
+      ..message = newMessage
+      ..image = newImage;
   }
 
   void select(Record record) {
@@ -61,6 +70,18 @@ class Category implements Comparable {
 
   void unfavorite(Record record) {
     records.get(record).unfavorite();
+  }
+
+  void changeFavorite(Record record) {
+    if (record.isFavorite) {
+      records.get(record).unfavorite();
+    } else {
+      records.get(record).favorite();
+    }
+  }
+
+  void sort() {
+    records.sort();
   }
 
   @override

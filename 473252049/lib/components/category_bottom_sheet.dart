@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-import '../blocs/home_page_bloc/homepage_bloc.dart';
 import '../model/category.dart';
-import '../pages/category_edit_page.dart';
+import '../pages/category_add_edit_page.dart';
+import '../pages/chats_cubit/chats_cubit.dart';
 
 class CategoryBottomSheet extends StatelessWidget {
   final Category category;
@@ -26,6 +28,9 @@ class CategoryBottomSheet extends StatelessWidget {
                   context: context,
                   child: AlertDialog(
                     title: Text(category.name),
+                    content: Text(
+                      'Create date: ${DateFormat.yMMMd().format(category.createDateTime)}',
+                    ),
                     actions: [
                       TextButton(
                         child: Text('OK'),
@@ -41,11 +46,13 @@ class CategoryBottomSheet extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(Icons.pin_drop),
-              title: Text('Pin/Unpin Page'),
+              title: Text(category.isPinned ? 'Unpin page' : 'Pin page'),
               onTap: () {
-                BlocProvider.of<HomepageBloc>(context).add(
-                  CategoryPinChanged(category),
-                );
+                if (category.isPinned) {
+                  context.read<ChatsCubit>().unpinCategory(category);
+                } else {
+                  context.read<ChatsCubit>().pinCategory(category);
+                }
                 Navigator.of(context).pop();
               },
             ),
@@ -62,9 +69,10 @@ class CategoryBottomSheet extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (_) {
                       return BlocProvider.value(
-                        value: BlocProvider.of<HomepageBloc>(context),
-                        child: CategoryEditPage(
-                          category,
+                        value: context.read<ChatsCubit>(),
+                        child: CategoryAddEditPage(
+                          mode: CategoryAddEditMode.edit,
+                          category: category,
                         ),
                       );
                     },
@@ -92,9 +100,7 @@ class CategoryBottomSheet extends StatelessWidget {
                         TextButton(
                           child: Text('Delete'),
                           onPressed: () {
-                            BlocProvider.of<HomepageBloc>(context).add(
-                              CategoryDeleted(category),
-                            );
+                            context.read<ChatsCubit>().deleteCategory(category);
                             Navigator.of(newContext).pop();
                             Navigator.of(context).pop();
                           },
