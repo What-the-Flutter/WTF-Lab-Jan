@@ -2,15 +2,14 @@ import 'package:chat_journal/blocs/theme_mode_bloc/thememode_bloc.dart';
 import 'package:chat_journal/chats/cubit/chats_cubit.dart';
 import 'package:chat_journal/mocks/mocks.dart';
 import 'package:chat_journal/pages/category_add_edit_page.dart';
-import 'package:chat_journal/pages/category_page/category_page.dart';
-import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
+import 'package:chat_journal/pages/category_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../components/main_page_bottom_navigation_bar.dart';
 import '../components/main_page_drawer.dart';
 import '../main.dart';
-import '../tabs/home_tab/home_tab.dart';
+import '../tabs/home_tab.dart';
 
 class MainPage extends StatefulWidget {
   @override

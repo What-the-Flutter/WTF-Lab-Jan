@@ -1,12 +1,8 @@
-import 'package:chat_journal/chats/cubit/chats_cubit.dart';
-import 'package:chat_journal/mocks/mocks.dart';
-import 'package:chat_journal/model/category.dart';
-import 'package:chat_journal/pages/category_page/category_cubit.dart';
-import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../widgets/category_widget.dart';
+import '../chats/cubit/chats_cubit.dart';
+import '../widgets/category_widget.dart';
 
 class HomeTab extends StatelessWidget {
   @override

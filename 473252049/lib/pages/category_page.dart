@@ -1,15 +1,15 @@
 import 'dart:io';
 
 import 'package:chat_journal/chats/cubit/chats_cubit.dart';
-import 'package:chat_journal/tabs/home_tab/hometab_cubit.dart';
+import 'package:chat_journal/pages/search_record_page.dart';
 import 'package:chat_journal/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../model/category.dart';
-import '../../model/record.dart';
-import '../../widgets/record_widget.dart';
+import '../model/category.dart';
+import '../model/record.dart';
+import '../widgets/record_widget.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;
@@ -168,22 +168,26 @@ class _CategoryPageState extends State<CategoryPage> {
                     )
               : AppBar(
                   title: Text(widget.category.name),
+                  actions: [
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        showSearch(
+                          context: context,
+                          delegate: SerachRecordPage(
+                              records: widget.category.records,
+                              category: widget.category),
+                        );
+                      },
+                    ),
+                  ],
                 ),
           body: Column(
             children: [
               Expanded(
-                child: ListView.builder(
-                  reverse: true,
-                  itemCount: widget.category.records.length,
-                  itemBuilder: (context, index) {
-                    return BlocProvider.value(
-                      value: context.read<ChatsCubit>(),
-                      child: RecordWidget(
-                        record: widget.category.records[index],
-                        category: widget.category,
-                      ),
-                    );
-                  },
+                child: RecordsListViewWithCubit(
+                  records: widget.category.records,
+                  category: widget.category,
                 ),
               ),
               Form(
@@ -276,6 +280,52 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class RecordsListViewWithCubit extends RecordsListView {
+  RecordsListViewWithCubit({List<Record> records, Category category})
+      : super(records: records, category: category);
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      reverse: true,
+      itemCount: records.length,
+      itemBuilder: (context, index) {
+        return BlocProvider.value(
+          value: context.read<ChatsCubit>(),
+          child: RecordWidget(
+            record: records[index],
+            category: category,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class RecordsListView extends StatelessWidget {
+  final List<Record> records;
+  final Category category;
+
+  const RecordsListView({Key key, @required this.records, this.category})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: ListView.builder(
+        reverse: true,
+        itemCount: records.length,
+        itemBuilder: (context, index) {
+          return RecordWidget(
+            record: records[index],
+            category: category,
+          );
+        },
+      ),
     );
   }
 }

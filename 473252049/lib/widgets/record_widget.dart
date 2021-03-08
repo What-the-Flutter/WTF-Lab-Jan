@@ -1,7 +1,6 @@
 import 'package:bubble/bubble.dart';
 import 'package:chat_journal/chats/cubit/chats_cubit.dart';
 import 'package:chat_journal/model/category.dart';
-import 'package:chat_journal/pages/category_page/category_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,7 +10,7 @@ class RecordWidget extends StatelessWidget {
   final Category category;
   final Record record;
 
-  const RecordWidget({Key key, @required this.record, @required this.category})
+  const RecordWidget({Key key, @required this.record, this.category})
       : super(key: key);
 
   @override
@@ -19,9 +18,11 @@ class RecordWidget extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onLongPress: () {
+        if (category == null) return;
         context.read<ChatsCubit>().selectRecord(category, record);
       },
       onTap: () {
+        if (category == null) return;
         if (category.hasSelectedRecords) {
           if (record.isSelected) {
             context.read<ChatsCubit>().unselectRecord(category, record);
