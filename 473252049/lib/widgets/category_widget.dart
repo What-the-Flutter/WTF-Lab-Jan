@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../components/category_bottom_sheet.dart';
 import '../model/category.dart';
@@ -96,7 +97,14 @@ class CategoryWidget extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        'Yesterday',
+                        category.records.isEmpty
+                            ? DateFormat.E().format(category.createDateTime)
+                            : category.records.first.createDateTime.day ==
+                                    DateTime.now().day
+                                ? DateFormat.Hm().format(
+                                    category.records.first.createDateTime)
+                                : DateFormat.E().format(
+                                    category.records.first.createDateTime),
                         style: Theme.of(context).textTheme.bodyText2,
                         textAlign: TextAlign.center,
                       ),
