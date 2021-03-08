@@ -1,20 +1,21 @@
 import 'dart:io';
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../extensions/list_get_element.dart';
 import '../model/record.dart';
 
-class Category extends Equatable implements Comparable {
+class Category implements Comparable {
   String name;
   IconData icon;
   List<Record> records;
+  final DateTime createDateTime;
   bool isSelected = false;
   bool isPinned = false;
 
-  Category(this.name, {@required this.icon, this.records}) {
+  Category(this.name, {@required this.icon, this.records})
+      : createDateTime = DateTime.now() {
     records ??= [];
   }
 
@@ -90,19 +91,5 @@ class Category extends Equatable implements Comparable {
     }
     if (isPinned) return -1;
     return 1;
-  }
-
-  @override
-  int get hashCode => name.hashCode;
-
-  @override
-  List<Object> get props => [name];
-
-  @override
-  bool operator ==(Object other) {
-    if (other is Category) {
-      return name == other.name;
-    }
-    return false;
   }
 }

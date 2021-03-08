@@ -102,13 +102,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  footer:
-    dependency: "direct main"
-    description:
-      name: footer
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.3"
   http:
     dependency: transitive
     description:
@@ -137,6 +130,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.6"
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.16.1"
   matcher:
     dependency: transitive
     description:

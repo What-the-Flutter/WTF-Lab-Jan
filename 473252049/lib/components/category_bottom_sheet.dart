@@ -1,10 +1,11 @@
-import 'package:chat_journal/pages/category_add_edit_page.dart';
-import 'package:chat_journal/pages/chats_cubit/chats_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import '../model/category.dart';
+import '../pages/category_add_edit_page.dart';
+import '../pages/chats_cubit/chats_cubit.dart';
 
 class CategoryBottomSheet extends StatelessWidget {
   final Category category;
@@ -27,6 +28,9 @@ class CategoryBottomSheet extends StatelessWidget {
                   context: context,
                   child: AlertDialog(
                     title: Text(category.name),
+                    content: Text(
+                      'Create date: ${DateFormat.yMMMd().format(category.createDateTime)}',
+                    ),
                     actions: [
                       TextButton(
                         child: Text('OK'),
