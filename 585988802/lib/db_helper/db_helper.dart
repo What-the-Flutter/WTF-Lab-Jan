@@ -4,23 +4,23 @@ import 'package:sqflite/sqflite.dart';
 import '../models/event_message.dart';
 import '../models/suggestion.dart';
 
-final String tableSuggestion = 'suggestion';
-final String columnId = 'id';
-final String columnNameOfSuggestion = 'name';
-final String columnInfoOfSuggestion = 'info';
-final String columnImagePathOfSuggestion = 'imagePath';
-final String columnIsPinned = 'isPinned';
+const String tableSuggestion = 'suggestion';
+const String columnId = 'id';
+const String columnNameOfSuggestion = 'name';
+const String columnInfoOfSuggestion = 'info';
+const String columnImagePathOfSuggestion = 'image_path';
+const String columnIsPinned = 'is_pinned';
 
-final String tableEventMessage = 'eventMessage';
-final String columnIdEventMessage = 'id';
-final String columnNameOfEventMessageSuggestion = 'name';
-final String columnTime = 'time';
-final String columnText = 'text';
-final String columnIsFavorite = 'isFavorite';
-final String columnIsImageMessage = 'isImageMessage';
-final String columnImagePath = 'imagePath';
-final String columnCategoryImagePath = 'categoryImagePath';
-final String columnNameOfCategory = 'nameOfCategory';
+const String tableEventMessage = 'event_message';
+const String columnIdEventMessage = 'id';
+const String columnIdOfSuggestion = 'id_of_suggestion';
+const String columnTime = 'time';
+const String columnText = 'text';
+const String columnIsFavorite = 'is_favorite';
+const String columnIsImageMessage = 'is_image_message';
+const String columnImagePath = 'image_path';
+const String columnCategoryImagePath = 'category_image_path';
+const String columnNameOfCategory = 'name_of_category';
 
 class DBHelper {
   static Database _database;
@@ -39,7 +39,8 @@ class DBHelper {
   }
 
   Future<Database> initializeDatabase() async {
-    var database = openDatabase(join(await getDatabasesPath(), 'suggestion.db'),
+    final database = openDatabase(
+        join(await getDatabasesPath(), 'suggestion.db'),
         version: 1, onCreate: (db, version) {
       db.execute('''
       create table $tableSuggestion(
@@ -52,7 +53,7 @@ class DBHelper {
       db.execute('''
       create table $tableEventMessage(
       $columnIdEventMessage integer primary key autoincrement,
-      $columnNameOfEventMessageSuggestion text not null,
+      $columnIdOfSuggestion integer,
       $columnTime text not null,
       $columnText text not null,
       $columnIsFavorite integer,
@@ -65,61 +66,101 @@ class DBHelper {
     return database;
   }
 
-  void insertSuggestion(Suggestion suggestion) async {
-    var db = await database;
-    db.insert(tableSuggestion, suggestion.toMap());
+  Future<int> insertSuggestion(Suggestion suggestion) async {
+    final db = await database;
+    return db.insert(
+      tableSuggestion,
+      suggestion.insertToMap(),
+    );
   }
 
   Future<int> deleteSuggestion(Suggestion suggestion) async {
-    var db = await database;
-    return await db.delete(tableSuggestion,
-        where: '$columnId = ?', whereArgs: [suggestion.id]);
+    final db = await database;
+    db.rawDelete(
+      'DELETE FROM $tableEventMessage WHERE $columnIdOfSuggestion = ? ',
+      [suggestion.id],
+    );
+    return await db.delete(
+      tableSuggestion,
+      where: '$columnId = ?',
+      whereArgs: [suggestion.id],
+    );
   }
 
   Future<int> updateSuggestion(Suggestion suggestion) async {
-    var db = await database;
-    return await db.update(tableSuggestion, suggestion.toMap(),
-        where: '$columnId = ?', whereArgs: [suggestion.id]);
+    final db = await database;
+    return await db.update(
+      tableSuggestion,
+      suggestion.toMap(),
+      where: '$columnId = ?',
+      whereArgs: [suggestion.id],
+    );
   }
 
   Future<List<Suggestion>> dbSuggestionsList() async {
-    var _suggestionsList = <Suggestion>[];
+    final suggestionsList = <Suggestion>[];
 
-    var db = await database;
-    var dbSuggestionList = await db.query(tableSuggestion);
-    for (var element in dbSuggestionList) {
-      var suggestion = Suggestion.fromMap(element);
-      _suggestionsList.add(suggestion);
+    final db = await database;
+    final dbSuggestionList = await db.query(tableSuggestion);
+    for (final element in dbSuggestionList) {
+      final suggestion = Suggestion.fromMap(element);
+      suggestionsList.add(suggestion);
     }
-    return _suggestionsList;
+    return suggestionsList;
   }
 
   void insertEventMessage(EventMessage eventMessage) async {
-    var db = await database;
-    db.insert(tableEventMessage, eventMessage.toMap());
+    final db = await database;
+    db.insert(
+      tableEventMessage,
+      eventMessage.toMap(),
+    );
   }
 
   Future<int> deleteEventMessage(EventMessage eventMessage) async {
-    var db = await database;
-    return await db.delete(tableEventMessage,
-        where: '$columnId = ?', whereArgs: [eventMessage.id]);
+    final db = await database;
+    return await db.delete(
+      tableEventMessage,
+      where: '$columnId = ?',
+      whereArgs: [eventMessage.id],
+    );
   }
 
   Future<int> updateEventMessage(EventMessage eventMessage) async {
-    var db = await database;
-    return await db.update(tableEventMessage, eventMessage.toMap(),
-        where: '$columnId = ?', whereArgs: [eventMessage.id]);
+    final db = await database;
+    return await db.update(
+      tableEventMessage,
+      eventMessage.toMap(),
+      where: '$columnId = ?',
+      whereArgs: [eventMessage.id],
+    );
   }
 
   Future<List<EventMessage>> dbEventMessagesList() async {
-    var _eventMessagesList = <EventMessage>[];
+    final eventMessagesList = <EventMessage>[];
 
-    var db = await database;
-    var dbEventMessagesList = await db.query(tableEventMessage);
-    for (var element in dbEventMessagesList) {
-      var eventMessage = EventMessage.fromMap(element);
-      _eventMessagesList.add(eventMessage);
+    final db = await database;
+    final dbEventMessagesList = await db.query(tableEventMessage);
+    for (final element in dbEventMessagesList) {
+      final eventMessage = EventMessage.fromMap(element);
+      eventMessagesList.add(eventMessage);
     }
-    return _eventMessagesList;
+    return eventMessagesList;
+  }
+
+  Future<List<EventMessage>> dbEventMessagesListForEventScreen(
+      int suggestionId) async {
+    final eventMessagesList = <EventMessage>[];
+
+    final db = await database;
+    final dbEventMessagesList = await db.rawQuery(
+      'SELECT * FROM $tableEventMessage WHERE $columnIdOfSuggestion = ?',
+      [suggestionId],
+    );
+    for (final element in dbEventMessagesList) {
+      final eventMessage = EventMessage.fromMap(element);
+      eventMessagesList.insert(0, eventMessage);
+    }
+    return eventMessagesList;
   }
 }

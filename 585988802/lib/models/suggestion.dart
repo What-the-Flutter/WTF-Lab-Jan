@@ -1,6 +1,8 @@
+import 'data_base_contract.dart';
+
 import 'event_message.dart';
 
-class Suggestion {
+class Suggestion implements DBContract {
   List<EventMessage> eventMessagesList = <EventMessage>[];
 
   int id;
@@ -16,20 +18,32 @@ class Suggestion {
     this.isPinned,
   });
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': nameOfSuggestion,
       'info': infoOfSuggestion,
-      'imagePath': imagePathOfSuggestion,
-      'isPinned': isPinned,
+      'image_path': imagePathOfSuggestion,
+      'is_pinned': isPinned,
     };
   }
 
-  factory Suggestion.fromMap(Map<String, dynamic> map) => Suggestion(
-        id: map['id'],
-        nameOfSuggestion: map['name'],
-        imagePathOfSuggestion: map['imagePath'],
-        isPinned: map['isPinned'],
-      );
+  Map<String, dynamic> insertToMap() {
+    return {
+      'name': nameOfSuggestion,
+      'info': infoOfSuggestion,
+      'image_path': imagePathOfSuggestion,
+      'is_pinned': isPinned,
+    };
+  }
+
+  factory Suggestion.fromMap(Map<String, dynamic> map) {
+    return Suggestion(
+      id: map['id'],
+      nameOfSuggestion: map['name'],
+      imagePathOfSuggestion: map['image_path'],
+      isPinned: map['is_pinned'],
+    );
+  }
 }
