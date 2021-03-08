@@ -1,4 +1,4 @@
-import 'package:chat_journal/chats/cubit/chats_cubit.dart';
+import 'package:chat_journal/pages/chats_cubit/chats_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

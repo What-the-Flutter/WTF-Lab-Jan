@@ -63,6 +63,16 @@ class CategoryUpdateSuccess extends ChatsState {
   List<Object> get props => [categories, category];
 }
 
+class CategorySortSuccess extends ChatsState {
+  final Category category;
+
+  CategorySortSuccess(List<Category> categories, this.category)
+      : super(categories);
+
+  @override
+  List<Object> get props => [categories, category];
+}
+
 class RecordAddSuccess extends ChatsState {
   final Category category;
   final Record record;

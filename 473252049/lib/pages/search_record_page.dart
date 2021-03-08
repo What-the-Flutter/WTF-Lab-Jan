@@ -1,8 +1,8 @@
-import 'package:chat_journal/model/category.dart';
 import 'package:flutter/material.dart';
-import './category_page.dart';
 
+import '../model/category.dart';
 import '../model/record.dart';
+import 'category_page.dart';
 
 class SerachRecordPage extends SearchDelegate<Record> {
   final List<Record> records;

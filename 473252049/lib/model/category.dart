@@ -79,6 +79,10 @@ class Category extends Equatable implements Comparable {
     }
   }
 
+  void sort() {
+    records.sort();
+  }
+
   @override
   int compareTo(Object other) {
     if (isPinned == (other as Category).isPinned) {

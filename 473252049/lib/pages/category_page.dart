@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:chat_journal/chats/cubit/chats_cubit.dart';
 import 'package:chat_journal/pages/search_record_page.dart';
 import 'package:chat_journal/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../model/category.dart';
 import '../model/record.dart';
 import '../widgets/record_widget.dart';
+import 'chats_cubit/chats_cubit.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;
@@ -92,7 +92,7 @@ class _CategoryPageState extends State<CategoryPage> {
                               _messageFocus.requestFocus();
                             },
                           ),
-                        SendRecordIconButton(
+                        ShareRecordIconButton(
                           categoryFrom: widget.category,
                         ),
                         IconButton(
@@ -129,38 +129,9 @@ class _CategoryPageState extends State<CategoryPage> {
                         IconButton(
                           icon: Icon(Icons.delete),
                           onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (newContext) {
-                                return AlertDialog(
-                                  title: Text('Delete records?'),
-                                  actions: [
-                                    TextButton(
-                                      child: Text("Don't"),
-                                      onPressed: () {
-                                        context
-                                            .read<ChatsCubit>()
-                                            .unselectAllRecords(
-                                                widget.category);
-                                        Navigator.of(newContext).pop();
-                                      },
-                                    ),
-                                    TextButton(
-                                      child: Text('Delete'),
-                                      onPressed: () {
-                                        context
-                                            .read<ChatsCubit>()
-                                            .deleteRecords(
-                                                widget.category,
-                                                widget
-                                                    .category.selectedRecords);
-
-                                        Navigator.of(newContext).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
+                            _showDeleteDialog(
+                              context,
+                              category: widget.category,
                             );
                           },
                         )
@@ -195,53 +166,57 @@ class _CategoryPageState extends State<CategoryPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.photo),
-                      onPressed: () async {
-                        await getImage();
-                        if (_image == null) return;
-                        showDialog(
-                          context: context,
-                          builder: (newContext) {
-                            return SimpleDialog(
-                              children: [
-                                Container(
-                                  constraints: BoxConstraints(maxHeight: 400),
-                                  child: Image.file(_image),
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: MessageTextFormField(
-                                          controller: _textEditingController,
-                                          focusNode: _messageFocus,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.send),
-                                        onPressed: () {
-                                          context.read<ChatsCubit>().addRecord(
-                                                widget.category,
-                                                Record(
-                                                    _textEditingController.text,
-                                                    image: _image),
-                                              );
-                                          _textEditingController.clear();
-                                          Navigator.of(context).pop();
-                                        },
-                                      )
-                                    ],
+                    if (!(state is RecordUpdateInProcess))
+                      IconButton(
+                        icon: Icon(Icons.photo),
+                        onPressed: () async {
+                          await getImage();
+                          if (_image == null) return;
+                          showDialog(
+                            context: context,
+                            builder: (newContext) {
+                              return SimpleDialog(
+                                children: [
+                                  Container(
+                                    constraints: BoxConstraints(maxHeight: 400),
+                                    child: Image.file(_image),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: MessageTextFormField(
+                                            controller: _textEditingController,
+                                            focusNode: _messageFocus,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.send),
+                                          onPressed: () {
+                                            context
+                                                .read<ChatsCubit>()
+                                                .addRecord(
+                                                  widget.category,
+                                                  Record(
+                                                      _textEditingController
+                                                          .text,
+                                                      image: _image),
+                                                );
+                                            _textEditingController.clear();
+                                            Navigator.of(context).pop();
+                                          },
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
                     Expanded(
                       child: MessageTextFormField(
                         focusNode: _messageFocus,
@@ -260,7 +235,7 @@ class _CategoryPageState extends State<CategoryPage> {
                             context
                                 .read<ChatsCubit>()
                                 .unselectAllRecords(widget.category);
-                            FocusScope.of(context).unfocus();
+                            _messageFocus.unfocus();
                           } else {
                             context.read<ChatsCubit>().addRecord(
                                 widget.category,
@@ -282,6 +257,35 @@ class _CategoryPageState extends State<CategoryPage> {
       },
     );
   }
+}
+
+Future _showDeleteDialog(BuildContext context, {Category category}) {
+  return showDialog(
+    context: context,
+    builder: (newContext) {
+      return AlertDialog(
+        title: Text('Delete records?'),
+        actions: [
+          TextButton(
+            child: Text("Don't"),
+            onPressed: () {
+              context.read<ChatsCubit>().unselectAllRecords(category);
+              Navigator.of(newContext).pop();
+            },
+          ),
+          TextButton(
+            child: Text('Delete'),
+            onPressed: () {
+              context
+                  .read<ChatsCubit>()
+                  .deleteRecords(category, category.selectedRecords);
+              Navigator.of(newContext).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class RecordsListViewWithCubit extends RecordsListView {
@@ -339,34 +343,37 @@ class MessageTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      decoration: InputDecoration(
-        hintText: 'Your record',
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: TextFormField(
+        decoration: InputDecoration(
+          hintText: 'Your record',
+        ),
+        minLines: 1,
+        maxLines: 8,
+        validator: (value) {
+          if (value.trim().isEmpty) {
+            return "Record can't be empty";
+          }
+          return null;
+        },
+        focusNode: focusNode,
+        controller: controller,
       ),
-      minLines: 1,
-      maxLines: 8,
-      validator: (value) {
-        if (value.trim().isEmpty) {
-          return "Record can't be empty";
-        }
-        return null;
-      },
-      focusNode: focusNode,
-      controller: controller,
     );
   }
 }
 
-class SendRecordIconButton extends StatelessWidget {
+class ShareRecordIconButton extends StatelessWidget {
   final Category categoryFrom;
 
-  const SendRecordIconButton({Key key, @required this.categoryFrom})
+  const ShareRecordIconButton({Key key, @required this.categoryFrom})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.send),
+      icon: Icon(Icons.share_outlined),
       onPressed: () {
         showDialog(
           context: context,
@@ -376,7 +383,9 @@ class SendRecordIconButton extends StatelessWidget {
                 ...context.read<ChatsCubit>().state.categories.map(
                   (category) {
                     if (category == categoryFrom) {
-                      return Container();
+                      return Container(
+                        height: 0,
+                      );
                     }
                     return ListTile(
                       title: Text(category.name),
@@ -387,6 +396,7 @@ class SendRecordIconButton extends StatelessWidget {
                               records: categoryFrom.selectedRecords,
                             );
                         context.read<ChatsCubit>().unselectAllRecords(category);
+                        context.read<ChatsCubit>().sortCategory(category);
                         Navigator.of(context).pop();
                       },
                     );

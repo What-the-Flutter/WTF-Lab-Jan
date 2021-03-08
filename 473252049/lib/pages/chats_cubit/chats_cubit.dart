@@ -41,6 +41,11 @@ class ChatsCubit extends Cubit<ChatsState> {
     emit(CategoryUpdateSuccess(state.categories..sort(), category));
   }
 
+  void sortCategory(Category category) {
+    state.categories.get(category).sort();
+    emit(CategorySortSuccess(state.categories, category));
+  }
+
   void addRecord(Category category, Record record) {
     state.categories.get(category).add(record);
     emit(RecordAddSuccess(state.categories..sort(), category, record));
