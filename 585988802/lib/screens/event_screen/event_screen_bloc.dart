@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 import '../../db_helper/db_helper.dart';
+import '../../models/event_message.dart';
 import 'event_screen_event.dart';
 import 'event_screen_state.dart';
 
@@ -181,12 +182,22 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
 
   Stream<EventScreenState> _mapEventMessageEditedToState(
       EventMessageEdited event) async* {
-    state.selectedEventMessage.text = event.editedNameOfEventMessage;
-    _dbHelper.updateEventMessage(state.selectedEventMessage);
+    final eventMessage = EventMessage(
+      id: state.selectedEventMessage.id,
+      idOfSuggestion: state.selectedEventMessage.idOfSuggestion,
+      time: state.selectedEventMessage.time,
+      text: event.editedNameOfEventMessage,
+      isFavorite: state.selectedEventMessage.isFavorite,
+      imagePath: state.selectedEventMessage.imagePath,
+      isImageMessage: state.selectedEventMessage.isImageMessage,
+      categoryImagePath: state.selectedEventMessage.categoryImagePath,
+      nameOfCategory: state.selectedEventMessage.nameOfCategory,
+    );
+    _dbHelper.updateEventMessage(eventMessage);
     add(
       UpdateEventMessageList(state.listViewSuggestion.id),
     );
-    yield state.copyWith();
+    yield state.copyWith(selectedEventMessage: eventMessage);
   }
 
   Stream<EventScreenState> _mapDateSelectedToState(DateSelected event) async* {

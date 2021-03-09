@@ -2,16 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/event_message.dart';
 
-// ignore: must_be_immutable
 class CustomDialog extends StatelessWidget {
   final String title, content, firstBtnText, secondBtnText;
   final Icon icon;
   final dynamic firstBtnFunc, secondBtnFunc;
   final bool isEditMessage;
   final bool isDeleteMessage;
-  String nameOfSuggestion;
-  TextEditingController textEditControl;
-  EventMessage eventMessage;
+  final String nameOfSuggestion;
+  final TextEditingController textEditControl;
+  final EventMessage eventMessage;
 
   CustomDialog.imageSelect({
     this.title,
@@ -23,6 +22,9 @@ class CustomDialog extends StatelessWidget {
     this.secondBtnFunc,
     this.isEditMessage = false,
     this.isDeleteMessage = false,
+    this.nameOfSuggestion,
+    this.textEditControl,
+    this.eventMessage,
   });
 
   CustomDialog.deleteEventMessage({
@@ -35,6 +37,9 @@ class CustomDialog extends StatelessWidget {
     this.secondBtnFunc,
     this.isEditMessage = false,
     this.isDeleteMessage = true,
+    this.nameOfSuggestion,
+    this.textEditControl,
+    this.eventMessage,
   });
 
   CustomDialog.editEventMessage({
@@ -49,6 +54,7 @@ class CustomDialog extends StatelessWidget {
     this.isDeleteMessage = false,
     this.textEditControl,
     this.eventMessage,
+    this.nameOfSuggestion,
   });
 
   CustomDialog.editSuggestion({
@@ -63,6 +69,7 @@ class CustomDialog extends StatelessWidget {
     this.isDeleteMessage = false,
     this.textEditControl,
     this.nameOfSuggestion,
+    this.eventMessage,
   });
 
   @override

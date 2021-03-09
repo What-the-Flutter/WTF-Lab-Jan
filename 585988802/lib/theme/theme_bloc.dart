@@ -28,7 +28,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeMode> {
 
   Stream<ThemeMode> _mapInitThemeEventToState() async* {
     final pref = await SharedPreferences.getInstance();
-    var isCurrentThemeModeDark = await pref.getBool(_keyThemeMode) ?? false;
+    final isCurrentThemeModeDark = await pref.getBool(_keyThemeMode) ?? false;
     yield isCurrentThemeModeDark == true ? ThemeMode.dark : ThemeMode.light;
   }
 }
