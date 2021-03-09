@@ -43,10 +43,6 @@ class UpdateEventMessageList extends EventScreenEvent {
   const UpdateEventMessageList(this.idOfSuggestion);
 }
 
-class EventMessageToFavorite extends EventScreenEvent {
-  const EventMessageToFavorite();
-}
-
 class EventMessageEdited extends EventScreenEvent {
   final String editedNameOfEventMessage;
 
@@ -105,10 +101,10 @@ class CategorySelectedModeChanged extends EventScreenEvent {
       this.isCategorySelected, this.selectedCategory);
 }
 
-class EventMessageToFavoriteWithButton extends EventScreenEvent {
+class EventMessageToFavorite extends EventScreenEvent {
   final EventMessage eventMessage;
 
-  const EventMessageToFavoriteWithButton(this.eventMessage);
+  const EventMessageToFavorite(this.eventMessage);
 }
 
 class DateSelected extends EventScreenEvent {

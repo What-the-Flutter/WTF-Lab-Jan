@@ -280,10 +280,10 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          list[index].eventMessagesList.isNotEmpty
-              ? (list[index].eventMessagesList.first.isImageMessage == 1
+          list[index].lastEventMessage != null
+              ? (list[index].lastEventMessage.isImageMessage == 1
                   ? 'Image'
-                  : list[index].eventMessagesList.first.text)
+                  : list[index].lastEventMessage.text)
               : list[index].infoOfSuggestion,
           maxLines: 1,
         ),

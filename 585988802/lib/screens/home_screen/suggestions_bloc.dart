@@ -50,7 +50,10 @@ class SuggestionsBloc extends Bloc<SuggestionEvent, SuggestionsState> {
           localEventMessageList.insert(0, eventMessageList[j]);
         }
       }
-      suggestionList[i].eventMessagesList = localEventMessageList;
+      if (localEventMessageList.isNotEmpty) {
+        suggestionList[i].firstEventMessage = localEventMessageList.last;
+        suggestionList[i].lastEventMessage = localEventMessageList.first;
+      }
     }
 
     yield state.copyWith(suggestionList: suggestionList);

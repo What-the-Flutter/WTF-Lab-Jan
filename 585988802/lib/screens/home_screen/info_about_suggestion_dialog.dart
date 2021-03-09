@@ -45,7 +45,7 @@ class InfoAboutSuggestionDialog extends StatelessWidget {
               SizedBox(
                 height: 10.0,
               ),
-              selectedSuggestion.eventMessagesList.isNotEmpty
+              selectedSuggestion.firstEventMessage != null
                   ? Column(
                       children: [
                         Text(
@@ -54,7 +54,7 @@ class InfoAboutSuggestionDialog extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                         Text(
-                          selectedSuggestion.eventMessagesList.last.time,
+                          selectedSuggestion.firstEventMessage.time,
                           style: Theme.of(context).textTheme.bodyText2,
                           textAlign: TextAlign.center,
                         ),
@@ -67,7 +67,7 @@ class InfoAboutSuggestionDialog extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                         Text(
-                          selectedSuggestion.eventMessagesList.first.time,
+                          selectedSuggestion.lastEventMessage.time,
                           style: Theme.of(context).textTheme.bodyText2,
                           textAlign: TextAlign.center,
                         ),

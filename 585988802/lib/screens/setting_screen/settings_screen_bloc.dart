@@ -23,8 +23,8 @@ class SettingScreenBloc extends Bloc<SettingScreenEvent, SettingsScreenState> {
 
   Stream<SettingsScreenState> _mapInitSettingScreenToState() async* {
     final pref = await SharedPreferences.getInstance();
-    var bubbleAlignment = await pref.getBool(_keyBubbleAlignment) ?? false;
-    var dateTimeModification =
+    final bubbleAlignment = await pref.getBool(_keyBubbleAlignment) ?? false;
+    final dateTimeModification =
         await pref.getBool(_keyDateTimeModification) ?? false;
     yield state.copyWith(
         isLeftBubbleAlignment: bubbleAlignment,

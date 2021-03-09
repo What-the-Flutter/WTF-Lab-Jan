@@ -38,14 +38,12 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
       yield* _mapEditingModeChangedToState(event);
     } else if (event is CategorySelectedModeChanged) {
       yield* _mapCategorySelectedModeChangedToState(event);
-    } else if (event is EventMessageToFavorite) {
-      yield* _mapEventMessageToFavoriteToState();
     } else if (event is EventMessageDeleted) {
       yield* _mapEventMessageDeletedToState();
     } else if (event is EventMessageEdited) {
       yield* _mapEventMessageEditedToState(event);
-    } else if (event is EventMessageToFavoriteWithButton) {
-      yield* _mapEventMessageToFavoriteWithButtonToState(event);
+    } else if (event is EventMessageToFavorite) {
+      yield* _mapEventMessageToFavoriteToState(event);
     } else if (event is SelectedCategoryAdded) {
       yield* _mapSelectedCategoryAddedToState(event);
     } else if (event is DateSelected) {
@@ -162,18 +160,8 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
     );
   }
 
-  Stream<EventScreenState> _mapEventMessageToFavoriteToState() async* {
-    state.selectedEventMessage.isFavorite =
-        (state.selectedEventMessage.isFavorite == 1) ? 0 : 1;
-    _dbHelper.updateEventMessage(state.selectedEventMessage);
-    add(
-      UpdateEventMessageList(state.listViewSuggestion.id),
-    );
-    yield state.copyWith();
-  }
-
-  Stream<EventScreenState> _mapEventMessageToFavoriteWithButtonToState(
-      EventMessageToFavoriteWithButton event) async* {
+  Stream<EventScreenState> _mapEventMessageToFavoriteToState(
+      EventMessageToFavorite event) async* {
     event.eventMessage.isFavorite =
         (event.eventMessage.isFavorite == 1) ? 0 : 1;
     _dbHelper.updateEventMessage(event.eventMessage);

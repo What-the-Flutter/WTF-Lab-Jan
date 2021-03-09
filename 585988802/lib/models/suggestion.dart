@@ -3,7 +3,8 @@ import 'data_base_contract.dart';
 import 'event_message.dart';
 
 class Suggestion implements DBContract {
-  List<EventMessage> eventMessagesList = <EventMessage>[];
+  EventMessage firstEventMessage;
+  EventMessage lastEventMessage;
 
   int id;
   String nameOfSuggestion;
@@ -15,7 +16,7 @@ class Suggestion implements DBContract {
     this.id,
     this.nameOfSuggestion,
     this.imagePathOfSuggestion,
-    this.isPinned,
+    this.isPinned
   });
 
   @override

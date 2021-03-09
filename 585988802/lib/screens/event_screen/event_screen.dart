@@ -467,7 +467,7 @@ class _EventScreenState extends State<EventScreen> {
                         ? Image(image: FileImage(File(eventMessage.imagePath)))
                         : Text(
                             eventMessage.text,
-                            maxLines: isSelected ? 2 : null,
+                            maxLines: isSelected ? 1 : null,
                             style: TextStyle(
                               color: Theme.of(context).accentColor,
                               fontSize: 17.0,
@@ -497,7 +497,7 @@ class _EventScreenState extends State<EventScreen> {
                           ),
                     onPressed: () {
                       BlocProvider.of<EventScreenBloc>(context).add(
-                        EventMessageToFavoriteWithButton(eventMessage),
+                        EventMessageToFavorite(eventMessage),
                       );
                     },
                   ),
@@ -534,7 +534,7 @@ class _EventScreenState extends State<EventScreen> {
                           ),
                     onPressed: () {
                       BlocProvider.of<EventScreenBloc>(context).add(
-                        EventMessageToFavoriteWithButton(eventMessage),
+                        EventMessageToFavorite(eventMessage),
                       );
                     },
                   ),
@@ -1211,7 +1211,8 @@ class _EventScreenState extends State<EventScreen> {
 
   void _addToFavorites() {
     BlocProvider.of<EventScreenBloc>(context).add(
-      EventMessageToFavorite(),
+      EventMessageToFavorite(
+          BlocProvider.of<EventScreenBloc>(context).state.selectedEventMessage),
     );
   }
 
