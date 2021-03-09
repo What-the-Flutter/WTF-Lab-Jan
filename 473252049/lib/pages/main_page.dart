@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/theme_mode_bloc/thememode_bloc.dart';
 import '../components/main_page_bottom_navigation_bar.dart';
 import '../components/main_page_drawer.dart';
 import '../tabs/home_tab.dart';
+import '../thememode_cubit/thememode_cubit.dart';
 import 'category_add_edit_page.dart';
 import 'chats_cubit/chats_cubit.dart';
 
@@ -37,12 +37,12 @@ class _MainPageState extends State<MainPage> {
         actions: [
           IconButton(
             icon: Icon(
-                BlocProvider.of<ThememodeBloc>(context).state.themeMode ==
-                        ThemeMode.light
-                    ? Icons.bedtime_outlined
-                    : Icons.bedtime),
+              context.read<ThememodeCubit>().state.themeMode == ThemeMode.light
+                  ? Icons.bedtime_outlined
+                  : Icons.bedtime,
+            ),
             onPressed: () {
-              BlocProvider.of<ThememodeBloc>(context).add(ThememodeChanged());
+              context.read<ThememodeCubit>().switchThemeMode();
             },
           ),
         ],

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'blocs/theme_mode_bloc/thememode_bloc.dart';
 import 'mocks/mocks.dart';
 import 'pages/chats_cubit/chats_cubit.dart';
 import 'pages/main_page.dart';
+import 'thememode_cubit/thememode_cubit.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ThememodeBloc(ThemeMode.light),
+      create: (context) => ThememodeCubit(ThemeMode.light),
       child: ThemingApp(),
     );
   }
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
 class ThemingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThememodeBloc, ThememodeState>(
+    return BlocBuilder<ThememodeCubit, ThememodeState>(
       builder: (context, state) {
         return MaterialApp(
           title: '473252049',
