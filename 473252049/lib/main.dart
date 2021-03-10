@@ -5,16 +5,42 @@ import 'mocks/mocks.dart';
 import 'pages/chats_cubit/chats_cubit.dart';
 import 'pages/main_page.dart';
 import 'thememode_cubit/thememode_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    MyApp(
+      preferences: await SharedPreferences.getInstance(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
+  final SharedPreferences preferences;
+
+  const MyApp({Key key, @required this.preferences}) : super(key: key);
+
+  ThemeMode _themeModeFromString(String string) {
+    switch (string) {
+      case 'dark':
+        return ThemeMode.dark;
+      case 'light':
+        return ThemeMode.light;
+      default:
+        return ThemeMode.light;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ThememodeCubit(ThemeMode.light),
+      create: (context) => ThememodeCubit(
+        _themeModeFromString(
+          preferences.getString('themeMode'),
+        ),
+        preferences: preferences,
+      ),
       child: ThemingApp(),
     );
   }
