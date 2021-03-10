@@ -153,7 +153,7 @@ class DBHelper {
     final eventMessagesList = <EventMessage>[];
 
     final db = await database;
-    final dbEventMessagesList = await db.rawQuery(
+    var dbEventMessagesList = await db.rawQuery(
       'SELECT * FROM $tableEventMessage WHERE $columnIdOfSuggestion = ?',
       [suggestionId],
     );

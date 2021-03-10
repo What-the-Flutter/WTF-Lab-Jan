@@ -1,3 +1,4 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -90,8 +91,14 @@ class App extends StatelessWidget {
           themeMode: BlocProvider.of<ThemeBloc>(context).state,
           theme: lightTheme,
           darkTheme: darkTheme,
-          home: HomeScreen(
-            title: 'Home',
+          home: AnimatedSplashScreen(
+            splash: Image.asset(
+              'assets/images/splash_screen_icon.png',
+            ),
+            nextScreen: HomeScreen(
+              title: 'Home',
+            ),
+            splashTransition: SplashTransition.sizeTransition,
           ),
         );
       },

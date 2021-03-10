@@ -128,7 +128,6 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
     yield state.copyWith(
       filteredEventMessageList: dbEventMessageList,
       eventMessageList: dbEventMessageList,
-      selectedCategory: null,
     );
   }
 
