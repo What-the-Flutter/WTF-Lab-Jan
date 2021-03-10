@@ -11,6 +11,11 @@ class SerachRecordPage extends SearchDelegate<Record> {
   SerachRecordPage({@required this.records, this.category});
 
   @override
+  ThemeData appBarTheme(BuildContext context) {
+    return Theme.of(context);
+  }
+
+  @override
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
