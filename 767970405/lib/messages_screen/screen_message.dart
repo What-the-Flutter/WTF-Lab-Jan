@@ -132,7 +132,17 @@ class InputAppBar extends StatelessWidget {
               left: 10,
             ),
             child: IconButton(
-              icon: Icon(Icons.bookmark_border),
+              icon: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+                builder: (context, state) =>
+                    context.read<ScreenMessageCubit>().state.isBookmark
+                        ? Icon(
+                            Icons.bookmark,
+                            color: Colors.amberAccent,
+                          )
+                        : Icon(
+                            Icons.bookmark_border,
+                          ),
+              ),
               onPressed: context.read<ScreenMessageCubit>().showBookmarkMessage,
             ),
           ),
@@ -152,7 +162,7 @@ class SelectionAppBar extends StatelessWidget {
     return BlocListener<ScreenMessageCubit, ScreenMessageState>(
       listener: (context, state) => context
           .read<ScreenMessageCubit>()
-          .toInputAppBar(context.read<ScreenMessageCubit>().title),
+          .toInputAppBar(),
       listenWhen: (prevState, curState) =>
           prevState.counter >= 1 && curState.counter == 0 ? true : false,
       child: AppBar(
@@ -174,7 +184,8 @@ class SelectionAppBar extends StatelessWidget {
             ),
           ),
           BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-            builder: (context, state) => state.counter == 1
+            builder: (context, state) => state.counter == 1 &&
+                    !context.read<ScreenMessageCubit>().isPhotoMessage()
                 ? Padding(
                     padding: EdgeInsets.only(right: 10),
                     child: IconButton(

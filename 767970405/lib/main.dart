@@ -9,8 +9,12 @@ import 'router/app_router.dart';
 
 void main() {
   Bloc.observer = MyBlocObserver();
-  runApp(ChangeNotifierProvider<ThemeModel>(
-      create: (context) => ThemeModel(), child: MyApp()));
+  runApp(
+    ChangeNotifierProvider<ThemeModel>(
+      create: (context) => ThemeModel(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

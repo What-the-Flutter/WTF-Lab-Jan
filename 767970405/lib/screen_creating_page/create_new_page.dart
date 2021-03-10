@@ -97,8 +97,7 @@ class CreateNewPage extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             elevation: 10.0,
-            child:
-                BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
+            child: BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
               builder: (context, state) => Icon(
                 state.iconButton,
                 color: Colors.black,
@@ -113,14 +112,21 @@ class CreateNewPage extends StatelessWidget {
             ),
             onPressed: () {
               final state = context.read<ScreenCreatingPageCubit>().state;
-              Navigator.pop(
-                context,
-                page.copyWith(
-                  icon: state.list[state.selectionIconIndex].icon,
-                  title:
-                      context.read<ScreenCreatingPageCubit>().controller.text,
-                ),
-              );
+              if (state.iconButton == Icons.close) {
+                Navigator.pop(context);
+              } else {
+                Navigator.pop(
+                  context,
+                  page.copyWith(
+                    icon: state.list[state.selectionIconIndex].icon,
+                    title:
+                    context
+                        .read<ScreenCreatingPageCubit>()
+                        .controller
+                        .text,
+                  ),
+                );
+              }
             },
           ),
         ),

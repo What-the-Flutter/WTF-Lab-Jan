@@ -15,12 +15,13 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   }) : super(
           HomeScreenState(
             list: repository.eventPages,
+            currentIndex: 0,
           ),
         );
 
   void removePage(int index) {
     repository.removePage(index);
-    emit(HomeScreenState(list: List.from(repository.eventPages)));
+    emit(state.copyWith(list: List.from(repository.eventPages)));
   }
 
   void addPage(ModelPage page) {
@@ -32,7 +33,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         lastModifiedTime: DateTime.now(),
       ),
     );
-    emit(HomeScreenState(list: List.from(repository.eventPages)));
+    emit(state.copyWith(list: List.from(repository.eventPages)));
   }
 
   void pinPage(int index) {
@@ -40,7 +41,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       isPin: !state.list[index].isPin,
     );
     repository.eventPages.sort();
-    emit(HomeScreenState(list: List.from(repository.eventPages)));
+    emit(state.copyWith(list: List.from(repository.eventPages)));
   }
 
   void editPage(int index, ModelPage page) {
@@ -48,6 +49,10 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       title: page.title,
       icon: page.icon,
     );
-    emit(HomeScreenState(list: List.from(repository.eventPages)));
+    emit(state.copyWith(list: List.from(repository.eventPages)));
+  }
+
+  void changeScreen(int index) {
+    emit(state.copyWith(currentIndex: index));
   }
 }

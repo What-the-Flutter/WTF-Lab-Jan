@@ -50,7 +50,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   void addTextMessage() {
     repository.messages.add(TextMessage(
       data: controller.text,
-      isFavor: false,
+      isFavor: state.isBookmark,
       isSelected: false,
     ));
     controller.text = '';
@@ -70,7 +70,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     );
   }
 
-  void toInputAppBar(String title) {
+  void toInputAppBar() {
     emit(
       ScreenMessageInput(
           appBar: InputAppBar(
@@ -89,10 +89,19 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         await ImagePicker().getImage(source: ImageSource.gallery);
     repository.messages.add(ImageMessage(
       data: pickedFile.path,
-      isFavor: false,
+      isFavor: state.isBookmark,
       isSelected: false,
     ));
     emit(state.copyWith(list: List<ModelMessage>.from(repository.messages)));
+  }
+
+  bool isPhotoMessage() {
+    for(var i = 0; i < state.list.length; i++) {
+      if (state.list[i].isSelected && state.list[i] is ImageMessage) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void selection(int index) {
@@ -145,7 +154,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     repository.messages[index] = repository.messages[index]
         .copyWith(data: controller.text, isSelected: false);
     controller.text = '';
-    toInputAppBar('title');
+    toInputAppBar();
   }
 
   void copy() {

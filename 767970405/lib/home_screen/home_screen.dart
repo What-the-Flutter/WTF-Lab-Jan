@@ -30,7 +30,40 @@ class HomeWindow extends StatelessWidget {
       ),
       body: ChatPages(),
       floatingActionButton: ButtonAddChat(),
-      //bottomNavigationBar: BottomPanelTabs(),
+      bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+        builder: (context, state) => BottomNavigationBar(
+          currentIndex: state.currentIndex,
+          selectedItemColor: Colors.teal,
+          unselectedItemColor: Colors.grey,
+          items: [
+            BottomNavigationBarItem(
+              label: 'Home',
+              icon: Icon(
+                Icons.home,
+              ),
+            ),
+            BottomNavigationBarItem(
+              label: 'Daily',
+              icon: Icon(
+                Icons.event_note_sharp,
+              ),
+            ),
+            BottomNavigationBarItem(
+              label: 'Timeline',
+              icon: Icon(
+                Icons.timeline,
+              ),
+            ),
+            BottomNavigationBarItem(
+              label: 'Explore',
+              icon: Icon(
+                Icons.explore,
+              ),
+            )
+          ],
+          onTap: (index) => context.read<HomeScreenCubit>().changeScreen(index),
+        ),
+      ),
     );
   }
 }
@@ -43,7 +76,6 @@ class ChatPages extends StatelessWidget {
         itemCount: state.list.length + 1,
         itemBuilder: (context, i) {
           if (i == 0) return _buildBot(context);
-          print('Rebuild page $i');
           return EventPage(i - 1);
         },
         separatorBuilder: (context, index) => Divider(),
@@ -96,7 +128,7 @@ class ButtonAddChat extends StatelessWidget {
             icon: Icons.title,
           ),
         );
-        context.read<HomeScreenCubit>().addPage(result);
+        if (result != null) context.read<HomeScreenCubit>().addPage(result);
       },
     );
   }
@@ -216,7 +248,7 @@ class EventPage extends StatelessWidget {
                         .repository
                         .eventPages[_index],
                   );
-                  cubit.editPage(_index, result);
+                  if (result != null) cubit.editPage(_index, result);
                 }),
             ListTile(
               leading: Icon(
@@ -286,21 +318,6 @@ class EventPage extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  Widget createItem({
-    Icon icon,
-    String title,
-    Function onPressed,
-  }) {
-    return ListTile(
-      leading: icon,
-      title: Text(
-        title,
-        style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-      ),
-      onTap: onPressed,
     );
   }
 }
