@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import '../model/model_page.dart';
 import 'messages_repository.dart';
 
-import 'property_page.dart';
+
 
 class PagesRepository {
-  final List<PropertyPage> eventPages = <PropertyPage>[
-    PropertyPage(
+  final List<ModelPage> eventPages = <ModelPage>[
+    ModelPage(
       icon: Icons.book_sharp,
       title: 'Journal',
       messages: MessagesRepository(),
@@ -13,7 +14,7 @@ class PagesRepository {
       lastModifiedTime: DateTime.now(),
       isPin: false,
     ),
-    PropertyPage(
+    ModelPage(
       icon: Icons.import_contacts_rounded,
       title: 'Notes',
       messages: MessagesRepository(),
@@ -21,7 +22,7 @@ class PagesRepository {
       lastModifiedTime: DateTime.now(),
       isPin: false,
     ),
-    PropertyPage(
+    ModelPage(
       icon: Icons.nature_people,
       title: 'Gratitude',
       messages: MessagesRepository(),
@@ -31,11 +32,11 @@ class PagesRepository {
     )
   ];
 
-  void addPage(PropertyPage page) {
+  void addPage(ModelPage page) {
     eventPages.add(page);
   }
 
-  void editPage(int index, PropertyPage page) {
+  void editPage(int index, ModelPage page) {
     eventPages[index] = page;
   }
 

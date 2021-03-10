@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '../model/label_model.dart';
 
-import 'model/label_model.dart';
 
 class IconsRepository {
   final List<LabelModel> listIcon = <LabelModel>[

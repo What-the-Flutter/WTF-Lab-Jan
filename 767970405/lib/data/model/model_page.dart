@@ -1,7 +1,8 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'messages_repository.dart';
+import '../repository/messages_repository.dart';
 
-class PropertyPage implements Comparable<PropertyPage> {
+class ModelPage extends Equatable implements Comparable<ModelPage> {
   final bool isPin;
   final IconData icon;
   final String title;
@@ -9,7 +10,7 @@ class PropertyPage implements Comparable<PropertyPage> {
   final DateTime creationTime;
   final DateTime lastModifiedTime;
 
-  PropertyPage(
+  ModelPage(
       {this.isPin,
       this.icon,
       this.title,
@@ -17,7 +18,7 @@ class PropertyPage implements Comparable<PropertyPage> {
       this.creationTime,
       this.lastModifiedTime});
 
-  PropertyPage copyWith({
+  ModelPage copyWith({
     final bool isPin,
     final IconData icon,
     final String title,
@@ -25,7 +26,7 @@ class PropertyPage implements Comparable<PropertyPage> {
     final DateTime creationTime,
     final DateTime lastModifiedTime,
   }) {
-    return PropertyPage(
+    return ModelPage(
       isPin: isPin ?? this.isPin,
       icon: icon ?? this.icon,
       title: title ?? this.title,
@@ -41,7 +42,7 @@ class PropertyPage implements Comparable<PropertyPage> {
   }
 
   @override
-  int compareTo(PropertyPage other) {
+  int compareTo(ModelPage other) {
     if (isPin && !other.isPin) {
       return -1;
     } else if (!isPin && other.isPin) {
@@ -54,4 +55,8 @@ class PropertyPage implements Comparable<PropertyPage> {
       }
     }
   }
+
+  @override
+  List<Object> get props =>
+      [isPin, icon, title, lastModifiedTime, creationTime, messages];
 }

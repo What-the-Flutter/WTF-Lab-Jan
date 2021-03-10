@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import 'logic/home_screen_cubit.dart';
-import 'presentation/router/app_router.dart';
-import 'presentation/theme/theme_model.dart';
-import 'repository/pages_repository.dart';
+import 'data/repository/pages_repository.dart';
+import 'data/theme/theme_model.dart';
+import 'home_screen/home_screen_cubit.dart';
+import 'router/app_router.dart';
 
 void main() {
   Bloc.observer = MyBlocObserver();
