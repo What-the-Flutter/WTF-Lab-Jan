@@ -2,11 +2,105 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import '../../../logic/event_page_cubit.dart';
-import '../../../logic/home_screen_cubit.dart';
-import '../../theme/theme_model.dart';
-import '../create_new_page.dart';
-import '../screen_message.dart';
+import '../data/custom_icon/my_flutter_app_icons.dart';
+import '../data/model/model_page.dart';
+import '../data/theme/theme.dart';
+import '../data/theme/theme_model.dart';
+import '../messages_screen/screen_message.dart';
+import '../screen_creating_page/create_new_page.dart';
+import 'home_screen_cubit.dart';
+
+class HomeWindow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Center(
+          child: Text('Home'),
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.invert_colors),
+            onPressed: () {
+              Provider.of<ThemeModel>(context, listen: false).toggleTheme();
+            },
+          ),
+        ],
+        leading: Icon(Icons.menu),
+      ),
+      body: ChatPages(),
+      floatingActionButton: ButtonAddChat(),
+      //bottomNavigationBar: BottomPanelTabs(),
+    );
+  }
+}
+
+class ChatPages extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeScreenCubit, HomeScreenState>(
+      builder: (context, state) => ListView.separated(
+        itemCount: state.list.length + 1,
+        itemBuilder: (context, i) {
+          if (i == 0) return _buildBot(context);
+          print('Rebuild page $i');
+          return EventPage(i - 1);
+        },
+        separatorBuilder: (context, index) => Divider(),
+      ),
+    );
+  }
+
+  Widget _buildBot(BuildContext context) {
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Icon(
+            MyFlutterApp.smart_toy_24px,
+            size: 30,
+          ),
+          Text(
+            'Questionnaire Bot',
+          ),
+        ],
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15.0),
+        color: Provider.of<ThemeModel>(context).currentTheme == darkTheme
+            ? Colors.black
+            : Colors.green[50],
+      ),
+      margin: EdgeInsetsDirectional.only(start: 30.0, top: 5.0, end: 30.0),
+      width: 200,
+      height: 50,
+    );
+  }
+}
+
+class ButtonAddChat extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      elevation: 10.0,
+      child: Icon(
+        Icons.add,
+        color: Colors.black,
+      ),
+      onPressed: () async {
+        final result = await Navigator.pushNamed(
+          context,
+          CreateNewPage.routName,
+          arguments: ModelPage(
+            title: '',
+            icon: Icons.title,
+          ),
+        );
+        context.read<HomeScreenCubit>().addPage(result);
+      },
+    );
+  }
+}
 
 class EventPage extends StatelessWidget {
   final int _index;
@@ -15,6 +109,7 @@ class EventPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.read<HomeScreenCubit>().state;
     return InkWell(
       onTap: () {
         Navigator.pushNamed(
@@ -25,50 +120,40 @@ class EventPage extends StatelessWidget {
         );
       },
       onLongPress: () => _showMenuAction(context),
-      child: BlocBuilder<EventPageCubit, EventPageState>(
-        builder: (context, state) {
-          print('buildPage ${state.title} $_index');
-          return Stack(
-            alignment: Alignment.bottomRight,
-            children: <Widget>[
-              ListTile(
-                title: Text(
-                  state.title,
-                ),
-                subtitle: Text('No Events. Click to create one.'),
-                horizontalTitleGap: 5.0,
-                contentPadding: EdgeInsets.all(5.0),
-                leading: _createIcon(state.icon, context),
+      child: Stack(
+        alignment: Alignment.bottomRight,
+        children: <Widget>[
+          ListTile(
+            title: Text(state.list[_index].title),
+            subtitle: Text('No Events. Click to create one.'),
+            horizontalTitleGap: 5.0,
+            contentPadding: EdgeInsets.all(5.0),
+            leading: Container(
+              width: 75,
+              height: 75,
+              child: Icon(
+                state.list[_index].icon,
+                color: Colors.white,
               ),
-              if (state.isPin)
-                Icon(
+              decoration: BoxDecoration(
+                color: Provider.of<ThemeModel>(context).currentTheme.cardColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          state.list[_index].isPin
+              ? Icon(
                   Icons.push_pin,
                   color: Colors.blue,
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _createIcon(IconData iconData, BuildContext context) {
-    return Container(
-      width: 75,
-      height: 75,
-      child: Icon(
-        iconData,
-        color: Colors.white,
-      ),
-      decoration: BoxDecoration(
-        color: Provider.of<ThemeModel>(context).currentTheme.cardColor,
-        shape: BoxShape.circle,
+                )
+              : Container()
+        ],
       ),
     );
   }
 
   void _showMenuAction(BuildContext context) {
-    final cubit = context.read<EventPageCubit>();
+    final cubit = context.read<HomeScreenCubit>();
     showModalBottomSheet<void>(
       context: context,
       builder: (context) {
@@ -99,7 +184,6 @@ class EventPage extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 cubit.pinPage(_index);
-                context.read<HomeScreenCubit>().updateList();
               },
             ),
             ListTile(
@@ -154,7 +238,7 @@ class EventPage extends StatelessWidget {
     );
   }
 
-  void _showDialogInfo(EventPageCubit cubit, BuildContext context) {
+  void _showDialogInfo(HomeScreenCubit cubit, BuildContext context) {
     Navigator.pop(context);
     showDialog<void>(
       context: context,
@@ -164,12 +248,12 @@ class EventPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                title: Text(cubit.state.title),
+                title: Text(cubit.state.list[_index].title),
                 leading: Container(
                   width: 75,
                   height: 75,
                   child: Icon(
-                    cubit.state.icon,
+                    cubit.state.list[_index].icon,
                     color: Colors.white,
                   ),
                   decoration: BoxDecoration(
@@ -180,15 +264,15 @@ class EventPage extends StatelessWidget {
               ),
               ListTile(
                 title: Text('Created'),
-                subtitle: Text(BlocProvider.of<HomeScreenCubit>(context)
-                    .repository
-                    .eventPages[_index]
-                    .creationTime
-                    .toString()),
+                subtitle: Text(
+                  cubit.state.list[_index].creationTime.toString(),
+                ),
               ),
               ListTile(
                 title: Text('Latest Event'),
-                subtitle: Text(cubit.state.time.toString()),
+                subtitle: Text(
+                  cubit.state.list[_index].lastModifiedTime.toString(),
+                ),
               ),
             ],
           ),
