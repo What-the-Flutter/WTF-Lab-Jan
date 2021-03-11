@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.chat_journal">
+    package="com.example.try_bloc_app">
    <application
-        android:label="chat_journal"
+        android:label="try_bloc_app"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

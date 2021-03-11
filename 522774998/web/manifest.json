@@ -1,6 +1,6 @@
 {
-    "name": "chat_journal",
-    "short_name": "chat_journal",
+    "name": "try_bloc_app",
+    "short_name": "try_bloc_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,4 +1,4 @@
-name: chat_journal
+name: try_bloc_app
 description: A new Flutter application.
 
 # The following line prevents the package from being accidentally published to
@@ -22,10 +22,10 @@ environment:
 
 dependencies:
   intl: ^0.16.1
-  image_picker: ^0.6.7+22
   flutter:
     sdk: flutter
-
+  flutter_bloc: ^6.1.0
+  equatable: ^2.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

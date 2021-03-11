@@ -9,13 +9,13 @@ class AddDialogPage extends StatefulWidget {
   final int editingDialog;
   final int editingIcon;
 
-  AddDialogPage(
-      {Key key,
-      this.controller,
-      this.operation,
-      this.editingDialog,
-      this.editingIcon = 0})
-      : super(key: key);
+  AddDialogPage({
+    Key key,
+    this.controller,
+    this.operation,
+    this.editingDialog,
+    this.editingIcon = 0,
+  }) : super(key: key);
 
   @override
   _AddDialogPageState createState() => _AddDialogPageState();
@@ -45,15 +45,13 @@ class _AddDialogPageState extends State<AddDialogPage> {
             icon: Icon(
               Icons.arrow_back,
             ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
           ),
         ),
         body: Column(
           children: <Widget>[
-            inputItem(),
-            listOfIcons(),
+            _inputItem(),
+            _listOfIcons(),
           ],
         ),
         floatingActionButton: _floatingActionButton,
@@ -61,7 +59,7 @@ class _AddDialogPageState extends State<AddDialogPage> {
     );
   }
 
-  void checkFieldIsEmpty() {
+  void _checkFieldIsEmpty() {
     setState(() {
       if (controller.text == '') {
         isFieldEmpty = true;
@@ -72,7 +70,7 @@ class _AddDialogPageState extends State<AddDialogPage> {
     });
   }
 
-  Widget inputItem() {
+  Widget _inputItem() {
     controller.text = widget.controller;
     return Container(
       padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
@@ -99,18 +97,18 @@ class _AddDialogPageState extends State<AddDialogPage> {
     );
   }
 
-  Widget listOfIcons() {
+  Widget _listOfIcons() {
     return Expanded(
       child: GridView.count(
         crossAxisCount: 4,
         children: List.generate(iconsList.length, (index) {
-          return Center(child: iconItem(icons[index]));
+          return Center(child: _iconItem(icons[index]));
         }),
       ),
     );
   }
 
-  Widget iconItem(ListItemIcon icon) {
+  Widget _iconItem(ListItemIcon icon) {
     var iconColor = Theme.of(context).primaryColor;
     return Center(
       child: GestureDetector(
@@ -140,23 +138,27 @@ class _AddDialogPageState extends State<AddDialogPage> {
   FloatingActionButton get _floatingActionButton {
     return FloatingActionButton(
       onPressed: () {
-        checkFieldIsEmpty();
+        _checkFieldIsEmpty();
         for (var i = 0; i < iconsList.length; i++) {
           if (icons[i].isSelected == true) {
             if (widget.operation == 'edit') {
               dialogs[widget.editingDialog] = ListItem(
-                  icons[i].iconData,
-                  controller.text,
-                  widget.editingDialog,
-                  DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
-                  false);
+                icons[i].iconData,
+                controller.text,
+                widget.editingDialog,
+                DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
+                false,
+              );
             } else {
-              dialogs.add(ListItem(
+              dialogs.add(
+                ListItem(
                   icons[i].iconData,
                   controller.text,
                   dialogs.length,
                   DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
-                  false));
+                  false,
+                ),
+              );
             }
           }
         }

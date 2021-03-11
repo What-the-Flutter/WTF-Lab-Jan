@@ -37,8 +37,9 @@ class _EventListPageState extends State<EventListPage> {
     return MaterialApp(
       theme: widget.theme,
       home: Scaffold(
-        appBar:
-            currentOperation == Operation.input ? inputAppBar() : _editAppBar(),
+        appBar: currentOperation == Operation.input
+            ? _inputAppBar()
+            : _editAppBar(),
         body: Stack(
           children: <Widget>[
             Container(
@@ -62,11 +63,11 @@ class _EventListPageState extends State<EventListPage> {
                       itemBuilder: (context, i) {
                         ListItem<String> data;
                         data = messages[messages.length - i - 1];
-                        return eventItem(data);
+                        return _eventItem(data);
                       },
                     ),
                   ),
-                  inputItem(),
+                  _inputItem(),
                 ],
               ),
             ),
@@ -76,7 +77,7 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  Widget inputAppBar() {
+  Widget _inputAppBar() {
     return AppBar(
       title: Container(
         alignment: Alignment.center,
@@ -198,13 +199,13 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  Widget eventItem(ListItem msg) {
+  Widget _eventItem(ListItem msg) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       alignment: Alignment.bottomLeft,
       child: GestureDetector(
         onLongPress: currentOperation == Operation.input
-            ? () => selectFirstItem(msg)
+            ? () => _selectFirstItem(msg)
             : () => _changeListItemState(msg),
         child: Container(
           decoration: BoxDecoration(
@@ -218,7 +219,9 @@ class _EventListPageState extends State<EventListPage> {
                   ? Theme.of(context).primaryColor
                   : Colors.orange,
             ),
-            color: msg.isSelected ? Colors.deepPurple[50] : Colors.orange[50],
+            color: msg.isSelected
+                ? Colors.deepPurple[50]
+                : Colors.orange[50],
           ),
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
           child: Column(
@@ -229,7 +232,9 @@ class _EventListPageState extends State<EventListPage> {
                 style: TextStyle(fontSize: 18),
               ),
               Text(
-                msg.isEdited ? '${msg.time} edited' : msg.time,
+                msg.isEdited
+                    ? '${msg.time} edited'
+                    : msg.time,
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
@@ -239,7 +244,7 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  Widget inputItem() {
+  Widget _inputItem() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -261,8 +266,8 @@ class _EventListPageState extends State<EventListPage> {
                       ? Icon(Icons.send)
                       : Icon(Icons.done),
                   onPressed: currentOperation != Operation.edit
-                      ? addMessage
-                      : updateMessage,
+                      ? _addMessage
+                      : _updateMessage,
                 ),
               ),
             ),
@@ -291,7 +296,7 @@ class _EventListPageState extends State<EventListPage> {
     });
   }
 
-  void selectFirstItem(ListItem msg) {
+  void _selectFirstItem(ListItem msg) {
     setState(() {
       msg.isSelected = true;
       countSelectedMessage++;
@@ -299,7 +304,7 @@ class _EventListPageState extends State<EventListPage> {
     });
   }
 
-  void updateMessage() {
+  void _updateMessage() {
     setState(() {
       int index;
       for (var i = 0; i < messages.length; i++) {
@@ -317,7 +322,7 @@ class _EventListPageState extends State<EventListPage> {
     });
   }
 
-  void addMessage() {
+  void _addMessage() {
     setState(() {
       messages.add(ListItem<String>(
           controller.text, DateFormat('kk:mm').format(DateTime.now())));
