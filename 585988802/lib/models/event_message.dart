@@ -1,7 +1,8 @@
+import 'data_base_contract.dart';
 
-class EventMessage {
+class EventMessage implements DBContract {
   int id;
-  String nameOfSuggestion;
+  int idOfSuggestion;
   String time;
   String text;
   int isFavorite;
@@ -12,7 +13,7 @@ class EventMessage {
 
   EventMessage({
     this.id,
-    this.nameOfSuggestion,
+    this.idOfSuggestion,
     this.time,
     this.text,
     this.isFavorite,
@@ -22,29 +23,32 @@ class EventMessage {
     this.nameOfCategory,
   });
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': nameOfSuggestion,
+      'id_of_suggestion': idOfSuggestion,
       'time': time,
       'text': text,
-      'isFavorite': isFavorite,
-      'isImageMessage': isImageMessage,
-      'imagePath': imagePath,
-      'categoryImagePath': categoryImagePath,
-      'nameOfCategory': nameOfCategory,
+      'is_favorite': isFavorite,
+      'is_image_message': isImageMessage,
+      'image_path': imagePath,
+      'category_image_path': categoryImagePath,
+      'name_of_category': nameOfCategory,
     };
   }
 
-  factory EventMessage.fromMap(Map<String, dynamic> map) => EventMessage(
-        id: map['id'],
-        nameOfSuggestion: map['name'],
-        time: map['time'],
-        text: map['text'],
-        isFavorite: map['isFavorite'],
-        isImageMessage: map['isImageMessage'],
-        imagePath: map['imagePath'],
-        categoryImagePath: map['categoryImagePath'],
-        nameOfCategory: map['nameOfCategory'],
-      );
+  factory EventMessage.fromMap(Map<String, dynamic> map) {
+    return EventMessage(
+      id: map['id'],
+      idOfSuggestion: map['id_of_suggestion'],
+      time: map['time'],
+      text: map['text'],
+      isFavorite: map['is_favorite'],
+      isImageMessage: map['is_image_message'],
+      imagePath: map['image_path'],
+      categoryImagePath: map['category_image_path'],
+      nameOfCategory: map['name_of_category'],
+    );
+  }
 }
