@@ -1,4 +1,4 @@
-# chat_journal
+# try_bloc_app
 
 A new Flutter application.
 
