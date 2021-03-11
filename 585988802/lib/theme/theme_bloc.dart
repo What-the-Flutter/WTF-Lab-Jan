@@ -15,6 +15,8 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeMode> {
       yield* _mapChangeThemeEventToState();
     } else if (event is InitThemeEvent) {
       yield* _mapInitThemeEventToState();
+    } else if (event is ResetThemeEvent) {
+      yield* _mapResetThemeEventToState();
     }
   }
 
@@ -30,5 +32,11 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeMode> {
     final pref = await SharedPreferences.getInstance();
     final isCurrentThemeModeDark = await pref.getBool(_keyThemeMode) ?? false;
     yield isCurrentThemeModeDark == true ? ThemeMode.dark : ThemeMode.light;
+  }
+
+  Stream<ThemeMode> _mapResetThemeEventToState() async* {
+    final pref = await SharedPreferences.getInstance();
+    await pref.setBool(_keyThemeMode, false);
+    yield ThemeMode.light;
   }
 }

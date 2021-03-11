@@ -7,6 +7,7 @@ import '../../common_widgets/change_theme_button_widget.dart';
 import '../../common_widgets/custom_dialog.dart';
 import '../../db_helper/db_helper.dart';
 import '../../models/app_tab.dart';
+import '../../models/font_size_customization.dart';
 import '../../models/suggestion.dart';
 import '../../theme/theme_bloc.dart';
 import '../../theme/theme_event.dart';
@@ -78,6 +79,15 @@ class _HomeScreenState extends State<HomeScreen> {
             color: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
                 ? Theme.of(context).accentColor
                 : Theme.of(context).primaryColor,
+            fontSize:
+                BlocProvider.of<SettingScreenBloc>(context).state.fontSize == 0
+                    ? appBarSmallFontSize
+                    : BlocProvider.of<SettingScreenBloc>(context)
+                                .state
+                                .fontSize ==
+                            1
+                        ? appBarDefaultFontSize
+                        : appBarLargeFontSize,
           ),
         ),
         alignment: Alignment.center,
@@ -139,6 +149,17 @@ class _HomeScreenState extends State<HomeScreen> {
               'Search',
               style: TextStyle(
                 color: Theme.of(context).accentColor,
+                fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                            .state
+                            .fontSize ==
+                        0
+                    ? listTileTitleSmallFontSize
+                    : BlocProvider.of<SettingScreenBloc>(context)
+                                .state
+                                .fontSize ==
+                            1
+                        ? listTileTitleDefaultFontSize
+                        : listTileTitleLargeFontSize,
               ),
             ),
           ),
@@ -148,6 +169,17 @@ class _HomeScreenState extends State<HomeScreen> {
               'Categories',
               style: TextStyle(
                 color: Theme.of(context).accentColor,
+                fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                            .state
+                            .fontSize ==
+                        0
+                    ? listTileTitleSmallFontSize
+                    : BlocProvider.of<SettingScreenBloc>(context)
+                                .state
+                                .fontSize ==
+                            1
+                        ? listTileTitleDefaultFontSize
+                        : listTileTitleLargeFontSize,
               ),
             ),
             onTap: () async {
@@ -165,6 +197,17 @@ class _HomeScreenState extends State<HomeScreen> {
               'Timeline',
               style: TextStyle(
                 color: Theme.of(context).accentColor,
+                fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                            .state
+                            .fontSize ==
+                        0
+                    ? listTileTitleSmallFontSize
+                    : BlocProvider.of<SettingScreenBloc>(context)
+                                .state
+                                .fontSize ==
+                            1
+                        ? listTileTitleDefaultFontSize
+                        : listTileTitleLargeFontSize,
               ),
             ),
           ),
@@ -174,6 +217,17 @@ class _HomeScreenState extends State<HomeScreen> {
               'Settings',
               style: TextStyle(
                 color: Theme.of(context).accentColor,
+                fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                            .state
+                            .fontSize ==
+                        0
+                    ? listTileTitleSmallFontSize
+                    : BlocProvider.of<SettingScreenBloc>(context)
+                                .state
+                                .fontSize ==
+                            1
+                        ? listTileTitleDefaultFontSize
+                        : listTileTitleLargeFontSize,
               ),
             ),
             onTap: () async {
@@ -198,6 +252,17 @@ class _HomeScreenState extends State<HomeScreen> {
               'Notifications',
               style: TextStyle(
                 color: Theme.of(context).accentColor,
+                fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                            .state
+                            .fontSize ==
+                        0
+                    ? listTileTitleSmallFontSize
+                    : BlocProvider.of<SettingScreenBloc>(context)
+                                .state
+                                .fontSize ==
+                            1
+                        ? listTileTitleDefaultFontSize
+                        : listTileTitleLargeFontSize,
               ),
             ),
           ),
@@ -353,9 +418,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 selectedSuggestions.nameOfSuggestion,
                 maxLines: 2,
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 25.0),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 25.0,
+                ),
               ),
             ),
           ),
@@ -421,6 +487,14 @@ class _HomeScreenState extends State<HomeScreen> {
         name,
         style: TextStyle(
           color: Colors.white,
+          fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                      .state
+                      .fontSize ==
+                  0
+              ? listTileTitleSmallFontSize
+              : BlocProvider.of<SettingScreenBloc>(context).state.fontSize == 1
+                  ? listTileTitleDefaultFontSize
+                  : listTileTitleLargeFontSize,
         ),
       ),
       onTap: () {

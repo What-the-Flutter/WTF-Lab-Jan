@@ -38,6 +38,7 @@ void main() async {
           create: (context) => SettingScreenBloc(SettingsScreenState(
             false,
             false,
+            1,
           )),
         ),
         BlocProvider(

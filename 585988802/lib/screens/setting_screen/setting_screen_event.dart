@@ -13,3 +13,13 @@ class ChangeBubbleAlignmentEvent extends SettingScreenEvent {
 class ChangeDateTimeModificationEvent extends SettingScreenEvent {
   const ChangeDateTimeModificationEvent();
 }
+
+class ChangeFontSizeEvent extends SettingScreenEvent {
+  final int selectedFontSize;
+
+  const ChangeFontSizeEvent(this.selectedFontSize);
+}
+
+class ResetSettingsEvent extends SettingScreenEvent {
+  const ResetSettingsEvent();
+}

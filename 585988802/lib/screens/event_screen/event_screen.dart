@@ -12,6 +12,7 @@ import '../../common_widgets/custom_dialog.dart';
 import '../../db_helper/db_helper.dart';
 import '../../models/category.dart';
 import '../../models/event_message.dart';
+import '../../models/font_size_customization.dart';
 import '../../models/suggestion.dart';
 import '../../theme/theme_bloc.dart';
 import '../setting_screen/settings_screen_bloc.dart';
@@ -117,6 +118,17 @@ class _EventScreenState extends State<EventScreen> {
                           ThemeMode.dark
                       ? Theme.of(context).accentColor
                       : Theme.of(context).primaryColor,
+                  fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                              .state
+                              .fontSize ==
+                          0
+                      ? appBarSmallFontSize
+                      : BlocProvider.of<SettingScreenBloc>(context)
+                                  .state
+                                  .fontSize ==
+                              1
+                          ? appBarDefaultFontSize
+                          : appBarLargeFontSize,
                 ),
               ),
               alignment: Alignment.centerLeft,
@@ -992,6 +1004,14 @@ class _EventScreenState extends State<EventScreen> {
         name,
         style: TextStyle(
           color: Theme.of(context).iconTheme.color,
+          fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                      .state
+                      .fontSize ==
+                  0
+              ? listTileTitleSmallFontSize
+              : BlocProvider.of<SettingScreenBloc>(context).state.fontSize == 1
+                  ? listTileTitleDefaultFontSize
+                  : listTileTitleLargeFontSize,
         ),
       ),
       onTap: () {
