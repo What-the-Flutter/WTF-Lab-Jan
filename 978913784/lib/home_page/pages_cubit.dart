@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../database_access.dart';
+import '../data/database_access.dart';
 import '../entity/page.dart';
 
 class PagesCubit extends Cubit<List<JournalPage>> {

@@ -1,7 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'entity/page.dart';
+import '../entity/page.dart';
 
 class DatabaseAccess {
   Database db;
