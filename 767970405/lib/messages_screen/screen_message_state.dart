@@ -21,7 +21,10 @@ abstract class ScreenMessageState extends Equatable {
 
   @override
   String toString() {
-    return 'ScreenMessageState{appBar: $appBar, list: $list, counter: $counter, isBookmark: $isBookmark, enabledController: $enabledController, onAdd: $onAddMessage}\n';
+    return 'ScreenMessageState{appBar: $appBar, list: $list,'
+        ' counter: $counter, isBookmark: $isBookmark,'
+        ' enabledController: $enabledController,'
+        ' onAdd: $onAddMessage}\n';
   }
 
   ScreenMessageState copyWith({
@@ -35,8 +38,44 @@ abstract class ScreenMessageState extends Equatable {
   });
 
   @override
-  List<Object> get props =>
-      [appBar, counter, list, isBookmark, enabledController, iconData, onAddMessage,];
+  List<Object> get props => [
+        appBar,
+        counter,
+        list,
+        isBookmark,
+        enabledController,
+        iconData,
+        onAddMessage,
+      ];
+}
+
+class ScreenMessageAwait extends ScreenMessageState {
+  ScreenMessageAwait({
+    Widget appBar,
+    int counter,
+    bool isBookmark,
+    IconData iconData,
+    Function onAddMessage,
+  }) : super(
+          appBar: appBar,
+          counter: counter,
+          isBookmark: isBookmark,
+          enabledController: false,
+          iconData: iconData,
+          onAddMessage: onAddMessage,
+        );
+
+  @override
+  ScreenMessageState copyWith(
+      {Widget appBar,
+      List<ModelMessage> list,
+      int counter,
+      bool isBookmark,
+      bool enabledController,
+      IconData iconData,
+      Function onAddMessage}) {
+    throw UnimplementedError();
+  }
 }
 
 class ScreenMessageInput extends ScreenMessageState {

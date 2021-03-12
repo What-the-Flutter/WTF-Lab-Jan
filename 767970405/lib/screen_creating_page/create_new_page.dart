@@ -118,7 +118,7 @@ class CreateNewPage extends StatelessWidget {
                 Navigator.pop(
                   context,
                   page.copyWith(
-                    icon: state.list[state.selectionIconIndex].icon,
+                    iconIndex: state.selectionIconIndex,
                     title:
                     context
                         .read<ScreenCreatingPageCubit>()

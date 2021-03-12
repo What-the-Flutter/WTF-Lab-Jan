@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/data/model/label_model.dart';
 import 'package:provider/provider.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
@@ -28,7 +29,17 @@ class HomeWindow extends StatelessWidget {
         ],
         leading: Icon(Icons.menu),
       ),
-      body: ChatPages(),
+      body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+        builder: (context, state) {
+          if (state is HomeScreenShow) {
+            return ChatPages();
+          } else {
+            return Center(
+              child: Text('Await'),
+            );
+          }
+        },
+      ),
       floatingActionButton: ButtonAddChat(),
       bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
         builder: (context, state) => BottomNavigationBar(
@@ -125,7 +136,7 @@ class ButtonAddChat extends StatelessWidget {
           CreateNewPage.routName,
           arguments: ModelPage(
             title: '',
-            icon: Icons.title,
+            iconIndex: 0,
           ),
         );
         if (result != null) context.read<HomeScreenCubit>().addPage(result);
@@ -137,6 +148,31 @@ class ButtonAddChat extends StatelessWidget {
 class EventPage extends StatelessWidget {
   final int _index;
 
+  final List<LabelModel> listIcon = <LabelModel>[
+    LabelModel(icon: Icons.title),
+    LabelModel(icon: Icons.account_balance_wallet),
+    LabelModel(icon: Icons.fitness_center),
+    LabelModel(icon: Icons.account_balance),
+    LabelModel(icon: Icons.fastfood),
+    LabelModel(icon: Icons.wine_bar),
+    LabelModel(icon: Icons.monetization_on),
+    LabelModel(icon: Icons.home),
+    LabelModel(icon: Icons.attach_money),
+    LabelModel(icon: Icons.shopping_cart),
+    LabelModel(icon: Icons.radio),
+    LabelModel(icon: Icons.videogame_asset_sharp),
+    LabelModel(icon: Icons.local_laundry_service),
+    LabelModel(icon: Icons.flag),
+    LabelModel(icon: Icons.music_note),
+    LabelModel(icon: Icons.event_seat),
+    LabelModel(icon: Icons.free_breakfast),
+    LabelModel(icon: Icons.pets),
+    LabelModel(icon: Icons.pool),
+    LabelModel(icon: Icons.book_sharp),
+    LabelModel(icon: Icons.import_contacts_rounded),
+    LabelModel(icon: Icons.nature_people),
+  ];
+
   EventPage(this._index);
 
   @override
@@ -147,8 +183,7 @@ class EventPage extends StatelessWidget {
         Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
-          arguments:
-              context.read<HomeScreenCubit>().repository.eventPages[_index],
+          arguments: state.list[_index],
         );
       },
       onLongPress: () => _showMenuAction(context),
@@ -164,7 +199,7 @@ class EventPage extends StatelessWidget {
               width: 75,
               height: 75,
               child: Icon(
-                state.list[_index].icon,
+                listIcon[state.list[_index].iconIndex].icon,
                 color: Colors.white,
               ),
               decoration: BoxDecoration(
@@ -243,12 +278,10 @@ class EventPage extends StatelessWidget {
                   final result = await Navigator.pushNamed(
                     context,
                     CreateNewPage.routName,
-                    arguments: context
-                        .read<HomeScreenCubit>()
-                        .repository
-                        .eventPages[_index],
+                    arguments:
+                        context.read<HomeScreenCubit>().state.list[_index],
                   );
-                  if (result != null) cubit.editPage(_index, result);
+                  if (result != null) cubit.editPage(result);
                 }),
             ListTile(
               leading: Icon(
@@ -285,7 +318,7 @@ class EventPage extends StatelessWidget {
                   width: 75,
                   height: 75,
                   child: Icon(
-                    cubit.state.list[_index].icon,
+                    listIcon[cubit.state.list[_index].iconIndex].icon,
                     color: Colors.white,
                   ),
                   decoration: BoxDecoration(

@@ -3,42 +3,37 @@ import 'package:flutter/material.dart';
 import '../repository/messages_repository.dart';
 
 class ModelPage extends Equatable implements Comparable<ModelPage> {
-  final bool isPin;
-  final IconData icon;
+  final int id;
   final String title;
-  final MessagesRepository messages;
+  final int iconIndex;
+  final bool isPin;
   final DateTime creationTime;
   final DateTime lastModifiedTime;
 
   ModelPage(
       {this.isPin,
-      this.icon,
+      this.iconIndex,
       this.title,
-      this.messages,
+      this.id,
       this.creationTime,
       this.lastModifiedTime});
 
   ModelPage copyWith({
     final bool isPin,
-    final IconData icon,
+    final int iconIndex,
     final String title,
-    final MessagesRepository messages,
+    final int id,
     final DateTime creationTime,
     final DateTime lastModifiedTime,
   }) {
     return ModelPage(
       isPin: isPin ?? this.isPin,
-      icon: icon ?? this.icon,
+      iconIndex: iconIndex ?? this.iconIndex,
       title: title ?? this.title,
-      messages: messages ?? this.messages,
+      id: id ?? this.id,
       creationTime: creationTime ?? this.creationTime,
       lastModifiedTime: lastModifiedTime ?? this.lastModifiedTime,
     );
-  }
-
-  @override
-  String toString() {
-    return 'PropertyPage{isPin: $isPin, icon: $icon, title: $title}';
   }
 
   @override
@@ -58,5 +53,16 @@ class ModelPage extends Equatable implements Comparable<ModelPage> {
 
   @override
   List<Object> get props =>
-      [isPin, icon, title, lastModifiedTime, creationTime, messages];
+      [id, isPin, iconIndex, title, lastModifiedTime, creationTime];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'iconIndex': iconIndex,
+      'isPin': isPin ? 1 : 0,
+      'creationTime': creationTime.toString(),
+      'lastModifiedTime': lastModifiedTime.toString(),
+    };
+  }
 }

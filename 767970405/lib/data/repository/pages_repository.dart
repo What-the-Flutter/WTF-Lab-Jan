@@ -1,46 +1,25 @@
-import 'package:flutter/material.dart';
+import '../data_provider.dart';
 import '../model/model_page.dart';
-import 'messages_repository.dart';
-
-
 
 class PagesRepository {
-  final List<ModelPage> eventPages = <ModelPage>[
-    ModelPage(
-      icon: Icons.book_sharp,
-      title: 'Journal',
-      messages: MessagesRepository(),
-      creationTime: DateTime.now(),
-      lastModifiedTime: DateTime.now(),
-      isPin: false,
-    ),
-    ModelPage(
-      icon: Icons.import_contacts_rounded,
-      title: 'Notes',
-      messages: MessagesRepository(),
-      creationTime: DateTime.now(),
-      lastModifiedTime: DateTime.now(),
-      isPin: false,
-    ),
-    ModelPage(
-      icon: Icons.nature_people,
-      title: 'Gratitude',
-      messages: MessagesRepository(),
-      creationTime: DateTime.now(),
-      lastModifiedTime: DateTime.now(),
-      isPin: false,
-    )
-  ];
 
-  void addPage(ModelPage page) {
-    eventPages.add(page);
+  final PagesAPI pagesAPI;
+
+  PagesRepository({this.pagesAPI});
+
+  Future<List<ModelPage>> pages() async {
+    return await pagesAPI.pages();
   }
 
-  void editPage(int index, ModelPage page) {
-    eventPages[index] = page;
+  void addPage(ModelPage page) async {
+    pagesAPI.insertPage(page);
   }
 
-  void removePage(int index) {
-    eventPages.removeAt(index);
+  void editPage(ModelPage page) async {
+   pagesAPI.updatePage(page);
+  }
+
+  void removePage(int index) async {
+    pagesAPI.deletePage(index);
   }
 }
