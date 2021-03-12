@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'dark_theme.dart';
-import 'event_page.dart';
-import 'light_theme.dart';
-import 'note.dart';
-import 'note_page.dart';
-import 'theme.dart';
+import '../event_page/event_page.dart';
+import '../note_page/note.dart';
+import '../note_page/note_page.dart';
+import '../theme/dark_theme.dart';
+import '../theme/light_theme.dart';
+import '../theme/theme.dart';
+import 'home_page_cubit.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -16,8 +18,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isThemeChange = false;
-  List<Note> noteList = [
+  HomePageCubit cubit = HomePageCubit(HomePageStates(noteList));
+
+  static List<Note> noteList = [
     Note(
       'Drinks',
       CircleAvatar(
@@ -40,12 +43,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: _drawer,
-      body: _homePageBody(),
-      appBar: _appBar,
-      bottomNavigationBar: _bottomNavigationBar,
-      floatingActionButton: _floatingActionButton,
+    return BlocBuilder(
+      cubit: cubit,
+      builder: (context, state) {
+        return Scaffold(
+          drawer: _drawer,
+          body: _homePageBody(),
+          appBar: _appBar,
+          bottomNavigationBar: _bottomNavigationBar,
+          floatingActionButton: _floatingActionButton,
+        );
+      },
     );
   }
 
@@ -60,21 +68,13 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: Icon(Icons.invert_colors),
           onPressed: () {
-            _isThemeChange
+            cubit.state.isThemeChange
                 ? ThemeSwitcher.of(context).switchTheme(lightTheme)
                 : ThemeSwitcher.of(context).switchTheme(darkTheme);
-            changeTheme();
+            cubit.setThemeChangeState(!cubit.state.isThemeChange);
           },
         ),
       ],
-    );
-  }
-
-  void changeTheme() {
-    setState(
-      () {
-        _isThemeChange = !_isThemeChange;
-      },
     );
   }
 
@@ -97,12 +97,11 @@ class _HomePageState extends State<HomePage> {
               builder: (context) => EventPage(
                 title: noteList[index].eventName,
                 note: noteList[index],
+                noteList: noteList,
               ),
             ),
           );
-          setState(
-            () {},
-          );
+          cubit.updateList(noteList);
         },
         onLongPress: () => _showBottomSheet(context, index),
       ),
@@ -146,9 +145,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             );
-            setState(
-              () {},
-            );
+            cubit.updateList(noteList);
             Navigator.pop(context);
           },
         ),
@@ -159,19 +156,11 @@ class _HomePageState extends State<HomePage> {
           ),
           title: Text('Delete'),
           onTap: () {
-            _deleteNote(index);
+            cubit.deleteNote(noteList, index);
+            Navigator.pop(context);
           },
         ),
       ],
-    );
-  }
-
-  void _deleteNote(int index) {
-    setState(
-      () {
-        noteList.removeAt(index);
-        Navigator.pop(context);
-      },
     );
   }
 
@@ -230,9 +219,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         );
-        setState(
-          () {},
-        );
+        cubit.updateList(noteList);
       },
       child: Icon(Icons.add),
     );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../main.dart';
 import 'note.dart';
+import 'notes_cubit.dart';
 
 class NotePage extends StatefulWidget {
   final List<Note> noteList;
@@ -21,21 +23,21 @@ class _NotePageState extends State<NotePage> {
   final List<Note> noteList;
   final Note note;
   final TextEditingController textController = TextEditingController();
-  CircleAvatar _selectIcon;
-  bool _isWriting = false;
-
-  _NotePageState({this.noteList, this.note});
+  NotesCubit cubit;
+  _NotePageState({this.noteList, this.note}) {
+    cubit = NotesCubit(NotesState(note, noteList));
+  }
 
   @override
   void initState() {
     if (note != null) {
-      _selectIcon = CircleAvatar(
+      cubit.state.selectIcon = CircleAvatar(
         child: note.iconData,
       );
       textController.text = note.eventName;
       _focusNode.requestFocus();
     } else {
-      _selectIcon = CircleAvatar(
+      cubit.state.selectIcon = CircleAvatar(
         child: Icon(Icons.fastfood),
       );
     }
@@ -44,10 +46,15 @@ class _NotePageState extends State<NotePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _appBar,
-      body: _notePageBody(context),
-      floatingActionButton: _floatingActionButton,
+    return BlocBuilder(
+      cubit: cubit,
+      builder: (context, state) {
+        return Scaffold(
+          appBar: _appBar,
+          body: _notePageBody(context),
+          floatingActionButton: _floatingActionButton,
+        );
+      },
     );
   }
 
@@ -97,12 +104,10 @@ class _NotePageState extends State<NotePage> {
         for (var index = 0; index < listOfIcons.length; index++)
           GestureDetector(
             onTap: () {
-              setState(
-                () {
-                  _selectIcon = CircleAvatar(
-                    child: listOfIcons[index],
-                  );
-                },
+              cubit.setCircleIcon(
+                CircleAvatar(
+                  child: listOfIcons[index],
+                ),
               );
             },
             child: Row(
@@ -128,23 +133,27 @@ class _NotePageState extends State<NotePage> {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(left: 20, right: 20),
-          child: _selectIcon,
+          child: cubit.state.selectIcon,
         ),
         Expanded(
           child: Padding(
             padding: EdgeInsets.only(right: 30),
             child: TextField(
+              style: TextStyle(
+                color: Colors.black,
+              ),
               controller: textController,
               focusNode: _focusNode,
               onChanged: (value) {
-                setState(
-                  () {
-                    value.isNotEmpty ? _isWriting = true : _isWriting = false;
-                  },
-                );
+                value.isNotEmpty
+                    ? cubit.setWritingState(true)
+                    : cubit.setWritingState(false);
               },
               decoration: InputDecoration(
                 hintText: 'Enter event',
+                hintStyle: TextStyle(
+                  color: Colors.black45,
+                ),
                 fillColor: Colors.grey[200],
                 border: InputBorder.none,
                 filled: true,
@@ -159,39 +168,23 @@ class _NotePageState extends State<NotePage> {
   FloatingActionButton get _floatingActionButton {
     return FloatingActionButton(
       onPressed: () {
-        setState(floatingActionButtonEvent);
+        _floatingActionButtonEvent();
       },
-      child: _isWriting ? Icon(Icons.check) : Icon(Icons.clear),
+      child: cubit.state.isWriting ? Icon(Icons.check) : Icon(Icons.clear),
     );
   }
 
-  void floatingActionButtonEvent() {
-    if (note != null && _isWriting) {
-      setState(
-        () {
-          note.eventName = textController.text;
-          note.iconData = CircleAvatar(
-            child: _selectIcon,
-          );
-          Navigator.of(context).pop();
-        },
+  void _floatingActionButtonEvent() {
+    if (note != null && cubit.state.isWriting) {
+      note.eventName = textController.text;
+      note.iconData = CircleAvatar(
+        child: cubit.state.selectIcon,
       );
+      Navigator.of(context).pop();
     } else {
-      if (_isWriting) {
-        setState(
-          () {
-            noteList.add(
-              Note(
-                textController.text,
-                CircleAvatar(
-                  child: _selectIcon,
-                ),
-                'Add event',
-              ),
-            );
-            Navigator.of(context).pop();
-          },
-        );
+      if (cubit.state.isWriting) {
+        cubit.addNote(textController.text);
+        Navigator.of(context).pop();
       } else {
         Navigator.pop(
           context,

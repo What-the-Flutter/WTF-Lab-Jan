@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
-final ThemeData lightTheme = ThemeData(
-  primarySwatch: Colors.blue,
+final ThemeData darkTheme = ThemeData(
+  primarySwatch: Colors.indigo,
   visualDensity: VisualDensity.adaptivePlatformDensity,
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
-    backgroundColor: Colors.blue,
+    backgroundColor: Colors.indigo,
   ),
   bottomNavigationBarTheme: BottomNavigationBarThemeData(
     unselectedItemColor: Colors.blueGrey,
-    selectedItemColor: Colors.blue,
+    selectedItemColor: Colors.indigo,
     showUnselectedLabels: true,
   ),
+  brightness: Brightness.dark,
 );
