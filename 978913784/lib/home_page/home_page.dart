@@ -1,105 +1,106 @@
 import 'dart:math';
 
+import 'package:chat_journal/settings_page/settings_page.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../app_theme.dart';
+import '../app_theme_cubit.dart';
+import '../app_theme_state.dart';
+import '../data/icon_list.dart';
 import '../edit_page/edit_page.dart';
+import '../entity/page.dart';
 import '../event_page/event_page.dart';
-import '../icon_list.dart';
-import '../page.dart';
 import 'pages_cubit.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+class HomePage extends StatelessWidget {
+  final AppThemeState _appThemeState;
 
-  final String title;
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  bool _usingLightTheme = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadBool();
-  }
-
-  void _loadBool() async {
-    var prefs = await SharedPreferences.getInstance();
-    _usingLightTheme = (prefs.getBool('usingLightTheme') ?? true);
-  }
-
-  void _changeTheme() async {
-    var prefs = await SharedPreferences.getInstance();
-    _usingLightTheme = !(prefs.getBool('usingLightTheme') ?? true);
-    prefs.setBool('usingLightTheme', _usingLightTheme);
-      AppThemeData.appThemeStateKey.currentState.setState(() {});
-  }
+  HomePage(this._appThemeState);
 
   @override
   Widget build(BuildContext context) {
-    return _scaffold;
+    BlocProvider.of<PagesCubit>(context).initialize();
+    return _scaffold(context);
   }
 
-  Widget get _scaffold {
+  Widget _scaffold(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppThemeData.of(context).mainColor,
+      backgroundColor: _appThemeState.mainColor,
       appBar: AppBar(
-        backgroundColor: AppThemeData.of(context).accentColor,
+        backgroundColor: _appThemeState.accentColor,
         title: Text(
           'Home',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
-          _themeChangeButton,
+          _themeChangeButton(context),
         ],
       ),
-      drawer: _drawer,
+      drawer: _drawer(context),
       bottomNavigationBar: _bottomNavigationBar,
-      floatingActionButton: _floatingActionButton,
+      floatingActionButton: _floatingActionButton(context),
       body: BlocBuilder<PagesCubit, List<JournalPage>>(
         builder: (context, state) {
-          return _body;
+          return _body(context);
         },
       ),
     );
   }
 
-  Widget get _themeChangeButton {
+  Widget _themeChangeButton(BuildContext context) {
     return IconButton(
       icon: Icon(
-        _usingLightTheme ? Icons.wb_sunny_outlined : Icons.bedtime_outlined,
+        _appThemeState.usingLightTheme
+            ? Icons.wb_sunny_outlined
+            : Icons.bedtime_outlined,
       ),
-      onPressed: _changeTheme,
+      onPressed: BlocProvider.of<AppThemeCubit>(context).changeTheme,
     );
   }
 
-  Widget get _drawer {
-    return Drawer(
-      child: ListView(
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: AppThemeData.of(context).mainColor,
+  Widget _drawer(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(canvasColor: _appThemeState.mainColor),
+      child: Drawer(
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: _appThemeState.accentColor,
+              ),
+              child: Text(
+                DateFormat('MMM d, yyyy').format(DateTime.now()),
+                style: TextStyle(
+                  color: _appThemeState.accentTextColor,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 25,
+                ),
+              ),
             ),
-          ),
-          ListTile(
-            leading: Icon(Icons.shop),
-            title: Text('Item'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
+            ListTile(
+              leading: Icon(
+                Icons.settings,
+                color: _appThemeState.mainTextColor,
+              ),
+              title: Text(
+                'Settings',
+                style: TextStyle(color: _appThemeState.mainTextColor),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -117,49 +118,49 @@ class _HomePageState extends State<HomePage> {
         ),
       ],
       currentIndex: 0,
-      backgroundColor: AppThemeData.of(context).accentColor,
-      selectedItemColor: AppThemeData.of(context).accentTextColor,
-      unselectedItemColor:
-          AppThemeData.of(context).accentTextColor.withOpacity(0.3),
+      backgroundColor: _appThemeState.accentColor,
+      selectedItemColor: _appThemeState.accentTextColor,
+      unselectedItemColor: _appThemeState.accentTextColor.withOpacity(0.3),
     );
   }
 
-  Widget get _floatingActionButton {
+  Widget _floatingActionButton(BuildContext context) {
     return FloatingActionButton(
       onPressed: () async {
         var pageInfo = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => EditPage(
-              page: JournalPage('New page', 0),
-              title: 'New page',
+              JournalPage('New page', 0),
+              'New page',
+              _appThemeState,
             ),
           ),
         );
         if (pageInfo.isAllowedToSave) {
           BlocProvider.of<PagesCubit>(context).addPage(pageInfo.page);
+          BlocProvider.of<PagesCubit>(context).state.forEach((element) {});
         }
       },
-      backgroundColor: AppThemeData.of(context).accentColor,
+      backgroundColor: _appThemeState.accentColor,
       tooltip: 'New page',
       child: Icon(Icons.add),
     );
   }
 
-  Widget get _body {
+  Widget _body(BuildContext context) {
     return BlocProvider.of<PagesCubit>(context).state.isEmpty
         ? Center(
             child: Text(
               'No pages yet...',
               style: TextStyle(
-                  color:
-                      AppThemeData.of(context).mainTextColor.withOpacity(0.5)),
+                  color: _appThemeState.mainTextColor.withOpacity(0.5)),
             ),
           )
-        : _gridView;
+        : _gridView(context);
   }
 
-  void _pageModalBottomSheet(context, int index) {
+  void _pageModalBottomSheet(BuildContext context, int index) {
     var selected = BlocProvider.of<PagesCubit>(context).state[index];
 
     Widget _pinTile() {
@@ -168,13 +169,13 @@ class _HomePageState extends State<HomePage> {
             angle: 45 * pi / 180,
             child: Icon(
               Icons.push_pin_outlined,
-              color: AppThemeData.of(context).mainTextColor,
+              color: _appThemeState.mainTextColor,
             ),
           ),
           title: Text(
             selected.isPinned ? 'Unpin' : 'Pin',
             style: TextStyle(
-              color: AppThemeData.of(context).mainTextColor,
+              color: _appThemeState.mainTextColor,
             ),
           ),
           onTap: () async {
@@ -187,12 +188,12 @@ class _HomePageState extends State<HomePage> {
       return ListTile(
           leading: Icon(
             Icons.edit_outlined,
-            color: AppThemeData.of(context).mainTextColor,
+            color: _appThemeState.mainTextColor,
           ),
           title: Text(
             'Edit',
             style: TextStyle(
-              color: AppThemeData.of(context).mainTextColor,
+              color: _appThemeState.mainTextColor,
             ),
           ),
           onTap: () async {
@@ -200,15 +201,16 @@ class _HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => EditPage(
-                      page: JournalPage(selected.title, selected.iconIndex),
-                      title: 'Edit',
+                      JournalPage(selected.title, selected.iconIndex),
+                      'Edit',
+                      _appThemeState,
                     ),
                   ),
                 ) ??
                 false;
             if (editState.isAllowedToSave) {
               BlocProvider.of<PagesCubit>(context)
-                  .editPage(selected, editState.page);
+                  .editPage(selected, editState._page);
             }
             Navigator.pop(context);
           });
@@ -218,12 +220,12 @@ class _HomePageState extends State<HomePage> {
       return ListTile(
           leading: Icon(
             Icons.delete_outlined,
-            color: AppThemeData.of(context).mainTextColor,
+            color: _appThemeState.mainTextColor,
           ),
           title: Text(
             'Delete',
             style: TextStyle(
-              color: AppThemeData.of(context).mainTextColor,
+              color: _appThemeState.mainTextColor,
             ),
           ),
           onTap: () {
@@ -239,8 +241,8 @@ class _HomePageState extends State<HomePage> {
             children: [
               CircleAvatar(
                 maxRadius: 20,
-                foregroundColor: AppThemeData.of(context).accentTextColor,
-                backgroundColor: AppThemeData.of(context).accentColor,
+                foregroundColor: _appThemeState.accentTextColor,
+                backgroundColor: _appThemeState.accentColor,
                 child: Icon(
                   iconList[selected.iconIndex],
                 ),
@@ -249,7 +251,7 @@ class _HomePageState extends State<HomePage> {
                 child: Text(
                   selected.title,
                   style: TextStyle(
-                    color: AppThemeData.of(context).accentTextColor,
+                    color: _appThemeState.accentTextColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -265,14 +267,14 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   '$header:',
                   style: TextStyle(
-                    color: AppThemeData.of(context).mainTextColor,
+                    color: _appThemeState.mainTextColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   DateFormat('dd.MM.yyyy HH:mm').format(time),
                   style: TextStyle(
-                    color: AppThemeData.of(context).mainTextColor,
+                    color: _appThemeState.mainTextColor,
                   ),
                 ),
               ],
@@ -293,7 +295,7 @@ class _HomePageState extends State<HomePage> {
         }
 
         return AlertDialog(
-          backgroundColor: AppThemeData.of(context).mainColor,
+          backgroundColor: _appThemeState.mainColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
               Radius.circular(5),
@@ -304,7 +306,7 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.all(
                 Radius.circular(5),
               ),
-              color: AppThemeData.of(context).accentColor,
+              color: _appThemeState.accentColor,
             ),
             padding: EdgeInsets.all(5),
             margin: EdgeInsets.all(5),
@@ -317,12 +319,12 @@ class _HomePageState extends State<HomePage> {
       return ListTile(
           leading: Icon(
             Icons.info_outline,
-            color: AppThemeData.of(context).mainTextColor,
+            color: _appThemeState.mainTextColor,
           ),
           title: Text(
             'Info',
             style: TextStyle(
-              color: AppThemeData.of(context).mainTextColor,
+              color: _appThemeState.mainTextColor,
             ),
           ),
           onTap: () async {
@@ -336,7 +338,7 @@ class _HomePageState extends State<HomePage> {
 
     showModalBottomSheet(
         context: context,
-        backgroundColor: AppThemeData.of(context).mainColor,
+        backgroundColor: _appThemeState.mainColor,
         builder: (context) {
           return Wrap(
             children: <Widget>[
@@ -349,7 +351,7 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  Widget get _gridView {
+  Widget _gridView(BuildContext context) {
     return StaggeredGridView.extentBuilder(
       maxCrossAxisExtent: 300,
       scrollDirection: Axis.vertical,
@@ -362,7 +364,9 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                   builder: (context) => EventPage(
-                      page: BlocProvider.of<PagesCubit>(context).state[index])),
+                        BlocProvider.of<PagesCubit>(context).state[index],
+                        _appThemeState,
+                      )),
             );
             BlocProvider.of<PagesCubit>(context).updatePages();
           },
@@ -381,7 +385,7 @@ class _HomePageState extends State<HomePage> {
     Widget _header() {
       return Container(
         decoration: BoxDecoration(
-          color: AppThemeData.of(context).accentColor,
+          color: _appThemeState.accentColor,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(5), topRight: Radius.circular(5)),
         ),
@@ -390,7 +394,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Icon(
               iconList[page.iconIndex],
-              color: AppThemeData.of(context).accentTextColor,
+              color: _appThemeState.accentTextColor,
             ),
             Expanded(
               child: Text(
@@ -401,7 +405,7 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppThemeData.of(context).accentTextColor),
+                    color: _appThemeState.accentTextColor),
               ),
             ),
             if (page.isPinned)
@@ -411,7 +415,7 @@ class _HomePageState extends State<HomePage> {
                     angle: 45 * pi / 180,
                     child: Icon(
                       Icons.push_pin_outlined,
-                      color: AppThemeData.of(context).accentTextColor,
+                      color: _appThemeState.accentTextColor,
                     )),
               ),
           ],
@@ -428,15 +432,14 @@ class _HomePageState extends State<HomePage> {
                 child: Text(
                   'No events yet...',
                   style: TextStyle(
-                    color:
-                        AppThemeData.of(context).mainTextColor.withOpacity(0.5),
+                    color: _appThemeState.mainTextColor.withOpacity(0.5),
                   ),
                 ),
               )
             : Text(
                 page.lastEvent.description,
                 style: TextStyle(
-                  color: AppThemeData.of(context).mainTextColor,
+                  color: _appThemeState.mainTextColor,
                 ),
               ),
       );
@@ -451,13 +454,13 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       decoration: BoxDecoration(
-        color: AppThemeData.of(context).mainColor,
+        color: _appThemeState.mainColor,
         borderRadius: BorderRadius.all(
           Radius.circular(5),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppThemeData.of(context).shadowColor.withOpacity(0.3),
+            color: _appThemeState.shadowColor.withOpacity(0.3),
             spreadRadius: 1,
             blurRadius: 2,
             offset: Offset(1, 1),

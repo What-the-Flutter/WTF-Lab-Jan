@@ -1,4 +1,4 @@
-import '../page.dart';
+import '../entity/page.dart';
 
 class EventsState {
   int selectedIconIndex = 0;
@@ -8,12 +8,16 @@ class EventsState {
   bool isOnSelectionMode = false;
   bool showingFavourites = false;
 
-  List<Event> events;
+  List<Event> events = [];
   Set<Event> selected = {};
 
-  EventsState(this.events);
+  DateTime date;
+  JournalPage page;
+
+  EventsState(this.page);
 
   EventsState copyWith({
+    DateTime date,
     bool isSearching,
     int selectedIconIndex,
     bool isOnEdit,
@@ -22,8 +26,11 @@ class EventsState {
     List<Event> events,
     List<Event> eventsToDisplay,
     Set<Event> selected,
+    JournalPage page,
   }) {
-    var state = EventsState(events ?? this.events);
+    var state = EventsState(page ?? this.page);
+    state.date = date;
+    state.events = events ?? this.events;
     state.selectedIconIndex = selectedIconIndex ?? this.selectedIconIndex;
     state.isSearching = isSearching ?? this.isSearching;
     state.isOnEdit = isOnEdit ?? this.isOnEdit;

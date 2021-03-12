@@ -1,29 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sqlite_api.dart';
-import 'package:path/path.dart';
 
-import '../page.dart';
+import '../database_access.dart';
+import '../entity/page.dart';
 import 'events_state.dart';
 
 class EventCubit extends Cubit<EventsState> {
+  DatabaseAccess db = DatabaseAccess();
 
-  Database eventsDb;
+  EventCubit(EventsState state) : super(state);
 
-  EventCubit(EventsState state) : super(state) {
-    _initEventsDb();
-  }
-
-  void _initEventsDb() async {
-    eventsDb = await openDatabase(
-        join(await getDatabasesPath(), 'events_database.db'),
-    onCreate: (db, version) {
-    return db.execute(
-    'CREATE TABLE events(id INTEGER PRIMARY KEY, pageId INTEGER, iconIndex INTEGER, isFavourite INTEGER, description TEXT,creationTime TEXT)',
-    );
-    },
-    version: 1,
-    );
+  void initialize(JournalPage page) async {
+    await db.initialize();
+    var events = await db.fetchEvents(page.id);
+    events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
+    emit(state.copyWith(events: events, page: page));
   }
 
   void showFavourites(bool showingFavourites) {
@@ -45,15 +35,11 @@ class EventCubit extends Cubit<EventsState> {
     emit(state.copyWith(isSearching: isSearching));
   }
 
-  void deleteEvents() {
+  void deleteEvents() async {
     state.selected
-      ..forEach((element) async {
-        state.events.remove(element);
-        await eventsDb.delete(
-          'events',
-          where: 'id = ?',
-          whereArgs: [element.id],
-        );
+      ..forEach((event) async {
+        state.events.remove(event);
+        db.deleteEvent(event);
       });
     emit(state.copyWith(selected: {}));
   }
@@ -61,16 +47,10 @@ class EventCubit extends Cubit<EventsState> {
   void addToFavourites() {
     var allFavourites = state.areAllFavourites();
     state.selected
-      ..forEach(
-          (event) async {
-            event.isFavourite = allFavourites ? false : true;
-            await eventsDb.update(
-              'pages',
-              event.toMap(),
-              where: 'id = ?',
-              whereArgs: [event.id],
-            );
-          });
+      ..forEach((event) async {
+        event.isFavourite = allFavourites ? false : true;
+        db.updateEvent(event);
+      });
     emit(state.copyWith(selected: {}));
   }
 
@@ -92,28 +72,40 @@ class EventCubit extends Cubit<EventsState> {
   }
 
   Future<void> addEvent(Event event) async {
-    await eventsDb.insert(
-      'events',
-      event.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    emit(state.copyWith(events: state.events..insert(0, event)));
+    if (state.date != null) {
+      event.creationTime = state.date;
+    }
+    state.events..insert(0, event);
+    db.insertEvent(event);
+    emit(state.copyWith(
+        events: state.events
+          ..sort((a, b) => b.creationTime.compareTo(a.creationTime))));
   }
 
   Future<void> editEvent(String description) async {
     state.selected.first.description = description;
-    await eventsDb.update(
-      'pages',
-      state.selected.first.toMap(),
-      where: 'id = ?',
-      whereArgs: [state.selected.first.id],
-    );
+    db.updateEvent(state.selected.first);
     setOnEdit(false);
     setSelectionMode(false);
     emit(state.copyWith());
   }
 
+  void acceptForward(JournalPage page) async {
+    List forwardedList = state.selected.toList();
+    for (var forwardedEvent in forwardedList) {
+      forwardedEvent.pageId = page.id;
+      db.updateEvent(forwardedEvent);
+    }
+    setSelectionMode(false);
+    emit(state.copyWith(events: await db.fetchEvents(state.page.id)));
+  }
+
   void selectIcon(int selectedIndex) {
     emit(state.copyWith(selectedIconIndex: selectedIndex));
+  }
+
+  void setDate(DateTime date) {
+    emit(state.copyWith(date: date));
+    print(state.date);
   }
 }

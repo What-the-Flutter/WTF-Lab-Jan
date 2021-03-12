@@ -1,40 +1,42 @@
+import 'package:chat_journal/settings_page/settings_cubit.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../app_theme.dart';
+import '../app_theme_state.dart';
+import '../data/icon_list.dart';
+import '../entity/page.dart';
 import '../home_page/pages_cubit.dart';
-import '../icon_list.dart';
-import '../page.dart';
 import 'events_cubit.dart';
 import 'events_state.dart';
 
 class EventPage extends StatefulWidget {
-  EventPage({Key key, this.title, this.page}) : super(key: key);
+  EventPage(this.page, this.appThemeState, {Key key}) : super(key: key);
 
-  final String title;
+  final AppThemeState appThemeState;
   final JournalPage page;
 
   @override
-  _EventPageState createState() => _EventPageState(page: page);
+  _EventPageState createState() => _EventPageState(page, appThemeState);
 }
 
 class _EventPageState extends State<EventPage> {
-  _EventPageState({@required this.page}) {
-    cubit = EventCubit(EventsState(page.events));
-  }
-
-  final JournalPage page;
+  final AppThemeState appThemeState;
   final controller = TextEditingController();
   final _focusNode = FocusNode();
 
   EventCubit cubit;
 
+  _EventPageState(JournalPage page, this.appThemeState) {
+    cubit = EventCubit(EventsState(page));
+    cubit.initialize(page);
+  }
+
   Widget get _infoAppBar {
     return AppBar(
-      backgroundColor: AppThemeData.of(context).accentColor,
+      backgroundColor: appThemeState.accentColor,
       actions: [
         IconButton(
           onPressed: () => cubit.showFavourites(!cubit.state.showingFavourites),
@@ -50,13 +52,40 @@ class _EventPageState extends State<EventPage> {
           },
           icon: Icon(Icons.search),
         ),
+        IconButton(
+          onPressed: () async {
+            if (cubit.state.date == null) {
+              var date = await showDatePicker(
+                context: context,
+                initialDate: cubit.state.date ?? DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2025),
+              );
+              if (date != null) {
+                var time = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.fromDateTime(date),
+                );
+                if (time != null) {
+                  date = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                  cubit.setDate(date);
+                }
+              }
+            } else {
+              cubit.setDate(null);
+            }
+          },
+          icon: Icon(cubit.state.date == null
+              ? Icons.date_range_outlined
+              : Icons.update),
+        ),
       ],
       title: Row(
         children: [
-          Icon(iconList[page.iconIndex]),
+          Icon(iconList[cubit.state.page.iconIndex]),
           Expanded(
             child: Text(
-              page.title,
+              cubit.state.page.title,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -70,7 +99,7 @@ class _EventPageState extends State<EventPage> {
 
   Widget get _searchAppBar {
     return AppBar(
-      backgroundColor: AppThemeData.of(context).accentColor,
+      backgroundColor: appThemeState.accentColor,
       leading: IconButton(
         icon: Icon(Icons.close),
         onPressed: () {
@@ -100,10 +129,9 @@ class _EventPageState extends State<EventPage> {
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () {
-                  BlocProvider.of<PagesCubit>(context).acceptForward(
-                      BlocProvider.of<PagesCubit>(context).state[index],
-                      cubit.state.selected);
-                  cubit.deleteEvents();
+                  cubit.acceptForward(
+                    BlocProvider.of<PagesCubit>(context).state[index],
+                  );
                   Navigator.pop(context);
                 },
                 child: Container(
@@ -111,7 +139,7 @@ class _EventPageState extends State<EventPage> {
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
-                    color: AppThemeData.of(context).accentColor,
+                    color: appThemeState.accentColor,
                   ),
                   padding: EdgeInsets.all(10),
                   margin: EdgeInsets.all(5),
@@ -121,7 +149,7 @@ class _EventPageState extends State<EventPage> {
                         iconList[BlocProvider.of<PagesCubit>(context)
                             .state[index]
                             .iconIndex],
-                        color: AppThemeData.of(context).accentTextColor,
+                        color: appThemeState.accentTextColor,
                       ),
                       SizedBox(width: 10),
                       Expanded(
@@ -131,7 +159,7 @@ class _EventPageState extends State<EventPage> {
                               .title,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: AppThemeData.of(context).accentTextColor,
+                            color: appThemeState.accentTextColor,
                           ),
                         ),
                       )
@@ -145,7 +173,7 @@ class _EventPageState extends State<EventPage> {
       }
 
       return AlertDialog(
-        backgroundColor: AppThemeData.of(context).mainColor,
+        backgroundColor: appThemeState.mainColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(5),
@@ -226,7 +254,7 @@ class _EventPageState extends State<EventPage> {
     }
 
     return AppBar(
-      backgroundColor: AppThemeData.of(context).accentColor,
+      backgroundColor: appThemeState.accentColor,
       title: Text(cubit.state.selected.length.toString(),
           style: TextStyle(fontWeight: FontWeight.bold)),
       leading: _closeButton(),
@@ -241,32 +269,56 @@ class _EventPageState extends State<EventPage> {
   }
 
   Widget get _listView {
-    var _allowed = cubit.state.isSearching
-        ? page.events
+    final _allowed = cubit.state.isSearching
+        ? cubit.state.events
             .where((element) => element.description.contains(controller.text))
             .toList()
-        : page.events;
+        : cubit.state.events;
 
-    var _displayed = cubit.state.showingFavourites
+    final _displayed = cubit.state.showingFavourites
         ? _allowed.where((event) => event.isFavourite).toList()
         : _allowed;
 
     if (_displayed.isNotEmpty) {
-      return ListView.builder(
+      final _children = <Widget>[];
+      final days = <int>{};
+      for (var i = _displayed.length - 1; i >= 0; i--) {
+        var day = _displayed[i].creationTime.millisecondsSinceEpoch ~/ 86400000;
+        if (!days.contains(day)) {
+          _children.insert(
+              0,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                child: Text(
+                  DateFormat('MMM d').format(_displayed[i].creationTime),
+                  style: TextStyle(color: appThemeState.mainTextColor),
+                  textAlign: BlocProvider.of<SettingsCubit>(context)
+                          .state
+                          .isDateCentered
+                      ? TextAlign.center
+                      : BlocProvider.of<SettingsCubit>(context)
+                              .state
+                              .isRightToLeft
+                          ? TextAlign.end
+                          : TextAlign.start,
+                ),
+              ));
+          days.add(day);
+        }
+        _children.insert(0, _listItem(_displayed[i], i));
+      }
+      return ListView(
         reverse: true,
-        itemCount: _displayed.length,
         shrinkWrap: true,
         physics: ScrollPhysics(),
-        itemBuilder: (context, index) {
-          return _listItem(_displayed[index], index);
-        },
+        children: _children,
       );
     } else {
       return Center(
         child: Text(
           'No events yet...',
           style: TextStyle(
-            color: AppThemeData.of(context).mainTextColor.withOpacity(0.5),
+            color: appThemeState.mainTextColor.withOpacity(0.5),
           ),
         ),
       );
@@ -279,7 +331,7 @@ class _EventPageState extends State<EventPage> {
         children: [
           Icon(
             eventIconList[event.iconIndex],
-            color: AppThemeData.of(context).accentTextColor,
+            color: appThemeState.accentTextColor,
           ),
           SizedBox(width: 10),
           Expanded(
@@ -287,7 +339,7 @@ class _EventPageState extends State<EventPage> {
               eventStringList[event.iconIndex],
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: AppThemeData.of(context).accentTextColor,
+                color: appThemeState.accentTextColor,
               ),
             ),
           )
@@ -300,7 +352,7 @@ class _EventPageState extends State<EventPage> {
         event.description,
         style: TextStyle(
           fontSize: 15,
-          color: AppThemeData.of(context).accentTextColor,
+          color: appThemeState.accentTextColor,
         ),
       );
     }
@@ -314,12 +366,25 @@ class _EventPageState extends State<EventPage> {
         cubit.selectEvent(event);
       },
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+        margin: BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
+            ? EdgeInsets.only(top: 2, bottom: 2, left: 100, right: 5)
+            : EdgeInsets.only(top: 2, bottom: 2, left: 5, right: 100),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            bottomLeft:
+                BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
+                    ? Radius.circular(10)
+                    : Radius.zero,
+            topRight: Radius.circular(10),
+            bottomRight:
+                BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
+                    ? Radius.zero
+                    : Radius.circular(10),
+          ),
           color: cubit.state.selected.contains(event)
-              ? AppThemeData.of(context).accentLightColor
-              : AppThemeData.of(context).accentColor,
+              ? appThemeState.accentLightColor
+              : appThemeState.accentColor,
         ),
         padding: EdgeInsets.only(
           top: 10,
@@ -353,7 +418,7 @@ class _EventPageState extends State<EventPage> {
                   DateFormat('dd.MM.yyyy HH:mm').format(event.creationTime),
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppThemeData.of(context).accentTextColor,
+                    color: appThemeState.accentTextColor,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -372,18 +437,18 @@ class _EventPageState extends State<EventPage> {
           if (cubit.state.isOnEdit) {
             cubit.editEvent(controller.text);
           } else {
-            cubit.addEvent(
-                Event(page.id, controller.text, cubit.state.selectedIconIndex));
+            cubit.addEvent(Event(cubit.state.page.id, controller.text,
+                cubit.state.selectedIconIndex));
           }
           controller.clear();
         }
       },
       child: Icon(
         cubit.state.isOnEdit ? Icons.check : Icons.send,
-        color: AppThemeData.of(context).accentTextColor,
+        color: appThemeState.accentTextColor,
         size: 18,
       ),
-      backgroundColor: AppThemeData.of(context).accentColor,
+      backgroundColor: appThemeState.accentColor,
       elevation: 0,
     );
   }
@@ -391,7 +456,7 @@ class _EventPageState extends State<EventPage> {
   Widget get _textField {
     return TextField(
       style: TextStyle(
-        color: AppThemeData.of(context).mainTextColor,
+        color: appThemeState.mainTextColor,
       ),
       onChanged: (text) {
         if (cubit.state.isSearching) {
@@ -403,7 +468,7 @@ class _EventPageState extends State<EventPage> {
       decoration: InputDecoration(
         hintText: 'Write event description...',
         hintStyle: TextStyle(
-          color: AppThemeData.of(context).mainTextColor.withOpacity(0.5),
+          color: appThemeState.mainTextColor.withOpacity(0.5),
         ),
         border: InputBorder.none,
       ),
@@ -433,16 +498,15 @@ class _EventPageState extends State<EventPage> {
                     child: Column(
                       children: [
                         CircleAvatar(
-                          backgroundColor: AppThemeData.of(context).accentColor,
-                          foregroundColor:
-                              AppThemeData.of(context).accentTextColor,
+                          backgroundColor: appThemeState.accentColor,
+                          foregroundColor: appThemeState.accentTextColor,
                           child: Icon(eventIconList[index]),
                         ),
                         Expanded(
                           child: Text(
                             eventStringList[index],
                             style: TextStyle(
-                              color: AppThemeData.of(context).mainTextColor,
+                              color: appThemeState.mainTextColor,
                               fontSize: 12,
                             ),
                           ),
@@ -457,7 +521,7 @@ class _EventPageState extends State<EventPage> {
       }
 
       return AlertDialog(
-        backgroundColor: AppThemeData.of(context).mainColor,
+        backgroundColor: appThemeState.mainColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(5),
@@ -481,7 +545,7 @@ class _EventPageState extends State<EventPage> {
             padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
             height: 60,
             width: double.infinity,
-            color: AppThemeData.of(context).mainColor,
+            color: appThemeState.mainColor,
             child: Row(
               children: <Widget>[
                 if (!cubit.state.isSearching)
@@ -490,7 +554,7 @@ class _EventPageState extends State<EventPage> {
                       cubit.state.selectedIconIndex == 0
                           ? Icons.insert_emoticon
                           : eventIconList[cubit.state.selectedIconIndex],
-                      color: AppThemeData.of(context).accentColor,
+                      color: appThemeState.accentColor,
                     ),
                     onPressed: () async {
                       await showDialog(
@@ -530,7 +594,7 @@ class _EventPageState extends State<EventPage> {
         cubit: cubit,
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: AppThemeData.of(context).mainColor,
+            backgroundColor: appThemeState.mainColor,
             appBar: state.isOnSelectionMode
                 ? _editAppBar
                 : state.isSearching
