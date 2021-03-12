@@ -26,6 +26,7 @@ dependencies:
 
   intl: ^0.16.0
   clipboard_manager: ^0.0.4
+  flutter_bloc: ^6.1.2
   cupertino_icons: ^1.0.0
 
 dev_dependencies:

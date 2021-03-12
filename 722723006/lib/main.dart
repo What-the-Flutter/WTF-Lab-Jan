@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'home_page/home_page.dart';
+import 'theme/light_theme.dart';
+import 'theme/theme.dart';
 
-import 'home_page.dart';
-import 'light_theme.dart';
-import 'theme.dart';
-
-void main() => runApp(ThemeSwitcherWidget(
-      initialTheme: lightTheme,
-      child: MyApp(),
-    ));
+void main() => runApp(
+      ThemeSwitcherWidget(
+        initialTheme: lightTheme,
+        child: MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
   @override
