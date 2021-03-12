@@ -154,12 +154,60 @@ class _EventScreenState extends State<EventScreen> {
                 },
               ),
         BlocProvider.of<SettingScreenBloc>(context).state.isDateTimeModification
-            ? IconButton(
-                icon: Icon(Icons.date_range),
-                onPressed: () {
-                  _pickDate(context);
-                },
-              )
+            ? BlocProvider.of<EventScreenBloc>(context)
+                    .state
+                    .isSearchIconButtonPressed
+                ? Container()
+                : Row(
+                    children: [
+                      Text(
+                        BlocProvider.of<EventScreenBloc>(context)
+                                    .state
+                                    .selectedDate ==
+                                null
+                            ? DateFormat.MEd().format(DateTime.now())
+                            : DateFormat.MEd().format(
+                                DateTime(
+                                  BlocProvider.of<EventScreenBloc>(context)
+                                      .state
+                                      .selectedDate
+                                      .year,
+                                  BlocProvider.of<EventScreenBloc>(context)
+                                      .state
+                                      .selectedDate
+                                      .month,
+                                  BlocProvider.of<EventScreenBloc>(context)
+                                      .state
+                                      .selectedDate
+                                      .day,
+                                ),
+                              ),
+                        style: TextStyle(
+                          color: BlocProvider.of<ThemeBloc>(context).state ==
+                                  ThemeMode.dark
+                              ? Theme.of(context).accentColor
+                              : Theme.of(context).primaryColor,
+                          fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                                      .state
+                                      .fontSize ==
+                                  0
+                              ? listTileHeaderSmallFontSize
+                              : BlocProvider.of<SettingScreenBloc>(context)
+                                          .state
+                                          .fontSize ==
+                                      1
+                                  ? listTileHeaderDefaultFontSize
+                                  : listTileHeaderLargeFontSize,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.date_range),
+                        onPressed: () {
+                          _pickDate(context);
+                        },
+                      ),
+                    ],
+                  )
             : Container(),
         IconButton(
           icon: Icon(
