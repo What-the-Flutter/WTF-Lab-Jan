@@ -1,14 +1,24 @@
+import 'package:chat_journal/cubits/categories/categories_cubit.dart';
+import 'package:chat_journal/repositories/local_database/local_database_categories_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'mocks/mocks.dart';
-import 'pages/chats_cubit/chats_cubit.dart';
 import 'pages/main_page.dart';
 import 'thememode_cubit/thememode_cubit.dart';
 
+class CubitsObserver extends BlocObserver {
+  @override
+  void onChange(Cubit cubit, Change change) {
+    print('$cubit $change');
+    super.onChange(cubit, change);
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Bloc.observer = CubitsObserver();
   runApp(
     MyApp(
       preferences: await SharedPreferences.getInstance(),
@@ -57,7 +67,9 @@ class ThemingApp extends StatelessWidget {
           darkTheme: ThemeData.dark(),
           themeMode: state.themeMode,
           home: BlocProvider(
-            create: (context) => ChatsCubit(mockCategories),
+            create: (context) => CategoriesCubit(
+              LocalDatabaseCategoriesRepository(),
+            )..loadCategories(),
             child: MainPage(),
           ),
         );

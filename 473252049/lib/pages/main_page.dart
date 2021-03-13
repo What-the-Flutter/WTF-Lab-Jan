@@ -1,3 +1,7 @@
+import 'package:chat_journal/cubits/categories/categories_cubit.dart';
+import 'package:chat_journal/cubits/records/records_cubit.dart';
+import 'package:chat_journal/repositories/local_database/local_database_records_repository.dart';
+import 'package:chat_journal/tabs/all_records_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -6,7 +10,6 @@ import '../components/main_page_drawer.dart';
 import '../tabs/home_tab.dart';
 import '../thememode_cubit/thememode_cubit.dart';
 import 'category_add_edit_page.dart';
-import 'chats_cubit/chats_cubit.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -17,7 +20,12 @@ class _MainPageState extends State<MainPage> {
   final _children = [
     HomeTab(),
     Placeholder(),
-    Placeholder(),
+    BlocProvider(
+      create: (context) => RecordsCubit(
+        LocalDatabaseRecordsRepository(),
+      )..loadRecords(),
+      child: AllRecordsTab(),
+    ),
     Placeholder(),
   ];
 
@@ -59,7 +67,7 @@ class _MainPageState extends State<MainPage> {
                   MaterialPageRoute(
                     builder: (_) {
                       return BlocProvider.value(
-                        value: BlocProvider.of<ChatsCubit>(context),
+                        value: BlocProvider.of<CategoriesCubit>(context),
                         child: CategoryAddEditPage(
                           mode: CategoryAddEditMode.add,
                         ),

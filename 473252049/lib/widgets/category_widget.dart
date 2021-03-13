@@ -1,3 +1,6 @@
+import 'package:chat_journal/cubits/categories/categories_cubit.dart';
+import 'package:chat_journal/cubits/records/records_cubit.dart';
+import 'package:chat_journal/repositories/local_database/local_database_records_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -5,7 +8,6 @@ import 'package:intl/intl.dart';
 import '../components/category_bottom_sheet.dart';
 import '../model/category.dart';
 import '../pages/category_page.dart';
-import '../pages/chats_cubit/chats_cubit.dart';
 
 class CategoryWidget extends StatelessWidget {
   final Category category;
@@ -22,7 +24,7 @@ class CategoryWidget extends StatelessWidget {
               context: context,
               builder: (_) {
                 return BlocProvider.value(
-                  value: BlocProvider.of<ChatsCubit>(context),
+                  value: BlocProvider.of<CategoriesCubit>(context),
                   child: CategoryBottomSheet(category),
                 );
               },
@@ -34,8 +36,15 @@ class CategoryWidget extends StatelessWidget {
               MaterialPageRoute(
                 builder: (_) {
                   return BlocProvider.value(
-                    value: context.read<ChatsCubit>(),
-                    child: CategoryPage(category),
+                    value: context.read<CategoriesCubit>(),
+                    child: BlocProvider(
+                      create: (context) => RecordsCubit(
+                        LocalDatabaseRecordsRepository(),
+                      )..loadFromCategory(
+                          categoryId: category.id,
+                        ),
+                      child: CategoryPage(category),
+                    ),
                   );
                 },
               ),
@@ -79,16 +88,16 @@ class CategoryWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Text(
-                        category.records.isEmpty
-                            ? 'No events. Tap to create first'
-                            : category.records.first.message.isEmpty
-                                ? 'Image record'
-                                : category.records.first.message,
-                        style: Theme.of(context).textTheme.bodyText1,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      // Text(
+                      //   category.records.isEmpty
+                      //       ? 'No events. Tap to create first'
+                      //       : category.records.first.message.isEmpty
+                      //           ? 'Image record'
+                      //           : category.records.first.message,
+                      //   style: Theme.of(context).textTheme.bodyText1,
+                      //   maxLines: 1,
+                      //   overflow: TextOverflow.ellipsis,
+                      // ),
                     ],
                   ),
                 ),
@@ -96,18 +105,18 @@ class CategoryWidget extends StatelessWidget {
                   flex: 2,
                   child: Column(
                     children: [
-                      Text(
-                        category.records.isEmpty
-                            ? DateFormat.E().format(category.createDateTime)
-                            : category.records.first.createDateTime.day ==
-                                    DateTime.now().day
-                                ? DateFormat.Hm().format(
-                                    category.records.first.createDateTime)
-                                : DateFormat.E().format(
-                                    category.records.first.createDateTime),
-                        style: Theme.of(context).textTheme.bodyText2,
-                        textAlign: TextAlign.center,
-                      ),
+                      // Text(
+                      //   category.records.isEmpty
+                      //       ? DateFormat.E().format(category.createDateTime)
+                      //       : category.records.first.createDateTime.day ==
+                      //               DateTime.now().day
+                      //           ? DateFormat.Hm().format(
+                      //               category.records.first.createDateTime)
+                      //           : DateFormat.E().format(
+                      //               category.records.first.createDateTime),
+                      //   style: Theme.of(context).textTheme.bodyText2,
+                      //   textAlign: TextAlign.center,
+                      // ),
                     ],
                   ),
                 ),

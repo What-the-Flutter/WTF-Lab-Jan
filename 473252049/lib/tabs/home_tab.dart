@@ -1,7 +1,7 @@
+import 'package:chat_journal/cubits/categories/categories_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../pages/chats_cubit/chats_cubit.dart';
 import '../widgets/category_widget.dart';
 
 class HomeTab extends StatelessWidget {
@@ -14,9 +14,13 @@ class HomeTab extends StatelessWidget {
 class CategoriesListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatsCubit, ChatsState>(
+    return BlocBuilder<CategoriesCubit, CategoriesState>(
       builder: (context, state) {
-        print('rebuild categories list view');
+        if (state is CategoriesLoadInProcess) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
         return ListView.separated(
           separatorBuilder: (context, index) => Divider(),
           itemBuilder: (context, index) =>

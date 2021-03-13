@@ -1,8 +1,8 @@
+import 'package:chat_journal/cubits/categories/categories_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../model/category.dart';
-import 'chats_cubit/chats_cubit.dart';
 
 enum CategoryAddEditMode { add, edit }
 
@@ -40,13 +40,18 @@ class CategoryAddEditPage extends StatelessWidget {
             onPressed: () {
               if (_formKey.currentState.validate()) {
                 if (mode == CategoryAddEditMode.add) {
-                  context.read<ChatsCubit>().addCategory(Category(
-                      _textEditingController.text,
-                      icon: Icons.access_alarm));
+                  context.read<CategoriesCubit>().add(
+                        category: Category(
+                          _textEditingController.text.trim(),
+                          icon: Icons.access_alarm,
+                        ),
+                      );
                 } else if (mode == CategoryAddEditMode.edit) {
-                  context.read<ChatsCubit>().updateCategory(category,
-                      newName: _textEditingController.text,
-                      newIconData: category.icon);
+                  context.read<CategoriesCubit>().update(
+                        category.copyWith(
+                          name: _textEditingController.text.trim(),
+                        ),
+                      );
                 }
                 Navigator.of(context).pop();
               }
