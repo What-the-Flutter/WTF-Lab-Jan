@@ -1,12 +1,12 @@
-import 'package:chat_journal/cubits/categories/categories_cubit.dart';
-import 'package:chat_journal/cubits/records/records_cubit.dart';
-import 'package:chat_journal/repositories/local_database/local_database_records_repository.dart';
-import 'package:chat_journal/tabs/all_records_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../components/main_page_bottom_navigation_bar.dart';
 import '../components/main_page_drawer.dart';
+import '../cubits/categories/categories_cubit.dart';
+import '../cubits/records/records_cubit.dart';
+import '../repositories/local_database/local_database_records_repository.dart';
+import '../tabs/all_records_tab.dart';
 import '../tabs/home_tab.dart';
 import '../thememode_cubit/thememode_cubit.dart';
 import 'category_add_edit_page.dart';

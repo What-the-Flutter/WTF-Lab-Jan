@@ -1,9 +1,10 @@
 import 'package:bloc/bloc.dart';
-import 'package:chat_journal/model/record.dart';
-import 'package:chat_journal/repositories/records_repository.dart';
-import 'package:chat_journal/utils/utils.dart' as utils;
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+
+import '../../model/record.dart';
+import '../../repositories/records_repository.dart';
+import '../../utils/utils.dart' as utils;
 
 part 'records_state.dart';
 

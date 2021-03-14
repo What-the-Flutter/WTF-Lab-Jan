@@ -1,14 +1,13 @@
 import 'dart:io';
 
-import 'package:chat_journal/cubits/categories/categories_cubit.dart';
-import 'package:chat_journal/cubits/records/records_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../cubits/categories/categories_cubit.dart';
+import '../cubits/records/records_cubit.dart';
 import '../model/category.dart';
 import '../model/record.dart';
-import '../utils/utils.dart';
 import '../widgets/record_widget.dart';
 import 'search_record_page.dart';
 
@@ -181,8 +180,10 @@ class _CategoryPageState extends State<CategoryPage> {
                             showSearch(
                               context: context,
                               delegate: SerachRecordPage(
-                                  records: state.records,
-                                  category: widget.category),
+                                context: context,
+                                records: state.records,
+                                category: widget.category,
+                              ),
                             );
                           },
                         ),

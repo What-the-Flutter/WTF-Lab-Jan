@@ -1,7 +1,6 @@
-import 'package:chat_journal/model/category.dart';
-import 'package:chat_journal/repositories/categories_repository.dart';
-import 'package:chat_journal/repositories/local_database/provider/local_database_provider.dart';
-import 'package:chat_journal/repositories/repository.dart';
+import '../../model/category.dart';
+import '../categories_repository.dart';
+import 'provider/local_database_provider.dart';
 
 class LocalDatabaseCategoriesRepository extends LocalDatabaseProvider
     implements CategoriesRepository {

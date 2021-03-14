@@ -1,8 +1,8 @@
-import 'package:chat_journal/model/record.dart';
-import 'package:chat_journal/repositories/local_database/provider/local_database_provider.dart';
-import 'package:chat_journal/repositories/records_repository.dart';
-import 'package:chat_journal/repositories/repository.dart';
 import 'package:flutter/material.dart';
+
+import '../../model/record.dart';
+import '../records_repository.dart';
+import 'provider/local_database_provider.dart';
 
 class LocalDatabaseRecordsRepository extends LocalDatabaseProvider
     implements RecordsRepository {

@@ -1,7 +1,5 @@
-import 'package:chat_journal/model/category.dart';
-import 'package:chat_journal/repositories/repository.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 abstract class LocalDatabaseProvider {
   Database _database;
