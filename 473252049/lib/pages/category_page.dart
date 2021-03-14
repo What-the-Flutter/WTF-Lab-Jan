@@ -242,6 +242,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                                     _textEditingController.text,
                                                     categoryId:
                                                         widget.category.id,
+                                                    image: _image,
                                                   ),
                                                 );
                                             _textEditingController.clear();

@@ -31,6 +31,7 @@ class Category implements Comparable {
         name = map['name'],
         icon = IconData(
           map['iconCodePoint'],
+          fontFamily: 'MaterialIcons',
         ),
         createDateTime = DateTime.fromMillisecondsSinceEpoch(
           map['createDateTime'],

@@ -33,7 +33,9 @@ class Record implements Comparable {
         isFavorite = map['isFavorite'] == 0 ? false : true {
     if (map['imageUri'] != null) {
       image = File.fromUri(
-        map['imageUri'],
+        Uri.parse(
+          map['imageUri'],
+        ),
       );
     } else {
       image = null;
@@ -43,7 +45,7 @@ class Record implements Comparable {
   Map<String, dynamic> toMap() {
     return {
       'message': message,
-      if (image != null) 'imageUri': image.uri,
+      if (image != null) 'imageUri': image.uri.toString(),
       'createDateTime': createDateTime.millisecondsSinceEpoch,
       'categoryId': categoryId,
       'isSelected': isSelected ? 1 : 0,
