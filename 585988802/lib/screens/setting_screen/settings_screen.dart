@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share/share.dart';
 
 import '../../common_widgets/change_theme_button_widget.dart';
 import '../../models/font_size_customization.dart';
@@ -305,6 +306,45 @@ class SettingsScreen extends StatelessWidget {
           thickness: 0.5,
           indent: 15,
           endIndent: 15,
+        ),
+        ListTile(
+          leading: Icon(Icons.share),
+          title: Text(
+            'Sharing the app',
+            style: TextStyle(
+              color: Theme.of(context).accentColor,
+              fontSize:
+                  BlocProvider.of<SettingScreenBloc>(context).state.fontSize ==
+                          0
+                      ? listTileTitleSmallFontSize
+                      : BlocProvider.of<SettingScreenBloc>(context)
+                                  .state
+                                  .fontSize ==
+                              1
+                          ? listTileTitleDefaultFontSize
+                          : listTileTitleLargeFontSize,
+            ),
+          ),
+          subtitle: Text(
+            'Share the app with your friends',
+            style: TextStyle(
+              color: Theme.of(context).accentColor,
+              fontSize:
+                  BlocProvider.of<SettingScreenBloc>(context).state.fontSize ==
+                          0
+                      ? listTileSubtitleSmallFontSize
+                      : BlocProvider.of<SettingScreenBloc>(context)
+                                  .state
+                                  .fontSize ==
+                              1
+                          ? listTileSubtitleDefaultFontSize
+                          : listTileSubtitleLargeFontSize,
+            ),
+          ),
+          onTap: () {
+            Share.share(
+                'https://drive.google.com/drive/folders/1RTSG-dxKRIXISmyNiQgsdPWOJXifI8-Z');
+          },
         ),
         ListTile(
           leading: Icon(Icons.refresh),

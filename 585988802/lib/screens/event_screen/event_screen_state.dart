@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../models/category.dart';
 import '../../models/event_message.dart';
 import '../../models/suggestion.dart';
+import '../../models/tag.dart';
 
 class EventScreenState {
   final Suggestion listViewSuggestion;
@@ -20,6 +21,7 @@ class EventScreenState {
   bool isCategorySelected;
   DateTime selectedDate;
   TimeOfDay selectedTime;
+  List<Tag> tagList;
 
   EventScreenState(
     this.listViewSuggestion,
@@ -35,6 +37,7 @@ class EventScreenState {
     this.isCategorySelected,
     this.selectedDate,
     this.selectedTime,
+    this.tagList,
   );
 
   EventScreenState copyWith({
@@ -51,6 +54,7 @@ class EventScreenState {
     final bool isCategorySelected,
     final DateTime selectedDate,
     final TimeOfDay selectedTime,
+    final List<Tag> tagList,
   }) {
     return EventScreenState(
       listViewSuggestion ?? this.listViewSuggestion,
@@ -66,6 +70,7 @@ class EventScreenState {
       isCategorySelected ?? this.isCategorySelected,
       selectedDate ?? this.selectedDate,
       selectedTime ?? this.selectedTime,
+      tagList ?? this.tagList,
     );
   }
 }

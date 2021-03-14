@@ -65,6 +65,9 @@ class _EventScreenState extends State<EventScreen> {
     BlocProvider.of<EventScreenBloc>(context).add(
       EventMessageListInit(_listViewSuggestion),
     );
+    BlocProvider.of<EventScreenBloc>(context).add(
+      UpdateTagList(),
+    );
     _dbHelper.initializeDatabase();
     super.initState();
   }
@@ -283,6 +286,7 @@ class _EventScreenState extends State<EventScreen> {
       onTap: () => FocusScope.of(context).nextFocus(),
       child: Column(
         children: [
+          _tagSelectionTopBar,
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -297,13 +301,46 @@ class _EventScreenState extends State<EventScreen> {
               ),
             ),
           ),
-          BlocProvider.of<EventScreenBloc>(context).state.isCategorySelected
-              ? _categorySelectionBottomBar
-              : Container(),
+          _categorySelectionBottomBar,
           _eventMessageComposer,
         ],
       ),
     );
+  }
+
+  Container get _tagSelectionTopBar {
+    return (BlocProvider.of<EventScreenBloc>(context)
+                .state
+                .tagList
+                .isNotEmpty &&
+            BlocProvider.of<EventScreenBloc>(context)
+                .state
+                .isSearchIconButtonPressed)
+        ? Container(
+            height: 65,
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 7.0,
+                direction: Axis.horizontal,
+                children: BlocProvider.of<EventScreenBloc>(context)
+                    .state
+                    .tagList
+                    .map(
+                      (tag) => InputChip(
+                        label: Text(tag.tagText),
+                        labelPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                        backgroundColor: Theme.of(context).cardTheme.color,
+                        onPressed: () => _filterEventMessageList(tag.tagText),
+                        onDeleted: () =>
+                            BlocProvider.of<EventScreenBloc>(context)
+                                .add(TagDeleted(tag)),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          )
+        : Container();
   }
 
   Container get _categorySelectionBottomBar {
@@ -781,19 +818,29 @@ class _EventScreenState extends State<EventScreen> {
           isFavorite: 0,
           isImageMessage: 0,
           imagePath: 'null',
-          categoryImagePath: BlocProvider.of<EventScreenBloc>(context)
-                      .state
-                      .selectedCategory ==
-                  null
+          categoryImagePath: (BlocProvider.of<EventScreenBloc>(context)
+                          .state
+                          .selectedCategory ==
+                      null ||
+                  BlocProvider.of<EventScreenBloc>(context)
+                          .state
+                          .selectedCategory
+                          .nameOfCategory ==
+                      'Null')
               ? null
               : BlocProvider.of<EventScreenBloc>(context)
                   .state
                   .selectedCategory
                   .imagePath,
-          nameOfCategory: BlocProvider.of<EventScreenBloc>(context)
-                      .state
-                      .selectedCategory ==
-                  null
+          nameOfCategory: (BlocProvider.of<EventScreenBloc>(context)
+                          .state
+                          .selectedCategory ==
+                      null ||
+                  BlocProvider.of<EventScreenBloc>(context)
+                          .state
+                          .selectedCategory
+                          .nameOfCategory ==
+                      'Null')
               ? null
               : BlocProvider.of<EventScreenBloc>(context)
                   .state
@@ -802,6 +849,11 @@ class _EventScreenState extends State<EventScreen> {
         ),
       ),
     );
+
+    ///
+    BlocProvider.of<EventScreenBloc>(context)
+        .add(CheckEventMessageForTag(_textEditingController.text));
+    // _addTag(_textEditingController.text);
     _textEditingController.clear();
     BlocProvider.of<EventScreenBloc>(context).add(
       SendButtonChanged(false),
@@ -813,6 +865,19 @@ class _EventScreenState extends State<EventScreen> {
         ? _closeSearchTextField()
         : () {};
   }
+
+  // void _addTag(String text) {
+  //   final list = text.split(RegExp(r'[ ]+'));
+  //   for (final str in list) {
+  //     if (tagRegExp.hasMatch(str)) {
+  //       BlocProvider.of<EventScreenBloc>(context).add(
+  //         TagAdded(
+  //           Tag(tagText: str),
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
 
   Future<Object> _showImageSelectionDialog() {
     return showGeneralDialog(
@@ -901,19 +966,29 @@ class _EventScreenState extends State<EventScreen> {
             isFavorite: 0,
             isImageMessage: 1,
             imagePath: file.path,
-            categoryImagePath: BlocProvider.of<EventScreenBloc>(context)
-                        .state
-                        .selectedCategory ==
-                    null
+            categoryImagePath: (BlocProvider.of<EventScreenBloc>(context)
+                            .state
+                            .selectedCategory ==
+                        null ||
+                    BlocProvider.of<EventScreenBloc>(context)
+                            .state
+                            .selectedCategory
+                            .nameOfCategory ==
+                        'Null')
                 ? null
                 : BlocProvider.of<EventScreenBloc>(context)
                     .state
                     .selectedCategory
                     .imagePath,
-            nameOfCategory: BlocProvider.of<EventScreenBloc>(context)
-                        .state
-                        .selectedCategory ==
-                    null
+            nameOfCategory: (BlocProvider.of<EventScreenBloc>(context)
+                            .state
+                            .selectedCategory ==
+                        null ||
+                    BlocProvider.of<EventScreenBloc>(context)
+                            .state
+                            .selectedCategory
+                            .nameOfCategory ==
+                        'Null')
                 ? null
                 : BlocProvider.of<EventScreenBloc>(context)
                     .state

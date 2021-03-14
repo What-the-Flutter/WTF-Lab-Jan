@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../models/event_message.dart';
 import '../models/suggestion.dart';
+import '../models/tag.dart';
 
 const String tableSuggestion = 'suggestion';
 const String columnId = 'id';
@@ -21,6 +22,10 @@ const String columnIsImageMessage = 'is_image_message';
 const String columnImagePath = 'image_path';
 const String columnCategoryImagePath = 'category_image_path';
 const String columnNameOfCategory = 'name_of_category';
+
+const String tableTag = 'tag';
+const String columnIdTag = 'id';
+const String columnTagText = 'tag_text';
 
 class DBHelper {
   static Database _database;
@@ -61,6 +66,11 @@ class DBHelper {
       $columnImagePath text not null,
       $columnCategoryImagePath text,
       $columnNameOfCategory text)
+      ''');
+      db.execute('''
+      create table $tableTag(
+      $columnIdTag integer primary key autoincrement,
+      $columnTagText text)
       ''');
     });
     return database;
@@ -162,5 +172,34 @@ class DBHelper {
       eventMessagesList.insert(0, eventMessage);
     }
     return eventMessagesList;
+  }
+
+  Future<List<Tag>> dbTagList() async {
+    final tagList = <Tag>[];
+
+    final db = await database;
+    final dbTagList = await db.query(tableTag);
+    for (final element in dbTagList) {
+      final tag = Tag.fromMap(element);
+      tagList.add(tag);
+    }
+    return tagList;
+  }
+
+  Future<int> insertTag(Tag tag) async {
+    final db = await database;
+    return db.insert(
+      tableTag,
+      tag.toMap(),
+    );
+  }
+
+  Future<int> deleteTag(Tag tag) async {
+    final db = await database;
+    return await db.delete(
+      tableTag,
+      where: '$columnIdTag = ?',
+      whereArgs: [tag.id],
+    );
   }
 }
