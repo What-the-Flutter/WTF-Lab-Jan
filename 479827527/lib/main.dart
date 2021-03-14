@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'home_page.dart';
+import 'home_page/home_page.dart';
 import 'themes/light_theme.dart';
 import 'themes/theme_switcher.dart';
 

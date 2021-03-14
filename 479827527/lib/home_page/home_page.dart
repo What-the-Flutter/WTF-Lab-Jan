@@ -1,12 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'create_page.dart';
-import 'event_page.dart';
-import 'note_page.dart';
-import 'themes/dark_theme.dart';
-import 'themes/light_theme.dart';
-import 'themes/theme_switcher.dart';
+import '../create_page/create_page.dart';
+import '../event_page/event_page.dart';
+import '../note_page.dart';
+import '../themes/dark_theme.dart';
+import '../themes/light_theme.dart';
+import '../themes/theme_switcher.dart';
+import 'cubit_home_page.dart';
+import 'states_home_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,89 +16,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _State extends State<HomePage> {
-  final darkTheme = darkThemeData;
-  final lightTheme = lightThemeData;
-  bool _isLightTheme = true;
-
-  List<NotePage> noteList = [
-    NotePage(
-      Text(
-        'Travel',
-        style: TextStyle(
-          fontSize: 20,
-        ),
-      ),
-      Text(
-        'No events. Click to create one.',
-        style: TextStyle(
-          fontSize: 15,
-        ),
-      ),
-      CircleAvatar(
-        child: Icon(Icons.airplanemode_active),
-      ),
-    ),
-    NotePage(
-      Text(
-        'Family',
-        style: TextStyle(
-          fontSize: 20,
-        ),
-      ),
-      Text(
-        'No events. Click to create one.',
-        style: TextStyle(
-          fontSize: 15,
-        ),
-      ),
-      CircleAvatar(
-        child: Icon(Icons.family_restroom),
-      ),
-    ),
-    NotePage(
-      Text(
-        'Sports',
-        style: TextStyle(
-          fontSize: 20,
-        ),
-      ),
-      Text(
-        'No events. Click to create one.',
-        style: TextStyle(
-          fontSize: 15,
-        ),
-      ),
-      CircleAvatar(
-        child: Icon(Icons.sports_basketball),
-      ),
-    ),
-    NotePage(
-      Text(
-        'Food',
-        style: TextStyle(
-          fontSize: 20,
-        ),
-      ),
-      Text(
-        'No events. Click to create one.',
-        style: TextStyle(
-          fontSize: 15,
-        ),
-      ),
-      CircleAvatar(
-        child: Icon(Icons.fastfood),
-      ),
-    ),
-  ];
+  CubitHomePage cubit = CubitHomePage(StatesHomePage(true));
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: _bottomNavigationBar,
-      floatingActionButton: _floatingActionButton,
-      drawer: _drawer(context),
-      appBar: _appBar,
-      body: _homePageBody(noteList),
+    return BlocBuilder(
+      cubit: cubit,
+      builder: (context, state) {
+        return Scaffold(
+          bottomNavigationBar: _bottomNavigationBar,
+          floatingActionButton: _floatingActionButton,
+          drawer: _drawer(context),
+          appBar: _appBar,
+          body: _homePageBody(cubit.state.noteList),
+        );
+      },
     );
   }
 
@@ -114,13 +48,12 @@ class _State extends State<HomePage> {
           child: IconButton(
             icon: Icon(Icons.invert_colors),
             onPressed: () {
-              if (_isLightTheme) {
-                ThemeSwitcher.of(context).switchTheme(darkTheme);
-                _isLightTheme = false;
+              if (cubit.state.isLightTheme) {
+                ThemeSwitcher.of(context).switchTheme(darkThemeData);
               } else {
-                ThemeSwitcher.of(context).switchTheme(lightTheme);
-                _isLightTheme = true;
+                ThemeSwitcher.of(context).switchTheme(lightThemeData);
               }
+              cubit.changeTheme();
             },
           ),
         ),
@@ -136,7 +69,7 @@ class _State extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (context) => CreatePage(
-              noteList: noteList,
+              noteList: cubit.state.noteList,
               isEditing: false,
             ),
           ),
@@ -165,11 +98,11 @@ class _State extends State<HomePage> {
   }
 
   Text _listTileSubtitle(var index) {
-    if (noteList[index].eventList.isEmpty) {
+    if (cubit.state.noteList[index].eventList.isEmpty) {
       return Text('No events. Click to create one.');
     } else {
       return Text(
-          '${noteList[index].eventList[0].text}  ${noteList[index].eventList[0].time}');
+          '${cubit.state.noteList[index].eventList[0].text}  ${cubit.state.noteList[index].eventList[0].time}');
     }
   }
 
@@ -190,12 +123,12 @@ class _State extends State<HomePage> {
       MaterialPageRoute(
         builder: (context) => CreatePage(
           isEditing: true,
-          noteList: noteList,
+          noteList: cubit.state.noteList,
           index: index,
         ),
       ),
     );
-    setState(() {});
+    cubit.noteListRedrawing();
     Navigator.pop(context);
   }
 
@@ -221,9 +154,7 @@ class _State extends State<HomePage> {
             'Delete event',
           ),
           onTap: () {
-            setState(() {
-              noteList.removeAt(index);
-            });
+            cubit.removeNote(index);
             Navigator.pop(context);
           },
         ),
@@ -236,12 +167,12 @@ class _State extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => EventPage(
-          title: noteList[index].title,
-          notePage: noteList[index],
+          notePage: cubit.state.noteList[index],
+          noteList: cubit.state.noteList,
         ),
       ),
     );
-    setState(() {});
+    cubit.noteListRedrawing();
   }
 
   BottomNavigationBar get _bottomNavigationBar {
