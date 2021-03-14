@@ -6,7 +6,7 @@ import '../components/main_page_drawer.dart';
 import '../cubits/categories/categories_cubit.dart';
 import '../cubits/records/records_cubit.dart';
 import '../repositories/local_database/local_database_records_repository.dart';
-import '../tabs/all_records_tab.dart';
+import '../tabs/timeline_tab.dart';
 import '../tabs/home_tab.dart';
 import '../thememode_cubit/thememode_cubit.dart';
 import 'category_add_edit_page.dart';
@@ -24,9 +24,16 @@ class _MainPageState extends State<MainPage> {
       create: (context) => RecordsCubit(
         LocalDatabaseRecordsRepository(),
       )..loadRecords(),
-      child: AllRecordsTab(),
+      child: TimelineTab(),
     ),
     Placeholder(),
+  ];
+
+  final _tabNames = [
+    'Home',
+    'Daily',
+    'Timeline',
+    'Explore',
   ];
 
   int currentPageIndex = 0;
@@ -41,7 +48,9 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentPageIndex == 0 ? 'Home' : 'Other page'),
+        title: Text(
+          _tabNames[currentPageIndex],
+        ),
         actions: [
           IconButton(
             icon: Icon(
