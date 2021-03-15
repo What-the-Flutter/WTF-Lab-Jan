@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../logic/screenMessagesCubits/screen_messages_cubit.dart';
-import '../logic/screen_creating_page_cubit.dart';
-import '../logic/search_messages_cubit.dart';
-import '../presentation/screen/create_new_page.dart';
-import '../presentation/screen/homeScreen/home_screen.dart';
-import '../presentation/screen/screen_message.dart';
-import '../presentation/screen/searhing_page.dart';
+import '../pages/creating_new_page/creating_new_page.dart';
+import '../pages/creating_new_page/creating_new_page_cubit.dart';
+import '../pages/home/home_screen.dart';
+import '../pages/messages/screen_messages.dart';
+import '../pages/messages/screen_messages_cubit.dart';
+import '../pages/search/searching_message.dart';
+import '../pages/search/searching_messages_cubit.dart';
 import '../repository/icons_repository.dart';
 import '../repository/messages_repository.dart';
-import '../repository/property_page.dart';
 
 class AppRouter {
   Route onGenerateRoute(RouteSettings settings) {
@@ -19,15 +18,15 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => StartWindow(),
         );
-      case ScreenMessage.routeName:
-        final PropertyPage args = settings.arguments;
+      case ScreenMessages.routeName:
+        final ScreenMessages args = settings.arguments;
         return MaterialPageRoute(
           builder: (context) => BlocProvider.value(
             value: ScreenMessagesCubit(
-              repository: args.messages,
-              title: args.title,
+              repository: args.repositoryMessages,
+              title: args.page.title,
             ),
-            child: ScreenMessage(args),
+            child: ScreenMessages(args.page,args.repositoryMessages),
           ),
         );
       case CreateNewPage.routName:
@@ -35,7 +34,7 @@ class AppRouter {
           builder: (context) {
             final args = settings.arguments;
             return BlocProvider.value(
-              value: ScreenCreatingPageCubit(repository: IconsRepository()),
+              value: CreatingNewPageCubit(repository: listIcon),
               child: CreateNewPage(
                 page: args,
               ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'messages_repository.dart';
 
 class PropertyPage implements Comparable<PropertyPage> {
+  int id;
   final bool isPin;
   final IconData icon;
   final String title;
@@ -10,7 +12,8 @@ class PropertyPage implements Comparable<PropertyPage> {
   final DateTime lastModifiedTime;
 
   PropertyPage(
-      {this.isPin,
+      {this.id,
+      this.isPin = false,
       this.icon,
       this.title,
       this.messages,
@@ -18,6 +21,7 @@ class PropertyPage implements Comparable<PropertyPage> {
       this.lastModifiedTime});
 
   PropertyPage copyWith({
+    int id,
     final bool isPin,
     final IconData icon,
     final String title,
@@ -26,6 +30,7 @@ class PropertyPage implements Comparable<PropertyPage> {
     final DateTime lastModifiedTime,
   }) {
     return PropertyPage(
+      id: id ?? this.id,
       isPin: isPin ?? this.isPin,
       icon: icon ?? this.icon,
       title: title ?? this.title,
@@ -34,6 +39,26 @@ class PropertyPage implements Comparable<PropertyPage> {
       lastModifiedTime: lastModifiedTime ?? this.lastModifiedTime,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'iconCodePoint': icon.codePoint,
+      'creationTime': DateFormat('yyyy-MM-dd hh:mm:ss').format(creationTime),
+      'lastModifiedTime': DateFormat('yyyy-MM-dd hh:mm:ss').format(lastModifiedTime),
+      'isPin': isPin ? 1 : 0,
+    };
+  }
+
+  factory PropertyPage.fromMap(Map<String, dynamic> map) => PropertyPage(
+        id: map['id'],
+        title: map['title'],
+        icon: IconData(map['iconCodePoint'],fontFamily: 'MaterialIcons'),
+        creationTime: DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['creationTime']),
+        lastModifiedTime: DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['lastModifiedTime']),
+        isPin: map['isPin'] == 1 ? true : false,
+      );
 
   @override
   String toString() {

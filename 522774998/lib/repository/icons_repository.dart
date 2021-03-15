@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
-import 'model/label_model.dart';
+class ListItemIcon {
+  bool isSelected;
+  IconData iconData;
 
-class IconsRepository {
-  final List<LabelIcon> listIcon = <LabelIcon>[
-    LabelIcon(icon: Icons.fastfood),
-    LabelIcon(icon: Icons.music_note),
-    LabelIcon(icon: Icons.local_cafe),
-    LabelIcon(icon: Icons.work),
-    LabelIcon(icon: Icons.insert_emoticon),
-    LabelIcon(icon: Icons.place),
-    LabelIcon(icon: Icons.weekend),
-    LabelIcon(icon: Icons.spa),
-    LabelIcon(icon: Icons.local_movies),
-    LabelIcon(icon: Icons.local_shipping),
-    LabelIcon(icon: Icons.book_sharp),
-    LabelIcon(icon: Icons.import_contacts_rounded),
-    LabelIcon(icon: Icons.nature_people),
-  ];
+  ListItemIcon(this.iconData, {this.isSelected = false});
 }
+
+final List<ListItemIcon> listIcon = <ListItemIcon>[
+  ListItemIcon(Icons.fastfood),
+  ListItemIcon(Icons.music_note),
+  ListItemIcon(Icons.local_cafe),
+  ListItemIcon(Icons.work),
+  ListItemIcon(Icons.insert_emoticon),
+  ListItemIcon(Icons.place),
+  ListItemIcon(Icons.weekend),
+  ListItemIcon(Icons.spa),
+  ListItemIcon(Icons.local_movies),
+  ListItemIcon(Icons.local_shipping),
+  ListItemIcon(Icons.book_sharp),
+  ListItemIcon(Icons.import_contacts_rounded),
+  ListItemIcon(Icons.nature_people),
+];
