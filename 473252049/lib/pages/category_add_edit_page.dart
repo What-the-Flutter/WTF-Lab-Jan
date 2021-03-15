@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../cubits/categories/categories_cubit.dart';
 import '../model/category.dart';
+import 'cubits/categories/categories_cubit.dart';
 
 enum CategoryAddEditMode { add, edit }
 

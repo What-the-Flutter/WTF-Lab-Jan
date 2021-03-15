@@ -2,9 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../../model/record.dart';
-import '../../repositories/records_repository.dart';
-import '../../utils/utils.dart' as utils;
+import '../../../model/record.dart';
+import '../../../repositories/records_repository.dart';
+import '../../../utils/utils.dart' as utils;
 
 part 'records_state.dart';
 

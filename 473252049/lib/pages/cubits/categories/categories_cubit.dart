@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../../model/category.dart';
-import '../../repositories/categories_repository.dart';
+import '../../../model/category.dart';
+import '../../../repositories/categories_repository.dart';
 
 part 'categories_state.dart';
 

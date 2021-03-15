@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubits/categories/categories_cubit.dart';
+import '../pages/cubits/categories/categories_cubit.dart';
 import '../widgets/category_widget.dart';
 
 class HomeTab extends StatelessWidget {

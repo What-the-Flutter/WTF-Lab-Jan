@@ -1,4 +1,4 @@
-import 'package:chat_journal/model/category.dart';
-import 'package:chat_journal/repositories/repository.dart';
+import '../model/category.dart';
+import 'repository.dart';
 
 abstract class CategoriesRepository implements Repository<Category> {}

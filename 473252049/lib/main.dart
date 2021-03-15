@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'cubits/categories/categories_cubit.dart';
+import 'pages/cubits/categories/categories_cubit.dart';
 import 'pages/main_page.dart';
 import 'repositories/local_database/local_database_categories_repository.dart';
 import 'thememode_cubit/thememode_cubit.dart';

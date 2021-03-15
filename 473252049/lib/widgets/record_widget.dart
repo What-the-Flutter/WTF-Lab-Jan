@@ -1,11 +1,11 @@
 import 'package:bubble/bubble.dart';
-import 'package:chat_journal/cubits/records/records_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../model/category.dart';
 import '../model/record.dart';
+import '../pages/cubits/records/records_cubit.dart';
 
 class RecordWidget extends StatelessWidget {
   final Category category;
