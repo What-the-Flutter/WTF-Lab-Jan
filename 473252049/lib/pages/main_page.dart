@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/theme_mode_bloc/thememode_bloc.dart';
 import '../components/main_page_bottom_navigation_bar.dart';
 import '../components/main_page_drawer.dart';
+import '../repositories/local_database/local_database_records_repository.dart';
 import '../tabs/home_tab.dart';
+import '../tabs/timeline_tab.dart';
+import '../thememode_cubit/thememode_cubit.dart';
 import 'category_add_edit_page.dart';
-import 'chats_cubit/chats_cubit.dart';
+import 'cubits/categories/categories_cubit.dart';
+import 'cubits/records/records_cubit.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -17,8 +20,20 @@ class _MainPageState extends State<MainPage> {
   final _children = [
     HomeTab(),
     Placeholder(),
+    BlocProvider(
+      create: (context) => RecordsCubit(
+        LocalDatabaseRecordsRepository(),
+      )..loadRecords(),
+      child: TimelineTab(),
+    ),
     Placeholder(),
-    Placeholder(),
+  ];
+
+  final _tabNames = [
+    'Home',
+    'Daily',
+    'Timeline',
+    'Explore',
   ];
 
   int currentPageIndex = 0;
@@ -33,16 +48,18 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentPageIndex == 0 ? 'Home' : 'Other page'),
+        title: Text(
+          _tabNames[currentPageIndex],
+        ),
         actions: [
           IconButton(
             icon: Icon(
-                BlocProvider.of<ThememodeBloc>(context).state.themeMode ==
-                        ThemeMode.light
-                    ? Icons.bedtime_outlined
-                    : Icons.bedtime),
+              context.read<ThememodeCubit>().state.themeMode == ThemeMode.light
+                  ? Icons.bedtime_outlined
+                  : Icons.bedtime,
+            ),
             onPressed: () {
-              BlocProvider.of<ThememodeBloc>(context).add(ThememodeChanged());
+              context.read<ThememodeCubit>().switchThemeMode();
             },
           ),
         ],
@@ -59,7 +76,7 @@ class _MainPageState extends State<MainPage> {
                   MaterialPageRoute(
                     builder: (_) {
                       return BlocProvider.value(
-                        value: BlocProvider.of<ChatsCubit>(context),
+                        value: BlocProvider.of<CategoriesCubit>(context),
                         child: CategoryAddEditPage(
                           mode: CategoryAddEditMode.add,
                         ),

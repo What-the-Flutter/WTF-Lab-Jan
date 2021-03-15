@@ -1,20 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'blocs/theme_mode_bloc/thememode_bloc.dart';
-import 'mocks/mocks.dart';
-import 'pages/chats_cubit/chats_cubit.dart';
+import 'pages/cubits/categories/categories_cubit.dart';
 import 'pages/main_page.dart';
+import 'repositories/local_database/local_database_categories_repository.dart';
+import 'thememode_cubit/thememode_cubit.dart';
 
-void main() {
-  runApp(MyApp());
+class CubitsObserver extends BlocObserver {
+  @override
+  void onChange(Cubit cubit, Change change) {
+    print('$cubit $change');
+    super.onChange(cubit, change);
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Bloc.observer = CubitsObserver();
+  runApp(
+    MyApp(
+      preferences: await SharedPreferences.getInstance(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
+  final SharedPreferences preferences;
+
+  const MyApp({Key key, @required this.preferences}) : super(key: key);
+
+  ThemeMode _themeModeFromString(String string) {
+    switch (string) {
+      case 'dark':
+        return ThemeMode.dark;
+      case 'light':
+        return ThemeMode.light;
+      default:
+        return ThemeMode.light;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ThememodeBloc(ThemeMode.light),
+      create: (context) => ThememodeCubit(
+        _themeModeFromString(
+          preferences.getString('themeMode'),
+        ),
+        preferences: preferences,
+      ),
       child: ThemingApp(),
     );
   }
@@ -23,7 +58,7 @@ class MyApp extends StatelessWidget {
 class ThemingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThememodeBloc, ThememodeState>(
+    return BlocBuilder<ThememodeCubit, ThememodeState>(
       builder: (context, state) {
         return MaterialApp(
           title: '473252049',
@@ -31,7 +66,9 @@ class ThemingApp extends StatelessWidget {
           darkTheme: ThemeData.dark(),
           themeMode: state.themeMode,
           home: BlocProvider(
-            create: (context) => ChatsCubit(mockCategories),
+            create: (context) => CategoriesCubit(
+              LocalDatabaseCategoriesRepository(),
+            )..loadCategories(),
             child: MainPage(),
           ),
         );
