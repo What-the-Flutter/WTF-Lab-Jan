@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'home_page.dart';
-import 'note_page.dart';
+import '../home_page/home_page.dart';
+import '../note_page.dart';
+import 'cubit_create_page.dart';
+import 'states_create_page.dart';
 
 class CreatePage extends StatefulWidget {
   final List<NotePage> noteList;
@@ -17,30 +20,36 @@ class CreatePage extends StatefulWidget {
 }
 
 class _CreatePageState extends State<CreatePage> {
+  List<NotePage> noteList;
   final bool isEditing;
   final int index;
-  final TextEditingController _textController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  IconData _selectedIcon = Icons.airplanemode_active;
-  List<NotePage> noteList;
+  CubitCreatePage cubit;
 
-  _CreatePageState(this.noteList, this.isEditing, this.index);
+  _CreatePageState(this.noteList, this.isEditing, this.index) {
+    cubit = CubitCreatePage(StatesCreatePage(Icons.airplanemode_active));
+  }
 
   @override
   void initState() {
     if (isEditing) {
-      _textController.text = noteList[index].title.data;
-      _focusNode.requestFocus();
+      cubit.state.textController.text = noteList[index].title.data;
+      cubit.state.focusNode.requestFocus();
     }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: isEditing ? _appBar('Edit event') : _appBar('Create new event'),
-      body: _createPageBody,
-      floatingActionButton: _floatingActionButton,
+    return BlocBuilder(
+      cubit: cubit,
+      builder: (context, state) {
+        return Scaffold(
+          appBar:
+              isEditing ? _appBar('Edit event') : _appBar('Create new event'),
+          body: _createPageBody,
+          floatingActionButton: _floatingActionButton,
+        );
+      },
     );
   }
 
@@ -74,13 +83,13 @@ class _CreatePageState extends State<CreatePage> {
 
   void _editEvent() {
     noteList[index].title = Text(
-      _textController.text,
+      cubit.state.textController.text,
       style: TextStyle(
         fontSize: 20,
       ),
     );
     noteList[index].icon = CircleAvatar(
-      child: Icon(_selectedIcon),
+      child: Icon(cubit.state.selectedIcon),
     );
   }
 
@@ -88,7 +97,7 @@ class _CreatePageState extends State<CreatePage> {
     noteList.add(
       NotePage(
         Text(
-          _textController.text,
+          cubit.state.textController.text,
           style: TextStyle(
             fontSize: 20,
           ),
@@ -100,7 +109,7 @@ class _CreatePageState extends State<CreatePage> {
           ),
         ),
         CircleAvatar(
-          child: Icon(_selectedIcon),
+          child: Icon(cubit.state.selectedIcon),
         ),
       ),
     );
@@ -126,12 +135,12 @@ class _CreatePageState extends State<CreatePage> {
           Container(
             padding: EdgeInsets.only(right: 15),
             child: Ink(
-              child: _circleAvatar(_selectedIcon, Colors.green),
+              child: _circleAvatar(cubit.state.selectedIcon, Colors.green),
             ),
           ),
           Expanded(
             child: TextField(
-              controller: _textController,
+              controller: cubit.state.textController,
               decoration: InputDecoration(
                 hintText: 'Enter name of the page...',
                 border: InputBorder.none,
@@ -161,44 +170,34 @@ class _CreatePageState extends State<CreatePage> {
             icon: _circleAvatar(
                 Icons.airplanemode_active, Theme.of(context).accentColor),
             onPressed: () {
-              setState(() {
-                _selectedIcon = Icons.airplanemode_active;
-              });
+              cubit.setSelectedIcon(Icons.airplanemode_active);
             },
           ),
           IconButton(
             icon: _circleAvatar(
                 Icons.school_sharp, Theme.of(context).accentColor),
             onPressed: () {
-              setState(() {
-                _selectedIcon = Icons.school_sharp;
-              });
+              cubit.setSelectedIcon(Icons.school_sharp);
             },
           ),
           IconButton(
             icon: _circleAvatar(Icons.search, Theme.of(context).accentColor),
             onPressed: () {
-              setState(() {
-                _selectedIcon = Icons.search;
-              });
+              cubit.setSelectedIcon(Icons.search);
             },
           ),
           IconButton(
             icon: _circleAvatar(
                 Icons.emoji_food_beverage, Theme.of(context).accentColor),
             onPressed: () {
-              setState(() {
-                _selectedIcon = Icons.emoji_food_beverage;
-              });
+              cubit.setSelectedIcon(Icons.emoji_food_beverage);
             },
           ),
           IconButton(
             icon:
                 _circleAvatar(Icons.car_rental, Theme.of(context).accentColor),
             onPressed: () {
-              setState(() {
-                _selectedIcon = Icons.car_rental;
-              });
+              cubit.setSelectedIcon(Icons.car_rental);
             },
           ),
         ],
