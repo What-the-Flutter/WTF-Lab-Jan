@@ -9,8 +9,7 @@ class ThemeBuilder extends StatefulWidget {
   @override
   _ThemeBuilderState createState() => _ThemeBuilderState();
 
-  static _ThemeBuilderState of(BuildContext context)
-  {
+  static _ThemeBuilderState of(BuildContext context) {
     return context.ancestorStateOfType(const TypeMatcher<_ThemeBuilderState>());
   }
 }
@@ -23,21 +22,18 @@ class _ThemeBuilderState extends State<ThemeBuilder> {
     super.initState();
     _brightness = widget.defaultBrightness;
 
-    if(mounted)
-      setState(() {
-
-      });
+    if (mounted) setState(() {});
   }
 
   void changeTheme() {
     setState(() {
-      _brightness =
-      _brightness == Brightness.dark ? Brightness.light : Brightness.dark;
+      _brightness = _brightness == Brightness.dark
+          ? Brightness.light
+          : Brightness.dark;
     });
   }
 
-  Brightness getCurrentTheme()
-  {
+  Brightness getCurrentTheme() {
     return _brightness;
   }
 
