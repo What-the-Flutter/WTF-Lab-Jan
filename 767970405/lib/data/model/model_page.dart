@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-import '../repository/messages_repository.dart';
 
 class ModelPage extends Equatable implements Comparable<ModelPage> {
   final int id;
@@ -10,13 +8,14 @@ class ModelPage extends Equatable implements Comparable<ModelPage> {
   final DateTime creationTime;
   final DateTime lastModifiedTime;
 
-  ModelPage(
-      {this.isPin,
-      this.iconIndex,
-      this.title,
-      this.id,
-      this.creationTime,
-      this.lastModifiedTime});
+  ModelPage({
+    this.isPin,
+    this.iconIndex,
+    this.title,
+    this.id,
+    this.creationTime,
+    this.lastModifiedTime,
+  });
 
   ModelPage copyWith({
     final bool isPin,

@@ -3,9 +3,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_chat_journal/data/model/model_page.dart';
 
 import '../data/model/model_message.dart';
+import '../data/model/model_page.dart';
 import '../data/repository/messages_repository.dart';
 import 'screen_message.dart';
 
@@ -13,45 +13,51 @@ part 'screen_message_state.dart';
 
 class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   final MessagesRepository repository;
-  final ModelPage page;
 
   final controller = TextEditingController();
 
   ScreenMessageCubit({
     this.repository,
-    this.page,
-    Widget appBar,
-  }) : super(ScreenMessageAwait(
-          appBar: appBar,
-          isBookmark: false,
-          counter: 0,
-        )) {
-    controller.addListener(() {
-      if (controller.text.isEmpty) {
-        emit(state.copyWith(
-          iconData: Icons.photo_camera,
-          onAddMessage:
-              state is ScreenMessageInput ? addPhotoMessage : editMessage,
-        ));
-      } else {
-        emit(state.copyWith(
-          iconData: Icons.add,
-          onAddMessage:
-              state is ScreenMessageInput ? addTextMessage : editMessage,
-        ));
-      }
-    });
-    loadData();
-  }
+  }) : super(
+          ScreenMessageAwait(
+            appBar: InputAppBar(
+              title: 'Title',
+            ),
+            counter: 0,
+            isBookmark: false,
+            list: <ModelMessage>[],
+          ),
+        );
 
-  void loadData() async {
+  void downloadData(
+    ModelPage page,
+    Widget appBar,
+  ) async {
     emit(
       ScreenMessageInput(
-        appBar: state.appBar,
+        page: page,
+        appBar: appBar,
         list: await repository.messages(page.id),
-        isBookmark: false,
         counter: 0,
+        isBookmark: false,
       ),
+    );
+    controller.addListener(
+      () => controller.text.isEmpty
+          ? emit(
+              state.copyWith(
+                iconData: Icons.photo_camera,
+                onAddMessage:
+                    state is ScreenMessageInput ? addPhotoMessage : editMessage,
+              ),
+            )
+          : emit(
+              state.copyWith(
+                iconData: Icons.add,
+                onAddMessage:
+                    state is ScreenMessageInput ? addTextMessage : editMessage,
+              ),
+            ),
     );
   }
 
@@ -62,7 +68,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   void addTextMessage() async {
     repository.addMessage(
       TextMessage(
-        pageId: page.id,
+        pageId: state.page.id,
         data: controller.text,
         isFavor: state.isBookmark,
         isSelected: false,
@@ -71,7 +77,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     controller.text = '';
     emit(
       state.copyWith(
-        list: await repository.messages(page.id),
+        list: await repository.messages(state.page.id),
       ),
     );
   }
@@ -79,6 +85,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   void toSelectionAppBar() {
     emit(
       ScreenMessageSelection(
+        page: state.page,
         appBar: SelectionAppBar(),
         list: state.list,
         counter: state.counter,
@@ -92,10 +99,11 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   void toInputAppBar() async {
     emit(
       ScreenMessageInput(
+          page: state.page,
           appBar: InputAppBar(
-            title: page.title,
+            title: state.page.title,
           ),
-          list: await repository.messages(page.id),
+          list: await repository.messages(state.page.id),
           isBookmark: state.isBookmark,
           counter: 0,
           iconData: state.iconData,
@@ -108,7 +116,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         await ImagePicker().getImage(source: ImageSource.gallery);
     repository.addMessage(
       ImageMessage(
-        pageId: page.id,
+        pageId: state.page.id,
         data: pickedFile.path,
         isFavor: state.isBookmark,
         isSelected: false,
@@ -116,7 +124,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     );
     emit(
       state.copyWith(
-        list: await repository.messages(page.id),
+        list: await repository.messages(state.page.id),
       ),
     );
   }
@@ -135,25 +143,27 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     repository.editMessage(state.list[index].copyWith(isSelected: !isSelected));
     if (isSelected) {
       emit(state.copyWith(
-        list: await repository.messages(page.id),
+        list: await repository.messages(state.page.id),
         counter: state.counter - 1,
       ));
     } else {
       emit(state.copyWith(
-        list: await repository.messages(page.id),
+        list: await repository.messages(state.page.id),
         counter: state.counter + 1,
       ));
     }
   }
 
-  List<ModelMessage> listSelected() {
-    var list = <ModelMessage>[];
+  void listSelected(int pageId) {
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
-        list.add(state.list[i].copyWith(isSelected: false));
+        repository.editMessage(state.list[i].copyWith(
+          pageId: pageId,
+          isSelected: false,
+        ));
       }
     }
-    return list;
+    toInputAppBar();
   }
 
   void toEditAppBar() {
@@ -166,6 +176,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     controller.text = text;
     emit(
       ScreenMessageEdit(
+        page: state.page,
         appBar: EditAppBar(
           title: 'Edit mode',
         ),
@@ -203,29 +214,30 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     Clipboard.setData(ClipboardData(text: clipBoard));
   }
 
-  void makeFavor() {
+  void makeFavor() async {
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
         repository.editMessage(
-            state.list[i].copyWith(isFavor: !state.list[i].isFavor));
-        selection(i);
+          state.list[i].copyWith(
+            isFavor: !state.list[i].isFavor,
+            isSelected: false,
+          ),
+        );
       }
     }
+    toInputAppBar();
   }
 
   void delete() async {
-    var index = 0;
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
-        repository.removeMessage(state.list[index].id);
-        index--;
+        repository.removeMessage(state.list[i].id);
       }
-      index++;
     }
     emit(
       state.copyWith(
         counter: 0,
-        list: await repository.messages(page.id),
+        list: await repository.messages(state.page.id),
       ),
     );
   }
@@ -239,10 +251,11 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     }
     emit(
       ScreenMessageInput(
+        page: state.page,
         appBar: InputAppBar(
-          title: page.title,
+          title: state.page.title,
         ),
-        list: await repository.messages(page.id),
+        list: await repository.messages(state.page.id),
         counter: 0,
         isBookmark: state.isBookmark,
         iconData: state.iconData,

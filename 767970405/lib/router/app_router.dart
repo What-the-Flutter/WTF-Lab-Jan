@@ -16,20 +16,16 @@ class AppRouter {
           builder: (context) => HomeWindow(),
         );
       case ScreenMessage.routeName:
-        final ModelPage args = settings.arguments;
         return MaterialPageRoute(
-          builder: (context) => ScreenMessage(args),
+          builder: (context) => ScreenMessage(),
         );
       case CreateNewPage.routName:
         return MaterialPageRoute(builder: (context) {
-          final args = settings.arguments;
-          return CreateNewPage(
-            page: args,
-          );
+          return CreateNewPage();
         });
       case SearchMessageScreen.routeName:
         return MaterialPageRoute(builder: (context) {
-          return SearchMessageScreen(page: settings.arguments,);
+          return SearchMessageScreen();
         });
       default:
         assert(false, 'Need to implement ${settings.name}');

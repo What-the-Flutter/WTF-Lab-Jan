@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/data/model/label_model.dart';
 import 'package:provider/provider.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
 import '../data/theme/theme.dart';
 import '../data/theme/theme_model.dart';
+import '../main.dart';
 import '../messages_screen/screen_message.dart';
+import '../messages_screen/screen_message_cubit.dart';
 import '../screen_creating_page/create_new_page.dart';
+import '../screen_creating_page/screen_creating_page_cubit.dart';
+import '../search_messages_screen/search_message_screen_cubit.dart';
 import 'home_screen_cubit.dart';
 
 class HomeWindow extends StatelessWidget {
@@ -24,6 +27,7 @@ class HomeWindow extends StatelessWidget {
             icon: Icon(Icons.invert_colors),
             onPressed: () {
               Provider.of<ThemeModel>(context, listen: false).toggleTheme();
+              saveTheme(Provider.of<ThemeModel>(context, listen: false));
             },
           ),
         ],
@@ -131,15 +135,19 @@ class ButtonAddChat extends StatelessWidget {
         color: Colors.black,
       ),
       onPressed: () async {
-        final result = await Navigator.pushNamed(
+        context.read<ScreenCreatingPageCubit>().setting('', 0);
+        await Navigator.pushNamed(
           context,
           CreateNewPage.routName,
-          arguments: ModelPage(
-            title: '',
-            iconIndex: 0,
-          ),
         );
-        if (result != null) context.read<HomeScreenCubit>().addPage(result);
+        final state = context.read<ScreenCreatingPageCubit>().state;
+        context.read<HomeScreenCubit>().addPage(
+              ModelPage(
+                iconIndex: state.selectionIconIndex,
+                title: context.read<ScreenCreatingPageCubit>().controller.text,
+              ),
+            );
+        context.read<ScreenCreatingPageCubit>().resetIcon();
       },
     );
   }
@@ -148,43 +156,27 @@ class ButtonAddChat extends StatelessWidget {
 class EventPage extends StatelessWidget {
   final int _index;
 
-  final List<LabelModel> listIcon = <LabelModel>[
-    LabelModel(icon: Icons.title),
-    LabelModel(icon: Icons.account_balance_wallet),
-    LabelModel(icon: Icons.fitness_center),
-    LabelModel(icon: Icons.account_balance),
-    LabelModel(icon: Icons.fastfood),
-    LabelModel(icon: Icons.wine_bar),
-    LabelModel(icon: Icons.monetization_on),
-    LabelModel(icon: Icons.home),
-    LabelModel(icon: Icons.attach_money),
-    LabelModel(icon: Icons.shopping_cart),
-    LabelModel(icon: Icons.radio),
-    LabelModel(icon: Icons.videogame_asset_sharp),
-    LabelModel(icon: Icons.local_laundry_service),
-    LabelModel(icon: Icons.flag),
-    LabelModel(icon: Icons.music_note),
-    LabelModel(icon: Icons.event_seat),
-    LabelModel(icon: Icons.free_breakfast),
-    LabelModel(icon: Icons.pets),
-    LabelModel(icon: Icons.pool),
-    LabelModel(icon: Icons.book_sharp),
-    LabelModel(icon: Icons.import_contacts_rounded),
-    LabelModel(icon: Icons.nature_people),
-  ];
-
   EventPage(this._index);
 
   @override
   Widget build(BuildContext context) {
     final state = context.read<HomeScreenCubit>().state;
     return InkWell(
-      onTap: () {
-        Navigator.pushNamed(
+      onTap: () async {
+        context.read<ScreenMessageCubit>().downloadData(
+              state.list[_index],
+              InputAppBar(
+                title: state.list[_index].title,
+              ),
+            );
+        context
+            .read<SearchMessageScreenCubit>()
+            .setting(page: state.list[_index]);
+        await Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
-          arguments: state.list[_index],
         );
+        context.read<HomeScreenCubit>().gettingOutFreeze();
       },
       onLongPress: () => _showMenuAction(context),
       child: Stack(
@@ -199,7 +191,9 @@ class EventPage extends StatelessWidget {
               width: 75,
               height: 75,
               child: Icon(
-                listIcon[state.list[_index].iconIndex].icon,
+                context
+                    .read<ScreenCreatingPageCubit>()
+                    .getIcon(state.list[_index].iconIndex),
                 color: Colors.white,
               ),
               decoration: BoxDecoration(
@@ -220,86 +214,94 @@ class EventPage extends StatelessWidget {
   }
 
   void _showMenuAction(BuildContext context) {
-    final cubit = context.read<HomeScreenCubit>();
+    final homeCubit = context.read<HomeScreenCubit>();
+    final screenCreatingCubit = context.read<ScreenCreatingPageCubit>();
     showModalBottomSheet<void>(
       context: context,
-      builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            ListTile(
-              leading: Icon(
-                Icons.info,
-                color: Colors.teal,
-              ),
-              title: Text(
-                'info',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-              ),
-              onTap: () => _showDialogInfo(cubit, context),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          ListTile(
+            leading: Icon(
+              Icons.info,
+              color: Colors.teal,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.attach_file,
-                color: Colors.teal,
-              ),
-              title: Text(
-                'Pin/Unpin Page',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                cubit.pinPage(_index);
-              },
+            title: Text(
+              'info',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
-            ListTile(
-              leading: Icon(
-                Icons.archive,
-                color: Colors.orange,
-              ),
-              title: Text(
-                'Archive Page',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-              ),
-              onTap: () {},
+            onTap: () => _showDialogInfo(homeCubit, context),
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.attach_file,
+              color: Colors.teal,
             ),
-            ListTile(
-                leading: Icon(
-                  Icons.edit,
-                  color: Colors.blue,
+            title: Text(
+              'Pin/Unpin Page',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              homeCubit.pinPage(_index);
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.archive,
+              color: Colors.orange,
+            ),
+            title: Text(
+              'Archive Page',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+            ),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.edit,
+              color: Colors.blue,
+            ),
+            title: Text(
+              'Edit page',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+            ),
+            onTap: () async {
+              Navigator.pop(context);
+              screenCreatingCubit.setting(
+                homeCubit.state.list[_index].title,
+                homeCubit.state.list[_index].iconIndex,
+              );
+              await Navigator.pushNamed(
+                context,
+                CreateNewPage.routName,
+              );
+              homeCubit.editPage(
+                homeCubit.state.list[_index].copyWith(
+                  iconIndex: screenCreatingCubit.state.selectionIconIndex,
+                  title: screenCreatingCubit.controller.text,
                 ),
-                title: Text(
-                  'Edit page',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final result = await Navigator.pushNamed(
-                    context,
-                    CreateNewPage.routName,
-                    arguments:
-                        context.read<HomeScreenCubit>().state.list[_index],
-                  );
-                  if (result != null) cubit.editPage(result);
-                }),
-            ListTile(
-              leading: Icon(
-                Icons.delete,
-                color: Colors.red,
-              ),
-              title: Text(
-                'Delete Page',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                context.read<HomeScreenCubit>().removePage(_index);
-              },
+              );
+              screenCreatingCubit.resetIcon();
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.delete,
+              color: Colors.red,
             ),
-          ],
-        );
-      },
+            title: Text(
+              'Delete Page',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              context.read<HomeScreenCubit>().removePage(_index);
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -307,50 +309,50 @@ class EventPage extends StatelessWidget {
     Navigator.pop(context);
     showDialog<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                title: Text(cubit.state.list[_index].title),
-                leading: Container(
-                  width: 75,
-                  height: 75,
-                  child: Icon(
-                    listIcon[cubit.state.list[_index].iconIndex].icon,
-                    color: Colors.white,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    shape: BoxShape.circle,
-                  ),
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              title: Text(cubit.state.list[_index].title),
+              leading: Container(
+                width: 75,
+                height: 75,
+                child: Icon(
+                  context
+                      .read<ScreenCreatingPageCubit>()
+                      .getIcon(cubit.state.list[_index].iconIndex),
+                  color: Colors.white,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  shape: BoxShape.circle,
                 ),
               ),
-              ListTile(
-                title: Text('Created'),
-                subtitle: Text(
-                  cubit.state.list[_index].creationTime.toString(),
-                ),
+            ),
+            ListTile(
+              title: Text('Created'),
+              subtitle: Text(
+                cubit.state.list[_index].creationTime.toString(),
               ),
-              ListTile(
-                title: Text('Latest Event'),
-                subtitle: Text(
-                  cubit.state.list[_index].lastModifiedTime.toString(),
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Center(
-                child: Text('OK'),
+            ),
+            ListTile(
+              title: Text('Latest Event'),
+              subtitle: Text(
+                cubit.state.list[_index].lastModifiedTime.toString(),
               ),
             ),
           ],
-        );
-      },
+        ),
+        actions: <Widget>[
+          OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            child: Center(
+              child: Text('OK'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

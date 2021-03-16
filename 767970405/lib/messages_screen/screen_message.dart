@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/data/model/model_message.dart';
-import 'package:my_chat_journal/data/repository/messages_repository.dart';
-import 'package:my_chat_journal/home_screen/home_screen_cubit.dart';
 import 'package:provider/provider.dart';
 
-import '../data/model/model_page.dart';
 import '../data/theme/theme.dart';
 import '../data/theme/theme_model.dart';
+import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
 import 'screen_message_cubit.dart';
 
 class ScreenMessage extends StatefulWidget {
   static const routeName = '/ScreenMsg';
-  final ModelPage page;
-
-  ScreenMessage(this.page);
 
   @override
   _ScreenMessageState createState() => _ScreenMessageState();
@@ -24,53 +18,44 @@ class ScreenMessage extends StatefulWidget {
 class _ScreenMessageState extends State<ScreenMessage> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ScreenMessageCubit(
-        repository: MessagesRepository(
-            api: context.read<HomeScreenCubit>().repository.pagesAPI),
-        page: widget.page,
-        appBar: InputAppBar(title: widget.page.title),
+    return Scaffold(
+      appBar: PreferredSize(
+        child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+          builder: (context, state) => state.appBar,
+        ),
+        preferredSize: Size.fromHeight(56),
       ),
-      child: Builder(
-        builder: (context) => Scaffold(
-          appBar: PreferredSize(
-            child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-              builder: (context, state) => state.appBar,
-            ),
-            preferredSize: Size.fromHeight(56),
-          ),
-          body: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-              builder: (context, state) {
-            if (state is! ScreenMessageAwait) {
-              return Column(
-                children: <Widget>[
-                  Expanded(
-                    child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-                      builder: (context, state) => ListView.builder(
-                        reverse: true,
-                        itemCount: state.list.length,
-                        itemBuilder: (context, i) {
-                          if (state.isBookmark &&
-                              !state.list[state.list.length - i - 1].isFavor) {
-                            return Container();
-                          }
-                          return Message(
-                            index: state.list.length - i - 1,
-                          );
-                        },
-                      ),
+      body: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+        builder: (context, state) {
+          if (state is! ScreenMessageAwait) {
+            return Column(
+              children: <Widget>[
+                Expanded(
+                  child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+                    builder: (context, state) => ListView.builder(
+                      reverse: true,
+                      itemCount: state.list.length,
+                      itemBuilder: (context, i) {
+                        if (state.isBookmark &&
+                            !state.list[state.list.length - i - 1].isFavor) {
+                          return Container();
+                        }
+                        return Message(
+                          index: state.list.length - i - 1,
+                        );
+                      },
                     ),
                   ),
-                  PanelInput(),
-                ],
-              );
-            } else {
-              return Center(
-                child: Text('Await'),
-              );
-            }
-          }),
-        ),
+                ),
+                PanelInput(),
+              ],
+            );
+          } else {
+            return Center(
+              child: Text('Await'),
+            );
+          }
+        },
       ),
     );
   }
@@ -141,13 +126,12 @@ class InputAppBar extends StatelessWidget {
             ),
             child: IconButton(
               icon: Icon(Icons.search),
-              // onPressed: () => Navigator.pushNamed(
-              //   context,
-              //   SearchMessageScreen.routeName,
-              //   arguments: context.read<ScreenMessageCubit>().page
-              //   ),
+              onPressed: () => Navigator.pushNamed(
+                context,
+                SearchMessageScreen.routeName,
               ),
             ),
+          ),
           Padding(
             padding: EdgeInsets.only(
               left: 10,
@@ -174,10 +158,6 @@ class InputAppBar extends StatelessWidget {
 }
 
 class SelectionAppBar extends StatelessWidget {
-  final String title;
-
-  const SelectionAppBar({Key key, this.title}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<ScreenMessageCubit, ScreenMessageState>(
@@ -242,10 +222,13 @@ class SelectionAppBar extends StatelessWidget {
     );
   }
 
-  void createDialog(BuildContext context) {
+  void createDialog(BuildContext context) async {
     var index = 0;
-    var list =
-        <ModelPage>[]; //context.read<HomeScreenCubit>().repository.eventPages;
+    var list = await context.read<HomeScreenCubit>().repository.pages();
+    list = list
+        .where((element) =>
+            element.id != context.read<ScreenMessageCubit>().state.page.id)
+        .toList();
     showDialog(
       context: context,
       builder: (alertContext) => AlertDialog(
@@ -283,10 +266,9 @@ class SelectionAppBar extends StatelessWidget {
                 padding: EdgeInsets.only(left: 5),
                 child: OutlinedButton(
                   onPressed: () {
-                    var list =
-                        context.read<ScreenMessageCubit>().listSelected();
-                    //context.read<HomeScreenCubit>().addMessage(index, list);
-                    context.read<ScreenMessageCubit>().delete();
+                    context
+                        .read<ScreenMessageCubit>()
+                        .listSelected(list[index].id);
                     Navigator.pop(context);
                   },
                   child: Center(
@@ -384,7 +366,7 @@ class Message extends StatelessWidget {
                     Icons.bookmark,
                     color: Colors.orangeAccent,
                     size: 8,
-                  )
+                  ),
               ],
             ),
           ),

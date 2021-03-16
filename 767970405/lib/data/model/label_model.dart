@@ -5,7 +5,10 @@ class LabelModel implements Equatable {
   final IconData icon;
   final bool isVisible;
 
-  LabelModel({this.icon, this.isVisible = false});
+  LabelModel({
+    this.icon,
+    this.isVisible = false,
+  });
 
   @override
   String toString() {

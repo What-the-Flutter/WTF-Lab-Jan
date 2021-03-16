@@ -2,135 +2,103 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import '../data/model/model_page.dart';
-import '../data/repository/icons_repository.dart';
 import '../data/theme/theme_model.dart';
 import 'screen_creating_page_cubit.dart';
 
 class CreateNewPage extends StatelessWidget {
   static const routName = 'createPage';
-  final ModelPage page;
 
-  CreateNewPage({this.page});
+  CreateNewPage();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ScreenCreatingPageCubit>(
-      create: (context) => ScreenCreatingPageCubit(
-        repository: IconsRepository(),
-        title: page.title,
-        selectionIconIndex: 0,
-        iconButton: Icons.close,
-      ),
-      child: Builder(
-        builder: (context) => Scaffold(
-          body: Column(
-            children: [
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(
-                  top: 60,
-                  bottom: 10,
-                ),
-                child: Text(
-                  'Create a new Page',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(
-                  top: 10,
-                  bottom: 20,
-                  left: 20,
-                  right: 20,
-                ),
-                child: TextField(
-                  autofocus: true,
-                  controller:
-                      context.read<ScreenCreatingPageCubit>().controller,
-                  decoration: InputDecoration(
-                    labelText: 'Add new Page',
-                    labelStyle: TextStyle(
-                      color: Colors.orange,
-                    ),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40,
-                  ),
-                  child: BlocBuilder<ScreenCreatingPageCubit,
-                      ScreenCreatingPageState>(
-                    builder: (context, state) => GridView.count(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 30.0,
-                      mainAxisSpacing: 30.0,
-                      children: <Widget>[
-                        for (var i = 0;
-                            i <
-                                context
-                                    .read<ScreenCreatingPageCubit>()
-                                    .state
-                                    .list
-                                    .length;
-                            i++)
-                          Category(index: i),
-                      ],
-                    ),
-                    buildWhen: (prevState, curState) =>
-                        curState.selectionIconIndex !=
-                                prevState.selectionIconIndex
-                            ? true
-                            : false,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          floatingActionButton: FloatingActionButton(
-            elevation: 10.0,
-            child: BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
-              builder: (context, state) => Icon(
-                state.iconButton,
-                color: Colors.black,
-              ),
-              buildWhen: (prev, cur) {
-                if (prev.iconButton != cur.iconButton) {
-                  return true;
-                } else {
-                  return false;
-                }
-              },
+    return Scaffold(
+      body: Column(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(
+              top: 60,
+              bottom: 10,
             ),
-            onPressed: () {
-              final state = context.read<ScreenCreatingPageCubit>().state;
-              if (state.iconButton == Icons.close) {
-                Navigator.pop(context);
-              } else {
-                Navigator.pop(
-                  context,
-                  page.copyWith(
-                    iconIndex: state.selectionIconIndex,
-                    title:
-                    context
-                        .read<ScreenCreatingPageCubit>()
-                        .controller
-                        .text,
-                  ),
-                );
-              }
-            },
+            child: Text(
+              'Create a new Page',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-        ),
+          Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(
+              top: 10,
+              bottom: 20,
+              left: 20,
+              right: 20,
+            ),
+            child: TextField(
+              autofocus: true,
+              controller: context.read<ScreenCreatingPageCubit>().controller,
+              decoration: InputDecoration(
+                labelText: 'Add new Page',
+                labelStyle: TextStyle(
+                  color: Colors.orange,
+                ),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 40,
+              ),
+              child: _listIcons(),
+            ),
+          ),
+        ],
       ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 10.0,
+        child: BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
+          builder: (context, state) => Icon(
+            state.iconButton,
+            color: Colors.black,
+          ),
+          buildWhen: (prev, cur) {
+            if (prev.iconButton != cur.iconButton) {
+              return true;
+            } else {
+              return false;
+            }
+          },
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  Widget _listIcons() {
+    return BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
+      builder: (context, state) => GridView.count(
+        crossAxisCount: 4,
+        crossAxisSpacing: 30.0,
+        mainAxisSpacing: 30.0,
+        children: <Widget>[
+          for (var i = 0;
+              i < context.read<ScreenCreatingPageCubit>().state.list.length;
+              i++)
+            Category(index: i),
+        ],
+      ),
+      buildWhen: (prevState, curState) =>
+          curState.selectionIconIndex != prevState.selectionIconIndex
+              ? true
+              : false,
     );
   }
 }

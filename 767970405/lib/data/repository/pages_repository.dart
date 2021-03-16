@@ -2,10 +2,11 @@ import '../data_provider.dart';
 import '../model/model_page.dart';
 
 class PagesRepository {
-
   final PagesAPI pagesAPI;
 
-  PagesRepository({this.pagesAPI});
+  PagesRepository({
+    this.pagesAPI,
+  });
 
   Future<List<ModelPage>> pages() async {
     return await pagesAPI.pages();
@@ -16,7 +17,7 @@ class PagesRepository {
   }
 
   void editPage(ModelPage page) async {
-   pagesAPI.updatePage(page);
+    pagesAPI.updatePage(page);
   }
 
   void removePage(int index) async {

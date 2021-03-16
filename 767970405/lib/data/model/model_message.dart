@@ -30,7 +30,8 @@ abstract class ModelMessage extends Equatable {
 
   @override
   String toString() {
-    return 'ModelMessage{isFavor: $isFavor, isSelected: $isSelected, data: $data}\n';
+    return '\nModelMessage{isFavor: $isFavor,'
+        ' isSelected: $isSelected, data: $data}\n';
   }
 
   Map<String, dynamic> toMap() {

@@ -1,6 +1,7 @@
 part of 'screen_message_cubit.dart';
 
 abstract class ScreenMessageState extends Equatable {
+  final ModelPage page;
   final Widget appBar;
   final List<ModelMessage> list;
   final int counter;
@@ -10,6 +11,7 @@ abstract class ScreenMessageState extends Equatable {
   final Function onAddMessage;
 
   const ScreenMessageState({
+    this.page,
     this.counter,
     this.appBar,
     this.list,
@@ -28,6 +30,7 @@ abstract class ScreenMessageState extends Equatable {
   }
 
   ScreenMessageState copyWith({
+    final ModelPage page,
     final Widget appBar,
     final List<ModelMessage> list,
     final int counter,
@@ -51,35 +54,7 @@ abstract class ScreenMessageState extends Equatable {
 
 class ScreenMessageAwait extends ScreenMessageState {
   ScreenMessageAwait({
-    Widget appBar,
-    int counter,
-    bool isBookmark,
-    IconData iconData,
-    Function onAddMessage,
-  }) : super(
-          appBar: appBar,
-          counter: counter,
-          isBookmark: isBookmark,
-          enabledController: false,
-          iconData: iconData,
-          onAddMessage: onAddMessage,
-        );
-
-  @override
-  ScreenMessageState copyWith(
-      {Widget appBar,
-      List<ModelMessage> list,
-      int counter,
-      bool isBookmark,
-      bool enabledController,
-      IconData iconData,
-      Function onAddMessage}) {
-    throw UnimplementedError();
-  }
-}
-
-class ScreenMessageInput extends ScreenMessageState {
-  ScreenMessageInput({
+    ModelPage page,
     Widget appBar,
     int counter,
     List<ModelMessage> list,
@@ -87,6 +62,7 @@ class ScreenMessageInput extends ScreenMessageState {
     IconData iconData,
     Function onAddMessage,
   }) : super(
+          page: page,
           appBar: appBar,
           list: list,
           counter: counter,
@@ -98,6 +74,42 @@ class ScreenMessageInput extends ScreenMessageState {
 
   @override
   ScreenMessageState copyWith({
+    ModelPage page,
+    Widget appBar,
+    List<ModelMessage> list,
+    int counter,
+    bool isBookmark,
+    bool enabledController,
+    IconData iconData,
+    Function onAddMessage,
+  }) {
+    throw UnimplementedError();
+  }
+}
+
+class ScreenMessageInput extends ScreenMessageState {
+  ScreenMessageInput({
+    ModelPage page,
+    Widget appBar,
+    int counter,
+    List<ModelMessage> list,
+    bool isBookmark,
+    IconData iconData,
+    Function onAddMessage,
+  }) : super(
+          page: page,
+          appBar: appBar,
+          list: list,
+          counter: counter,
+          isBookmark: isBookmark,
+          enabledController: true,
+          iconData: iconData,
+          onAddMessage: onAddMessage,
+        );
+
+  @override
+  ScreenMessageState copyWith({
+    final ModelPage page,
     final Widget appBar,
     final List<ModelMessage> list,
     final int counter,
@@ -107,6 +119,7 @@ class ScreenMessageInput extends ScreenMessageState {
     final Function onAddMessage,
   }) {
     return ScreenMessageInput(
+      page: page ?? this.page,
       appBar: appBar ?? this.appBar,
       list: list ?? this.list,
       counter: counter ?? this.counter,
@@ -119,6 +132,7 @@ class ScreenMessageInput extends ScreenMessageState {
 
 class ScreenMessageSelection extends ScreenMessageState {
   ScreenMessageSelection({
+    ModelPage page,
     Widget appBar,
     List<ModelMessage> list,
     int counter,
@@ -126,6 +140,7 @@ class ScreenMessageSelection extends ScreenMessageState {
     IconData iconData,
     Function onAddMessage,
   }) : super(
+          page: page,
           appBar: appBar,
           list: list,
           counter: counter,
@@ -137,6 +152,7 @@ class ScreenMessageSelection extends ScreenMessageState {
 
   @override
   ScreenMessageState copyWith({
+    final ModelPage page,
     final Widget appBar,
     final List<ModelMessage> list,
     final int counter,
@@ -146,6 +162,7 @@ class ScreenMessageSelection extends ScreenMessageState {
     final Function onAddMessage,
   }) {
     return ScreenMessageSelection(
+      page: page ?? this.page,
       appBar: appBar ?? this.appBar,
       list: list ?? this.list,
       counter: counter ?? this.counter,
@@ -158,6 +175,7 @@ class ScreenMessageSelection extends ScreenMessageState {
 
 class ScreenMessageEdit extends ScreenMessageState {
   ScreenMessageEdit({
+    ModelPage page,
     Widget appBar,
     List<ModelMessage> list,
     int counter,
@@ -165,6 +183,7 @@ class ScreenMessageEdit extends ScreenMessageState {
     IconData iconData,
     Function onEditMessage,
   }) : super(
+          page: page,
           appBar: appBar,
           list: list,
           counter: counter,
@@ -176,6 +195,7 @@ class ScreenMessageEdit extends ScreenMessageState {
 
   @override
   ScreenMessageState copyWith({
+    final ModelPage page,
     final Widget appBar,
     final int counter,
     final List<ModelMessage> list,
@@ -185,6 +205,7 @@ class ScreenMessageEdit extends ScreenMessageState {
     final Function onAddMessage,
   }) {
     return ScreenMessageEdit(
+      page: page ?? this.page,
       appBar: appBar ?? this.appBar,
       list: list ?? this.list,
       counter: counter ?? this.counter,

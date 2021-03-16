@@ -19,20 +19,22 @@ abstract class HomeScreenState extends Equatable {
 }
 
 class HomeScreenAwait extends HomeScreenState {
-  HomeScreenAwait(
+  HomeScreenAwait({
     int currentIndex,
-  ) : super(
+  }) : super(
           currentIndex: currentIndex,
         );
 
   @override
   List<Object> get props => [list, currentIndex];
+
   @override
-  HomeScreenState copyWith({List<ModelPage> list, int currentIndex}) {
+  HomeScreenState copyWith({
+    List<ModelPage> list,
+    int currentIndex,
+  }) {
     throw UnimplementedError();
   }
-
-
 }
 
 class HomeScreenShow extends HomeScreenState {
@@ -44,6 +46,7 @@ class HomeScreenShow extends HomeScreenState {
           currentIndex: currentIndex,
         );
 
+  @override
   HomeScreenState copyWith({
     final List<ModelPage> list,
     final int currentIndex,

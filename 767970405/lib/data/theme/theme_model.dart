@@ -5,18 +5,25 @@ enum ThemeType { light, dark }
 
 class ThemeModel extends ChangeNotifier {
   ThemeData currentTheme = lightTheme;
-  ThemeType _themeType = ThemeType.light;
+  ThemeType themeType = ThemeType.light;
+
+  ThemeModel({int index}) {
+    if (index != null) {
+      themeType = ThemeType.values[index];
+      currentTheme = index == 0 ? lightTheme : darkTheme;
+    }
+  }
 
   void toggleTheme() {
-    if (_themeType == ThemeType.dark) {
+    if (themeType == ThemeType.dark) {
       currentTheme = lightTheme;
-      _themeType = ThemeType.light;
+      themeType = ThemeType.light;
       return notifyListeners();
     }
 
-    if (_themeType == ThemeType.light) {
+    if (themeType == ThemeType.light) {
       currentTheme = darkTheme;
-      _themeType = ThemeType.dark;
+      themeType = ThemeType.dark;
       return notifyListeners();
     }
   }

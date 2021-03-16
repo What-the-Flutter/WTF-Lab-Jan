@@ -12,7 +12,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   HomeScreenCubit({
     this.repository,
   }) : super(
-          HomeScreenAwait(0),
+          HomeScreenAwait(currentIndex: 0),
         ) {
     loadData();
   }
@@ -24,7 +24,6 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         currentIndex: state.currentIndex,
       ),
     );
-    print('');
   }
 
   void removePage(int index) async {
@@ -34,7 +33,6 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         list: await repository.pages(),
       ),
     );
-    print('');
   }
 
   void addPage(ModelPage page) async {
@@ -46,11 +44,11 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       ),
     );
     emit(
-      state.copyWith(
-        list: await repository.pages(),
+      HomeScreenShow(
+        pages: await repository.pages(),
+        currentIndex: state.currentIndex,
       ),
     );
-    print('');
   }
 
   void pinPage(int index) async {
@@ -71,8 +69,18 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   void editPage(ModelPage page) async {
     repository.editPage(page);
     emit(
-      state.copyWith(
-        list: await repository.pages(),
+      HomeScreenShow(
+        pages: await repository.pages(),
+        currentIndex: state.currentIndex,
+      ),
+    );
+  }
+
+  void gettingOutFreeze() {
+    emit(
+      HomeScreenShow(
+        pages: state.list,
+        currentIndex: state.currentIndex,
       ),
     );
   }
@@ -80,10 +88,6 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   ModelPage getPage(int index) {
     return state.list[index];
   }
-
-  // void addMessage(int index, List<ModelMessage> list) {
-  //   repository.eventPages[index].messages.messages.addAll(list);
-  // }
 
   void changeScreen(int index) {
     emit(state.copyWith(currentIndex: index));

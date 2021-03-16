@@ -1,13 +1,15 @@
-import 'package:my_chat_journal/data/model/model_message.dart';
-
-import 'model/model_page.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+
+import 'model/model_message.dart';
+import 'model/model_page.dart';
 
 class PagesAPI {
   final Database database;
 
-  PagesAPI({this.database});
+  PagesAPI({
+    this.database,
+  });
 
   static Future<Database> init() async {
     final database = await openDatabase(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../data/model/label_model.dart';
 import '../data/repository/icons_repository.dart';
 
-
 part 'screen_creating_page_state.dart';
 
 class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
@@ -13,21 +12,27 @@ class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
 
   ScreenCreatingPageCubit({
     this.repository,
-    String title,
-    int selectionIconIndex,
-    IconData iconButton,
   }) : super(
-          ScreenCreatingPageState(
-            list: repository.listIcon,
-            title: title,
-            selectionIconIndex: selectionIconIndex,
-            iconButton: iconButton,
+          ScreenCreatingPageInitial(
+            list: List.from(repository.listIcon),
           ),
-        ) {
+        );
+
+  void setting(String title, int selectionIconIndex) {
     controller.addListener(changeButton);
-    repository.listIcon[state.selectionIconIndex] =
+    repository.listIcon[selectionIconIndex] =
         repository.listIcon[selectionIconIndex].copyWith(isVisible: true);
     controller.text = title;
+    emit(
+      ScreenCreatingPageWork(
+        list: List.from(repository.listIcon),
+        selectionIconIndex: selectionIconIndex,
+      ),
+    );
+  }
+
+  IconData getIcon(int index) {
+    return repository.listIcon[index].icon;
   }
 
   void changeButton() {
@@ -38,6 +43,13 @@ class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
     }
   }
 
+  void resetIcon() {
+    repository.listIcon[state.selectionIconIndex] = repository
+        .listIcon[state.selectionIconIndex]
+        .copyWith(isVisible: false);
+    emit(state.copyWith(list: List.from(repository.listIcon)));
+  }
+
   void selectionIcon(int index) {
     repository.listIcon[state.selectionIconIndex] = repository
         .listIcon[state.selectionIconIndex]
@@ -45,7 +57,7 @@ class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
     repository.listIcon[index] =
         repository.listIcon[index].copyWith(isVisible: true);
     emit(state.copyWith(
-      list: repository.listIcon,
+      list: List.from(repository.listIcon),
       selectionIconIndex: index,
     ));
   }
