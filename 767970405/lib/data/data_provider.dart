@@ -136,4 +136,14 @@ class PagesAPI {
       whereArgs: [id],
     );
   }
+
+  Future<void> deleteMessages(int pageId) async {
+    final db = await database;
+
+    await db.delete(
+      'msg',
+      where: 'pageId = ?',
+      whereArgs: [pageId],
+    );
+  }
 }

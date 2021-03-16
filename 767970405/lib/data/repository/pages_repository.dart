@@ -23,4 +23,8 @@ class PagesRepository {
   void removePage(int index) async {
     pagesAPI.deletePage(index);
   }
+
+  void removeMessages(int pageId) async {
+    pagesAPI.deleteMessages(pageId);
+  }
 }

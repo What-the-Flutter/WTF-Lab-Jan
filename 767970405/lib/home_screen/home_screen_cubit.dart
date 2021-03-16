@@ -27,10 +27,13 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   }
 
   void removePage(int index) async {
+    repository.removeMessages(state.list[index].id);
     repository.removePage(state.list[index].id);
+    var list = await repository.pages();
+    list.sort();
     emit(
       state.copyWith(
-        list: await repository.pages(),
+        list: list,
       ),
     );
   }
@@ -43,9 +46,11 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         lastModifiedTime: DateTime.now(),
       ),
     );
+    var list = await repository.pages();
+    list.sort();
     emit(
       HomeScreenShow(
-        pages: await repository.pages(),
+        pages: list,
         currentIndex: state.currentIndex,
       ),
     );
@@ -57,20 +62,22 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         isPin: !state.list[index].isPin,
       ),
     );
+    var list = await repository.pages();
+    list.sort();
     emit(
       state.copyWith(
-        list: await repository.pages(),
+        list: list,
       ),
     );
-    state.list.sort();
-    emit(state.copyWith(list: List<ModelPage>.from(state.list)));
   }
 
   void editPage(ModelPage page) async {
     repository.editPage(page);
+    var list = await repository.pages();
+    list.sort();
     emit(
       HomeScreenShow(
-        pages: await repository.pages(),
+        pages: list,
         currentIndex: state.currentIndex,
       ),
     );
@@ -83,10 +90,6 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         currentIndex: state.currentIndex,
       ),
     );
-  }
-
-  ModelPage getPage(int index) {
-    return state.list[index];
   }
 
   void changeScreen(int index) {

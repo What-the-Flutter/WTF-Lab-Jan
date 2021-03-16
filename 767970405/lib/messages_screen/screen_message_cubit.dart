@@ -242,6 +242,14 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     );
   }
 
+  void remove(int id) {
+    for (var i = 0; i < state.list.length; i++) {
+      if (state.list[i].isSelected) {
+        repository.removeMessage(state.list[i].id);
+      }
+    }
+  }
+
   void backToInputAppBar() async {
     controller.text = '';
     for (var i = 0; i < state.list.length; i++) {

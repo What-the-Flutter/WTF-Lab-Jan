@@ -141,12 +141,15 @@ class ButtonAddChat extends StatelessWidget {
           CreateNewPage.routName,
         );
         final state = context.read<ScreenCreatingPageCubit>().state;
-        context.read<HomeScreenCubit>().addPage(
-              ModelPage(
-                iconIndex: state.selectionIconIndex,
-                title: context.read<ScreenCreatingPageCubit>().controller.text,
-              ),
-            );
+        if (state.iconButton != Icons.close) {
+          context.read<HomeScreenCubit>().addPage(
+                ModelPage(
+                  iconIndex: state.selectionIconIndex,
+                  title:
+                      context.read<ScreenCreatingPageCubit>().controller.text,
+                ),
+              );
+        }
         context.read<ScreenCreatingPageCubit>().resetIcon();
       },
     );
@@ -277,12 +280,14 @@ class EventPage extends StatelessWidget {
                 context,
                 CreateNewPage.routName,
               );
-              homeCubit.editPage(
-                homeCubit.state.list[_index].copyWith(
-                  iconIndex: screenCreatingCubit.state.selectionIconIndex,
-                  title: screenCreatingCubit.controller.text,
-                ),
-              );
+              if (screenCreatingCubit.state.iconButton != Icons.close) {
+                homeCubit.editPage(
+                  homeCubit.state.list[_index].copyWith(
+                    iconIndex: screenCreatingCubit.state.selectionIconIndex,
+                    title: screenCreatingCubit.controller.text,
+                  ),
+                );
+              }
               screenCreatingCubit.resetIcon();
             },
           ),
