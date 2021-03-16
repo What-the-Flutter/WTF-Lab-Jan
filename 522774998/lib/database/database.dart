@@ -36,9 +36,11 @@ class DBHelper {
   }
 
   Future<Database> initializeDatabase() async {
-    var database = openDatabase(join(await getDatabasesPath(), 'temp11.db'),
-        version: 1, onCreate: (db, version) {
-      db.execute('''
+    var database = openDatabase(
+      join(await getDatabasesPath(), 'temp11.db'),
+      version: 1,
+      onCreate: (db, version) {
+        db.execute('''
       create table $tablePage(
       $columnIdPage integer primary key autoincrement,
       $columnTitleOfPage text not null,
@@ -47,10 +49,10 @@ class DBHelper {
       $columnIconCodePoint integer,
       $columnIsPin integer)
       ''');
-      db.insert(tablePage, dialogPages[0].toMap());
-      db.insert(tablePage, dialogPages[1].toMap());
-      db.insert(tablePage, dialogPages[2].toMap());
-      db.execute('''
+        db.insert(tablePage, dialogPages[0].toMap());
+        db.insert(tablePage, dialogPages[1].toMap());
+        db.insert(tablePage, dialogPages[2].toMap());
+        db.execute('''
       create table $tableMessage(
       $columnIdMessage integer primary key autoincrement,
       $columnTime text not null,
@@ -58,30 +60,40 @@ class DBHelper {
       $columnIconCodePointMessage integer,
       $columnIdMessagePage integer)
       ''');
-    });
+      },
+    );
     return database;
   }
 
-  void insertPage(PropertyPage page) async {
+  Future<int> insertPage(PropertyPage page) async {
     var db = await database;
-    db.insert(tablePage, page.toMap());
+    return db.insert(
+      tablePage,
+      page.toMap(),
+    );
   }
 
   Future<int> deletePage(PropertyPage suggestion) async {
     var db = await database;
-    return await db.delete(tablePage,
-        where: '$columnIdPage = ?', whereArgs: [suggestion.id]);
+    return await db.delete(
+      tablePage,
+      where: '$columnIdPage = ?',
+      whereArgs: [suggestion.id],
+    );
   }
 
   Future<int> updatePage(PropertyPage suggestion) async {
     var db = await database;
-    return await db.update(tablePage, suggestion.toMap(),
-        where: '$columnIdPage = ?', whereArgs: [suggestion.id]);
+    return await db.update(
+      tablePage,
+      suggestion.toMap(),
+      where: '$columnIdPage = ?',
+      whereArgs: [suggestion.id],
+    );
   }
 
   Future<List<PropertyPage>> dbPagesList() async {
     var _pagesList = <PropertyPage>[];
-
     var db = await database;
     var dbPageList = await db.query(tablePage);
     for (var element in dbPageList) {
@@ -93,24 +105,33 @@ class DBHelper {
 
   void insertMessage(PropertyMessage message) async {
     var db = await database;
-    db.insert(tableMessage, message.toMap());
+    db.insert(
+      tableMessage,
+      message.toMap(),
+    );
   }
 
   Future<int> deleteMessage(PropertyMessage message) async {
     var db = await database;
-    return await db.delete(tableMessage,
-        where: '$columnIdMessage = ?', whereArgs: [message.id]);
+    return await db.delete(
+      tableMessage,
+      where: '$columnIdMessage = ?',
+      whereArgs: [message.id],
+    );
   }
 
   Future<int> updateMessage(PropertyMessage message) async {
     var db = await database;
-    return await db.update(tableMessage, message.toMap(),
-        where: '$columnIdMessage = ?', whereArgs: [message.id]);
+    return await db.update(
+      tableMessage,
+      message.toMap(),
+      where: '$columnIdMessage = ?',
+      whereArgs: [message.id],
+    );
   }
 
   Future<List<PropertyMessage>> dbMessagesList(int index) async {
     var _messagesList = <PropertyMessage>[];
-
     var db = await database;
     var dbMessagesList = await db.query(tableMessage,
         where: '$columnIdMessagePage = ?', whereArgs: [index]);

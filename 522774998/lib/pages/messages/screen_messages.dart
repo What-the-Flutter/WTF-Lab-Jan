@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:try_bloc_app/enums/enums.dart';
-import 'package:try_bloc_app/repository/property_message.dart';
-import 'package:try_bloc_app/repository/property_page.dart';
 
 import '../../database/database.dart';
+import '../../enums/enums.dart';
 import '../../repository/category_repository.dart';
 import '../../repository/messages_repository.dart';
+import '../../repository/property_message.dart';
+import '../../repository/property_page.dart';
 import '../../theme/theme.dart';
 import '../../theme/theme_model.dart';
 import '../home/home_screen_cubit.dart';
@@ -19,6 +19,8 @@ import 'widgets/app_bar/counter_selected_messages/counter_cubit.dart';
 import 'widgets/input/input_cubit.dart';
 import 'widgets/list_message/list_message_cubit.dart';
 import 'widgets/message/message_cubit.dart';
+
+Operation currentOperation = Operation.input;
 
 class ScreenMessages extends StatefulWidget {
   static const routeName = '/ScreenMsg';
@@ -224,16 +226,17 @@ class _ScreenMessagesState extends State<ScreenMessages> {
                 controller: context.read<InputCubit>().controller,
                 decoration: InputDecoration(
                   hintText: 'Enter event',
-                  suffixIcon: stateInput.mode == Operation.edit
+                  suffixIcon: currentOperation == Operation.edit
                       ? IconButton(
                           icon: Icon(Icons.done),
                           onPressed: () {
                             var text =
                                 context.read<InputCubit>().controller.text;
-                            context.read<InputCubit>().controller.text = '';
                             context
                                 .read<ListMessageCubit>()
                                 .updateMessage(text);
+                            currentOperation = Operation.input;
+                            context.read<InputCubit>().controller.text = '';
                           },
                         )
                       : IconButton(
@@ -245,22 +248,6 @@ class _ScreenMessagesState extends State<ScreenMessages> {
                             if (categoryIcon == Icons.bubble_chart) {
                               context.read<ListMessageCubit>().addMessage(
                                   widget.page.id - 1, text, DateTime.now());
-                              /*widget.repositoryMessages.addMessage(
-                                PropertyMessage(
-                                  message: text,
-                                  time: DateTime.now(),
-                                  isSelected: false,
-                                  idMessagePage: widget.page.id - 1,
-                                ),
-                              );
-                              _dbHelper.insertMessage(
-                                PropertyMessage(
-                                  message: text,
-                                  time: DateTime.now(),
-                                  isSelected: false,
-                                  idMessagePage: widget.page.id - 1,
-                                ),
-                              );*/
                               print(widget.page.id - 1);
                             } else {
                               for (var i = 0;
@@ -275,26 +262,6 @@ class _ScreenMessagesState extends State<ScreenMessages> {
                                           DateTime.now(),
                                           listIconCategory[i].title,
                                           categoryIcon);
-                                  /*widget.repositoryMessages.addMessage(
-                                    PropertyMessage(
-                                      message:
-                                          '${listIconCategory[i].title}\n\n$text',
-                                      time: DateTime.now(),
-                                      isSelected: false,
-                                      icon: categoryIcon,
-                                      idMessagePage: widget.page.id - 1,
-                                    ),
-                                  );
-                                  _dbHelper.insertMessage(
-                                    PropertyMessage(
-                                      message:
-                                          '${listIconCategory[i].title}\n\n$text',
-                                      time: DateTime.now(),
-                                      isSelected: false,
-                                      icon: categoryIcon,
-                                      idMessagePage: widget.page.id - 1,
-                                    ),
-                                  );*/
                                   print(widget.page.id - 1);
                                 }
                               }
@@ -347,30 +314,23 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     title: state.counter.toString(),
                     onClose: context.read<ScreenMessagesCubit>().unSelectionMsg,
                     onCopy: context.read<ScreenMessagesCubit>().copy,
-                    onDelete: () {
-                      context
-                          .read<ListMessageCubit>()
-                          .removeMessage(widget.repositoryMessages.messages);
-                    },
+                    onDelete: context.read<ListMessageCubit>().removeMessage,
                   );
             } else if (state.counter == 1) {
               context.read<AppBarCubit>().changeToEdition(
                     title: state.counter.toString(),
-                    onClose: context.read<ScreenMessagesCubit>().unSelectionMsg,
+                    onClose: () {
+                      currentOperation = Operation.input;
+                      context.read<InputCubit>().controller.text = '';
+                      context.read<ScreenMessagesCubit>().unSelectionMsg();
+                    },
                     onCopy: context.read<ScreenMessagesCubit>().copy,
-                    onDelete: () {
+                    onDelete: context.read<ListMessageCubit>().removeMessage,
+                    onEdit: () {
                       context
                           .read<ListMessageCubit>()
-                          .removeMessage(widget.repositoryMessages.messages);
-                    },
-                    onEdit: () {
-                      context.read<ListMessageCubit>().edit(
-                          context.read<InputCubit>().controller,
-                          widget.repositoryMessages.messages);
-                      context.read<InputState>().mode = Operation.edit;
-                      /*context
-                          .read<ScreenMessagesCubit>()
-                          .update(context.read<InputCubit>().controller);*/
+                          .edit(context.read<InputCubit>().controller);
+                      currentOperation = Operation.edit;
                     },
                     onShare: () {
                       showDialog<void>(
@@ -437,11 +397,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                           context
                                               .read<HomePageCubit>()
                                               .repository
-                                              .dialogPages, widget.repositoryMessages.messages);
-                                  // context
-                                  //     .read<ListMessageCubit>()
-                                  //     .removeMessage(
-                                  //         widget.repositoryMessages.messages);
+                                              .dialogPages,
+                                          widget.repositoryMessages.messages);
                                   context
                                       .read<ScreenMessagesCubit>()
                                       .unSelectionMsg();
@@ -505,7 +462,6 @@ class Message extends StatelessWidget {
     return BlocProvider<MessageCubit>(
       create: (context) {
         final cubit = MessageCubit(
-          //id: message.id,
           message: message.message,
           time: message.time,
           icon: message.icon,
@@ -530,13 +486,6 @@ class Message extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          if (Provider.of<ThemeModel>(context).currentTheme == darkTheme) {
-            if (state.isSelected) {
-            } else {}
-          } else {
-            if (state.isSelected) {
-            } else {}
-          }
           return Container(
             padding: EdgeInsets.all(10.0),
             child: Align(

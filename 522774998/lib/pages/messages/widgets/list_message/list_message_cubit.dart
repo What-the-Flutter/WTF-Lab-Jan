@@ -11,20 +11,28 @@ part 'list_message_state.dart';
 
 class ListMessageCubit extends Cubit<ListMessageState> {
   final MessagesRepository repository;
-  final List<MessageCubit> list;
+  List<MessageCubit> list;
   final DBHelper _dbHelper = DBHelper();
 
   ListMessageCubit({this.repository, this.list}) : super(ListMessageState());
 
   void addMessage(int id, String text, DateTime time) {
-    repository.addMessage(PropertyMessage(
-        idMessagePage: id, message: text, time: time, isSelected: false));
-    _dbHelper.insertMessage(PropertyMessage(
-      message: text,
-      time: time,
-      isSelected: false,
-      idMessagePage: id,
-    ));
+    repository.addMessage(
+      PropertyMessage(
+        idMessagePage: id,
+        message: text,
+        time: time,
+        isSelected: false,
+      ),
+    );
+    _dbHelper.insertMessage(
+      PropertyMessage(
+        message: text,
+        time: time,
+        isSelected: false,
+        idMessagePage: id,
+      ),
+    );
     emit(ListMessageState());
   }
 
@@ -45,12 +53,15 @@ class ListMessageCubit extends Cubit<ListMessageState> {
   void addCategoryMessage(
       int id, String text, DateTime time, String category, IconData icon) {
     var message = '$category\n\n$text';
-    repository.addMessage(PropertyMessage(
+    repository.addMessage(
+      PropertyMessage(
         idMessagePage: id,
         message: message,
         time: time,
         isSelected: false,
-        icon: icon));
+        icon: icon,
+      ),
+    );
     _dbHelper.insertMessage(
       PropertyMessage(
         message: message,
@@ -65,21 +76,10 @@ class ListMessageCubit extends Cubit<ListMessageState> {
 
   void updateMessage(String text) {
     var index = 0;
-    for (var i = 0; i < repository.messages.length; i++) {
-      if (list[i].state.isSelected) {
-        index = i;
-      }
-    }
-    repository.messages[index].message = text;
-    emit(ListMessageState());
-  }
-
-  void removeMessage(List<PropertyMessage> listMess) {
-    var index = 0;
-    for (var i = listMess.length - 1; i >= 0; i--) {
+    for (var i = repository.messages.length - 1; i >= 0; i--) {
       if (list[index].state.isSelected) {
-        _dbHelper.deleteMessage(listMess[i]);
-        listMess.removeAt(i);
+        repository.messages[i].message = text;
+        _dbHelper.updateMessage(repository.messages[i]);
       }
       index++;
     }
@@ -91,37 +91,50 @@ class ListMessageCubit extends Cubit<ListMessageState> {
     }
   }
 
-
-  void edit(TextEditingController controller, List<PropertyMessage> listMess) {
+  void removeMessage() {
     var index = 0;
-    for (var i = listMess.length - 1; i >= 0; i--) {
+    var listMessage = <PropertyMessage>[];
+    for (var i = repository.messages.length - 1; i >= 0; i--) {
+      if (list[index].state.isSelected) {
+        _dbHelper.deleteMessage(repository.messages[i]);
+      } else {
+        listMessage.add(repository.messages[i]);
+      }
+      index++;
+    }
+    repository.messages = listMessage;
+    emit(ListMessageState());
+    for (var cubit in list) {
+      if (cubit.state.isSelected) {
+        cubit.selected();
+      }
+    }
+  }
+
+  void edit(TextEditingController controller) {
+    var index = 0;
+    for (var i = repository.messages.length - 1; i >= 0; i--) {
       if (list[index].state.isSelected) {
         controller.text = repository.messages[i].message;
         controller.selection = TextSelection.fromPosition(
             TextPosition(offset: controller.text.length));
-        index = i;
       }
       index++;
     }
     emit(ListMessageState());
-    for (var cubit in list) {
-      if (cubit.state.isSelected) {
-        cubit.selected();
-      }
-    }
   }
 
-  void moveMessageAnotherDialog (
-      String dialogName, List<PropertyPage> repositoryPages, List<PropertyMessage> listMess) {
+  void moveMessageAnotherDialog(String dialogName,
+      List<PropertyPage> repositoryPages, List<PropertyMessage> listMess) {
     var index = 0;
     for (var i = listMess.length - 1; i >= 0; i--) {
       if (list[index].state.isSelected) {
         for (var j = 0; j < repositoryPages.length; j++) {
           if (repositoryPages[j].title == dialogName) {
             if (list[index].state.icon != null) {
-               _dbHelper.deleteMessage(listMess[i]);
-               _dbHelper.insertMessage(listMess[i].copyWith(idMessagePage: j));
-               listMess.removeAt(i);
+              _dbHelper.deleteMessage(listMess[i]);
+              _dbHelper.insertMessage(listMess[i].copyWith(idMessagePage: j));
+              listMess.removeAt(i);
             } else {
               _dbHelper.deleteMessage(listMess[i]);
               _dbHelper.insertMessage(listMess[i].copyWith(idMessagePage: j));

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class PropertyMessage {
-  final bool isSelected;
-  final IconData icon;
+  bool isSelected;
+  IconData icon;
   String message;
   DateTime time;
   int id;
@@ -48,7 +48,10 @@ class PropertyMessage {
         id: map['id'],
         message: map['message'],
         time: DateFormat('hh:mm').parse(map['time']),
-        icon: map['iconCodePointMessage'] == null ? null : IconData(map['iconCodePointMessage'], fontFamily: 'MaterialIcons'),
+        icon: map['iconCodePointMessage'] == null
+            ? null
+            : IconData(map['iconCodePointMessage'],
+                fontFamily: 'MaterialIcons'),
         idMessagePage: map['idMessagePage'],
       );
 }

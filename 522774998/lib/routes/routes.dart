@@ -26,7 +26,7 @@ class AppRouter {
               repository: args.repositoryMessages,
               title: args.page.title,
             ),
-            child: ScreenMessages(args.page,args.repositoryMessages),
+            child: ScreenMessages(args.page, args.repositoryMessages),
           ),
         );
       case CreateNewPage.routName:

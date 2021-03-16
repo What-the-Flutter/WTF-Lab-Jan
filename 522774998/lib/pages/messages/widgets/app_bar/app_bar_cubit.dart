@@ -22,13 +22,16 @@ class AppBarCubit extends Cubit<AppBarState> {
       Function onDelete,
       Function onEdit,
       Function onShare}) {
-    emit(AppBarEdit(
+    emit(
+      AppBarEdit(
         title: title,
         onCopy: onCopy,
         onDelete: onDelete,
         onEdit: onEdit,
         onClose: onClose,
-        onShare: onShare));
+        onShare: onShare,
+      ),
+    );
   }
 
   void changeToSelection(
@@ -37,11 +40,14 @@ class AppBarCubit extends Cubit<AppBarState> {
       Function onCopy,
       Function onDelete,
       Function onEdit}) {
-    emit(AppBarSelected(
+    emit(
+      AppBarSelected(
         title: title,
         onCopy: onCopy,
         onDelete: onDelete,
         onClose: onClose,
-        onEdit: onEdit));
+        onEdit: onEdit,
+      ),
+    );
   }
 }

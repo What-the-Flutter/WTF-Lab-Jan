@@ -36,7 +36,8 @@ class StartWindow extends StatelessWidget {
         ],
       ),
       body: BlocBuilder<HomePageCubit, HomeScreenInitial>(
-        builder: (context, state) => DialogsPages(dialogs: context.read<HomePageCubit>().repository.dialogPages),
+        builder: (context, state) => DialogsPages(
+            dialogs: context.read<HomePageCubit>().repository.dialogPages),
       ),
       floatingActionButton: ButtonAddChat(),
       bottomNavigationBar: BottomPanelTabs(),

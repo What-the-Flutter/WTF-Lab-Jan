@@ -46,7 +46,8 @@ class PropertyPage implements Comparable<PropertyPage> {
       'title': title,
       'iconCodePoint': icon.codePoint,
       'creationTime': DateFormat('yyyy-MM-dd hh:mm:ss').format(creationTime),
-      'lastModifiedTime': DateFormat('yyyy-MM-dd hh:mm:ss').format(lastModifiedTime),
+      'lastModifiedTime':
+          DateFormat('yyyy-MM-dd hh:mm:ss').format(lastModifiedTime),
       'isPin': isPin ? 1 : 0,
     };
   }
@@ -54,9 +55,11 @@ class PropertyPage implements Comparable<PropertyPage> {
   factory PropertyPage.fromMap(Map<String, dynamic> map) => PropertyPage(
         id: map['id'],
         title: map['title'],
-        icon: IconData(map['iconCodePoint'],fontFamily: 'MaterialIcons'),
-        creationTime: DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['creationTime']),
-        lastModifiedTime: DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['lastModifiedTime']),
+        icon: IconData(map['iconCodePoint'], fontFamily: 'MaterialIcons'),
+        creationTime:
+            DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['creationTime']),
+        lastModifiedTime:
+            DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['lastModifiedTime']),
         isPin: map['isPin'] == 1 ? true : false,
       );
 

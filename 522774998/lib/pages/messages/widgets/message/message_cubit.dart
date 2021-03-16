@@ -9,11 +9,12 @@ class MessageCubit extends Cubit<MessageState> {
       {int id, String message, bool isSelected, IconData icon, DateTime time})
       : super(
           MessageState(
-              id: id,
-              isSelected: false,
-              message: message,
-              time: DateTime.now(),
-              icon: icon),
+            id: id,
+            isSelected: false,
+            message: message,
+            time: DateTime.now(),
+            icon: icon,
+          ),
         );
 
   void selected() =>

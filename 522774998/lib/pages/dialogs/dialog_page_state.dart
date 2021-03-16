@@ -7,16 +7,16 @@ class DialogPageState extends Equatable {
   final String title;
   final DateTime time;
 
-  DialogPageState({this.id,this.icon, this.title, this.isPin, this.time});
+  DialogPageState({this.id, this.icon, this.title, this.isPin, this.time});
 
   DialogPageState copyWith(
       {final int id,
-        final bool isPin,
+      final bool isPin,
       final IconData icon,
       final String title,
       final DateTime time}) {
     return DialogPageState(
-      id: id??this.id,
+      id: id ?? this.id,
       isPin: isPin ?? this.isPin,
       icon: icon ?? this.icon,
       title: title ?? this.title,
@@ -30,5 +30,5 @@ class DialogPageState extends Equatable {
   }
 
   @override
-  List<Object> get props => [id,isPin, icon, title];
+  List<Object> get props => [id, isPin, icon, title];
 }

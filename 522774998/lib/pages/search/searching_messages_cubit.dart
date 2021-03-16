@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:try_bloc_app/repository/messages_repository.dart';
+import '../../repository/messages_repository.dart';
 
 import '../messages/widgets/message/message_cubit.dart';
 

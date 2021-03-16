@@ -5,7 +5,6 @@ import 'messages_repository.dart';
 import 'property_page.dart';
 
 class PagesRepository {
-
   final DBHelper _dbHelper = DBHelper();
   List<PropertyPage> dialogPages;
 
@@ -13,6 +12,7 @@ class PagesRepository {
     var dbPageList = await _dbHelper.dbPagesList();
     dialogPages = dbPageList;
   }
+
   void addPage(PropertyPage page) {
     dialogPages.add(page);
   }

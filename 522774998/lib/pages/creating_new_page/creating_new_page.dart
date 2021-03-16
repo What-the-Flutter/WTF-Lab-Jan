@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import '../../repository/property_page.dart';
 
 import '../../database/database.dart';
 import '../../repository/icons_repository.dart';
+import '../../repository/property_page.dart';
 import 'creating_new_page_cubit.dart';
 
 class CreateNewPage extends StatefulWidget {

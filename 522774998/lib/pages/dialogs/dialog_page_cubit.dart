@@ -16,7 +16,6 @@ class DialogPageCubit extends Cubit<DialogPageState> {
             icon: repository.dialogPages[index].icon,
             isPin: repository.dialogPages[index].isPin,
             time: repository.dialogPages[index].creationTime,
-            //id: repository.dialogPages[index].id,
           ),
         );
 
@@ -27,7 +26,6 @@ class DialogPageCubit extends Cubit<DialogPageState> {
         icon: repository.dialogPages[index].icon,
         isPin: repository.dialogPages[index].isPin,
         time: repository.dialogPages[index].creationTime,
-        //id: repository.dialogPages[index].id,
       ),
     );
   }

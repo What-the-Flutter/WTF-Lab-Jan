@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:try_bloc_app/repository/property_page.dart';
 
 import '../../../database/database.dart';
+import '../../../repository/property_page.dart';
 import '../../creating_new_page/creating_new_page.dart';
 import '../home_screen_cubit.dart';
 
 class ButtonAddChat extends StatelessWidget {
   final DBHelper _dbHelper = DBHelper();
+
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
@@ -25,8 +26,10 @@ class ButtonAddChat extends StatelessWidget {
             icon: Icons.title,
           ),
         );
-        await _dbHelper.insertPage(result);
-        context.read<HomePageCubit>().addPage(result);
+        var id = await _dbHelper.insertPage(result);
+        PropertyPage page = result;
+        page.id = id;
+        context.read<HomePageCubit>().addPage(page);
       },
     );
   }

@@ -51,32 +51,4 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
     Clipboard.setData(ClipboardData(text: clipBoard));
     unSelectionMsg();
   }
-
-  void edit(TextEditingController controller, List<PropertyMessage> listMess) {
-    /*for (var i = 0; i < repository.messages.length; i++) {
-      if (list[i].state.isSelected) {
-        index = i;
-      }
-    }*/
-    var index = 0;
-    for (var i = listMess.length - 1; i >= 0; i--) {
-      if (list[index].state.isSelected) {
-        controller.text = repository.messages[index].message;
-        controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: controller.text.length));
-      }
-      index++;
-    }
-    repository.messages[index].message = controller.text;
-  }
-
-  void update(TextEditingController controller) {
-    var index = 0;
-    for (var i = 0; i < repository.messages.length; i++) {
-      if (list[i].state.isSelected) {
-        index = i;
-      }
-    }
-    repository.messages[index].message = controller.text;
-  }
 }

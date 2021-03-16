@@ -12,7 +12,6 @@ Future changeThemePreferences(bool isOnPressed) async =>
     await _themePreferences.setBool(_keyTheme, isOnPressed);
 
 ThemeData getCurrentThemePreferences() {
-  var isCurrentThemeDark =
-      _themePreferences.getBool(_keyTheme) ?? false;
+  var isCurrentThemeDark = _themePreferences.getBool(_keyTheme) ?? false;
   return isCurrentThemeDark == true ? darkTheme : lightTheme;
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:try_bloc_app/repository/property_page.dart';
+import '../../repository/property_page.dart';
 
 import '../../theme/theme_model.dart';
 import '../home/home_screen_cubit.dart';
@@ -10,7 +10,6 @@ import 'dialog_page_cubit.dart';
 
 class DialogsPages extends StatelessWidget {
   final List<PropertyPage> dialogs;
-
 
   DialogsPages({Key key, this.dialogs}) : super(key: key);
 

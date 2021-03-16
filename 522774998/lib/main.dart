@@ -9,17 +9,17 @@ import 'routes/routes.dart';
 import 'theme/theme_model.dart';
 import 'theme/theme_preferences.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initThemePreferences();
   await DBHelper().initializeDatabase();
-  var rep = PagesRepository();
-  await rep.setAllPages();
+  var pagesRepository = PagesRepository();
+  await pagesRepository.setAllPages();
   Bloc.observer = MyBlocObserver();
   runApp(
     ChangeNotifierProvider<ThemeModel>(
       create: (context) => ThemeModel(),
-      child: MyApp( rep),
+      child: MyApp(pagesRepository),
     ),
   );
 }
@@ -27,6 +27,7 @@ void main() async{
 class MyApp extends StatelessWidget {
   final AppRouter _appRouter = AppRouter();
   final PagesRepository pagesRepository;
+
   MyApp(this.pagesRepository);
 
   @override
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (homeScreenContext) {
             return HomePageCubit(repository: pagesRepository);
-          }
+          },
         ),
       ],
       child: MaterialApp(

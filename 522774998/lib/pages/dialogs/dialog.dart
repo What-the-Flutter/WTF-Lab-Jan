@@ -20,20 +20,17 @@ class DialogPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async{
+      onTap: () async {
         print(_index);
-        var mes = MessagesRepository();
-        await mes.setAllMessages(_index);
+        var messagesRepository = MessagesRepository();
+        await messagesRepository.setAllMessages(_index);
         Navigator.pushNamed(
           context,
           ScreenMessages.routeName,
           arguments: ScreenMessages(
-            context
-                .read<HomePageCubit>()
-                .repository
-                .dialogPages[_index],
-            mes,
-          )
+            context.read<HomePageCubit>().repository.dialogPages[_index],
+            messagesRepository,
+          ),
         );
       },
       onLongPress: () => _showMenuAction(context),
@@ -162,9 +159,9 @@ class DialogPage extends StatelessWidget {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                    _dbHelper.deletePage(BlocProvider.of<HomePageCubit>(context)
-                        .repository
-                        .dialogPages[_index]);
+                  _dbHelper.deletePage(BlocProvider.of<HomePageCubit>(context)
+                      .repository
+                      .dialogPages[_index]);
                   context.read<HomePageCubit>().removePage(_index);
                   context.read<HomePageCubit>().updateList();
                   //_updateSuggestionList();

@@ -11,7 +11,7 @@ class ThemeModel extends ChangeNotifier {
     currentTheme = getCurrentThemePreferences();
     isDark = currentTheme == lightTheme ? true : false;
     changeThemePreferences(isDark);
-    currentTheme = isDark? darkTheme : lightTheme;
+    currentTheme = isDark ? darkTheme : lightTheme;
     return notifyListeners();
   }
 }

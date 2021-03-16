@@ -1,7 +1,7 @@
 part of '../input/input_cubit.dart';
 
 class InputState implements Equatable {
-  Operation mode;
+  final Operation mode;
   final Action action;
 
   InputState({this.action, this.mode});
