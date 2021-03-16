@@ -12,6 +12,7 @@ import '../../common_widgets/custom_dialog.dart';
 import '../../db_helper/db_helper.dart';
 import '../../models/category.dart';
 import '../../models/event_message.dart';
+import '../../models/font_size_customization.dart';
 import '../../models/suggestion.dart';
 import '../../theme/theme_bloc.dart';
 import '../setting_screen/settings_screen_bloc.dart';
@@ -63,6 +64,9 @@ class _EventScreenState extends State<EventScreen> {
   void initState() {
     BlocProvider.of<EventScreenBloc>(context).add(
       EventMessageListInit(_listViewSuggestion),
+    );
+    BlocProvider.of<EventScreenBloc>(context).add(
+      UpdateTagList(),
     );
     _dbHelper.initializeDatabase();
     super.initState();
@@ -117,6 +121,17 @@ class _EventScreenState extends State<EventScreen> {
                           ThemeMode.dark
                       ? Theme.of(context).accentColor
                       : Theme.of(context).primaryColor,
+                  fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                              .state
+                              .fontSize ==
+                          0
+                      ? appBarSmallFontSize
+                      : BlocProvider.of<SettingScreenBloc>(context)
+                                  .state
+                                  .fontSize ==
+                              1
+                          ? appBarDefaultFontSize
+                          : appBarLargeFontSize,
                 ),
               ),
               alignment: Alignment.centerLeft,
@@ -142,12 +157,60 @@ class _EventScreenState extends State<EventScreen> {
                 },
               ),
         BlocProvider.of<SettingScreenBloc>(context).state.isDateTimeModification
-            ? IconButton(
-                icon: Icon(Icons.date_range),
-                onPressed: () {
-                  _pickDate(context);
-                },
-              )
+            ? BlocProvider.of<EventScreenBloc>(context)
+                    .state
+                    .isSearchIconButtonPressed
+                ? Container()
+                : Row(
+                    children: [
+                      Text(
+                        BlocProvider.of<EventScreenBloc>(context)
+                                    .state
+                                    .selectedDate ==
+                                null
+                            ? DateFormat.MEd().format(DateTime.now())
+                            : DateFormat.MEd().format(
+                                DateTime(
+                                  BlocProvider.of<EventScreenBloc>(context)
+                                      .state
+                                      .selectedDate
+                                      .year,
+                                  BlocProvider.of<EventScreenBloc>(context)
+                                      .state
+                                      .selectedDate
+                                      .month,
+                                  BlocProvider.of<EventScreenBloc>(context)
+                                      .state
+                                      .selectedDate
+                                      .day,
+                                ),
+                              ),
+                        style: TextStyle(
+                          color: BlocProvider.of<ThemeBloc>(context).state ==
+                                  ThemeMode.dark
+                              ? Theme.of(context).accentColor
+                              : Theme.of(context).primaryColor,
+                          fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                                      .state
+                                      .fontSize ==
+                                  0
+                              ? listTileHeaderSmallFontSize
+                              : BlocProvider.of<SettingScreenBloc>(context)
+                                          .state
+                                          .fontSize ==
+                                      1
+                                  ? listTileHeaderDefaultFontSize
+                                  : listTileHeaderLargeFontSize,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.date_range),
+                        onPressed: () {
+                          _pickDate(context);
+                        },
+                      ),
+                    ],
+                  )
             : Container(),
         IconButton(
           icon: Icon(
@@ -223,6 +286,7 @@ class _EventScreenState extends State<EventScreen> {
       onTap: () => FocusScope.of(context).nextFocus(),
       child: Column(
         children: [
+          _tagSelectionTopBar,
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -237,13 +301,46 @@ class _EventScreenState extends State<EventScreen> {
               ),
             ),
           ),
-          BlocProvider.of<EventScreenBloc>(context).state.isCategorySelected
-              ? _categorySelectionBottomBar
-              : Container(),
+          _categorySelectionBottomBar,
           _eventMessageComposer,
         ],
       ),
     );
+  }
+
+  Container get _tagSelectionTopBar {
+    return (BlocProvider.of<EventScreenBloc>(context)
+                .state
+                .tagList
+                .isNotEmpty &&
+            BlocProvider.of<EventScreenBloc>(context)
+                .state
+                .isSearchIconButtonPressed)
+        ? Container(
+            height: 65,
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 7.0,
+                direction: Axis.horizontal,
+                children: BlocProvider.of<EventScreenBloc>(context)
+                    .state
+                    .tagList
+                    .map(
+                      (tag) => InputChip(
+                        label: Text(tag.tagText),
+                        labelPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                        backgroundColor: Theme.of(context).cardTheme.color,
+                        onPressed: () => _filterEventMessageList(tag.tagText),
+                        onDeleted: () =>
+                            BlocProvider.of<EventScreenBloc>(context)
+                                .add(TagDeleted(tag)),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          )
+        : Container();
   }
 
   Container get _categorySelectionBottomBar {
@@ -721,19 +818,29 @@ class _EventScreenState extends State<EventScreen> {
           isFavorite: 0,
           isImageMessage: 0,
           imagePath: 'null',
-          categoryImagePath: BlocProvider.of<EventScreenBloc>(context)
-                      .state
-                      .selectedCategory ==
-                  null
+          categoryImagePath: (BlocProvider.of<EventScreenBloc>(context)
+                          .state
+                          .selectedCategory ==
+                      null ||
+                  BlocProvider.of<EventScreenBloc>(context)
+                          .state
+                          .selectedCategory
+                          .nameOfCategory ==
+                      'Null')
               ? null
               : BlocProvider.of<EventScreenBloc>(context)
                   .state
                   .selectedCategory
                   .imagePath,
-          nameOfCategory: BlocProvider.of<EventScreenBloc>(context)
-                      .state
-                      .selectedCategory ==
-                  null
+          nameOfCategory: (BlocProvider.of<EventScreenBloc>(context)
+                          .state
+                          .selectedCategory ==
+                      null ||
+                  BlocProvider.of<EventScreenBloc>(context)
+                          .state
+                          .selectedCategory
+                          .nameOfCategory ==
+                      'Null')
               ? null
               : BlocProvider.of<EventScreenBloc>(context)
                   .state
@@ -742,6 +849,11 @@ class _EventScreenState extends State<EventScreen> {
         ),
       ),
     );
+
+    ///
+    BlocProvider.of<EventScreenBloc>(context)
+        .add(CheckEventMessageForTag(_textEditingController.text));
+    // _addTag(_textEditingController.text);
     _textEditingController.clear();
     BlocProvider.of<EventScreenBloc>(context).add(
       SendButtonChanged(false),
@@ -753,6 +865,19 @@ class _EventScreenState extends State<EventScreen> {
         ? _closeSearchTextField()
         : () {};
   }
+
+  // void _addTag(String text) {
+  //   final list = text.split(RegExp(r'[ ]+'));
+  //   for (final str in list) {
+  //     if (tagRegExp.hasMatch(str)) {
+  //       BlocProvider.of<EventScreenBloc>(context).add(
+  //         TagAdded(
+  //           Tag(tagText: str),
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
 
   Future<Object> _showImageSelectionDialog() {
     return showGeneralDialog(
@@ -841,19 +966,29 @@ class _EventScreenState extends State<EventScreen> {
             isFavorite: 0,
             isImageMessage: 1,
             imagePath: file.path,
-            categoryImagePath: BlocProvider.of<EventScreenBloc>(context)
-                        .state
-                        .selectedCategory ==
-                    null
+            categoryImagePath: (BlocProvider.of<EventScreenBloc>(context)
+                            .state
+                            .selectedCategory ==
+                        null ||
+                    BlocProvider.of<EventScreenBloc>(context)
+                            .state
+                            .selectedCategory
+                            .nameOfCategory ==
+                        'Null')
                 ? null
                 : BlocProvider.of<EventScreenBloc>(context)
                     .state
                     .selectedCategory
                     .imagePath,
-            nameOfCategory: BlocProvider.of<EventScreenBloc>(context)
-                        .state
-                        .selectedCategory ==
-                    null
+            nameOfCategory: (BlocProvider.of<EventScreenBloc>(context)
+                            .state
+                            .selectedCategory ==
+                        null ||
+                    BlocProvider.of<EventScreenBloc>(context)
+                            .state
+                            .selectedCategory
+                            .nameOfCategory ==
+                        'Null')
                 ? null
                 : BlocProvider.of<EventScreenBloc>(context)
                     .state
@@ -992,6 +1127,14 @@ class _EventScreenState extends State<EventScreen> {
         name,
         style: TextStyle(
           color: Theme.of(context).iconTheme.color,
+          fontSize: BlocProvider.of<SettingScreenBloc>(context)
+                      .state
+                      .fontSize ==
+                  0
+              ? listTileTitleSmallFontSize
+              : BlocProvider.of<SettingScreenBloc>(context).state.fontSize == 1
+                  ? listTileTitleDefaultFontSize
+                  : listTileTitleLargeFontSize,
         ),
       ),
       onTap: () {

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../models/font_size_customization.dart';
 
 import '../../models/suggestion.dart';
 import '../../theme/theme_bloc.dart';
+import '../setting_screen/settings_screen_bloc.dart';
 import 'creating_suggestion_screen_bloc.dart';
 import 'creating_suggestion_screen_event.dart';
 import 'creating_suggestion_screen_state.dart';
@@ -121,6 +123,15 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
             color: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
                 ? Theme.of(context).accentColor
                 : Theme.of(context).primaryColor,
+            fontSize:
+                BlocProvider.of<SettingScreenBloc>(context).state.fontSize == 0
+                    ? appBarSmallFontSize
+                    : BlocProvider.of<SettingScreenBloc>(context)
+                                .state
+                                .fontSize ==
+                            1
+                        ? appBarDefaultFontSizeCrCatOrSugScr
+                        : appBarLargeFontSizeCrSugScr,
           ),
         ),
         alignment: Alignment.center,

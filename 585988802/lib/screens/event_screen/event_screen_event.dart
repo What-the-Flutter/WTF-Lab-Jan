@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/category.dart';
 import '../../models/event_message.dart';
-
 import '../../models/suggestion.dart';
+import '../../models/tag.dart';
 
 abstract class EventScreenEvent {
   const EventScreenEvent();
@@ -117,4 +117,26 @@ class TimeSelected extends EventScreenEvent {
   final TimeOfDay selectedTime;
 
   const TimeSelected(this.selectedTime);
+}
+
+class TagAdded extends EventScreenEvent {
+  final Tag tag;
+
+  const TagAdded(this.tag);
+}
+
+class CheckEventMessageForTag extends EventScreenEvent {
+  final String eventMessageText;
+
+  const CheckEventMessageForTag(this.eventMessageText);
+}
+
+class TagDeleted extends EventScreenEvent {
+  final Tag tag;
+
+  const TagDeleted(this.tag);
+}
+
+class UpdateTagList extends EventScreenEvent {
+  const UpdateTagList();
 }

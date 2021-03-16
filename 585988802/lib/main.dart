@@ -38,6 +38,7 @@ void main() async {
           create: (context) => SettingScreenBloc(SettingsScreenState(
             false,
             false,
+            1,
           )),
         ),
         BlocProvider(
@@ -72,6 +73,7 @@ void main() async {
               false,
               null,
               null,
+              [],
             ),
           ),
         ),

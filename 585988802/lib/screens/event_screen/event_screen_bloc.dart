@@ -4,7 +4,9 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 import '../../db_helper/db_helper.dart';
+import '../../models/category.dart';
 import '../../models/event_message.dart';
+import '../../models/tag.dart';
 import 'event_screen_event.dart';
 import 'event_screen_state.dart';
 
@@ -12,6 +14,11 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
   EventScreenBloc(EventScreenState initialState) : super(initialState);
 
   final DBHelper _dbHelper = DBHelper();
+  final Category _emptyCategory = Category(
+    nameOfCategory: 'Null',
+    imagePath: 'assets/images/journal.png',
+  );
+  final tagRegExp = RegExp(r'^#[^ !@#$%^&*(),.?":{}|/?\\<>]+$');
 
   @override
   Stream<EventScreenState> mapEventToState(EventScreenEvent event) async* {
@@ -51,6 +58,14 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
       yield* _mapDateSelectedToState(event);
     } else if (event is TimeSelected) {
       yield* _mapTimeSelectedToState(event);
+    } else if (event is TagAdded) {
+      yield* _mapTagAddedToState(event);
+    } else if (event is TagDeleted) {
+      yield* _mapTagDeletedToState(event);
+    } else if (event is UpdateTagList) {
+      yield* _mapUpdateTagListToState();
+    } else if (event is CheckEventMessageForTag) {
+      yield* _mapCheckEventMessageForTagToState(event);
     }
   }
 
@@ -147,9 +162,9 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
 
   Stream<EventScreenState> _mapCategorySelectedModeChangedToState(
       CategorySelectedModeChanged event) async* {
-    state.selectedCategory = null;
     yield state.copyWith(
       isCategorySelected: !event.isCategorySelected,
+      selectedCategory: _emptyCategory,
     );
   }
 
@@ -205,5 +220,41 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
 
   Stream<EventScreenState> _mapTimeSelectedToState(TimeSelected event) async* {
     yield state.copyWith(selectedTime: event.selectedTime);
+  }
+
+  Stream<EventScreenState> _mapCheckEventMessageForTagToState(
+      CheckEventMessageForTag event) async* {
+    final eventMessageWordList = event.eventMessageText.split(RegExp(r'[ ]+'));
+    final tagTextList = state.tagList.map((tag) => tag.tagText).toList();
+
+    for (final word in eventMessageWordList) {
+      if (tagRegExp.hasMatch(word) && !tagTextList.contains(word)) {
+        add(
+          TagAdded(
+            Tag(tagText: word),
+          ),
+        );
+      }
+    }
+    yield state.copyWith();
+  }
+
+  Stream<EventScreenState> _mapTagAddedToState(TagAdded event) async* {
+    _dbHelper.insertTag(event.tag);
+    add(UpdateTagList());
+    yield state.copyWith();
+  }
+
+  Stream<EventScreenState> _mapTagDeletedToState(TagDeleted event) async* {
+    _dbHelper.deleteTag(event.tag);
+    add(UpdateTagList());
+    yield state.copyWith();
+  }
+
+  Stream<EventScreenState> _mapUpdateTagListToState() async* {
+    final dbTagList = await _dbHelper.dbTagList();
+    yield state.copyWith(
+      tagList: dbTagList,
+    );
   }
 }

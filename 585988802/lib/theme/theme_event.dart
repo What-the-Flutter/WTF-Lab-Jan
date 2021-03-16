@@ -10,3 +10,6 @@ class InitThemeEvent extends ThemeEvent {
   const InitThemeEvent();
 }
 
+class ResetThemeEvent extends ThemeEvent {
+  const ResetThemeEvent();
+}
