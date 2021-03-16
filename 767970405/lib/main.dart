@@ -1,28 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
-import 'logic/home_screen_cubit.dart';
-import 'presentation/router/app_router.dart';
-import 'presentation/theme/theme_model.dart';
-import 'repository/pages_repository.dart';
+import 'data/data_provider.dart';
+import 'data/repository/icons_repository.dart';
+import 'data/repository/messages_repository.dart';
+import 'data/repository/pages_repository.dart';
+import 'data/theme/theme_model.dart';
+import 'home_screen/home_screen_cubit.dart';
+import 'messages_screen/screen_message_cubit.dart';
+import 'router/app_router.dart';
+import 'screen_creating_page/screen_creating_page_cubit.dart';
+import 'search_messages_screen/search_message_screen_cubit.dart';
 
-void main() {
+Future<int> loadTheme() async {
+  var prefs = await SharedPreferences.getInstance();
+  return prefs.getInt('theme');
+}
+
+Future<void> saveTheme(ThemeModel themeModel) async {
+  var prefs = await SharedPreferences.getInstance();
+  prefs.setInt('theme', themeModel.themeType.index);
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = MyBlocObserver();
-  runApp(ChangeNotifierProvider<ThemeModel>(
-      create: (context) => ThemeModel(), child: MyApp()));
+  final themeModel = ThemeModel(index: await loadTheme());
+  runApp(
+    ChangeNotifierProvider<ThemeModel>(
+      create: (context) => themeModel,
+      child: MyApp(db: await PagesAPI.init()),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
+  final Database db;
+
+  MyApp({
+    this.db,
+  });
+
   final AppRouter _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
+    final api = PagesAPI(database: db);
+    final msgRep = MessagesRepository(api: api);
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (homeScreenContext) =>
-              HomeScreenCubit(repository: PagesRepository()),
+          create: (homeScreenContext) => HomeScreenCubit(
+            repository: PagesRepository(pagesAPI: api),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => ScreenMessageCubit(
+            repository: msgRep,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => SearchMessageScreenCubit(
+            repository: msgRep,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => ScreenCreatingPageCubit(
+            repository: IconsRepository(),
+          ),
         ),
       ],
       child: MaterialApp(
