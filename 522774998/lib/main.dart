@@ -2,27 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import 'logic/home_screen_cubit.dart';
-import 'presentation/theme/theme_model.dart';
+import 'database/database.dart';
+import 'pages/home/home_screen_cubit.dart';
 import 'repository/pages_repository.dart';
 import 'routes/routes.dart';
+import 'theme/theme_model.dart';
+import 'theme/theme_preferences.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initThemePreferences();
+  await DBHelper().initializeDatabase();
+  var pagesRepository = PagesRepository();
+  await pagesRepository.setAllPages();
   Bloc.observer = MyBlocObserver();
-  runApp(ChangeNotifierProvider<ThemeModel>(
-      create: (context) => ThemeModel(), child: MyApp()));
+  runApp(
+    ChangeNotifierProvider<ThemeModel>(
+      create: (context) => ThemeModel(),
+      child: MyApp(pagesRepository),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final AppRouter _appRouter = AppRouter();
+  final PagesRepository pagesRepository;
+
+  MyApp(this.pagesRepository);
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (homeScreenContext) =>
-              HomePageCubit(repository: PagesRepository()),
+          create: (homeScreenContext) {
+            return HomePageCubit(repository: pagesRepository);
+          },
         ),
       ],
       child: MaterialApp(
