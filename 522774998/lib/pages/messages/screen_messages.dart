@@ -9,7 +9,6 @@ import '../../repository/category_repository.dart';
 import '../../repository/messages_repository.dart';
 import '../../repository/property_message.dart';
 import '../../repository/property_page.dart';
-import '../../theme/theme.dart';
 import '../../theme/theme_model.dart';
 import '../home/home_screen_cubit.dart';
 import '../search/searching_message.dart';
@@ -37,6 +36,11 @@ class _ScreenMessagesState extends State<ScreenMessages> {
   bool isVisibleCategories = false;
   IconData categoryIcon = Icons.bubble_chart;
   final DBHelper _dbHelper = DBHelper();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -312,8 +316,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
             if (state.counter > 1) {
               context.read<AppBarCubit>().changeToSelection(
                     title: state.counter.toString(),
-                    onClose: context.read<ScreenMessagesCubit>().unSelectionMsg,
-                    onCopy: context.read<ScreenMessagesCubit>().copy,
+                    onClose: context.read<ListMessageCubit>().unSelectionMsg,
+                    onCopy: context.read<ListMessageCubit>().copy,
                     onDelete: context.read<ListMessageCubit>().removeMessage,
                   );
             } else if (state.counter == 1) {
@@ -322,9 +326,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     onClose: () {
                       currentOperation = Operation.input;
                       context.read<InputCubit>().controller.text = '';
-                      context.read<ScreenMessagesCubit>().unSelectionMsg();
+                      context.read<ListMessageCubit>().unSelectionMsg();
                     },
-                    onCopy: context.read<ScreenMessagesCubit>().copy,
+                    onCopy: context.read<ListMessageCubit>().copy,
                     onDelete: context.read<ListMessageCubit>().removeMessage,
                     onEdit: () {
                       context
@@ -400,7 +404,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                               .dialogPages,
                                           widget.repositoryMessages.messages);
                                   context
-                                      .read<ScreenMessagesCubit>()
+                                      .read<ListMessageCubit>()
                                       .unSelectionMsg();
                                   Navigator.pop(contextDialog);
                                 },

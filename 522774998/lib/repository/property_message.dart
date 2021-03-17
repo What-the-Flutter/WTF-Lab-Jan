@@ -39,8 +39,8 @@ class PropertyMessage {
       'id': id,
       'message': message,
       'time': DateFormat('hh:mm').format(time),
-      'iconCodePointMessage': icon == null ? null : icon.codePoint,
-      'idMessagePage': idMessagePage,
+      'icon_code_point_message': icon == null ? null : icon.codePoint,
+      'id_message_page': idMessagePage,
     };
   }
 
@@ -48,10 +48,10 @@ class PropertyMessage {
         id: map['id'],
         message: map['message'],
         time: DateFormat('hh:mm').parse(map['time']),
-        icon: map['iconCodePointMessage'] == null
+        icon: map['icon_code_point_message'] == null
             ? null
-            : IconData(map['iconCodePointMessage'],
+            : IconData(map['icon_code_point_message'],
                 fontFamily: 'MaterialIcons'),
-        idMessagePage: map['idMessagePage'],
+        idMessagePage: map['id_message_page'],
       );
 }

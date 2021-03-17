@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import '../../../../database/database.dart';
 
 import '../../../../repository/messages_repository.dart';
@@ -84,31 +85,20 @@ class ListMessageCubit extends Cubit<ListMessageState> {
       index++;
     }
     emit(ListMessageState());
-    for (var cubit in list) {
-      if (cubit.state.isSelected) {
-        cubit.selected();
-      }
-    }
+    unSelectionMsg();
   }
 
   void removeMessage() {
     var index = 0;
-    var listMessage = <PropertyMessage>[];
     for (var i = repository.messages.length - 1; i >= 0; i--) {
       if (list[index].state.isSelected) {
         _dbHelper.deleteMessage(repository.messages[i]);
-      } else {
-        listMessage.add(repository.messages[i]);
+        repository.messages.removeAt(i);
       }
       index++;
     }
-    repository.messages = listMessage;
     emit(ListMessageState());
-    for (var cubit in list) {
-      if (cubit.state.isSelected) {
-        cubit.selected();
-      }
-    }
+    unSelectionMsg();
   }
 
   void edit(TextEditingController controller) {
@@ -146,5 +136,25 @@ class ListMessageCubit extends Cubit<ListMessageState> {
       index++;
     }
     emit(ListMessageState());
+  }
+
+  void unSelectionMsg() {
+    for (var cubit in list) {
+      if (cubit.state.isSelected) {
+        cubit.selected();
+      }
+    }
+  }
+
+  void copy() {
+    var clipBoard = '';
+    for (var i = 0; i < repository.messages.length; i++) {
+      if (list[i].state.isSelected) {
+        clipBoard += list[i].state.message;
+        clipBoard += ' ';
+      }
+    }
+    Clipboard.setData(ClipboardData(text: clipBoard));
+    unSelectionMsg();
   }
 }

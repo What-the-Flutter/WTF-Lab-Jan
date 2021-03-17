@@ -4,20 +4,20 @@ import '../repository/pages_repository.dart';
 import '../repository/property_message.dart';
 import '../repository/property_page.dart';
 
-final String tablePage = 'page';
+final String tablePage = 'table_page';
 final String columnIdPage = 'id';
 final String columnTitleOfPage = 'title';
-final String columnCreationTime = 'creationTime';
-final String columnLastModifiedTime = 'lastModifiedTime';
-final String columnIsPin = 'isPin';
-final String columnIconCodePoint = 'iconCodePoint';
+final String columnCreationTime = 'creation_time';
+final String columnLastModifiedTime = 'last_modified_time';
+final String columnIsPin = 'is_pin';
+final String columnIconCodePoint = 'icon_code_point';
 
-final String tableMessage = 'Message';
+final String tableMessage = 'table_message';
 final String columnIdMessage = 'id';
 final String columnTime = 'time';
 final String columnMessage = 'message';
-final String columnIconCodePointMessage = 'iconCodePointMessage';
-final String columnIdMessagePage = 'idMessagePage';
+final String columnIconCodePointMessage = 'icon_code_point_message';
+final String columnIdMessagePage = 'id_message_page';
 
 class DBHelper {
   static Database _database;
@@ -37,7 +37,7 @@ class DBHelper {
 
   Future<Database> initializeDatabase() async {
     var database = openDatabase(
-      join(await getDatabasesPath(), 'temp11.db'),
+      join(await getDatabasesPath(), 'chat_journal_app.db'),
       version: 1,
       onCreate: (db, version) {
         db.execute('''
@@ -66,7 +66,7 @@ class DBHelper {
   }
 
   Future<int> insertPage(PropertyPage page) async {
-    var db = await database;
+    final db = await database;
     return db.insert(
       tablePage,
       page.toMap(),
@@ -74,7 +74,7 @@ class DBHelper {
   }
 
   Future<int> deletePage(PropertyPage suggestion) async {
-    var db = await database;
+    final db = await database;
     return await db.delete(
       tablePage,
       where: '$columnIdPage = ?',
@@ -83,7 +83,7 @@ class DBHelper {
   }
 
   Future<int> updatePage(PropertyPage suggestion) async {
-    var db = await database;
+    final db = await database;
     return await db.update(
       tablePage,
       suggestion.toMap(),
@@ -94,17 +94,17 @@ class DBHelper {
 
   Future<List<PropertyPage>> dbPagesList() async {
     var _pagesList = <PropertyPage>[];
-    var db = await database;
-    var dbPageList = await db.query(tablePage);
-    for (var element in dbPageList) {
-      var page = PropertyPage.fromMap(element);
+    final db = await database;
+    final dbPageList = await db.query(tablePage);
+    for (final element in dbPageList) {
+      final page = PropertyPage.fromMap(element);
       _pagesList.add(page);
     }
     return _pagesList;
   }
-
+  
   void insertMessage(PropertyMessage message) async {
-    var db = await database;
+    final db = await database;
     db.insert(
       tableMessage,
       message.toMap(),
@@ -112,7 +112,7 @@ class DBHelper {
   }
 
   Future<int> deleteMessage(PropertyMessage message) async {
-    var db = await database;
+    final db = await database;
     return await db.delete(
       tableMessage,
       where: '$columnIdMessage = ?',
@@ -121,7 +121,7 @@ class DBHelper {
   }
 
   Future<int> updateMessage(PropertyMessage message) async {
-    var db = await database;
+    final db = await database;
     return await db.update(
       tableMessage,
       message.toMap(),
@@ -132,11 +132,11 @@ class DBHelper {
 
   Future<List<PropertyMessage>> dbMessagesList(int index) async {
     var _messagesList = <PropertyMessage>[];
-    var db = await database;
-    var dbMessagesList = await db.query(tableMessage,
+    final db = await database;
+    final dbMessagesList = await db.query(tableMessage,
         where: '$columnIdMessagePage = ?', whereArgs: [index]);
-    for (var element in dbMessagesList) {
-      var message = PropertyMessage.fromMap(element);
+    for (final element in dbMessagesList) {
+      final message = PropertyMessage.fromMap(element);
       _messagesList.add(message);
     }
     return _messagesList;
