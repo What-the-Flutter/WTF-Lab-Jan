@@ -6,10 +6,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'thememode_state.dart';
 
 class ThememodeCubit extends Cubit<ThememodeState> {
-  final SharedPreferences preferences;
+  SharedPreferences preferences;
 
-  ThememodeCubit(ThemeMode themeMode, {this.preferences})
-      : super(ThememodeState(themeMode: themeMode));
+  ThememodeCubit({@required this.preferences})
+      : super(
+          ThememodeState(
+            themeMode: _themeModeFromString(
+              preferences.getString('themeMode'),
+            ),
+          ),
+        );
 
   void switchThemeMode() async {
     if (state.themeMode == ThemeMode.light) {
@@ -18,6 +24,17 @@ class ThememodeCubit extends Cubit<ThememodeState> {
     } else if (state.themeMode == ThemeMode.dark) {
       preferences?.setString('themeMode', 'light');
       emit(ThememodeState(themeMode: ThemeMode.light));
+    }
+  }
+
+  static ThemeMode _themeModeFromString(String string) {
+    switch (string) {
+      case 'dark':
+        return ThemeMode.dark;
+      case 'light':
+        return ThemeMode.light;
+      default:
+        return ThemeMode.light;
     }
   }
 }

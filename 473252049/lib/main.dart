@@ -30,24 +30,10 @@ class MyApp extends StatelessWidget {
 
   const MyApp({Key key, @required this.preferences}) : super(key: key);
 
-  ThemeMode _themeModeFromString(String string) {
-    switch (string) {
-      case 'dark':
-        return ThemeMode.dark;
-      case 'light':
-        return ThemeMode.light;
-      default:
-        return ThemeMode.light;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ThememodeCubit(
-        _themeModeFromString(
-          preferences.getString('themeMode'),
-        ),
         preferences: preferences,
       ),
       child: ThemingApp(),
