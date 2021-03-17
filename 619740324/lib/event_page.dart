@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'event.dart';
+import 'light_theme.dart';
 import 'note.dart';
+import 'theme.dart';
 
 class EventPage extends StatefulWidget {
   final String title;
@@ -56,18 +58,15 @@ class _EventPageState extends State<EventPage> {
         Expanded(
           child: _listView,
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Colors.black26,
-                ),
+        Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: Colors.black26,
               ),
             ),
-            child: _textFieldArea,
           ),
+          child: _textFieldArea,
         ),
       ],
     );
@@ -77,9 +76,7 @@ class _EventPageState extends State<EventPage> {
     return Row(
       children: <Widget>[
         IconButton(
-            icon: Icon(Icons.attach_file),
-            iconSize: 32,
-            onPressed: () {}),
+            icon: Icon(Icons.attach_file), iconSize: 32, onPressed: () {}),
         Expanded(
           child: TextField(
             controller: textController,
@@ -97,11 +94,9 @@ class _EventPageState extends State<EventPage> {
           color: Colors.blueGrey,
           onPressed: () {
             if (_isEditing) {
-              setState(
-                () {
-                  _editText(_indexOfSelectedElement);
-                },
-              );
+              setState(() {
+                _editText(_indexOfSelectedElement);
+              });
             } else {
               setState(_sendEvent);
             }
@@ -157,10 +152,17 @@ class _EventPageState extends State<EventPage> {
         borderRadius: BorderRadius.circular(20),
         child: Card(
           elevation: 5,
-          color: Colors.blueGrey[100],
+          color: ThemeSwitcher
+              .of(context)
+              .themeData == lightThemeData
+              ? Colors.blueGrey[100]
+              : Theme
+              .of(context)
+              .primaryColor,
           child: ListTile(
             title: Text(event.text),
-            subtitle: Text(event.time),
+            subtitle: Align(
+                alignment: Alignment.bottomRight, child: Text(event.time)),
             onLongPress: () {
               _indexOfSelectedElement = index;
               _showBottomSheet(context, index);
@@ -259,7 +261,7 @@ class _EventPageState extends State<EventPage> {
 
   void _editEvent(int index) {
     setState(
-      () {
+          () {
         _isEditing = true;
         textController.text = _note.eventList[index].text;
         _focusNode.requestFocus();

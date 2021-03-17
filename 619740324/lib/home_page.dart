@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'create_page.dart';
+import 'dark_theme.dart';
 import 'event_page.dart';
+import 'light_theme.dart';
 import 'note.dart';
+import 'theme.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -9,7 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
+  bool _themeSwitcher = false;
   List<Note> noteList = [
     Note(
       'Sport',
@@ -31,15 +35,14 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: _floatingActionButton,
-        appBar: _appBar,
-        drawer: _drawer,
-        bottomNavigationBar: _bottomNavigationBar,
-        body: _homePageBody(),
+      floatingActionButton: _floatingActionButton,
+      appBar: _appBar,
+      drawer: _drawer,
+      bottomNavigationBar: _bottomNavigationBar,
+      body: _homePageBody(),
     );
   }
 
@@ -50,7 +53,7 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (context, index) => ListTile(
         title: Text(noteList[index].eventName),
         leading: IconButton(
-          icon: noteList[index].iconData,
+          icon: noteList[index].circleAvatar,
           iconSize: 50,
           onPressed: () {},
         ),
@@ -65,11 +68,14 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           );
+          setState(() {});
+        },
+        onLongPress: () {
+          _showBottomSheet(context, index);
         },
       ),
     );
   }
-
 
   BottomNavigationBar get _bottomNavigationBar {
     return BottomNavigationBar(
@@ -91,8 +97,6 @@ class _HomePageState extends State<HomePage> {
           label: 'Explore',
         ),
       ],
-      unselectedItemColor: Colors.grey,
-      selectedItemColor: Colors.deepPurple,
       showUnselectedLabels: true,
     );
   }
@@ -102,7 +106,7 @@ class _HomePageState extends State<HomePage> {
       child: ListView(
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(color: Colors.deepPurple),
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
             child: Text(
               'Information',
               style: TextStyle(
@@ -133,15 +137,85 @@ class _HomePageState extends State<HomePage> {
       actions: [
         IconButton(
           icon: Icon(Icons.invert_colors),
-          onPressed: () {},
+          onPressed: () {
+              _themeSwitcher
+                  ? ThemeSwitcher.of(context).switchTheme(lightThemeData)
+                  : ThemeSwitcher.of(context).switchTheme(darkThemeData);
+              _themeSwitcher = !_themeSwitcher;
+          },
         ),
       ],
     );
   }
 
   FloatingActionButton get _floatingActionButton {
-    return FloatingActionButton(child: Icon(Icons.add),
-      onPressed: () {},
+    return FloatingActionButton(
+      child: Icon(Icons.add),
+      onPressed: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CreatePage(
+              noteList: noteList,
+              isEditing: false,
+            ),
+          ),
+        );
+        setState(() {});
+      },
+    );
+  }
+
+  void _showBottomSheet(BuildContext context, int index) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 120,
+          child: _buildBottomNavigationMenu(index),
+        );
+      },
+    );
+  }
+
+  Column _buildBottomNavigationMenu(int index) {
+    return Column(
+      children: <Widget>[
+        ListTile(
+          leading: Icon(
+            Icons.edit,
+            color: Colors.blue,
+          ),
+          title: Text('Edit'),
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreatePage(
+                  isEditing: true,
+                  noteList: noteList,
+                  index: index,
+                ),
+              ),
+            );
+            setState(() {});
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.delete,
+            color: Colors.black,
+          ),
+          title: Text('Delete'),
+          onTap: () {
+            setState(() {
+              noteList.removeAt(index);
+              Navigator.pop(context);
+            });
+          },
+        ),
+      ],
     );
   }
 }
