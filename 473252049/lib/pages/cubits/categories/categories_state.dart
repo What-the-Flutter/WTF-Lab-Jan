@@ -1,7 +1,17 @@
 part of 'categories_cubit.dart';
 
+class CategoryWithLastRecord {
+  Category category;
+  Record lastRecord;
+
+  CategoryWithLastRecord({
+    @required this.category,
+    @required this.lastRecord,
+  });
+}
+
 abstract class CategoriesState extends Equatable {
-  final List<Category> categories;
+  final List<CategoryWithLastRecord> categories;
 
   const CategoriesState(this.categories);
 
@@ -10,22 +20,25 @@ abstract class CategoriesState extends Equatable {
 }
 
 class CategoriesInitial extends CategoriesState {
-  CategoriesInitial(List<Category> categories) : super(categories);
+  CategoriesInitial(List<CategoryWithLastRecord> categories)
+      : super(categories);
 }
 
 class CategoriesLoadInProcess extends CategoriesState {
-  CategoriesLoadInProcess(List<Category> categories) : super(categories);
+  CategoriesLoadInProcess(List<CategoryWithLastRecord> categories)
+      : super(categories);
 }
 
 class CategoriesLoadSuccess extends CategoriesState {
-  CategoriesLoadSuccess(List<Category> categories) : super(categories);
+  CategoriesLoadSuccess(List<CategoryWithLastRecord> categories)
+      : super(categories);
 }
 
 class CategoryAddSuccess extends CategoriesState {
   final Category category;
 
   CategoryAddSuccess(
-    List<Category> categories,
+    List<CategoryWithLastRecord> categories,
     this.category,
   ) : super(categories);
 
@@ -37,7 +50,7 @@ class CategoryDeleteSuccess extends CategoriesState {
   final Category category;
 
   CategoryDeleteSuccess(
-    List<Category> categories,
+    List<CategoryWithLastRecord> categories,
     this.category,
   ) : super(categories);
 
@@ -48,7 +61,7 @@ class CategoryDeleteSuccess extends CategoriesState {
 class CategoryUpdateSuccess extends CategoriesState {
   final Category category;
 
-  CategoryUpdateSuccess(List<Category> categories, this.category)
+  CategoryUpdateSuccess(List<CategoryWithLastRecord> categories, this.category)
       : super(categories);
 
   @override
@@ -58,7 +71,8 @@ class CategoryUpdateSuccess extends CategoriesState {
 class CategoryChangePinSuccess extends CategoriesState {
   final Category category;
 
-  CategoryChangePinSuccess(List<Category> categories, this.category)
+  CategoryChangePinSuccess(
+      List<CategoryWithLastRecord> categories, this.category)
       : super(categories);
 
   @override

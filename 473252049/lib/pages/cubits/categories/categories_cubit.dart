@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../model/category.dart';
+import '../../../model/record.dart';
 import '../../../repositories/categories_repository.dart';
 
 part 'categories_state.dart';
@@ -12,10 +13,26 @@ class CategoriesCubit extends Cubit<CategoriesState> {
 
   CategoriesCubit(this.repository) : super(CategoriesLoadInProcess(null));
 
+  Future<List<CategoryWithLastRecord>> get categoriesWithLastRecords async {
+    final categories = await repository.getAll();
+    final categoriesWithLastRecords = <CategoryWithLastRecord>[];
+    for (var category in categories) {
+      categoriesWithLastRecords.add(
+        CategoryWithLastRecord(
+          category: category,
+          lastRecord: await repository.getLastRecord(
+            categoryId: category.id,
+          ),
+        ),
+      );
+    }
+    return categoriesWithLastRecords;
+  }
+
   void loadCategories() async {
     emit(
       CategoriesLoadSuccess(
-        await repository.getAll(),
+        await categoriesWithLastRecords,
       ),
     );
   }
@@ -24,7 +41,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     await repository.insert(category);
     emit(
       CategoryAddSuccess(
-        await repository.getAll(),
+        await categoriesWithLastRecords,
         category,
       ),
     );
@@ -34,7 +51,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     await repository.update(category);
     emit(
       CategoryUpdateSuccess(
-        await repository.getAll(),
+        await categoriesWithLastRecords,
         category,
       ),
     );
@@ -44,7 +61,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     final deletedCategory = await repository.delete(id);
     emit(
       CategoryDeleteSuccess(
-        await repository.getAll(),
+        await categoriesWithLastRecords,
         deletedCategory,
       ),
     );
@@ -57,7 +74,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     );
     emit(
       CategoryChangePinSuccess(
-        await repository.getAll(),
+        await categoriesWithLastRecords,
         category,
       ),
     );

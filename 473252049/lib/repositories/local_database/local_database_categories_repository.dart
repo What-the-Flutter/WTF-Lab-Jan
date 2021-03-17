@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 import '../../model/category.dart';
+import '../../model/record.dart';
 import '../categories_repository.dart';
 import 'provider/local_database_provider.dart';
 
@@ -48,5 +51,19 @@ class LocalDatabaseCategoriesRepository extends LocalDatabaseProvider
     ))
         .map((e) => Category.fromMap(e))
         .toList();
+  }
+
+  @override
+  Future<Record> getLastRecord({@required int categoryId}) async {
+    final records = (await (await database).query(
+      'records',
+      where: 'categoryId = ?',
+      whereArgs: [categoryId],
+      orderBy: 'createDateTime DESC',
+      limit: 1,
+    ))
+        .map((e) => Record.fromMap(e))
+        .toList();
+    return records.isEmpty ? null : records.first;
   }
 }

@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../components/category_bottom_sheet.dart';
-import '../model/category.dart';
 import '../pages/category_page.dart';
 import '../pages/cubits/categories/categories_cubit.dart';
 import '../pages/cubits/records/records_cubit.dart';
 import '../repositories/local_database/local_database_records_repository.dart';
 
-class CategoryWidget extends StatelessWidget {
-  final Category category;
+class CategoryWidget extends StatefulWidget {
+  final CategoryWithLastRecord categoryWithLastRecord;
 
-  CategoryWidget(this.category);
+  CategoryWidget(this.categoryWithLastRecord);
 
+  @override
+  _CategoryWidgetState createState() => _CategoryWidgetState();
+}
+
+class _CategoryWidgetState extends State<CategoryWidget> {
   @override
   Widget build(BuildContext context) {
     return Builder(
@@ -24,14 +28,16 @@ class CategoryWidget extends StatelessWidget {
               builder: (_) {
                 return BlocProvider.value(
                   value: BlocProvider.of<CategoriesCubit>(context),
-                  child: CategoryBottomSheet(category),
+                  child: CategoryBottomSheet(
+                      widget.categoryWithLastRecord.category),
                 );
               },
             );
           },
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            Navigator.of(context).push(
+            Navigator.push(
+              context,
               MaterialPageRoute(
                 builder: (_) {
                   return BlocProvider.value(
@@ -40,13 +46,16 @@ class CategoryWidget extends StatelessWidget {
                       create: (context) => RecordsCubit(
                         LocalDatabaseRecordsRepository(),
                       )..loadFromCategory(
-                          categoryId: category.id,
+                          categoryId: widget.categoryWithLastRecord.category.id,
                         ),
-                      child: CategoryPage(category),
+                      child:
+                          CategoryPage(widget.categoryWithLastRecord.category),
                     ),
                   );
                 },
               ),
+            ).then(
+              (value) => context.read<CategoriesCubit>().loadCategories(),
             );
           },
           child: Container(
@@ -59,7 +68,7 @@ class CategoryWidget extends StatelessWidget {
                   flex: 2,
                   child: AspectRatio(
                     child: Icon(
-                      category.icon,
+                      widget.categoryWithLastRecord.category.icon,
                       size: 36,
                     ),
                     aspectRatio: 1,
@@ -72,7 +81,7 @@ class CategoryWidget extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          if (category.isPinned)
+                          if (widget.categoryWithLastRecord.category.isPinned)
                             Icon(
                               Icons.pin_drop_outlined,
                               color: Theme.of(context).accentColor,
@@ -82,21 +91,20 @@ class CategoryWidget extends StatelessWidget {
                                   .fontSize,
                             ),
                           Text(
-                            category.name,
+                            widget.categoryWithLastRecord.category.name,
                             style: Theme.of(context).textTheme.headline5,
                           ),
                         ],
                       ),
-                      // Text(
-                      //   category.records.isEmpty
-                      //       ? 'No events. Tap to create first'
-                      //       : category.records.first.message.isEmpty
-                      //           ? 'Image record'
-                      //           : category.records.first.message,
-                      //   style: Theme.of(context).textTheme.bodyText1,
-                      //   maxLines: 1,
-                      //   overflow: TextOverflow.ellipsis,
-                      // ),
+                      Text(
+                        widget.categoryWithLastRecord.lastRecord == null
+                            ? 'No records. Tap to create first'
+                            : widget.categoryWithLastRecord.lastRecord
+                                    .message ??
+                                'Image record',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ],
                   ),
                 ),

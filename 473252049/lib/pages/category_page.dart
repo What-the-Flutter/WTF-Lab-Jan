@@ -409,13 +409,13 @@ class SendRecordsDialog extends StatelessWidget {
           children: [
             ...context.read<CategoriesCubit>().state.categories.map(
               (category) {
-                if (category == categoryFrom) {
+                if (category.category == categoryFrom) {
                   return Container(
                     height: 0,
                   );
                 }
                 return ListTile(
-                  title: Text(category.name),
+                  title: Text(category.category.name),
                   onTap: () async {
                     await context.read<RecordsCubit>().sendAll(
                           state.records
@@ -424,10 +424,10 @@ class SendRecordsDialog extends StatelessWidget {
                               )
                               .toList(),
                           categoryId: categoryFrom.id,
-                          categoryToId: category.id,
+                          categoryToId: category.category.id,
                         );
                     await context.read<RecordsCubit>().unselectAll(
-                          categoryId: category.id,
+                          categoryId: category.category.id,
                         );
                     await context.read<RecordsCubit>().unselectAll(
                           categoryId: categoryFrom.id,

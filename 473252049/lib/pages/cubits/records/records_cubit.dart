@@ -11,7 +11,10 @@ part 'records_state.dart';
 class RecordsCubit extends Cubit<RecordsState> {
   final RecordsRepository repository;
 
-  RecordsCubit(this.repository) : super(RecordsLoadInProcess(null));
+  RecordsCubit(this.repository)
+      : super(
+          RecordsLoadInProcess(null),
+        );
 
   void loadRecords() async {
     emit(
