@@ -4,8 +4,8 @@ import 'event.dart';
 class Note {
   final List<Event> eventList = <Event>[];
   String eventName;
-  CircleAvatar iconData;
+  CircleAvatar circleAvatar;
   String subTittleEvent;
 
-  Note(this.eventName, this.iconData, this.subTittleEvent);
+  Note(this.eventName, this.circleAvatar, this.subTittleEvent);
 }
