@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import '../data/db_provider.dart';
+import '../data/shared_preferences_provider.dart';
 import '../event_page/event_page.dart';
+import '../icon_list.dart';
 import '../note_page/note.dart';
 import '../note_page/note_page.dart';
 import '../theme/dark_theme.dart';
@@ -18,33 +20,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  HomePageCubit cubit = HomePageCubit(HomePageStates(noteList));
+  static final List<Note> noteList = <Note>[];
+  final DBProvider _dbProvider = DBProvider();
+  final HomePageCubit _cubit = HomePageCubit(
+    HomePageStates(
+      noteList: noteList,
+      isThemeChange: SharedPreferencesProvider().fetchTheme(),
+    ),
+  );
 
-  static List<Note> noteList = [
-    Note(
-      'Drinks',
-      CircleAvatar(
-        child: Icon(
-          Icons.liquor,
-        ),
-      ),
-      'Add event',
-    ),
-    Note(
-      'FastFood',
-      CircleAvatar(
-        child: Icon(
-          Icons.fastfood,
-        ),
-      ),
-      'Add event',
-    ),
-  ];
+  @override
+  void initState() {
+    _dbProvider.initDatabase();
+    _cubit.init();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      cubit: cubit,
+      cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
           drawer: _drawer,
@@ -68,10 +63,10 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: Icon(Icons.invert_colors),
           onPressed: () {
-            cubit.state.isThemeChange
-                ? ThemeSwitcher.of(context).switchTheme(lightTheme)
-                : ThemeSwitcher.of(context).switchTheme(darkTheme);
-            cubit.setThemeChangeState(!cubit.state.isThemeChange);
+            _cubit.state.isThemeChange
+                ? ThemeSwitcher.of(context).switchTheme(darkTheme)
+                : ThemeSwitcher.of(context).switchTheme(lightTheme);
+            _cubit.setThemeChangeState(!_cubit.state.isThemeChange);
           },
         ),
       ],
@@ -81,27 +76,30 @@ class _HomePageState extends State<HomePage> {
   ListView _homePageBody() {
     return ListView.builder(
       scrollDirection: Axis.vertical,
-      itemCount: noteList.length,
+      itemCount: _cubit.state.noteList.length,
       itemBuilder: (context, index) => ListTile(
-        title: Text(noteList[index].eventName),
+        title: Text(_cubit.state.noteList[index].noteName),
         leading: IconButton(
-          icon: noteList[index].iconData,
+          icon: CircleAvatar(
+            child:
+                listOfIcons[_cubit.state.noteList[index].indexOfCircleAvatar],
+          ),
           iconSize: 40,
           onPressed: () {},
         ),
-        subtitle: Text(noteList[index].subTittleEvent),
+        subtitle: Text(_cubit.state.noteList[index].subTittleEvent),
         onTap: () async {
           await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => EventPage(
-                title: noteList[index].eventName,
-                note: noteList[index],
-                noteList: noteList,
+                title: _cubit.state.noteList[index].noteName,
+                note: _cubit.state.noteList[index],
+                noteList: _cubit.state.noteList,
               ),
             ),
           );
-          cubit.updateList(noteList);
+          _cubit.updateNote(_cubit.state.noteList[index]);
         },
         onLongPress: () => _showBottomSheet(context, index),
       ),
@@ -141,11 +139,11 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                 builder: (context) => NotePage(
-                  note: noteList[index],
+                  note: _cubit.state.noteList[index],
                 ),
               ),
             );
-            cubit.updateList(noteList);
+            _cubit.updateNote(_cubit.state.noteList[index]);
             Navigator.pop(context);
           },
         ),
@@ -156,7 +154,7 @@ class _HomePageState extends State<HomePage> {
           ),
           title: Text('Delete'),
           onTap: () {
-            cubit.deleteNote(noteList, index);
+            _cubit.deleteNote(_cubit.state.noteList, index);
             Navigator.pop(context);
           },
         ),
@@ -215,11 +213,11 @@ class _HomePageState extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (context) => NotePage(
-              noteList: noteList,
+              noteList: _cubit.state.noteList,
             ),
           ),
         );
-        cubit.updateList(noteList);
+        _cubit.updateList(_cubit.state.noteList);
       },
       child: Icon(Icons.add),
     );

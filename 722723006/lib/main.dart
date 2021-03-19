@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+
+import 'data/shared_preferences_provider.dart';
 import 'home_page/home_page.dart';
+import 'theme/dark_theme.dart';
 import 'theme/light_theme.dart';
 import 'theme/theme.dart';
 
-void main() => runApp(
-      ThemeSwitcherWidget(
-        initialTheme: lightTheme,
-        child: MyApp(),
-      ),
-    );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferencesProvider.initialize();
+  runApp(
+    ThemeSwitcherWidget(
+      initialTheme:
+          SharedPreferencesProvider().fetchTheme() ? lightTheme : darkTheme,
+      child: MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   @override

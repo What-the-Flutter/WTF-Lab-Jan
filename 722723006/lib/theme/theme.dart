@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class ThemeSwitcher extends InheritedWidget {
   final _ThemeSwitcherWidgetState data;
-
   const ThemeSwitcher({
     Key key,
     this.data,

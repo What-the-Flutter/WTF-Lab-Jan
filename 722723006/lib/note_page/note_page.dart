@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import '../icon_list.dart';
 import '../main.dart';
 import 'note.dart';
 import 'notes_cubit.dart';
@@ -23,23 +23,19 @@ class _NotePageState extends State<NotePage> {
   final List<Note> noteList;
   final Note note;
   final TextEditingController textController = TextEditingController();
-  NotesCubit cubit;
+  NotesCubit _cubit;
   _NotePageState({this.noteList, this.note}) {
-    cubit = NotesCubit(NotesState(note, noteList));
+    _cubit = NotesCubit(NotesState(note, noteList));
   }
 
   @override
   void initState() {
     if (note != null) {
-      cubit.state.selectIcon = CircleAvatar(
-        child: note.iconData,
-      );
-      textController.text = note.eventName;
+      _cubit.state.indexOfSelectIcon = note.indexOfCircleAvatar;
+      textController.text = note.noteName;
       _focusNode.requestFocus();
     } else {
-      cubit.state.selectIcon = CircleAvatar(
-        child: Icon(Icons.fastfood),
-      );
+      _cubit.state.indexOfSelectIcon = 0;
     }
     super.initState();
   }
@@ -47,7 +43,7 @@ class _NotePageState extends State<NotePage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      cubit: cubit,
+      cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
           appBar: _appBar,
@@ -57,23 +53,6 @@ class _NotePageState extends State<NotePage> {
       },
     );
   }
-
-  List<Icon> listOfIcons = [
-    Icon(Icons.camera_alt),
-    Icon(Icons.airport_shuttle_rounded),
-    Icon(Icons.wine_bar_sharp),
-    Icon(Icons.wc),
-    Icon(Icons.fastfood),
-    Icon(Icons.accessibility_new_sharp),
-    Icon(Icons.reply),
-    Icon(Icons.airplanemode_active),
-    Icon(Icons.account_balance_wallet),
-    Icon(Icons.anchor_rounded),
-    Icon(Icons.apartment),
-    Icon(Icons.wb_sunny_sharp),
-    Icon(Icons.watch_later),
-    Icon(Icons.weekend_rounded),
-  ];
 
   Widget _notePageBody(BuildContext context) {
     return Container(
@@ -104,10 +83,8 @@ class _NotePageState extends State<NotePage> {
         for (var index = 0; index < listOfIcons.length; index++)
           GestureDetector(
             onTap: () {
-              cubit.setCircleIcon(
-                CircleAvatar(
-                  child: listOfIcons[index],
-                ),
+              _cubit.setIndexOfIcon(
+                index,
               );
             },
             child: Row(
@@ -133,7 +110,9 @@ class _NotePageState extends State<NotePage> {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(left: 20, right: 20),
-          child: cubit.state.selectIcon,
+          child: CircleAvatar(
+            child: listOfIcons[_cubit.state.indexOfSelectIcon],
+          ),
         ),
         Expanded(
           child: Padding(
@@ -146,8 +125,8 @@ class _NotePageState extends State<NotePage> {
               focusNode: _focusNode,
               onChanged: (value) {
                 value.isNotEmpty
-                    ? cubit.setWritingState(true)
-                    : cubit.setWritingState(false);
+                    ? _cubit.setWritingState(true)
+                    : _cubit.setWritingState(false);
               },
               decoration: InputDecoration(
                 hintText: 'Enter event',
@@ -170,20 +149,24 @@ class _NotePageState extends State<NotePage> {
       onPressed: () {
         _floatingActionButtonEvent();
       },
-      child: cubit.state.isWriting ? Icon(Icons.check) : Icon(Icons.clear),
+      child: _cubit.state.isWriting
+          ? Icon(
+              Icons.check,
+            )
+          : Icon(
+              Icons.clear,
+            ),
     );
   }
 
   void _floatingActionButtonEvent() {
-    if (note != null && cubit.state.isWriting) {
-      note.eventName = textController.text;
-      note.iconData = CircleAvatar(
-        child: cubit.state.selectIcon,
-      );
+    if (note != null && _cubit.state.isWriting) {
+      note.noteName = textController.text;
+      note.indexOfCircleAvatar = _cubit.state.indexOfSelectIcon;
       Navigator.of(context).pop();
     } else {
-      if (cubit.state.isWriting) {
-        cubit.addNote(textController.text);
+      if (_cubit.state.isWriting) {
+        _cubit.addNote(textController.text);
         Navigator.of(context).pop();
       } else {
         Navigator.pop(

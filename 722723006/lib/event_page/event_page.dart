@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-
+import '../data/db_provider.dart';
+import '../icon_list.dart';
 import '../note_page/note.dart';
 import 'event.dart';
 import 'events_cubit.dart';
@@ -26,43 +27,44 @@ class _EventPageState extends State<EventPage> {
   final FocusNode _focusNode = FocusNode();
   final FocusNode _searchTextFieldFocusNode = FocusNode();
   List<Event> _eventList;
-  EventCubit cubit;
+  EventCubit _cubit;
+  DBProvider dbProvider = DBProvider();
+  @override
+  void initState() {
+    super.initState();
+    _cubit.initEventList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      cubit: cubit,
+      cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
-          appBar: cubit.state.eventSelected
+          appBar: _cubit.state.eventSelected
               ? _defaultAppBar
-              : _appBarMenu(cubit.state.indexOfSelectedElement),
+              : _appBarMenu(_cubit.state.indexOfSelectedElement),
           body: _eventPageBody,
         );
       },
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   _EventPageState(this._note, this._noteList) {
-    cubit = EventCubit(EventsState(_note));
+    _cubit = EventCubit(EventsState(_note));
   }
 
   AppBar get _defaultAppBar {
     return AppBar(
       leading: _iconButtonBack,
-      title: cubit.state.isIconButtonSearchPressed
+      title: _cubit.state.isIconButtonSearchPressed
           ? TextField(
               focusNode: _searchTextFieldFocusNode,
               controller: searchTextController,
               onChanged: (value) {
                 value.isEmpty
-                    ? cubit.setWritingState(false)
-                    : cubit.setWritingState(true);
+                    ? _cubit.setWritingState(false)
+                    : _cubit.setWritingState(true);
               },
               cursorColor: Colors.white,
               style: TextStyle(
@@ -78,13 +80,13 @@ class _EventPageState extends State<EventPage> {
             )
           : Text(widget.title),
       actions: [
-        cubit.state.isWriting
+        _cubit.state.isWriting
             ? IconButton(
                 icon: Icon(
                   Icons.clear,
                 ),
                 onPressed: () {
-                  setState(searchTextController.clear);
+                  searchTextController.clear;
                 },
               )
             : IconButton(
@@ -93,8 +95,8 @@ class _EventPageState extends State<EventPage> {
                 ),
                 onPressed: () {
                   _searchTextFieldFocusNode.requestFocus();
-                  cubit.setIconButtonSearchPressedState(
-                    !cubit.state.isIconButtonSearchPressed,
+                  _cubit.setIconButtonSearchPressedState(
+                    !_cubit.state.isIconButtonSearchPressed,
                   );
                 },
               ),
@@ -114,9 +116,9 @@ class _EventPageState extends State<EventPage> {
         Icons.arrow_back,
       ),
       onPressed: () {
-        if (cubit.state.isIconButtonSearchPressed) {
-          cubit.setIconButtonSearchPressedState(false);
-          cubit.setWritingState(false);
+        if (_cubit.state.isIconButtonSearchPressed) {
+          _cubit.setIconButtonSearchPressedState(false);
+          _cubit.setWritingState(false);
           searchTextController.clear();
         } else {
           Navigator.pop(context);
@@ -149,12 +151,12 @@ class _EventPageState extends State<EventPage> {
   }
 
   ListView get _listView {
-    cubit.state.isIconButtonSearchPressed
-        ? _eventList = _note.eventList
+    _cubit.state.isIconButtonSearchPressed
+        ? _eventList = _cubit.state.eventList
             .where(
                 (element) => element.text.contains(searchTextController.text))
             .toList()
-        : _eventList = _note.eventList;
+        : _eventList = _cubit.state.eventList;
     return ListView.builder(
       scrollDirection: Axis.vertical,
       reverse: true,
@@ -169,11 +171,16 @@ class _EventPageState extends State<EventPage> {
     return Row(
       children: <Widget>[
         IconButton(
-          icon: cubit.state.circleAvatar ?? Icon(Icons.widgets_outlined),
+          icon: _cubit.state.indexOfCircleAvatar == null
+              ? Icon(Icons.widgets_outlined)
+              : CircleAvatar(
+                  child: listOfIcons[_cubit.state.indexOfCircleAvatar],
+                ),
           iconSize: 25,
           color: Colors.blueGrey,
           onPressed: () {
-            cubit.setCircleAvatar(cubit.state.circleAvatar);
+            _cubit
+                .setIndexOfCircleAvatar(_cubit.state.note.indexOfCircleAvatar);
             _showHorizontalListView(context);
           },
         ),
@@ -208,7 +215,7 @@ class _EventPageState extends State<EventPage> {
 
   ListView get _horizontalListView {
     return ListView.builder(
-      itemCount: _noteList.length,
+      itemCount: listOfIcons.length,
       scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
         return GestureDetector(
@@ -216,20 +223,22 @@ class _EventPageState extends State<EventPage> {
             width: 100,
             child: Column(
               children: [
-                _noteList[index].iconData,
+                CircleAvatar(
+                  child: listOfIcons[index],
+                ),
                 Padding(
                   padding: EdgeInsets.only(top: 3),
                   child: Center(
                     child: Text(
-                      _noteList[index].eventName,
+                      listOfIconsName[index],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
           onTap: () {
-            cubit.setCircleAvatar(_noteList[index].iconData);
+            _cubit.setIndexOfCircleAvatar(index);
             Navigator.pop(context);
           },
         );
@@ -243,10 +252,10 @@ class _EventPageState extends State<EventPage> {
       iconSize: 29,
       color: Colors.blueGrey,
       onPressed: () {
-        cubit.state.isEditing
-            ? cubit.editText(cubit.state.indexOfSelectedElement, textController)
-            : cubit.sendEvent(textController);
-        cubit.state.circleAvatar = null;
+        _cubit.state.isEditing
+            ? _cubit.editText(
+                _cubit.state.indexOfSelectedElement, textController)
+            : _cubit.sendEvent(textController);
       },
     );
   }
@@ -260,7 +269,12 @@ class _EventPageState extends State<EventPage> {
           elevation: 3,
           color: Theme.of(context).primaryColor,
           child: ListTile(
-            leading: cubit.state.note.eventList[index].circleAvatar,
+            leading: _cubit.state.eventList[index].indexOfCircleAvatar != null
+                ? CircleAvatar(
+                    child: listOfIcons[
+                        _cubit.state.eventList[index].indexOfCircleAvatar],
+                  )
+                : null,
             title: Text(
               event.text,
               style: TextStyle(color: Colors.white),
@@ -270,7 +284,7 @@ class _EventPageState extends State<EventPage> {
               style: TextStyle(color: Colors.white54),
             ),
             onLongPress: () {
-              cubit.setIndexOfSelectedElement(index);
+              _cubit.setIndexOfSelectedElement(index);
               _appBarChange();
             },
           ),
@@ -280,10 +294,10 @@ class _EventPageState extends State<EventPage> {
   }
 
   void _appBarChange() {
-    cubit.setEventSelectedState(!cubit.state.eventSelected);
+    _cubit.setEventSelectedState(!_cubit.state.eventSelected);
   }
 
-  AppBar _appBarMenu(int index, {int count}) {
+  AppBar _appBarMenu(int index) {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.clear),
@@ -303,7 +317,7 @@ class _EventPageState extends State<EventPage> {
           icon: Icon(Icons.edit),
           onPressed: () {
             _appBarChange();
-            cubit.editEvent(index, textController);
+            _cubit.editEvent(index, textController);
             _focusNode.requestFocus();
           },
         ),
@@ -324,7 +338,7 @@ class _EventPageState extends State<EventPage> {
           icon: Icon(Icons.delete),
           onPressed: () {
             _appBarChange();
-            cubit.deleteEvent(index);
+            _cubit.deleteEvent(index);
           },
         ),
       ],
@@ -336,7 +350,7 @@ class _EventPageState extends State<EventPage> {
       context: context,
       builder: (context) {
         return BlocBuilder(
-          cubit: cubit,
+          cubit: _cubit,
           builder: (context, state) {
             return Dialog(
               shape: RoundedRectangleBorder(
@@ -362,7 +376,10 @@ class _EventPageState extends State<EventPage> {
                         Padding(
                           padding: EdgeInsets.only(left: 30),
                           child: IconButton(
-                            icon: Icon(Icons.close),
+                            icon: Icon(
+                              Icons.close,
+                              color: Colors.red,
+                            ),
                             onPressed: () {
                               Navigator.pop(context);
                             },
@@ -386,46 +403,49 @@ class _EventPageState extends State<EventPage> {
 
   IconButton _confirmTransferButton(int index) {
     return IconButton(
-      icon: Icon(Icons.check),
+      icon: Icon(
+        Icons.check,
+        color: Colors.green[400],
+      ),
       onPressed: () {
-        _noteList[cubit.state.selectedTile].eventList.insert(
-              0,
-              Event(
-                text: _note.eventList[index].text,
-                time: DateFormat('yyyy-MM-dd kk:mm').format(
-                  DateTime.now(),
-                ),
-                circleAvatar: _note.eventList[index].circleAvatar,
-              ),
-            );
+        final event = Event(
+          text: _cubit.state.eventList[index].text,
+          time: DateFormat('yyyy-MM-dd kk:mm').format(
+            DateTime.now(),
+          ),
+          noteId: _noteList[_cubit.state.selectedTile].id,
+          indexOfCircleAvatar:
+              _cubit.state.eventList[index].indexOfCircleAvatar,
+        );
         _updateSubTittle();
-        cubit.deleteEvent(index);
+        _cubit.deleteEvent(index);
+        dbProvider.insertEvent(event);
         Navigator.pop(context);
       },
     );
   }
 
   void _updateSubTittle() {
-    _noteList[cubit.state.selectedTile].eventList.isEmpty
-        ? _noteList[cubit.state.selectedTile].subTittleEvent = 'Add event'
-        : _noteList[cubit.state.selectedTile].subTittleEvent =
-            _note.eventList[0].text;
+    _cubit.state.eventList.isEmpty
+        ? _noteList[_cubit.state.selectedTile].subTittleEvent = 'Add event'
+        : _noteList[_cubit.state.selectedTile].subTittleEvent =
+            _cubit.state.eventList[0].text;
   }
 
   Widget _showDialogEventList(int index) {
     return RadioListTile(
       title: Text(
-        _noteList[index].eventName,
+        _noteList[index].noteName,
       ),
       value: index,
-      groupValue: cubit.state.selectedTile,
+      groupValue: _cubit.state.selectedTile,
       onChanged: (value) {
-        cubit.setIndexOfSelectedTile(value);
+        _cubit.setIndexOfSelectedTile(value);
       },
     );
   }
 
   void _copyEvent(int index) {
-    Clipboard.setData(ClipboardData(text: _note.eventList[index].text));
+    Clipboard.setData(ClipboardData(text: _cubit.state.eventList[index].text));
   }
 }

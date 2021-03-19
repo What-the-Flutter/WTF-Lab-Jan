@@ -1,17 +1,20 @@
 part of 'home_page_cubit.dart';
 
 class HomePageStates {
-  bool isThemeChange = false;
   List<Note> noteList;
-
+  Note note;
+  bool isThemeChange;
   HomePageStates copyWith({
     bool isThemeChange,
     List<Note> noteList,
+    Note note,
   }) {
-    var state = HomePageStates(noteList ?? this.noteList);
-    state.isThemeChange = isThemeChange ?? this.isThemeChange;
-    return state;
+    return HomePageStates(
+      noteList: noteList ?? this.noteList,
+      note: note ?? this.note,
+      isThemeChange: isThemeChange ?? this.isThemeChange,
+    );
   }
 
-  HomePageStates(this.noteList);
+  HomePageStates({this.isThemeChange, this.noteList, this.note});
 }
