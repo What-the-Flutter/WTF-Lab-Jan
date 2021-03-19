@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 import '../data/database_access.dart';
+import '../data/preferences_access.dart';
 import '../entity/page.dart';
 import 'events_state.dart';
 
@@ -10,10 +15,17 @@ class EventCubit extends Cubit<EventsState> {
   EventCubit(EventsState state) : super(state);
 
   void initialize(JournalPage page) async {
-    await db.initialize();
-    var events = await db.fetchEvents(page.id);
+    final prefs = PreferencesAccess();
+    final events = await db.fetchEvents(page.id);
     events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
-    emit(state.copyWith(events: events, page: page));
+    emit(
+      state.copyWith(
+        isDateCentered: prefs.fetchDateCentered(),
+        isRightToLeft: prefs.fetchRightToLeft(),
+        events: events,
+        page: page,
+      ),
+    );
   }
 
   void showFavourites(bool showingFavourites) {
@@ -45,7 +57,7 @@ class EventCubit extends Cubit<EventsState> {
   }
 
   void addToFavourites() {
-    var allFavourites = state.areAllFavourites();
+    final allFavourites = state.areAllFavourites();
     state.selected
       ..forEach((event) async {
         event.isFavourite = allFavourites ? false : true;
@@ -55,31 +67,52 @@ class EventCubit extends Cubit<EventsState> {
   }
 
   void selectEvent(Event event) {
-    if (state.isOnSelectionMode) {
-      if (state.selected.contains(event)) {
-        state.selected.remove(event);
-        if (state.selected.isEmpty) {
-          state.isOnSelectionMode = false;
-        }
-      } else {
-        state.selected.add(event);
-        if (state.isOnEdit && state.selected.length != 1) {
-          state.isOnEdit = false;
-        }
+    if (state.selected.contains(event)) {
+      state.selected.remove(event);
+      if (state.selected.isEmpty) {
+        state.isOnSelectionMode = false;
+      }
+    } else {
+      state.selected.add(event);
+      if (state.isOnEdit && state.selected.length != 1) {
+        state.isOnEdit = false;
       }
     }
     emit(state.copyWith());
   }
 
-  Future<void> addEvent(Event event) async {
-    if (state.date != null) {
+  Future<void> addEvent(String description) async {
+    final event = Event(state.page.id, description, state.selectedIconIndex);
+    if (state.isDateSelected) {
       event.creationTime = state.date;
     }
+    event.id = await db.insertEvent(event);
     state.events..insert(0, event);
-    db.insertEvent(event);
-    emit(state.copyWith(
-        events: state.events
-          ..sort((a, b) => b.creationTime.compareTo(a.creationTime))));
+    emit(
+      state.copyWith(
+          events: state.events
+            ..sort((a, b) => b.creationTime.compareTo(a.creationTime))),
+    );
+  }
+
+  Future<void> addEventFromResource(File image) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    print(appDir);
+    final fileName = path.basename(image.path);
+    print(fileName);
+    final saved = await image.copy('${appDir.path}/$fileName');
+    final event =
+        Event.fromResource(state.page.id, state.selectedIconIndex, saved.path);
+    if (state.isDateSelected) {
+      event.creationTime = state.date;
+    }
+    event.id = await db.insertEvent(event);
+    state.events..insert(0, event);
+    emit(
+      state.copyWith(
+          events: state.events
+            ..sort((a, b) => b.creationTime.compareTo(a.creationTime))),
+    );
   }
 
   Future<void> editEvent(String description) async {
@@ -92,7 +125,7 @@ class EventCubit extends Cubit<EventsState> {
 
   void acceptForward(JournalPage page) async {
     List forwardedList = state.selected.toList();
-    for (var forwardedEvent in forwardedList) {
+    for (final forwardedEvent in forwardedList) {
       forwardedEvent.pageId = page.id;
       db.updateEvent(forwardedEvent);
     }
@@ -105,7 +138,14 @@ class EventCubit extends Cubit<EventsState> {
   }
 
   void setDate(DateTime date) {
-    emit(state.copyWith(date: date));
-    print(state.date);
+    final isDateSelected = date != null;
+    if (isDateSelected) {
+      state.date = date;
+    }
+    emit(state.copyWith(isDateSelected: isDateSelected));
+  }
+
+  void setCanSelectImage(bool canSelectImage) {
+    emit(state.copyWith(canSelectImage: canSelectImage));
   }
 }

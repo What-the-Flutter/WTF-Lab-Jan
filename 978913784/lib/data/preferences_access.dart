@@ -29,5 +29,4 @@ class PreferencesAccess {
 
   bool fetchDateCentered() => _prefs.getBool('isDateCentered') ?? false;
 
-
 }

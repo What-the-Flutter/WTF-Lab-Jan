@@ -4,29 +4,38 @@ import 'package:sqflite/sqflite.dart';
 import '../entity/page.dart';
 
 class DatabaseAccess {
-  Database db;
+  static final DatabaseAccess _databaseAccess = DatabaseAccess._internal();
 
-  void initialize() async {
-    db = await openDatabase(
+  static Database _db;
+
+  factory DatabaseAccess() {
+    return _databaseAccess;
+  }
+
+  DatabaseAccess._internal();
+
+  static void initialize() async {
+    _db = await openDatabase(
       join(await getDatabasesPath(), 'database.db'),
       onCreate: (db, version) {
         db.execute(
           'CREATE TABLE pages('
-              'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-              ' title TEXT, iconIndex INTEGER,'
-              ' isPinned INTEGER,'
-              ' creationTime INTEGER'
-              ');',
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          ' title TEXT, iconIndex INTEGER,'
+          ' isPinned INTEGER,'
+          ' creationTime INTEGER'
+          ');',
         );
         db.execute(
           'CREATE TABLE events('
-              'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-              ' pageId INTEGER,'
-              ' iconIndex INTEGER,'
-              ' isFavourite INTEGER,'
-              ' description TEXT,'
-              'creationTime INTEGER'
-              ');',
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          ' pageId INTEGER,'
+          ' iconIndex INTEGER,'
+          ' isFavourite INTEGER,'
+          ' description TEXT,'
+          ' creationTime INTEGER,'
+          ' imagePath TEXT'
+          ');',
         );
       },
       version: 1,
@@ -34,7 +43,7 @@ class DatabaseAccess {
   }
 
   Future<List<JournalPage>> fetchPages() async {
-    final pagesMap = await db.query('pages');
+    final pagesMap = await _db.query('pages');
 
     var pages = List<JournalPage>.generate(pagesMap.length, (i) {
       return JournalPage.fromDb(
@@ -54,8 +63,9 @@ class DatabaseAccess {
   }
 
   void _fetchLastEvent(JournalPage page) async {
-    final eventMap = await db.rawQuery(
-      'SELECT * FROM events WHERE creationTime = ( SELECT MAX ( creationTime ) FROM ( SELECT * FROM events WHERE pageId = ? ) )',
+    final eventMap = await _db.rawQuery(
+      'SELECT * FROM events WHERE creationTime = ( SELECT MAX ( creationTime )'
+      ' FROM ( SELECT * FROM events WHERE pageId = ? ) )',
       [page.id],
     );
 
@@ -68,6 +78,7 @@ class DatabaseAccess {
         eventMap.first['description'],
         DateTime.fromMillisecondsSinceEpoch(
             eventMap.first['creationTime'] * 1000),
+        eventMap.first['imagePath'],
       );
     } else {
       page.lastEvent = null;
@@ -76,9 +87,8 @@ class DatabaseAccess {
 
   Future<List<Event>> fetchEvents(int pageId) async {
     final eventsMap =
-        await db.rawQuery('SELECT * FROM events WHERE pageId = ?', [pageId]);
-
-    var events = List.generate(eventsMap.length, (i) {
+        await _db.rawQuery('SELECT * FROM events WHERE pageId = ?', [pageId]);
+    final events = List.generate(eventsMap.length, (i) {
       return Event.fromDb(
         eventsMap[i]['id'],
         eventsMap[i]['pageId'],
@@ -87,24 +97,23 @@ class DatabaseAccess {
         eventsMap[i]['description'],
         DateTime.fromMillisecondsSinceEpoch(
             eventsMap[i]['creationTime'] * 1000),
+        eventsMap[i]['imagePath'],
       );
     });
-
     events.sort((a, b) => a.creationTime.compareTo(b.creationTime));
-
     return events;
   }
 
-  void insertPage(JournalPage page) async {
-    await db.insert(
+  Future<void> insertPage(JournalPage page) async {
+    await _db.insert(
       'pages',
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  void updatePage(JournalPage page) async {
-    await db.update(
+  Future<void> updatePage(JournalPage page) async {
+    await _db.update(
       'pages',
       page.toMap(),
       where: 'id = ?',
@@ -112,24 +121,24 @@ class DatabaseAccess {
     );
   }
 
-  void deletePage(JournalPage page) async {
-    await db.delete(
+  Future<void> deletePage(JournalPage page) async {
+    await _db.delete(
       'pages',
       where: 'id = ?',
       whereArgs: [page.id],
     );
   }
 
-  void insertEvent(Event event) async {
-    await db.insert(
+  Future<int> insertEvent(Event event) async {
+    return _db.insert(
       'events',
       event.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  void updateEvent(Event event) async {
-    await db.update(
+  Future<void> updateEvent(Event event) async {
+    await _db.update(
       'events',
       event.toMap(),
       where: 'id = ?',
@@ -137,8 +146,8 @@ class DatabaseAccess {
     );
   }
 
-  void deleteEvent(Event event) async {
-    await db.delete(
+  Future<void> deleteEvent(Event event) async {
+    await _db.delete(
       'events',
       where: 'id = ?',
       whereArgs: [event.id],

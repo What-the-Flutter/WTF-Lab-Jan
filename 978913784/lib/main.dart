@@ -1,15 +1,19 @@
-import 'package:chat_journal/settings_page/settings_cubit.dart';
-import 'package:chat_journal/settings_page/settings_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'app_theme_cubit.dart';
 import 'app_theme_state.dart';
+import 'data/database_access.dart';
+import 'data/preferences_access.dart';
 import 'home_page/home_page.dart';
 import 'home_page/pages_cubit.dart';
+import 'settings_page/settings_cubit.dart';
+import 'settings_page/settings_state.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PreferencesAccess.initialize();
+  await DatabaseAccess.initialize();
 
   runApp(MultiBlocProvider(
     providers: [
@@ -38,10 +42,8 @@ class MyApp extends StatelessWidget {
         return BlocBuilder<AppThemeCubit, AppThemeState>(
           builder: (context, state) {
             return MaterialApp(
-              theme: ThemeData(
-                primarySwatch: Colors.deepPurple,
-              ),
-              home: HomePage(state),
+              theme: state.theme,
+              home: HomePage(),
             );
           },
         );

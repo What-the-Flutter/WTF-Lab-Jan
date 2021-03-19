@@ -7,6 +7,10 @@ class EventsState {
   bool isOnEdit = false;
   bool isOnSelectionMode = false;
   bool showingFavourites = false;
+  bool isRightToLeft = false;
+  bool isDateCentered = false;
+  bool isDateSelected = false;
+  bool canSelectImage = true;
 
   List<Event> events = [];
   Set<Event> selected = {};
@@ -17,18 +21,21 @@ class EventsState {
   EventsState(this.page);
 
   EventsState copyWith({
-    DateTime date,
     bool isSearching,
     int selectedIconIndex,
     bool isOnEdit,
     bool isOnSelectionMode,
     bool showingFavourites,
+    bool isRightToLeft,
+    bool isDateCentered,
+    bool isDateSelected,
+    bool canSelectImage,
     List<Event> events,
     List<Event> eventsToDisplay,
     Set<Event> selected,
     JournalPage page,
   }) {
-    var state = EventsState(page ?? this.page);
+    final state = EventsState(page ?? this.page);
     state.date = date;
     state.events = events ?? this.events;
     state.selectedIconIndex = selectedIconIndex ?? this.selectedIconIndex;
@@ -36,13 +43,17 @@ class EventsState {
     state.isOnEdit = isOnEdit ?? this.isOnEdit;
     state.isOnSelectionMode = isOnSelectionMode ?? this.isOnSelectionMode;
     state.showingFavourites = showingFavourites ?? this.showingFavourites;
+    state.isRightToLeft = isRightToLeft ?? this.isRightToLeft;
+    state.isDateCentered = isDateCentered ?? this.isDateCentered;
+    state.isDateSelected = isDateSelected ?? this.isDateSelected;
     state.events = events ?? this.events;
     state.selected = selected ?? this.selected;
+    state.canSelectImage = canSelectImage ?? this.canSelectImage;
     return state;
   }
 
   bool areAllFavourites() {
-    for (var event in selected) {
+    for (final event in selected) {
       if (!event.isFavourite) {
         return false;
       }

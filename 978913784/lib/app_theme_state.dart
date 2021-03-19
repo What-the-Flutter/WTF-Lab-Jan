@@ -3,64 +3,82 @@ import 'package:flutter/material.dart';
 class AppThemeState {
   final bool usingLightTheme;
 
-  final Color mainColor;
-  final Color mainTextColor;
-  final Color accentColor;
-  final Color accentLightColor;
-  final Color accentTextColor;
-  final Color shadowColor;
+  final ThemeData theme;
 
   const AppThemeState({
     @required this.usingLightTheme,
-    @required this.mainColor,
-    @required this.mainTextColor,
-    @required this.accentColor,
-    @required this.accentLightColor,
-    @required this.accentTextColor,
-    @required this.shadowColor,
+    @required this.theme,
   });
 
   AppThemeState copyWith({
     bool usingLightTheme,
-    Color mainColor,
-    Color mainTextColor,
-    Color accentColor,
-    Color accentLightColor,
-    Color accentTextColor,
-    Color shadowColor,
+    ThemeData theme,
   }) {
     return AppThemeState(
       usingLightTheme: usingLightTheme ?? this.usingLightTheme,
-      mainColor: mainColor ?? this.mainColor,
-      mainTextColor: mainTextColor ?? this.mainTextColor,
-      accentColor: accentColor ?? this.accentColor,
-      accentLightColor: accentLightColor ?? this.accentLightColor,
-      accentTextColor: accentTextColor ?? this.accentTextColor,
-      shadowColor: shadowColor ?? this.shadowColor,
+      theme: theme ?? this.theme,
     );
   }
 
   static AppThemeState get lightTheme {
     return AppThemeState(
       usingLightTheme: true,
-      mainColor: Colors.white,
-      mainTextColor: Colors.black,
-      accentColor: Colors.purple.shade900,
-      accentLightColor: Colors.purple.shade600,
-      accentTextColor: Colors.white,
-      shadowColor: Colors.black,
+      theme: ThemeData(
+        primaryColor: Colors.white,
+        accentColor: Colors.purple.shade900,
+        textTheme: TextTheme(
+          bodyText1: TextStyle(color: Colors.black),
+          bodyText2: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          caption: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        dividerColor: Colors.black,
+        toggleableActiveColor: Colors.purple.shade900,
+        shadowColor: Colors.purple,
+        accentIconTheme: IconThemeData(color: Colors.white),
+        colorScheme: ColorScheme.light(
+          primary: Colors.purple.shade900,
+          secondary: Colors.purple.shade900,
+          background: Colors.white,
+        ),
+      ),
     );
   }
 
   static AppThemeState get darkTheme {
     return AppThemeState(
       usingLightTheme: false,
-      mainColor: Color(0xFF121212),
-      mainTextColor: Colors.white,
-      accentColor: Colors.purple.shade900,
-      accentLightColor: Colors.purple.shade600,
-      accentTextColor: Colors.white,
-      shadowColor: Colors.deepPurple,
+      theme: ThemeData(
+        primaryColor: Colors.black,
+        accentColor: Colors.purple.shade900,
+        textTheme: TextTheme(
+          bodyText1: TextStyle(color: Colors.white),
+          bodyText2: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          caption: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        dividerColor: Colors.white,
+        toggleableActiveColor: Colors.purple.shade900,
+        shadowColor: Colors.purple,
+        accentIconTheme: IconThemeData(color: Colors.white),
+        colorScheme: ColorScheme.dark(
+          primary: Colors.purple,
+          secondary: Colors.white,
+          background: Colors.black,
+          onPrimary: Colors.white,
+          surface: Colors.black,
+        ),
+      ),
     );
   }
 }

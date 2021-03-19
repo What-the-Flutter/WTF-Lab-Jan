@@ -2,30 +2,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../app_theme_state.dart';
 import '../data/icon_list.dart';
 import '../entity/page.dart';
 import 'edit_cubit.dart';
 import 'edit_state.dart';
 
 class EditPage extends StatefulWidget {
-  EditPage(this._page, this._title, this._appThemeState);
+  EditPage(this._page, this._title);
 
-  final AppThemeState _appThemeState;
   final JournalPage _page;
   final String _title;
 
   @override
-  _EditPageState createState() => _EditPageState(_page, _title, _appThemeState);
+  _EditPageState createState() => _EditPageState(_page, _title);
 }
 
 class _EditPageState extends State<EditPage> {
-  final AppThemeState _appThemeState;
   final String _title;
   final _controller = TextEditingController();
   EditCubit _cubit;
 
-  _EditPageState(JournalPage page, this._title, this._appThemeState) {
+  _EditPageState(JournalPage page, this._title) {
     _cubit = EditCubit(EditState(page, true));
   }
 
@@ -43,7 +40,7 @@ class _EditPageState extends State<EditPage> {
         return Scaffold(
           appBar: _appBar,
           body: _body,
-          backgroundColor: _appThemeState.mainColor,
+          backgroundColor: Theme.of(context).primaryColor,
         );
       },
     );
@@ -55,10 +52,10 @@ class _EditPageState extends State<EditPage> {
         onPressed: () => Navigator.pop(context, _cubit.state),
         icon: Icon(
           Icons.arrow_back,
-          color: _appThemeState.accentTextColor,
+          color: Theme.of(context).textTheme.bodyText2.color,
         ),
       ),
-      backgroundColor: _appThemeState.accentColor,
+      backgroundColor: Theme.of(context).accentColor,
       actions: [
         IconButton(
           onPressed: () {
@@ -67,7 +64,7 @@ class _EditPageState extends State<EditPage> {
           },
           icon: Icon(
             _cubit.state.isAllowedToSave ? Icons.check : Icons.close,
-            color: _appThemeState.accentTextColor,
+            color: Theme.of(context).textTheme.bodyText2.color,
           ),
         ),
       ],
@@ -75,7 +72,7 @@ class _EditPageState extends State<EditPage> {
         _title,
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          color: _appThemeState.accentTextColor,
+          color: Theme.of(context).textTheme.bodyText2.color,
         ),
       ),
     );
@@ -102,8 +99,9 @@ class _EditPageState extends State<EditPage> {
                     child: Center(
                       child: CircleAvatar(
                         maxRadius: 30,
-                        backgroundColor: _appThemeState.accentColor,
-                        foregroundColor: _appThemeState.accentTextColor,
+                        backgroundColor: Theme.of(context).accentColor,
+                        foregroundColor:
+                            Theme.of(context).textTheme.bodyText2.color,
                         child: Icon(e),
                       ),
                     ),
@@ -121,16 +119,16 @@ class _EditPageState extends State<EditPage> {
     Widget _textField() {
       return TextField(
         onChanged: _cubit.updateAllowance,
-        cursorColor: _appThemeState.accentTextColor,
+        cursorColor: Theme.of(context).textTheme.bodyText2.color,
         style: TextStyle(
-          color: _appThemeState.accentTextColor,
+          color: Theme.of(context).textTheme.bodyText2.color,
           fontWeight: FontWeight.bold,
         ),
         controller: _controller,
         decoration: InputDecoration(
           hintText: 'Write page name...',
           hintStyle: TextStyle(
-            color: _appThemeState.accentTextColor.withOpacity(0.5),
+            color: Theme.of(context).textTheme.bodyText2.color.withOpacity(0.5),
           ),
           border: InputBorder.none,
         ),
@@ -142,7 +140,7 @@ class _EditPageState extends State<EditPage> {
         borderRadius: BorderRadius.all(
           Radius.circular(5),
         ),
-        color: _appThemeState.accentColor,
+        color: Theme.of(context).accentColor,
       ),
       padding: EdgeInsets.all(5),
       margin: EdgeInsets.all(5),
@@ -150,8 +148,8 @@ class _EditPageState extends State<EditPage> {
         children: [
           CircleAvatar(
             maxRadius: 20,
-            foregroundColor: _appThemeState.accentTextColor,
-            backgroundColor: _appThemeState.accentColor,
+            foregroundColor: Theme.of(context).textTheme.bodyText2.color,
+            backgroundColor: Theme.of(context).accentColor,
             child: Icon(
               iconList[_cubit.state.page.iconIndex],
             ),

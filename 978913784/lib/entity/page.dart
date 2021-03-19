@@ -1,5 +1,4 @@
 class JournalPage {
-
   int _id;
   String title;
   int iconIndex;
@@ -22,7 +21,7 @@ class JournalPage {
   }
 
   JournalPage copyWith({String title, int iconIndex}) {
-    var copy = JournalPage(title ?? this.title, iconIndex ?? this.iconIndex,
+    final copy = JournalPage(title ?? this.title, iconIndex ?? this.iconIndex,
         creationTime: creationTime);
     copy.isPinned = isPinned;
     return copy;
@@ -39,49 +38,54 @@ class JournalPage {
       'title': title,
       'iconIndex': iconIndex,
       'isPinned': isPinned ? 1 : 0,
-      'creationTime': creationTime.millisecondsSinceEpoch~/1000,
+      'creationTime': creationTime.millisecondsSinceEpoch ~/ 1000,
     };
   }
 
   int get id => _id;
-
 }
 
 class Event {
-
-  int _id;
+  int id;
   int pageId;
-
   int iconIndex = 0;
   bool isFavourite = false;
   String description;
   DateTime creationTime;
+  String imagePath = '';
 
   Event(this.pageId, this.description, this.iconIndex) {
     creationTime = DateTime.now();
   }
 
   Event.fromDb(
-    int id,
+    this.id,
     this.pageId,
     this.iconIndex,
     this.isFavourite,
     this.description,
     this.creationTime,
+    this.imagePath,
+  );
+
+  Event.fromResource(
+    this.pageId,
+    this.iconIndex,
+    this.imagePath,
   ) {
-    _id = id;
+    creationTime = DateTime.now();
+    description = 'Image';
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': _id,
+      'id': id,
       'pageId': pageId,
       'iconIndex': iconIndex,
       'isFavourite': isFavourite ? 1 : 0,
       'description': description,
-      'creationTime': creationTime.millisecondsSinceEpoch~/1000,
+      'creationTime': creationTime.millisecondsSinceEpoch ~/ 1000,
+      'imagePath': imagePath,
     };
   }
-
-  int get id => _id;
 }

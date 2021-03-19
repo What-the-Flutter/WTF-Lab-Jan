@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:chat_journal/settings_page/settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,17 +7,15 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 
 import '../app_theme_cubit.dart';
-import '../app_theme_state.dart';
 import '../data/icon_list.dart';
 import '../edit_page/edit_page.dart';
 import '../entity/page.dart';
 import '../event_page/event_page.dart';
+import '../settings_page/settings_page.dart';
 import 'pages_cubit.dart';
 
 class HomePage extends StatelessWidget {
-  final AppThemeState _appThemeState;
-
-  HomePage(this._appThemeState);
+  HomePage();
 
   @override
   Widget build(BuildContext context) {
@@ -28,24 +25,26 @@ class HomePage extends StatelessWidget {
 
   Widget _scaffold(BuildContext context) {
     return Scaffold(
-      backgroundColor: _appThemeState.mainColor,
+      backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
-        backgroundColor: _appThemeState.accentColor,
+        backgroundColor: Theme.of(context).accentColor,
         title: Text(
           'Home',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.bodyText2.color,
+          ),
         ),
+        iconTheme: Theme.of(context).accentIconTheme,
         actions: [
           _themeChangeButton(context),
         ],
       ),
       drawer: _drawer(context),
-      bottomNavigationBar: _bottomNavigationBar,
+      bottomNavigationBar: _bottomNavigationBar(context),
       floatingActionButton: _floatingActionButton(context),
       body: BlocBuilder<PagesCubit, List<JournalPage>>(
-        builder: (context, state) {
-          return _body(context);
-        },
+        builder: (context, state) => _body(context),
       ),
     );
   }
@@ -53,7 +52,7 @@ class HomePage extends StatelessWidget {
   Widget _themeChangeButton(BuildContext context) {
     return IconButton(
       icon: Icon(
-        _appThemeState.usingLightTheme
+        BlocProvider.of<AppThemeCubit>(context).state.usingLightTheme
             ? Icons.wb_sunny_outlined
             : Icons.bedtime_outlined,
       ),
@@ -63,18 +62,20 @@ class HomePage extends StatelessWidget {
 
   Widget _drawer(BuildContext context) {
     return Theme(
-      data: Theme.of(context).copyWith(canvasColor: _appThemeState.mainColor),
+      data: Theme.of(context).copyWith(
+        canvasColor: Theme.of(context).primaryColor,
+      ),
       child: Drawer(
         child: ListView(
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: _appThemeState.accentColor,
+                color: Theme.of(context).accentColor,
               ),
               child: Text(
                 DateFormat('MMM d, yyyy').format(DateTime.now()),
                 style: TextStyle(
-                  color: _appThemeState.accentTextColor,
+                  color: Theme.of(context).textTheme.bodyText2.color,
                   fontWeight: FontWeight.w900,
                   fontSize: 25,
                 ),
@@ -83,11 +84,11 @@ class HomePage extends StatelessWidget {
             ListTile(
               leading: Icon(
                 Icons.settings,
-                color: _appThemeState.mainTextColor,
+                color: Theme.of(context).textTheme.bodyText1.color,
               ),
               title: Text(
                 'Settings',
-                style: TextStyle(color: _appThemeState.mainTextColor),
+                style: Theme.of(context).textTheme.bodyText1,
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -105,7 +106,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget get _bottomNavigationBar {
+  Widget _bottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
@@ -118,22 +119,23 @@ class HomePage extends StatelessWidget {
         ),
       ],
       currentIndex: 0,
-      backgroundColor: _appThemeState.accentColor,
-      selectedItemColor: _appThemeState.accentTextColor,
-      unselectedItemColor: _appThemeState.accentTextColor.withOpacity(0.3),
+      backgroundColor: Theme.of(context).accentColor,
+      selectedItemColor: Theme.of(context).textTheme.bodyText2.color,
+      unselectedItemColor:
+          Theme.of(context).textTheme.bodyText2.color.withOpacity(0.3),
     );
   }
 
   Widget _floatingActionButton(BuildContext context) {
     return FloatingActionButton(
+      foregroundColor: Theme.of(context).textTheme.bodyText2.color,
       onPressed: () async {
-        var pageInfo = await Navigator.push(
+        final pageInfo = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => EditPage(
               JournalPage('New page', 0),
               'New page',
-              _appThemeState,
             ),
           ),
         );
@@ -142,7 +144,7 @@ class HomePage extends StatelessWidget {
           BlocProvider.of<PagesCubit>(context).state.forEach((element) {});
         }
       },
-      backgroundColor: _appThemeState.accentColor,
+      backgroundColor: Theme.of(context).accentColor,
       tooltip: 'New page',
       child: Icon(Icons.add),
     );
@@ -154,14 +156,19 @@ class HomePage extends StatelessWidget {
             child: Text(
               'No pages yet...',
               style: TextStyle(
-                  color: _appThemeState.mainTextColor.withOpacity(0.5)),
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    .color
+                    .withOpacity(0.5),
+              ),
             ),
           )
         : _gridView(context);
   }
 
   void _pageModalBottomSheet(BuildContext context, int index) {
-    var selected = BlocProvider.of<PagesCubit>(context).state[index];
+    final selected = BlocProvider.of<PagesCubit>(context).state[index];
 
     Widget _pinTile() {
       return ListTile(
@@ -169,14 +176,12 @@ class HomePage extends StatelessWidget {
             angle: 45 * pi / 180,
             child: Icon(
               Icons.push_pin_outlined,
-              color: _appThemeState.mainTextColor,
+              color: Theme.of(context).textTheme.bodyText1.color,
             ),
           ),
           title: Text(
             selected.isPinned ? 'Unpin' : 'Pin',
-            style: TextStyle(
-              color: _appThemeState.mainTextColor,
-            ),
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           onTap: () async {
             BlocProvider.of<PagesCubit>(context).pinPage(selected);
@@ -188,22 +193,19 @@ class HomePage extends StatelessWidget {
       return ListTile(
           leading: Icon(
             Icons.edit_outlined,
-            color: _appThemeState.mainTextColor,
+            color: Theme.of(context).textTheme.bodyText1.color,
           ),
           title: Text(
             'Edit',
-            style: TextStyle(
-              color: _appThemeState.mainTextColor,
-            ),
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           onTap: () async {
-            var editState = await Navigator.push(
+            final editState = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => EditPage(
                       JournalPage(selected.title, selected.iconIndex),
                       'Edit',
-                      _appThemeState,
                     ),
                   ),
                 ) ??
@@ -220,13 +222,11 @@ class HomePage extends StatelessWidget {
       return ListTile(
           leading: Icon(
             Icons.delete_outlined,
-            color: _appThemeState.mainTextColor,
+            color: Theme.of(context).textTheme.bodyText1.color,
           ),
           title: Text(
             'Delete',
-            style: TextStyle(
-              color: _appThemeState.mainTextColor,
-            ),
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           onTap: () {
             BlocProvider.of<PagesCubit>(context).deletePage(selected);
@@ -241,8 +241,8 @@ class HomePage extends StatelessWidget {
             children: [
               CircleAvatar(
                 maxRadius: 20,
-                foregroundColor: _appThemeState.accentTextColor,
-                backgroundColor: _appThemeState.accentColor,
+                foregroundColor: Theme.of(context).textTheme.bodyText2.color,
+                backgroundColor: Theme.of(context).accentColor,
                 child: Icon(
                   iconList[selected.iconIndex],
                 ),
@@ -251,7 +251,7 @@ class HomePage extends StatelessWidget {
                 child: Text(
                   selected.title,
                   style: TextStyle(
-                    color: _appThemeState.accentTextColor,
+                    color: Theme.of(context).textTheme.bodyText2.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -267,15 +267,13 @@ class HomePage extends StatelessWidget {
                 Text(
                   '$header:',
                   style: TextStyle(
-                    color: _appThemeState.mainTextColor,
+                    color: Theme.of(context).textTheme.bodyText1.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   DateFormat('dd.MM.yyyy HH:mm').format(time),
-                  style: TextStyle(
-                    color: _appThemeState.mainTextColor,
-                  ),
+                  style: Theme.of(context).textTheme.bodyText1,
                 ),
               ],
             );
@@ -295,7 +293,7 @@ class HomePage extends StatelessWidget {
         }
 
         return AlertDialog(
-          backgroundColor: _appThemeState.mainColor,
+          backgroundColor: Theme.of(context).primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
               Radius.circular(5),
@@ -306,7 +304,7 @@ class HomePage extends StatelessWidget {
               borderRadius: BorderRadius.all(
                 Radius.circular(5),
               ),
-              color: _appThemeState.accentColor,
+              color: Theme.of(context).accentColor,
             ),
             padding: EdgeInsets.all(5),
             margin: EdgeInsets.all(5),
@@ -319,13 +317,11 @@ class HomePage extends StatelessWidget {
       return ListTile(
           leading: Icon(
             Icons.info_outline,
-            color: _appThemeState.mainTextColor,
+            color: Theme.of(context).textTheme.bodyText1.color,
           ),
           title: Text(
             'Info',
-            style: TextStyle(
-              color: _appThemeState.mainTextColor,
-            ),
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           onTap: () async {
             Navigator.pop(context);
@@ -337,18 +333,19 @@ class HomePage extends StatelessWidget {
     }
 
     showModalBottomSheet(
-        context: context,
-        backgroundColor: _appThemeState.mainColor,
-        builder: (context) {
-          return Wrap(
-            children: <Widget>[
-              _pinTile(),
-              _editTile(),
-              _deleteTile(),
-              _infoTile(),
-            ],
-          );
-        });
+      context: context,
+      backgroundColor: Theme.of(context).primaryColor,
+      builder: (context) {
+        return Wrap(
+          children: <Widget>[
+            _pinTile(),
+            _editTile(),
+            _deleteTile(),
+            _infoTile(),
+          ],
+        );
+      },
+    );
   }
 
   Widget _gridView(BuildContext context) {
@@ -363,29 +360,29 @@ class HomePage extends StatelessWidget {
             await Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => EventPage(
-                        BlocProvider.of<PagesCubit>(context).state[index],
-                        _appThemeState,
-                      )),
+                builder: (context) => EventPage(
+                  BlocProvider.of<PagesCubit>(context).state[index],
+                ),
+              ),
             );
             BlocProvider.of<PagesCubit>(context).updatePages();
           },
           onLongPress: () {
             _pageModalBottomSheet(context, index);
           },
-          child:
-              _gridViewItem(BlocProvider.of<PagesCubit>(context).state[index]),
+          child: _gridViewItem(
+              BlocProvider.of<PagesCubit>(context).state[index], context),
         );
       },
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
     );
   }
 
-  Widget _gridViewItem(JournalPage page) {
+  Widget _gridViewItem(JournalPage page, BuildContext context) {
     Widget _header() {
       return Container(
         decoration: BoxDecoration(
-          color: _appThemeState.accentColor,
+          color: Theme.of(context).accentColor,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(5), topRight: Radius.circular(5)),
         ),
@@ -394,7 +391,7 @@ class HomePage extends StatelessWidget {
           children: [
             Icon(
               iconList[page.iconIndex],
-              color: _appThemeState.accentTextColor,
+              color: Theme.of(context).textTheme.bodyText2.color,
             ),
             Expanded(
               child: Text(
@@ -403,20 +400,22 @@ class HomePage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: _appThemeState.accentTextColor),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyText2.color,
+                ),
               ),
             ),
             if (page.isPinned)
               Align(
                 alignment: Alignment.centerRight,
                 child: Transform.rotate(
-                    angle: 45 * pi / 180,
-                    child: Icon(
-                      Icons.push_pin_outlined,
-                      color: _appThemeState.accentTextColor,
-                    )),
+                  angle: 45 * pi / 180,
+                  child: Icon(
+                    Icons.push_pin_outlined,
+                    color: Theme.of(context).textTheme.bodyText2.color,
+                  ),
+                ),
               ),
           ],
         ),
@@ -432,15 +431,17 @@ class HomePage extends StatelessWidget {
                 child: Text(
                   'No events yet...',
                   style: TextStyle(
-                    color: _appThemeState.mainTextColor.withOpacity(0.5),
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        .color
+                        .withOpacity(0.5),
                   ),
                 ),
               )
             : Text(
                 page.lastEvent.description,
-                style: TextStyle(
-                  color: _appThemeState.mainTextColor,
-                ),
+                style: Theme.of(context).textTheme.bodyText1,
               ),
       );
     }
@@ -454,13 +455,13 @@ class HomePage extends StatelessWidget {
         ],
       ),
       decoration: BoxDecoration(
-        color: _appThemeState.mainColor,
+        color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.all(
           Radius.circular(5),
         ),
         boxShadow: [
           BoxShadow(
-            color: _appThemeState.shadowColor.withOpacity(0.3),
+            color: Theme.of(context).shadowColor.withOpacity(0.3),
             spreadRadius: 1,
             blurRadius: 2,
             offset: Offset(1, 1),

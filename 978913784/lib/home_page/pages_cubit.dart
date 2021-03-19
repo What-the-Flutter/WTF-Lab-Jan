@@ -9,7 +9,6 @@ class PagesCubit extends Cubit<List<JournalPage>> {
   PagesCubit(List<JournalPage> state) : super(state);
 
   void initialize() async {
-    await db.initialize();
     final pages = await db.fetchPages();
     emit(sortPageList(pages));
   }
@@ -53,8 +52,8 @@ class PagesCubit extends Cubit<List<JournalPage>> {
   }
 
   List<JournalPage> sortPageList(List<JournalPage> list) {
-    var pinned = list.where((element) => element.isPinned).toList();
-    var unpinned = list.where((element) => !element.isPinned).toList();
+    final pinned = list.where((element) => element.isPinned).toList();
+    final unpinned = list.where((element) => !element.isPinned).toList();
 
     unpinned.sort((a, b) {
       final firstEvent = b.lastEvent;

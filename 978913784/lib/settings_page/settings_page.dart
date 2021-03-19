@@ -1,31 +1,29 @@
-import 'package:chat_journal/settings_page/settings_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../app_theme_cubit.dart';
-import '../app_theme_state.dart';
+import 'settings_cubit.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final _appThemeState = BlocProvider.of<AppThemeCubit>(context).state;
     return Scaffold(
-      appBar: _appBar(_appThemeState),
-      body: _body(context, _appThemeState),
-      backgroundColor: _appThemeState.mainColor,
+      appBar: _appBar(context),
+      body: _body(context),
+      backgroundColor: Theme.of(context).primaryColor,
     );
   }
 
-  Widget _body(BuildContext context, AppThemeState _appThemeState) {
+  Widget _body(BuildContext context) {
     Widget _header(String text) {
       return Container(
         margin: EdgeInsets.only(left: 20, top: 5),
         child: Text(
           text,
           style: TextStyle(
+            color: Theme.of(context).textTheme.bodyText1.color,
             fontWeight: FontWeight.bold,
-            color: _appThemeState.mainTextColor,
           ),
         ),
       );
@@ -36,29 +34,30 @@ class SettingsPage extends StatelessWidget {
       return ListTile(
         leading: Icon(
           icon,
-          color: _appThemeState.mainTextColor,
+          color: Theme.of(context).textTheme.bodyText1.color,
         ),
         title: Text(
           title,
-          style: TextStyle(
-            color: _appThemeState.mainTextColor,
-          ),
+          style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color),
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(color: _appThemeState.mainTextColor),
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8),
+            fontWeight: FontWeight.normal,
+          ),
         ),
         trailing: trailing,
         onTap: onTap,
       );
     }
 
-    var dateSwitch = Switch(
+    final dateSwitch = Switch(
       value: BlocProvider.of<SettingsCubit>(context).state.isDateCentered,
       onChanged: BlocProvider.of<SettingsCubit>(context).changeDateCentered,
     );
 
-    var bubbleSwitch = Switch(
+    final bubbleSwitch = Switch(
       value: BlocProvider.of<SettingsCubit>(context).state.isRightToLeft,
       onChanged: BlocProvider.of<SettingsCubit>(context).changeRightToLeft,
     );
@@ -73,34 +72,62 @@ class SettingsPage extends StatelessWidget {
           'Light/Dark',
           BlocProvider.of<AppThemeCubit>(context).changeTheme,
         ),
-        Divider(color: _appThemeState.mainTextColor),
-        _header('Chat'),
+        Divider(color: Theme.of(context).dividerColor),
+        _header('General'),
+        _tile(
+          Icons.sort_by_alpha,
+          'Font size',
+          'Small/Medium/Large',
+          () {},
+        ),
+        Divider(color: Theme.of(context).dividerColor),
         _tile(
           Icons.date_range_outlined,
           'Center date',
           'Display date at the center.',
-          () {dateSwitch.onChanged(!dateSwitch.value);},
+          () {
+            dateSwitch.onChanged(!dateSwitch.value);
+          },
           trailing: dateSwitch,
         ),
-        Divider(color: _appThemeState.mainTextColor),
+        Divider(color: Theme.of(context).dividerColor),
         _tile(
           Icons.format_align_right,
           'Bubble alignment',
           'Force right-to-left bubble alignment.',
-              () {bubbleSwitch.onChanged(!bubbleSwitch.value);},
+          () {
+            bubbleSwitch.onChanged(!bubbleSwitch.value);
+          },
           trailing: bubbleSwitch,
         ),
-        Divider(color: _appThemeState.mainTextColor),
+        Divider(color: Theme.of(context).dividerColor),
+        _header('Other'),
+        _tile(
+          Icons.settings_backup_restore_outlined,
+          'Restore settings',
+          'Reset all setting to default values',
+          () {},
+        ),
+        _tile(
+          Icons.share,
+          'Share app',
+          'Share a link of the Chat journal with your friends!',
+          () {},
+        ),
       ],
     );
   }
 
-  Widget _appBar(AppThemeState _appThemeState) {
+  Widget _appBar(BuildContext context) {
     return AppBar(
-      backgroundColor: _appThemeState.accentColor,
+      backgroundColor: Theme.of(context).accentColor,
+      iconTheme: Theme.of(context).accentIconTheme,
       title: Text(
         'Settings',
-        style: TextStyle(color: _appThemeState.accentTextColor),
+        style: TextStyle(
+          color: Theme.of(context).textTheme.bodyText2.color,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

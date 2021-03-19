@@ -11,7 +11,7 @@ class EditCubit extends Cubit<EditState> {
   }
 
   void updateAllowance(String text) {
-    var isAllowedToSave = text.isNotEmpty;
+    final isAllowedToSave = text.isNotEmpty;
     final updatedState = state.copyWith(isAllowedToSave: isAllowedToSave);
     emit(updatedState);
   }

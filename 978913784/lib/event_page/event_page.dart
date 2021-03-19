@@ -1,42 +1,43 @@
-import 'package:chat_journal/settings_page/settings_cubit.dart';
+import 'dart:io';
+
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../app_theme_state.dart';
 import '../data/icon_list.dart';
 import '../entity/page.dart';
 import '../home_page/pages_cubit.dart';
+import '../settings_page/settings_cubit.dart';
 import 'events_cubit.dart';
 import 'events_state.dart';
 
 class EventPage extends StatefulWidget {
-  EventPage(this.page, this.appThemeState, {Key key}) : super(key: key);
+  EventPage(this.page, {Key key}) : super(key: key);
 
-  final AppThemeState appThemeState;
   final JournalPage page;
 
   @override
-  _EventPageState createState() => _EventPageState(page, appThemeState);
+  _EventPageState createState() => _EventPageState(page);
 }
 
 class _EventPageState extends State<EventPage> {
-  final AppThemeState appThemeState;
   final controller = TextEditingController();
   final _focusNode = FocusNode();
 
   EventCubit cubit;
 
-  _EventPageState(JournalPage page, this.appThemeState) {
+  _EventPageState(JournalPage page) {
     cubit = EventCubit(EventsState(page));
     cubit.initialize(page);
   }
 
   Widget get _infoAppBar {
     return AppBar(
-      backgroundColor: appThemeState.accentColor,
+      backgroundColor: Theme.of(context).accentColor,
+      iconTheme: Theme.of(context).accentIconTheme,
       actions: [
         IconButton(
           onPressed: () => cubit.showFavourites(!cubit.state.showingFavourites),
@@ -52,33 +53,6 @@ class _EventPageState extends State<EventPage> {
           },
           icon: Icon(Icons.search),
         ),
-        IconButton(
-          onPressed: () async {
-            if (cubit.state.date == null) {
-              var date = await showDatePicker(
-                context: context,
-                initialDate: cubit.state.date ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2025),
-              );
-              if (date != null) {
-                var time = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.fromDateTime(date),
-                );
-                if (time != null) {
-                  date = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-                  cubit.setDate(date);
-                }
-              }
-            } else {
-              cubit.setDate(null);
-            }
-          },
-          icon: Icon(cubit.state.date == null
-              ? Icons.date_range_outlined
-              : Icons.update),
-        ),
       ],
       title: Row(
         children: [
@@ -88,8 +62,8 @@ class _EventPageState extends State<EventPage> {
               cubit.state.page.title,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyText2.color),
             ),
           ),
         ],
@@ -99,7 +73,7 @@ class _EventPageState extends State<EventPage> {
 
   Widget get _searchAppBar {
     return AppBar(
-      backgroundColor: appThemeState.accentColor,
+      backgroundColor: Theme.of(context).accentColor,
       leading: IconButton(
         icon: Icon(Icons.close),
         onPressed: () {
@@ -113,9 +87,11 @@ class _EventPageState extends State<EventPage> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.bodyText2.color,
           ),
         ),
       ),
+      iconTheme: Theme.of(context).accentIconTheme,
     );
   }
 
@@ -139,7 +115,7 @@ class _EventPageState extends State<EventPage> {
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
-                    color: appThemeState.accentColor,
+                    color: Theme.of(context).accentColor,
                   ),
                   padding: EdgeInsets.all(10),
                   margin: EdgeInsets.all(5),
@@ -149,7 +125,7 @@ class _EventPageState extends State<EventPage> {
                         iconList[BlocProvider.of<PagesCubit>(context)
                             .state[index]
                             .iconIndex],
-                        color: appThemeState.accentTextColor,
+                        color: Theme.of(context).textTheme.bodyText2.color,
                       ),
                       SizedBox(width: 10),
                       Expanded(
@@ -159,7 +135,7 @@ class _EventPageState extends State<EventPage> {
                               .title,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: appThemeState.accentTextColor,
+                            color: Theme.of(context).textTheme.bodyText2.color,
                           ),
                         ),
                       )
@@ -173,7 +149,7 @@ class _EventPageState extends State<EventPage> {
       }
 
       return AlertDialog(
-        backgroundColor: appThemeState.mainColor,
+        backgroundColor: Theme.of(context).primaryColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(5),
@@ -254,10 +230,16 @@ class _EventPageState extends State<EventPage> {
     }
 
     return AppBar(
-      backgroundColor: appThemeState.accentColor,
-      title: Text(cubit.state.selected.length.toString(),
-          style: TextStyle(fontWeight: FontWeight.bold)),
+      backgroundColor: Theme.of(context).accentColor,
+      title: Text(
+        cubit.state.selected.length.toString(),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).textTheme.bodyText2.color,
+        ),
+      ),
       leading: _closeButton(),
+      iconTheme: Theme.of(context).accentIconTheme,
       actions: [
         _forwardButton(),
         if (cubit.state.selected.length == 1) _editButton(),
@@ -280,33 +262,35 @@ class _EventPageState extends State<EventPage> {
         : _allowed;
 
     if (_displayed.isNotEmpty) {
-      final _children = <Widget>[];
+      final _children = <Widget>[SizedBox(height: 50)];
       final days = <int>{};
       for (var i = _displayed.length - 1; i >= 0; i--) {
-        var day = _displayed[i].creationTime.millisecondsSinceEpoch ~/ 86400000;
+        final day =
+            _displayed[i].creationTime.millisecondsSinceEpoch ~/ 86400000;
         if (!days.contains(day)) {
           _children.insert(
-              0,
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-                child: Text(
-                  DateFormat('MMM d').format(_displayed[i].creationTime),
-                  style: TextStyle(color: appThemeState.mainTextColor),
-                  textAlign: BlocProvider.of<SettingsCubit>(context)
-                          .state
-                          .isDateCentered
-                      ? TextAlign.center
-                      : BlocProvider.of<SettingsCubit>(context)
-                              .state
-                              .isRightToLeft
-                          ? TextAlign.end
-                          : TextAlign.start,
-                ),
-              ));
+            0,
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+              child: Text(
+                DateFormat('MMM d, yyyy').format(_displayed[i].creationTime),
+                style: Theme.of(context).textTheme.bodyText1,
+                textAlign:
+                    BlocProvider.of<SettingsCubit>(context).state.isDateCentered
+                        ? TextAlign.center
+                        : BlocProvider.of<SettingsCubit>(context)
+                                .state
+                                .isRightToLeft
+                            ? TextAlign.end
+                            : TextAlign.start,
+              ),
+            ),
+          );
           days.add(day);
         }
         _children.insert(0, _listItem(_displayed[i], i));
       }
+
       return ListView(
         reverse: true,
         shrinkWrap: true,
@@ -318,7 +302,7 @@ class _EventPageState extends State<EventPage> {
         child: Text(
           'No events yet...',
           style: TextStyle(
-            color: appThemeState.mainTextColor.withOpacity(0.5),
+            color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
           ),
         ),
       );
@@ -331,7 +315,7 @@ class _EventPageState extends State<EventPage> {
         children: [
           Icon(
             eventIconList[event.iconIndex],
-            color: appThemeState.accentTextColor,
+            color: Theme.of(context).textTheme.bodyText2.color,
           ),
           SizedBox(width: 10),
           Expanded(
@@ -339,7 +323,7 @@ class _EventPageState extends State<EventPage> {
               eventStringList[event.iconIndex],
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: appThemeState.accentTextColor,
+                color: Theme.of(context).textTheme.bodyText2.color,
               ),
             ),
           )
@@ -348,18 +332,22 @@ class _EventPageState extends State<EventPage> {
     }
 
     Widget _content(Event event) {
-      return Text(
-        event.description,
-        style: TextStyle(
-          fontSize: 15,
-          color: appThemeState.accentTextColor,
-        ),
-      );
+      return event.imagePath.isEmpty
+          ? Text(
+              event.description,
+              style: TextStyle(
+                fontSize: 15,
+                color: Theme.of(context).textTheme.bodyText2.color,
+              ),
+            )
+          : Image.memory(File(event.imagePath).readAsBytesSync());
     }
 
     return GestureDetector(
       onTap: () {
-        cubit.selectEvent(event);
+        if (cubit.state.isOnSelectionMode) {
+          cubit.selectEvent(event);
+        }
       },
       onLongPress: () {
         cubit.setSelectionMode(true);
@@ -383,8 +371,8 @@ class _EventPageState extends State<EventPage> {
                     : Radius.circular(10),
           ),
           color: cubit.state.selected.contains(event)
-              ? appThemeState.accentLightColor
-              : appThemeState.accentColor,
+              ? Theme.of(context).shadowColor
+              : Theme.of(context).accentColor,
         ),
         padding: EdgeInsets.only(
           top: 10,
@@ -415,10 +403,11 @@ class _EventPageState extends State<EventPage> {
                       : Container(),
                 ),
                 Text(
-                  DateFormat('dd.MM.yyyy HH:mm').format(event.creationTime),
+                  DateFormat('HH:mm').format(event.creationTime),
                   style: TextStyle(
                     fontSize: 12,
-                    color: appThemeState.accentTextColor,
+                    color: Theme.of(context).textTheme.bodyText2.color,
+                    fontWeight: FontWeight.normal,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -431,36 +420,93 @@ class _EventPageState extends State<EventPage> {
   }
 
   Widget get _floatingActionButton {
+    void _showBottomSheet() {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Theme.of(context).primaryColor,
+        builder: (context) {
+          return Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(
+                  Icons.camera_alt,
+                  color: Theme.of(context).textTheme.bodyText1.color,
+                ),
+                title: Text(
+                  'Take a photo',
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  var image =
+                      await ImagePicker().getImage(source: ImageSource.camera);
+                  if (image != null) {
+                    cubit.addEventFromResource(File(image.path));
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.photo,
+                  color: Theme.of(context).textTheme.bodyText1.color,
+                ),
+                title: Text(
+                  'Pick from gallery',
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  var image =
+                      await ImagePicker().getImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    print(image.path);
+                    cubit.addEventFromResource(File(image.path));
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return FloatingActionButton(
       onPressed: () {
-        if (controller.text.isNotEmpty) {
+        if (cubit.state.canSelectImage) {
+          _showBottomSheet();
+        } else {
           if (cubit.state.isOnEdit) {
             cubit.editEvent(controller.text);
           } else {
-            cubit.addEvent(Event(cubit.state.page.id, controller.text,
-                cubit.state.selectedIconIndex));
+            cubit.addEvent(
+              controller.text,
+            );
           }
           controller.clear();
         }
       },
       child: Icon(
-        cubit.state.isOnEdit ? Icons.check : Icons.send,
-        color: appThemeState.accentTextColor,
+        cubit.state.canSelectImage
+            ? Icons.photo_camera
+            : cubit.state.isOnEdit
+                ? Icons.check
+                : Icons.send,
+        color: Theme.of(context).textTheme.bodyText2.color,
         size: 18,
       ),
-      backgroundColor: appThemeState.accentColor,
+      backgroundColor: Theme.of(context).accentColor,
       elevation: 0,
     );
   }
 
   Widget get _textField {
     return TextField(
-      style: TextStyle(
-        color: appThemeState.mainTextColor,
-      ),
+      style: Theme.of(context).textTheme.bodyText1,
       onChanged: (text) {
         if (cubit.state.isSearching) {
           cubit.setOnSearch(true);
+        } else {
+          cubit.setCanSelectImage(text.isEmpty);
         }
       },
       controller: controller,
@@ -468,7 +514,7 @@ class _EventPageState extends State<EventPage> {
       decoration: InputDecoration(
         hintText: 'Write event description...',
         hintStyle: TextStyle(
-          color: appThemeState.mainTextColor.withOpacity(0.5),
+          color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
         ),
         border: InputBorder.none,
       ),
@@ -498,15 +544,17 @@ class _EventPageState extends State<EventPage> {
                     child: Column(
                       children: [
                         CircleAvatar(
-                          backgroundColor: appThemeState.accentColor,
-                          foregroundColor: appThemeState.accentTextColor,
+                          backgroundColor: Theme.of(context).accentColor,
+                          foregroundColor:
+                              Theme.of(context).textTheme.bodyText2.color,
                           child: Icon(eventIconList[index]),
                         ),
                         Expanded(
                           child: Text(
                             eventStringList[index],
                             style: TextStyle(
-                              color: appThemeState.mainTextColor,
+                              color:
+                                  Theme.of(context).textTheme.bodyText1.color,
                               fontSize: 12,
                             ),
                           ),
@@ -521,7 +569,7 @@ class _EventPageState extends State<EventPage> {
       }
 
       return AlertDialog(
-        backgroundColor: appThemeState.mainColor,
+        backgroundColor: Theme.of(context).primaryColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(5),
@@ -545,7 +593,7 @@ class _EventPageState extends State<EventPage> {
             padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
             height: 60,
             width: double.infinity,
-            color: appThemeState.mainColor,
+            color: Theme.of(context).primaryColor,
             child: Row(
               children: <Widget>[
                 if (!cubit.state.isSearching)
@@ -554,7 +602,7 @@ class _EventPageState extends State<EventPage> {
                       cubit.state.selectedIconIndex == 0
                           ? Icons.insert_emoticon
                           : eventIconList[cubit.state.selectedIconIndex],
-                      color: appThemeState.accentColor,
+                      color: Theme.of(context).accentColor,
                     ),
                     onPressed: () async {
                       await showDialog(
@@ -591,17 +639,72 @@ class _EventPageState extends State<EventPage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        cubit: cubit,
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: appThemeState.mainColor,
-            appBar: state.isOnSelectionMode
-                ? _editAppBar
-                : state.isSearching
-                    ? _searchAppBar
-                    : _infoAppBar,
-            body: _body,
-          );
-        });
+      cubit: cubit,
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).primaryColor,
+          appBar: state.isOnSelectionMode
+              ? _editAppBar
+              : state.isSearching
+                  ? _searchAppBar
+                  : _infoAppBar,
+          body: Stack(
+            children: [
+              _body,
+              Align(
+                alignment: cubit.state.isRightToLeft
+                    ? Alignment.topLeft
+                    : Alignment.topRight,
+                child: Container(
+                  margin: EdgeInsets.all(5),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.all(2))),
+                    child: cubit.state.isDateSelected
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.close,
+                                size: 17,
+                              ),
+                              Text(
+                                DateFormat('dd.MM.yyyy HH:mm')
+                                    .format(cubit.state.date),
+                              ),
+                            ],
+                          )
+                        : Text('Set date'),
+                    onPressed: () async {
+                      if (cubit.state.isDateSelected) {
+                        cubit.setDate(null);
+                      } else {
+                        var date = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2025),
+                        );
+                        if (date != null) {
+                          final time = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.fromDateTime(date),
+                          );
+                          if (time != null) {
+                            date = DateTime(date.year, date.month, date.day,
+                                time.hour, time.minute);
+                            cubit.setDate(date);
+                          }
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

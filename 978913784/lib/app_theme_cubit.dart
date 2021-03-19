@@ -1,22 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_theme_state.dart';
+import 'data/preferences_access.dart';
 
 class AppThemeCubit extends Cubit<AppThemeState> {
   bool _usingLightTheme = true;
+  final _preferencesAccess = PreferencesAccess();
 
   AppThemeCubit() : super(AppThemeState.darkTheme);
-
-  void _fetchTheme() async {
-    var prefs = await SharedPreferences.getInstance();
-    _usingLightTheme = prefs.getBool('usingLightTheme') ?? true;
-  }
-
-  void _saveTheme() async {
-    var prefs = await SharedPreferences.getInstance();
-    prefs.setBool('usingLightTheme', _usingLightTheme);
-  }
 
   void _applyTheme() async {
     final updatedState =
@@ -25,13 +16,13 @@ class AppThemeCubit extends Cubit<AppThemeState> {
   }
 
   void initialize() async {
-    _fetchTheme();
+    _usingLightTheme = _preferencesAccess.fetchTheme();
     _applyTheme();
   }
 
   void changeTheme() async {
     _usingLightTheme = !_usingLightTheme;
-    _saveTheme();
+    _preferencesAccess.saveTheme(_usingLightTheme);
     _applyTheme();
   }
 }
