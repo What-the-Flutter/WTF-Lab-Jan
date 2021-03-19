@@ -1,4 +1,3 @@
-import 'package:chat_journal/model/category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +40,7 @@ class CategoryWidget extends StatelessWidget {
                     child: BlocProvider(
                       create: (context) => RecordsCubit(
                         LocalDatabaseRecordsRepository(),
-                      )..loadFromCategory(
+                      )..loadRecords(
                           categoryId: categoryWithLastRecord.category.id,
                         ),
                       child: CategoryPage(categoryWithLastRecord.category),

@@ -16,18 +16,12 @@ class RecordsCubit extends Cubit<RecordsState> {
           RecordsLoadInProcess(null),
         );
 
-  void loadRecords() async {
+  void loadRecords({int categoryId}) async {
     emit(
       RecordsLoadSuccess(
-        await repository.getAll(),
-      ),
-    );
-  }
-
-  void loadFromCategory({@required int categoryId}) async {
-    emit(
-      RecordsLoadSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        await repository.getAllRecords(
+          categoryId: categoryId,
+        ),
       ),
     );
   }
