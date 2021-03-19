@@ -1,3 +1,4 @@
+import 'package:chat_journal/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 
 class MainPageDrawer extends StatelessWidget {
@@ -13,7 +14,17 @@ class MainPageDrawer extends StatelessWidget {
           drawerItem(Icons.search, 'Search', () {}),
           drawerItem(Icons.notifications, 'Notifications', () {}),
           drawerItem(Icons.whatshot, 'Statistics', () {}),
-          drawerItem(Icons.settings, 'Settings', () {}),
+          drawerItem(
+            Icons.settings,
+            'Settings',
+            () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(),
+                ),
+              );
+            },
+          ),
           drawerItem(Icons.feedback, 'Feedback', () {}),
         ],
       ),
