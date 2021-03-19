@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share/share.dart';
 
 import '../app_theme_cubit.dart';
 import 'settings_cubit.dart';
@@ -24,6 +25,7 @@ class SettingsPage extends StatelessWidget {
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyText1.color,
             fontWeight: FontWeight.bold,
+            fontSize: SettingsCubit.calculateSize(context, 15, 18, 25),
           ),
         ),
       );
@@ -38,13 +40,17 @@ class SettingsPage extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color),
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyText1.color,
+            fontSize: SettingsCubit.calculateSize(context, 18, 20, 23),
+          ),
         ),
         subtitle: Text(
           subtitle,
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8),
             fontWeight: FontWeight.normal,
+            fontSize: SettingsCubit.calculateSize(context, 15, 18, 25),
           ),
         ),
         trailing: trailing,
@@ -98,7 +104,9 @@ class SettingsPage extends StatelessWidget {
           Icons.sort_by_alpha,
           'Font size',
           'Small/Medium/Large',
-          () {},
+          () {
+            BlocProvider.of<SettingsCubit>(context).changeFontSize();
+          },
         ),
         Divider(color: Theme.of(context).dividerColor),
         _header('Other'),
@@ -106,13 +114,23 @@ class SettingsPage extends StatelessWidget {
           Icons.settings_backup_restore_outlined,
           'Restore settings',
           'Reset all setting to default values',
-          () {},
+          () {
+            BlocProvider.of<SettingsCubit>(context).reset();
+            if (!BlocProvider.of<AppThemeCubit>(context)
+                .state
+                .usingLightTheme) {
+              BlocProvider.of<AppThemeCubit>(context).changeTheme();
+            }
+          },
         ),
+        Divider(color: Theme.of(context).dividerColor),
         _tile(
           Icons.share,
           'Share app',
           'Share a link of the Chat journal with your friends!',
-          () {},
+          () {
+            Share.share('Join us right now and download Chat journal! \n\r https://t.me/joinchat/yjKwXnOttL5kMGNi');
+          },
         ),
       ],
     );
@@ -127,6 +145,7 @@ class SettingsPage extends StatelessWidget {
         style: TextStyle(
           color: Theme.of(context).textTheme.bodyText2.color,
           fontWeight: FontWeight.bold,
+          fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
         ),
       ),
     );

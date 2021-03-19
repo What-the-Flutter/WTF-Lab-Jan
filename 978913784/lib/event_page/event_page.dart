@@ -62,8 +62,10 @@ class _EventPageState extends State<EventPage> {
               cubit.state.page.title,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.bodyText2.color),
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.bodyText2.color,
+                fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
+              ),
             ),
           ),
         ],
@@ -88,6 +90,7 @@ class _EventPageState extends State<EventPage> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).textTheme.bodyText2.color,
+            fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
           ),
         ),
       ),
@@ -136,6 +139,8 @@ class _EventPageState extends State<EventPage> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).textTheme.bodyText2.color,
+                            fontSize: SettingsCubit.calculateSize(
+                                context, 15, 18, 25),
                           ),
                         ),
                       )
@@ -236,6 +241,7 @@ class _EventPageState extends State<EventPage> {
         style: TextStyle(
           fontWeight: FontWeight.bold,
           color: Theme.of(context).textTheme.bodyText2.color,
+          fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
         ),
       ),
       leading: _closeButton(),
@@ -274,15 +280,17 @@ class _EventPageState extends State<EventPage> {
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
               child: Text(
                 DateFormat('MMM d, yyyy').format(_displayed[i].creationTime),
-                style: Theme.of(context).textTheme.bodyText1,
-                textAlign:
-                    BlocProvider.of<SettingsCubit>(context).state.isDateCentered
-                        ? TextAlign.center
-                        : BlocProvider.of<SettingsCubit>(context)
-                                .state
-                                .isRightToLeft
-                            ? TextAlign.end
-                            : TextAlign.start,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyText1.color,
+                  fontSize: SettingsCubit.calculateSize(context, 15, 18, 25),
+                ),
+                textAlign: cubit.state.isDateCentered
+                    ? TextAlign.center
+                    : BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .isRightToLeft
+                        ? TextAlign.end
+                        : TextAlign.start,
               ),
             ),
           );
@@ -303,6 +311,7 @@ class _EventPageState extends State<EventPage> {
           'No events yet...',
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
+            fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
           ),
         ),
       );
@@ -324,6 +333,7 @@ class _EventPageState extends State<EventPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.bodyText2.color,
+                fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
               ),
             ),
           )
@@ -336,8 +346,8 @@ class _EventPageState extends State<EventPage> {
           ? Text(
               event.description,
               style: TextStyle(
-                fontSize: 15,
                 color: Theme.of(context).textTheme.bodyText2.color,
+                fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
               ),
             )
           : Image.memory(File(event.imagePath).readAsBytesSync());
@@ -354,21 +364,17 @@ class _EventPageState extends State<EventPage> {
         cubit.selectEvent(event);
       },
       child: Container(
-        margin: BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
+        margin: cubit.state.isRightToLeft
             ? EdgeInsets.only(top: 2, bottom: 2, left: 100, right: 5)
             : EdgeInsets.only(top: 2, bottom: 2, left: 5, right: 100),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10),
             bottomLeft:
-                BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
-                    ? Radius.circular(10)
-                    : Radius.zero,
+                cubit.state.isRightToLeft ? Radius.circular(10) : Radius.zero,
             topRight: Radius.circular(10),
             bottomRight:
-                BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
-                    ? Radius.zero
-                    : Radius.circular(10),
+                cubit.state.isRightToLeft ? Radius.zero : Radius.circular(10),
           ),
           color: cubit.state.selected.contains(event)
               ? Theme.of(context).shadowColor
@@ -405,7 +411,7 @@ class _EventPageState extends State<EventPage> {
                 Text(
                   DateFormat('HH:mm').format(event.creationTime),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: SettingsCubit.calculateSize(context, 10, 12, 20),
                     color: Theme.of(context).textTheme.bodyText2.color,
                     fontWeight: FontWeight.normal,
                     fontStyle: FontStyle.italic,
@@ -434,7 +440,10 @@ class _EventPageState extends State<EventPage> {
                 ),
                 title: Text(
                   'Take a photo',
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyText1.color,
+                    fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+                  ),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -452,7 +461,10 @@ class _EventPageState extends State<EventPage> {
                 ),
                 title: Text(
                   'Pick from gallery',
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyText1.color,
+                    fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+                  ),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -501,7 +513,10 @@ class _EventPageState extends State<EventPage> {
 
   Widget get _textField {
     return TextField(
-      style: Theme.of(context).textTheme.bodyText1,
+      style: TextStyle(
+        color: Theme.of(context).textTheme.bodyText1.color,
+        fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+      ),
       onChanged: (text) {
         if (cubit.state.isSearching) {
           cubit.setOnSearch(true);
@@ -515,6 +530,7 @@ class _EventPageState extends State<EventPage> {
         hintText: 'Write event description...',
         hintStyle: TextStyle(
           color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
+          fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
         ),
         border: InputBorder.none,
       ),
@@ -555,7 +571,7 @@ class _EventPageState extends State<EventPage> {
                             style: TextStyle(
                               color:
                                   Theme.of(context).textTheme.bodyText1.color,
-                              fontSize: 12,
+                              fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
                             ),
                           ),
                         ),

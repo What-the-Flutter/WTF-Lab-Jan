@@ -11,6 +11,7 @@ import '../data/icon_list.dart';
 import '../edit_page/edit_page.dart';
 import '../entity/page.dart';
 import '../event_page/event_page.dart';
+import '../settings_page/settings_cubit.dart';
 import '../settings_page/settings_page.dart';
 import 'pages_cubit.dart';
 
@@ -33,6 +34,7 @@ class HomePage extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).textTheme.bodyText2.color,
+            fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
           ),
         ),
         iconTheme: Theme.of(context).accentIconTheme,
@@ -161,6 +163,7 @@ class HomePage extends StatelessWidget {
                     .bodyText1
                     .color
                     .withOpacity(0.5),
+                fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
               ),
             ),
           )
@@ -169,6 +172,13 @@ class HomePage extends StatelessWidget {
 
   void _pageModalBottomSheet(BuildContext context, int index) {
     final selected = BlocProvider.of<PagesCubit>(context).state[index];
+
+    TextStyle _style() {
+      return TextStyle(
+        color: Theme.of(context).textTheme.bodyText1.color,
+        fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
+      );
+    }
 
     Widget _pinTile() {
       return ListTile(
@@ -181,7 +191,7 @@ class HomePage extends StatelessWidget {
           ),
           title: Text(
             selected.isPinned ? 'Unpin' : 'Pin',
-            style: Theme.of(context).textTheme.bodyText1,
+            style: _style(),
           ),
           onTap: () async {
             BlocProvider.of<PagesCubit>(context).pinPage(selected);
@@ -197,7 +207,7 @@ class HomePage extends StatelessWidget {
           ),
           title: Text(
             'Edit',
-            style: Theme.of(context).textTheme.bodyText1,
+            style: _style(),
           ),
           onTap: () async {
             final editState = await Navigator.push(
@@ -226,7 +236,7 @@ class HomePage extends StatelessWidget {
           ),
           title: Text(
             'Delete',
-            style: Theme.of(context).textTheme.bodyText1,
+            style: _style(),
           ),
           onTap: () {
             BlocProvider.of<PagesCubit>(context).deletePage(selected);
@@ -269,11 +279,15 @@ class HomePage extends StatelessWidget {
                   style: TextStyle(
                     color: Theme.of(context).textTheme.bodyText1.color,
                     fontWeight: FontWeight.bold,
+                    fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
                   ),
                 ),
                 Text(
                   DateFormat('dd.MM.yyyy HH:mm').format(time),
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyText1.color,
+                    fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
+                  ),
                 ),
               ],
             );
@@ -321,7 +335,7 @@ class HomePage extends StatelessWidget {
           ),
           title: Text(
             'Info',
-            style: Theme.of(context).textTheme.bodyText1,
+            style: _style(),
           ),
           onTap: () async {
             Navigator.pop(context);
@@ -400,7 +414,7 @@ class HomePage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).textTheme.bodyText2.color,
                 ),
@@ -436,12 +450,16 @@ class HomePage extends StatelessWidget {
                         .bodyText1
                         .color
                         .withOpacity(0.5),
+                    fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
                   ),
                 ),
               )
             : Text(
                 page.lastEvent.description,
-                style: Theme.of(context).textTheme.bodyText1,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyText1.color,
+                  fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+                ),
               ),
       );
     }
@@ -470,4 +488,5 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
 }
