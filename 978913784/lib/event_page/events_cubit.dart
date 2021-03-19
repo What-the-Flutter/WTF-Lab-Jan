@@ -1,28 +1,30 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sqlite_api.dart';
-import 'package:path/path.dart';
+import 'dart:io';
 
-import '../page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+
+import '../data/database_access.dart';
+import '../data/preferences_access.dart';
+import '../entity/page.dart';
 import 'events_state.dart';
 
 class EventCubit extends Cubit<EventsState> {
+  DatabaseAccess db = DatabaseAccess();
 
-  Database eventsDb;
+  EventCubit(EventsState state) : super(state);
 
-  EventCubit(EventsState state) : super(state) {
-    _initEventsDb();
-  }
-
-  void _initEventsDb() async {
-    eventsDb = await openDatabase(
-        join(await getDatabasesPath(), 'events_database.db'),
-    onCreate: (db, version) {
-    return db.execute(
-    'CREATE TABLE events(id INTEGER PRIMARY KEY, pageId INTEGER, iconIndex INTEGER, isFavourite INTEGER, description TEXT,creationTime TEXT)',
-    );
-    },
-    version: 1,
+  void initialize(JournalPage page) async {
+    final prefs = PreferencesAccess();
+    final events = await db.fetchEvents(page.id);
+    events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
+    emit(
+      state.copyWith(
+        isDateCentered: prefs.fetchDateCentered(),
+        isRightToLeft: prefs.fetchRightToLeft(),
+        events: events,
+        page: page,
+      ),
     );
   }
 
@@ -45,75 +47,105 @@ class EventCubit extends Cubit<EventsState> {
     emit(state.copyWith(isSearching: isSearching));
   }
 
-  void deleteEvents() {
+  void deleteEvents() async {
     state.selected
-      ..forEach((element) async {
-        state.events.remove(element);
-        await eventsDb.delete(
-          'events',
-          where: 'id = ?',
-          whereArgs: [element.id],
-        );
+      ..forEach((event) async {
+        state.events.remove(event);
+        db.deleteEvent(event);
       });
     emit(state.copyWith(selected: {}));
   }
 
   void addToFavourites() {
-    var allFavourites = state.areAllFavourites();
+    final allFavourites = state.areAllFavourites();
     state.selected
-      ..forEach(
-          (event) async {
-            event.isFavourite = allFavourites ? false : true;
-            await eventsDb.update(
-              'pages',
-              event.toMap(),
-              where: 'id = ?',
-              whereArgs: [event.id],
-            );
-          });
+      ..forEach((event) async {
+        event.isFavourite = allFavourites ? false : true;
+        db.updateEvent(event);
+      });
     emit(state.copyWith(selected: {}));
   }
 
   void selectEvent(Event event) {
-    if (state.isOnSelectionMode) {
-      if (state.selected.contains(event)) {
-        state.selected.remove(event);
-        if (state.selected.isEmpty) {
-          state.isOnSelectionMode = false;
-        }
-      } else {
-        state.selected.add(event);
-        if (state.isOnEdit && state.selected.length != 1) {
-          state.isOnEdit = false;
-        }
+    if (state.selected.contains(event)) {
+      state.selected.remove(event);
+      if (state.selected.isEmpty) {
+        state.isOnSelectionMode = false;
+      }
+    } else {
+      state.selected.add(event);
+      if (state.isOnEdit && state.selected.length != 1) {
+        state.isOnEdit = false;
       }
     }
     emit(state.copyWith());
   }
 
-  Future<void> addEvent(Event event) async {
-    await eventsDb.insert(
-      'events',
-      event.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+  Future<void> addEvent(String description) async {
+    final event = Event(state.page.id, description, state.selectedIconIndex);
+    if (state.isDateSelected) {
+      event.creationTime = state.date;
+    }
+    event.id = await db.insertEvent(event);
+    state.events..insert(0, event);
+    emit(
+      state.copyWith(
+          events: state.events
+            ..sort((a, b) => b.creationTime.compareTo(a.creationTime))),
     );
-    emit(state.copyWith(events: state.events..insert(0, event)));
+  }
+
+  Future<void> addEventFromResource(File image) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    print(appDir);
+    final fileName = path.basename(image.path);
+    print(fileName);
+    final saved = await image.copy('${appDir.path}/$fileName');
+    final event =
+        Event.fromResource(state.page.id, state.selectedIconIndex, saved.path);
+    if (state.isDateSelected) {
+      event.creationTime = state.date;
+    }
+    event.id = await db.insertEvent(event);
+    state.events..insert(0, event);
+    emit(
+      state.copyWith(
+          events: state.events
+            ..sort((a, b) => b.creationTime.compareTo(a.creationTime))),
+    );
   }
 
   Future<void> editEvent(String description) async {
     state.selected.first.description = description;
-    await eventsDb.update(
-      'pages',
-      state.selected.first.toMap(),
-      where: 'id = ?',
-      whereArgs: [state.selected.first.id],
-    );
+    db.updateEvent(state.selected.first);
     setOnEdit(false);
     setSelectionMode(false);
     emit(state.copyWith());
   }
 
+  void acceptForward(JournalPage page) async {
+    List forwardedList = state.selected.toList();
+    for (final forwardedEvent in forwardedList) {
+      forwardedEvent.pageId = page.id;
+      db.updateEvent(forwardedEvent);
+    }
+    setSelectionMode(false);
+    emit(state.copyWith(events: await db.fetchEvents(state.page.id)));
+  }
+
   void selectIcon(int selectedIndex) {
     emit(state.copyWith(selectedIconIndex: selectedIndex));
+  }
+
+  void setDate(DateTime date) {
+    final isDateSelected = date != null;
+    if (isDateSelected) {
+      state.date = date;
+    }
+    emit(state.copyWith(isDateSelected: isDateSelected));
+  }
+
+  void setCanSelectImage(bool canSelectImage) {
+    emit(state.copyWith(canSelectImage: canSelectImage));
   }
 }
