@@ -11,9 +11,14 @@ import '../pages/cubits/records/records_cubit.dart';
 class RecordWidget extends StatelessWidget {
   final Category category;
   final Record record;
+  final bool isDateRecord;
 
-  const RecordWidget({Key key, @required this.record, this.category})
-      : super(key: key);
+  const RecordWidget({
+    Key key,
+    this.record,
+    this.category,
+    this.isDateRecord = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +59,8 @@ class RecordWidget extends StatelessWidget {
               color: record.isSelected
                   ? Theme.of(context).scaffoldBackgroundColor
                   : Theme.of(context).backgroundColor,
-              alignment: Alignment.bottomRight,
+              alignment:
+                  isDateRecord ? Alignment.center : Alignment.bottomRight,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -68,24 +74,26 @@ class RecordWidget extends StatelessWidget {
                       record.message,
                       textAlign: TextAlign.end,
                     ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if (record.isFavorite)
-                        Icon(
-                          Icons.bookmark,
-                          size: 12,
+                  if (!isDateRecord)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (record.isFavorite)
+                          Icon(
+                            Icons.bookmark,
+                            size: 12,
+                          ),
+                        Text(
+                          getFormattedRecordCreateDateTime(
+                              record.createDateTime),
+                          style: Theme.of(context).textTheme.bodyText2.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                              ),
                         ),
-                      Text(
-                        getFormattedRecordCreateDateTime(record.createDateTime),
-                        style: Theme.of(context).textTheme.bodyText2.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                            ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),

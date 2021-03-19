@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../model/category.dart';
 import '../model/record.dart';
@@ -328,25 +329,82 @@ class RecordsListView extends StatelessWidget {
   final List<Record> records;
   final Category category;
 
-  const RecordsListView({Key key, @required this.records, this.category})
-      : super(key: key);
+  const RecordsListView({
+    Key key,
+    @required this.records,
+    this.category,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final itemCount = records.length +
+        getDayTransitionsCount(
+          records
+              .map(
+                (e) => e.createDateTime,
+              )
+              .toList(),
+        ) +
+        1;
+    var arrayIndexCorrection = 0;
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: ListView.builder(
         reverse: true,
-        itemCount: records.length,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
+          if (index == itemCount - 1) {
+            return RecordWidget(
+              record: Record(
+                getFormattedDateRecordCreateDateTime(
+                  records.last.createDateTime,
+                ),
+                categoryId: category?.id,
+              ),
+              isDateRecord: true,
+            );
+          }
+          if (records.length - 1 > index - arrayIndexCorrection &&
+              records[index - arrayIndexCorrection].createDateTime.day !=
+                  records[index - arrayIndexCorrection + 1]
+                      .createDateTime
+                      .day) {
+            arrayIndexCorrection++;
+            return RecordWidget(
+              record: Record(
+                getFormattedDateRecordCreateDateTime(
+                  records[index - arrayIndexCorrection - 1].createDateTime,
+                ),
+                categoryId: category?.id,
+              ),
+              isDateRecord: true,
+            );
+          }
           return RecordWidget(
-            record: records[index],
+            record: records[index - arrayIndexCorrection],
             category: category,
           );
         },
       ),
     );
   }
+}
+
+int getDayTransitionsCount(List<DateTime> dateTimes) {
+  var count = 0;
+  for (var i = 0; i < dateTimes.length - 1; i++) {
+    if (dateTimes[i].day != dateTimes[i + 1].day) {
+      count++;
+    }
+  }
+  return count;
+}
+
+String getFormattedDateRecordCreateDateTime(DateTime dateTime) {
+  if (dateTime.year != DateTime.now().year) {
+    return DateFormat.yMd().format(dateTime);
+  }
+  return DateFormat.MEd().format(dateTime);
 }
 
 class MessageTextFormField extends StatelessWidget {
