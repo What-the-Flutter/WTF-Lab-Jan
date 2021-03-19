@@ -7,9 +7,9 @@ class EventsState {
   bool isIconButtonSearchPressed = false;
   bool isWriting = false;
   int selectedTile = 0;
-  Note note;
-  List<Event> eventList;
-  CircleAvatar circleAvatar;
+  final Note note;
+  List<Event> eventList = [];
+  int indexOfCircleAvatar;
 
   EventsState copyWith({
     bool eventSelected,
@@ -20,16 +20,19 @@ class EventsState {
     int selectedTile,
     Note note,
     List<Event> eventList,
-    CircleAvatar circleAvatar,
+    int indexOfCircleAvatar,
   }) {
     var state = EventsState(note ?? this.note);
     state.eventSelected = eventSelected ?? this.eventSelected;
-    state.indexOfSelectedElement = indexOfSelectedElement ?? this.indexOfSelectedElement;
+    state.indexOfSelectedElement =
+        indexOfSelectedElement ?? this.indexOfSelectedElement;
     state.isEditing = isEditing ?? this.isEditing;
-    state.isIconButtonSearchPressed = isIconButtonSearchPressed ?? this.isIconButtonSearchPressed;
+    state.isIconButtonSearchPressed =
+        isIconButtonSearchPressed ?? this.isIconButtonSearchPressed;
     state.isWriting = isWriting ?? this.isWriting;
     state.selectedTile = selectedTile ?? this.selectedTile;
-    state.circleAvatar = circleAvatar ?? this.circleAvatar;
+    state.eventList = eventList ?? this.eventList;
+    state.indexOfCircleAvatar = indexOfCircleAvatar;
     return state;
   }
 
