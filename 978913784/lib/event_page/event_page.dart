@@ -4,6 +4,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/hashtagable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -343,12 +344,20 @@ class _EventPageState extends State<EventPage> {
 
     Widget _content(Event event) {
       return event.imagePath.isEmpty
-          ? Text(
-              event.description,
-              style: TextStyle(
+          ? HashTagText(
+              text: event.description,
+              basicStyle: TextStyle(
                 color: Theme.of(context).textTheme.bodyText2.color,
                 fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
               ),
+              decoratedStyle: TextStyle(
+                color: Colors.yellowAccent,
+                fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+              ),
+              onTap: (text) {
+                cubit.setOnSearch(true);
+                controller.text = text;
+              },
             )
           : Image.memory(File(event.imagePath).readAsBytesSync());
     }
@@ -571,7 +580,8 @@ class _EventPageState extends State<EventPage> {
                             style: TextStyle(
                               color:
                                   Theme.of(context).textTheme.bodyText1.color,
-                              fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+                              fontSize: SettingsCubit.calculateSize(
+                                  context, 12, 15, 20),
                             ),
                           ),
                         ),

@@ -138,6 +138,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  hashtagable:
+    dependency: "direct main"
+    description:
+      name: hashtagable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.8"
   http:
     dependency: transitive
     description:
