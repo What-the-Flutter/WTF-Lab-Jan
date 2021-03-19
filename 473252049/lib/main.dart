@@ -1,3 +1,4 @@
+import 'package:chat_journal/pages/cubits/settings/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,11 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/cubits/categories/categories_cubit.dart';
 import 'pages/main_page.dart';
 import 'repositories/local_database/local_database_categories_repository.dart';
-import 'thememode_cubit/thememode_cubit.dart';
 
 class CubitsObserver extends BlocObserver {
   @override
-  void onChange(Cubit cubit, Change change) {
+  void onChange(BlocBase cubit, Change change) {
     print('$cubit $change');
     super.onChange(cubit, change);
   }
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ThememodeCubit(
+      create: (context) => SettingsCubit(
         preferences: preferences,
       ),
       child: ThemingApp(),
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
 class ThemingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThememodeCubit, ThememodeState>(
+    return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, state) {
         return MaterialApp(
           title: '473252049',

@@ -3,14 +3,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'thememode_state.dart';
+part 'settings_state.dart';
 
-class ThememodeCubit extends Cubit<ThememodeState> {
-  SharedPreferences preferences;
+class SettingsCubit extends Cubit<SettingsState> {
+  final SharedPreferences preferences;
 
-  ThememodeCubit({@required this.preferences})
+  SettingsCubit({@required this.preferences})
       : super(
-          ThememodeState(
+          SettingsState(
             themeMode: _themeModeFromString(
               preferences.getString('themeMode'),
             ),
@@ -20,10 +20,10 @@ class ThememodeCubit extends Cubit<ThememodeState> {
   void switchThemeMode() async {
     if (state.themeMode == ThemeMode.light) {
       preferences?.setString('themeMode', 'dark');
-      emit(ThememodeState(themeMode: ThemeMode.dark));
+      emit(state.copyWith(themeMode: ThemeMode.dark));
     } else if (state.themeMode == ThemeMode.dark) {
       preferences?.setString('themeMode', 'light');
-      emit(ThememodeState(themeMode: ThemeMode.light));
+      emit(state.copyWith(themeMode: ThemeMode.light));
     }
   }
 

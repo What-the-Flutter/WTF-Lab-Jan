@@ -1,3 +1,4 @@
+import 'package:chat_journal/pages/cubits/settings/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -6,7 +7,6 @@ import '../components/main_page_drawer.dart';
 import '../repositories/local_database/local_database_records_repository.dart';
 import '../tabs/home_tab.dart';
 import '../tabs/timeline_tab.dart';
-import '../thememode_cubit/thememode_cubit.dart';
 import 'category_add_edit_page.dart';
 import 'cubits/categories/categories_cubit.dart';
 import 'cubits/records/records_cubit.dart';
@@ -54,12 +54,12 @@ class _MainPageState extends State<MainPage> {
         actions: [
           IconButton(
             icon: Icon(
-              context.read<ThememodeCubit>().state.themeMode == ThemeMode.light
+              context.read<SettingsCubit>().state.themeMode == ThemeMode.light
                   ? Icons.bedtime_outlined
                   : Icons.bedtime,
             ),
             onPressed: () {
-              context.read<ThememodeCubit>().switchThemeMode();
+              context.read<SettingsCubit>().switchThemeMode();
             },
           ),
         ],
