@@ -2,6 +2,7 @@ import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../model/category.dart';
 import '../model/record.dart';
@@ -77,7 +78,7 @@ class RecordWidget extends StatelessWidget {
                           size: 12,
                         ),
                       Text(
-                        '${record.createDateTime.hour}:${record.createDateTime.minute}',
+                        getFormattedRecordCreateDateTime(record.createDateTime),
                         style: Theme.of(context).textTheme.bodyText2.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
@@ -93,4 +94,8 @@ class RecordWidget extends StatelessWidget {
       },
     );
   }
+}
+
+String getFormattedRecordCreateDateTime(DateTime dateTime) {
+  return DateFormat.Hm().format(dateTime);
 }
