@@ -40,6 +40,11 @@ class LocalDatabaseCategoriesRepository extends LocalDatabaseProvider
       where: 'id = ?',
       whereArgs: [id],
     );
+    await (await database).delete(
+      'records',
+      where: 'categoryId = ?',
+      whereArgs: [id],
+    );
     return category;
   }
 
