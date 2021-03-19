@@ -1,5 +1,7 @@
+import 'package:chat_journal/model/category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../components/category_bottom_sheet.dart';
 import '../pages/category_page.dart';
@@ -7,16 +9,11 @@ import '../pages/cubits/categories/categories_cubit.dart';
 import '../pages/cubits/records/records_cubit.dart';
 import '../repositories/local_database/local_database_records_repository.dart';
 
-class CategoryWidget extends StatefulWidget {
+class CategoryWidget extends StatelessWidget {
   final CategoryWithLastRecord categoryWithLastRecord;
 
   CategoryWidget(this.categoryWithLastRecord);
 
-  @override
-  _CategoryWidgetState createState() => _CategoryWidgetState();
-}
-
-class _CategoryWidgetState extends State<CategoryWidget> {
   @override
   Widget build(BuildContext context) {
     return Builder(
@@ -28,8 +25,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
               builder: (_) {
                 return BlocProvider.value(
                   value: BlocProvider.of<CategoriesCubit>(context),
-                  child: CategoryBottomSheet(
-                      widget.categoryWithLastRecord.category),
+                  child: CategoryBottomSheet(categoryWithLastRecord.category),
                 );
               },
             );
@@ -46,10 +42,9 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                       create: (context) => RecordsCubit(
                         LocalDatabaseRecordsRepository(),
                       )..loadFromCategory(
-                          categoryId: widget.categoryWithLastRecord.category.id,
+                          categoryId: categoryWithLastRecord.category.id,
                         ),
-                      child:
-                          CategoryPage(widget.categoryWithLastRecord.category),
+                      child: CategoryPage(categoryWithLastRecord.category),
                     ),
                   );
                 },
@@ -68,7 +63,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                   flex: 2,
                   child: AspectRatio(
                     child: Icon(
-                      widget.categoryWithLastRecord.category.icon,
+                      categoryWithLastRecord.category.icon,
                       size: 36,
                     ),
                     aspectRatio: 1,
@@ -81,7 +76,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                     children: [
                       Row(
                         children: [
-                          if (widget.categoryWithLastRecord.category.isPinned)
+                          if (categoryWithLastRecord.category.isPinned)
                             Icon(
                               Icons.pin_drop_outlined,
                               color: Theme.of(context).accentColor,
@@ -91,16 +86,15 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                                   .fontSize,
                             ),
                           Text(
-                            widget.categoryWithLastRecord.category.name,
+                            categoryWithLastRecord.category.name,
                             style: Theme.of(context).textTheme.headline5,
                           ),
                         ],
                       ),
                       Text(
-                        widget.categoryWithLastRecord.lastRecord == null
+                        categoryWithLastRecord.lastRecord == null
                             ? 'No records. Tap to create first'
-                            : widget.categoryWithLastRecord.lastRecord
-                                    .message ??
+                            : categoryWithLastRecord.lastRecord.message ??
                                 'Image record',
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -112,18 +106,13 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                   flex: 2,
                   child: Column(
                     children: [
-                      // Text(
-                      //   category.records.isEmpty
-                      //       ? DateFormat.E().format(category.createDateTime)
-                      //       : category.records.first.createDateTime.day ==
-                      //               DateTime.now().day
-                      //           ? DateFormat.Hm().format(
-                      //               category.records.first.createDateTime)
-                      //           : DateFormat.E().format(
-                      //               category.records.first.createDateTime),
-                      //   style: Theme.of(context).textTheme.bodyText2,
-                      //   textAlign: TextAlign.center,
-                      // ),
+                      Text(
+                        getFormattedCategoryDateTime(
+                          categoryWithLastRecord,
+                        ),
+                        style: Theme.of(context).textTheme.bodyText2,
+                        textAlign: TextAlign.center,
+                      ),
                     ],
                   ),
                 ),
@@ -133,5 +122,18 @@ class _CategoryWidgetState extends State<CategoryWidget> {
         );
       },
     );
+  }
+}
+
+String getFormattedCategoryDateTime(
+    CategoryWithLastRecord categoryWithLastRecord) {
+  final dateTime = categoryWithLastRecord.lastRecord == null
+      ? categoryWithLastRecord.category.createDateTime
+      : categoryWithLastRecord.lastRecord.createDateTime;
+
+  if (dateTime.day == DateTime.now().day) {
+    return DateFormat.Hm().format(dateTime);
+  } else {
+    return DateFormat.E().format(dateTime);
   }
 }
