@@ -75,13 +75,6 @@ class SettingsPage extends StatelessWidget {
         Divider(color: Theme.of(context).dividerColor),
         _header('General'),
         _tile(
-          Icons.sort_by_alpha,
-          'Font size',
-          'Small/Medium/Large',
-          () {},
-        ),
-        Divider(color: Theme.of(context).dividerColor),
-        _tile(
           Icons.date_range_outlined,
           'Center date',
           'Display date at the center.',
@@ -99,6 +92,13 @@ class SettingsPage extends StatelessWidget {
             bubbleSwitch.onChanged(!bubbleSwitch.value);
           },
           trailing: bubbleSwitch,
+        ),
+        Divider(color: Theme.of(context).dividerColor),
+        _tile(
+          Icons.sort_by_alpha,
+          'Font size',
+          'Small/Medium/Large',
+          () {},
         ),
         Divider(color: Theme.of(context).dividerColor),
         _header('Other'),
