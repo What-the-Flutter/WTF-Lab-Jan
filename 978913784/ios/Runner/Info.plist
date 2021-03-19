@@ -6,6 +6,7 @@
     <string>$(PRODUCT_NAME) uses your photo storage</string>
     <key>NSCameraUsageDescription</key>
     <string>$(PRODUCT_NAME) uses your camera</string>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
