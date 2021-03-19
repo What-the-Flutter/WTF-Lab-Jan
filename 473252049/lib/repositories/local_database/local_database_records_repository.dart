@@ -9,8 +9,11 @@ class LocalDatabaseRecordsRepository extends LocalDatabaseProvider
   @override
   Future<Record> delete(int id) async {
     final record = Record.fromMap(
-      (await (await database)
-              .query('records', where: 'id = ?', whereArgs: [id]))
+      (await (await database).query(
+        'records',
+        where: 'id = ?',
+        whereArgs: [id],
+      ))
           .first,
     );
     await (await database).delete(
@@ -40,7 +43,9 @@ class LocalDatabaseRecordsRepository extends LocalDatabaseProvider
   }
 
   @override
-  Future<List<Record>> getAllFromCategory({@required int categoryId}) async {
+  Future<List<Record>> getAllFromCategory({
+    @required int categoryId,
+  }) async {
     return (await (await database).query(
       'records',
       where: 'categoryId = ?',

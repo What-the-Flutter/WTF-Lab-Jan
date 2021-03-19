@@ -230,12 +230,33 @@ class _CategoryPageState extends State<CategoryPage> {
                       ),
                     ),
                     IconButton(
+                      icon: state is RecordUpdateInProcess
+                          ? Icon(Icons.check)
+                          : Icon(Icons.send),
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
+                          final recordDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime.now(),
+                          );
+                          final recordTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          final createDateTime = DateTime(
+                            recordDate.year,
+                            recordDate.month,
+                            recordDate.day,
+                            recordTime.hour,
+                            recordTime.minute,
+                          );
                           if (state is RecordUpdateInProcess) {
                             await context.read<RecordsCubit>().update(
                                   state.record.copyWith(
                                     message: _textEditingController.text.trim(),
+                                    createDateTime: createDateTime,
                                   ),
                                   categoryId: widget.category.id,
                                 );
@@ -248,6 +269,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                   Record(
                                     _textEditingController.text.trim(),
                                     categoryId: widget.category.id,
+                                    createDateTime: createDateTime,
                                   ),
                                   categoryId: widget.category.id,
                                 );
@@ -255,9 +277,6 @@ class _CategoryPageState extends State<CategoryPage> {
                           _textEditingController.clear();
                         }
                       },
-                      icon: state is RecordUpdateInProcess
-                          ? Icon(Icons.check)
-                          : Icon(Icons.send),
                     ),
                   ],
                 ),
@@ -337,57 +356,55 @@ class RecordsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemCount = records.length +
-        getDayTransitionsCount(
-          records
-              .map(
-                (e) => e.createDateTime,
-              )
-              .toList(),
-        ) +
-        1;
-    var arrayIndexCorrection = 0;
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: ListView.builder(
+      child: ListView(
         reverse: true,
-        itemCount: itemCount,
-        itemBuilder: (context, index) {
-          if (index == itemCount - 1) {
-            return RecordWidget(
-              record: Record(
-                getFormattedDateRecordCreateDateTime(
-                  records.last.createDateTime,
-                ),
-                categoryId: category?.id,
-              ),
-              isDateRecord: true,
-            );
-          }
-          if (records.length - 1 > index - arrayIndexCorrection &&
-              records[index - arrayIndexCorrection].createDateTime.day !=
-                  records[index - arrayIndexCorrection + 1]
-                      .createDateTime
-                      .day) {
-            arrayIndexCorrection++;
-            return RecordWidget(
-              record: Record(
-                getFormattedDateRecordCreateDateTime(
-                  records[index - arrayIndexCorrection - 1].createDateTime,
-                ),
-                categoryId: category?.id,
-              ),
-              isDateRecord: true,
-            );
-          }
-          return RecordWidget(
-            record: records[index - arrayIndexCorrection],
-            category: category,
-          );
-        },
+        children: [...recordWidgetsFromRecords(records, category)],
       ),
     );
   }
+}
+
+List<RecordWidget> recordWidgetsFromRecords(
+  List<Record> records,
+  Category category,
+) {
+  final recordWidgets = <RecordWidget>[];
+  for (var i = 0; i < records.length; ++i) {
+    if (i > 0 &&
+        records[i].createDateTime.day != records[i - 1].createDateTime.day) {
+      recordWidgets.add(
+        RecordWidget(
+          record: Record(
+            DateFormat.yMEd().format(
+              records[i - 1].createDateTime,
+            ),
+            categoryId: category?.id,
+          ),
+          isDateRecord: true,
+        ),
+      );
+    }
+    recordWidgets.add(
+      RecordWidget(
+        record: records[i],
+        category: category,
+      ),
+    );
+  }
+  recordWidgets.add(
+    RecordWidget(
+      record: Record(
+        DateFormat.yMEd().format(
+          records.last.createDateTime,
+        ),
+        categoryId: category?.id,
+      ),
+      isDateRecord: true,
+    ),
+  );
+  return recordWidgets;
 }
 
 int getDayTransitionsCount(List<DateTime> dateTimes) {
