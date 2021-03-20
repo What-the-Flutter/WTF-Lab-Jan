@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:chat_journal/pages/settings/cubit/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../../model/category.dart';
 import '../../model/record.dart';
@@ -26,6 +28,7 @@ class _CategoryPageState extends State<CategoryPage> {
   final _formKey = GlobalKey<FormState>();
   final _messageFocus = FocusNode();
   final _textEditingController = TextEditingController();
+  DateTime createRecordDateTime = DateTime.now();
 
   File _image;
   final picker = ImagePicker();
@@ -199,9 +202,34 @@ class _CategoryPageState extends State<CategoryPage> {
                 ),
               if (!(state is RecordsLoadInProcess))
                 Expanded(
-                  child: RecordsListView(
-                    records: state.records,
-                    category: widget.category,
+                  child: BlocBuilder<SettingsCubit, SettingsState>(
+                    builder: (context, settingsState) {
+                      return Stack(
+                        alignment: settingsState.bubbleAlignment ==
+                                Alignment.centerRight
+                            ? AlignmentDirectional.topStart
+                            : AlignmentDirectional.topEnd,
+                        children: [
+                          RecordsListView(
+                            records: state.records,
+                            category: widget.category,
+                          ),
+                          if (settingsState.showCreateRecordDateTimePicker)
+                            OutlinedButton(
+                              onPressed: () async {
+                                final dateTime =
+                                    await showDateTimePicker(context);
+                                setState(() {
+                                  createRecordDateTime = dateTime;
+                                });
+                              },
+                              child: Text(
+                                DateFormat.yMEd().format(createRecordDateTime),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               Form(
@@ -236,28 +264,11 @@ class _CategoryPageState extends State<CategoryPage> {
                           : Icon(Icons.send),
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
-                          final recordDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now(),
-                          );
-                          final recordTime = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.now(),
-                          );
-                          final createDateTime = DateTime(
-                            recordDate.year,
-                            recordDate.month,
-                            recordDate.day,
-                            recordTime.hour,
-                            recordTime.minute,
-                          );
                           if (state is RecordUpdateInProcess) {
                             await context.read<RecordsCubit>().update(
                                   state.record.copyWith(
                                     message: _textEditingController.text.trim(),
-                                    createDateTime: createDateTime,
+                                    createDateTime: createRecordDateTime,
                                   ),
                                   categoryId: widget.category.id,
                                 );
@@ -266,11 +277,11 @@ class _CategoryPageState extends State<CategoryPage> {
                                 );
                             _messageFocus.unfocus();
                           } else {
-                            context.read<RecordsCubit>().add(
+                            await context.read<RecordsCubit>().add(
                                   Record(
                                     _textEditingController.text.trim(),
                                     categoryId: widget.category.id,
-                                    createDateTime: createDateTime,
+                                    createDateTime: createRecordDateTime,
                                   ),
                                   categoryId: widget.category.id,
                                 );
@@ -318,4 +329,26 @@ class MessageTextFormField extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<DateTime> showDateTimePicker(BuildContext context) async {
+  final date = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime.now(),
+      ) ??
+      DateTime.now();
+  final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      ) ??
+      TimeOfDay.now();
+  return DateTime(
+    date.year,
+    date.month,
+    date.day,
+    time.hour,
+    time.minute,
+  );
 }

@@ -18,8 +18,22 @@ class SettingsCubit extends Cubit<SettingsState> {
             bubbleAlignment: _bubbleAlignmentFromString(
               preferences.getString('bubbleAlignment'),
             ),
+            showCreateRecordDateTimePicker:
+                preferences.getBool('showCreateRecordDateTimePicker'),
           ),
         );
+
+  void switchShowCreateRecordDateTimePicker() async {
+    preferences.setBool(
+      'showCreateRecordDateTimePicker',
+      !state.showCreateRecordDateTimePicker,
+    );
+    emit(
+      state.copyWith(
+        showCreateRecordDateTimePicker: !state.showCreateRecordDateTimePicker,
+      ),
+    );
+  }
 
   void switchBubbleAlignment() async {
     if (state.bubbleAlignment == Alignment.centerRight) {
@@ -40,7 +54,10 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   void switchCenterDateBubble() async {
-    preferences.setBool('centerDateBubble', !state.centerDateBubble);
+    preferences.setBool(
+      'centerDateBubble',
+      !state.centerDateBubble,
+    );
     emit(
       state.copyWith(
         centerDateBubble: !state.centerDateBubble,

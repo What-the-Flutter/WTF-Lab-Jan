@@ -44,6 +44,17 @@ class GeneralSettingPage extends StatelessWidget {
                   context.read<SettingsCubit>().switchBubbleAlignment();
                 },
               ),
+              SwitchListTile(
+                title: Text('Show create record date time picker'),
+                subtitle: Text(
+                    "When you'll create record, you can choose date and time of this event"),
+                value: state.showCreateRecordDateTimePicker,
+                onChanged: (value) {
+                  context
+                      .read<SettingsCubit>()
+                      .switchShowCreateRecordDateTimePicker();
+                },
+              ),
             ],
           );
         },
