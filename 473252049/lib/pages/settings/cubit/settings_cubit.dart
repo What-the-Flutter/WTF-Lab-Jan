@@ -14,8 +14,39 @@ class SettingsCubit extends Cubit<SettingsState> {
             themeMode: _themeModeFromString(
               preferences.getString('themeMode'),
             ),
+            centerDateBubble: preferences.getBool('centerDateBubble'),
+            bubbleAlignment: _bubbleAlignmentFromString(
+              preferences.getString('bubbleAlignment'),
+            ),
           ),
         );
+
+  void switchBubbleAlignment() async {
+    if (state.bubbleAlignment == Alignment.centerRight) {
+      preferences?.setString('bubbleAlignment', 'left');
+      emit(
+        state.copyWith(
+          bubbleAlignment: Alignment.centerLeft,
+        ),
+      );
+    } else if (state.bubbleAlignment == Alignment.centerLeft) {
+      preferences?.setString('bubbleAlignment', 'right');
+      emit(
+        state.copyWith(
+          bubbleAlignment: Alignment.centerRight,
+        ),
+      );
+    }
+  }
+
+  void switchCenterDateBubble() async {
+    preferences.setBool('centerDateBubble', !state.centerDateBubble);
+    emit(
+      state.copyWith(
+        centerDateBubble: !state.centerDateBubble,
+      ),
+    );
+  }
 
   void switchThemeMode() async {
     if (state.themeMode == ThemeMode.light) {
@@ -35,6 +66,17 @@ class SettingsCubit extends Cubit<SettingsState> {
         return ThemeMode.light;
       default:
         return ThemeMode.light;
+    }
+  }
+
+  static Alignment _bubbleAlignmentFromString(String string) {
+    switch (string) {
+      case 'right':
+        return Alignment.centerRight;
+      case 'left':
+        return Alignment.centerLeft;
+      default:
+        return Alignment.centerRight;
     }
   }
 }

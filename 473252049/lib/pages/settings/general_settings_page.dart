@@ -14,22 +14,42 @@ class GeneralSettingPage extends StatelessWidget {
       body: BlocBuilder<SettingsCubit, SettingsState>(
         bloc: context.read<SettingsCubit>(),
         builder: (context, state) {
-          return ListView.separated(
-            itemBuilder: (context, index) {
-              return SwitchListTile(
+          return ListView(
+            children: [
+              SwitchListTile(
                 title: Text('Dark mode'),
                 subtitle: Text('Enables and disables dark theme mode'),
                 onChanged: (value) {
                   context.read<SettingsCubit>().switchThemeMode();
                 },
                 value: state.themeMode == ThemeMode.dark,
-              );
-            },
-            separatorBuilder: (context, index) => Divider(),
-            itemCount: 1,
+              ),
+              SwitchListTile(
+                title: Text('Center date bubble'),
+                subtitle: Text('Date bubble will be placed to center'),
+                value: state.centerDateBubble,
+                onChanged: (value) {
+                  context.read<SettingsCubit>().switchCenterDateBubble();
+                },
+              ),
+              ListTile(
+                title: Text('Bubble alignment'),
+                subtitle: Text('Right or left alignment of bubbles'),
+                trailing: Icon(
+                  state.bubbleAlignment == Alignment.centerRight
+                      ? Icons.format_align_right
+                      : Icons.format_align_left,
+                ),
+                onTap: () {
+                  context.read<SettingsCubit>().switchBubbleAlignment();
+                },
+              ),
+            ],
           );
         },
       ),
     );
   }
 }
+
+final settingsListTiles = [];

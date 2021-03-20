@@ -61,10 +61,11 @@ class RecordWidget extends StatelessWidget {
               color: record.isSelected
                   ? Theme.of(context).scaffoldBackgroundColor
                   : Theme.of(context).backgroundColor,
-              alignment:
-                  isDateRecord ? Alignment.center : Alignment.centerRight,
+              alignment: bubbleAlignment,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: bubbleAlignment == Alignment.centerRight
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
                 children: [
                   if (record.image != null)
                     Container(
@@ -74,7 +75,9 @@ class RecordWidget extends StatelessWidget {
                   if (record.message.isNotEmpty)
                     Text(
                       record.message,
-                      textAlign: TextAlign.end,
+                      textAlign: bubbleAlignment == Alignment.centerRight
+                          ? TextAlign.end
+                          : TextAlign.start,
                     ),
                   if (!isDateRecord)
                     Row(
@@ -88,7 +91,8 @@ class RecordWidget extends StatelessWidget {
                           ),
                         Text(
                           getFormattedRecordCreateDateTime(
-                              record.createDateTime),
+                            record.createDateTime,
+                          ),
                           style: Theme.of(context).textTheme.bodyText2.copyWith(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
@@ -103,13 +107,6 @@ class RecordWidget extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-class DateRecordWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }
 

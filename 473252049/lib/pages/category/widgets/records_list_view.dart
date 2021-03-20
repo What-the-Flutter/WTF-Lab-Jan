@@ -1,4 +1,6 @@
+import 'package:chat_journal/pages/settings/cubit/settings_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../model/category.dart';
@@ -22,49 +24,72 @@ class RecordsListView extends StatelessWidget {
       child: ListView(
         reverse: true,
         children: [
-          ...recordWidgetsFromRecords(records, category),
+          ...recordWidgetsFromRecords(
+            records: records,
+            category: category,
+            context: context,
+          ),
         ],
       ),
     );
   }
 }
 
-List<RecordWidget> recordWidgetsFromRecords(
+List<Widget> recordWidgetsFromRecords({
   List<Record> records,
   Category category,
-) {
-  final recordWidgets = <RecordWidget>[];
+  BuildContext context,
+}) {
+  final recordWidgets = <Widget>[];
   for (var i = 0; i < records.length; ++i) {
     if (i > 0 &&
         records[i].createDateTime.day != records[i - 1].createDateTime.day) {
       recordWidgets.add(
-        RecordWidget(
-          record: Record(
-            DateFormat.yMEd().format(
-              records[i - 1].createDateTime,
-            ),
-            categoryId: category?.id,
-          ),
-          isDateRecord: true,
+        BlocBuilder<SettingsCubit, SettingsState>(
+          builder: (context, state) {
+            return RecordWidget(
+              record: Record(
+                DateFormat.yMEd().format(
+                  records[i - 1].createDateTime,
+                ),
+                categoryId: category?.id,
+              ),
+              isDateRecord: true,
+              bubbleAlignment: state.centerDateBubble
+                  ? Alignment.center
+                  : Alignment.centerRight,
+            );
+          },
         ),
       );
     }
     recordWidgets.add(
-      RecordWidget(
-        record: records[i],
-        category: category,
+      BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
+          return RecordWidget(
+            record: records[i],
+            category: category,
+            bubbleAlignment: state.bubbleAlignment,
+          );
+        },
       ),
     );
   }
   recordWidgets.add(
-    RecordWidget(
-      record: Record(
-        DateFormat.yMEd().format(
-          records.last.createDateTime,
-        ),
-        categoryId: category?.id,
-      ),
-      isDateRecord: true,
+    BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        return RecordWidget(
+          record: Record(
+            DateFormat.yMEd().format(
+              records.last.createDateTime,
+            ),
+            categoryId: category?.id,
+          ),
+          isDateRecord: true,
+          bubbleAlignment:
+              state.centerDateBubble ? Alignment.center : Alignment.centerRight,
+        );
+      },
     ),
   );
   return recordWidgets;

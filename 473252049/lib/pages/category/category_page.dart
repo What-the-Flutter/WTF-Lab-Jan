@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 
 import '../../model/category.dart';
 import '../../model/record.dart';
@@ -12,7 +11,7 @@ import 'cubit/records_cubit.dart';
 import 'dialogs/create_image_record_dialog.dart';
 import 'dialogs/delete_records_dialog.dart';
 import 'dialogs/send_records_dialog.dart';
-import 'widgets/record_widget.dart';
+import 'widgets/records_list_view.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;
@@ -289,88 +288,6 @@ class _CategoryPageState extends State<CategoryPage> {
       },
     );
   }
-}
-
-class RecordsListView extends StatelessWidget {
-  final List<Record> records;
-  final Category category;
-
-  const RecordsListView({
-    Key key,
-    @required this.records,
-    this.category,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: ListView(
-        reverse: true,
-        children: [
-          ...recordWidgetsFromRecords(records, category),
-        ],
-      ),
-    );
-  }
-}
-
-List<RecordWidget> recordWidgetsFromRecords(
-  List<Record> records,
-  Category category,
-) {
-  final recordWidgets = <RecordWidget>[];
-  for (var i = 0; i < records.length; ++i) {
-    if (i > 0 &&
-        records[i].createDateTime.day != records[i - 1].createDateTime.day) {
-      recordWidgets.add(
-        RecordWidget(
-          record: Record(
-            DateFormat.yMEd().format(
-              records[i - 1].createDateTime,
-            ),
-            categoryId: category?.id,
-          ),
-          isDateRecord: true,
-        ),
-      );
-    }
-    recordWidgets.add(
-      RecordWidget(
-        record: records[i],
-        category: category,
-      ),
-    );
-  }
-  recordWidgets.add(
-    RecordWidget(
-      record: Record(
-        DateFormat.yMEd().format(
-          records.last.createDateTime,
-        ),
-        categoryId: category?.id,
-      ),
-      isDateRecord: true,
-    ),
-  );
-  return recordWidgets;
-}
-
-int getDayTransitionsCount(List<DateTime> dateTimes) {
-  var count = 0;
-  for (var i = 0; i < dateTimes.length - 1; i++) {
-    if (dateTimes[i].day != dateTimes[i + 1].day) {
-      count++;
-    }
-  }
-  return count;
-}
-
-String getFormattedDateRecordCreateDateTime(DateTime dateTime) {
-  if (dateTime.year != DateTime.now().year) {
-    return DateFormat.yMd().format(dateTime);
-  }
-  return DateFormat.MEd().format(dateTime);
 }
 
 class MessageTextFormField extends StatelessWidget {
