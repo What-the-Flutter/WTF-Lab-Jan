@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../pages/category_page.dart';
-import '../pages/cubits/records/records_cubit.dart';
+import '../../category/category_page.dart';
+import '../../category/cubit/records_cubit.dart';
 
 class TimelineTab extends StatefulWidget {
   @override

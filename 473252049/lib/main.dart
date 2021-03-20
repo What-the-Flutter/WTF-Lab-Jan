@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'pages/cubits/categories/categories_cubit.dart';
-import 'pages/main_page.dart';
+import 'pages/main/main_page.dart';
+import 'pages/main/tabs/home/cubit/categories_cubit.dart';
 import 'pages/settings/cubit/settings_cubit.dart';
 import 'repositories/local_database/local_database_categories_repository.dart';
 

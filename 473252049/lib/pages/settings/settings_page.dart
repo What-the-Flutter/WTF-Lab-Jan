@@ -1,5 +1,6 @@
-import 'package:chat_journal/pages/settings_subpages/general_settings_page.dart';
 import 'package:flutter/material.dart';
+
+import 'general_settings_page.dart';
 
 class SettingsPage extends StatelessWidget {
   @override

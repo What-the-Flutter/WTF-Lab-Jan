@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../repositories/local_database/local_database_records_repository.dart';
+import '../../category/category_page.dart';
+import '../../category/cubit/records_cubit.dart';
 import '../components/category_bottom_sheet.dart';
-import '../pages/category_page.dart';
-import '../pages/cubits/categories/categories_cubit.dart';
-import '../pages/cubits/records/records_cubit.dart';
-import '../repositories/local_database/local_database_records_repository.dart';
+import '../tabs/home/cubit/categories_cubit.dart';
 
 class CategoryWidget extends StatelessWidget {
   final CategoryWithLastRecord categoryWithLastRecord;

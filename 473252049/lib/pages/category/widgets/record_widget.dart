@@ -4,20 +4,22 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../model/category.dart';
-import '../model/record.dart';
-import '../pages/cubits/records/records_cubit.dart';
+import '../../../model/category.dart';
+import '../../../model/record.dart';
+import '../cubit/records_cubit.dart';
 
 class RecordWidget extends StatelessWidget {
   final Category category;
   final Record record;
   final bool isDateRecord;
+  final Alignment bubbleAlignment;
 
   const RecordWidget({
     Key key,
     this.record,
     this.category,
     this.isDateRecord = false,
+    this.bubbleAlignment = Alignment.centerRight,
   }) : super(key: key);
 
   @override
@@ -60,7 +62,7 @@ class RecordWidget extends StatelessWidget {
                   ? Theme.of(context).scaffoldBackgroundColor
                   : Theme.of(context).backgroundColor,
               alignment:
-                  isDateRecord ? Alignment.center : Alignment.bottomRight,
+                  isDateRecord ? Alignment.center : Alignment.centerRight,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -101,6 +103,13 @@ class RecordWidget extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class DateRecordWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
 

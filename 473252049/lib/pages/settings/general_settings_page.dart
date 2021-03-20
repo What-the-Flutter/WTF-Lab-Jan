@@ -1,7 +1,8 @@
-import 'package:chat_journal/pages/cubits/settings/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+
+import 'cubit/settings_cubit.dart';
 
 class GeneralSettingPage extends StatelessWidget {
   @override

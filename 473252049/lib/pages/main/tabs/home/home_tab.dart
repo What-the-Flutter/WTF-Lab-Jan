@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../pages/cubits/categories/categories_cubit.dart';
-import '../widgets/category_widget.dart';
+import '../../widgets/category_widget.dart';
+import 'cubit/categories_cubit.dart';
 
 class HomeTab extends StatelessWidget {
   @override

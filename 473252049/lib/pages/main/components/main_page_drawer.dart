@@ -1,5 +1,6 @@
-import 'package:chat_journal/pages/settings_page.dart';
 import 'package:flutter/material.dart';
+
+import '../../settings/settings_page.dart';
 
 class MainPageDrawer extends StatelessWidget {
   @override

@@ -1,15 +1,15 @@
-import 'package:chat_journal/pages/cubits/settings/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../components/main_page_bottom_navigation_bar.dart';
-import '../components/main_page_drawer.dart';
-import '../repositories/local_database/local_database_records_repository.dart';
-import '../tabs/home_tab.dart';
-import '../tabs/timeline_tab.dart';
-import 'category_add_edit_page.dart';
-import 'cubits/categories/categories_cubit.dart';
-import 'cubits/records/records_cubit.dart';
+import '../../repositories/local_database/local_database_records_repository.dart';
+import '../category/cubit/records_cubit.dart';
+import '../category_add_edit_page.dart';
+import '../settings/cubit/settings_cubit.dart';
+import 'components/main_page_bottom_navigation_bar.dart';
+import 'components/main_page_drawer.dart';
+import 'tabs/home/cubit/categories_cubit.dart';
+import 'tabs/home/home_tab.dart';
+import 'tabs/timeline_tab.dart';
 
 class MainPage extends StatefulWidget {
   @override

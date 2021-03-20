@@ -5,12 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../model/category.dart';
-import '../model/record.dart';
-import '../widgets/record_widget.dart';
-import 'cubits/categories/categories_cubit.dart';
-import 'cubits/records/records_cubit.dart';
-import 'search_record_page.dart';
+import '../../model/category.dart';
+import '../../model/record.dart';
+import '../search_record_page.dart';
+import 'cubit/records_cubit.dart';
+import 'dialogs/create_image_record_dialog.dart';
+import 'dialogs/delete_records_dialog.dart';
+import 'dialogs/send_records_dialog.dart';
+import 'widgets/record_widget.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;
@@ -111,7 +113,7 @@ class _CategoryPageState extends State<CategoryPage> {
                             IconButton(
                               icon: Icon(Icons.share),
                               onPressed: () {
-                                _showSendRecordsDialog(
+                                showSendRecordsDialog(
                                   context,
                                   category: widget.category,
                                 );
@@ -164,7 +166,7 @@ class _CategoryPageState extends State<CategoryPage> {
                             IconButton(
                               icon: Icon(Icons.delete),
                               onPressed: () {
-                                _showDeleteDialog(
+                                showDeleteRecordsDialog(
                                   context,
                                   category: widget.category,
                                 );
@@ -214,7 +216,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         onPressed: () async {
                           await getImage();
                           if (_image == null) return;
-                          _showCreateImageRecordDialog(
+                          showCreateImageRecordDialog(
                             context: context,
                             image: _image,
                             textEditingController: _textEditingController,
@@ -289,61 +291,6 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 }
 
-class DeleteRecordDialog extends StatelessWidget {
-  final int categoryId;
-
-  const DeleteRecordDialog({Key key, this.categoryId}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<RecordsCubit, RecordsState>(
-      builder: (context, state) => AlertDialog(
-        title: Text('Delete records?'),
-        actions: [
-          TextButton(
-            child: Text("Don't"),
-            onPressed: () {
-              context.read<RecordsCubit>().unselectAll(
-                    records: state.records,
-                    categoryId: categoryId,
-                  );
-              Navigator.of(context).pop();
-            },
-          ),
-          TextButton(
-            child: Text('Delete'),
-            onPressed: () async {
-              await context.read<RecordsCubit>().deleteAll(
-                    state.records
-                        .where(
-                          (e) => e.isSelected,
-                        )
-                        .toList(),
-                    categoryId: categoryId,
-                  );
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-Future _showDeleteDialog(BuildContext context, {Category category}) {
-  return showDialog(
-    context: context,
-    builder: (newContext) {
-      return BlocProvider.value(
-        value: context.read<RecordsCubit>(),
-        child: DeleteRecordDialog(
-          categoryId: category.id,
-        ),
-      );
-    },
-  );
-}
-
 class RecordsListView extends StatelessWidget {
   final List<Record> records;
   final Category category;
@@ -360,7 +307,9 @@ class RecordsListView extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: ListView(
         reverse: true,
-        children: [...recordWidgetsFromRecords(records, category)],
+        children: [
+          ...recordWidgetsFromRecords(records, category),
+        ],
       ),
     );
   }
@@ -452,119 +401,4 @@ class MessageTextFormField extends StatelessWidget {
       ),
     );
   }
-}
-
-Future _showSendRecordsDialog(BuildContext context,
-    {@required Category category}) {
-  return showDialog(
-    context: context,
-    builder: (newContext) {
-      return BlocProvider.value(
-        value: context.read<CategoriesCubit>(),
-        child: BlocProvider.value(
-          value: context.read<RecordsCubit>(),
-          child: SendRecordsDialog(
-            categoryFrom: category,
-          ),
-        ),
-      );
-    },
-  );
-}
-
-class SendRecordsDialog extends StatelessWidget {
-  final Category categoryFrom;
-
-  const SendRecordsDialog({Key key, this.categoryFrom}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<RecordsCubit, RecordsState>(
-      builder: (context, state) {
-        return SimpleDialog(
-          children: [
-            ...context.read<CategoriesCubit>().state.categories.map(
-              (category) {
-                if (category.category == categoryFrom) {
-                  return Container(
-                    height: 0,
-                  );
-                }
-                return ListTile(
-                  title: Text(category.category.name),
-                  onTap: () async {
-                    await context.read<RecordsCubit>().sendAll(
-                          state.records
-                              .where(
-                                (element) => element.isSelected,
-                              )
-                              .toList(),
-                          categoryId: categoryFrom.id,
-                          categoryToId: category.category.id,
-                        );
-                    await context.read<RecordsCubit>().unselectAll(
-                          categoryId: category.category.id,
-                        );
-                    await context.read<RecordsCubit>().unselectAll(
-                          categoryId: categoryFrom.id,
-                        );
-                    Navigator.of(context).pop();
-                  },
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-Future _showCreateImageRecordDialog({
-  @required BuildContext context,
-  @required File image,
-  @required TextEditingController textEditingController,
-  @required FocusNode messageFocus,
-  @required int categoryId,
-}) {
-  return showDialog(
-    context: context,
-    builder: (newContext) {
-      return SimpleDialog(
-        children: [
-          Container(
-            constraints: BoxConstraints(maxHeight: 400),
-            child: Image.file(image),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: MessageTextFormField(
-                    controller: textEditingController,
-                    focusNode: messageFocus,
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () async {
-                    await context.read<RecordsCubit>().add(
-                          Record(
-                            textEditingController.text,
-                            categoryId: categoryId,
-                            image: image,
-                          ),
-                          categoryId: categoryId,
-                        );
-                    textEditingController.clear();
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            ),
-          ),
-        ],
-      );
-    },
-  );
 }
