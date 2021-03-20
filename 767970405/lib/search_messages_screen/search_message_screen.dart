@@ -105,7 +105,10 @@ class SearchMessageScreen extends StatelessWidget {
 class FoundMessage extends StatelessWidget {
   final int index;
 
-  const FoundMessage({Key key, this.index}) : super(key: key);
+  const FoundMessage({
+    Key key,
+    this.index,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +127,7 @@ class FoundMessage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               Text(context.read<ScreenMessageCubit>().state.page.title),
-              data.message,
+              Text(data.text),
               if (data.isFavor)
                 Icon(
                   Icons.bookmark,

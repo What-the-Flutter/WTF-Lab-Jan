@@ -21,7 +21,10 @@ class PagesAPI {
           ' pageId INTEGER,'
           ' isFavor INTEGER,'
           ' isSelected INTEGER,'
-          ' data TEXT'
+          ' text TEXT,'
+          ' photo TEXT,'
+          ' indexCategory INTEGER,'
+          ' pubTime TEXT'
           ');',
         );
         db.execute(
@@ -97,12 +100,15 @@ class PagesAPI {
     );
     return List.generate(
       maps.length,
-      (i) => TextMessage(
+      (i) => ModelMessage(
         id: maps[i]['id'],
         pageId: maps[i]['pageId'],
         isFavor: maps[i]['isFavor'] == 0 ? false : true,
         isSelected: maps[i]['isSelected'] == 0 ? false : true,
-        data: maps[i]['data'],
+        text: maps[i]['text'],
+        photo: maps[i]['photo'],
+        indexCategory: maps[i]['indexCategory'],
+        pubTime: DateTime.parse(maps[i]['pubTime']),
       ),
     );
   }

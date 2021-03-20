@@ -168,9 +168,6 @@ class EventPage extends StatelessWidget {
       onTap: () async {
         context.read<ScreenMessageCubit>().downloadData(
               state.list[_index],
-              InputAppBar(
-                title: state.list[_index].title,
-              ),
             );
         context
             .read<SearchMessageScreenCubit>()
