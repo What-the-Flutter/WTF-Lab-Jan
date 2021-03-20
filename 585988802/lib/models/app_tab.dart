@@ -1,1 +1,1 @@
-enum AppTab { home, daily, timeline, explore }
+enum AppTab { home, timeline }

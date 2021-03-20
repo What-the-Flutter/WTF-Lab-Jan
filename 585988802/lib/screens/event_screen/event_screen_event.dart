@@ -119,22 +119,18 @@ class TimeSelected extends EventScreenEvent {
   const TimeSelected(this.selectedTime);
 }
 
-class TagAdded extends EventScreenEvent {
-  final Tag tag;
-
-  const TagAdded(this.tag);
-}
-
-class CheckEventMessageForTag extends EventScreenEvent {
+class CheckEventMessageForTagAndAdded extends EventScreenEvent {
   final String eventMessageText;
+  final List<Tag> tagList;
 
-  const CheckEventMessageForTag(this.eventMessageText);
+  const CheckEventMessageForTagAndAdded(this.eventMessageText, this.tagList);
 }
 
 class TagDeleted extends EventScreenEvent {
   final Tag tag;
+  final List<Tag> tagList;
 
-  const TagDeleted(this.tag);
+  const TagDeleted(this.tag, this.tagList);
 }
 
 class UpdateTagList extends EventScreenEvent {

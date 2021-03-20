@@ -27,24 +27,12 @@ class TabSelector extends StatelessWidget {
       items: AppTab.values.map((tab) {
         return BottomNavigationBarItem(
           icon: Icon(
-            tab == AppTab.home
-                ? Icons.home_sharp
-                : tab == AppTab.daily
-                    ? Icons.assignment_outlined
-                    : tab == AppTab.timeline
-                        ? Icons.timeline
-                        : Icons.explore,
+            tab == AppTab.home ? Icons.home_sharp : Icons.timeline,
             color: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
                 ? Theme.of(context).floatingActionButtonTheme.backgroundColor
                 : Theme.of(context).scaffoldBackgroundColor,
           ),
-          label: tab == AppTab.home
-              ? 'Home'
-              : tab == AppTab.daily
-                  ? 'Daily'
-                  : tab == AppTab.timeline
-                      ? 'Timeline'
-                      : 'Explore',
+          label: tab == AppTab.home ? 'Home' : 'Timeline',
         );
       }).toList(),
     );

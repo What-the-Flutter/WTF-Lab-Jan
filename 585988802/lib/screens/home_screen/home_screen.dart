@@ -3,32 +3,25 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../common_widgets/change_theme_button_widget.dart';
 import '../../common_widgets/custom_dialog.dart';
+import '../../common_widgets/custom_drawer.dart';
 import '../../db_helper/db_helper.dart';
-import '../../models/app_tab.dart';
 import '../../models/font_size_customization.dart';
 import '../../models/suggestion.dart';
 import '../../theme/theme_bloc.dart';
 import '../../theme/theme_event.dart';
-import '../creating_categories_screen/creating_categories_screen.dart';
 import '../creating_suggestion_screen/creating_suggestion_screen.dart';
 import '../event_screen/event_screen.dart';
 import '../setting_screen/setting_screen_event.dart';
-import '../setting_screen/settings_screen.dart';
 import '../setting_screen/settings_screen_bloc.dart';
-import '../tab/tab_bloc.dart';
-import '../tab/tab_event.dart';
-import '../tab/tab_selector.dart';
+import 'home_screen_app_bar.dart';
 import 'info_about_suggestion_dialog.dart';
 import 'suggestions_bloc.dart';
 import 'suggestions_event.dart';
 import 'suggestions_state.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key, this.title}) : super(key: key);
-
-  final String title;
+  HomeScreen({Key key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -49,225 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TabBloc, AppTab>(
-      builder: (context, activeTab) {
-        return Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          appBar: _appBar,
-          drawer: _drawer,
-          body: _homePageBody(context),
-          bottomNavigationBar: TabSelector(
-            activeTab: activeTab,
-            onTabSelected: (tab) => BlocProvider.of<TabBloc>(context).add(
-              TabUpdated(tab),
-            ),
-          ),
-          floatingActionButton: _floatingActionButton,
-        );
-      },
-    );
-  }
-
-  AppBar get _appBar {
-    return AppBar(
-      iconTheme: Theme.of(context).iconTheme,
-      backgroundColor: Theme.of(context).appBarTheme.color,
-      title: Container(
-        child: Text(
-          widget.title,
-          style: TextStyle(
-            color: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                ? Theme.of(context).accentColor
-                : Theme.of(context).primaryColor,
-            fontSize:
-                BlocProvider.of<SettingScreenBloc>(context).state.fontSize == 0
-                    ? appBarSmallFontSize
-                    : BlocProvider.of<SettingScreenBloc>(context)
-                                .state
-                                .fontSize ==
-                            1
-                        ? appBarDefaultFontSize
-                        : appBarLargeFontSize,
-          ),
-        ),
-        alignment: Alignment.center,
-      ),
-      elevation: 0.0,
-      actions: [
-        ChangeThemeButtonWidget(),
-      ],
-    );
-  }
-
-  Drawer get _drawer {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          UserAccountsDrawerHeader(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: BlocProvider.of<ThemeBloc>(context).state ==
-                        ThemeMode.dark
-                    ? [Colors.deepPurpleAccent.shade200, Colors.purpleAccent]
-                    : [Colors.deepOrangeAccent, Colors.red],
-              ),
-            ),
-            accountName: Text(
-              'Alex',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color:
-                    BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                        ? Theme.of(context).accentColor
-                        : Theme.of(context).primaryColor,
-              ),
-            ),
-            accountEmail: Text(
-              'shevelyanchik01@mail.ru',
-              style: TextStyle(
-                color:
-                    BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                        ? Theme.of(context).accentColor
-                        : Theme.of(context).primaryColor,
-              ),
-            ),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              foregroundColor: Theme.of(context).scaffoldBackgroundColor,
-              child: Icon(
-                Icons.person,
-                size: 50,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text(
-              'Search',
-              style: TextStyle(
-                color: Theme.of(context).accentColor,
-                fontSize: BlocProvider.of<SettingScreenBloc>(context)
-                            .state
-                            .fontSize ==
-                        0
-                    ? listTileTitleSmallFontSize
-                    : BlocProvider.of<SettingScreenBloc>(context)
-                                .state
-                                .fontSize ==
-                            1
-                        ? listTileTitleDefaultFontSize
-                        : listTileTitleLargeFontSize,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.widgets_outlined),
-            title: Text(
-              'Categories',
-              style: TextStyle(
-                color: Theme.of(context).accentColor,
-                fontSize: BlocProvider.of<SettingScreenBloc>(context)
-                            .state
-                            .fontSize ==
-                        0
-                    ? listTileTitleSmallFontSize
-                    : BlocProvider.of<SettingScreenBloc>(context)
-                                .state
-                                .fontSize ==
-                            1
-                        ? listTileTitleDefaultFontSize
-                        : listTileTitleLargeFontSize,
-              ),
-            ),
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CreatingCategoriesScreen(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.timeline),
-            title: Text(
-              'Timeline',
-              style: TextStyle(
-                color: Theme.of(context).accentColor,
-                fontSize: BlocProvider.of<SettingScreenBloc>(context)
-                            .state
-                            .fontSize ==
-                        0
-                    ? listTileTitleSmallFontSize
-                    : BlocProvider.of<SettingScreenBloc>(context)
-                                .state
-                                .fontSize ==
-                            1
-                        ? listTileTitleDefaultFontSize
-                        : listTileTitleLargeFontSize,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text(
-              'Settings',
-              style: TextStyle(
-                color: Theme.of(context).accentColor,
-                fontSize: BlocProvider.of<SettingScreenBloc>(context)
-                            .state
-                            .fontSize ==
-                        0
-                    ? listTileTitleSmallFontSize
-                    : BlocProvider.of<SettingScreenBloc>(context)
-                                .state
-                                .fontSize ==
-                            1
-                        ? listTileTitleDefaultFontSize
-                        : listTileTitleLargeFontSize,
-              ),
-            ),
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsScreen(),
-                ),
-              );
-            },
-          ),
-          Divider(
-            color: Colors.black54,
-            height: 0.5,
-            thickness: 0.5,
-            indent: 15,
-            endIndent: 15,
-          ),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text(
-              'Notifications',
-              style: TextStyle(
-                color: Theme.of(context).accentColor,
-                fontSize: BlocProvider.of<SettingScreenBloc>(context)
-                            .state
-                            .fontSize ==
-                        0
-                    ? listTileTitleSmallFontSize
-                    : BlocProvider.of<SettingScreenBloc>(context)
-                                .state
-                                .fontSize ==
-                            1
-                        ? listTileTitleDefaultFontSize
-                        : listTileTitleLargeFontSize,
-              ),
-            ),
-          ),
-        ],
-      ),
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: HomeScreenAppBar(),
+      drawer: CustomDrawer(),
+      body: _homePageBody(context),
+      floatingActionButton: _floatingActionButton,
     );
   }
 
@@ -508,13 +288,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return showGeneralDialog(
       barrierDismissible: false,
       context: context,
-      transitionDuration: Duration(milliseconds: 800),
+      transitionDuration: Duration(milliseconds: 600),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
-            reverseCurve: Curves.easeOutCubic,
+            curve: Curves.linear,
+            reverseCurve: Curves.linearToEaseOut,
           ),
           child: InfoAboutSuggestionDialog(
             selectedSuggestion: selectedSuggestion,
@@ -545,13 +325,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return showGeneralDialog(
       barrierDismissible: false,
       context: context,
-      transitionDuration: Duration(milliseconds: 800),
+      transitionDuration: Duration(milliseconds: 1200),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
-            reverseCurve: Curves.easeOutCubic,
+            curve: Curves.elasticIn,
+            reverseCurve: Curves.elasticOut,
           ),
           child: CustomDialog.editSuggestion(
             title: 'Edit the text',

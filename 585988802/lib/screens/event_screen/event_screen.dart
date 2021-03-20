@@ -332,8 +332,13 @@ class _EventScreenState extends State<EventScreen> {
                         backgroundColor: Theme.of(context).cardTheme.color,
                         onPressed: () => _filterEventMessageList(tag.tagText),
                         onDeleted: () =>
-                            BlocProvider.of<EventScreenBloc>(context)
-                                .add(TagDeleted(tag)),
+                            BlocProvider.of<EventScreenBloc>(context).add(
+                          TagDeleted(
+                              tag,
+                              BlocProvider.of<EventScreenBloc>(context)
+                                  .state
+                                  .tagList),
+                        ),
                       ),
                     )
                     .toList(),
@@ -784,6 +789,7 @@ class _EventScreenState extends State<EventScreen> {
       EventMessageAdded(
         EventMessage(
           idOfSuggestion: _listViewSuggestion.id,
+          nameOfSuggestion: _listViewSuggestion.nameOfSuggestion,
           time: BlocProvider.of<SettingScreenBloc>(context)
                   .state
                   .isDateTimeModification
@@ -850,10 +856,10 @@ class _EventScreenState extends State<EventScreen> {
       ),
     );
 
-    ///
-    BlocProvider.of<EventScreenBloc>(context)
-        .add(CheckEventMessageForTag(_textEditingController.text));
-    // _addTag(_textEditingController.text);
+    BlocProvider.of<EventScreenBloc>(context).add(
+      CheckEventMessageForTagAndAdded(_textEditingController.text,
+          BlocProvider.of<EventScreenBloc>(context).state.tagList),
+    );
     _textEditingController.clear();
     BlocProvider.of<EventScreenBloc>(context).add(
       SendButtonChanged(false),
@@ -865,19 +871,6 @@ class _EventScreenState extends State<EventScreen> {
         ? _closeSearchTextField()
         : () {};
   }
-
-  // void _addTag(String text) {
-  //   final list = text.split(RegExp(r'[ ]+'));
-  //   for (final str in list) {
-  //     if (tagRegExp.hasMatch(str)) {
-  //       BlocProvider.of<EventScreenBloc>(context).add(
-  //         TagAdded(
-  //           Tag(tagText: str),
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
 
   Future<Object> _showImageSelectionDialog() {
     return showGeneralDialog(
@@ -932,6 +925,7 @@ class _EventScreenState extends State<EventScreen> {
         EventMessageAdded(
           EventMessage(
             idOfSuggestion: _listViewSuggestion.id,
+            nameOfSuggestion: _listViewSuggestion.nameOfSuggestion,
             time: BlocProvider.of<SettingScreenBloc>(context)
                     .state
                     .isDateTimeModification
@@ -1153,7 +1147,7 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
+            curve: Curves.decelerate,
             reverseCurve: Curves.easeOutCubic,
           ),
           child: ForwardDialog(
@@ -1179,6 +1173,7 @@ class _EventScreenState extends State<EventScreen> {
             1
         ? EventMessage(
             idOfSuggestion: selectedListViewSuggestion.id,
+            nameOfSuggestion: selectedListViewSuggestion.nameOfSuggestion,
             time: BlocProvider.of<SettingScreenBloc>(context)
                     .state
                     .isDateTimeModification
@@ -1227,6 +1222,7 @@ class _EventScreenState extends State<EventScreen> {
           )
         : EventMessage(
             idOfSuggestion: selectedListViewSuggestion.id,
+            nameOfSuggestion: selectedListViewSuggestion.nameOfSuggestion,
             time: BlocProvider.of<SettingScreenBloc>(context)
                     .state
                     .isDateTimeModification
@@ -1306,8 +1302,8 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
-            reverseCurve: Curves.easeOutCubic,
+            curve: Curves.linearToEaseOut,
+            reverseCurve: Curves.linearToEaseOut,
           ),
           child: CustomDialog.editEventMessage(
             title: 'Edit the text',

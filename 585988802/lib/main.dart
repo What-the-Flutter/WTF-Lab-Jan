@@ -8,12 +8,14 @@ import 'screens/creating_suggestion_screen/creating_suggestion_screen_bloc.dart'
 import 'screens/creating_suggestion_screen/creating_suggestion_screen_state.dart';
 import 'screens/event_screen/event_screen_bloc.dart';
 import 'screens/event_screen/event_screen_state.dart';
-import 'screens/home_screen/home_screen.dart';
 import 'screens/home_screen/suggestions_bloc.dart';
 import 'screens/home_screen/suggestions_state.dart';
 import 'screens/setting_screen/settings_screen_bloc.dart';
 import 'screens/setting_screen/settings_screen_state.dart';
-import 'screens/tab/tab_bloc.dart';
+import 'screens/tab_screen/tab_bloc.dart';
+import 'screens/tab_screen/tab_screen.dart';
+import 'screens/timeline_screen/timeline_bloc.dart';
+import 'screens/timeline_screen/timeline_state.dart';
 import 'theme/custom_theme.dart';
 import 'theme/theme_bloc.dart';
 
@@ -77,6 +79,20 @@ void main() async {
             ),
           ),
         ),
+        BlocProvider(
+          create: (context) => TimelineScreenBloc(
+            TimelineScreenState(
+              [],
+              [],
+              null,
+              false,
+              false,
+              false,
+              [],
+              [],
+            ),
+          ),
+        ),
       ],
       child: App(),
     ),
@@ -97,9 +113,7 @@ class App extends StatelessWidget {
             splash: Image.asset(
               'assets/images/splash_screen_icon.png',
             ),
-            nextScreen: HomeScreen(
-              title: 'Home',
-            ),
+            nextScreen: TabScreen(),
             splashTransition: SplashTransition.sizeTransition,
           ),
         );

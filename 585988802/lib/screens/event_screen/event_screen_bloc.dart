@@ -58,23 +58,22 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
       yield* _mapDateSelectedToState(event);
     } else if (event is TimeSelected) {
       yield* _mapTimeSelectedToState(event);
-    } else if (event is TagAdded) {
-      yield* _mapTagAddedToState(event);
     } else if (event is TagDeleted) {
       yield* _mapTagDeletedToState(event);
     } else if (event is UpdateTagList) {
       yield* _mapUpdateTagListToState();
-    } else if (event is CheckEventMessageForTag) {
+    } else if (event is CheckEventMessageForTagAndAdded) {
       yield* _mapCheckEventMessageForTagToState(event);
     }
   }
 
   Stream<EventScreenState> _mapEventMessageListInitToState(
       EventMessageListInit event) async* {
-    add(
-      UpdateEventMessageList(event.listViewSuggestion.id),
-    );
+    final dbEventMessageList = await _dbHelper
+        .dbEventMessagesListForEventScreen(event.listViewSuggestion.id);
     yield state.copyWith(
+      filteredEventMessageList: dbEventMessageList,
+      eventMessageList: dbEventMessageList,
       isSearchIconButtonPressed: false,
       isCategorySelected: false,
       isWriting: false,
@@ -199,6 +198,7 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
     final eventMessage = EventMessage(
       id: state.selectedEventMessage.id,
       idOfSuggestion: state.selectedEventMessage.idOfSuggestion,
+      nameOfSuggestion: state.selectedEventMessage.nameOfSuggestion,
       time: state.selectedEventMessage.time,
       text: event.editedNameOfEventMessage,
       isFavorite: state.selectedEventMessage.isFavorite,
@@ -223,32 +223,28 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
   }
 
   Stream<EventScreenState> _mapCheckEventMessageForTagToState(
-      CheckEventMessageForTag event) async* {
+      CheckEventMessageForTagAndAdded event) async* {
     final eventMessageWordList = event.eventMessageText.split(RegExp(r'[ ]+'));
     final tagTextList = state.tagList.map((tag) => tag.tagText).toList();
 
-    for (final word in eventMessageWordList) {
+    for (var word in eventMessageWordList) {
       if (tagRegExp.hasMatch(word) && !tagTextList.contains(word)) {
-        add(
-          TagAdded(
-            Tag(tagText: word),
-          ),
-        );
+        final tag = Tag(tagText: word);
+        _dbHelper.insertTag(tag);
+        event.tagList.insert(event.tagList.length, tag);
       }
     }
-    yield state.copyWith();
-  }
-
-  Stream<EventScreenState> _mapTagAddedToState(TagAdded event) async* {
-    _dbHelper.insertTag(event.tag);
-    add(UpdateTagList());
-    yield state.copyWith();
+    yield state.copyWith(
+      tagList: event.tagList,
+    );
   }
 
   Stream<EventScreenState> _mapTagDeletedToState(TagDeleted event) async* {
     _dbHelper.deleteTag(event.tag);
-    add(UpdateTagList());
-    yield state.copyWith();
+    event.tagList.remove(event.tag);
+    yield state.copyWith(
+      tagList: event.tagList,
+    );
   }
 
   Stream<EventScreenState> _mapUpdateTagListToState() async* {

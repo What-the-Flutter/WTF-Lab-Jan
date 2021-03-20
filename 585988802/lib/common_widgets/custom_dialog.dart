@@ -87,9 +87,7 @@ class CustomDialog extends StatelessWidget {
         Container(
           margin: EdgeInsets.only(top: 40),
           decoration: BoxDecoration(
-            color: Theme
-                .of(context)
-                .dialogBackgroundColor,
+            color: Theme.of(context).dialogBackgroundColor,
             borderRadius: BorderRadius.circular(25.0),
           ),
           padding: EdgeInsets.only(top: 60, left: 20, right: 20),
@@ -98,31 +96,25 @@ class CustomDialog extends StatelessWidget {
             children: <Widget>[
               Text(
                 title,
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .headline5,
+                style: Theme.of(context).textTheme.headline5,
               ),
               isEditMessage
                   ? Container()
                   : SizedBox(
-                height: 16,
-              ),
+                      height: 16,
+                    ),
               isEditMessage
                   ? TextField(
-                decoration: InputDecoration(
-                  hintText: 'Enter text',
-                ),
-                controller: textEditControl,
-              )
+                      decoration: InputDecoration(
+                        hintText: 'Enter text',
+                      ),
+                      controller: textEditControl,
+                    )
                   : Text(
-                content,
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodyText2,
-                textAlign: TextAlign.center,
-              ),
+                      content,
+                      style: Theme.of(context).textTheme.bodyText2,
+                      textAlign: TextAlign.center,
+                    ),
               ButtonBar(
                 buttonMinWidth: 100,
                 alignment: MainAxisAlignment.center,
@@ -131,9 +123,7 @@ class CustomDialog extends StatelessWidget {
                     child: Text(
                       firstBtnText,
                       style: TextStyle(
-                          color: Theme
-                              .of(context)
-                              .scaffoldBackgroundColor),
+                          color: Theme.of(context).scaffoldBackgroundColor),
                     ),
                     onPressed: () {
                       firstBtnFunc();
@@ -144,9 +134,7 @@ class CustomDialog extends StatelessWidget {
                     child: Text(
                       secondBtnText,
                       style: TextStyle(
-                          color: Theme
-                              .of(context)
-                              .scaffoldBackgroundColor),
+                          color: Theme.of(context).scaffoldBackgroundColor),
                     ),
                     onPressed: () {
                       secondBtnFunc();
@@ -156,18 +144,16 @@ class CustomDialog extends StatelessWidget {
                   (isEditMessage || isDeleteMessage)
                       ? Container()
                       : TextButton(
-                    child: Text(
-                      'Cancel',
-                      style: TextStyle(
-                          color:
-                          Theme
-                              .of(context)
-                              .scaffoldBackgroundColor),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
                 ],
               ),
             ],
@@ -176,9 +162,7 @@ class CustomDialog extends StatelessWidget {
         CircleAvatar(
           maxRadius: 40.0,
           child: icon,
-          backgroundColor: Theme
-              .of(context)
-              .scaffoldBackgroundColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
       ],
     );

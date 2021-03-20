@@ -3,6 +3,7 @@ import 'data_base_contract.dart';
 class EventMessage implements DBContract {
   int id;
   int idOfSuggestion;
+  String nameOfSuggestion;
   String time;
   String text;
   int isFavorite;
@@ -14,6 +15,7 @@ class EventMessage implements DBContract {
   EventMessage({
     this.id,
     this.idOfSuggestion,
+    this.nameOfSuggestion,
     this.time,
     this.text,
     this.isFavorite,
@@ -28,6 +30,7 @@ class EventMessage implements DBContract {
     return {
       'id': id,
       'id_of_suggestion': idOfSuggestion,
+      'name_of_suggestion': nameOfSuggestion,
       'time': time,
       'text': text,
       'is_favorite': isFavorite,
@@ -42,6 +45,7 @@ class EventMessage implements DBContract {
     return EventMessage(
       id: map['id'],
       idOfSuggestion: map['id_of_suggestion'],
+      nameOfSuggestion: map['name_of_suggestion'],
       time: map['time'],
       text: map['text'],
       isFavorite: map['is_favorite'],

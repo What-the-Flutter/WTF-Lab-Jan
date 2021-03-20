@@ -62,7 +62,7 @@ class FontSizeChangingDialog extends StatelessWidget {
                 height: 300.0,
                 child: SingleChildScrollView(
                   child: Column(
-                    children: _createListSuggestion(context),
+                    children: _createListFontSizes(context),
                   ),
                 ),
               ),
@@ -79,7 +79,7 @@ class FontSizeChangingDialog extends StatelessWidget {
     );
   }
 
-  List<Widget> _createListSuggestion(BuildContext context) {
+  List<Widget> _createListFontSizes(BuildContext context) {
     var suggestionList = <Widget>[];
     for (var fontSize in _listFontSizes) {
       suggestionList.add(
