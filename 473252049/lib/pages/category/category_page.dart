@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:chat_journal/pages/settings/cubit/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../model/category.dart';
 import '../../model/record.dart';
 import '../search_record_page.dart';
+import '../settings/cubit/settings_cubit.dart';
 import 'cubit/records_cubit.dart';
 import 'dialogs/create_image_record_dialog.dart';
 import 'dialogs/delete_records_dialog.dart';
@@ -215,16 +215,21 @@ class _CategoryPageState extends State<CategoryPage> {
                             category: widget.category,
                           ),
                           if (settingsState.showCreateRecordDateTimePicker)
-                            OutlinedButton(
-                              onPressed: () async {
-                                final dateTime =
-                                    await showDateTimePicker(context);
-                                setState(() {
-                                  createRecordDateTime = dateTime;
-                                });
-                              },
-                              child: Text(
-                                DateFormat.yMEd().format(createRecordDateTime),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: OutlinedButton(
+                                onPressed: () async {
+                                  final dateTime =
+                                      await showDateTimePicker(context);
+                                  setState(() {
+                                    createRecordDateTime = dateTime;
+                                  });
+                                },
+                                child: Text(
+                                  DateFormat.yMEd()
+                                      .format(createRecordDateTime),
+                                ),
                               ),
                             ),
                         ],
@@ -258,36 +263,44 @@ class _CategoryPageState extends State<CategoryPage> {
                         controller: _textEditingController,
                       ),
                     ),
-                    IconButton(
-                      icon: state is RecordUpdateInProcess
-                          ? Icon(Icons.check)
-                          : Icon(Icons.send),
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          if (state is RecordUpdateInProcess) {
-                            await context.read<RecordsCubit>().update(
-                                  state.record.copyWith(
-                                    message: _textEditingController.text.trim(),
-                                    createDateTime: createRecordDateTime,
-                                  ),
-                                  categoryId: widget.category.id,
-                                );
-                            context.read<RecordsCubit>().unselectAll(
-                                  categoryId: widget.category.id,
-                                );
-                            _messageFocus.unfocus();
-                          } else {
-                            await context.read<RecordsCubit>().add(
-                                  Record(
-                                    _textEditingController.text.trim(),
-                                    categoryId: widget.category.id,
-                                    createDateTime: createRecordDateTime,
-                                  ),
-                                  categoryId: widget.category.id,
-                                );
-                          }
-                          _textEditingController.clear();
-                        }
+                    BlocBuilder<SettingsCubit, SettingsState>(
+                      builder: (context, settingsState) {
+                        return IconButton(
+                          icon: state is RecordUpdateInProcess
+                              ? Icon(Icons.check)
+                              : Icon(Icons.send),
+                          onPressed: () async {
+                            if (_formKey.currentState.validate()) {
+                              if (state is RecordUpdateInProcess) {
+                                await context.read<RecordsCubit>().update(
+                                      state.record.copyWith(
+                                        message:
+                                            _textEditingController.text.trim(),
+                                        createDateTime: settingsState
+                                                .showCreateRecordDateTimePicker
+                                            ? createRecordDateTime
+                                            : DateTime.now(),
+                                      ),
+                                      categoryId: widget.category.id,
+                                    );
+                                context.read<RecordsCubit>().unselectAll(
+                                      categoryId: widget.category.id,
+                                    );
+                                _messageFocus.unfocus();
+                              } else {
+                                await context.read<RecordsCubit>().add(
+                                      Record(
+                                        _textEditingController.text.trim(),
+                                        categoryId: widget.category.id,
+                                        createDateTime: createRecordDateTime,
+                                      ),
+                                      categoryId: widget.category.id,
+                                    );
+                              }
+                              _textEditingController.clear();
+                            }
+                          },
+                        );
                       },
                     ),
                   ],
