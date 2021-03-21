@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'authentication_cubit/authentication_cubit.dart';
 import 'pages/main/main_page.dart';
 import 'pages/main/tabs/home/cubit/categories_cubit.dart';
 import 'pages/settings/cubit/settings_cubit.dart';
@@ -33,17 +34,29 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, SettingsState>(
-      builder: (context, state) {
-        return MaterialApp(
-          title: '473252049',
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
-          themeMode: state.themeMode,
-          home: BlocProvider(
-            create: (context) => CategoriesCubit(
-              LocalDatabaseCategoriesRepository(),
-            )..loadCategories(),
-            child: MainPage(),
+      builder: (context, settingsState) {
+        return BlocProvider(
+          create: (context) => AuthenticationCubit(
+              isAuthenticated: !settingsState.isAuthenticationOn)
+            ..authenticate(),
+          child: MaterialApp(
+            title: '473252049',
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            themeMode: settingsState.themeMode,
+            home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
+              builder: (context, authState) {
+                if (authState.isAuthenticated == false) {
+                  return Container();
+                }
+                return BlocProvider(
+                  create: (context) => CategoriesCubit(
+                    LocalDatabaseCategoriesRepository(),
+                  )..loadCategories(),
+                  child: MainPage(),
+                );
+              },
+            ),
           ),
         );
       },

@@ -75,22 +75,25 @@ List<Widget> recordWidgetsFromRecords({
       ),
     );
   }
-  recordWidgets.add(
-    BlocBuilder<SettingsCubit, SettingsState>(
-      builder: (context, state) {
-        return RecordWidget(
-          record: Record(
-            DateFormat.yMEd().format(
-              records.last.createDateTime,
+  if (records.isNotEmpty) {
+    recordWidgets.add(
+      BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
+          return RecordWidget(
+            record: Record(
+              DateFormat.yMEd().format(
+                records.last.createDateTime,
+              ),
+              categoryId: category?.id,
             ),
-            categoryId: category?.id,
-          ),
-          isDateRecord: true,
-          bubbleAlignment:
-              state.centerDateBubble ? Alignment.center : state.bubbleAlignment,
-        );
-      },
-    ),
-  );
+            isDateRecord: true,
+            bubbleAlignment: state.centerDateBubble
+                ? Alignment.center
+                : state.bubbleAlignment,
+          );
+        },
+      ),
+    );
+  }
   return recordWidgets;
 }

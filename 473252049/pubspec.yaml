@@ -26,11 +26,12 @@ dependencies:
   flutter_bloc: ^7.0.0
   equatable: ^2.0.0
   bubble: ^1.1.9+1
-  image_picker: ^0.6.7+22
-  intl: ^0.16.1
+  image_picker: ^0.7.0
+  intl: ^0.17.0
   shared_preferences: ^0.5.12+4
   path: ^1.8.0
   sqflite: ^2.0.0+2
+  local_auth: ^1.1.0
 
 
   # The following adds the Cupertino Icons font to your application.

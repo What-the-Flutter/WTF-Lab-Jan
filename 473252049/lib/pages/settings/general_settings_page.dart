@@ -55,6 +55,14 @@ class GeneralSettingPage extends StatelessWidget {
                       .switchShowCreateRecordDateTimePicker();
                 },
               ),
+              SwitchListTile(
+                title: Text('Turn on authentication'),
+                subtitle: Text('Biometric and password authentication'),
+                value: state.isAuthenticationOn,
+                onChanged: (value) {
+                  context.read<SettingsCubit>().switchAuthenticationOn();
+                },
+              )
             ],
           );
         },
@@ -62,5 +70,3 @@ class GeneralSettingPage extends StatelessWidget {
     );
   }
 }
-
-final settingsListTiles = [];

@@ -5,30 +5,34 @@ class SettingsState extends Equatable {
   final bool centerDateBubble;
   final Alignment bubbleAlignment;
   final bool showCreateRecordDateTimePicker;
+  final bool isAuthenticationOn;
 
   SettingsState({
     ThemeMode themeMode,
     bool centerDateBubble,
     Alignment bubbleAlignment,
     bool showCreateRecordDateTimePicker,
+    bool isAuthenticationOn,
   })  : themeMode = themeMode ?? ThemeMode.light,
         centerDateBubble = centerDateBubble ?? true,
         bubbleAlignment = bubbleAlignment ?? Alignment.centerRight,
         showCreateRecordDateTimePicker =
-            showCreateRecordDateTimePicker ?? false;
+            showCreateRecordDateTimePicker ?? false,
+        isAuthenticationOn = isAuthenticationOn ?? true;
 
-  SettingsState copyWith({
-    ThemeMode themeMode,
-    bool centerDateBubble,
-    Alignment bubbleAlignment,
-    bool showCreateRecordDateTimePicker,
-  }) {
+  SettingsState copyWith(
+      {ThemeMode themeMode,
+      bool centerDateBubble,
+      Alignment bubbleAlignment,
+      bool showCreateRecordDateTimePicker,
+      bool isAuthenticationOn}) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
       centerDateBubble: centerDateBubble ?? this.centerDateBubble,
       bubbleAlignment: bubbleAlignment ?? this.bubbleAlignment,
       showCreateRecordDateTimePicker:
           showCreateRecordDateTimePicker ?? this.showCreateRecordDateTimePicker,
+      isAuthenticationOn: isAuthenticationOn ?? this.isAuthenticationOn,
     );
   }
 
@@ -38,5 +42,6 @@ class SettingsState extends Equatable {
         centerDateBubble,
         bubbleAlignment,
         showCreateRecordDateTimePicker,
+        isAuthenticationOn,
       ];
 }

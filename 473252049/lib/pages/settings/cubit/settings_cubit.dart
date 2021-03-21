@@ -20,8 +20,21 @@ class SettingsCubit extends Cubit<SettingsState> {
             ),
             showCreateRecordDateTimePicker:
                 preferences.getBool('showCreateRecordDateTimePicker'),
+            isAuthenticationOn: preferences.getBool('isAuthenticationOn'),
           ),
         );
+
+  void switchAuthenticationOn() {
+    preferences.setBool(
+      'isAuthenticationOn',
+      !state.isAuthenticationOn,
+    );
+    emit(
+      state.copyWith(
+        isAuthenticationOn: !state.isAuthenticationOn,
+      ),
+    );
+  }
 
   void switchShowCreateRecordDateTimePicker() async {
     preferences.setBool(
