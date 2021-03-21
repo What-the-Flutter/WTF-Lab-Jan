@@ -132,7 +132,11 @@ String getFormattedCategoryDateTime(
 
   if (dateTime.day == DateTime.now().day) {
     return DateFormat.Hm().format(dateTime);
-  } else {
+  } else if (DateTime.now().difference(dateTime).inDays < 7) {
     return DateFormat.E().format(dateTime);
+  } else if (DateTime.now().difference(dateTime).inDays < 365) {
+    return DateFormat.Md().format(dateTime);
+  } else {
+    return DateFormat.y().format(dateTime);
   }
 }
