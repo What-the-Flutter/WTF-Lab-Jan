@@ -10,7 +10,9 @@ class MessagesRepository {
   });
 
   Future<List<ModelMessage>> messages(int pageId) async {
-    return await api.messages(pageId);
+    var list = await api.messages(pageId);
+    list.sort();
+    return list;
   }
 
   void addMessage(ModelMessage message) async {

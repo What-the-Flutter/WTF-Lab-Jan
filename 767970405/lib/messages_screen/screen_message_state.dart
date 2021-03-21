@@ -10,7 +10,7 @@ class ScreenMessageState extends Equatable {
   final bool isBookmark;
   final bool enabledController;
   final IconData iconData;
-  final Function onAddMessage;
+  final Function(DateTime) onAddMessage;
 
   const ScreenMessageState({
     this.page,

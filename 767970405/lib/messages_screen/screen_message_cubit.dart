@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import '../data/model/model_message.dart';
 import '../data/model/model_page.dart';
 import '../data/repository/messages_repository.dart';
-import 'screen_message.dart';
 
 part 'screen_message_state.dart';
 
@@ -62,7 +61,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     emit(state.copyWith(isBookmark: !state.isBookmark));
   }
 
-  void addTextMessage() async {
+  void addTextMessage(DateTime pubTime) async {
     repository.addMessage(
       ModelMessage(
         pageId: state.page.id,
@@ -71,7 +70,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         isSelected: false,
         indexCategory: null,
         photo: null,
-        pubTime: DateTime.now(),
+        pubTime: pubTime,
       ),
     );
     controller.text = '';
@@ -94,7 +93,27 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     ));
   }
 
-  Future<void> addPhotoMessage() async {
+  List<List<ModelMessage>> get filterMsg {
+    var list = <List<ModelMessage>>[];
+    var temp = <ModelMessage>[];
+    if (state.list.length == 1) {
+      temp.add(state.list[0]);
+      list.add(List.from(temp));
+      return list;
+    }
+    for (var i = 0; i < state.list.length - 1; i++) {
+      temp.add(state.list[i]);
+      if (!state.list[i].pubTime.isSameDate(state.list[i + 1].pubTime)) {
+        list.add(List.from(temp));
+        temp = <ModelMessage>[];
+      }
+    }
+    temp.add(state.list[state.list.length - 1]);
+    list.add(List.from(temp));
+    return list;
+  }
+
+  Future<void> addPhotoMessage(DateTime pubTime) async {
     final pickedFile =
         await ImagePicker().getImage(source: ImageSource.gallery);
     repository.addMessage(
@@ -105,7 +124,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         isSelected: false,
         text: null,
         indexCategory: null,
-        pubTime: DateTime.now(),
+        pubTime: pubTime,
       ),
     );
     emit(
@@ -118,7 +137,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   bool isPhotoMessage() {
     for (var i = 0; i < state.list.length; i++) {
       //if (state.list[i].isSelected && state.list[i] is ImageMessage) {
-        //return true;
+      //return true;
       //}
     }
     return false;
@@ -168,7 +187,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     );
   }
 
-  void editMessage() {
+  void editMessage(DateTime date) {
     int index;
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {

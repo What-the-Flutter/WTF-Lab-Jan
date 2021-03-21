@@ -5,13 +5,14 @@ import 'package:provider/provider.dart';
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
 import '../data/theme/theme.dart';
-import '../data/theme/theme_model.dart';
 import '../main.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
 import '../screen_creating_page/create_new_page.dart';
 import '../screen_creating_page/screen_creating_page_cubit.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
+import '../settings_screen/general_options_cubit.dart';
+import '../settings_screen/settings_screen.dart';
 import 'home_screen_cubit.dart';
 
 class HomeWindow extends StatelessWidget {
@@ -26,12 +27,68 @@ class HomeWindow extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.invert_colors),
             onPressed: () {
-              Provider.of<ThemeModel>(context, listen: false).toggleTheme();
-              saveTheme(Provider.of<ThemeModel>(context, listen: false));
+              context.read<GeneralOptionsCubit>().toggleTheme();
+              saveTheme(context.read<GeneralOptionsCubit>().state.themeType.index);
             },
           ),
         ],
-        leading: Icon(Icons.menu),
+        //leading: Icon(Icons.menu),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Text('Drawer Header'),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.card_giftcard),
+              title: Text('Help spread the word'),
+              onTap: () {
+                //TODO
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.search),
+              title: Text('Search'),
+              onTap: () {
+                // TODO
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.notifications),
+              title: Text('Notifications'),
+              onTap: () {
+                //TODO
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.stacked_line_chart),
+              title: Text('Statistics'),
+              onTap: () {
+                //TODO
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  SettingsScreen.routeName,
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.feedback),
+              title: Text('Feedback'),
+              onTap: () {},
+            )
+          ],
+        ),
       ),
       body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
         builder: (context, state) {
@@ -114,7 +171,7 @@ class ChatPages extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15.0),
-        color: Provider.of<ThemeModel>(context).currentTheme == darkTheme
+        color: context.read<GeneralOptionsCubit>().state.currentTheme == darkTheme
             ? Colors.black
             : Colors.green[50],
       ),
@@ -197,7 +254,7 @@ class EventPage extends StatelessWidget {
                 color: Colors.white,
               ),
               decoration: BoxDecoration(
-                color: Provider.of<ThemeModel>(context).currentTheme.cardColor,
+                color: context.read<GeneralOptionsCubit>().state.currentTheme.cardColor,
                 shape: BoxShape.circle,
               ),
             ),

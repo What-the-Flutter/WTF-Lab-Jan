@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import '../data/theme/theme_model.dart';
+import '../settings_screen/general_options_cubit.dart';
 import 'screen_creating_page_cubit.dart';
 
 class CreateNewPage extends StatelessWidget {
@@ -145,7 +145,7 @@ class Category extends StatelessWidget {
         ],
       ),
       decoration: BoxDecoration(
-        color: Provider.of<ThemeModel>(context).currentTheme.cardColor,
+        color: context.read<GeneralOptionsCubit>().state.currentTheme.cardColor,
         shape: BoxShape.circle,
       ),
     );

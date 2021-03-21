@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -8,40 +7,42 @@ import 'data/data_provider.dart';
 import 'data/repository/icons_repository.dart';
 import 'data/repository/messages_repository.dart';
 import 'data/repository/pages_repository.dart';
-import 'data/theme/theme_model.dart';
 import 'home_screen/home_screen_cubit.dart';
+import 'messages_screen/calendar_cubit.dart';
 import 'messages_screen/screen_message_cubit.dart';
 import 'router/app_router.dart';
 import 'screen_creating_page/screen_creating_page_cubit.dart';
 import 'search_messages_screen/search_message_screen_cubit.dart';
+import 'settings_screen/general_options_cubit.dart';
 
 Future<int> loadTheme() async {
   var prefs = await SharedPreferences.getInstance();
   return prefs.getInt('theme');
 }
 
-Future<void> saveTheme(ThemeModel themeModel) async {
+Future<void> saveTheme(int index) async {
   var prefs = await SharedPreferences.getInstance();
-  prefs.setInt('theme', themeModel.themeType.index);
+  prefs.setInt('theme', index);
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = MyBlocObserver();
-  final themeModel = ThemeModel(index: await loadTheme());
   runApp(
-    ChangeNotifierProvider<ThemeModel>(
-      create: (context) => themeModel,
-      child: MyApp(db: await PagesAPI.init()),
+    MyApp(
+      db: await PagesAPI.init(),
+      index: await loadTheme(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
   final Database db;
+  final int index;
 
   MyApp({
     this.db,
+    this.index,
   });
 
   final AppRouter _appRouter = AppRouter();
@@ -72,11 +73,21 @@ class MyApp extends StatelessWidget {
             repository: IconsRepository(),
           ),
         ),
+        BlocProvider(
+          create: (context) => GeneralOptionsCubit(index),
+        ),
+        BlocProvider(
+          create: (context) => CalendarCubit(
+            time: DateTime.now(),
+          ),
+        ),
       ],
-      child: MaterialApp(
-        title: 'Chat Journal',
-        theme: Provider.of<ThemeModel>(context).currentTheme,
-        onGenerateRoute: _appRouter.onGenerateRoute,
+      child: BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
+        builder: (context, state) => MaterialApp(
+          title: 'Chat Journal',
+          theme: state.currentTheme,
+          onGenerateRoute: _appRouter.onGenerateRoute,
+        ),
       ),
     );
   }
