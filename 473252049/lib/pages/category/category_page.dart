@@ -228,8 +228,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                   });
                                 },
                                 child: Text(
-                                  DateFormat.yMEd()
-                                      .format(createRecordDateTime),
+                                  '${DateFormat.yMEd().add_Hm().format(createRecordDateTime)}',
                                 ),
                               ),
                             ),
