@@ -1,10 +1,10 @@
-import 'package:chat_journal/pages/settings/cubit/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../model/category.dart';
 import '../../../model/record.dart';
+import '../../settings/cubit/settings_cubit.dart';
 import 'record_widget.dart';
 
 class RecordsListView extends StatelessWidget {
@@ -57,7 +57,7 @@ List<Widget> recordWidgetsFromRecords({
               isDateRecord: true,
               bubbleAlignment: state.centerDateBubble
                   ? Alignment.center
-                  : Alignment.centerRight,
+                  : state.bubbleAlignment,
             );
           },
         ),
@@ -87,7 +87,7 @@ List<Widget> recordWidgetsFromRecords({
           ),
           isDateRecord: true,
           bubbleAlignment:
-              state.centerDateBubble ? Alignment.center : Alignment.centerRight,
+              state.centerDateBubble ? Alignment.center : state.bubbleAlignment,
         );
       },
     ),
