@@ -214,7 +214,8 @@ class _CategoryPageState extends State<CategoryPage> {
                             records: state.records,
                             category: widget.category,
                           ),
-                          if (settingsState.showCreateRecordDateTimePicker)
+                          if (settingsState
+                              .showCreateRecordDateTimePickerButton)
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 4),
@@ -277,7 +278,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                         message:
                                             _textEditingController.text.trim(),
                                         createDateTime: settingsState
-                                                .showCreateRecordDateTimePicker
+                                                .showCreateRecordDateTimePickerButton
                                             ? createRecordDateTime
                                             : DateTime.now(),
                                       ),
@@ -346,12 +347,14 @@ class MessageTextFormField extends StatelessWidget {
 
 Future<DateTime> showDateTimePicker(BuildContext context) async {
   final date = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2000),
-        lastDate: DateTime.now(),
-      ) ??
-      DateTime.now();
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime(2000),
+    lastDate: DateTime.now(),
+  );
+  if (date == null) {
+    return DateTime.now();
+  }
   final time = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.now(),

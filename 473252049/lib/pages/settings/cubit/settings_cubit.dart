@@ -39,11 +39,12 @@ class SettingsCubit extends Cubit<SettingsState> {
   void switchShowCreateRecordDateTimePicker() async {
     preferences.setBool(
       'showCreateRecordDateTimePicker',
-      !state.showCreateRecordDateTimePicker,
+      !state.showCreateRecordDateTimePickerButton,
     );
     emit(
       state.copyWith(
-        showCreateRecordDateTimePicker: !state.showCreateRecordDateTimePicker,
+        showCreateRecordDateTimePicker:
+            !state.showCreateRecordDateTimePickerButton,
       ),
     );
   }

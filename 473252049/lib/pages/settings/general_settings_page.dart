@@ -48,7 +48,7 @@ class GeneralSettingPage extends StatelessWidget {
                 title: Text('Show create record date time picker'),
                 subtitle: Text(
                     "When you'll create record, you can choose date and time of this event"),
-                value: state.showCreateRecordDateTimePicker,
+                value: state.showCreateRecordDateTimePickerButton,
                 onChanged: (value) {
                   context
                       .read<SettingsCubit>()
