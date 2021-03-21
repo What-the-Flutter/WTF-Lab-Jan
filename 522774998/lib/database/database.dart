@@ -13,7 +13,7 @@ final String columnTitleOfPage = 'title';
 final String columnCreationTime = 'creation_time';
 final String columnLastModifiedTime = 'last_modified_time';
 final String columnIsPin = 'is_pin';
-final String columnIconIndex= 'icon_index';
+final String columnIconIndex = 'icon_index';
 
 final String tableMessage = 'table_message';
 final String columnIdMessage = 'id';
@@ -138,18 +138,8 @@ class DBHelper {
     final db = await database;
     final dbMessagesList = await db.query(tableMessage,
         where: '$columnIdMessagePage = ?', whereArgs: [idMessagePage]);
-    for (final map in dbMessagesList) {
-      final message = TextMessage(
-        id: map['id'],
-        data: map['data'],
-        time: DateFormat('yyyy-MM-dd – kk:mm').parse(map['time']),
-        icon: map['icon_code_point_message'] == null
-            ? null
-            : IconData(map['icon_code_point_message'],
-            fontFamily: 'MaterialIcons'),
-        idMessagePage: map['id_message_page'],
-        isSelected: map['is_selected']  == 1 ? true : false,
-      );
+    for (final element in dbMessagesList) {
+      final message = PropertyMessage.fromMap(element);
       _messagesList.add(message);
     }
     return _messagesList;

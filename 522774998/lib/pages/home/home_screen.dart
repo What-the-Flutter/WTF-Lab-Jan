@@ -17,6 +17,7 @@ import 'widgets/bottom_panel_tabs.dart';
 class StartWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    context.read<HomePageCubit>().loadData();
     return Scaffold(
       appBar: AppBar(
         title: Container(
@@ -362,14 +363,14 @@ class DialogPage extends StatelessWidget {
               ListTile(
                 title: Text('Created'),
                 subtitle: Text(
-                  DateFormat('yyyy-MM-dd – kk:mm')
+                  DateFormat('yyyy-MM-dd – hh:mm')
                       .format(cubit.state.list[_index].creationTime),
                 ),
               ),
               ListTile(
                 title: Text('Last modification'),
                 subtitle: Text(
-                  DateFormat('yyyy-MM-dd – kk:mm')
+                  DateFormat('yyyy-MM-dd – hh:mm')
                       .format(cubit.state.list[_index].lastModifiedTime),
                 ),
               ),

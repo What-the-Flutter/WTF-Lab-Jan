@@ -45,12 +45,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final dbHelper = DBHelper(database: db);
     final repositoryMessages = MessagesRepository(dbHelper: dbHelper);
+    final repositoryPages = PagesRepository(dbHelper: dbHelper);
+
     BlocProvider.of<SettingPageCubit>(context).initialize();
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (context) => HomePageCubit(
-            repository: PagesRepository(dbHelper: dbHelper),
+            repository: repositoryPages,
           ),
         ),
         BlocProvider(

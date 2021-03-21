@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:try_bloc_app/pages/settings/setting_page_cubit.dart';
 
 import '../../enums/enums.dart';
 import '../../repository/category_repository.dart';
 import '../../theme/theme_model.dart';
 import '../home/home_screen_cubit.dart';
 import '../search/searching_message.dart';
+import '../settings/setting_page_cubit.dart';
 import 'screen_messages_cubit.dart';
 
 bool isVisibleCategories = false;
@@ -41,29 +41,44 @@ class _ScreenMessagesState extends State<ScreenMessages> {
               Expanded(
                 child: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
                   builder: (context, state) {
-                    return ListView.builder(
-                      reverse: true,
-                      itemCount: state.list.length,
-                      itemBuilder: (context, i) {
-                        return Column(
-                          children: [
-                            if (state.list[state.list.length - i - 1].id ==
-                                context.read<ScreenMessagesCubit>().checkDate(
-                                      state
-                                          .list[state.list.length - i - 1].time,
-                                      state.list[state.list.length - i - 1]
-                                          .idMessagePage,
-                                    ))
-                              DateMessage(
-                                index: state.list.length - i - 1,
-                                idMessagePage: state.list.first.idMessagePage,
-                              ),
-                            Message(
-                              index: state.list.length - i - 1,
-                            ),
-                          ],
-                        );
-                      },
+                    return Stack(
+                      children: [
+                        ListView.builder(
+                          reverse: true,
+                          itemCount: state.list.length,
+                          itemBuilder: (context, i) {
+                            return Column(
+                              children: [
+                                if (state.list[state.list.length - i - 1].id ==
+                                    context
+                                        .read<ScreenMessagesCubit>()
+                                        .checkDate(
+                                          state.list[state.list.length - i - 1]
+                                              .time,
+                                          state.list[state.list.length - i - 1]
+                                              .idMessagePage,
+                                        ))
+                                  DateMessage(
+                                    index: state.list.length - i - 1,
+                                    idMessagePage:
+                                        state.list.first.idMessagePage,
+                                  ),
+                                Message(
+                                  index: state.list.length - i - 1,
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        Align(
+                          alignment: BlocProvider.of<SettingPageCubit>(context)
+                                  .state
+                                  .isBubbleAlignmentSwitched
+                              ? Alignment.topLeft
+                              : Alignment.topRight,
+                          child: DateMark(),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -372,7 +387,10 @@ class SelectionAppBar extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(context),
                   child: Center(
-                    child: Text('Cancel'),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
                   ),
                 ),
               ),
@@ -386,7 +404,10 @@ class SelectionAppBar extends StatelessWidget {
                     Navigator.pop(context);
                   },
                   child: Center(
-                    child: Text('Move'),
+                    child: Text(
+                      'Choose',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
                   ),
                 ),
               ),
@@ -485,15 +506,19 @@ class Message extends StatelessWidget {
                 if (state.list[index].icon != null)
                   Icon(state.list[index].icon),
                 File(state.list[index].data).existsSync() == true
-                    ? Image.file(
-                        File(state.list[index].data),
+                    ? Container(
+                        width: 150,
+                        height: 250,
+                        child: Image.file(
+                          File(state.list[index].data),
+                        ),
                       )
                     : Text(
                         state.list[index].data,
                         style: TextStyle(fontSize: 18, color: Colors.black),
                       ),
                 Text(
-                  DateFormat('hh:mm').format(state.list[index].time),
+                  DateFormat('HH:mm').format(state.list[index].time),
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ],
@@ -545,16 +570,124 @@ class DateMessage extends StatelessWidget {
                   .currentTheme
                   .backgroundColor),
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                context
-                    .read<ScreenMessagesCubit>()
-                    .calculateDate(state.list[index].time),
-                style: TextStyle(fontSize: 14, color: Colors.black),
+          child: Text(
+            context
+                .read<ScreenMessagesCubit>()
+                .calculateDate(state.list[index].time),
+            style: TextStyle(fontSize: 14, color: Colors.black),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DateMark extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final state = context.read<ScreenMessagesCubit>().state;
+    var date = state.dateOfSending ??
+        context.read<ScreenMessagesCubit>().calculateDate(DateTime.now());
+    return GestureDetector(
+      onTap: () async {
+        var date = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2025),
+          builder: (context, child) {
+            return SingleChildScrollView(
+              child: Theme(
+                child: child,
+                data: Theme.of(context).copyWith(
+                  colorScheme: Theme.of(context).colorScheme.copyWith(
+                      primary: Provider.of<ThemeModel>(context)
+                          .currentTheme
+                          .primaryColor),
+                ),
               ),
-            ],
+            );
+          },
+        );
+        if (date != null) {
+          var time = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.fromDateTime(date),
+            builder: (context, child) {
+              return SingleChildScrollView(
+                child: Theme(
+                  child: child,
+                  data: Theme.of(context).copyWith(
+                    colorScheme: Theme.of(context).colorScheme.copyWith(
+                        primary: Provider.of<ThemeModel>(context)
+                            .currentTheme
+                            .primaryColor,
+                        surface: Colors.white),
+                  ),
+                ),
+              );
+            },
+          );
+          if (time != null) {
+            date = DateTime(
+                date.year, date.month, date.day, time.hour, time.minute);
+          }
+        }
+        context.read<ScreenMessagesCubit>().selectDate(date);
+        context.read<ScreenMessagesCubit>().selectTime(date);
+        print(date);
+      },
+      child: UnconstrainedBox(
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+              ),
+              border: Border.all(
+                  color: Provider.of<ThemeModel>(context)
+                      .currentTheme
+                      .primaryColor),
+              color: Provider.of<ThemeModel>(context)
+                  .currentTheme
+                  .backgroundColor),
+          margin: EdgeInsets.all(10.0),
+          padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+          child: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
+            builder: (context, state) => Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Icon(
+                  Icons.today,
+                  size: 20,
+                ),
+                Text(
+                  date,
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                if (date != 'Today')
+                  GestureDetector(
+                    onTap: () {
+                      context.read<ScreenMessagesCubit>().resetDate();
+                      print('CHANGE');
+                    },
+                    child: CircleAvatar(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      radius: 10,
+                      child: Icon(
+                        Icons.close,
+                        size: 10,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

@@ -67,6 +67,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
               ),
             ),
     );
+    sortMessagesByDate();
   }
 
   Future<void> addPhotoMessage() async {
@@ -77,7 +78,8 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         idMessagePage: state.page.id,
         data: pickedFile.path,
         isSelected: false,
-        time: DateTime.now(),
+        time: state.timeOfSending ?? DateTime.now(),
+        //time: DateTime.now(),
       ),
     );
     emit(
@@ -85,6 +87,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         list: await repository.messages(state.page.id),
       ),
     );
+    sortMessagesByDate();
   }
 
   bool isPhotoMessage() {
@@ -102,7 +105,8 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         idMessagePage: state.page.id,
         data: controller.text,
         isSelected: false,
-        time: DateTime.now(),
+        time: state.timeOfSending ?? DateTime.now(),
+        //time: DateTime.now(),
       ),
     );
     controller.text = '';
@@ -111,6 +115,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         list: await repository.messages(state.page.id),
       ),
     );
+    sortMessagesByDate();
   }
 
   void editMessage() {
@@ -185,6 +190,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
           iconData: state.iconData,
           onAddMessage: addPhotoMessage),
     );
+    sortMessagesByDate();
   }
 
   void toEditAppBar() {
@@ -207,6 +213,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         onEditMessage: editMessage,
       ),
     );
+    sortMessagesByDate();
   }
 
   void backToInputAppBar() async {
@@ -228,6 +235,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         onAddMessage: addPhotoMessage,
       ),
     );
+    sortMessagesByDate();
   }
 
   void selection(int index) async {
@@ -244,6 +252,11 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         counter: state.counter + 1,
       ));
     }
+    sortMessagesByDate();
+  }
+
+  void sortMessagesByDate(){
+    state.list.sort((a,b) => a.time.compareTo(b.time));
   }
 
   void listSelected(int idMessagePage) {
@@ -291,6 +304,25 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
           return '$difference days ago';
         }
     }
+  }
+
+    void selectDate(DateTime date) {
+    emit(state.copyWith(
+      dateOfSending: calculateDate(date),
+    ));
+  }
+
+  void selectTime(DateTime date) {
+    emit(state.copyWith(
+      timeOfSending: date,
+    ));
+  }
+
+  void resetDate(){
+    emit(state.copyWith(
+      dateOfSending: calculateDate(DateTime.now()),
+      timeOfSending: DateTime.now(),
+    ));
   }
 
   @override

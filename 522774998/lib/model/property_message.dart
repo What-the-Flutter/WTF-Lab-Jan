@@ -35,12 +35,23 @@ abstract class PropertyMessage {
     return {
       'id': id,
       'data': data,
-      'time': DateFormat('yyyy-MM-dd – kk:mm').format(time),
+      'time': DateFormat('yyyy-MM-dd – HH:mm').format(time),
       'icon_code_point_message': icon == null ? null : icon.codePoint,
       'id_message_page': idMessagePage,
       'is_selected': isSelected ? 1 : 0,
     };
   }
+  factory PropertyMessage.fromMap(Map<String, dynamic> map) => TextMessage(
+    id: map['id'],
+    data: map['data'],
+    time: DateFormat('yyyy-MM-dd – HH:mm').parse(map['time']),
+    icon: map['icon_code_point_message'] == null
+        ? null
+        : IconData(map['icon_code_point_message'],
+        fontFamily: 'MaterialIcons'),
+    idMessagePage: map['id_message_page'],
+    isSelected: map['is_selected'] == 1 ? true : false,
+  );
 }
 
 class TextMessage extends PropertyMessage {

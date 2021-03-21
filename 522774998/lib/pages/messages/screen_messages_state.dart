@@ -9,6 +9,8 @@ abstract class ScreenMessagesState extends Equatable {
   final IconData iconData;
   final Function onAddMessage;
   final IconData category;
+  final String dateOfSending;
+  final DateTime timeOfSending;
 
   const ScreenMessagesState({
     this.page,
@@ -19,6 +21,8 @@ abstract class ScreenMessagesState extends Equatable {
     this.iconData,
     this.onAddMessage,
     this.category,
+    this.dateOfSending,
+    this.timeOfSending,
   });
 
   @override
@@ -27,7 +31,9 @@ abstract class ScreenMessagesState extends Equatable {
         ' counter: $counter,'
         ' enabledController: $enabledController,'
         ' onAdd: $onAddMessage,'
-        ' category: $category}\n';
+        ' category: $category,'
+        ' dateOfSending: $dateOfSending,'
+        ' timeOfSending $timeOfSending}\n';
   }
 
   ScreenMessagesState copyWith({
@@ -39,6 +45,8 @@ abstract class ScreenMessagesState extends Equatable {
     final IconData iconData,
     final Function onAddMessage,
     final IconData category,
+    final String dateOfSending,
+    final DateTime timeOfSending,
   });
 
   @override
@@ -50,6 +58,8 @@ abstract class ScreenMessagesState extends Equatable {
         iconData,
         onAddMessage,
         category,
+        dateOfSending,
+        timeOfSending,
       ];
 }
 
@@ -62,15 +72,20 @@ class ScreenMessageAwait extends ScreenMessagesState {
     IconData iconData,
     Function onAddMessage,
     IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
   }) : super(
-            page: page,
-            appBar: appBar,
-            list: list,
-            counter: counter,
-            enabledController: true,
-            iconData: iconData,
-            onAddMessage: onAddMessage,
-            category: category);
+          page: page,
+          appBar: appBar,
+          list: list,
+          counter: counter,
+          enabledController: true,
+          iconData: iconData,
+          onAddMessage: onAddMessage,
+          category: category,
+          dateOfSending: dateOfSending,
+          timeOfSending: timeOfSending,
+        );
 
   @override
   ScreenMessagesState copyWith({
@@ -82,6 +97,8 @@ class ScreenMessageAwait extends ScreenMessagesState {
     IconData iconData,
     Function onAddMessage,
     IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
   }) {
     throw UnimplementedError();
   }
@@ -96,15 +113,20 @@ class ScreenMessageInput extends ScreenMessagesState {
     IconData iconData,
     Function onAddMessage,
     IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
   }) : super(
-            page: page,
-            appBar: appBar,
-            list: list,
-            counter: counter,
-            enabledController: true,
-            iconData: iconData,
-            onAddMessage: onAddMessage,
-            category: category);
+          page: page,
+          appBar: appBar,
+          list: list,
+          counter: counter,
+          enabledController: true,
+          iconData: iconData,
+          onAddMessage: onAddMessage,
+          category: category,
+          dateOfSending: dateOfSending,
+          timeOfSending: timeOfSending,
+        );
 
   @override
   ScreenMessagesState copyWith({
@@ -116,6 +138,8 @@ class ScreenMessageInput extends ScreenMessagesState {
     final IconData iconData,
     final Function onAddMessage,
     final IconData category,
+    final String dateOfSending,
+    final DateTime timeOfSending,
   }) {
     return ScreenMessageInput(
       page: page ?? this.page,
@@ -125,6 +149,8 @@ class ScreenMessageInput extends ScreenMessagesState {
       iconData: iconData ?? this.iconData,
       onAddMessage: onAddMessage ?? this.onAddMessage,
       category: category ?? this.category,
+      dateOfSending: dateOfSending ?? this.dateOfSending,
+      timeOfSending: timeOfSending ?? this.timeOfSending,
     );
   }
 }
@@ -138,6 +164,8 @@ class ScreenMessageSelection extends ScreenMessagesState {
     IconData iconData,
     Function onAddMessage,
     IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
   }) : super(
           page: page,
           appBar: appBar,
@@ -147,6 +175,8 @@ class ScreenMessageSelection extends ScreenMessagesState {
           iconData: iconData,
           onAddMessage: onAddMessage,
           category: category,
+          dateOfSending: dateOfSending,
+          timeOfSending: timeOfSending,
         );
 
   @override
@@ -159,6 +189,8 @@ class ScreenMessageSelection extends ScreenMessagesState {
     final IconData iconData,
     final Function onAddMessage,
     final IconData category,
+    final String dateOfSending,
+    final DateTime timeOfSending,
   }) {
     return ScreenMessageSelection(
       page: page ?? this.page,
@@ -167,7 +199,9 @@ class ScreenMessageSelection extends ScreenMessagesState {
       counter: counter ?? this.counter,
       iconData: iconData ?? this.iconData,
       onAddMessage: onAddMessage,
-      category: category,
+      category: category ?? this.category,
+      dateOfSending: dateOfSending ?? this.dateOfSending,
+      timeOfSending: timeOfSending ?? this.timeOfSending,
     );
   }
 }
@@ -181,6 +215,8 @@ class ScreenMessageEdit extends ScreenMessagesState {
     IconData iconData,
     Function onEditMessage,
     IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
   }) : super(
           page: page,
           appBar: appBar,
@@ -190,6 +226,8 @@ class ScreenMessageEdit extends ScreenMessagesState {
           iconData: iconData,
           onAddMessage: onEditMessage,
           category: category,
+          dateOfSending: dateOfSending,
+          timeOfSending: timeOfSending,
         );
 
   @override
@@ -202,6 +240,8 @@ class ScreenMessageEdit extends ScreenMessagesState {
     final IconData iconData,
     final Function onAddMessage,
     final IconData category,
+    final String dateOfSending,
+    final DateTime timeOfSending,
   }) {
     return ScreenMessageEdit(
       page: page ?? this.page,
@@ -211,6 +251,8 @@ class ScreenMessageEdit extends ScreenMessagesState {
       iconData: iconData ?? this.iconData,
       onEditMessage: onAddMessage ?? this.onAddMessage,
       category: category ?? this.category,
+      dateOfSending: dateOfSending ?? this.dateOfSending,
+      timeOfSending: timeOfSending ?? this.timeOfSending,
     );
   }
 }
