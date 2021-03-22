@@ -18,7 +18,7 @@ class SettingsState extends Equatable {
         bubbleAlignment = bubbleAlignment ?? Alignment.centerRight,
         showCreateRecordDateTimePickerButton =
             showCreateRecordDateTimePicker ?? false,
-        isAuthenticationOn = isAuthenticationOn ?? true;
+        isAuthenticationOn = isAuthenticationOn ?? false;
 
   SettingsState copyWith(
       {ThemeMode themeMode,
