@@ -47,7 +47,14 @@ class MyApp extends StatelessWidget {
             home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
               builder: (context, authState) {
                 if (authState.isAuthenticated == false) {
-                  return Container();
+                  return Center(
+                    child: ElevatedButton(
+                      child: Text('Authorize'),
+                      onPressed: () {
+                        context.read<AuthenticationCubit>().authenticate();
+                      },
+                    ),
+                  );
                 }
                 return BlocProvider(
                   create: (context) => CategoriesCubit(
