@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-import '../../model/property_message.dart';
-import '../../model/property_page.dart';
+import '../../properties/property_message.dart';
+import '../../properties/property_page.dart';
 import '../../repository/messages_repository.dart';
 
 part 'searching_messages_state.dart';
@@ -13,14 +13,18 @@ class SearchMessageCubit extends Cubit<SearchMessageState> {
 
   SearchMessageCubit({
     this.repository,
-  }) : super(SearchMessageScreenWait()){
-    controller.addListener(() {
-      if (controller.text.isEmpty) {
-        emit(SearchMessageScreenWait(page: state.page));
-      } else {
-        searchMessages();
-      }
-    });
+  }) : super(
+          SearchMessageScreenWait(),
+        ) {
+    controller.addListener(
+      () {
+        if (controller.text.isEmpty) {
+          emit(SearchMessageScreenWait(page: state.page));
+        } else {
+          searchMessages();
+        }
+      },
+    );
   }
 
   void searchMessages() async {
@@ -33,9 +37,13 @@ class SearchMessageCubit extends Cubit<SearchMessageState> {
       }
     }
     if (list.isEmpty) {
-      emit(SearchMessageScreenNotFound(page: state.page));
+      emit(
+        SearchMessageScreenNotFound(page: state.page),
+      );
     } else {
-      emit(SearchMessageScreenFound(list: list, page: state.page));
+      emit(
+        SearchMessageScreenFound(list: list, page: state.page),
+      );
     }
   }
 
@@ -48,8 +56,8 @@ class SearchMessageCubit extends Cubit<SearchMessageState> {
   }
 
   @override
-  Future<Function> close() async {
+  Future<Function> close() {
     controller.dispose();
-    super.close();
+    return super.close();
   }
 }

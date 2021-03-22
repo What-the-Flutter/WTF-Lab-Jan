@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:try_bloc_app/theme/theme_cubit.dart';
 import '../messages/screen_messages_cubit.dart';
 import 'searching_messages_cubit.dart';
 
@@ -12,42 +13,25 @@ class SearchingPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Container(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: Expanded(
-              flex: 5,
-              child: TextField(
-                cursorColor: Theme.of(context).accentColor,
-                controller: context.read<SearchMessageCubit>().controller,
-                decoration: InputDecoration(
-                  hintText: 'Search',
-                  hintStyle: TextStyle(fontSize: 20, color: Colors.white),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ), onPressed: () {  },
-                  ),
-                ),
-                style: TextStyle(color: Colors.white),
-              ),
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          child: TextField(
+            cursorColor: Theme.of(context).accentColor,
+            controller: context.read<SearchMessageCubit>().controller,
+            decoration: InputDecoration(
+              hintText: 'Search',
+              hintStyle: TextStyle(fontSize: 20, color: Colors.white),
+              fillColor: Colors.white,
             ),
+            style: TextStyle(color: Colors.white),
           ),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            context.read<SearchMessageCubit>().controller.clear();
+            Navigator.pop(context);
+          },
         ),
-      actions: [
-        Expanded(
-          flex: 1,
-          child: context.read<SearchMessageCubit>().controller.text.isEmpty
-              ? SizedBox()
-              : IconButton(
-            icon: Icon(Icons.close),
-            onPressed:
-            context.read<SearchMessageCubit>().resetController,
-          ),
-        ),
-      ],
       ),
       body: _listFoundMessage(),
     );
@@ -60,7 +44,7 @@ class SearchingPage extends StatelessWidget {
           if (state is SearchMessageScreenWait) {
             return Container(
               padding: EdgeInsets.all(20),
-              color: Colors.green[50],
+              color: Colors.orange[50],
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.min,
@@ -69,7 +53,10 @@ class SearchingPage extends StatelessWidget {
                     Icons.search,
                     size: 55,
                   ),
-                  Text('Please enter a search query to begin searching'),
+                  Text(
+                    'Please enter a search query to begin searching',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ],
               ),
             );
@@ -77,7 +64,7 @@ class SearchingPage extends StatelessWidget {
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 20),
               padding: EdgeInsets.all(20),
-              color: Colors.green[50],
+              color: Colors.orange[50],
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.min,
@@ -86,11 +73,13 @@ class SearchingPage extends StatelessWidget {
                     'No search results available',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
                   Center(
-                    child: Text('No entries math the given'
-                        ' search query. Please try again.'),
+                    child: Text('Please try again.',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ],
               ),
@@ -114,7 +103,12 @@ class SearchingPage extends StatelessWidget {
 class FoundMessage extends StatelessWidget {
   final int index;
 
-  const FoundMessage({Key key, this.index}) : super(key: key);
+  const FoundMessage({
+    Key key,
+    this.index,
+  }) : super(
+          key: key,
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +120,7 @@ class FoundMessage extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15.0),
-            color: Colors.green[50],
+            color: BlocProvider.of<ThemeCubit>(context).state.theme.accentColor,
           ),
           padding: EdgeInsets.all(10.0),
           child: Column(

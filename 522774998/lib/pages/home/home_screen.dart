@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../model/property_page.dart';
-import '../../theme/theme_model.dart';
+import '../../properties/property_page.dart';
+import '../../theme/theme_cubit.dart';
 import '../creating_new_page/creating_new_page.dart';
 import '../creating_new_page/creating_new_page_cubit.dart';
 import '../messages/screen_messages.dart';
@@ -14,10 +14,10 @@ import '../settings/settings_page.dart';
 import 'home_screen_cubit.dart';
 import 'widgets/bottom_panel_tabs.dart';
 
-class StartWindow extends StatelessWidget {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    context.read<HomePageCubit>().loadData();
+    context.read<HomeScreenCubit>().loadData();
     return Scaffold(
       appBar: AppBar(
         title: Container(
@@ -31,15 +31,13 @@ class StartWindow extends StatelessWidget {
           Container(
             padding: EdgeInsets.only(right: 20),
             child: IconButton(
-              onPressed: () {
-                Provider.of<ThemeModel>(context, listen: false).changeTheme();
-              },
+              onPressed: BlocProvider.of<ThemeCubit>(context).changeTheme,
               icon: Icon(Icons.invert_colors),
             ),
           ),
         ],
       ),
-      body: BlocBuilder<HomePageCubit, HomeScreenState>(
+      body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
         builder: (context, state) {
           if (state is HomeScreenStateAwait) {
             return Center(
@@ -63,8 +61,10 @@ class StartWindow extends StatelessWidget {
                 ),
               ),
               decoration: BoxDecoration(
-                color:
-                    Provider.of<ThemeModel>(context).currentTheme.accentColor,
+                color: BlocProvider.of<ThemeCubit>(context)
+                    .state
+                    .theme
+                    .accentColor,
               ),
             ),
             ListTile(
@@ -109,10 +109,12 @@ class ButtonAddChat extends StatelessWidget {
         );
         final state = context.read<CreatingNewPageCubit>().state;
         if (state.iconButton != Icons.close) {
-          context.read<HomePageCubit>().addPage(PropertyPage(
-                title: context.read<CreatingNewPageCubit>().controller.text,
-                iconIndex: state.selectionIconIndex,
-              ));
+          context.read<HomeScreenCubit>().addPage(
+                PropertyPage(
+                  title: context.read<CreatingNewPageCubit>().controller.text,
+                  iconIndex: state.selectionIconIndex,
+                ),
+              );
         }
         context.read<CreatingNewPageCubit>().resetIcon();
       },
@@ -127,7 +129,7 @@ class DialogsPages extends StatelessWidget {
       fit: StackFit.loose,
       children: <Widget>[
         Container(
-          color: Provider.of<ThemeModel>(context).currentTheme.primaryColor,
+          color: BlocProvider.of<ThemeCubit>(context).state.theme.primaryColor,
         ),
         Container(
           padding: EdgeInsets.only(top: 15),
@@ -136,7 +138,7 @@ class DialogsPages extends StatelessWidget {
                 topLeft: Radius.circular(50), topRight: Radius.circular(50)),
             color: Colors.white,
           ),
-          child: BlocBuilder<HomePageCubit, HomeScreenState>(
+          child: BlocBuilder<HomeScreenCubit, HomeScreenState>(
             builder: (context, state) => ListView.builder(
               itemCount: state.list.length + 1,
               itemBuilder: (context, i) {
@@ -189,7 +191,7 @@ class DialogPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.read<HomePageCubit>().state;
+    final state = context.read<HomeScreenCubit>().state;
     return InkWell(
       onTap: () async {
         print(_index);
@@ -204,7 +206,7 @@ class DialogPage extends StatelessWidget {
           context,
           ScreenMessages.routeName,
         );
-        context.read<HomePageCubit>().gettingOutFreeze();
+        context.read<HomeScreenCubit>().gettingOutFreeze();
       },
       onLongPress: () => _showMenuAction(context),
       child: Container(
@@ -213,31 +215,35 @@ class DialogPage extends StatelessWidget {
           alignment: Alignment.bottomLeft,
           children: <Widget>[
             ListTile(
-                title: Text(
-                  state.list[_index].title,
-                  style: TextStyle(fontSize: 20),
+              title: Text(
+                state.list[_index].title,
+                style: TextStyle(fontSize: 20),
+              ),
+              subtitle: Text('No Events. Click to create one.'),
+              contentPadding: EdgeInsets.all(5.0),
+              leading: CircleAvatar(
+                backgroundColor: Colors.orange[50],
+                radius: 30,
+                child: Icon(
+                  context
+                      .read<CreatingNewPageCubit>()
+                      .getIcon(state.list[_index].iconIndex),
+                  size: 35,
+                  color: BlocProvider.of<ThemeCubit>(context)
+                      .state
+                      .theme
+                      .cardColor,
                 ),
-                subtitle: Text('No Events. Click to create one.'),
-                contentPadding: EdgeInsets.all(5.0),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.orange[50],
-                  radius: 30,
-                  child: Icon(
-                    context
-                        .read<CreatingNewPageCubit>()
-                        .getIcon(state.list[_index].iconIndex),
-                    size: 35,
-                    color:
-                        Provider.of<ThemeModel>(context).currentTheme.cardColor,
-                  ),
-                )),
+              ),
+            ),
             if (state.list[_index].isPin)
               Container(
                 padding: EdgeInsets.only(bottom: 5, left: 5),
                 child: Icon(
                   Icons.push_pin,
-                  color: Provider.of<ThemeModel>(context)
-                      .currentTheme
+                  color: BlocProvider.of<ThemeCubit>(context)
+                      .state
+                      .theme
                       .primaryColor,
                 ),
               ),
@@ -248,7 +254,7 @@ class DialogPage extends StatelessWidget {
   }
 
   void _showMenuAction(BuildContext context) {
-    final cubit = context.read<HomePageCubit>();
+    final cubit = context.read<HomeScreenCubit>();
     final createNewPageCubit = context.read<CreatingNewPageCubit>();
     showModalBottomSheet<void>(
       context: context,
@@ -261,8 +267,10 @@ class DialogPage extends StatelessWidget {
               ListTile(
                 leading: Icon(
                   Icons.info,
-                  color:
-                      Provider.of<ThemeModel>(context).currentTheme.accentColor,
+                  color: BlocProvider.of<ThemeCubit>(context)
+                      .state
+                      .theme
+                      .accentColor,
                 ),
                 title: Text(
                   'info',
@@ -273,8 +281,10 @@ class DialogPage extends StatelessWidget {
               ListTile(
                 leading: Icon(
                   Icons.attach_file,
-                  color:
-                      Provider.of<ThemeModel>(context).currentTheme.accentColor,
+                  color: BlocProvider.of<ThemeCubit>(context)
+                      .state
+                      .theme
+                      .accentColor,
                 ),
                 title: Text(
                   'Pin/Unpin Page',
@@ -288,8 +298,10 @@ class DialogPage extends StatelessWidget {
               ListTile(
                 leading: Icon(
                   Icons.edit,
-                  color:
-                      Provider.of<ThemeModel>(context).currentTheme.accentColor,
+                  color: BlocProvider.of<ThemeCubit>(context)
+                      .state
+                      .theme
+                      .accentColor,
                 ),
                 title: Text(
                   'Edit page',
@@ -327,7 +339,7 @@ class DialogPage extends StatelessWidget {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  context.read<HomePageCubit>().removePage(_index);
+                  context.read<HomeScreenCubit>().removePage(_index);
                 },
               ),
             ],
@@ -337,7 +349,7 @@ class DialogPage extends StatelessWidget {
     );
   }
 
-  void _showDialogInfo(HomePageCubit cubit, BuildContext context) {
+  void _showDialogInfo(HomeScreenCubit cubit, BuildContext context) {
     Navigator.pop(context);
     showDialog<void>(
       context: context,
@@ -363,14 +375,14 @@ class DialogPage extends StatelessWidget {
               ListTile(
                 title: Text('Created'),
                 subtitle: Text(
-                  DateFormat('yyyy-MM-dd – hh:mm')
+                  DateFormat('yyyy-MM-dd – HH:mm')
                       .format(cubit.state.list[_index].creationTime),
                 ),
               ),
               ListTile(
                 title: Text('Last modification'),
                 subtitle: Text(
-                  DateFormat('yyyy-MM-dd – hh:mm')
+                  DateFormat('yyyy-MM-dd – HH:mm')
                       .format(cubit.state.list[_index].lastModifiedTime),
                 ),
               ),

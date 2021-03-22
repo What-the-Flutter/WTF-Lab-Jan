@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../../model/property_message.dart';
-import '../../model/property_page.dart';
+import '../../properties/property_message.dart';
+import '../../properties/property_page.dart';
 import '../../repository/messages_repository.dart';
 import 'screen_messages.dart';
 
@@ -15,7 +15,6 @@ part 'screen_messages_state.dart';
 
 class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
   MessagesRepository repository;
-
   final controller = TextEditingController();
 
   ScreenMessagesCubit({
@@ -242,30 +241,36 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
     var isSelected = state.list[index].isSelected;
     repository.editMessage(state.list[index].copyWith(isSelected: !isSelected));
     if (isSelected) {
-      emit(state.copyWith(
-        list: await repository.messages(state.page.id),
-        counter: state.counter - 1,
-      ));
+      emit(
+        state.copyWith(
+          list: await repository.messages(state.page.id),
+          counter: state.counter - 1,
+        ),
+      );
     } else {
-      emit(state.copyWith(
-        list: await repository.messages(state.page.id),
-        counter: state.counter + 1,
-      ));
+      emit(
+        state.copyWith(
+          list: await repository.messages(state.page.id),
+          counter: state.counter + 1,
+        ),
+      );
     }
     sortMessagesByDate();
   }
 
-  void sortMessagesByDate(){
-    state.list.sort((a,b) => a.time.compareTo(b.time));
+  void sortMessagesByDate() {
+    state.list.sort((a, b) => a.time.compareTo(b.time));
   }
 
   void listSelected(int idMessagePage) {
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
-        repository.editMessage(state.list[i].copyWith(
-          idMessagePage: idMessagePage,
-          isSelected: false,
-        ));
+        repository.editMessage(
+          state.list[i].copyWith(
+            idMessagePage: idMessagePage,
+            isSelected: false,
+          ),
+        );
       }
     }
     toInputAppBar();
@@ -306,23 +311,29 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
     }
   }
 
-    void selectDate(DateTime date) {
-    emit(state.copyWith(
-      dateOfSending: calculateDate(date),
-    ));
+  void selectDate(DateTime date) {
+    emit(
+      state.copyWith(
+        dateOfSending: calculateDate(date),
+      ),
+    );
   }
 
   void selectTime(DateTime date) {
-    emit(state.copyWith(
-      timeOfSending: date,
-    ));
+    emit(
+      state.copyWith(
+        timeOfSending: date,
+      ),
+    );
   }
 
-  void resetDate(){
-    emit(state.copyWith(
-      dateOfSending: calculateDate(DateTime.now()),
-      timeOfSending: DateTime.now(),
-    ));
+  void resetDate() {
+    emit(
+      state.copyWith(
+        dateOfSending: calculateDate(DateTime.now()),
+        timeOfSending: DateTime.now(),
+      ),
+    );
   }
 
   @override

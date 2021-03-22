@@ -10,7 +10,10 @@ abstract class SearchMessageState extends Equatable {
   });
 
   @override
-  List<Object> get props => [list, page];
+  List<Object> get props => [
+        list,
+        page,
+      ];
 
   SearchMessageState copyWith({PropertyPage page});
 }
@@ -19,8 +22,8 @@ class SearchMessageScreenWait extends SearchMessageState {
   SearchMessageScreenWait({
     PropertyPage page,
   }) : super(
-    page: page,
-  );
+          page: page,
+        );
 
   @override
   SearchMessageState copyWith({
@@ -36,8 +39,8 @@ class SearchMessageScreenNotFound extends SearchMessageState {
   SearchMessageScreenNotFound({
     PropertyPage page,
   }) : super(
-    page: page,
-  );
+          page: page,
+        );
 
   @override
   SearchMessageState copyWith({
@@ -54,13 +57,12 @@ class SearchMessageScreenFound extends SearchMessageState {
     PropertyPage page,
     List<PropertyMessage> list,
   }) : super(
-    page: page,
-    list: list,
-  );
+          page: page,
+          list: list,
+        );
 
   @override
   SearchMessageState copyWith({PropertyPage page}) {
     throw UnimplementedError();
   }
 }
-

@@ -47,16 +47,18 @@ class PropertyPage implements Comparable<PropertyPage> {
     };
   }
 
-  factory PropertyPage.fromMap(Map<String, dynamic> map) => PropertyPage(
-    id: map['id'],
-    title: map['title'],
-    iconIndex: map['icon_index'],
-    creationTime:
-    DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['creation_time']),
-    lastModifiedTime:
-    DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['last_modified_time']),
-    isPin: map['is_pin'] == 1 ? true : false,
-  );
+  factory PropertyPage.fromMap(Map<String, dynamic> map) {
+    return PropertyPage(
+      id: map['id'],
+      title: map['title'],
+      iconIndex: map['icon_index'],
+      creationTime:
+          DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['creation_time']),
+      lastModifiedTime:
+          DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['last_modified_time']),
+      isPin: map['is_pin'] == 1 ? true : false,
+    );
+  }
 
   @override
   String toString() {

@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import '../properties/property_message.dart';
+import '../properties/property_page.dart';
 
-import '../model/property_message.dart';
-import '../model/property_page.dart';
 import '../repository/pages_repository.dart';
 
 final String tablePage = 'table_page';

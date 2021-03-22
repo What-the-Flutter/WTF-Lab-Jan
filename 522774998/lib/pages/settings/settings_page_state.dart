@@ -1,6 +1,6 @@
-part of 'setting_page_cubit.dart';
+part of 'settings_page_cubit.dart';
 
-class SettingsPageState extends Equatable {
+class SettingsPageState {
   bool isDateModificationSwitched = false;
   bool isBubbleAlignmentSwitched = false;
   bool isDateAlignmentSwitched = false;
@@ -17,9 +17,12 @@ class SettingsPageState extends Equatable {
     bool isDateModificationSwitched,
   }) {
     return SettingsPageState(
-      isBubbleAlignmentSwitched: isBubbleAlignmentSwitched ?? this.isBubbleAlignmentSwitched,
-      isDateAlignmentSwitched: isDateAlignmentSwitched ?? this.isDateAlignmentSwitched,
-      isDateModificationSwitched: isDateModificationSwitched ?? this.isDateModificationSwitched,
+      isBubbleAlignmentSwitched:
+          isBubbleAlignmentSwitched ?? this.isBubbleAlignmentSwitched,
+      isDateAlignmentSwitched:
+          isDateAlignmentSwitched ?? this.isDateAlignmentSwitched,
+      isDateModificationSwitched:
+          isDateModificationSwitched ?? this.isDateModificationSwitched,
     );
   }
 
@@ -29,11 +32,4 @@ class SettingsPageState extends Equatable {
         'isDateAlignmentSwitched: $isDateAlignmentSwitched,'
         'isDateModificationSwitched: $isDateModificationSwitched}';
   }
-
-  @override
-  List<Object> get props => [
-    isBubbleAlignmentSwitched,
-    isDateAlignmentSwitched,
-    isDateModificationSwitched,
-  ];
 }

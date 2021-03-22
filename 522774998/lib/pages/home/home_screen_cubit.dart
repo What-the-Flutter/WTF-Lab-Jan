@@ -1,14 +1,14 @@
 import 'package:bloc/bloc.dart';
 
-import '../../model/property_page.dart';
+import '../../properties/property_page.dart';
 import '../../repository/pages_repository.dart';
 
 part 'home_screen_state.dart';
 
-class HomePageCubit extends Cubit<HomeScreenState> {
+class HomeScreenCubit extends Cubit<HomeScreenState> {
   PagesRepository repository;
 
-  HomePageCubit({
+  HomeScreenCubit({
     this.repository,
   }) : super(
           HomeScreenStateAwait(currentIndex: 0),

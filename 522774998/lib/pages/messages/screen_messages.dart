@@ -7,10 +7,10 @@ import 'package:provider/provider.dart';
 
 import '../../enums/enums.dart';
 import '../../repository/category_repository.dart';
-import '../../theme/theme_model.dart';
+import '../../theme/theme_cubit.dart';
 import '../home/home_screen_cubit.dart';
 import '../search/searching_message.dart';
-import '../settings/setting_page_cubit.dart';
+import '../settings/settings_page_cubit.dart';
 import 'screen_messages_cubit.dart';
 
 bool isVisibleCategories = false;
@@ -34,65 +34,73 @@ class _ScreenMessagesState extends State<ScreenMessages> {
         ),
       ),
       body: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
-          builder: (context, state) {
-        if (state is! ScreenMessageAwait) {
-          return Column(
-            children: <Widget>[
-              Expanded(
-                child: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
-                  builder: (context, state) {
-                    return Stack(
-                      children: [
-                        ListView.builder(
-                          reverse: true,
-                          itemCount: state.list.length,
-                          itemBuilder: (context, i) {
-                            return Column(
-                              children: [
-                                if (state.list[state.list.length - i - 1].id ==
-                                    context
-                                        .read<ScreenMessagesCubit>()
-                                        .checkDate(
-                                          state.list[state.list.length - i - 1]
-                                              .time,
-                                          state.list[state.list.length - i - 1]
-                                              .idMessagePage,
-                                        ))
-                                  DateMessage(
+        builder: (context, state) {
+          if (state is! ScreenMessageAwait) {
+            return Column(
+              children: <Widget>[
+                Expanded(
+                  child: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
+                    builder: (context, state) {
+                      return Stack(
+                        children: [
+                          ListView.builder(
+                            reverse: true,
+                            itemCount: state.list.length,
+                            itemBuilder: (context, i) {
+                              return Column(
+                                children: [
+                                  if (state
+                                          .list[state.list.length - i - 1].id ==
+                                      context
+                                          .read<ScreenMessagesCubit>()
+                                          .checkDate(
+                                            state
+                                                .list[state.list.length - i - 1]
+                                                .time,
+                                            state
+                                                .list[state.list.length - i - 1]
+                                                .idMessagePage,
+                                          ))
+                                    DateMessage(
+                                      index: state.list.length - i - 1,
+                                      idMessagePage:
+                                          state.list.first.idMessagePage,
+                                    ),
+                                  Message(
                                     index: state.list.length - i - 1,
-                                    idMessagePage:
-                                        state.list.first.idMessagePage,
                                   ),
-                                Message(
-                                  index: state.list.length - i - 1,
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        Align(
-                          alignment: BlocProvider.of<SettingPageCubit>(context)
-                                  .state
-                                  .isBubbleAlignmentSwitched
-                              ? Alignment.topLeft
-                              : Alignment.topRight,
-                          child: DateMark(),
-                        ),
-                      ],
-                    );
-                  },
+                                ],
+                              );
+                            },
+                          ),
+                          if (BlocProvider.of<SettingPageCubit>(context)
+                              .state
+                              .isDateModificationSwitched)
+                            Align(
+                              alignment:
+                                  BlocProvider.of<SettingPageCubit>(context)
+                                          .state
+                                          .isBubbleAlignmentSwitched
+                                      ? Alignment.topLeft
+                                      : Alignment.topRight,
+                              child: DateMark(),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
-              if (isVisibleCategories) _categoryLine(),
-              _panelInput(),
-            ],
-          );
-        } else {
-          return Center(
-            child: Text('Await'),
-          );
-        }
-      }),
+                if (isVisibleCategories) _categoryLine(),
+                _panelInput(),
+              ],
+            );
+          } else {
+            return Center(
+              child: Text('Await'),
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -144,7 +152,11 @@ class _ScreenMessagesState extends State<ScreenMessages> {
                         child: Column(
                           children: <Widget>[
                             CircleAvatar(
-                              backgroundColor: Theme.of(context).accentColor,
+                              backgroundColor:
+                                  BlocProvider.of<ThemeCubit>(context)
+                                      .state
+                                      .theme
+                                      .accentColor,
                               child: IconButton(
                                 icon: Icon(
                                   listIconCategory[index].icon,
@@ -184,7 +196,8 @@ class _ScreenMessagesState extends State<ScreenMessages> {
         builder: (context, stateInput) => Column(
           children: <Widget>[
             CircleAvatar(
-              backgroundColor: Theme.of(context).accentColor,
+              backgroundColor:
+                  BlocProvider.of<ThemeCubit>(context).state.theme.accentColor,
               child: Icon(
                 iconCategory,
                 color: Colors.white,
@@ -248,7 +261,9 @@ class InputAppBar extends StatelessWidget {
   const InputAppBar({
     Key key,
     this.title,
-  }) : super(key: key);
+  }) : super(
+          key: key,
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -263,10 +278,11 @@ class InputAppBar extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Center(
-            child: Text(
-          title,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
-        )),
+          child: Text(
+            title,
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+          ),
+        ),
         actions: [
           Padding(
             padding: EdgeInsets.only(
@@ -353,7 +369,7 @@ class SelectionAppBar extends StatelessWidget {
 
   void createDialog(BuildContext context) async {
     var index = 0;
-    var list = await context.read<HomePageCubit>().repository.pagesList();
+    var list = await context.read<HomeScreenCubit>().repository.pagesList();
     list = list
         .where((element) =>
             element.id != context.read<ScreenMessagesCubit>().state.page.id)
@@ -389,7 +405,11 @@ class SelectionAppBar extends StatelessWidget {
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
+                      style: TextStyle(
+                          color: BlocProvider.of<ThemeCubit>(context)
+                              .state
+                              .theme
+                              .primaryColor),
                     ),
                   ),
                 ),
@@ -406,7 +426,11 @@ class SelectionAppBar extends StatelessWidget {
                   child: Center(
                     child: Text(
                       'Choose',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
+                      style: TextStyle(
+                          color: BlocProvider.of<ThemeCubit>(context)
+                              .state
+                              .theme
+                              .primaryColor),
                     ),
                   ),
                 ),
@@ -425,7 +449,9 @@ class EditAppBar extends StatelessWidget {
   const EditAppBar({
     Key key,
     this.title,
-  }) : super(key: key);
+  }) : super(
+          key: key,
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -490,12 +516,16 @@ class Message extends StatelessWidget {
               ),
               border: Border.all(
                 color: state.list[index].isSelected
-                    ? Provider.of<ThemeModel>(context).currentTheme.primaryColor
+                    ? BlocProvider.of<ThemeCubit>(context)
+                        .state
+                        .theme
+                        .primaryColor
                     : Colors.orange,
               ),
               color: state.list[index].isSelected
-                  ? Provider.of<ThemeModel>(context)
-                      .currentTheme
+                  ? BlocProvider.of<ThemeCubit>(context)
+                      .state
+                      .theme
                       .backgroundColor
                   : Colors.orange[50],
             ),
@@ -535,9 +565,14 @@ class DateMessage extends StatelessWidget {
   final int idMessagePage;
   final int idDateMessage;
 
-  const DateMessage(
-      {Key key, this.index, this.idMessagePage, this.idDateMessage})
-      : super(key: key);
+  const DateMessage({
+    Key key,
+    this.index,
+    this.idMessagePage,
+    this.idDateMessage,
+  }) : super(
+          key: key,
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -563,18 +598,23 @@ class DateMessage extends StatelessWidget {
                 bottomLeft: Radius.circular(10),
               ),
               border: Border.all(
-                  color: Provider.of<ThemeModel>(context)
-                      .currentTheme
+                  color: BlocProvider.of<ThemeCubit>(context)
+                      .state
+                      .theme
                       .primaryColor),
-              color: Provider.of<ThemeModel>(context)
-                  .currentTheme
+              color: BlocProvider.of<ThemeCubit>(context)
+                  .state
+                  .theme
                   .backgroundColor),
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
           child: Text(
             context
                 .read<ScreenMessagesCubit>()
                 .calculateDate(state.list[index].time),
-            style: TextStyle(fontSize: 14, color: Colors.black),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black,
+            ),
           ),
         ),
       ),
@@ -601,8 +641,9 @@ class DateMark extends StatelessWidget {
                 child: child,
                 data: Theme.of(context).copyWith(
                   colorScheme: Theme.of(context).colorScheme.copyWith(
-                      primary: Provider.of<ThemeModel>(context)
-                          .currentTheme
+                      primary: BlocProvider.of<ThemeCubit>(context)
+                          .state
+                          .theme
                           .primaryColor),
                 ),
               ),
@@ -619,8 +660,9 @@ class DateMark extends StatelessWidget {
                   child: child,
                   data: Theme.of(context).copyWith(
                     colorScheme: Theme.of(context).colorScheme.copyWith(
-                        primary: Provider.of<ThemeModel>(context)
-                            .currentTheme
+                        primary: BlocProvider.of<ThemeCubit>(context)
+                            .state
+                            .theme
                             .primaryColor,
                         surface: Colors.white),
                   ),
@@ -635,7 +677,6 @@ class DateMark extends StatelessWidget {
         }
         context.read<ScreenMessagesCubit>().selectDate(date);
         context.read<ScreenMessagesCubit>().selectTime(date);
-        print(date);
       },
       child: UnconstrainedBox(
         child: Container(
@@ -647,11 +688,13 @@ class DateMark extends StatelessWidget {
                 bottomLeft: Radius.circular(10),
               ),
               border: Border.all(
-                  color: Provider.of<ThemeModel>(context)
-                      .currentTheme
+                  color: BlocProvider.of<ThemeCubit>(context)
+                      .state
+                      .theme
                       .primaryColor),
-              color: Provider.of<ThemeModel>(context)
-                  .currentTheme
+              color: BlocProvider.of<ThemeCubit>(context)
+                  .state
+                  .theme
                   .backgroundColor),
           margin: EdgeInsets.all(10.0),
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
@@ -674,7 +717,6 @@ class DateMark extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       context.read<ScreenMessagesCubit>().resetDate();
-                      print('CHANGE');
                     },
                     child: CircleAvatar(
                       backgroundColor: Colors.red,

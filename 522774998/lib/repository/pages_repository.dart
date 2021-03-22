@@ -1,5 +1,5 @@
 import '../database/database.dart';
-import '../model/property_page.dart';
+import '../properties/property_page.dart';
 
 class PagesRepository {
   final DBHelper dbHelper;

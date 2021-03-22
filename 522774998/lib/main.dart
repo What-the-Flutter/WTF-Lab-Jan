@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'database/database.dart';
@@ -8,26 +7,33 @@ import 'pages/creating_new_page/creating_new_page_cubit.dart';
 import 'pages/home/home_screen_cubit.dart';
 import 'pages/messages/screen_messages_cubit.dart';
 import 'pages/search/searching_messages_cubit.dart';
-import 'pages/settings/setting_page_cubit.dart';
+import 'pages/settings/settings_page_cubit.dart';
 import 'repository/icons_repository.dart';
 import 'repository/messages_repository.dart';
 import 'repository/pages_repository.dart';
 import 'routes/routes.dart';
-import 'theme/theme_model.dart';
-import 'theme/theme_preferences.dart';
+import 'theme/theme_cubit.dart';
+import 'preferences.dart';
+import 'theme/theme_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  initThemePreferences();
+  await Preferences.initialize();
   Bloc.observer = MyBlocObserver();
   runApp(
-    BlocProvider(
-      create: (context) => SettingPageCubit(
-        SettingsPageState(),
-      ),
-      child: ChangeNotifierProvider<ThemeModel>(
-        create: (context) => ThemeModel(),
-        child: MyApp(db: await DBHelper.initializeDatabase()),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => SettingPageCubit(
+            SettingsPageState(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => ThemeCubit(),
+        ),
+      ],
+      child: MyApp(
+        db: await DBHelper.initializeDatabase(),
       ),
     ),
   );
@@ -43,6 +49,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BlocProvider.of<ThemeCubit>(context).initialize();
     final dbHelper = DBHelper(database: db);
     final repositoryMessages = MessagesRepository(dbHelper: dbHelper);
     final repositoryPages = PagesRepository(dbHelper: dbHelper);
@@ -51,7 +58,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => HomePageCubit(
+          create: (context) => HomeScreenCubit(
             repository: repositoryPages,
           ),
         ),
@@ -71,10 +78,12 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ],
-      child: MaterialApp(
-        title: 'Chat Journal',
-        theme: Provider.of<ThemeModel>(context).currentTheme,
-        onGenerateRoute: _appRouter.onGenerateRoute,
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) => MaterialApp(
+          title: 'Chat Journal',
+          theme: BlocProvider.of<ThemeCubit>(context).state.theme,
+          onGenerateRoute: _appRouter.onGenerateRoute,
+        ),
       ),
     );
   }

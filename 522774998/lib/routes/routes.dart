@@ -11,7 +11,7 @@ class AppRouter {
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(
-          builder: (context) => StartWindow(),
+          builder: (context) => HomePage(),
         );
       case ScreenMessages.routeName:
         return MaterialPageRoute(
@@ -24,7 +24,7 @@ class AppRouter {
       case SearchingPage.routeName:
         return MaterialPageRoute(
           builder: (context) => SearchingPage(),
-            );
+        );
       case SettingsPage.routeName:
         return MaterialPageRoute(
           builder: (context) => SettingsPage(),

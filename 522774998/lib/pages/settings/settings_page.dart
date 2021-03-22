@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
+import '../../theme/theme_cubit.dart';
 
-import '../../theme/theme_model.dart';
-import 'setting_page_cubit.dart';
+import 'settings_page_cubit.dart';
 
 bool isSwitched = true;
 
@@ -13,25 +12,25 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.only(right: 40),
-            child: Text(
-              'Settings',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
-            ),
-          ),
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-            ),
-            onPressed: () => Navigator.pop(context),
+      appBar: AppBar(
+        title: Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.only(right: 40),
+          child: Text(
+            'Settings',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
           ),
         ),
-        body: BlocBuilder<SettingPageCubit,SettingsPageState>(
-            builder: (context,state) => _body(context),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+          ),
+          onPressed: () => Navigator.pop(context),
         ),
+      ),
+      body: BlocBuilder<SettingPageCubit, SettingsPageState>(
+        builder: (context, state) => _body(context),
+      ),
     );
   }
 
@@ -45,7 +44,10 @@ class SettingsPage extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+          ),
         ),
         subtitle: Text(
           subtitle,
@@ -53,31 +55,34 @@ class SettingsPage extends StatelessWidget {
         onTap: onTap,
         trailing: Container(
           width: 60,
-            child: switching,
+          child: switching,
         ),
       );
     }
 
     var dateSwitch = Switch(
       value: BlocProvider.of<SettingPageCubit>(context)
-          .state
-          .isDateModificationSwitched ?? false,
+              .state
+              .isDateModificationSwitched ??
+          false,
       onChanged:
           BlocProvider.of<SettingPageCubit>(context).changeDateModification,
     );
 
     var bubbleSwitch = Switch(
       value: BlocProvider.of<SettingPageCubit>(context)
-          .state
-          .isBubbleAlignmentSwitched ?? false,
+              .state
+              .isBubbleAlignmentSwitched ??
+          false,
       onChanged:
           BlocProvider.of<SettingPageCubit>(context).changeBubbleAlignment,
     );
 
     var dateBubbleSwitch = Switch(
       value: BlocProvider.of<SettingPageCubit>(context)
-          .state
-          .isDateAlignmentSwitched ?? false,
+              .state
+              .isDateAlignmentSwitched ??
+          false,
       onChanged: BlocProvider.of<SettingPageCubit>(context).changeDateAlignment,
     );
 
@@ -90,8 +95,7 @@ class SettingsPage extends StatelessWidget {
               Icons.invert_colors,
               'Theme',
               'Light / Dark',
-              onTap:
-                  Provider.of<ThemeModel>(context, listen: false).changeTheme,
+              onTap: BlocProvider.of<ThemeCubit>(context).changeTheme,
             ),
             _setting(
               Icons.calendar_today_outlined,

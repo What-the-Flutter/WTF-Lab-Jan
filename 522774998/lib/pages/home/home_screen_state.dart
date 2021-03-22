@@ -19,8 +19,8 @@ class HomeScreenStateAwait extends HomeScreenState {
   HomeScreenStateAwait({
     int currentIndex,
   }) : super(
-    currentIndex: currentIndex,
-  );
+          currentIndex: currentIndex,
+        );
 
   @override
   HomeScreenState copyWith({
@@ -36,9 +36,9 @@ class HomeScreenStateShow extends HomeScreenState {
     List<PropertyPage> pages,
     int currentIndex,
   }) : super(
-    list: pages,
-    currentIndex: currentIndex,
-  );
+          list: pages,
+          currentIndex: currentIndex,
+        );
 
   @override
   HomeScreenState copyWith({

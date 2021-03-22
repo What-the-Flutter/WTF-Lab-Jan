@@ -9,7 +9,7 @@ class CreateNewPage extends StatelessWidget {
   static const routeName = '/CreatePage';
 
   CreateNewPage();
-  TextEditingController controllerCreatePage = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

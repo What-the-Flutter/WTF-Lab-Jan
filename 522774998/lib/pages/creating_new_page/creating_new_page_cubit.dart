@@ -47,7 +47,11 @@ class CreatingNewPageCubit extends Cubit<CreatingNewPageState> {
     repository.listIcon[state.selectionIconIndex] = repository
         .listIcon[state.selectionIconIndex]
         .copyWith(isSelected: false);
-    emit(state.copyWith(list: List.from(repository.listIcon)));
+    emit(
+      state.copyWith(
+        list: List.from(repository.listIcon),
+      ),
+    );
   }
 
   void selectionIcon(int index) {
@@ -56,9 +60,11 @@ class CreatingNewPageCubit extends Cubit<CreatingNewPageState> {
         .copyWith(isSelected: false);
     repository.listIcon[index] =
         repository.listIcon[index].copyWith(isSelected: true);
-    emit(state.copyWith(
-      list: List.from(repository.listIcon),
-      selectionIconIndex: index,
-    ));
+    emit(
+      state.copyWith(
+        list: List.from(repository.listIcon),
+        selectionIconIndex: index,
+      ),
+    );
   }
 }

@@ -1,6 +1,6 @@
 import '../database/database.dart';
 
-import '../model/property_message.dart';
+import '../properties/property_message.dart';
 
 class MessagesRepository {
   final DBHelper dbHelper;

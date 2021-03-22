@@ -23,7 +23,7 @@ abstract class CreatingNewPageState extends Equatable {
   }
 
   @override
-  List<Object> get props => [iconButton, selectionIconIndex,list];
+  List<Object> get props => [iconButton, selectionIconIndex, list];
 }
 
 class CreatingNewPageStateInitial extends CreatingNewPageState {
@@ -32,10 +32,10 @@ class CreatingNewPageStateInitial extends CreatingNewPageState {
     int selectionIconIndex,
     IconData iconButton,
   }) : super(
-    list: list,
-    selectionIconIndex: selectionIconIndex,
-    iconButton: iconButton,
-  );
+          list: list,
+          selectionIconIndex: selectionIconIndex,
+          iconButton: iconButton,
+        );
 
   @override
   CreatingNewPageState copyWith({
@@ -57,10 +57,10 @@ class CreatingNewPageStateWork extends CreatingNewPageState {
     int selectionIconIndex,
     IconData iconButton,
   }) : super(
-    list: list,
-    selectionIconIndex: selectionIconIndex,
-    iconButton: iconButton,
-  );
+          list: list,
+          selectionIconIndex: selectionIconIndex,
+          iconButton: iconButton,
+        );
 
   @override
   CreatingNewPageState copyWith({
