@@ -31,7 +31,7 @@ class SettingsState extends Equatable {
       centerDateBubble: centerDateBubble ?? this.centerDateBubble,
       bubbleAlignment: bubbleAlignment ?? this.bubbleAlignment,
       showCreateRecordDateTimePicker: showCreateRecordDateTimePicker ??
-          this.showCreateRecordDateTimePickerButton,
+          showCreateRecordDateTimePickerButton,
       isAuthenticationOn: isAuthenticationOn ?? this.isAuthenticationOn,
     );
   }

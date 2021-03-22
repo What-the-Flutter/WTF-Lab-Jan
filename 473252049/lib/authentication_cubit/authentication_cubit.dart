@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:local_auth/local_auth.dart';
@@ -19,7 +17,7 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
   void authenticate() async {
     if (state.isAuthenticated) return;
     final canCheckBiometrics = await localAuthentication.canCheckBiometrics;
-    if (!canCheckBiometrics || Platform.isIOS) {
+    if (!canCheckBiometrics) {
       emit(
         AuthenticationState(
           isAuthenticated: true,
