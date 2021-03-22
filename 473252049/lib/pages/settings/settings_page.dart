@@ -9,28 +9,24 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Settings'),
       ),
-      body: ListView.separated(
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text('General'),
-            subtitle: Text('Themes & Interface settings'),
-            leading: Icon(Icons.design_services_outlined),
-            trailing: Icon(Icons.arrow_forward),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return GeneralSettingPage();
-                  },
-                ),
-              );
-            },
-          );
-        },
-        separatorBuilder: (context, index) => Divider(),
-        itemCount: 1,
-      ),
+      body: ListView(children: [
+        ListTile(
+          title: Text('General'),
+          subtitle: Text('Themes & Interface settings'),
+          leading: Icon(Icons.design_services_outlined),
+          trailing: Icon(Icons.arrow_forward),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return GeneralSettingPage();
+                },
+              ),
+            );
+          },
+        ),
+      ]),
     );
   }
 }
