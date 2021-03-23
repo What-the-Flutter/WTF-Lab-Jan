@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lesson_1/themes/shared_preferences_provider.dart';
 
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
@@ -7,6 +8,8 @@ import '../note_page.dart';
 import '../themes/dark_theme.dart';
 import '../themes/light_theme.dart';
 import '../themes/theme_switcher.dart';
+import '../utils/database.dart';
+import '../utils/icons.dart';
 import 'cubit_home_page.dart';
 import 'states_home_page.dart';
 
@@ -16,19 +19,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _State extends State<HomePage> {
-  CubitHomePage cubit = CubitHomePage(StatesHomePage(true));
+  final DatabaseProvider _databaseProvider = DatabaseProvider();
+  final CubitHomePage _cubit =
+      CubitHomePage(StatesHomePage(SharedPreferencesProvider().fetchTheme()));
+
+  @override
+  void initState() {
+    _databaseProvider.initDB();
+    _cubit.init();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      cubit: cubit,
+      cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
           bottomNavigationBar: _bottomNavigationBar,
           floatingActionButton: _floatingActionButton,
           drawer: _drawer(context),
           appBar: _appBar,
-          body: _homePageBody(cubit.state.noteList),
+          body: _homePageBody(_cubit.state.noteList),
         );
       },
     );
@@ -48,12 +60,12 @@ class _State extends State<HomePage> {
           child: IconButton(
             icon: Icon(Icons.invert_colors),
             onPressed: () {
-              if (cubit.state.isLightTheme) {
+              if (_cubit.state.isLightTheme) {
                 ThemeSwitcher.of(context).switchTheme(darkThemeData);
               } else {
                 ThemeSwitcher.of(context).switchTheme(lightThemeData);
               }
-              cubit.changeTheme();
+              _cubit.changeTheme();
             },
           ),
         ),
@@ -69,12 +81,12 @@ class _State extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (context) => CreatePage(
-              noteList: cubit.state.noteList,
+              noteList: _cubit.state.noteList,
               isEditing: false,
             ),
           ),
         );
-        setState(() {});
+        _cubit.noteListRedrawing();
       },
     );
   }
@@ -84,26 +96,29 @@ class _State extends State<HomePage> {
       scrollDirection: Axis.vertical,
       itemCount: noteList.length,
       itemBuilder: (context, index) => ListTile(
-        title: noteList[index].title,
+        title: Text(
+          noteList[index].title,
+          style: TextStyle(
+            fontSize: 20,
+          ),
+        ),
         leading: IconButton(
-          icon: noteList[index].icon,
+          icon: CircleAvatar(
+            child: Icon(icons[_cubit.state.noteList[index].circleAvatarIndex]),
+          ),
           iconSize: 35,
           onPressed: () => _openEventPage(index),
         ),
-        subtitle: _listTileSubtitle(index),
+        subtitle: Text(
+          _cubit.state.noteList[index].subtitle,
+          style: TextStyle(
+            fontSize: 15,
+          ),
+        ),
         onTap: () => _openEventPage(index),
         onLongPress: () => _showBottomSheet(context, index),
       ),
     );
-  }
-
-  Text _listTileSubtitle(var index) {
-    if (cubit.state.noteList[index].eventList.isEmpty) {
-      return Text('No events. Click to create one.');
-    } else {
-      return Text(
-          '${cubit.state.noteList[index].eventList[0].text}  ${cubit.state.noteList[index].eventList[0].time}');
-    }
   }
 
   void _showBottomSheet(BuildContext context, var index) {
@@ -123,12 +138,12 @@ class _State extends State<HomePage> {
       MaterialPageRoute(
         builder: (context) => CreatePage(
           isEditing: true,
-          noteList: cubit.state.noteList,
+          noteList: _cubit.state.noteList,
           index: index,
         ),
       ),
     );
-    cubit.noteListRedrawing();
+    _cubit.noteListRedrawing();
     Navigator.pop(context);
   }
 
@@ -154,7 +169,7 @@ class _State extends State<HomePage> {
             'Delete event',
           ),
           onTap: () {
-            cubit.removeNote(index);
+            _cubit.removeNote(index);
             Navigator.pop(context);
           },
         ),
@@ -167,12 +182,12 @@ class _State extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => EventPage(
-          notePage: cubit.state.noteList[index],
-          noteList: cubit.state.noteList,
+          note: _cubit.state.noteList[index],
+          noteList: _cubit.state.noteList,
         ),
       ),
     );
-    cubit.noteListRedrawing();
+    _cubit.noteListRedrawing();
   }
 
   BottomNavigationBar get _bottomNavigationBar {

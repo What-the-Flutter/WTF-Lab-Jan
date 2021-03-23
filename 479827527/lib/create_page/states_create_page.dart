@@ -1,20 +1,12 @@
-import 'package:flutter/material.dart';
-
 class StatesCreatePage {
-  TextEditingController textController = TextEditingController();
-  FocusNode focusNode = FocusNode();
-  IconData selectedIcon;
+  int selectedIconIndex;
 
-  StatesCreatePage(this.selectedIcon);
+  StatesCreatePage(this.selectedIconIndex);
 
   StatesCreatePage copyWith({
-    TextEditingController textController,
-    FocusNode focusNode,
-    IconData selectedIcon,
+    int selectedIconIndex,
   }) {
-    var state = StatesCreatePage(selectedIcon ?? this.selectedIcon);
-    state.textController = textController ?? this.textController;
-    state.focusNode = focusNode ?? this.focusNode;
+    var state = StatesCreatePage(selectedIconIndex ?? this.selectedIconIndex);
     return state;
   }
 }
