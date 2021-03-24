@@ -56,11 +56,13 @@ class MyApp extends StatelessWidget {
           ),
         ),
         BlocProvider(
+          lazy: false,
           create: (context) => ScreenMessageCubit(
             repository: msgRep,
           ),
         ),
         BlocProvider(
+          lazy: false,
           create: (context) => SearchMessageScreenCubit(
             repository: msgRep,
           ),

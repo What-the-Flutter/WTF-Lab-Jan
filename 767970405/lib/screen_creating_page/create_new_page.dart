@@ -116,7 +116,6 @@ class Category extends StatelessWidget {
           IconButton(
             icon: Icon(
               context.read<ScreenCreatingPageCubit>().state.list[index].icon,
-              //color: Colors.white,
             ),
             onPressed: () {
               context.read<ScreenCreatingPageCubit>().selectionIcon(index);
@@ -130,7 +129,6 @@ class Category extends StatelessWidget {
             Container(
               child: Icon(
                 Icons.done,
-                //color: Colors.white,
                 size: 15,
               ),
               decoration: BoxDecoration(

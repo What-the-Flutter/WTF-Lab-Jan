@@ -399,8 +399,7 @@ class SelectionAppBar extends StatelessWidget {
             ),
           ),
           BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-            builder: (context, state) => state.counter == 1 &&
-                    !context.read<ScreenMessageCubit>().isPhotoMessage()
+            builder: (context, state) => state.counter == 1
                 ? Padding(
                     padding: EdgeInsets.only(right: 10),
                     child: IconButton(

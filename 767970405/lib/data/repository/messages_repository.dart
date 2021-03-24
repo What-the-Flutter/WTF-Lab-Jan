@@ -26,4 +26,9 @@ class MessagesRepository {
   void removeMessage(int index) async {
     api.deleteMessage(index);
   }
+
+  @override
+  String toString() {
+    return 'MessagesRepository{api: $api}';
+  }
 }

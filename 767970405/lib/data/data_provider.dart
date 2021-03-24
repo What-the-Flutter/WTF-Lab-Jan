@@ -87,6 +87,7 @@ class PagesAPI {
 
   Future<List<ModelMessage>> messages(int pageId) async {
     final db = await _database;
+    print(db);
 
     final List<Map<String, dynamic>> maps = await db.query(
       'msg',
@@ -146,5 +147,10 @@ class PagesAPI {
       where: 'pageId = ?',
       whereArgs: [pageId],
     );
+  }
+
+  @override
+  String toString() {
+    return 'PagesAPI{_database: $_database}';
   }
 }

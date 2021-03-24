@@ -134,15 +134,6 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     );
   }
 
-  bool isPhotoMessage() {
-    for (var i = 0; i < state.list.length; i++) {
-      //if (state.list[i].isSelected && state.list[i] is ImageMessage) {
-      //return true;
-      //}
-    }
-    return false;
-  }
-
   void selection(int index) async {
     var isSelected = state.list[index].isSelected;
     repository.editMessage(state.list[index].copyWith(isSelected: !isSelected));
@@ -197,8 +188,8 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     }
     repository.editMessage(
         state.list[index].copyWith(text: controller.text, isSelected: false));
-    controller.text = '';
     toInputAppBar();
+    controller.text = '';
   }
 
   void copy() {
