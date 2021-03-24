@@ -29,6 +29,10 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     return categoriesWithLastRecords;
   }
 
+  Future<Category> getById(int categoryId) async {
+    return await repository.getById(categoryId);
+  }
+
   void loadCategories() async {
     emit(
       CategoriesLoadSuccess(

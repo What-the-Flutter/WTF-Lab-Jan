@@ -27,6 +27,7 @@ class _TimelineTabState extends State<TimelineTab> {
         }
         return RecordsListView(
           records: state.records,
+          withCategories: true,
         );
       },
     );

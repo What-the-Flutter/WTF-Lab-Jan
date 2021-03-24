@@ -113,9 +113,10 @@ class _MainPageState extends State<MainPage> {
                         onPressed: () {
                           showSearch(
                             context: context,
-                            delegate: SerachRecordPage(
+                            delegate: SearchRecordPage(
                               context: context,
                               records: state.records,
+                              withCategories: true,
                             ),
                           );
                         },

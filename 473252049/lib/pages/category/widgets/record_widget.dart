@@ -1,4 +1,5 @@
 import 'package:bubble/bubble.dart';
+import 'package:chat_journal/pages/main/tabs/home/cubit/categories_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,11 +9,12 @@ import '../../../model/category.dart';
 import '../../../model/record.dart';
 import '../cubit/records_cubit.dart';
 
-class RecordWidget extends StatelessWidget {
+class RecordWidget extends StatefulWidget {
   final Category category;
   final Record record;
   final bool isDateRecord;
   final Alignment bubbleAlignment;
+  final bool withCategory;
 
   const RecordWidget({
     Key key,
@@ -20,7 +22,32 @@ class RecordWidget extends StatelessWidget {
     this.category,
     this.isDateRecord = false,
     this.bubbleAlignment = Alignment.centerRight,
+    this.withCategory = false,
   }) : super(key: key);
+
+  @override
+  _RecordWidgetState createState() => _RecordWidgetState();
+}
+
+class _RecordWidgetState extends State<RecordWidget> {
+  Category category;
+
+  _RecordWidgetState({this.category});
+
+  void setCategory() async {
+    category = await context.read<CategoriesCubit>().getById(
+          widget.record.categoryId,
+        );
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget?.withCategory ?? false) {
+      setCategory();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +57,7 @@ class RecordWidget extends StatelessWidget {
           behavior: HitTestBehavior.translucent,
           onLongPress: () {
             context.read<RecordsCubit>().select(
-                  record,
+                  widget.record,
                   categoryId: category?.id,
                 );
           },
@@ -40,14 +67,14 @@ class RecordWidget extends StatelessWidget {
                   (e) => e.isSelected,
                 )
                 .contains(true)) {
-              if (record.isSelected) {
+              if (widget.record.isSelected) {
                 context.read<RecordsCubit>().unselect(
-                      record,
+                      widget.record,
                       categoryId: category?.id,
                     );
               } else {
                 context.read<RecordsCubit>().select(
-                      record,
+                      widget.record,
                       categoryId: category?.id,
                     );
               }
@@ -56,40 +83,44 @@ class RecordWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 1.5),
             child: Bubble(
-              color: record.isSelected
+              color: widget.record.isSelected
                   ? Theme.of(context).scaffoldBackgroundColor
                   : Theme.of(context).backgroundColor,
-              alignment: bubbleAlignment,
+              alignment: widget.bubbleAlignment,
               child: Column(
-                crossAxisAlignment: bubbleAlignment == Alignment.centerRight
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    widget.bubbleAlignment == Alignment.centerRight
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
                 children: [
-                  if (record.image != null)
+                  if (widget.record.image != null)
                     Container(
                       constraints: BoxConstraints(maxHeight: 400),
-                      child: Image.file(record.image),
+                      child: Image.file(widget.record.image),
                     ),
-                  if (record.message.isNotEmpty)
+                  if (widget.record.message.isNotEmpty)
                     Text(
-                      record.message,
-                      textAlign: bubbleAlignment == Alignment.centerRight
+                      widget.record.message,
+                      textAlign: widget.bubbleAlignment == Alignment.centerRight
                           ? TextAlign.end
                           : TextAlign.start,
                     ),
-                  if (!isDateRecord)
+                  if (!widget.isDateRecord)
                     Row(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment:
+                          widget.bubbleAlignment == Alignment.centerRight
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
                       children: [
-                        if (record.isFavorite)
+                        if (widget.record.isFavorite)
                           Icon(
                             Icons.bookmark,
                             size: 12,
                           ),
                         Text(
                           getFormattedRecordCreateDateTime(
-                            record.createDateTime,
+                            widget.record.createDateTime,
                           ),
                           style: Theme.of(context).textTheme.bodyText2.copyWith(
                                 fontSize: 12,
@@ -97,6 +128,16 @@ class RecordWidget extends StatelessWidget {
                               ),
                         ),
                       ],
+                    ),
+                  if (!widget.isDateRecord &&
+                      widget.withCategory == true &&
+                      category != null)
+                    Text(
+                      category?.name,
+                      style: Theme.of(context).textTheme.bodyText2.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
                     ),
                 ],
               ),

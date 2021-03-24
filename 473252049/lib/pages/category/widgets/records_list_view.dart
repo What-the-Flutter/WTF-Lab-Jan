@@ -10,11 +10,13 @@ import 'record_widget.dart';
 class RecordsListView extends StatelessWidget {
   final List<Record> records;
   final Category category;
+  final bool withCategories;
 
   const RecordsListView({
     Key key,
     @required this.records,
     this.category,
+    this.withCategories,
   }) : super(key: key);
 
   @override
@@ -28,6 +30,7 @@ class RecordsListView extends StatelessWidget {
             records: records,
             category: category,
             context: context,
+            withCategories: withCategories,
           ),
         ],
       ),
@@ -39,6 +42,7 @@ List<Widget> recordWidgetsFromRecords({
   List<Record> records,
   Category category,
   BuildContext context,
+  bool withCategories,
 }) {
   final recordWidgets = <Widget>[];
   for (var i = 0; i < records.length; ++i) {
@@ -70,6 +74,7 @@ List<Widget> recordWidgetsFromRecords({
             record: records[i],
             category: category,
             bubbleAlignment: state.bubbleAlignment,
+            withCategory: withCategories,
           );
         },
       ),

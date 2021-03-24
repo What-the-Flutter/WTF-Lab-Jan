@@ -1,16 +1,21 @@
+import 'package:chat_journal/pages/main/tabs/home/cubit/categories_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../model/category.dart';
 import '../model/record.dart';
 import 'category/cubit/records_cubit.dart';
 import 'category/widgets/records_list_view.dart';
 
-class SerachRecordPage extends SearchDelegate<Record> {
+class SearchRecordPage extends SearchDelegate<Record> {
   final List<Record> records;
   final BuildContext context;
+  final bool withCategories;
 
-  SerachRecordPage({@required this.context, @required this.records});
+  SearchRecordPage({
+    @required this.context,
+    @required this.records,
+    this.withCategories = false,
+  });
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -43,12 +48,16 @@ class SerachRecordPage extends SearchDelegate<Record> {
   Widget buildResults(BuildContext context) {
     return BlocProvider.value(
       value: this.context.read<RecordsCubit>(),
-      child: RecordsListView(
-        records: records.where(
-          (record) {
-            return record.message.contains(query);
-          },
-        ).toList(),
+      child: BlocProvider.value(
+        value: this.context.read<CategoriesCubit>(),
+        child: RecordsListView(
+          records: records.where(
+            (record) {
+              return record.message.contains(query);
+            },
+          ).toList(),
+          withCategories: withCategories,
+        ),
       ),
     );
   }
@@ -57,12 +66,16 @@ class SerachRecordPage extends SearchDelegate<Record> {
   Widget buildSuggestions(BuildContext context) {
     return BlocProvider.value(
       value: this.context.read<RecordsCubit>(),
-      child: RecordsListView(
-        records: records.where(
-          (record) {
-            return record.message.contains(query);
-          },
-        ).toList(),
+      child: BlocProvider.value(
+        value: this.context.read<CategoriesCubit>(),
+        child: RecordsListView(
+          records: records.where(
+            (record) {
+              return record.message.contains(query);
+            },
+          ).toList(),
+          withCategories: withCategories,
+        ),
       ),
     );
   }

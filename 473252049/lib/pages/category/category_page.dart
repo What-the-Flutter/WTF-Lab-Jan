@@ -184,7 +184,7 @@ class _CategoryPageState extends State<CategoryPage> {
                           onPressed: () {
                             showSearch(
                               context: context,
-                              delegate: SerachRecordPage(
+                              delegate: SearchRecordPage(
                                 context: context,
                                 records: state.records,
                               ),
