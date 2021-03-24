@@ -78,65 +78,102 @@ class _RecordWidgetState extends State<RecordWidget> {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 1.5),
+            padding: const EdgeInsets.symmetric(vertical: 2),
             child: Bubble(
+              padding: BubbleEdges.zero,
+              radius: Radius.circular(8),
               color: widget.record.isSelected
                   ? Theme.of(context).scaffoldBackgroundColor
                   : Theme.of(context).backgroundColor,
               alignment: widget.bubbleAlignment,
-              child: Column(
-                crossAxisAlignment:
-                    widget.bubbleAlignment == Alignment.centerRight
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
-                children: [
-                  if (widget.record.image != null)
-                    Container(
-                      constraints: BoxConstraints(maxHeight: 400),
-                      child: Image.file(widget.record.image),
-                    ),
-                  if (widget.record.message.isNotEmpty)
-                    Text(
-                      widget.record.message,
-                      textAlign: widget.bubbleAlignment == Alignment.centerRight
-                          ? TextAlign.end
-                          : TextAlign.start,
-                    ),
-                  if (!widget.isDateRecord)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment:
-                          widget.bubbleAlignment == Alignment.centerRight
-                              ? MainAxisAlignment.end
-                              : MainAxisAlignment.start,
-                      children: [
-                        if (widget.record.isFavorite)
-                          Icon(
-                            Icons.bookmark,
-                            size: 12,
-                          ),
-                        Text(
-                          getFormattedRecordCreateDateTime(
-                            widget.record.createDateTime,
-                          ),
-                          style: Theme.of(context).textTheme.bodyText2.copyWith(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                              ),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Column(
+                  crossAxisAlignment:
+                      widget.bubbleAlignment == Alignment.centerRight
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                  children: [
+                    if (widget.record.image != null)
+                      Container(
+                        constraints: BoxConstraints(
+                          maxHeight: 400,
                         ),
-                      ],
-                    ),
-                  if (!widget.isDateRecord &&
-                      widget.withCategory == true &&
-                      category != null)
-                    Text(
-                      category?.name,
-                      style: Theme.of(context).textTheme.bodyText2.copyWith(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            topRight: Radius.circular(4),
+                            bottomLeft: Radius.circular(2),
+                            bottomRight: Radius.circular(2),
                           ),
+                          child: Image.file(
+                            widget.record.image,
+                          ),
+                        ),
+                      ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: widget.record.image == null ? 0 : 2,
+                      ),
+                      child: Column(
+                        crossAxisAlignment:
+                            widget.bubbleAlignment == Alignment.centerRight
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                        children: [
+                          if (widget.record.message.isNotEmpty)
+                            Text(
+                              widget.record.message,
+                              textAlign: widget.bubbleAlignment ==
+                                      Alignment.centerRight
+                                  ? TextAlign.end
+                                  : TextAlign.start,
+                            ),
+                          if (!widget.isDateRecord)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: widget.bubbleAlignment ==
+                                      Alignment.centerRight
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
+                              children: [
+                                if (widget.record.isFavorite)
+                                  Icon(
+                                    Icons.bookmark,
+                                    size: 12,
+                                  ),
+                                Text(
+                                  getFormattedRecordCreateDateTime(
+                                    widget.record.createDateTime,
+                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2
+                                      .copyWith(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          if (!widget.isDateRecord &&
+                              widget.withCategory == true &&
+                              category != null)
+                            Text(
+                              category?.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText2
+                                  .copyWith(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                            ),
+                        ],
+                      ),
                     ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
