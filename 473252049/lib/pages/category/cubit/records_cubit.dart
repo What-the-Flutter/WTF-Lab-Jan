@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
+import '../../../extensions/list_get_element.dart';
 import '../../../model/record.dart';
 import '../../../repositories/records_repository.dart';
 import '../../../utils/utils.dart' as utils;
@@ -67,24 +68,28 @@ class RecordsCubit extends Cubit<RecordsState> {
   }
 
   void select(Record record, {int categoryId}) async {
-    repository.update(
+    await repository.update(
       record.copyWith(isSelected: true),
     );
+    state.records.get(record).select();
+    record.select();
     emit(
       RecordSelectSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        state.records,
         record,
       ),
     );
   }
 
   void unselect(Record record, {int categoryId}) async {
-    repository.update(
+    await repository.update(
       record.copyWith(isSelected: false),
     );
+    state.records.get(record).unselect();
+    record.unselect();
     emit(
       RecordUnselectSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        state.records,
         record,
       ),
     );

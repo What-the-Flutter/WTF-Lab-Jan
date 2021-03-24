@@ -26,7 +26,7 @@ class RecordWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RecordWidgetState createState() => _RecordWidgetState();
+  _RecordWidgetState createState() => _RecordWidgetState(category: category);
 }
 
 class _RecordWidgetState extends State<RecordWidget> {
@@ -58,7 +58,6 @@ class _RecordWidgetState extends State<RecordWidget> {
           onLongPress: () {
             context.read<RecordsCubit>().select(
                   widget.record,
-                  categoryId: category?.id,
                 );
           },
           onTap: () {
@@ -70,12 +69,10 @@ class _RecordWidgetState extends State<RecordWidget> {
               if (widget.record.isSelected) {
                 context.read<RecordsCubit>().unselect(
                       widget.record,
-                      categoryId: category?.id,
                     );
               } else {
                 context.read<RecordsCubit>().select(
                       widget.record,
-                      categoryId: category?.id,
                     );
               }
             }
