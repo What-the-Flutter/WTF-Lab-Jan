@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../model/category.dart';
-import '../../category_add_edit_page.dart';
+import '../../category_add_edit/category_add_edit_page.dart';
 import '../tabs/home/cubit/categories_cubit.dart';
 
 class CategoryBottomSheet extends StatelessWidget {

@@ -1,10 +1,10 @@
-import 'package:chat_journal/pages/search_record_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../category/cubit/records_cubit.dart';
 import '../category/dialogs/delete_records_dialog.dart';
-import '../category_add_edit_page.dart';
+import '../category_add_edit/category_add_edit_page.dart';
+import '../search_record_page.dart';
 import '../settings/cubit/settings_cubit.dart';
 import 'components/main_page_bottom_navigation_bar.dart';
 import 'components/main_page_drawer.dart';
