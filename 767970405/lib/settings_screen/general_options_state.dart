@@ -4,7 +4,7 @@ enum ThemeType { light, dark }
 
 class GeneralOptionsState extends Equatable {
   final ThemeType themeType;
-  final ThemeData currentTheme;
+  final CustomTheme currentTheme;
   final bool isDateTimeModification;
   final bool isLeftBubbleAlign;
   final bool isCenterDateBubble;
@@ -19,7 +19,7 @@ class GeneralOptionsState extends Equatable {
 
   GeneralOptionsState copyWith({
     final ThemeType themeType,
-    final ThemeData currentTheme,
+    final CustomTheme currentTheme,
     final bool isDateTimeModification,
     final bool isLeftBubbleAlign,
     final bool isCenterDateBubble,

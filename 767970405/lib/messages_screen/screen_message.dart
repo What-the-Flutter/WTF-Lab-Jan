@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../data/model/model_message.dart';
-import '../data/theme/theme.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
 import '../settings_screen/general_options_cubit.dart';
@@ -26,19 +25,20 @@ class _ScreenMessageState extends State<ScreenMessage> {
     return Scaffold(
       appBar: PreferredSize(
         child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-            builder: (context, state) => state.mode == Mode.input
-                ? InputAppBar(
-                    title: state.page.title,
-                  )
-                : state.mode == Mode.selection
-                    ? SelectionAppBar()
-                    : state.mode == Mode.edit
-                        ? EditAppBar(
-                            title: 'Edit mode',
-                          )
-                        : AppBar(
-                            title: Text(''),
-                          )),
+          builder: (context, state) => state.mode == Mode.input
+              ? InputAppBar(
+                  title: state.page.title,
+                )
+              : state.mode == Mode.selection
+                  ? SelectionAppBar()
+                  : state.mode == Mode.edit
+                      ? EditAppBar(
+                          title: 'Edit mode',
+                        )
+                      : AppBar(
+                          title: Text(''),
+                        ),
+        ),
         preferredSize: Size.fromHeight(56),
       ),
       body: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
@@ -48,29 +48,38 @@ class _ScreenMessageState extends State<ScreenMessage> {
               children: <Widget>[
                 Expanded(
                   child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-                      builder: (context, state) {
-                    return Stack(
-                      alignment: context
+                    builder: (context, state) {
+                      return Stack(
+                        alignment: context
+                                .read<GeneralOptionsCubit>()
+                                .state
+                                .isLeftBubbleAlign
+                            ? AlignmentDirectional.topEnd
+                            : AlignmentDirectional.topStart,
+                        children: <Widget>[
+                          ListView(
+                            reverse: true,
+                            children: _generateListMsg(state),
+                          ),
+                          if (context
                               .read<GeneralOptionsCubit>()
                               .state
-                              .isLeftBubbleAlign
-                          ? AlignmentDirectional.topEnd
-                          : AlignmentDirectional.topStart,
-                      children: <Widget>[
-                        ListView(
-                          reverse: true,
-                          children: _generateListMsg(state),
-                        ),
-                        if (context
-                            .read<GeneralOptionsCubit>()
-                            .state
-                            .isDateTimeModification)
-                          Calendar(
-                            date: DateFormat.yMMMEd().format(DateTime.now()),
-                          ),
-                      ],
-                    );
-                  }),
+                              .isDateTimeModification)
+                            BlocBuilder<CalendarCubit, CalendarState>(
+                              builder: (context, state) => Calendar(
+                                date:
+                                    DateFormat.yMMMEd().format(state.fromDate),
+                                color: context
+                                    .read<GeneralOptionsCubit>()
+                                    .state
+                                    .currentTheme
+                                    .calendar,
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
                 PanelInput(),
               ],
@@ -96,26 +105,46 @@ class _ScreenMessageState extends State<ScreenMessage> {
           index--;
           continue;
         }
-
         list.add(
           Message(
+            color: state.list[index].isSelected
+                ? context
+                    .read<GeneralOptionsCubit>()
+                    .state
+                    .currentTheme
+                    .selectedMsg
+                : context
+                    .read<GeneralOptionsCubit>()
+                    .state
+                    .currentTheme
+                    .unselectedMsg,
             index: index,
             isSelected: state.list[index].isSelected,
             isFavor: state.list[index].isFavor,
-            photo: state.list[index].photo,
+            title: Container(),
+            photo: state.list[index].photo != null
+                ? Image.file(File(state.list[index].photo))
+                : Container(),
             event: state.list[index].indexCategory,
-            text: state.list[index].text,
+            text: state.list[index].text != null
+                ? Text(state.list[index].text)
+                : Container(),
             date: DateFormat.Hm().format(state.list[index].pubTime),
             align: context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
                 ? Alignment.topLeft
                 : Alignment.topRight,
+            onTap: state.mode == Mode.selection
+                ? context.read<ScreenMessageCubit>().selection
+                : null,
+            onLongPress: context.read<ScreenMessageCubit>().selection,
           ),
         );
         index--;
       }
       list.add(
         DataLabel(
-          color: Colors.red,
+          color:
+              context.read<GeneralOptionsCubit>().state.currentTheme.dataLabel,
           content: DateFormat.yMMMd().format(
             filterList[i][0].pubTime,
           ),
@@ -131,45 +160,46 @@ class _ScreenMessageState extends State<ScreenMessage> {
 
 class Calendar extends StatelessWidget {
   final String date;
+  final Color color;
 
   const Calendar({
     Key key,
     this.date,
+    this.color,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CalendarCubit, CalendarState>(
-      builder: (context, state) => GestureDetector(
-        onTap: () => selectDateAndTime(context, state),
-        child: Container(
-          margin: EdgeInsets.all(10.0),
-          padding: EdgeInsets.all(5.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5.0),
-                child: Icon(
-                  Icons.calendar_today,
+    final state = context.read<CalendarCubit>().state;
+    return GestureDetector(
+      onTap: () => selectDateAndTime(context, state),
+      child: Container(
+        margin: EdgeInsets.all(10.0),
+        padding: EdgeInsets.all(5.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
+              child: Icon(
+                Icons.calendar_today,
+                size: 16.0,
+              ),
+            ),
+            Text(date),
+            if (state.isReset)
+              IconButton(
+                onPressed: context.read<CalendarCubit>().reset,
+                icon: Icon(
+                  Icons.close,
                   size: 16.0,
                 ),
               ),
-              Text(date),
-              if (state.isReset)
-                IconButton(
-                  onPressed: context.read<CalendarCubit>().reset,
-                  icon: Icon(
-                    Icons.close,
-                    size: 16.0,
-                  ),
-                ),
-            ],
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.0),
-            color: Colors.red,
-          ),
+          ],
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15.0),
+          color: color,
         ),
       ),
     );
@@ -265,16 +295,15 @@ class PanelInput extends StatelessWidget {
               flex: 1,
               child: IconButton(
                 icon: Icon(state.iconData),
-                onPressed: () => state.onAddMessage(context
-                        .read<CalendarCubit>()
-                        .state
-                        .isReset
-                    ? context
-                        .read<CalendarCubit>()
-                        .state
-                        .fromDate
-                        .applied(context.read<CalendarCubit>().state.fromTime)
-                    : DateTime.now()),
+                onPressed: () => state.onAddMessage(
+                  context.read<CalendarCubit>().state.isReset
+                      ? context
+                          .read<CalendarCubit>()
+                          .state
+                          .fromDate
+                          .applied(context.read<CalendarCubit>().state.fromTime)
+                      : DateTime.now(),
+                ),
               ),
             ),
           ],
@@ -505,51 +534,42 @@ class Message extends StatelessWidget {
   final int index;
   final bool isSelected;
   final bool isFavor;
-  final String photo;
+  final Widget title;
+  final Widget photo;
   final int event;
-  final String text;
+  final Widget text;
   final String date;
   final AlignmentGeometry align;
+  final Function onTap;
+  final Function onLongPress;
+  final Color color;
 
   const Message({
     Key key,
     this.index,
     this.isSelected,
     this.isFavor,
+    this.title,
     this.photo,
     this.event,
     this.text,
     this.date,
     this.align,
+    this.onTap,
+    this.onLongPress,
+    this.color,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var color;
-    if (context.read<GeneralOptionsCubit>().state.currentTheme == darkTheme) {
-      if (context.read<ScreenMessageCubit>().state.list[index].isSelected) {
-        color = Colors.orangeAccent;
-      } else {
-        color = Colors.black;
-      }
-    } else {
-      if (context.read<ScreenMessageCubit>().state.list[index].isSelected) {
-        color = Colors.green[200];
-      } else {
-        color = Colors.green[50];
-      }
-    }
-    final msg = context.read<ScreenMessageCubit>().state.list[index];
     return Container(
       padding: EdgeInsets.all(10.0),
       child: Align(
         alignment: align,
         child: GestureDetector(
-          onTap: context.read<ScreenMessageCubit>().state.mode == Mode.selection
-              ? () => context.read<ScreenMessageCubit>().selection(index)
-              : null,
-          onLongPress: () =>
-              context.read<ScreenMessageCubit>().selection(index),
+          onTap: onTap != null ? () => onTap(index) : onTap,
+          onLongPress:
+              onLongPress != null ? () => onLongPress(index) : onLongPress,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
@@ -558,13 +578,14 @@ class Message extends StatelessWidget {
             padding: EdgeInsets.all(10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                if (photo != null) Image.file(File(msg.photo)),
+                if (title is! Container) title,
+                if (photo is! Container) photo,
                 if (event != null) Container(),
-                if (text != null) Text(msg.text),
+                if (text is! Container) text,
                 Row(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(date),
                     if (isFavor)

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
-import '../data/theme/theme.dart';
 import '../main.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
@@ -28,114 +27,114 @@ class HomeWindow extends StatelessWidget {
             icon: Icon(Icons.invert_colors),
             onPressed: () {
               context.read<GeneralOptionsCubit>().toggleTheme();
-              saveTheme(context.read<GeneralOptionsCubit>().state.themeType.index);
+              saveTheme(
+                  context.read<GeneralOptionsCubit>().state.themeType.index);
             },
           ),
         ],
-        //leading: Icon(Icons.menu),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Drawer Header'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.card_giftcard),
-              title: Text('Help spread the word'),
-              onTap: () {
-                //TODO
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.search),
-              title: Text('Search'),
-              onTap: () {
-                // TODO
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.notifications),
-              title: Text('Notifications'),
-              onTap: () {
-                //TODO
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.stacked_line_chart),
-              title: Text('Statistics'),
-              onTap: () {
-                //TODO
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  SettingsScreen.routeName,
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.feedback),
-              title: Text('Feedback'),
-              onTap: () {},
-            )
-          ],
-        ),
-      ),
+      drawer: _drawer(context),
       body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-        builder: (context, state) {
-          if (state is HomeScreenShow) {
-            return ChatPages();
-          } else {
-            return Center(
-              child: Text('Await'),
-            );
-          }
-        },
+        builder: (context, state) => (state is HomeScreenShow)
+            ? ChatPages()
+            : Center(
+                child: Text('Await'),
+              ),
       ),
       floatingActionButton: ButtonAddChat(),
       bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-        builder: (context, state) => BottomNavigationBar(
-          currentIndex: state.currentIndex,
-          selectedItemColor: Colors.teal,
-          unselectedItemColor: Colors.grey,
-          items: [
-            BottomNavigationBarItem(
-              label: 'Home',
-              icon: Icon(
-                Icons.home,
-              ),
-            ),
-            BottomNavigationBarItem(
-              label: 'Daily',
-              icon: Icon(
-                Icons.event_note_sharp,
-              ),
-            ),
-            BottomNavigationBarItem(
-              label: 'Timeline',
-              icon: Icon(
-                Icons.timeline,
-              ),
-            ),
-            BottomNavigationBarItem(
-              label: 'Explore',
-              icon: Icon(
-                Icons.explore,
-              ),
-            )
-          ],
-          onTap: (index) => context.read<HomeScreenCubit>().changeScreen(index),
-        ),
+        builder: _bottomNavigationBar,
       ),
+    );
+  }
+
+  Widget _drawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Text('Drawer Header'),
+          ),
+          ListTile(
+            leading: Icon(Icons.card_giftcard),
+            title: Text('Help spread the word'),
+            onTap: () {
+              //TODO
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.search),
+            title: Text('Search'),
+            onTap: () {
+              // TODO
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.notifications),
+            title: Text('Notifications'),
+            onTap: () {
+              //TODO
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.stacked_line_chart),
+            title: Text('Statistics'),
+            onTap: () {
+              //TODO
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text('Settings'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(
+                context,
+                SettingsScreen.routeName,
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.feedback),
+            title: Text('Feedback'),
+            onTap: () {},
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _bottomNavigationBar(BuildContext context, HomeScreenState state) {
+    return BottomNavigationBar(
+      currentIndex: state.currentIndex,
+      items: [
+        BottomNavigationBarItem(
+          label: 'Home',
+          icon: Icon(
+            Icons.home,
+          ),
+        ),
+        BottomNavigationBarItem(
+          label: 'Daily',
+          icon: Icon(
+            Icons.event_note_sharp,
+          ),
+        ),
+        BottomNavigationBarItem(
+          label: 'Timeline',
+          icon: Icon(
+            Icons.timeline,
+          ),
+        ),
+        BottomNavigationBarItem(
+          label: 'Explore',
+          icon: Icon(
+            Icons.explore,
+          ),
+        )
+      ],
+      onTap: (index) => context.read<HomeScreenCubit>().changeScreen(index),
     );
   }
 }
@@ -171,9 +170,7 @@ class ChatPages extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15.0),
-        color: context.read<GeneralOptionsCubit>().state.currentTheme == darkTheme
-            ? Colors.black
-            : Colors.green[50],
+        color: context.read<GeneralOptionsCubit>().state.currentTheme.bot,
       ),
       margin: EdgeInsetsDirectional.only(start: 30.0, top: 5.0, end: 30.0),
       width: 200,
@@ -189,7 +186,6 @@ class ButtonAddChat extends StatelessWidget {
       elevation: 10.0,
       child: Icon(
         Icons.add,
-        color: Colors.black,
       ),
       onPressed: () async {
         context.read<ScreenCreatingPageCubit>().setting('', 0);
@@ -220,27 +216,27 @@ class EventPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.read<HomeScreenCubit>().state;
     return InkWell(
       onTap: () async {
         context.read<ScreenMessageCubit>().downloadData(
-              state.list[_index],
+              context.read<HomeScreenCubit>().state.list[_index],
             );
         context
             .read<SearchMessageScreenCubit>()
-            .setting(page: state.list[_index]);
+            .setting(page: context.read<HomeScreenCubit>().state.list[_index]);
         await Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
         );
-        context.read<HomeScreenCubit>().gettingOutFreeze();
+        //context.read<HomeScreenCubit>().gettingOutFreeze();
       },
       onLongPress: () => _showMenuAction(context),
       child: Stack(
         alignment: Alignment.bottomRight,
         children: <Widget>[
           ListTile(
-            title: Text(state.list[_index].title),
+            title:
+                Text(context.read<HomeScreenCubit>().state.list[_index].title),
             subtitle: Text('No Events. Click to create one.'),
             horizontalTitleGap: 5.0,
             contentPadding: EdgeInsets.all(5.0),
@@ -248,21 +244,25 @@ class EventPage extends StatelessWidget {
               width: 75,
               height: 75,
               child: Icon(
-                context
-                    .read<ScreenCreatingPageCubit>()
-                    .getIcon(state.list[_index].iconIndex),
-                color: Colors.white,
+                context.read<ScreenCreatingPageCubit>().getIcon(context
+                    .read<HomeScreenCubit>()
+                    .state
+                    .list[_index]
+                    .iconIndex),
               ),
               decoration: BoxDecoration(
-                color: context.read<GeneralOptionsCubit>().state.currentTheme.cardColor,
+                color: context
+                    .read<GeneralOptionsCubit>()
+                    .state
+                    .currentTheme
+                    .backgroundCategory,
                 shape: BoxShape.circle,
               ),
             ),
           ),
-          state.list[_index].isPin
+          context.read<HomeScreenCubit>().state.list[_index].isPin
               ? Icon(
                   Icons.push_pin,
-                  color: Colors.blue,
                 )
               : Container()
         ],
@@ -381,10 +381,8 @@ class EventPage extends StatelessWidget {
                   context
                       .read<ScreenCreatingPageCubit>()
                       .getIcon(cubit.state.list[_index].iconIndex),
-                  color: Colors.white,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
                   shape: BoxShape.circle,
                 ),
               ),

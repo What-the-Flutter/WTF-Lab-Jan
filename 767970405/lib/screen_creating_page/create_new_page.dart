@@ -43,9 +43,6 @@ class CreateNewPage extends StatelessWidget {
               controller: context.read<ScreenCreatingPageCubit>().controller,
               decoration: InputDecoration(
                 labelText: 'Add new Page',
-                labelStyle: TextStyle(
-                  color: Colors.orange,
-                ),
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -65,7 +62,6 @@ class CreateNewPage extends StatelessWidget {
         child: BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
           builder: (context, state) => Icon(
             state.iconButton,
-            color: Colors.black,
           ),
           buildWhen: (prev, cur) {
             if (prev.iconButton != cur.iconButton) {
@@ -120,7 +116,7 @@ class Category extends StatelessWidget {
           IconButton(
             icon: Icon(
               context.read<ScreenCreatingPageCubit>().state.list[index].icon,
-              color: Colors.white,
+              //color: Colors.white,
             ),
             onPressed: () {
               context.read<ScreenCreatingPageCubit>().selectionIcon(index);
@@ -134,7 +130,7 @@ class Category extends StatelessWidget {
             Container(
               child: Icon(
                 Icons.done,
-                color: Colors.white,
+                //color: Colors.white,
                 size: 15,
               ),
               decoration: BoxDecoration(
@@ -145,7 +141,11 @@ class Category extends StatelessWidget {
         ],
       ),
       decoration: BoxDecoration(
-        color: context.read<GeneralOptionsCubit>().state.currentTheme.cardColor,
+        color: context
+            .read<GeneralOptionsCubit>()
+            .state
+            .currentTheme
+            .backgroundCategory,
         shape: BoxShape.circle,
       ),
     );

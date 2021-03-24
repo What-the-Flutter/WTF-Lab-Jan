@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 
 import 'data/data_provider.dart';
 import 'data/repository/icons_repository.dart';
 import 'data/repository/messages_repository.dart';
 import 'data/repository/pages_repository.dart';
+import 'data/repository/theme_repository.dart';
 import 'home_screen/home_screen_cubit.dart';
 import 'messages_screen/calendar_cubit.dart';
 import 'messages_screen/screen_message_cubit.dart';
@@ -30,18 +30,15 @@ void main() async {
   Bloc.observer = MyBlocObserver();
   runApp(
     MyApp(
-      db: await PagesAPI.init(),
       index: await loadTheme(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final Database db;
   final int index;
 
   MyApp({
-    this.db,
     this.index,
   });
 
@@ -49,7 +46,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final api = PagesAPI(database: db);
+    final api = PagesAPI();
     final msgRep = MessagesRepository(api: api);
     return MultiBlocProvider(
       providers: [
@@ -74,7 +71,10 @@ class MyApp extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (context) => GeneralOptionsCubit(index),
+          create: (context) => GeneralOptionsCubit(
+            themeRepository: ThemeRepository(),
+            index: index,
+          ),
         ),
         BlocProvider(
           create: (context) => CalendarCubit(
@@ -85,7 +85,7 @@ class MyApp extends StatelessWidget {
       child: BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
         builder: (context, state) => MaterialApp(
           title: 'Chat Journal',
-          theme: state.currentTheme,
+          theme: state.currentTheme.appTheme,
           onGenerateRoute: _appRouter.onGenerateRoute,
         ),
       ),

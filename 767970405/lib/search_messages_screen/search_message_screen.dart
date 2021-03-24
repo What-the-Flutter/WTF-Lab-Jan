@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
+import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
+import '../settings_screen/general_options_cubit.dart';
 import 'search_message_screen_cubit.dart';
 
 class SearchMessageScreen extends StatelessWidget {
@@ -21,9 +26,6 @@ class SearchMessageScreen extends StatelessWidget {
           decoration: InputDecoration(
             labelText:
                 'Search in ${context.read<ScreenMessageCubit>().state.page.title}',
-            labelStyle: TextStyle(
-              color: Colors.orange,
-            ),
           ),
         ),
         actions: <Widget>[
@@ -50,7 +52,11 @@ class SearchMessageScreen extends StatelessWidget {
           if (state is SearchMessageScreenWait) {
             return Container(
               padding: EdgeInsets.all(20),
-              color: Colors.green[50],
+              color: context
+                  .read<GeneralOptionsCubit>()
+                  .state
+                  .currentTheme
+                  .helpWindow,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.min,
@@ -67,7 +73,11 @@ class SearchMessageScreen extends StatelessWidget {
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 20),
               padding: EdgeInsets.all(20),
-              color: Colors.green[50],
+              color: context
+                  .read<GeneralOptionsCubit>()
+                  .state
+                  .currentTheme
+                  .helpWindow,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.min,
@@ -89,53 +99,42 @@ class SearchMessageScreen extends StatelessWidget {
             return ListView.builder(
               itemCount: state.list.length,
               itemBuilder: (context, index) {
-                return FoundMessage(
+                return Message(
+                  color: state.list[index].isSelected
+                      ? context
+                          .read<GeneralOptionsCubit>()
+                          .state
+                          .currentTheme
+                          .selectedMsg
+                      : context
+                          .read<GeneralOptionsCubit>()
+                          .state
+                          .currentTheme
+                          .unselectedMsg,
                   index: index,
+                  isSelected: state.list[index].isSelected,
+                  isFavor: state.list[index].isFavor,
+                  title:
+                      Text(context.read<ScreenMessageCubit>().state.page.title),
+                  photo: state.list[index].photo != null
+                      ? Image.file(File(state.list[index].photo))
+                      : Container(),
+                  event: state.list[index].indexCategory,
+                  text: state.list[index].text != null
+                      ? Text(state.list[index].text)
+                      : Container(),
+                  date: DateFormat.Hm().format(state.list[index].pubTime),
+                  align: context
+                          .read<GeneralOptionsCubit>()
+                          .state
+                          .isLeftBubbleAlign
+                      ? Alignment.topLeft
+                      : Alignment.topRight,
                 );
               },
             );
           }
         },
-      ),
-    );
-  }
-}
-
-class FoundMessage extends StatelessWidget {
-  final int index;
-
-  const FoundMessage({
-    Key key,
-    this.index,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final data = context.read<SearchMessageScreenCubit>().state.list[index];
-    return Container(
-      padding: EdgeInsets.all(10.0),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.0),
-            color: Colors.green[50],
-          ),
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Text(context.read<ScreenMessageCubit>().state.page.title),
-              Text(data.text),
-              if (data.isFavor)
-                Icon(
-                  Icons.bookmark,
-                  color: Colors.orangeAccent,
-                  size: 8,
-                ),
-            ],
-          ),
-        ),
       ),
     );
   }

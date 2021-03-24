@@ -1,15 +1,19 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-import '../data/theme/theme.dart';
+import '../data/repository/theme_repository.dart';
+import '../data/theme/custom_theme.dart';
 
 part 'general_options_state.dart';
 
 class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
-  GeneralOptionsCubit(int index)
-      : super(GeneralOptionsState(
+  final ThemeRepository themeRepository;
+
+  GeneralOptionsCubit({
+    this.themeRepository,
+    int index,
+  }) : super(GeneralOptionsState(
           themeType: ThemeType.values[index],
-          currentTheme: index == 0 ? lightTheme : darkTheme,
+          currentTheme: themeRepository.themes[index],
           isDateTimeModification: false,
           isLeftBubbleAlign: false,
           isCenterDateBubble: false,
@@ -20,14 +24,14 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
       emit(
         state.copyWith(
           themeType: ThemeType.light,
-          currentTheme: lightTheme,
+          currentTheme: themeRepository.themes[ThemeType.light.index],
         ),
       );
     } else if (state.themeType == ThemeType.light) {
       emit(
         state.copyWith(
           themeType: ThemeType.dark,
-          currentTheme: darkTheme,
+          currentTheme: themeRepository.themes[ThemeType.dark.index],
         ),
       );
     }

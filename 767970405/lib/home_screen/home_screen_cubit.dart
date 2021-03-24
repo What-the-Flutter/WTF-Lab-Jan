@@ -18,6 +18,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   }
 
   void loadData() async {
+    await repository.pagesAPI.init();
     emit(
       HomeScreenShow(
         pages: await repository.pages(),

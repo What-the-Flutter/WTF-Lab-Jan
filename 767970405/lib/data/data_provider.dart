@@ -5,14 +5,10 @@ import 'model/model_message.dart';
 import 'model/model_page.dart';
 
 class PagesAPI {
-  final Database database;
+  Database _database;
 
-  PagesAPI({
-    this.database,
-  });
-
-  static Future<Database> init() async {
-    final database = await openDatabase(
+  Future<void> init() async {
+    _database = await openDatabase(
       join(await getDatabasesPath(), 'database.db'),
       onCreate: (db, version) {
         db.execute(
@@ -39,11 +35,10 @@ class PagesAPI {
       },
       version: 1,
     );
-    return database;
   }
 
   Future<void> insertPage(ModelPage page) async {
-    final db = await database;
+    final db = await _database;
 
     await db.insert(
       'pages',
@@ -53,7 +48,7 @@ class PagesAPI {
   }
 
   Future<List<ModelPage>> pages() async {
-    final db = await database;
+    final db = await _database;
 
     final List<Map<String, dynamic>> maps = await db.query('pages');
 
@@ -71,7 +66,7 @@ class PagesAPI {
   }
 
   Future<void> updatePage(ModelPage page) async {
-    final db = await database;
+    final db = await _database;
 
     await db.update(
       'pages',
@@ -82,7 +77,7 @@ class PagesAPI {
   }
 
   Future<void> deletePage(int id) async {
-    final db = await database;
+    final db = await _database;
     await db.delete(
       'pages',
       where: 'id = ?',
@@ -91,7 +86,7 @@ class PagesAPI {
   }
 
   Future<List<ModelMessage>> messages(int pageId) async {
-    final db = await database;
+    final db = await _database;
 
     final List<Map<String, dynamic>> maps = await db.query(
       'msg',
@@ -114,7 +109,7 @@ class PagesAPI {
   }
 
   Future<void> insertMessage(ModelMessage msg) async {
-    final db = await database;
+    final db = await _database;
 
     await db.insert(
       'msg',
@@ -124,7 +119,7 @@ class PagesAPI {
   }
 
   Future<void> updateMessage(ModelMessage msg) async {
-    final db = await database;
+    final db = await _database;
 
     await db.update(
       'msg',
@@ -135,7 +130,7 @@ class PagesAPI {
   }
 
   Future<void> deleteMessage(int id) async {
-    final db = await database;
+    final db = await _database;
     await db.delete(
       'msg',
       where: 'id = ?',
@@ -144,7 +139,7 @@ class PagesAPI {
   }
 
   Future<void> deleteMessages(int pageId) async {
-    final db = await database;
+    final db = await _database;
 
     await db.delete(
       'msg',

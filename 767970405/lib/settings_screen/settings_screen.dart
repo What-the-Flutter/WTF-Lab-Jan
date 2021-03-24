@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,122 +22,126 @@ class SettingsScreen extends StatelessWidget {
         ),
         actions: <Widget>[],
       ),
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          Padding(
-            child: Divider(),
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+      body: _settings(context),
+    );
+  }
+
+  Widget _settings(BuildContext context) {
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: <Widget>[
+        Padding(
+          child: Divider(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        ListTile(
+          leading: Icon(Icons.nature_people),
+          title: Text('General'),
+          subtitle: Text('Themes & Interface settings'),
+          trailing: IconButton(
+            icon: Icon(Icons.arrow_forward_ios),
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                GeneralOption.routeName,
+              );
+            },
           ),
-          ListTile(
-            leading: Icon(Icons.nature_people),
-            title: Text('General'),
-            subtitle: Text('Themes & Interface settings'),
-            trailing: IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  GeneralOption.routeName,
-                );
-              },
-            ),
+        ),
+        Padding(
+          child: Divider(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        ListTile(
+          leading: Icon(Icons.cloud),
+          title: Text('Backup & Sync'),
+          subtitle: Text('Local & Drive backup & sync'),
+          trailing: IconButton(
+            icon: Icon(Icons.arrow_forward_ios),
+            onPressed: () {
+              //TODO
+            },
           ),
-          Padding(
-            child: Divider(),
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        Padding(
+          child: Divider(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        ListTile(
+          leading: Icon(Icons.archive),
+          title: Text('Exports'),
+          subtitle: Text('Textual backup of all your entries'),
+          trailing: IconButton(
+            icon: Icon(Icons.arrow_forward_ios),
+            onPressed: () {
+              //TODO
+            },
           ),
-          ListTile(
-            leading: Icon(Icons.cloud),
-            title: Text('Backup & Sync'),
-            subtitle: Text('Local & Drive backup & sync'),
-            trailing: IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                //TODO
-              },
-            ),
+        ),
+        Padding(
+          child: Divider(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        ListTile(
+          leading: Icon(Icons.lock),
+          title: Text('Security'),
+          subtitle: Text('Pin & Fingerprint protection'),
+          trailing: IconButton(
+            icon: Icon(Icons.arrow_forward_ios),
+            onPressed: () {
+              //TODO
+            },
           ),
-          Padding(
-            child: Divider(),
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        Padding(
+          child: Divider(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        ListTile(
+          leading: Icon(Icons.offline_bolt_outlined),
+          title: Text('Quick Setup'),
+          subtitle: Text('Create pre-defined pages quickly'),
+          trailing: IconButton(
+            icon: Icon(Icons.arrow_forward_ios),
+            onPressed: () {
+              //TODO
+            },
           ),
-          ListTile(
-            leading: Icon(Icons.archive),
-            title: Text('Exports'),
-            subtitle: Text('Textual backup of all your entries'),
-            trailing: IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                //TODO
-              },
-            ),
+        ),
+        Padding(
+          child: Divider(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        ListTile(
+          leading: Icon(Icons.help_outline),
+          title: Text('Help'),
+          subtitle: Text('Basic usage guide'),
+          trailing: IconButton(
+            icon: Icon(Icons.arrow_forward_ios),
+            onPressed: () {
+              //TODO
+            },
           ),
-          Padding(
-            child: Divider(),
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        Padding(
+          child: Divider(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        ListTile(
+          leading: Icon(Icons.info_outline),
+          title: Text('App Info'),
+          trailing: IconButton(
+            icon: Icon(Icons.arrow_forward_ios),
+            onPressed: () {
+              //TODO
+            },
           ),
-          ListTile(
-            leading: Icon(Icons.lock),
-            title: Text('Security'),
-            subtitle: Text('Pin & Fingerprint protection'),
-            trailing: IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                //TODO
-              },
-            ),
-          ),
-          Padding(
-            child: Divider(),
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-          ),
-          ListTile(
-            leading: Icon(Icons.offline_bolt_outlined),
-            title: Text('Quick Setup'),
-            subtitle: Text('Create pre-defined pages quickly'),
-            trailing: IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                //TODO
-              },
-            ),
-          ),
-          Padding(
-            child: Divider(),
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-          ),
-          ListTile(
-            leading: Icon(Icons.help_outline),
-            title: Text('Help'),
-            subtitle: Text('Basic usage guide'),
-            trailing: IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                //TODO
-              },
-            ),
-          ),
-          Padding(
-            child: Divider(),
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-          ),
-          ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('App Info'),
-            trailing: IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                //TODO
-              },
-            ),
-          ),
-          Padding(
-            child: Divider(),
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-          ),
-        ],
-      ),
+        ),
+        Padding(
+          child: Divider(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+      ],
     );
   }
 }
@@ -160,7 +165,10 @@ class GeneralOption extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          Text('Visual'),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text('Visual'),
+          ),
           ListTile(
             title: Text('Theme'),
             leading: Icon(Icons.invert_colors),
@@ -214,7 +222,10 @@ class GeneralOption extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Divider(),
           ),
-          Text('Chat Interface'),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text('Chat Interface'),
+          ),
           BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
             builder: (context, state) => SwitchListTile(
               secondary: Icon(Icons.date_range),
