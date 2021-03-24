@@ -6,4 +6,6 @@ abstract class Repository<T> {
   Future<T> delete(int id);
 
   Future<List<T>> getAll();
+
+  Future<T> getById(int id);
 }

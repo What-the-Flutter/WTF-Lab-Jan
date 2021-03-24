@@ -27,14 +27,7 @@ class LocalDatabaseCategoriesRepository extends LocalDatabaseProvider
 
   @override
   Future<Category> delete(int id) async {
-    final category = Category.fromMap(
-      (await (await database).query(
-        'categories',
-        where: 'id = ?',
-        whereArgs: [id],
-      ))
-          .first,
-    );
+    final category = getById(id);
     await (await database).delete(
       'categories',
       where: 'id = ?',
@@ -70,5 +63,17 @@ class LocalDatabaseCategoriesRepository extends LocalDatabaseProvider
         .map((e) => Record.fromMap(e))
         .toList();
     return records.isEmpty ? null : records.first;
+  }
+
+  @override
+  Future<Category> getById(int id) async {
+    return Category.fromMap(
+      (await (await database).query(
+        'categories',
+        where: 'id = ?',
+        whereArgs: [id],
+      ))
+          .first,
+    );
   }
 }
