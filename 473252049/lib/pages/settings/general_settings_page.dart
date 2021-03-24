@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -55,14 +57,15 @@ class GeneralSettingPage extends StatelessWidget {
                       .switchShowCreateRecordDateTimePicker();
                 },
               ),
-              SwitchListTile(
-                title: Text('Turn on authentication'),
-                subtitle: Text('Biometric and password authentication'),
-                value: state.isAuthenticationOn,
-                onChanged: (value) {
-                  context.read<SettingsCubit>().switchAuthenticationOn();
-                },
-              )
+              if (Platform.isIOS || Platform.isAndroid)
+                SwitchListTile(
+                  title: Text('Turn on authentication'),
+                  subtitle: Text('Biometric and password authentication'),
+                  value: state.isAuthenticationOn,
+                  onChanged: (value) {
+                    context.read<SettingsCubit>().switchAuthenticationOn();
+                  },
+                )
             ],
           );
         },
