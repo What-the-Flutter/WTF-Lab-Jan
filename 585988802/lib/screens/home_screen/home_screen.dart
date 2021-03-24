@@ -146,13 +146,24 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) {
-                return EventScreen(
-                  title: list[index].nameOfSuggestion,
-                  listViewSuggestion: list[index],
-                  suggestionsList: list,
-                );
+            PageRouteBuilder(
+              pageBuilder: (c, a1, a2) => EventScreen(
+                title: list[index].nameOfSuggestion,
+                listViewSuggestion: list[index],
+                suggestionsList: list,
+              ),
+              transitionsBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) {
+                return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, 1.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child);
               },
             ),
           );

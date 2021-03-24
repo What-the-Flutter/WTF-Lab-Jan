@@ -264,6 +264,7 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
       EventMessage eventMessage, SwipeSelectedAction action) {
     BlocProvider.of<TimelineScreenBloc>(context)
         .add(TimelineEventMessageSelected(eventMessage));
+
     switch (action) {
       case SwipeSelectedAction.edit:
         _editEventMessage();

@@ -26,9 +26,10 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider<SuggestionsBloc>(
-          create: (context) => SuggestionsBloc(
-            SuggestionsState([], null),
-          ),
+          create: (context) =>
+              SuggestionsBloc(
+                SuggestionsState([], null),
+              ),
         ),
         BlocProvider<TabBloc>(
           create: (context) => TabBloc(),
@@ -37,61 +38,66 @@ void main() async {
           create: (context) => ThemeBloc(),
         ),
         BlocProvider(
-          create: (context) => SettingScreenBloc(SettingsScreenState(
-            false,
-            false,
-            1,
-          )),
+          create: (context) =>
+              SettingScreenBloc(SettingsScreenState(
+                false,
+                false,
+                1,
+              )),
         ),
         BlocProvider(
-          create: (context) => CreatingSuggestionScreenBloc(
-            CreatingSuggestionScreenState(
-              false,
-              'assets/images/journal.png',
-            ),
-          ),
+          create: (context) =>
+              CreatingSuggestionScreenBloc(
+                CreatingSuggestionScreenState(
+                  false,
+                  'assets/images/journal.png',
+                ),
+              ),
         ),
         BlocProvider(
-          create: (context) => CreatingCategoriesScreenBloc(
-            CreatingCategoriesScreenState(
-              false,
-              'assets/images/journal.png',
-            ),
-          ),
+          create: (context) =>
+              CreatingCategoriesScreenBloc(
+                CreatingCategoriesScreenState(
+                  false,
+                  'assets/images/journal.png',
+                ),
+              ),
         ),
         BlocProvider(
-          create: (context) => EventScreenBloc(
-            EventScreenState(
-              null,
-              [],
-              [],
-              null,
-              null,
-              null,
-              false,
-              false,
-              false,
-              false,
-              false,
-              null,
-              null,
-              [],
-            ),
-          ),
+          create: (context) =>
+              EventScreenBloc(
+                EventScreenState(
+                  null,
+                  [],
+                  [],
+                  null,
+                  null,
+                  null,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  null,
+                  null,
+                  [],
+                ),
+              ),
         ),
         BlocProvider(
-          create: (context) => TimelineScreenBloc(
-            TimelineScreenState(
-              [],
-              [],
-              null,
-              false,
-              false,
-              false,
-              [],
-              [],
-            ),
-          ),
+          create: (context) =>
+              TimelineScreenBloc(
+                TimelineScreenState(
+                  [],
+                  [],
+                  null,
+                  false,
+                  false,
+                  false,
+                  [],
+                  [],
+                ),
+              ),
         ),
       ],
       child: App(),
@@ -106,7 +112,9 @@ class App extends StatelessWidget {
       builder: (context, state) {
         return MaterialApp(
           title: 'Chat journal',
-          themeMode: BlocProvider.of<ThemeBloc>(context).state,
+          themeMode: BlocProvider
+              .of<ThemeBloc>(context)
+              .state,
           theme: lightTheme,
           darkTheme: darkTheme,
           home: AnimatedSplashScreen(
