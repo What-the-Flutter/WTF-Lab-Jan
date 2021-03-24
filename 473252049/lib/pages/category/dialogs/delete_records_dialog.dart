@@ -18,10 +18,6 @@ class DeleteRecordsDialog extends StatelessWidget {
           TextButton(
             child: Text("Don't"),
             onPressed: () {
-              context.read<RecordsCubit>().unselectAll(
-                    records: state.records,
-                    categoryId: categoryId,
-                  );
               Navigator.of(context).pop();
             },
           ),
@@ -55,7 +51,7 @@ Future showDeleteRecordsDialog(
       return BlocProvider.value(
         value: context.read<RecordsCubit>(),
         child: DeleteRecordsDialog(
-          categoryId: category.id,
+          categoryId: category?.id,
         ),
       );
     },

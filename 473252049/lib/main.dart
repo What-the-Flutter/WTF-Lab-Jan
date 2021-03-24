@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'authentication_cubit/authentication_cubit.dart';
+import 'pages/category/cubit/records_cubit.dart';
 import 'pages/main/main_page.dart';
 import 'pages/main/tabs/home/cubit/categories_cubit.dart';
 import 'pages/settings/cubit/settings_cubit.dart';
 import 'repositories/local_database/local_database_categories_repository.dart';
+import 'repositories/local_database/local_database_records_repository.dart';
 
 class CubitsObserver extends BlocObserver {
   @override
@@ -56,10 +58,19 @@ class MyApp extends StatelessWidget {
                     ),
                   );
                 }
-                return BlocProvider(
-                  create: (context) => CategoriesCubit(
-                    LocalDatabaseCategoriesRepository(),
-                  )..loadCategories(),
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (context) =>
+                          CategoriesCubit(LocalDatabaseCategoriesRepository())
+                            ..loadCategories(),
+                    ),
+                    BlocProvider(
+                      create: (context) =>
+                          RecordsCubit(LocalDatabaseRecordsRepository())
+                            ..loadRecords(),
+                    ),
+                  ],
                   child: MainPage(),
                 );
               },

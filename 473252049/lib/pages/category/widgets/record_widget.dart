@@ -29,14 +29,12 @@ class RecordWidget extends StatelessWidget {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
           onLongPress: () {
-            if (category == null) return;
             context.read<RecordsCubit>().select(
                   record,
-                  categoryId: category.id,
+                  categoryId: category?.id,
                 );
           },
           onTap: () {
-            if (category == null) return;
             if (state.records
                 .map(
                   (e) => e.isSelected,
@@ -45,12 +43,12 @@ class RecordWidget extends StatelessWidget {
               if (record.isSelected) {
                 context.read<RecordsCubit>().unselect(
                       record,
-                      categoryId: category.id,
+                      categoryId: category?.id,
                     );
               } else {
                 context.read<RecordsCubit>().select(
                       record,
-                      categoryId: category.id,
+                      categoryId: category?.id,
                     );
               }
             }

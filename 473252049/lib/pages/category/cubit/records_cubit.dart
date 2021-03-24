@@ -106,7 +106,7 @@ class RecordsCubit extends Cubit<RecordsState> {
     emit(
       RecordsUnselectSuccess(
         await repository.getAllRecords(categoryId: categoryId),
-        records,
+        recordsForUnselect,
       ),
     );
   }
@@ -123,9 +123,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   void changeFavorite(List<Record> recordsForChange, {int categoryId}) async {
     for (var record in recordsForChange) {
       record.isFavorite = !record.isFavorite;
-      await repository.update(
-        record,
-      );
+      await repository.update(record);
     }
     emit(
       RecordsChangeFavoriteSuccess(
