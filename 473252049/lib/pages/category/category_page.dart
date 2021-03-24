@@ -48,14 +48,6 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   @override
-  void deactivate() {
-    context.read<RecordsCubit>().unselectAll(
-          categoryId: widget.category.id,
-        );
-    super.deactivate();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocBuilder<RecordsCubit, RecordsState>(
       builder: (context, state) {

@@ -1,3 +1,4 @@
+import 'package:chat_journal/pages/category/cubit/records_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +8,7 @@ import '../../../model/record.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import 'record_widget.dart';
 
-class RecordsListView extends StatelessWidget {
+class RecordsListView extends StatefulWidget {
   final List<Record> records;
   final Category category;
   final bool withCategories;
@@ -20,6 +21,19 @@ class RecordsListView extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _RecordsListViewState createState() => _RecordsListViewState();
+}
+
+class _RecordsListViewState extends State<RecordsListView> {
+  @override
+  void deactivate() {
+    context.read<RecordsCubit>().unselectAll(
+          categoryId: widget.category?.id,
+        );
+    super.deactivate();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -27,10 +41,10 @@ class RecordsListView extends StatelessWidget {
         reverse: true,
         children: [
           ...recordWidgetsFromRecords(
-            records: records,
-            category: category,
+            records: widget.records,
+            category: widget.category,
             context: context,
-            withCategories: withCategories,
+            withCategories: widget.withCategories,
           ),
         ],
       ),
