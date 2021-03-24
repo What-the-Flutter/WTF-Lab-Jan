@@ -93,8 +93,11 @@ class CategoryWidget extends StatelessWidget {
                       Text(
                         categoryWithLastRecord.lastRecord == null
                             ? 'No records. Tap to create first'
-                            : categoryWithLastRecord.lastRecord.message ??
-                                'Image record',
+                            : categoryWithLastRecord
+                                        .lastRecord.message?.isEmpty ??
+                                    false
+                                ? 'Image record'
+                                : categoryWithLastRecord.lastRecord.message,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
