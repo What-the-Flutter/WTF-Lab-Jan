@@ -187,7 +187,6 @@ class _CategoryPageState extends State<CategoryPage> {
                               delegate: SerachRecordPage(
                                 context: context,
                                 records: state.records,
-                                category: widget.category,
                               ),
                             );
                           },

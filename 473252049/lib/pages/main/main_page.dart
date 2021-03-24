@@ -1,3 +1,4 @@
+import 'package:chat_journal/pages/search_record_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -106,6 +107,19 @@ class _MainPageState extends State<MainPage> {
                     _tabNames[currentPageIndex],
                   ),
                   actions: [
+                    if (currentPageIndex == 2)
+                      IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () {
+                          showSearch(
+                            context: context,
+                            delegate: SerachRecordPage(
+                              context: context,
+                              records: state.records,
+                            ),
+                          );
+                        },
+                      ),
                     IconButton(
                       icon: Icon(
                         context.read<SettingsCubit>().state.themeMode ==

@@ -8,11 +8,9 @@ import 'category/widgets/records_list_view.dart';
 
 class SerachRecordPage extends SearchDelegate<Record> {
   final List<Record> records;
-  final Category category;
   final BuildContext context;
 
-  SerachRecordPage(
-      {@required this.context, @required this.records, this.category});
+  SerachRecordPage({@required this.context, @required this.records});
 
   @override
   ThemeData appBarTheme(BuildContext context) {
