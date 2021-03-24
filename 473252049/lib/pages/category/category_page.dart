@@ -34,7 +34,9 @@ class _CategoryPageState extends State<CategoryPage> {
   final picker = ImagePicker();
 
   Future getImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    final pickedFile = await picker.getImage(
+      source: ImageSource.gallery,
+    );
 
     setState(() {
       if (pickedFile != null) {
@@ -99,6 +101,14 @@ class _CategoryPageState extends State<CategoryPage> {
                               IconButton(
                                 icon: Icon(Icons.edit),
                                 onPressed: () {
+                                  setState(() {
+                                    createRecordDateTime = state.records
+                                        .where(
+                                          (element) => element.isSelected,
+                                        )
+                                        .first
+                                        .createDateTime;
+                                  });
                                   context.read<RecordsCubit>().beginUpdate(
                                       state.records.firstWhere(
                                         (element) => element.isSelected,
@@ -220,8 +230,10 @@ class _CategoryPageState extends State<CategoryPage> {
                                   const EdgeInsets.symmetric(horizontal: 4),
                               child: OutlinedButton(
                                 onPressed: () async {
-                                  final dateTime =
-                                      await showDateTimePicker(context);
+                                  final dateTime = await showDateTimePicker(
+                                    context,
+                                    initialDateTime: createRecordDateTime,
+                                  );
                                   setState(() {
                                     createRecordDateTime = dateTime;
                                   });
@@ -278,7 +290,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                         createDateTime: settingsState
                                                 .showCreateRecordDateTimePickerButton
                                             ? createRecordDateTime
-                                            : DateTime.now(),
+                                            : state.record.createDateTime,
                                       ),
                                       categoryId: widget.category.id,
                                     );
@@ -343,10 +355,13 @@ class MessageTextFormField extends StatelessWidget {
   }
 }
 
-Future<DateTime> showDateTimePicker(BuildContext context) async {
+Future<DateTime> showDateTimePicker(
+  BuildContext context, {
+  DateTime initialDateTime,
+}) async {
   final date = await showDatePicker(
     context: context,
-    initialDate: DateTime.now(),
+    initialDate: initialDateTime ?? DateTime.now(),
     firstDate: DateTime(2000),
     lastDate: DateTime.now(),
   );
@@ -355,9 +370,11 @@ Future<DateTime> showDateTimePicker(BuildContext context) async {
   }
   final time = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.now(),
+        initialTime: TimeOfDay.fromDateTime(initialDateTime) ?? TimeOfDay.now(),
       ) ??
-      TimeOfDay.now();
+      TimeOfDay.fromDateTime(
+        initialDateTime ?? DateTime.now(),
+      );
   return DateTime(
     date.year,
     date.month,
