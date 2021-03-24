@@ -62,6 +62,7 @@ class _CategoryAddEditPageState extends State<CategoryAddEditPage> {
                   context.read<CategoriesCubit>().update(
                         widget.category.copyWith(
                           name: _textEditingController.text.trim(),
+                          icon: iconData,
                         ),
                       );
                 }
