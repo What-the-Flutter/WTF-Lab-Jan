@@ -26,14 +26,6 @@ class RecordsListView extends StatefulWidget {
 
 class _RecordsListViewState extends State<RecordsListView> {
   @override
-  void deactivate() {
-    context.read<RecordsCubit>().unselectAll(
-          categoryId: widget.category?.id,
-        );
-    super.deactivate();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
