@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_journal/pages/main/components/show_favorite_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -181,18 +182,9 @@ class _CategoryPageState extends State<CategoryPage> {
                   : AppBar(
                       title: Text(widget.category.name),
                       actions: [
-                        IconButton(
-                          icon: Icon(state is RecordsShowFavoriteSuccess
-                              ? Icons.bookmark
-                              : Icons.bookmark_outline_outlined),
-                          onPressed: () {
-                            if (state is RecordsShowFavoriteSuccess) {
-                              return context.read<RecordsCubit>().loadRecords(
-                                    categoryId: widget.category.id,
-                                  );
-                            }
-                            context.read<RecordsCubit>().showFavorite();
-                          },
+                        ShowFavoriteIconButton(
+                          state: state,
+                          categoryId: widget.category.id,
                         ),
                         IconButton(
                           icon: Icon(Icons.search),

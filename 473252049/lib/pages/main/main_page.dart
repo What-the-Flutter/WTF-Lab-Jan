@@ -1,3 +1,4 @@
+import 'package:chat_journal/pages/main/components/show_favorite_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -107,6 +108,9 @@ class _MainPageState extends State<MainPage> {
                     _tabNames[currentPageIndex],
                   ),
                   actions: [
+                    ShowFavoriteIconButton(
+                      state: state,
+                    ),
                     if (currentPageIndex == 2)
                       IconButton(
                         icon: Icon(Icons.search),
