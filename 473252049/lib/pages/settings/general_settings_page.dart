@@ -14,7 +14,6 @@ class GeneralSettingPage extends StatelessWidget {
         title: Text('General Settings'),
       ),
       body: BlocBuilder<SettingsCubit, SettingsState>(
-        bloc: context.read<SettingsCubit>(),
         builder: (context, state) {
           return ListView(
             children: [
@@ -57,15 +56,6 @@ class GeneralSettingPage extends StatelessWidget {
                       .switchShowCreateRecordDateTimePicker();
                 },
               ),
-              if (Platform.isIOS || Platform.isAndroid)
-                SwitchListTile(
-                  title: Text('Turn on authentication'),
-                  subtitle: Text('Biometric and password authentication'),
-                  value: state.isAuthenticationOn,
-                  onChanged: (value) {
-                    context.read<SettingsCubit>().switchAuthenticationOn();
-                  },
-                )
             ],
           );
         },
