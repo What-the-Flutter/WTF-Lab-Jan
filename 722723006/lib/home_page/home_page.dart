@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_page/settings/settings_page.dart';
 import '../data/db_provider.dart';
 import '../data/shared_preferences_provider.dart';
 import '../event_page/event_page.dart';
@@ -170,13 +171,35 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
             ),
-            child: Text('Profile'),
+            child: Text('Notifications'),
           ),
           ListTile(
-            title: Text('Password'),
+            title: Text('Search'),
+            leading: Icon(Icons.search),
           ),
           ListTile(
-            title: Text('Exit'),
+            title: Text('Notifications'),
+            leading: Icon(Icons.notifications),
+          ),
+          ListTile(
+            title: Text('Statistics'),
+            leading: Icon(Icons.timeline),
+          ),
+          ListTile(
+            title: Text('Settings'),
+            leading: Icon(Icons.settings),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: Text('Feedback'),
+            leading: Icon(Icons.mail),
           ),
         ],
       ),
