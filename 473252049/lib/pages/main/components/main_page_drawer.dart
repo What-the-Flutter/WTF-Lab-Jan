@@ -58,6 +58,7 @@ Widget searchDrawerItem(BuildContext context) {
             delegate: SearchRecordPage(
               context: context,
               records: state.records,
+              withCategories: true,
             ),
           );
         },
