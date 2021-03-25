@@ -56,11 +56,13 @@ class _RecordWidgetState extends State<RecordWidget> {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
           onLongPress: () {
+            if (widget.isDateRecord) return;
             context.read<RecordsCubit>().select(
                   widget.record,
                 );
           },
           onTap: () {
+            if (widget.isDateRecord) return;
             if (state.records
                 .map(
                   (e) => e.isSelected,
