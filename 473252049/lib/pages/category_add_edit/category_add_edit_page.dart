@@ -11,8 +11,10 @@ enum CategoryAddEditMode { add, edit }
 class CategoryAddEditPage extends StatefulWidget {
   final CategoryAddEditMode mode;
   final Category category;
+  final IconData defaultIconData;
 
-  CategoryAddEditPage({Key key, @required this.mode, this.category})
+  CategoryAddEditPage(
+      {Key key, @required this.mode, this.category, this.defaultIconData})
       : super(key: key);
 
   @override
@@ -26,7 +28,13 @@ class _CategoryAddEditPageState extends State<CategoryAddEditPage> {
 
   final FocusNode _categoryNameFocus = FocusNode();
 
-  IconData iconData = categoryIcons.first;
+  IconData iconData;
+
+  @override
+  void initState() {
+    iconData = widget.defaultIconData ?? categoryIcons.first;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

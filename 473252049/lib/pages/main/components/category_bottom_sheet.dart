@@ -71,6 +71,7 @@ class CategoryBottomSheet extends StatelessWidget {
                         child: CategoryAddEditPage(
                           mode: CategoryAddEditMode.edit,
                           category: category,
+                          defaultIconData: category.icon,
                         ),
                       );
                     },
