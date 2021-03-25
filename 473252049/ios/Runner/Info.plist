@@ -41,7 +41,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>App needs photo for create photo records in the local phone database</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>App needs photo for create photo records in the local phone database</string>
 	<key>NSFaceIDUsageDescription</key>
-<string>My app stores personal data, so it needs to have biometric authentication</string>
+	<string>My app stores personal data, so it needs to have biometric authentication</string>
 </dict>
 </plist>
