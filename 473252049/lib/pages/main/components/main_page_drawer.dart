@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../category/cubit/records_cubit.dart';
 import '../../search_record_page.dart';
@@ -30,7 +31,7 @@ class MainPageDrawer extends StatelessWidget {
               );
             },
           ),
-          drawerItem(Icons.feedback, 'Feedback', () {}),
+          feedbackDrawerItem(),
         ],
       ),
     );
@@ -66,3 +67,31 @@ Widget searchDrawerItem(BuildContext context) {
     },
   );
 }
+
+Widget feedbackDrawerItem() {
+  return ListTile(
+    leading: Icon(Icons.email),
+    title: Text('Feedback'),
+    onTap: () {
+      sendEmailToDeveloper();
+    },
+  );
+}
+
+void sendEmailToDeveloper() async {
+  await canLaunch(
+    developerMailUri.toString(),
+  )
+      ? await launch(
+          developerMailUri.toString(),
+        )
+      : throw 'Could not launch $developerMailUri';
+}
+
+final developerMailUri = Uri(
+  scheme: 'mailto',
+  path: 'ilyindeveloper@gmail.com',
+  queryParameters: {
+    'subject': 'ChatJournal',
+  },
+);
