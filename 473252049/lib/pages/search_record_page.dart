@@ -50,13 +50,17 @@ class SearchRecordPage extends SearchDelegate<Record> {
       value: this.context.read<RecordsCubit>(),
       child: BlocProvider.value(
         value: this.context.read<CategoriesCubit>(),
-        child: RecordsListView(
-          records: records.where(
-            (record) {
-              return record.message.contains(query);
-            },
-          ).toList(),
-          withCategories: withCategories,
+        child: BlocBuilder<RecordsCubit, RecordsState>(
+          builder: (context, state) {
+            return RecordsListView(
+              records: state.records.where(
+                (record) {
+                  return record.message.contains(query);
+                },
+              ).toList(),
+              withCategories: withCategories,
+            );
+          },
         ),
       ),
     );
@@ -68,13 +72,17 @@ class SearchRecordPage extends SearchDelegate<Record> {
       value: this.context.read<RecordsCubit>(),
       child: BlocProvider.value(
         value: this.context.read<CategoriesCubit>(),
-        child: RecordsListView(
-          records: records.where(
-            (record) {
-              return record.message.contains(query);
-            },
-          ).toList(),
-          withCategories: withCategories,
+        child: BlocBuilder<RecordsCubit, RecordsState>(
+          builder: (context, state) {
+            return RecordsListView(
+              records: state.records.where(
+                (record) {
+                  return record.message.contains(query);
+                },
+              ).toList(),
+              withCategories: withCategories,
+            );
+          },
         ),
       ),
     );

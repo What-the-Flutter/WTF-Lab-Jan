@@ -42,6 +42,12 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void initState() {
+    context.read<RecordsCubit>().loadRecords();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<RecordsCubit, RecordsState>(
       builder: (context, state) {
@@ -108,9 +114,10 @@ class _MainPageState extends State<MainPage> {
                     _tabNames[currentPageIndex],
                   ),
                   actions: [
-                    ShowFavoriteIconButton(
-                      state: state,
-                    ),
+                    if (currentPageIndex == 2)
+                      ShowFavoriteIconButton(
+                        state: state,
+                      ),
                     if (currentPageIndex == 2)
                       IconButton(
                         icon: Icon(Icons.search),
