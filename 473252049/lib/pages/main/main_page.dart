@@ -1,4 +1,3 @@
-import 'package:chat_journal/pages/main/components/show_favorite_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,6 +8,7 @@ import '../search_record_page.dart';
 import '../settings/cubit/settings_cubit.dart';
 import 'components/main_page_bottom_navigation_bar.dart';
 import 'components/main_page_drawer.dart';
+import 'components/show_favorite_icon_button.dart';
 import 'tabs/home/cubit/categories_cubit.dart';
 import 'tabs/home/home_tab.dart';
 import 'tabs/timeline/timeline_tab.dart';
@@ -39,12 +39,6 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       currentPageIndex = index;
     });
-  }
-
-  @override
-  void initState() {
-    context.read<RecordsCubit>().loadRecords();
-    super.initState();
   }
 
   @override
