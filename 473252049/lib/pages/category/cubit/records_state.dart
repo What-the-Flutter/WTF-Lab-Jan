@@ -132,3 +132,7 @@ class RecordsSendSuccess extends RecordsState {
   @override
   List<Object> get props => [records, sentRecords];
 }
+
+class RecordsShowFavoriteSuccess extends RecordsState {
+  RecordsShowFavoriteSuccess(List<Record> records) : super(records);
+}

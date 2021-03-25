@@ -182,6 +182,19 @@ class _CategoryPageState extends State<CategoryPage> {
                       title: Text(widget.category.name),
                       actions: [
                         IconButton(
+                          icon: Icon(state is RecordsShowFavoriteSuccess
+                              ? Icons.bookmark
+                              : Icons.bookmark_outline_outlined),
+                          onPressed: () {
+                            if (state is RecordsShowFavoriteSuccess) {
+                              return context.read<RecordsCubit>().loadRecords(
+                                    categoryId: widget.category.id,
+                                  );
+                            }
+                            context.read<RecordsCubit>().showFavorite();
+                          },
+                        ),
+                        IconButton(
                           icon: Icon(Icons.search),
                           onPressed: () {
                             showSearch(

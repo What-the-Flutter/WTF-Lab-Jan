@@ -182,4 +182,16 @@ class RecordsCubit extends Cubit<RecordsState> {
       ),
     );
   }
+
+  void showFavorite() {
+    emit(
+      RecordsShowFavoriteSuccess(
+        state.records
+            .where(
+              (element) => element.isFavorite,
+            )
+            .toList(),
+      ),
+    );
+  }
 }
