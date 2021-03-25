@@ -77,7 +77,9 @@ class SearchRecordPage extends SearchDelegate<Record> {
             return RecordsListView(
               records: state.records.where(
                 (record) {
-                  return record.message.contains(query);
+                  return record.message.toLowerCase().contains(
+                        query.toLowerCase(),
+                      );
                 },
               ).toList(),
               withCategories: withCategories,
