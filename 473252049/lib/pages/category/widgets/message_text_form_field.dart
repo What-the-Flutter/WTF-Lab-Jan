@@ -14,6 +14,8 @@ class MessageTextFormField extends StatelessWidget {
       child: TextFormField(
         decoration: InputDecoration(
           hintText: 'Your record',
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
         ),
         minLines: 1,
         maxLines: 8,
