@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,7 +15,15 @@ class MainPageDrawer extends StatelessWidget {
       child: ListView(
         children: [
           DrawerHeader(
-            child: Text('Drawer Header'),
+            child: Container(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                DateFormat.yMMMMEEEEd().format(
+                  DateTime.now(),
+                ),
+                style: Theme.of(context).textTheme.headline5,
+              ),
+            ),
           ),
           drawerItem(Icons.card_giftcard, 'Help spread the world', () {}),
           searchDrawerItem(context),
