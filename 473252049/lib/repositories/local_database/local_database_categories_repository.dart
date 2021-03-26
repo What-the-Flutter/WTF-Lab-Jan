@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 import '../../model/category.dart';
+import '../../model/record.dart';
 import '../categories_repository.dart';
 import 'provider/local_database_provider.dart';
 
@@ -24,17 +27,15 @@ class LocalDatabaseCategoriesRepository extends LocalDatabaseProvider
 
   @override
   Future<Category> delete(int id) async {
-    final category = Category.fromMap(
-      (await (await database).query(
-        'categories',
-        where: 'id = ?',
-        whereArgs: [id],
-      ))
-          .first,
-    );
+    final category = getById(id);
     await (await database).delete(
       'categories',
       where: 'id = ?',
+      whereArgs: [id],
+    );
+    await (await database).delete(
+      'records',
+      where: 'categoryId = ?',
       whereArgs: [id],
     );
     return category;
@@ -48,5 +49,31 @@ class LocalDatabaseCategoriesRepository extends LocalDatabaseProvider
     ))
         .map((e) => Category.fromMap(e))
         .toList();
+  }
+
+  @override
+  Future<Record> getLastRecord({@required int categoryId}) async {
+    final records = (await (await database).query(
+      'records',
+      where: 'categoryId = ?',
+      whereArgs: [categoryId],
+      orderBy: 'createDateTime DESC',
+      limit: 1,
+    ))
+        .map((e) => Record.fromMap(e))
+        .toList();
+    return records.isEmpty ? null : records.first;
+  }
+
+  @override
+  Future<Category> getById(int id) async {
+    return Category.fromMap(
+      (await (await database).query(
+        'categories',
+        where: 'id = ?',
+        whereArgs: [id],
+      ))
+          .first,
+    );
   }
 }

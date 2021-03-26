@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'pages/cubits/categories/categories_cubit.dart';
-import 'pages/main_page.dart';
+import 'authentication_cubit/authentication_cubit.dart';
+import 'pages/authorization/authorization_page.dart';
+import 'pages/category/cubit/records_cubit.dart';
+import 'pages/main/main_page.dart';
+import 'pages/main/tabs/home/cubit/categories_cubit.dart';
+import 'pages/settings/cubit/settings_cubit.dart';
 import 'repositories/local_database/local_database_categories_repository.dart';
-import 'thememode_cubit/thememode_cubit.dart';
+import 'repositories/local_database/local_database_records_repository.dart';
 
 class CubitsObserver extends BlocObserver {
   @override
-  void onChange(Cubit cubit, Change change) {
+  void onChange(BlocBase cubit, Change change) {
     print('$cubit $change');
     super.onChange(cubit, change);
   }
@@ -18,58 +22,53 @@ class CubitsObserver extends BlocObserver {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = CubitsObserver();
+  final preferences = await SharedPreferences.getInstance();
   runApp(
-    MyApp(
-      preferences: await SharedPreferences.getInstance(),
+    BlocProvider(
+      create: (context) => SettingsCubit(
+        preferences: preferences,
+      ),
+      child: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final SharedPreferences preferences;
-
-  const MyApp({Key key, @required this.preferences}) : super(key: key);
-
-  ThemeMode _themeModeFromString(String string) {
-    switch (string) {
-      case 'dark':
-        return ThemeMode.dark;
-      case 'light':
-        return ThemeMode.light;
-      default:
-        return ThemeMode.light;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ThememodeCubit(
-        _themeModeFromString(
-          preferences.getString('themeMode'),
-        ),
-        preferences: preferences,
-      ),
-      child: ThemingApp(),
-    );
-  }
-}
-
-class ThemingApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ThememodeCubit, ThememodeState>(
-      builder: (context, state) {
-        return MaterialApp(
-          title: '473252049',
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
-          themeMode: state.themeMode,
-          home: BlocProvider(
-            create: (context) => CategoriesCubit(
-              LocalDatabaseCategoriesRepository(),
-            )..loadCategories(),
-            child: MainPage(),
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, settingsState) {
+        return BlocProvider(
+          create: (context) => AuthenticationCubit(
+              isAuthenticated: !settingsState.isAuthenticationOn)
+            ..authenticate(),
+          child: MaterialApp(
+            title: '473252049',
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            themeMode: settingsState.themeMode,
+            home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
+              builder: (context, authState) {
+                if (authState.isAuthenticated == false) {
+                  return AuthorizationPage();
+                }
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (context) =>
+                          CategoriesCubit(LocalDatabaseCategoriesRepository())
+                            ..loadCategories(),
+                    ),
+                    BlocProvider(
+                      create: (context) =>
+                          RecordsCubit(LocalDatabaseRecordsRepository())
+                            ..loadRecords(),
+                    ),
+                  ],
+                  child: MainPage(),
+                );
+              },
+            ),
           ),
         );
       },

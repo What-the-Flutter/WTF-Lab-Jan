@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../model/category.dart';
 import '../model/record.dart';
-import 'category_page.dart';
-import 'cubits/records/records_cubit.dart';
+import 'category/cubit/records_cubit.dart';
+import 'category/widgets/records_list_view.dart';
+import 'main/tabs/home/cubit/categories_cubit.dart';
 
-class SerachRecordPage extends SearchDelegate<Record> {
+class SearchRecordPage extends SearchDelegate<Record> {
   final List<Record> records;
-  final Category category;
   final BuildContext context;
+  final bool withCategories;
 
-  SerachRecordPage(
-      {@required this.context, @required this.records, this.category});
+  SearchRecordPage({
+    @required this.context,
+    @required this.records,
+    this.withCategories = false,
+  });
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -45,12 +48,20 @@ class SerachRecordPage extends SearchDelegate<Record> {
   Widget buildResults(BuildContext context) {
     return BlocProvider.value(
       value: this.context.read<RecordsCubit>(),
-      child: RecordsListView(
-        records: records.where(
-          (record) {
-            return record.message.contains(query);
+      child: BlocProvider.value(
+        value: this.context.read<CategoriesCubit>(),
+        child: BlocBuilder<RecordsCubit, RecordsState>(
+          builder: (context, state) {
+            return RecordsListView(
+              records: state.records.where(
+                (record) {
+                  return record.message.contains(query);
+                },
+              ).toList(),
+              withCategories: withCategories,
+            );
           },
-        ).toList(),
+        ),
       ),
     );
   }
@@ -59,12 +70,22 @@ class SerachRecordPage extends SearchDelegate<Record> {
   Widget buildSuggestions(BuildContext context) {
     return BlocProvider.value(
       value: this.context.read<RecordsCubit>(),
-      child: RecordsListView(
-        records: records.where(
-          (record) {
-            return record.message.contains(query);
+      child: BlocProvider.value(
+        value: this.context.read<CategoriesCubit>(),
+        child: BlocBuilder<RecordsCubit, RecordsState>(
+          builder: (context, state) {
+            return RecordsListView(
+              records: state.records.where(
+                (record) {
+                  return record.message.toLowerCase().contains(
+                        query.toLowerCase(),
+                      );
+                },
+              ).toList(),
+              withCategories: withCategories,
+            );
           },
-        ).toList(),
+        ),
       ),
     );
   }
