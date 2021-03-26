@@ -4,15 +4,16 @@ import 'package:intl/intl.dart';
 
 import '../../model/category.dart';
 import '../../model/record.dart';
-import '../main/components/show_favorite_icon_button.dart';
-import '../search_record_page.dart';
 import '../settings/cubit/settings_cubit.dart';
 import 'cubit/records_cubit.dart';
 import 'dialogs/choose_image_source_dialog.dart';
 import 'dialogs/create_image_record_dialog.dart';
-import 'dialogs/delete_records_dialog.dart';
-import 'dialogs/send_records_dialog.dart';
+import 'dialogs/date_time_picker_dialog.dart';
+import 'widgets/default_app_bar.dart';
+import 'widgets/edit_mode_app_bar.dart';
+import 'widgets/message_text_form_field.dart';
 import 'widgets/records_list_view.dart';
+import 'widgets/select_record_app_bar.dart';
 
 class CategoryPage extends StatefulWidget {
   final Category category;
@@ -29,6 +30,12 @@ class _CategoryPageState extends State<CategoryPage> {
   final _textEditingController = TextEditingController();
   DateTime createRecordDateTime = DateTime.now();
 
+  void setCreateRecordDateTime(DateTime dateTime) {
+    setState(() {
+      createRecordDateTime = dateTime;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RecordsCubit, RecordsState>(
@@ -40,148 +47,24 @@ class _CategoryPageState extends State<CategoryPage> {
                 )
               : state.records.map((e) => e.isSelected).contains(true)
                   ? state is RecordUpdateInProcess
-                      ? AppBar(
-                          title: Text('Edit mode'),
-                          actions: [
-                            IconButton(
-                              icon: Icon(Icons.close),
-                              onPressed: () {
-                                context.read<RecordsCubit>().unselectAll(
-                                      categoryId: widget.category.id,
-                                    );
-                                _textEditingController.clear();
-                                FocusScope.of(context).unfocus();
-                              },
-                            ),
-                          ],
-                        )
-                      : AppBar(
-                          title: Text('Select'),
-                          leading: IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: () {
-                              context.read<RecordsCubit>().unselectAll(
-                                    categoryId: widget.category.id,
-                                  );
-                            },
-                          ),
-                          actions: [
-                            if (state.records
-                                    .where(
-                                      (element) => element.isSelected,
-                                    )
-                                    .length <
-                                2)
-                              IconButton(
-                                icon: Icon(Icons.edit),
-                                onPressed: () {
-                                  setState(
-                                    () {
-                                      createRecordDateTime = state.records
-                                          .where(
-                                            (element) => element.isSelected,
-                                          )
-                                          .first
-                                          .createDateTime;
-                                    },
-                                  );
-                                  context.read<RecordsCubit>().beginUpdate(
-                                      state.records.firstWhere(
-                                        (element) => element.isSelected,
-                                      ),
-                                      categoryId: widget.category.id);
-
-                                  _textEditingController.text = state.records
-                                      .firstWhere(
-                                          (element) => element.isSelected)
-                                      .message;
-                                  _messageFocus.requestFocus();
-                                },
-                              ),
-                            IconButton(
-                              icon: Icon(Icons.share),
-                              onPressed: () {
-                                showSendRecordsDialog(
-                                  context,
-                                  category: widget.category,
-                                );
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.bookmark_outlined),
-                              onPressed: () async {
-                                await context
-                                    .read<RecordsCubit>()
-                                    .changeFavorite(
-                                      state.records
-                                          .where(
-                                            (element) => element.isSelected,
-                                          )
-                                          .toList(),
-                                      categoryId: widget.category.id,
-                                    );
-                                await context.read<RecordsCubit>().unselectAll(
-                                      records: state.records,
-                                      categoryId: widget.category.id,
-                                    );
-                              },
-                            ),
-                            Builder(
-                              builder: (context) => IconButton(
-                                icon: Icon(Icons.copy),
-                                onPressed: () {
-                                  context.read<RecordsCubit>().copyToClipboard(
-                                      records: state.records
-                                          .where(
-                                            (element) => element.isSelected,
-                                          )
-                                          .toList());
-                                  context.read<RecordsCubit>().unselectAll(
-                                        categoryId: widget.category.id,
-                                      );
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Copied to clipboard'),
-                                      action: SnackBarAction(
-                                        label: 'OK',
-                                        onPressed: () {},
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                showDeleteRecordsDialog(
-                                  context,
-                                  category: widget.category,
-                                );
-                              },
-                            )
-                          ],
-                        )
-                  : AppBar(
-                      title: Text(widget.category.name),
-                      actions: [
-                        ShowFavoriteIconButton(
-                          state: state,
+                      ? editModeAppBar(
+                          context,
                           categoryId: widget.category.id,
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.search),
-                          onPressed: () {
-                            showSearch(
-                              context: context,
-                              delegate: SearchRecordPage(
-                                context: context,
-                                records: state.records,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                          controller: _textEditingController,
+                        )
+                      : selectRecordAppBar(
+                          context,
+                          recordsState: state,
+                          messageFocus: _messageFocus,
+                          controller: _textEditingController,
+                          category: widget.category,
+                          setRecordCreateDateTime: setCreateRecordDateTime,
+                        )
+                  : defaultAppBar(
+                      context,
+                      state: state,
+                      categoryId: widget.category.id,
+                      categoryName: widget.category.name,
                     ),
           body: Column(
             children: [
@@ -210,13 +93,12 @@ class _CategoryPageState extends State<CategoryPage> {
                                   const EdgeInsets.symmetric(horizontal: 4),
                               child: OutlinedButton(
                                 onPressed: () async {
-                                  final dateTime = await showDateTimePicker(
+                                  final dateTime =
+                                      await showDateTimePickerDialog(
                                     context,
                                     initialDateTime: createRecordDateTime,
                                   );
-                                  setState(() {
-                                    createRecordDateTime = dateTime;
-                                  });
+                                  setCreateRecordDateTime(dateTime);
                                 },
                                 child: Text(
                                   '${DateFormat.yMEd().add_Hm().format(createRecordDateTime)}',
@@ -306,63 +188,4 @@ class _CategoryPageState extends State<CategoryPage> {
       },
     );
   }
-}
-
-class MessageTextFormField extends StatelessWidget {
-  final FocusNode focusNode;
-  final TextEditingController controller;
-
-  const MessageTextFormField({Key key, this.focusNode, this.controller})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: TextFormField(
-        decoration: InputDecoration(
-          hintText: 'Your record',
-        ),
-        minLines: 1,
-        maxLines: 8,
-        validator: (value) {
-          if (value.trim().isEmpty) {
-            return "Record can't be empty";
-          }
-          return null;
-        },
-        focusNode: focusNode,
-        controller: controller,
-      ),
-    );
-  }
-}
-
-Future<DateTime> showDateTimePicker(
-  BuildContext context, {
-  DateTime initialDateTime,
-}) async {
-  final date = await showDatePicker(
-    context: context,
-    initialDate: initialDateTime ?? DateTime.now(),
-    firstDate: DateTime(2000),
-    lastDate: DateTime.now(),
-  );
-  if (date == null) {
-    return DateTime.now();
-  }
-  final time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(initialDateTime) ?? TimeOfDay.now(),
-      ) ??
-      TimeOfDay.fromDateTime(
-        initialDateTime ?? DateTime.now(),
-      );
-  return DateTime(
-    date.year,
-    date.month,
-    date.day,
-    time.hour,
-    time.minute,
-  );
 }

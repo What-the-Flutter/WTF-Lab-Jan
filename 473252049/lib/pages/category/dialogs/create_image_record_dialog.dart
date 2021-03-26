@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../model/record.dart';
-import '../category_page.dart';
 import '../cubit/records_cubit.dart';
+import '../widgets/message_text_form_field.dart';
 
 Future showCreateImageRecordDialog({
   @required BuildContext context,
