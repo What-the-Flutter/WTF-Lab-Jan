@@ -2,13 +2,13 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-part 'calendar_state.dart';
+part 'date_time_mod_button_state.dart';
 
-class CalendarCubit extends Cubit<CalendarState> {
-  CalendarCubit({
+class DateTimeModButtonCubit extends Cubit<DateTimeModButtonState> {
+  DateTimeModButtonCubit({
     DateTime time,
   }) : super(
-          CalendarState(
+          DateTimeModButtonState(
             fromDate: time,
             fromTime: TimeOfDay.fromDateTime(time),
             isReset: false,

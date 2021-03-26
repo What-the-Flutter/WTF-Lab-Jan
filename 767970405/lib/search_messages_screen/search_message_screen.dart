@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import '../data/theme/custom_theme.dart';
 
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
@@ -35,99 +34,51 @@ class SearchMessageScreen extends StatelessWidget {
                     icon: Icon(Icons.close),
                     onPressed: context
                         .read<SearchMessageScreenCubit>()
-                        .resetController,
-                  )
+                        .resetController)
                 : Container(),
-          )
+          ),
         ],
       ),
-      body: _listFoundMessage(),
+      body: _searchResult(),
     );
   }
 
-  Widget _listFoundMessage() {
+  Widget _searchResult() {
     return Center(
       child: BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
         builder: (context, state) {
+          final curTheme =
+              context.read<GeneralOptionsCubit>().state.currentTheme;
           if (state is SearchMessageScreenWait) {
-            return Container(
-              padding: EdgeInsets.all(20),
-              color: context
-                  .read<GeneralOptionsCubit>()
-                  .state
-                  .currentTheme
-                  .helpWindow,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(
-                    Icons.search,
-                    size: 55,
-                  ),
-                  Text('Please enter a search query to begin searching'),
-                ],
-              ),
+            return HelpWindow(
+              iconData: Icons.search,
+              content: 'Please enter a search query to begin searching',
+              theme: curTheme.helpWindowTheme,
             );
           } else if (state is SearchMessageScreenNotFound) {
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              padding: EdgeInsets.all(20),
-              color: context
-                  .read<GeneralOptionsCubit>()
-                  .state
-                  .currentTheme
-                  .helpWindow,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    'No search results available',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Center(
-                    child: Text('No entries math the given'
-                        ' search query. Please try again.'),
-                  ),
-                ],
-              ),
+            return HelpWindow(
+              title: 'No search results available',
+              content: 'No entries math the given'
+                  ' search query. Please try again.',
+              theme: curTheme.helpWindowTheme,
             );
           } else {
+            final isLeftBubbleAlign =
+                context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign;
             return ListView.builder(
               itemCount: state.list.length,
               itemBuilder: (context, index) {
                 return Message(
-                  color: state.list[index].isSelected
-                      ? context
-                          .read<GeneralOptionsCubit>()
-                          .state
-                          .currentTheme
-                          .selectedMsg
-                      : context
-                          .read<GeneralOptionsCubit>()
-                          .state
-                          .currentTheme
-                          .unselectedMsg,
+                  theme: curTheme.messageTheme,
                   index: index,
                   isSelected: state.list[index].isSelected,
                   isFavor: state.list[index].isFavor,
-                  title:
-                      Text(context.read<ScreenMessageCubit>().state.page.title),
-                  photo: state.list[index].photo != null
-                      ? Image.file(File(state.list[index].photo))
-                      : Container(),
+                  title: state.page.title,
+                  photoPath: state.list[index].photo,
                   event: state.list[index].indexCategory,
-                  text: state.list[index].text != null
-                      ? Text(state.list[index].text)
-                      : Container(),
+                  text: state.list[index].text,
                   date: DateFormat.Hm().format(state.list[index].pubTime),
-                  align: context
-                          .read<GeneralOptionsCubit>()
-                          .state
-                          .isLeftBubbleAlign
+                  align: isLeftBubbleAlign
                       ? Alignment.topLeft
                       : Alignment.topRight,
                 );
@@ -135,6 +86,53 @@ class SearchMessageScreen extends StatelessWidget {
             );
           }
         },
+      ),
+    );
+  }
+}
+
+class HelpWindow extends StatelessWidget {
+  final IconData iconData;
+  final String title;
+  final String content;
+  final HelpWindowTheme theme;
+
+  const HelpWindow({
+    Key key,
+    this.title,
+    this.content,
+    this.theme,
+    this.iconData,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(maxWidth: 350, maxHeight: 150),
+      padding: EdgeInsets.all(10),
+      color: theme.backgroundColor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        //mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (iconData != null)
+            Icon(
+              iconData,
+              size: 55,
+            ),
+          if (title != null)
+            Center(
+              child: Text(
+                title,
+                style: theme.titleStyle,
+              ),
+            ),
+          Text(
+            content,
+            style: theme.contentStyle,
+          ),
+        ],
       ),
     );
   }

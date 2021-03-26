@@ -3,28 +3,28 @@ import 'package:flutter/material.dart';
 
 class LabelModel implements Equatable {
   final IconData icon;
-  final bool isVisible;
+  final bool isSelected;
 
   LabelModel({
     this.icon,
-    this.isVisible = false,
+    this.isSelected = false,
   });
 
   @override
   String toString() {
-    return 'LabelModel{icon: $icon, isVisible: $isVisible}';
+    return 'LabelModel{icon: $icon, isVisible: $isSelected}';
   }
 
   LabelModel copyWith({
     final IconData icon,
-    final bool isVisible,
+    final bool isSelected,
   }) {
     return LabelModel(
-        icon: icon ?? this.icon, isVisible: isVisible ?? this.isVisible);
+        icon: icon ?? this.icon, isSelected: isSelected ?? isSelected);
   }
 
   @override
-  List<Object> get props => [icon, isVisible];
+  List<Object> get props => [icon, isSelected];
 
   @override
   bool get stringify => throw UnimplementedError();

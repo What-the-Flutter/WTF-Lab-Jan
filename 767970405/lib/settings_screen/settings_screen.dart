@@ -22,11 +22,11 @@ class SettingsScreen extends StatelessWidget {
         ),
         actions: <Widget>[],
       ),
-      body: _settings(context),
+      body: _settingsList(context),
     );
   }
 
-  Widget _settings(BuildContext context) {
+  Widget _settingsList(BuildContext context) {
     return ListView(
       padding: EdgeInsets.zero,
       children: <Widget>[
@@ -312,6 +312,39 @@ class GeneralOption extends StatelessWidget {
             leading: Icon(Icons.refresh),
             title: Text('Reset all pinned pages'),
             subtitle: Text('Unpin all pages'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SecurityOption extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.keyboard_backspace_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Center(
+          child: Text('Security'),
+        ),
+        actions: <Widget>[],
+      ),
+      body: ListView(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Divider(),
+          ),
+          SwitchListTile(
+            secondary: Icon(Icons.mms),
+            title: Text('Fingerprint'),
+            subtitle: Text('Enable Fingerprint unlock'),
+            value: false,
+            onChanged: (value) => true,
           ),
         ],
       ),

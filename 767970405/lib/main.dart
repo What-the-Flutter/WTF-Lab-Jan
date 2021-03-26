@@ -8,7 +8,7 @@ import 'data/repository/messages_repository.dart';
 import 'data/repository/pages_repository.dart';
 import 'data/repository/theme_repository.dart';
 import 'home_screen/home_screen_cubit.dart';
-import 'messages_screen/calendar_cubit.dart';
+import 'messages_screen/date_time_mod_button_cubit.dart';
 import 'messages_screen/screen_message_cubit.dart';
 import 'router/app_router.dart';
 import 'screen_creating_page/screen_creating_page_cubit.dart';
@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (context) => CalendarCubit(
+          create: (context) => DateTimeModButtonCubit(
             time: DateTime.now(),
           ),
         ),

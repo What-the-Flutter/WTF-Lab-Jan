@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../data/theme/custom_theme.dart';
 import '../settings_screen/general_options_cubit.dart';
 import 'screen_creating_page_cubit.dart';
 
@@ -80,17 +81,22 @@ class CreateNewPage extends StatelessWidget {
 
   Widget _listIcons() {
     return BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
-      builder: (context, state) => GridView.count(
-        crossAxisCount: 4,
-        crossAxisSpacing: 30.0,
-        mainAxisSpacing: 30.0,
-        children: <Widget>[
-          for (var i = 0;
-              i < context.read<ScreenCreatingPageCubit>().state.list.length;
-              i++)
-            Category(index: i),
-        ],
-      ),
+      builder: (context, state) {
+        final curTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
+        return GridView.count(
+          crossAxisCount: 4,
+          crossAxisSpacing: 30.0,
+          mainAxisSpacing: 30.0,
+          children: <Widget>[
+            for (var i = 0; i < state.list.length; i++)
+              Category(
+                index: i,
+                isSelected: state.list[i].isSelected,
+                theme: curTheme.categoryTheme,
+              ),
+          ],
+        );
+      },
       buildWhen: (prevState, curState) =>
           curState.selectionIconIndex != prevState.selectionIconIndex
               ? true
@@ -101,8 +107,15 @@ class CreateNewPage extends StatelessWidget {
 
 class Category extends StatelessWidget {
   final int index;
+  final bool isSelected;
+  final CategoryTheme theme;
 
-  const Category({Key key, this.index}) : super(key: key);
+  const Category({
+    Key key,
+    this.index,
+    this.theme,
+    this.isSelected,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -116,16 +129,13 @@ class Category extends StatelessWidget {
           IconButton(
             icon: Icon(
               context.read<ScreenCreatingPageCubit>().state.list[index].icon,
+              color: theme.iconColor,
             ),
             onPressed: () {
               context.read<ScreenCreatingPageCubit>().selectionIcon(index);
             },
           ),
-          if (context
-              .read<ScreenCreatingPageCubit>()
-              .state
-              .list[index]
-              .isVisible)
+          if (isSelected)
             Container(
               child: Icon(
                 Icons.done,
@@ -139,11 +149,7 @@ class Category extends StatelessWidget {
         ],
       ),
       decoration: BoxDecoration(
-        color: context
-            .read<GeneralOptionsCubit>()
-            .state
-            .currentTheme
-            .backgroundCategory,
+        color: theme.backgroundColor,
         shape: BoxShape.circle,
       ),
     );

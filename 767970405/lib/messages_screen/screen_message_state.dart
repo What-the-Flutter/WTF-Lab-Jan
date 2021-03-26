@@ -1,6 +1,6 @@
 part of 'screen_message_cubit.dart';
 
-enum Mode { await, input, selection, edit, search }
+enum Mode { await, input, selection, edit}
 
 class ScreenMessageState extends Equatable {
   final ModelPage page;

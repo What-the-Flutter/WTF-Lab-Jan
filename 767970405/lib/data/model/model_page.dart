@@ -4,12 +4,12 @@ class ModelPage extends Equatable implements Comparable<ModelPage> {
   final int id;
   final String title;
   final int iconIndex;
-  final bool isPin;
+  final bool isPinned;
   final DateTime creationTime;
   final DateTime lastModifiedTime;
 
   ModelPage({
-    this.isPin,
+    this.isPinned,
     this.iconIndex,
     this.title,
     this.id,
@@ -18,7 +18,7 @@ class ModelPage extends Equatable implements Comparable<ModelPage> {
   });
 
   ModelPage copyWith({
-    final bool isPin,
+    final bool isPinned,
     final int iconIndex,
     final String title,
     final int id,
@@ -26,7 +26,7 @@ class ModelPage extends Equatable implements Comparable<ModelPage> {
     final DateTime lastModifiedTime,
   }) {
     return ModelPage(
-      isPin: isPin ?? this.isPin,
+      isPinned: isPinned ?? this.isPinned,
       iconIndex: iconIndex ?? this.iconIndex,
       title: title ?? this.title,
       id: id ?? this.id,
@@ -37,9 +37,9 @@ class ModelPage extends Equatable implements Comparable<ModelPage> {
 
   @override
   int compareTo(ModelPage other) {
-    if (isPin && !other.isPin) {
+    if (isPinned && !other.isPinned) {
       return -1;
-    } else if (!isPin && other.isPin) {
+    } else if (!isPinned && other.isPinned) {
       return 1;
     } else {
       if (creationTime.isBefore(other.creationTime)) {
@@ -52,14 +52,14 @@ class ModelPage extends Equatable implements Comparable<ModelPage> {
 
   @override
   List<Object> get props =>
-      [id, isPin, iconIndex, title, lastModifiedTime, creationTime];
+      [id, isPinned, iconIndex, title, lastModifiedTime, creationTime];
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'title': title,
       'iconIndex': iconIndex,
-      'isPin': isPin ? 1 : 0,
+      'isPinned': isPinned ? 1 : 0,
       'creationTime': creationTime.toString(),
       'lastModifiedTime': lastModifiedTime.toString(),
     };

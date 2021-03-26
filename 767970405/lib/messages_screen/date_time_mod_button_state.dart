@@ -1,22 +1,22 @@
-part of 'calendar_cubit.dart';
+part of 'date_time_mod_button_cubit.dart';
 
-class CalendarState extends Equatable {
+class DateTimeModButtonState extends Equatable {
   final DateTime fromDate;
   final TimeOfDay fromTime;
   final bool isReset;
 
-  CalendarState({
+  DateTimeModButtonState({
     this.fromDate,
     this.fromTime,
     this.isReset,
   });
 
-  CalendarState copyWith({
+  DateTimeModButtonState copyWith({
     final DateTime fromDate,
     final TimeOfDay fromTime,
     final bool isReset,
   }) {
-    return CalendarState(
+    return DateTimeModButtonState(
       fromDate: fromDate ?? this.fromDate,
       fromTime: fromTime ?? this.fromTime,
       isReset: isReset ?? this.isReset,

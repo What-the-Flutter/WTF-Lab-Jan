@@ -11,13 +11,15 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
   GeneralOptionsCubit({
     this.themeRepository,
     int index,
-  }) : super(GeneralOptionsState(
-          themeType: ThemeType.values[index],
-          currentTheme: themeRepository.themes[index],
-          isDateTimeModification: false,
-          isLeftBubbleAlign: false,
-          isCenterDateBubble: false,
-        ));
+  }) : super(
+          GeneralOptionsState(
+            themeType: ThemeType.values[index],
+            currentTheme: themeRepository.themes[index],
+            isDateTimeModification: false,
+            isLeftBubbleAlign: false,
+            isCenterDateBubble: false,
+          ),
+        );
 
   void toggleTheme() {
     if (state.themeType == ThemeType.dark) {

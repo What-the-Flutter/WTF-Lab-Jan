@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
+import '../data/theme/custom_theme.dart';
 import '../main.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
@@ -35,11 +36,9 @@ class HomeWindow extends StatelessWidget {
       ),
       drawer: _drawer(context),
       body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-        builder: (context, state) => (state is HomeScreenShow)
-            ? ChatPages()
-            : Center(
-                child: Text('Await'),
-              ),
+        builder: (context, state) => state is HomeScreenShow
+            ? ChatPreviewList()
+            : Center(child: Text('Await')),
       ),
       floatingActionButton: ButtonAddChat(),
       bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
@@ -47,6 +46,8 @@ class HomeWindow extends StatelessWidget {
       ),
     );
   }
+
+
 
   Widget _drawer(BuildContext context) {
     return Drawer(
@@ -139,22 +140,43 @@ class HomeWindow extends StatelessWidget {
   }
 }
 
-class ChatPages extends StatelessWidget {
+class ChatPreviewList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final curTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
       builder: (context, state) => ListView.separated(
         itemCount: state.list.length + 1,
         itemBuilder: (context, i) {
-          if (i == 0) return _buildBot(context);
-          return EventPage(i - 1);
+          if (i == 0) return Bot(theme: curTheme.botTheme);
+          return ChatPreview(
+            index: i - 1,
+            title: state.list[i - 1].title,
+            subtitle: 'No events click create to one',
+            isPinned: state.list[i - 1].isPinned,
+            iconData: context
+                .read<ScreenCreatingPageCubit>()
+                .getIcon(state.list[i - 1].iconIndex),
+            previewTheme: curTheme.chatPreviewTheme,
+            categoryTheme: curTheme.categoryTheme,
+          );
         },
         separatorBuilder: (context, index) => Divider(),
       ),
     );
   }
+}
 
-  Widget _buildBot(BuildContext context) {
+class Bot extends StatelessWidget {
+  final BotTheme theme;
+
+  const Bot({
+    Key key,
+    this.theme,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -162,15 +184,17 @@ class ChatPages extends StatelessWidget {
           Icon(
             MyFlutterApp.smart_toy_24px,
             size: 30,
+            color: theme.iconColor,
           ),
           Text(
             'Questionnaire Bot',
+            style: theme.contentStyle,
           ),
         ],
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15.0),
-        color: context.read<GeneralOptionsCubit>().state.currentTheme.bot,
+        color: theme.backgroundColor,
       ),
       margin: EdgeInsetsDirectional.only(start: 30.0, top: 5.0, end: 30.0),
       width: 200,
@@ -209,68 +233,75 @@ class ButtonAddChat extends StatelessWidget {
   }
 }
 
-class EventPage extends StatelessWidget {
-  final int _index;
+class ChatPreview extends StatelessWidget {
+  final int index;
+  final String title;
+  final String subtitle;
+  final bool isPinned;
+  final ChatPreviewTheme previewTheme;
+  final CategoryTheme categoryTheme;
+  final IconData iconData;
 
-  EventPage(this._index);
+  ChatPreview({
+    this.index,
+    this.title,
+    this.subtitle,
+    this.isPinned,
+    this.iconData,
+    this.previewTheme,
+    this.categoryTheme,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        context.read<ScreenMessageCubit>().downloadData(
-              context.read<HomeScreenCubit>().state.list[_index],
-            );
+        context
+            .read<ScreenMessageCubit>()
+            .downloadData(context.read<HomeScreenCubit>().state.list[index]);
         context
             .read<SearchMessageScreenCubit>()
-            .setting(page: context.read<HomeScreenCubit>().state.list[_index]);
+            .setting(page: context.read<HomeScreenCubit>().state.list[index]);
         await Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
         );
-        //context.read<HomeScreenCubit>().gettingOutFreeze();
       },
-      onLongPress: () => _showMenuAction(context),
+      onLongPress: () => _showActionMenu(context),
       child: Stack(
         alignment: Alignment.bottomRight,
         children: <Widget>[
           ListTile(
-            title:
-                Text(context.read<HomeScreenCubit>().state.list[_index].title),
-            subtitle: Text('No Events. Click to create one.'),
+            title: Text(
+              title,
+              style: previewTheme.titleStyle,
+            ),
+            subtitle: Text(
+              subtitle,
+              style: previewTheme.contentStyle,
+            ),
             horizontalTitleGap: 5.0,
             contentPadding: EdgeInsets.all(5.0),
             leading: Container(
               width: 75,
               height: 75,
               child: Icon(
-                context.read<ScreenCreatingPageCubit>().getIcon(context
-                    .read<HomeScreenCubit>()
-                    .state
-                    .list[_index]
-                    .iconIndex),
+                iconData,
+                color: categoryTheme.iconColor,
               ),
               decoration: BoxDecoration(
-                color: context
-                    .read<GeneralOptionsCubit>()
-                    .state
-                    .currentTheme
-                    .backgroundCategory,
+                color: categoryTheme.backgroundColor,
                 shape: BoxShape.circle,
               ),
             ),
           ),
-          context.read<HomeScreenCubit>().state.list[_index].isPin
-              ? Icon(
-                  Icons.push_pin,
-                )
-              : Container()
+          isPinned ? Icon(Icons.push_pin) : Container(),
         ],
       ),
     );
   }
 
-  void _showMenuAction(BuildContext context) {
+  void _showActionMenu(BuildContext context) {
     final homeCubit = context.read<HomeScreenCubit>();
     final screenCreatingCubit = context.read<ScreenCreatingPageCubit>();
     showModalBottomSheet<void>(
@@ -288,7 +319,7 @@ class EventPage extends StatelessWidget {
               'info',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
-            onTap: () => _showDialogInfo(homeCubit, context),
+            onTap: () => _showPreviewInfo(homeCubit, context),
           ),
           ListTile(
             leading: Icon(
@@ -301,7 +332,7 @@ class EventPage extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              homeCubit.pinPage(_index);
+              homeCubit.pinPage(index);
             },
           ),
           ListTile(
@@ -327,8 +358,8 @@ class EventPage extends StatelessWidget {
             onTap: () async {
               Navigator.pop(context);
               screenCreatingCubit.setting(
-                homeCubit.state.list[_index].title,
-                homeCubit.state.list[_index].iconIndex,
+                homeCubit.state.list[index].title,
+                homeCubit.state.list[index].iconIndex,
               );
               await Navigator.pushNamed(
                 context,
@@ -336,7 +367,7 @@ class EventPage extends StatelessWidget {
               );
               if (screenCreatingCubit.state.iconButton != Icons.close) {
                 homeCubit.editPage(
-                  homeCubit.state.list[_index].copyWith(
+                  homeCubit.state.list[index].copyWith(
                     iconIndex: screenCreatingCubit.state.selectionIconIndex,
                     title: screenCreatingCubit.controller.text,
                   ),
@@ -356,7 +387,7 @@ class EventPage extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              context.read<HomeScreenCubit>().removePage(_index);
+              context.read<HomeScreenCubit>().removePage(index);
             },
           ),
         ],
@@ -364,7 +395,7 @@ class EventPage extends StatelessWidget {
     );
   }
 
-  void _showDialogInfo(HomeScreenCubit cubit, BuildContext context) {
+  void _showPreviewInfo(HomeScreenCubit cubit, BuildContext context) {
     Navigator.pop(context);
     showDialog<void>(
       context: context,
@@ -373,14 +404,14 @@ class EventPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
-              title: Text(cubit.state.list[_index].title),
+              title: Text(cubit.state.list[index].title),
               leading: Container(
                 width: 75,
                 height: 75,
                 child: Icon(
                   context
                       .read<ScreenCreatingPageCubit>()
-                      .getIcon(cubit.state.list[_index].iconIndex),
+                      .getIcon(cubit.state.list[index].iconIndex),
                 ),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -390,13 +421,13 @@ class EventPage extends StatelessWidget {
             ListTile(
               title: Text('Created'),
               subtitle: Text(
-                cubit.state.list[_index].creationTime.toString(),
+                cubit.state.list[index].creationTime.toString(),
               ),
             ),
             ListTile(
               title: Text('Latest Event'),
               subtitle: Text(
-                cubit.state.list[_index].lastModifiedTime.toString(),
+                cubit.state.list[index].lastModifiedTime.toString(),
               ),
             ),
           ],

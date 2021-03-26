@@ -58,8 +58,8 @@ class _EventPage extends State<EventPage> {
 
   Widget _buildAppBarEventPage() {
     return AppBar(
-      title: Container(
-        child: Text(widget.title),
+      titleStyle: Container(
+        child: Text(widget.titleStyle),
         alignment: Alignment.centerLeft,
       ),
       elevation: 0.0,
@@ -121,10 +121,10 @@ class _EventPage extends State<EventPage> {
   }
 
   Widget _buildEventAndFavoriteMessage(EventMessage eventMessage) {
-    if ((widget.title == eventMessage.nameOfSuggestion &&
+    if ((widget.titleStyle == eventMessage.nameOfSuggestion &&
             eventMessage.isFavorite &&
             isFavoriteButPressed) ||
-        (widget.title == eventMessage.nameOfSuggestion &&
+        (widget.titleStyle == eventMessage.nameOfSuggestion &&
             !isFavoriteButPressed)) {
       return _buildEventMessage(eventMessage);
     } else {
@@ -224,7 +224,7 @@ class _EventPage extends State<EventPage> {
                   },
                 )
               : IconButton(
-                  icon: Icon(Icons.photo),
+                  icon: Icon(Icons.photoPath),
                   iconSize: 25.0,
                   color: Colors.white,
                   onPressed: () => _showImageSelectionDialog(),
@@ -267,7 +267,7 @@ class _EventPage extends State<EventPage> {
     eventMessagesList.insert(
       0,
       EventMessage(
-          widget.title,
+          widget.titleStyle,
           DateFormat.yMMMd().add_jm().format(new DateTime.now()),
           _textEditingController.text,
           false),
@@ -311,7 +311,7 @@ class _EventPage extends State<EventPage> {
       firstBtnText: "Gallery",
       secondBtnText: "Camera",
       icon: Icon(
-        Icons.photo,
+        Icons.photoPath,
         color: Colors.white,
         size: 60,
       ),
@@ -397,7 +397,7 @@ class _EventPage extends State<EventPage> {
         icon,
         color: Colors.white,
       ),
-      title: Text(
+      titleStyle: Text(
         name,
         style: TextStyle(
           color: Colors.white,

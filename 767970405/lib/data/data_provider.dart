@@ -27,7 +27,7 @@ class PagesAPI {
           'CREATE TABLE pages('
           'id INTEGER PRIMARY KEY AUTOINCREMENT,'
           ' title TEXT, iconIndex INTEGER,'
-          ' isPin INTEGER,'
+          ' isPinned INTEGER,'
           ' creationTime TEXT,'
           ' lastModifiedTime TEXT'
           ');',
@@ -58,7 +58,7 @@ class PagesAPI {
         id: maps[i]['id'],
         title: maps[i]['title'],
         iconIndex: maps[i]['iconIndex'],
-        isPin: maps[i]['isPin'] == 0 ? false : true,
+        isPinned: maps[i]['isPinned'] == 0 ? false : true,
         creationTime: DateTime.parse(maps[i]['creationTime']),
         lastModifiedTime: DateTime.parse(maps[i]['lastModifiedTime']),
       ),
@@ -87,7 +87,6 @@ class PagesAPI {
 
   Future<List<ModelMessage>> messages(int pageId) async {
     final db = await _database;
-    print(db);
 
     final List<Map<String, dynamic>> maps = await db.query(
       'msg',

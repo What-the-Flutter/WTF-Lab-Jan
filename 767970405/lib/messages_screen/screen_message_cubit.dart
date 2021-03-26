@@ -93,7 +93,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     ));
   }
 
-  List<List<ModelMessage>> get filterMsg {
+  List<List<ModelMessage>> get groupMsgByDate {
     var list = <List<ModelMessage>>[];
     var temp = <ModelMessage>[];
     if (state.list.length == 1) {
@@ -108,8 +108,10 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         temp = <ModelMessage>[];
       }
     }
-    temp.add(state.list[state.list.length - 1]);
-    list.add(List.from(temp));
+    if (state.list.isNotEmpty) {
+      temp.add(state.list[state.list.length - 1]);
+      list.add(List.from(temp));
+    }
     return list;
   }
 

@@ -60,7 +60,8 @@ class SearchMessageScreenFound extends SearchMessageScreenState {
 
   @override
   SearchMessageScreenState copyWith({ModelPage page}) {
-    // TODO: implement copyWith
-    throw UnimplementedError();
+    return SearchMessageScreenFound(
+      page: page,
+    );
   }
 }
