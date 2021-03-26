@@ -1,9 +1,11 @@
 import 'dart:io';
 
-import 'package:chat_journal/pages/settings/security_settings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../main/tabs/home/cubit/categories_cubit.dart';
 import 'general_settings_page.dart';
+import 'security_settings_page.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -23,8 +25,11 @@ class SettingsPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) {
-                    return GeneralSettingPage();
+                  builder: (newContext) {
+                    return BlocProvider.value(
+                      value: context.read<CategoriesCubit>(),
+                      child: GeneralSettingPage(),
+                    );
                   },
                 ),
               );

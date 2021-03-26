@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../category/cubit/records_cubit.dart';
 import '../../search_record_page.dart';
 import '../../settings/settings_page.dart';
+import '../tabs/home/cubit/categories_cubit.dart';
 
 class MainPageDrawer extends StatelessWidget {
   @override
@@ -35,7 +36,12 @@ class MainPageDrawer extends StatelessWidget {
             () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => SettingsPage(),
+                  builder: (newContext) {
+                    return BlocProvider.value(
+                      value: context.read<CategoriesCubit>(),
+                      child: SettingsPage(),
+                    );
+                  },
                 ),
               );
             },

@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../main/tabs/home/cubit/categories_cubit.dart';
 import 'cubit/settings_cubit.dart';
 
 class GeneralSettingPage extends StatelessWidget {
@@ -54,6 +53,36 @@ class GeneralSettingPage extends StatelessWidget {
                   context
                       .read<SettingsCubit>()
                       .switchShowCreateRecordDateTimePicker();
+                },
+              ),
+              ListTile(
+                title: Text('Unpin all the categories'),
+                subtitle: Text('All categories will be unpinned'),
+                trailing: Icon(Icons.restore),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return AlertDialog(
+                        title: Text('All categories will be unpinned'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              context.read<CategoriesCubit>().unpinAll();
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('Ok'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
               ),
             ],

@@ -83,4 +83,18 @@ class CategoriesCubit extends Cubit<CategoriesState> {
       ),
     );
   }
+
+  void unpinAll() async {
+    for (var categoryWithLastRecord in state.categories) {
+      if (categoryWithLastRecord.category.isPinned) {
+        categoryWithLastRecord.category.isPinned = false;
+        await repository.update(categoryWithLastRecord.category);
+      }
+    }
+    emit(
+      AllUnpinSuccess(
+        state.categories,
+      ),
+    );
+  }
 }
