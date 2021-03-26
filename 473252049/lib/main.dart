@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'authentication_cubit/authentication_cubit.dart';
+import 'pages/authorization/authorization_page.dart';
 import 'pages/category/cubit/records_cubit.dart';
 import 'pages/main/main_page.dart';
 import 'pages/main/tabs/home/cubit/categories_cubit.dart';
@@ -49,14 +50,7 @@ class MyApp extends StatelessWidget {
             home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
               builder: (context, authState) {
                 if (authState.isAuthenticated == false) {
-                  return Center(
-                    child: ElevatedButton(
-                      child: Text('Authorize'),
-                      onPressed: () {
-                        context.read<AuthenticationCubit>().authenticate();
-                      },
-                    ),
-                  );
+                  return AuthorizationPage();
                 }
                 return MultiBlocProvider(
                   providers: [
