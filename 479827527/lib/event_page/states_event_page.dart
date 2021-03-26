@@ -1,26 +1,10 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import '../event.dart';
+import '../note_page.dart';
 
 class StatesEventPage {
-  TextEditingController textController = TextEditingController();
-  TextEditingController textSearchController = TextEditingController();
-  FocusNode focusNode = FocusNode();
-  FocusNode focusSearchNode = FocusNode();
-  final List<IconData> bottomSheetButtons = [
-    Icons.clear,
-    Icons.airplanemode_active,
-    Icons.fastfood,
-    Icons.sports_basketball,
-    Icons.search,
-    Icons.home,
-    Icons.family_restroom,
-    Icons.car_rental,
-    Icons.school_sharp,
-  ];
-
-  List<Event> currentEventsList;
-  IconData selectedIcon;
+  List<Event> currentEventsList = [];
+  NotePage note;
+  int selectedIconIndex;
   bool isEventSelected = false;
   bool isEditing = false;
   bool isSearch = false;
@@ -29,19 +13,17 @@ class StatesEventPage {
 
   StatesEventPage copyWith({
     List<Event> currentEventsList,
-    IconData selectedIcon,
+    NotePage note,
+    int selectedIconIndex,
     bool isEventSelected,
     bool isEditing,
     bool isSearch,
     int selectedItemIndex,
     int selectedPageReplyIndex,
   }) {
-    var state = StatesEventPage(currentEventsList ?? this.currentEventsList);
-    state.textController = textController;
-    state.focusNode = focusNode;
-    state.textSearchController = textSearchController;
-    state.focusSearchNode = focusSearchNode;
-    state.selectedIcon = selectedIcon ?? this.selectedIcon;
+    var state = StatesEventPage(note ?? this.note);
+    state.currentEventsList = currentEventsList ?? this.currentEventsList;
+    state.selectedIconIndex = selectedIconIndex ?? this.selectedIconIndex;
     state.isEventSelected = isEventSelected ?? this.isEventSelected;
     state.isEditing = isEditing ?? this.isEditing;
     state.isSearch = isSearch ?? this.isSearch;
@@ -51,5 +33,5 @@ class StatesEventPage {
     return state;
   }
 
-  StatesEventPage(this.currentEventsList);
+  StatesEventPage(this.note);
 }
