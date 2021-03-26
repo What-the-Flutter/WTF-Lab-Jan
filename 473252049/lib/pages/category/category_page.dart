@@ -1,16 +1,14 @@
-import 'dart:io';
-
-import 'package:chat_journal/pages/main/components/show_favorite_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../model/category.dart';
 import '../../model/record.dart';
+import '../main/components/show_favorite_icon_button.dart';
 import '../search_record_page.dart';
 import '../settings/cubit/settings_cubit.dart';
 import 'cubit/records_cubit.dart';
+import 'dialogs/choose_image_source_dialog.dart';
 import 'dialogs/create_image_record_dialog.dart';
 import 'dialogs/delete_records_dialog.dart';
 import 'dialogs/send_records_dialog.dart';
@@ -30,23 +28,6 @@ class _CategoryPageState extends State<CategoryPage> {
   final _messageFocus = FocusNode();
   final _textEditingController = TextEditingController();
   DateTime createRecordDateTime = DateTime.now();
-
-  File _image;
-  final picker = ImagePicker();
-
-  Future getImage() async {
-    final pickedFile = await picker.getImage(
-      source: ImageSource.gallery,
-    );
-
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,14 +75,16 @@ class _CategoryPageState extends State<CategoryPage> {
                               IconButton(
                                 icon: Icon(Icons.edit),
                                 onPressed: () {
-                                  setState(() {
-                                    createRecordDateTime = state.records
-                                        .where(
-                                          (element) => element.isSelected,
-                                        )
-                                        .first
-                                        .createDateTime;
-                                  });
+                                  setState(
+                                    () {
+                                      createRecordDateTime = state.records
+                                          .where(
+                                            (element) => element.isSelected,
+                                          )
+                                          .first
+                                          .createDateTime;
+                                    },
+                                  );
                                   context.read<RecordsCubit>().beginUpdate(
                                       state.records.firstWhere(
                                         (element) => element.isSelected,
@@ -254,11 +237,14 @@ class _CategoryPageState extends State<CategoryPage> {
                       IconButton(
                         icon: Icon(Icons.photo),
                         onPressed: () async {
-                          await getImage();
-                          if (_image == null) return;
+                          final imageSource =
+                              await showChooseImageSourceDialog(context);
+                          if (imageSource == null) return;
+                          final image = await getImage(imageSource);
+                          if (image == null) return;
                           showCreateImageRecordDialog(
                             context: context,
-                            image: _image,
+                            image: image,
                             textEditingController: _textEditingController,
                             messageFocus: _messageFocus,
                             categoryId: widget.category.id,
