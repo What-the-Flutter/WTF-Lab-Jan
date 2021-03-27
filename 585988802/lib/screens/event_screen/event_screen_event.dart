@@ -17,12 +17,15 @@ class EventMessageListInit extends EventScreenEvent {
 
 class EventMessageAdded extends EventScreenEvent {
   final EventMessage eventMessage;
+  final List<EventMessage> eventMessageList;
 
-  const EventMessageAdded(this.eventMessage);
+  const EventMessageAdded(this.eventMessage, this.eventMessageList);
 }
 
 class EventMessageDeleted extends EventScreenEvent {
-  const EventMessageDeleted();
+  final List<EventMessage> eventMessageList;
+
+  const EventMessageDeleted(this.eventMessageList);
 }
 
 class EventMessageSelected extends EventScreenEvent {
@@ -45,8 +48,10 @@ class UpdateEventMessageList extends EventScreenEvent {
 
 class EventMessageEdited extends EventScreenEvent {
   final String editedNameOfEventMessage;
+  final List<EventMessage> eventMessageList;
 
-  const EventMessageEdited(this.editedNameOfEventMessage);
+  const EventMessageEdited(
+      this.editedNameOfEventMessage, this.eventMessageList);
 }
 
 class EditingModeChanged extends EventScreenEvent {

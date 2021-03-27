@@ -121,6 +121,19 @@ class DBHelper {
     return suggestionsList;
   }
 
+  void updateEventMessageListOfSuggestion(Suggestion suggestion) async {
+    final db = await database;
+    var dbEventMessagesList = await db.rawQuery(
+      'SELECT * FROM $tableEventMessage WHERE $columnIdOfSuggestion = ?',
+      [suggestion.id],
+    );
+    for (final element in dbEventMessagesList) {
+      final eventMessage = EventMessage.fromMap(element);
+      eventMessage.nameOfSuggestion = suggestion.nameOfSuggestion;
+      updateEventMessage(eventMessage);
+    }
+  }
+
   void insertEventMessage(EventMessage eventMessage) async {
     final db = await database;
     db.insert(

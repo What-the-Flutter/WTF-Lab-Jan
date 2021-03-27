@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../db_helper/db_helper.dart';
 import '../../models/category.dart';
@@ -18,7 +19,7 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
     nameOfCategory: 'Null',
     imagePath: 'assets/images/journal.png',
   );
-  final tagRegExp = RegExp(r'^#[^ !@#$%^&*(),.?":{}|/?\\<>]+$');
+  final _tagRegExp = RegExp(r'^#[^ !@#$%^&*(),.?":{}|/?\\<>]+$');
 
   @override
   Stream<EventScreenState> mapEventToState(EventScreenEvent event) async* {
@@ -47,7 +48,7 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
     } else if (event is CategorySelectedModeChanged) {
       yield* _mapCategorySelectedModeChangedToState(event);
     } else if (event is EventMessageDeleted) {
-      yield* _mapEventMessageDeletedToState();
+      yield* _mapEventMessageDeletedToState(event);
     } else if (event is EventMessageEdited) {
       yield* _mapEventMessageEditedToState(event);
     } else if (event is EventMessageToFavorite) {
@@ -71,6 +72,12 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
       EventMessageListInit event) async* {
     final dbEventMessageList = await _dbHelper
         .dbEventMessagesListForEventScreen(event.listViewSuggestion.id);
+    dbEventMessageList.sort((a, b) {
+      final aDate = DateFormat.yMMMd().add_jm().parse(a.time);
+      final bDate = DateFormat.yMMMd().add_jm().parse(b.time);
+      return bDate.compareTo(aDate);
+    });
+
     yield state.copyWith(
       filteredEventMessageList: dbEventMessageList,
       eventMessageList: dbEventMessageList,
@@ -91,24 +98,30 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
   Stream<EventScreenState> _mapSearchIconButtonUnpressedToState(
       SearchIconButtonUnpressed event) async* {
     yield state.copyWith(
-        filteredEventMessageList: event.eventMessageList,
-        isSearchIconButtonPressed: !event.isSearchIconButtonPressed);
+      filteredEventMessageList: event.eventMessageList,
+      isSearchIconButtonPressed: !event.isSearchIconButtonPressed,
+    );
   }
 
   Stream<EventScreenState> _mapSearchIconButtonPressedToState(
       SearchIconButtonPressed event) async* {
     yield state.copyWith(
-        isSearchIconButtonPressed: !event.isSearchIconButtonPressed);
+      isSearchIconButtonPressed: !event.isSearchIconButtonPressed,
+    );
   }
 
   Stream<EventScreenState> _mapSendButtonChangedToState(
       SendButtonChanged event) async* {
-    yield state.copyWith(isWriting: event.isWriting);
+    yield state.copyWith(
+      isWriting: event.isWriting,
+    );
   }
 
   Stream<EventScreenState> _mapFavoriteButPressedToState(
       FavoriteButPressed event) async* {
-    yield state.copyWith(isFavoriteButPressed: !event.isFavoriteButPressed);
+    yield state.copyWith(
+      isFavoriteButPressed: !event.isFavoriteButPressed,
+    );
   }
 
   Stream<EventScreenState> _mapEventMessageListFilteredToState(
@@ -132,13 +145,20 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
 
   Stream<EventScreenState> _mapEventMessageSelectedToState(
       EventMessageSelected event) async* {
-    yield state.copyWith(selectedEventMessage: event.selectedEventMessage);
+    yield state.copyWith(
+      selectedEventMessage: event.selectedEventMessage,
+    );
   }
 
   Stream<EventScreenState> _mapUpdateToState(
       UpdateEventMessageList event) async* {
     final dbEventMessageList =
         await _dbHelper.dbEventMessagesListForEventScreen(event.idOfSuggestion);
+    dbEventMessageList.sort((a, b) {
+      final aDate = DateFormat.yMMMd().add_jm().parse(a.time);
+      final bDate = DateFormat.yMMMd().add_jm().parse(b.time);
+      return bDate.compareTo(aDate);
+    });
     yield state.copyWith(
       filteredEventMessageList: dbEventMessageList,
       eventMessageList: dbEventMessageList,
@@ -148,15 +168,23 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
   Stream<EventScreenState> _mapEventMessageAddedToState(
       EventMessageAdded event) async* {
     _dbHelper.insertEventMessage(event.eventMessage);
-    add(
-      UpdateEventMessageList(state.listViewSuggestion.id),
+    event.eventMessageList.insert(0, event.eventMessage);
+    event.eventMessageList.sort((a, b) {
+      final aDate = DateFormat.yMMMd().add_jm().parse(a.time);
+      final bDate = DateFormat.yMMMd().add_jm().parse(b.time);
+      return bDate.compareTo(aDate);
+    });
+    yield state.copyWith(
+      eventMessageList: event.eventMessageList,
+      filteredEventMessageList: event.eventMessageList,
     );
-    yield state.copyWith();
   }
 
   Stream<EventScreenState> _mapEditingModeChangedToState(
       EditingModeChanged event) async* {
-    yield state.copyWith(isEditing: event.isEditing);
+    yield state.copyWith(
+      isEditing: event.isEditing,
+    );
   }
 
   Stream<EventScreenState> _mapCategorySelectedModeChangedToState(
@@ -179,22 +207,24 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
     event.eventMessage.isFavorite =
         (event.eventMessage.isFavorite == 1) ? 0 : 1;
     _dbHelper.updateEventMessage(event.eventMessage);
-    add(
-      UpdateEventMessageList(state.listViewSuggestion.id),
+    yield state.copyWith(
+      selectedEventMessage: event.eventMessage,
     );
-    yield state.copyWith();
   }
 
-  Stream<EventScreenState> _mapEventMessageDeletedToState() async* {
+  Stream<EventScreenState> _mapEventMessageDeletedToState(
+      EventMessageDeleted event) async* {
     _dbHelper.deleteEventMessage(state.selectedEventMessage);
-    add(
-      UpdateEventMessageList(state.listViewSuggestion.id),
+    event.eventMessageList.remove(state.selectedEventMessage);
+    yield state.copyWith(
+      eventMessageList: event.eventMessageList,
+      filteredEventMessageList: event.eventMessageList,
     );
-    yield state.copyWith();
   }
 
   Stream<EventScreenState> _mapEventMessageEditedToState(
       EventMessageEdited event) async* {
+    final index = event.eventMessageList.indexOf(state.selectedEventMessage);
     final eventMessage = EventMessage(
       id: state.selectedEventMessage.id,
       idOfSuggestion: state.selectedEventMessage.idOfSuggestion,
@@ -208,18 +238,24 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
       nameOfCategory: state.selectedEventMessage.nameOfCategory,
     );
     _dbHelper.updateEventMessage(eventMessage);
-    add(
-      UpdateEventMessageList(state.listViewSuggestion.id),
+    event.eventMessageList[index] = eventMessage;
+    yield state.copyWith(
+      eventMessageList: event.eventMessageList,
+      filteredEventMessageList: event.eventMessageList,
+      selectedEventMessage: eventMessage,
     );
-    yield state.copyWith(selectedEventMessage: eventMessage);
   }
 
   Stream<EventScreenState> _mapDateSelectedToState(DateSelected event) async* {
-    yield state.copyWith(selectedDate: event.selectedDate);
+    yield state.copyWith(
+      selectedDate: event.selectedDate,
+    );
   }
 
   Stream<EventScreenState> _mapTimeSelectedToState(TimeSelected event) async* {
-    yield state.copyWith(selectedTime: event.selectedTime);
+    yield state.copyWith(
+      selectedTime: event.selectedTime,
+    );
   }
 
   Stream<EventScreenState> _mapCheckEventMessageForTagToState(
@@ -228,7 +264,7 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
     final tagTextList = state.tagList.map((tag) => tag.tagText).toList();
 
     for (var word in eventMessageWordList) {
-      if (tagRegExp.hasMatch(word) && !tagTextList.contains(word)) {
+      if (_tagRegExp.hasMatch(word) && !tagTextList.contains(word)) {
         final tag = Tag(tagText: word);
         _dbHelper.insertTag(tag);
         event.tagList.insert(event.tagList.length, tag);

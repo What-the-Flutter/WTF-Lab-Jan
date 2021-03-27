@@ -69,7 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
         BlocProvider.of<SuggestionsBloc>(context).add(
-          SuggestionAdded(createdSuggestion),
+          SuggestionAdded(
+            createdSuggestion,
+            BlocProvider.of<SuggestionsBloc>(context).state.suggestionList,
+          ),
         );
       },
     );
@@ -78,8 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _homePageBody(BuildContext context) {
     return BlocBuilder<SuggestionsBloc, SuggestionsState>(
       builder: (context, state) {
-        BlocProvider.of<SuggestionsBloc>(context)
-            .add(SuggestionEventMessageDistribute());
+        BlocProvider.of<SuggestionsBloc>(context).add(
+          SuggestionEventMessageDistribute(),
+        );
         return ClipRRect(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(25.0),
@@ -319,11 +323,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _pinSuggestion(Suggestion selectedSuggestion) {
-    BlocProvider.of<SuggestionsBloc>(context).add(SuggestionPinned());
+    BlocProvider.of<SuggestionsBloc>(context).add(
+      SuggestionPinned(
+        BlocProvider.of<SuggestionsBloc>(context).state.selectedSuggestion,
+      ),
+    );
   }
 
   void _unpinSuggestion(Suggestion selectedSuggestion) {
-    BlocProvider.of<SuggestionsBloc>(context).add(SuggestionUnpinned());
+    BlocProvider.of<SuggestionsBloc>(context).add(
+      SuggestionUnpinned(
+        BlocProvider.of<SuggestionsBloc>(context).state.selectedSuggestion,
+      ),
+    );
   }
 
   void _editSuggestion(Suggestion selectedSuggestion) {
@@ -372,13 +384,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void _selectedEdit() {
     if (_textEditingController.text.isNotEmpty) {
       BlocProvider.of<SuggestionsBloc>(context).add(
-        SuggestionEdited(_textEditingController.text),
+        SuggestionEdited(
+          _textEditingController.text,
+          BlocProvider.of<SuggestionsBloc>(context).state.selectedSuggestion,
+        ),
       );
       _textEditingController.clear();
     }
   }
 
   void _deleteSuggestion(Suggestion selectedSuggestion) {
-    BlocProvider.of<SuggestionsBloc>(context).add(SuggestionDeleted());
+    BlocProvider.of<SuggestionsBloc>(context).add(SuggestionDeleted(
+      BlocProvider.of<SuggestionsBloc>(context).state.suggestionList,
+    ));
   }
 }

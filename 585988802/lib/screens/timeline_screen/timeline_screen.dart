@@ -192,8 +192,9 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
           BlocProvider.of<TimelineScreenBloc>(context).state.eventMessageList,
           value),
     );
-    BlocProvider.of<TimelineScreenBloc>(context)
-        .add(TimelineEventMessageListFilteredReceived());
+    BlocProvider.of<TimelineScreenBloc>(context).add(
+      TimelineEventMessageListFilteredReceived(),
+    );
   }
 
   void _filterEventMessageListBySuggestionName(String value) {
@@ -202,8 +203,9 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
           BlocProvider.of<TimelineScreenBloc>(context).state.eventMessageList,
           value),
     );
-    BlocProvider.of<TimelineScreenBloc>(context)
-        .add(TimelineEventMessageListFilteredReceived());
+    BlocProvider.of<TimelineScreenBloc>(context).add(
+      TimelineEventMessageListFilteredReceived(),
+    );
   }
 
   Widget get _eventMessageListView {
@@ -262,9 +264,8 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
 
   void doSwipeSelectedItemAction(BuildContext context,
       EventMessage eventMessage, SwipeSelectedAction action) {
-    BlocProvider.of<TimelineScreenBloc>(context)
-        .add(TimelineEventMessageSelected(eventMessage));
-
+    BlocProvider.of<TimelineScreenBloc>(context).state.selectedEventMessage =
+        eventMessage;
     switch (action) {
       case SwipeSelectedAction.edit:
         _editEventMessage();
@@ -711,7 +712,10 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
   void _selectedEdit() {
     if (_textEditingController.text.isNotEmpty) {
       BlocProvider.of<TimelineScreenBloc>(context).add(
-        TimelineEventMessageEdited(_textEditingController.text),
+        TimelineEventMessageEdited(
+          _textEditingController.text,
+          BlocProvider.of<TimelineScreenBloc>(context).state.eventMessageList,
+        ),
       );
       _textEditingController.clear();
     }

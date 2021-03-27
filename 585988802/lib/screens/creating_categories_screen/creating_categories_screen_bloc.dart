@@ -25,16 +25,22 @@ class CreatingCategoriesScreenBloc
   Stream<CreatingCategoriesScreenState>
       _mapCreatingCategoriesScreenInitToState() async* {
     yield state.copyWith(
-        currentImagePath: 'assets/images/journal.png', isWriting: false);
+      currentImagePath: 'assets/images/journal.png',
+      isWriting: false,
+    );
   }
 
   Stream<CreatingCategoriesScreenState> _mapCurrentImageChangedToState(
       CurrentImageChanged event) async* {
-    yield state.copyWith(currentImagePath: event.currentImagePath);
+    yield state.copyWith(
+      currentImagePath: event.currentImagePath,
+    );
   }
 
   Stream<CreatingCategoriesScreenState> _mapAddButtonChangedToState(
       AddButtonChanged event) async* {
-    yield state.copyWith(isWriting: event.isWriting);
+    yield state.copyWith(
+      isWriting: event.isWriting,
+    );
   }
 }

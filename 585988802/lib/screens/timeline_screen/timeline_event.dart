@@ -27,8 +27,10 @@ class TimelineUpdateEventMessageList extends TimelineScreenEvent {
 
 class TimelineEventMessageEdited extends TimelineScreenEvent {
   final String editedNameOfEventMessage;
+  final List<EventMessage> eventMessageList;
 
-  const TimelineEventMessageEdited(this.editedNameOfEventMessage);
+  const TimelineEventMessageEdited(
+      this.editedNameOfEventMessage, this.eventMessageList);
 }
 
 class TimelineEditingModeChanged extends TimelineScreenEvent {

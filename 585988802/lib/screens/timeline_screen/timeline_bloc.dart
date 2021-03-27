@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../db_helper/db_helper.dart';
 import '../../models/event_message.dart';
@@ -52,11 +53,14 @@ class TimelineScreenBloc
   Stream<TimelineScreenState> _mapEventMessageListInitToState(
       TimelineEventMessageListInit event) async* {
     final eventMessageList = await _dbHelper.dbEventMessagesList();
-    final revEventMessageList = eventMessageList.reversed.toList();
-
+    eventMessageList.sort((a, b) {
+      final aDate = DateFormat.yMMMd().add_jm().parse(a.time);
+      final bDate = DateFormat.yMMMd().add_jm().parse(b.time);
+      return bDate.compareTo(aDate);
+    });
     yield state.copyWith(
-      filteredEventMessageList: revEventMessageList,
-      eventMessageList: revEventMessageList,
+      filteredEventMessageList: eventMessageList,
+      eventMessageList: eventMessageList,
       isSearchIconButtonPressed: false,
       isCategorySelected: false,
       isEditing: false,
@@ -68,43 +72,49 @@ class TimelineScreenBloc
   Stream<TimelineScreenState> _mapSearchIconButtonUnpressedToState(
       TimelineSearchIconButtonUnpressed event) async* {
     yield state.copyWith(
-        filteredEventMessageList: event.eventMessageList,
-        isSearchIconButtonPressed: !event.isSearchIconButtonPressed);
+      filteredEventMessageList: event.eventMessageList,
+      isSearchIconButtonPressed: !event.isSearchIconButtonPressed,
+    );
   }
 
   Stream<TimelineScreenState> _mapSearchIconButtonPressedToState(
       TimelineSearchIconButtonPressed event) async* {
     yield state.copyWith(
-        isSearchIconButtonPressed: !event.isSearchIconButtonPressed);
+      isSearchIconButtonPressed: !event.isSearchIconButtonPressed,
+    );
   }
 
   Stream<TimelineScreenState> _mapFavoriteButPressedToState(
       TimelineFavoriteButPressed event) async* {
-    yield state.copyWith(isFavoriteButPressed: !event.isFavoriteButPressed);
+    yield state.copyWith(
+      isFavoriteButPressed: !event.isFavoriteButPressed,
+    );
   }
 
   Stream<TimelineScreenState> _mapEventMessageListFilteredToState(
       TimelineEventMessageListFiltered event) async* {
     yield state.copyWith(
-        filteredEventMessageList: event.eventMessageList
-            .where((eventMessage) => eventMessage.isImageMessage == 1
-                ? 'Image'
-                    .toLowerCase()
-                    .contains(event.searchEventMessage.toLowerCase())
-                : eventMessage.text
-                    .toLowerCase()
-                    .contains(event.searchEventMessage.toLowerCase()))
-            .toList());
+      filteredEventMessageList: event.eventMessageList
+          .where((eventMessage) => eventMessage.isImageMessage == 1
+              ? 'Image'
+                  .toLowerCase()
+                  .contains(event.searchEventMessage.toLowerCase())
+              : eventMessage.text
+                  .toLowerCase()
+                  .contains(event.searchEventMessage.toLowerCase()))
+          .toList(),
+    );
   }
 
   Stream<TimelineScreenState> _mapEventMessageListFilteredBySuggestionName(
       TimelineEventMessageListFilteredBySuggestionName event) async* {
     yield state.copyWith(
-        filteredEventMessageList: event.eventMessageList
-            .where((eventMessage) => eventMessage.nameOfSuggestion
-                .toLowerCase()
-                .contains(event.nameOfSuggestion.toLowerCase()))
-            .toList());
+      filteredEventMessageList: event.eventMessageList
+          .where((eventMessage) =>
+              eventMessage.nameOfSuggestion.toLowerCase() ==
+              event.nameOfSuggestion.toLowerCase())
+          .toList(),
+    );
   }
 
   Stream<TimelineScreenState>
@@ -114,21 +124,29 @@ class TimelineScreenBloc
 
   Stream<TimelineScreenState> _mapEventMessageSelectedToState(
       TimelineEventMessageSelected event) async* {
-    yield state.copyWith(selectedEventMessage: event.eventMessage);
+    yield state.copyWith(
+      selectedEventMessage: event.eventMessage,
+    );
   }
 
   Stream<TimelineScreenState> _mapUpdateToState() async* {
     final eventMessageList = await _dbHelper.dbEventMessagesList();
-    final revEventMessageList = eventMessageList.reversed.toList();
+    eventMessageList.sort((a, b) {
+      final aDate = DateFormat.yMMMd().add_jm().parse(a.time);
+      final bDate = DateFormat.yMMMd().add_jm().parse(b.time);
+      return bDate.compareTo(aDate);
+    });
     yield state.copyWith(
-      filteredEventMessageList: revEventMessageList,
-      eventMessageList: revEventMessageList,
+      filteredEventMessageList: eventMessageList,
+      eventMessageList: eventMessageList,
     );
   }
 
   Stream<TimelineScreenState> _mapEditingModeChangedToState(
       TimelineEditingModeChanged event) async* {
-    yield state.copyWith(isEditing: event.isEditing);
+    yield state.copyWith(
+      isEditing: event.isEditing,
+    );
   }
 
   Stream<TimelineScreenState> _mapEventMessageToFavoriteToState(
@@ -136,7 +154,9 @@ class TimelineScreenBloc
     event.eventMessage.isFavorite =
         (event.eventMessage.isFavorite == 1) ? 0 : 1;
     _dbHelper.updateEventMessage(event.eventMessage);
-    yield state.copyWith(selectedEventMessage: event.eventMessage);
+    yield state.copyWith(
+      selectedEventMessage: event.eventMessage,
+    );
   }
 
   Stream<TimelineScreenState> _mapEventMessageDeletedToState(
@@ -151,6 +171,7 @@ class TimelineScreenBloc
 
   Stream<TimelineScreenState> _mapEventMessageEditedToState(
       TimelineEventMessageEdited event) async* {
+    final index = event.eventMessageList.indexOf(state.selectedEventMessage);
     final eventMessage = EventMessage(
       id: state.selectedEventMessage.id,
       idOfSuggestion: state.selectedEventMessage.idOfSuggestion,
@@ -164,10 +185,11 @@ class TimelineScreenBloc
       nameOfCategory: state.selectedEventMessage.nameOfCategory,
     );
     _dbHelper.updateEventMessage(eventMessage);
-    add(
-      TimelineUpdateEventMessageList(),
+    event.eventMessageList[index] = eventMessage;
+    yield state.copyWith(
+      eventMessageList: event.eventMessageList,
+      filteredEventMessageList: event.eventMessageList,
     );
-    yield state.copyWith();
   }
 
   Stream<TimelineScreenState> _mapTagDeletedToState(

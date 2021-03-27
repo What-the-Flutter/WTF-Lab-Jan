@@ -45,8 +45,6 @@ class _EventScreenState extends State<EventScreen> {
 
   _EventScreenState(this._listViewSuggestion, this._suggestionsList);
 
-  //a temporary list to check the functionality of
-  // adding a message with the selected category
   final List<Category> _categoryList = [
     Category(nameOfCategory: 'Journal', imagePath: 'assets/images/journal.png'),
     Category(nameOfCategory: 'Pig', imagePath: 'assets/images/pig.png'),
@@ -465,9 +463,8 @@ class _EventScreenState extends State<EventScreen> {
 
   void doSwipeSelectedItemAction(BuildContext context,
       EventMessage eventMessage, SwipeSelectedAction action) {
-    BlocProvider.of<EventScreenBloc>(context).add(
-      EventMessageSelected(eventMessage),
-    );
+    BlocProvider.of<EventScreenBloc>(context).state.selectedEventMessage =
+        eventMessage;
     switch (action) {
       case SwipeSelectedAction.edit:
         _editEventMessage();
@@ -489,7 +486,7 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
+            curve: Curves.decelerate,
             reverseCurve: Curves.easeOutCubic,
           ),
           child: CustomDialog.deleteEventMessage(
@@ -853,6 +850,7 @@ class _EventScreenState extends State<EventScreen> {
                   .selectedCategory
                   .nameOfCategory,
         ),
+        BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
       ),
     );
 
@@ -881,7 +879,7 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
+            curve: Curves.decelerate,
             reverseCurve: Curves.easeOutCubic,
           ),
           child: _customDialogImageSelect,
@@ -989,6 +987,7 @@ class _EventScreenState extends State<EventScreen> {
                     .selectedCategory
                     .nameOfCategory,
           ),
+          BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
         ),
       );
     }
@@ -1270,7 +1269,10 @@ class _EventScreenState extends State<EventScreen> {
                 .nameOfCategory,
           );
     BlocProvider.of<EventScreenBloc>(context).add(
-      EventMessageAdded(selectedEventMessage),
+      EventMessageAdded(
+        selectedEventMessage,
+        BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
+      ),
     );
   }
 
@@ -1302,7 +1304,7 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.linearToEaseOut,
+            curve: Curves.decelerate,
             reverseCurve: Curves.linearToEaseOut,
           ),
           child: CustomDialog.editEventMessage(
@@ -1338,7 +1340,10 @@ class _EventScreenState extends State<EventScreen> {
   void _selectedEdit() {
     if (_textEditingController.text.isNotEmpty) {
       BlocProvider.of<EventScreenBloc>(context).add(
-        EventMessageEdited(_textEditingController.text),
+        EventMessageEdited(
+          _textEditingController.text,
+          BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
+        ),
       );
       _textEditingController.clear();
     }
@@ -1356,7 +1361,9 @@ class _EventScreenState extends State<EventScreen> {
 
   void _deleteEventMessage() {
     BlocProvider.of<EventScreenBloc>(context).add(
-      EventMessageDeleted(),
+      EventMessageDeleted(
+        BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
+      ),
     );
   }
 }
