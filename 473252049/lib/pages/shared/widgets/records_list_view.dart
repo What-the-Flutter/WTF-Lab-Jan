@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 
 import '../../../model/category.dart';
 import '../../../model/record.dart';
+import '../../main/tabs/home/cubit/categories_cubit.dart';
 import '../../settings/cubit/settings_cubit.dart';
-import '../cubit/records_cubit.dart';
-import 'record_widget.dart';
+import 'record/record_widget.dart';
 
 class RecordsListView extends StatefulWidget {
   final List<Record> records;
@@ -81,6 +81,8 @@ List<Widget> recordWidgetsFromRecords({
             category: category,
             bubbleAlignment: state.bubbleAlignment,
             withCategory: withCategories,
+            futureCategory:
+                context.read<CategoriesCubit>().getById(records[i].categoryId),
           );
         },
       ),

@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import '../../model/category.dart';
-import '../../model/record.dart';
 import '../settings/cubit/settings_cubit.dart';
+import '../shared/widgets/records_list_view.dart';
 import 'cubit/records_cubit.dart';
-import 'dialogs/choose_image_source_dialog.dart';
-import 'dialogs/create_image_record_dialog.dart';
-import 'dialogs/date_time_picker_dialog.dart';
+import 'widgets/create_record_form.dart';
 import 'widgets/default_app_bar.dart';
 import 'widgets/edit_mode_app_bar.dart';
-import 'widgets/message_text_form_field.dart';
-import 'widgets/records_list_view.dart';
+import 'widgets/record_create_date_time_choice_button.dart';
 import 'widgets/select_record_app_bar.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -54,11 +50,11 @@ class _CategoryPageState extends State<CategoryPage> {
                         )
                       : selectRecordAppBar(
                           context,
-                          recordsState: state,
+                          records: state.records,
                           messageFocus: _messageFocus,
                           controller: _textEditingController,
                           category: widget.category,
-                          setRecordCreateDateTime: setCreateRecordDateTime,
+                          setCreateRecordDateTime: setCreateRecordDateTime,
                         )
                   : defaultAppBar(
                       context,
@@ -85,24 +81,16 @@ class _CategoryPageState extends State<CategoryPage> {
                           RecordsListView(
                             records: state.records,
                             category: widget.category,
+                            withCategories: false,
                           ),
                           if (settingsState
                               .showCreateRecordDateTimePickerButton)
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: OutlinedButton(
-                                onPressed: () async {
-                                  final dateTime =
-                                      await showDateTimePickerDialog(
-                                    context,
-                                    initialDateTime: createRecordDateTime,
-                                  );
-                                  setCreateRecordDateTime(dateTime);
-                                },
-                                child: Text(
-                                  '${DateFormat.yMEd().add_Hm().format(createRecordDateTime)}',
-                                ),
+                              padding: const EdgeInsets.all(4),
+                              child: RecordCreateDateTimeChoiceButton(
+                                createRecordDateTime: createRecordDateTime,
+                                setCreateRecordDateTime:
+                                    setCreateRecordDateTime,
                               ),
                             ),
                         ],
@@ -110,77 +98,12 @@ class _CategoryPageState extends State<CategoryPage> {
                     },
                   ),
                 ),
-              Form(
-                key: _formKey,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (!(state is RecordUpdateInProcess))
-                      IconButton(
-                        icon: Icon(Icons.photo),
-                        onPressed: () async {
-                          final imageSource =
-                              await showChooseImageSourceDialog(context);
-                          if (imageSource == null) return;
-                          final image = await getImage(imageSource);
-                          if (image == null) return;
-                          showCreateImageRecordDialog(
-                            context: context,
-                            image: image,
-                            textEditingController: _textEditingController,
-                            messageFocus: _messageFocus,
-                            categoryId: widget.category.id,
-                          );
-                        },
-                      ),
-                    Expanded(
-                      child: MessageTextFormField(
-                        focusNode: _messageFocus,
-                        controller: _textEditingController,
-                      ),
-                    ),
-                    BlocBuilder<SettingsCubit, SettingsState>(
-                      builder: (context, settingsState) {
-                        return IconButton(
-                          icon: state is RecordUpdateInProcess
-                              ? Icon(Icons.check)
-                              : Icon(Icons.send),
-                          onPressed: () async {
-                            if (_formKey.currentState.validate()) {
-                              if (state is RecordUpdateInProcess) {
-                                await context.read<RecordsCubit>().update(
-                                      state.record.copyWith(
-                                        message:
-                                            _textEditingController.text.trim(),
-                                        createDateTime: settingsState
-                                                .showCreateRecordDateTimePickerButton
-                                            ? createRecordDateTime
-                                            : state.record.createDateTime,
-                                      ),
-                                      categoryId: widget.category.id,
-                                    );
-                                context.read<RecordsCubit>().unselectAll(
-                                      categoryId: widget.category.id,
-                                    );
-                                _messageFocus.unfocus();
-                              } else {
-                                await context.read<RecordsCubit>().add(
-                                      Record(
-                                        _textEditingController.text.trim(),
-                                        categoryId: widget.category.id,
-                                        createDateTime: createRecordDateTime,
-                                      ),
-                                      categoryId: widget.category.id,
-                                    );
-                              }
-                              _textEditingController.clear();
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
+              CreateRecordForm(
+                formKey: _formKey,
+                textEditingController: _textEditingController,
+                messageFocus: _messageFocus,
+                categoryId: widget.category.id,
+                createRecordDateTime: createRecordDateTime,
               ),
             ],
           ),

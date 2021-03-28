@@ -60,10 +60,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   void copyToClipboard({@required List<Record> records, int categoryId}) async {
     utils.copyToClipboard(records);
     emit(
-      RecordsCopyToClipboardSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
-        records,
-      ),
+      RecordsCopyToClipboardSuccess(state.records, records),
     );
   }
 
@@ -97,14 +94,10 @@ class RecordsCubit extends Cubit<RecordsState> {
 
   void unselectAll({List<Record> records, int categoryId}) async {
     final recordsForUnselect = records ??
-        state.records
-            .where(
-              (element) => element.isSelected,
-            )
-            .toList();
+        state.records.where((element) => element.isSelected).toList();
 
     for (var record in recordsForUnselect) {
-      repository.update(
+      await repository.update(
         record.copyWith(isSelected: false),
       );
     }
@@ -118,10 +111,7 @@ class RecordsCubit extends Cubit<RecordsState> {
 
   void beginUpdate(Record record, {int categoryId}) {
     emit(
-      RecordUpdateInProcess(
-        state.records,
-        record,
-      ),
+      RecordUpdateInProcess(state.records, record),
     );
   }
 
@@ -173,7 +163,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   }) async {
     for (var record in recordsForSend) {
       record.categoryId = categoryToId;
-      repository.update(record);
+      await repository.update(record);
     }
     emit(
       RecordsSendSuccess(
@@ -186,11 +176,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   void showFavorite() {
     emit(
       RecordsShowFavoriteSuccess(
-        state.records
-            .where(
-              (element) => element.isFavorite,
-            )
-            .toList(),
+        state.records.where((element) => element.isFavorite).toList(),
       ),
     );
   }

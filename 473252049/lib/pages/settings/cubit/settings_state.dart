@@ -20,12 +20,13 @@ class SettingsState extends Equatable {
             showCreateRecordDateTimePicker ?? false,
         isAuthenticationOn = isAuthenticationOn ?? false;
 
-  SettingsState copyWith(
-      {ThemeMode themeMode,
-      bool centerDateBubble,
-      Alignment bubbleAlignment,
-      bool showCreateRecordDateTimePicker,
-      bool isAuthenticationOn}) {
+  SettingsState copyWith({
+    ThemeMode themeMode,
+    bool centerDateBubble,
+    Alignment bubbleAlignment,
+    bool showCreateRecordDateTimePicker,
+    bool isAuthenticationOn,
+  }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
       centerDateBubble: centerDateBubble ?? this.centerDateBubble,

@@ -1,12 +1,13 @@
-import 'package:chat_journal/pages/category/cubit/records_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ShowFavoriteIconButton extends StatelessWidget {
+import '../../category/cubit/records_cubit.dart';
+
+class ShowFavoriteRecordsIconButton extends StatelessWidget {
   final RecordsState state;
   final int categoryId;
 
-  const ShowFavoriteIconButton({
+  const ShowFavoriteRecordsIconButton({
     Key key,
     this.state,
     this.categoryId,
