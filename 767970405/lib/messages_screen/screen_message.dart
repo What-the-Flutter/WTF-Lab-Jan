@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../data/model/model_message.dart';
+import '../data/repository/event_repository.dart';
 import '../data/theme/custom_theme.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
 import '../settings_screen/general_options_cubit.dart';
-import 'date_time_mod_button_cubit.dart';
 import 'screen_message_cubit.dart';
 
 class ScreenMessage extends StatefulWidget {
@@ -57,26 +57,39 @@ class _ScreenMessageState extends State<ScreenMessage> {
     );
   }
 
-  Widget get body => Column(
-    children: <Widget>[
-      Expanded(
-        child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-          builder: (context, state) {
-            final state = context.read<GeneralOptionsCubit>().state;
-            return ChatElementList(
-              alignment: state.isLeftBubbleAlign
-                  ? Alignment.topLeft
-                  : Alignment.topRight,
-              isDateTimeModEnabled: state.isDateTimeModification,
-            );
-          },
+  Widget get body => BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+        builder: (context, state) => Column(
+          children: <Widget>[
+            Expanded(
+              child: ChatElementList(
+                alignment:
+                    context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
+                        ? Alignment.topLeft
+                        : Alignment.topRight,
+                isDateTimeModEnabled: context
+                    .read<GeneralOptionsCubit>()
+                    .state
+                    .isDateTimeModification,
+              ),
+            ),
+            Builder(
+              builder: (context) {
+                switch (state.floatingBar) {
+                  case FloatingBar.nothing:
+                    return Container();
+                  case FloatingBar.events:
+                    return EventList();
+                  case FloatingBar.photosOption:
+                    return AttachPhotoOption();
+                  default:
+                    return Container();
+                }
+              },
+            ),
+            InputPanel(),
+          ],
         ),
-      ),
-      InputPanel(),
-    ],
-  );
-
-
+      );
 }
 
 class ChatElementList extends StatelessWidget {
@@ -100,7 +113,7 @@ class ChatElementList extends StatelessWidget {
               context, context.read<ScreenMessageCubit>().state),
         ),
         if (isDateTimeModEnabled)
-          BlocBuilder<DateTimeModButtonCubit, DateTimeModButtonState>(
+          BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
             builder: (context, state) => DateTimeModButton(
               date: DateFormat.yMMMEd().format(state.fromDate),
               theme: context
@@ -123,24 +136,26 @@ class ChatElementList extends StatelessWidget {
     var filterList = context.read<ScreenMessageCubit>().groupMsgByDate;
     final currentTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
     for (var i = filterList.length - 1; i > -1; i--) {
+      var flag = false;
       for (var j = 0; j < filterList[i].length; j++) {
         if (state.isBookmark && !state.list[index].isFavor) {
           list.add(Container());
           index--;
           continue;
         }
+        flag = true;
         list.add(
           Message(
             index: index,
             isSelected: state.list[index].isSelected,
             isFavor: state.list[index].isFavor,
             photoPath: state.list[index].photo,
-            event: state.list[index].indexCategory,
+            eventIndex: state.list[index].indexCategory,
             text: state.list[index].text,
             date: DateFormat.Hm().format(state.list[index].pubTime),
             align: context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
-                ? Alignment.topLeft
-                : Alignment.topRight,
+                ? Alignment.topRight
+                : Alignment.topLeft,
             onTap: state.mode == Mode.selection
                 ? context.read<ScreenMessageCubit>().selection
                 : null,
@@ -150,15 +165,21 @@ class ChatElementList extends StatelessWidget {
         );
         index--;
       }
+      if (state.isBookmark && !flag) {
+        list.add(Container());
+        index--;
+        continue;
+      }
       list.add(
         DateLabel(
           theme: currentTheme.labelDateTheme,
           date: DateFormat.yMMMd().format(
             filterList[i][0].pubTime,
           ),
-          alignment: context.read<GeneralOptionsCubit>().state.isCenterDateBubble
-              ? Alignment.center
-              : Alignment.topLeft,
+          alignment:
+              context.read<GeneralOptionsCubit>().state.isCenterDateBubble
+                  ? Alignment.center
+                  : Alignment.topLeft,
         ),
       );
     }
@@ -178,7 +199,7 @@ class DateTimeModButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.read<DateTimeModButtonCubit>().state;
+    final state = context.read<ScreenMessageCubit>().state;
     return GestureDetector(
       onTap: () => selectDateAndTime(context, state),
       child: Container(
@@ -201,7 +222,7 @@ class DateTimeModButton extends StatelessWidget {
             ),
             if (state.isReset)
               IconButton(
-                onPressed: context.read<DateTimeModButtonCubit>().reset,
+                onPressed: context.read<ScreenMessageCubit>().reset,
                 icon: Icon(
                   Icons.close,
                   size: 16.0,
@@ -218,17 +239,21 @@ class DateTimeModButton extends StatelessWidget {
   }
 
   Future<void> selectDateAndTime(
-      BuildContext context, DateTimeModButtonState state) async {
+    BuildContext context,
+    ScreenMessageState state,
+  ) async {
     final datePicked = await _showDatePicker(context, state.fromDate);
 
     final timePicked = await _showTimePicker(context, state.fromTime);
     context
-        .read<DateTimeModButtonCubit>()
+        .read<ScreenMessageCubit>()
         .updateDateAndTime(date: datePicked, time: timePicked);
   }
 
   Future<TimeOfDay> _showTimePicker(
-      BuildContext context, TimeOfDay initialTime) async {
+    BuildContext context,
+    TimeOfDay initialTime,
+  ) async {
     return await showTimePicker(
       context: context,
       initialTime: initialTime,
@@ -236,7 +261,9 @@ class DateTimeModButton extends StatelessWidget {
   }
 
   Future<DateTime> _showDatePicker(
-      BuildContext context, DateTime initialDate) async {
+    BuildContext context,
+    DateTime initialDate,
+  ) async {
     return await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -291,8 +318,14 @@ class InputPanel extends StatelessWidget {
             Expanded(
               flex: 1,
               child: IconButton(
-                icon: Icon(Icons.bubble_chart),
-                onPressed: null,
+                icon: Icon(
+                  state.indexCategory == -1
+                      ? Icons.bubble_chart
+                      : RepositoryProvider.of<EventRepository>(context)
+                          .events[state.indexCategory]
+                          .iconData,
+                ),
+                onPressed: state.onAddCategory,
               ),
             ),
             Expanded(
@@ -309,16 +342,8 @@ class InputPanel extends StatelessWidget {
             Expanded(
               flex: 1,
               child: IconButton(
-                icon: Icon(state.iconData),
-                onPressed: () => state.onAddMessage(
-                  context.read<DateTimeModButtonCubit>().state.isReset
-                      ? context
-                          .read<DateTimeModButtonCubit>()
-                          .state
-                          .fromDate
-                          .applied(context.read<DateTimeModButtonCubit>().state.fromTime)
-                      : DateTime.now(),
-                ),
+                icon: Icon(state.iconDataPhoto),
+                onPressed: state.onAddMessage,
               ),
             ),
           ],
@@ -495,9 +520,9 @@ class SelectionAppBar extends StatelessWidget {
                 padding: EdgeInsets.only(left: 5),
                 child: OutlinedButton(
                   onPressed: () {
-                    context
-                        .read<ScreenMessageCubit>()
-                        .listSelected(list[index].id);
+                    context.read<ScreenMessageCubit>().listSelected(
+                          list[index].id,
+                        );
                     Navigator.pop(context);
                   },
                   child: Center(
@@ -508,6 +533,160 @@ class SelectionAppBar extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class AttachPhotoOption extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        AttachPhotoButton(
+          iconData: Icons.camera_alt_outlined,
+          text: 'Open Camera',
+          source: ImageSource.camera,
+        ),
+        AttachPhotoButton(
+          iconData: Icons.photo,
+          text: 'Open Gallery',
+          source: ImageSource.gallery,
+        )
+      ],
+    );
+  }
+}
+
+class EventList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final events = RepositoryProvider.of<EventRepository>(context).events;
+    return Container(
+      constraints: BoxConstraints(maxHeight: 70),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: events.length,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return GestureDetector(
+              onTap: context.read<ScreenMessageCubit>().cancelSelected,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Container(
+                      child: Icon(Icons.close),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.red,
+                      ),
+                    ),
+                    Text('Cancel'),
+                  ],
+                ),
+              ),
+            );
+          }
+          return EventMessage(
+            index: index - 1,
+            iconData: events[index - 1].iconData,
+            label: events[index - 1].label,
+            color: Colors.teal,
+            direction: Axis.vertical,
+            onTap: context.read<ScreenMessageCubit>().selectedCategory,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class EventMessage extends StatelessWidget {
+  final int index;
+  final IconData iconData;
+  final String label;
+  final Color color;
+  final Axis direction;
+  final Function onTap;
+
+  EventMessage({
+    Key key,
+    this.index,
+    this.iconData,
+    this.label,
+    this.color,
+    this.direction,
+    this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap != null ? () => onTap(index) : onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.0),
+        child: Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          direction: direction,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color,
+              ),
+              child: Icon(
+                iconData,
+              ),
+            ),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AttachPhotoButton extends StatelessWidget {
+  final IconData iconData;
+  final String text;
+  final ImageSource source;
+
+  const AttachPhotoButton({
+    Key key,
+    this.iconData,
+    this.source,
+    this.text,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.read<ScreenMessageCubit>().addPhotoMessage(source),
+      child: Container(
+        //constraints: BoxConstraints(maxWidth: 100),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          color: Colors.red,
+        ),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(
+                iconData,
+                color: Colors.black,
+              ),
+            ),
+            Text(text),
+          ],
+        ),
       ),
     );
   }
@@ -550,7 +729,7 @@ class Message extends StatelessWidget {
   final bool isFavor;
   final String title;
   final String photoPath;
-  final int event;
+  final int eventIndex;
   final String text;
   final String date;
   final AlignmentGeometry align;
@@ -565,7 +744,7 @@ class Message extends StatelessWidget {
     this.isFavor,
     this.title,
     this.photoPath,
-    this.event,
+    this.eventIndex,
     this.text,
     this.date,
     this.align,
@@ -592,12 +771,22 @@ class Message extends StatelessWidget {
             ),
             padding: EdgeInsets.all(10.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 if (title != null) Text(title),
                 if (photoPath != null) Image.file(File(photoPath)),
-                if (event != null) Container(),
+                if (eventIndex != -1)
+                  EventMessage(
+                    iconData: Provider.of<EventRepository>(context)
+                        .events[eventIndex]
+                        .iconData,
+                    label: Provider.of<EventRepository>(context)
+                        .events[eventIndex]
+                        .label,
+                    color: Colors.teal,
+                    direction: Axis.horizontal,
+                  ),
                 if (text != null) Text(text, style: theme.contentStyle),
                 Row(
                   mainAxisSize: MainAxisSize.min,

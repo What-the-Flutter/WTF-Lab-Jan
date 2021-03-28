@@ -1,6 +1,8 @@
 part of 'screen_message_cubit.dart';
 
-enum Mode { await, input, selection, edit}
+enum Mode { await, input, selection, edit }
+
+enum FloatingBar { nothing, events, photosOption }
 
 class ScreenMessageState extends Equatable {
   final ModelPage page;
@@ -9,17 +11,29 @@ class ScreenMessageState extends Equatable {
   final int counter;
   final bool isBookmark;
   final bool enabledController;
-  final IconData iconData;
-  final Function(DateTime) onAddMessage;
+  final FloatingBar floatingBar;
+  final DateTime fromDate;
+  final TimeOfDay fromTime;
+  final bool isReset;
+  final int indexCategory;
+  final Function onAddCategory;
+  final IconData iconDataPhoto;
+  final Function onAddMessage;
 
   const ScreenMessageState({
+    this.fromDate,
+    this.fromTime,
+    this.isReset,
     this.page,
     this.counter,
     this.mode,
     this.list,
     this.isBookmark,
     this.enabledController,
-    this.iconData,
+    this.floatingBar,
+    this.indexCategory,
+    this.onAddCategory,
+    this.iconDataPhoto,
     this.onAddMessage,
   });
 
@@ -38,17 +52,29 @@ class ScreenMessageState extends Equatable {
     final int counter,
     final bool isBookmark,
     final bool enabledController,
-    final IconData iconData,
+    final FloatingBar floatingBar,
+    final DateTime fromDate,
+    final TimeOfDay fromTime,
+    final bool isReset,
+    final int indexCategory,
+    final Function onAddCategory,
+    final IconData iconDataPhoto,
     final Function onAddMessage,
   }) {
     return ScreenMessageState(
+      fromDate: fromDate ?? this.fromDate,
+      fromTime: fromTime ?? this.fromTime,
+      isReset: isReset ?? this.isReset,
       page: page ?? this.page,
       mode: mode ?? this.mode,
       list: list ?? this.list,
       counter: counter ?? this.counter,
       isBookmark: isBookmark ?? this.isBookmark,
       enabledController: enabledController ?? this.enabledController,
-      iconData: iconData ?? this.iconData,
+      floatingBar: floatingBar ?? this.floatingBar,
+      indexCategory: indexCategory ?? this.indexCategory,
+      onAddCategory: onAddCategory ?? this.onAddCategory,
+      iconDataPhoto: iconDataPhoto ?? this.iconDataPhoto,
       onAddMessage: onAddMessage ?? this.onAddMessage,
     );
   }
@@ -60,7 +86,13 @@ class ScreenMessageState extends Equatable {
         list,
         isBookmark,
         enabledController,
-        iconData,
+        floatingBar,
+        indexCategory,
+        onAddCategory,
+        iconDataPhoto,
         onAddMessage,
+        fromTime,
+        fromDate,
+        isReset,
       ];
 }

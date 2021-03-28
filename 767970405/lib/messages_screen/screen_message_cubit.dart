@@ -17,14 +17,20 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
 
   ScreenMessageCubit({
     this.repository,
+    DateTime time,
   }) : super(
           ScreenMessageState(
+            fromDate: time,
+            fromTime: TimeOfDay.fromDateTime(time),
+            isReset: false,
             mode: Mode.await,
             counter: 0,
             isBookmark: false,
             list: <ModelMessage>[],
             enabledController: true,
-            iconData: Icons.photo_camera,
+            floatingBar: FloatingBar.nothing,
+            indexCategory: -1,
+            iconDataPhoto: Icons.photo_camera,
           ),
         );
 
@@ -36,20 +42,21 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         page: page,
         mode: Mode.input,
         list: await repository.messages(page.id),
+        onAddCategory: showEventList,
       ),
     );
     controller.addListener(
       () => controller.text.isEmpty
           ? emit(
               state.copyWith(
-                iconData: Icons.photo_camera,
+                iconDataPhoto: Icons.photo_camera,
                 onAddMessage:
-                    state.mode == Mode.input ? addPhotoMessage : editMessage,
+                    state.mode == Mode.input ? showPhotoOption : editMessage,
               ),
             )
           : emit(
               state.copyWith(
-                iconData: Icons.add,
+                iconDataPhoto: Icons.add,
                 onAddMessage:
                     state.mode == Mode.input ? addTextMessage : editMessage,
               ),
@@ -61,28 +68,37 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     emit(state.copyWith(isBookmark: !state.isBookmark));
   }
 
-  void addTextMessage(DateTime pubTime) async {
+  void addTextMessage() async {
     repository.addMessage(
       ModelMessage(
         pageId: state.page.id,
         text: controller.text,
         isFavor: state.isBookmark,
         isSelected: false,
-        indexCategory: null,
+        indexCategory: state.indexCategory,
         photo: null,
-        pubTime: pubTime,
+        pubTime: state.isReset
+            ? state.fromDate.applied(state.fromTime)
+            : DateTime.now(),
       ),
     );
     controller.text = '';
     emit(
       state.copyWith(
         list: await repository.messages(state.page.id),
+        indexCategory: -1,
+        floatingBar: FloatingBar.nothing,
+        iconDataPhoto: Icons.photo_camera,
+        onAddMessage: showPhotoOption,
       ),
     );
   }
 
   void toSelectionAppBar() {
-    emit(state.copyWith(mode: Mode.selection, onAddMessage: null));
+    emit(state.copyWith(
+      mode: Mode.selection,
+      onAddMessage: null,
+    ));
   }
 
   void toInputAppBar() async {
@@ -90,6 +106,10 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
       mode: Mode.input,
       list: await repository.messages(state.page.id),
       counter: 0,
+      indexCategory: -1,
+      onAddCategory: showEventList,
+      iconDataPhoto: Icons.photo_camera,
+      onAddMessage: showPhotoOption,
     ));
   }
 
@@ -115,9 +135,8 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     return list;
   }
 
-  Future<void> addPhotoMessage(DateTime pubTime) async {
-    final pickedFile =
-        await ImagePicker().getImage(source: ImageSource.gallery);
+  Future<void> addPhotoMessage(ImageSource source) async {
+    final pickedFile = await ImagePicker().getImage(source: source);
     repository.addMessage(
       ModelMessage(
         pageId: state.page.id,
@@ -126,7 +145,9 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         isSelected: false,
         text: null,
         indexCategory: null,
-        pubTime: pubTime,
+        pubTime: state.isReset
+            ? state.fromDate.applied(state.fromTime)
+            : DateTime.now(),
       ),
     );
     emit(
@@ -165,22 +186,24 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   }
 
   void toEditAppBar() {
-    String text;
+    var index = 0;
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
-        text = state.list[i].text;
+        index = i;
+        break;
       }
     }
-    controller.text = text;
+    controller.text = state.list[index].text;
     emit(
       state.copyWith(
         mode: Mode.edit,
         onAddMessage: editMessage,
+        indexCategory: state.list[index].indexCategory,
       ),
     );
   }
 
-  void editMessage(DateTime date) {
+  void editMessage() {
     int index;
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
@@ -188,8 +211,11 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         break;
       }
     }
-    repository.editMessage(
-        state.list[index].copyWith(text: controller.text, isSelected: false));
+    repository.editMessage(state.list[index].copyWith(
+      text: controller.text,
+      isSelected: false,
+      indexCategory: state.indexCategory,
+    ));
     toInputAppBar();
     controller.text = '';
   }
@@ -249,6 +275,70 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
       }
     }
     toInputAppBar();
+  }
+
+  void showEventList() {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.events,
+      onAddCategory: closeFloatingBar,
+    ));
+  }
+
+  void closeFloatingBar() {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.nothing,
+      onAddCategory: showEventList,
+      onAddMessage: showPhotoOption,
+    ));
+  }
+
+  void cancelSelected() {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.nothing,
+      onAddCategory: showEventList,
+      indexCategory: -1,
+      onAddMessage: state.mode == Mode.input ? showPhotoOption : null,
+      iconDataPhoto: state.mode == Mode.input ? Icons.photo_camera : null,
+    ));
+  }
+
+  void showPhotoOption() {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.photosOption,
+      onAddMessage: closeFloatingBar,
+    ));
+  }
+
+  void selectedCategory(int index) {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.nothing,
+      onAddCategory: showEventList,
+      indexCategory: index,
+      iconDataPhoto: Icons.add,
+      onAddMessage: state.mode == Mode.input ? addTextMessage : editMessage,
+    ));
+  }
+
+  void updateDateAndTime({
+    DateTime date,
+    TimeOfDay time,
+  }) {
+    if (date != state.fromDate || time != state.fromTime) {
+      emit(state.copyWith(
+        fromDate: date,
+        fromTime: time,
+        isReset: true,
+      ));
+    }
+  }
+
+  void reset() {
+    final date = DateTime.now();
+    emit(state.copyWith(
+      fromDate: date,
+      fromTime: TimeOfDay.fromDateTime(date),
+      isReset: false,
+    ));
   }
 
   @override

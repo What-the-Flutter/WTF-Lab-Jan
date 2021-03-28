@@ -16,9 +16,11 @@ class SearchMessageScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              context.read<SearchMessageScreenCubit>().reset();
+              Navigator.pop(context);
+            }),
         title: TextField(
           autofocus: true,
           controller: context.read<SearchMessageScreenCubit>().controller,
@@ -32,9 +34,7 @@ class SearchMessageScreen extends StatelessWidget {
             builder: (context, state) => state is! SearchMessageScreenWait
                 ? IconButton(
                     icon: Icon(Icons.close),
-                    onPressed: context
-                        .read<SearchMessageScreenCubit>()
-                        .resetController)
+                    onPressed: context.read<SearchMessageScreenCubit>().reset)
                 : Container(),
           ),
         ],
@@ -75,7 +75,7 @@ class SearchMessageScreen extends StatelessWidget {
                   isFavor: state.list[index].isFavor,
                   title: state.page.title,
                   photoPath: state.list[index].photo,
-                  event: state.list[index].indexCategory,
+                  eventIndex: state.list[index].indexCategory,
                   text: state.list[index].text,
                   date: DateFormat.Hm().format(state.list[index].pubTime),
                   align: isLeftBubbleAlign

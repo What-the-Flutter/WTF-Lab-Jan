@@ -40,7 +40,7 @@ class HomeWindow extends StatelessWidget {
             ? ChatPreviewList()
             : Center(child: Text('Await')),
       ),
-      floatingActionButton: ButtonAddChat(),
+      floatingActionButton: AddChatButton(),
       bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
         builder: _bottomNavigationBar,
       ),
@@ -203,7 +203,7 @@ class Bot extends StatelessWidget {
   }
 }
 
-class ButtonAddChat extends StatelessWidget {
+class AddChatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
