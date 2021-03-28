@@ -10,8 +10,10 @@ import 'package:intl/intl.dart';
 
 import '../data/icon_list.dart';
 import '../entity/page.dart';
-import '../home_page/pages_cubit.dart';
+import '../home_page/home/pages_cubit.dart';
 import '../settings_page/settings_cubit.dart';
+import '../widgets/event_message_list.dart';
+import '../widgets/event_message_tile.dart';
 import 'events_cubit.dart';
 import 'events_state.dart';
 
@@ -25,7 +27,7 @@ class EventPage extends StatefulWidget {
 }
 
 class _EventPageState extends State<EventPage> {
-  final controller = TextEditingController();
+  final _controller = TextEditingController();
   final _focusNode = FocusNode();
 
   EventCubit cubit;
@@ -81,7 +83,7 @@ class _EventPageState extends State<EventPage> {
         icon: Icon(Icons.close),
         onPressed: () {
           cubit.setOnSearch(false);
-          controller.clear();
+          _controller.clear();
         },
       ),
       title: Expanded(
@@ -171,7 +173,7 @@ class _EventPageState extends State<EventPage> {
     IconButton _closeButton() {
       return IconButton(
         onPressed: () {
-          controller.clear();
+          _controller.clear();
           cubit.setSelectionMode(false);
         },
         icon: Icon(Icons.clear),
@@ -193,7 +195,7 @@ class _EventPageState extends State<EventPage> {
     IconButton _editButton() {
       return IconButton(
         onPressed: () {
-          controller.text = cubit.state.selected.first.description;
+          _controller.text = cubit.state.selected.first.description;
           _focusNode.requestFocus();
           cubit.setOnEdit(true);
         },
@@ -260,7 +262,7 @@ class _EventPageState extends State<EventPage> {
   Widget get _listView {
     final _allowed = cubit.state.isSearching
         ? cubit.state.events
-            .where((element) => element.description.contains(controller.text))
+            .where((element) => element.description.contains(_controller.text))
             .toList()
         : cubit.state.events;
 
@@ -268,58 +270,106 @@ class _EventPageState extends State<EventPage> {
         ? _allowed.where((event) => event.isFavourite).toList()
         : _allowed;
 
-    if (_displayed.isNotEmpty) {
-      final _children = <Widget>[SizedBox(height: 50)];
-      final days = <int>{};
-      for (var i = _displayed.length - 1; i >= 0; i--) {
-        final day =
-            _displayed[i].creationTime.millisecondsSinceEpoch ~/ 86400000;
-        if (!days.contains(day)) {
-          _children.insert(
-            0,
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-              child: Text(
-                DateFormat('MMM d, yyyy').format(_displayed[i].creationTime),
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodyText1.color,
-                  fontSize: SettingsCubit.calculateSize(context, 15, 18, 25),
-                ),
-                textAlign: cubit.state.isDateCentered
-                    ? TextAlign.center
-                    : BlocProvider.of<SettingsCubit>(context)
-                            .state
-                            .isRightToLeft
-                        ? TextAlign.end
-                        : TextAlign.start,
-              ),
-            ),
-          );
-          days.add(day);
-        }
-        _children.insert(0, _listItem(_displayed[i], i));
-      }
+    return EventMessageList(
+      _displayed,
+      cubit.state.selected,
+      cubit.state.isDateCentered,
+      cubit.state.isRightToLeft,
+      builder: (event) {
+        return EventMessageTile(
+          event,
+          cubit.state.isRightToLeft,
+          cubit.state.selected.contains(event),
+          onTap: () {
+            if (cubit.state.isOnSelectionMode) {
+              cubit.selectEvent(event);
+            }
+          },
+          onLongPress: () {
+            cubit.setSelectionMode(true);
+            cubit.selectEvent(event);
+          },
+          onHashTap: (text) {
+            cubit.setOnSearch(true);
+            _controller.text = text;
+          },
+        );
+      },
+    );
 
-      return ListView(
-        reverse: true,
-        shrinkWrap: true,
-        physics: ScrollPhysics(),
-        children: _children,
-      );
-    } else {
-      return Center(
-        child: Text(
-          'No events yet...',
-          style: TextStyle(
-            color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
-            fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
-          ),
-        ),
-      );
-    }
+    // if (_displayed.isNotEmpty) {
+    //   final _children = <Widget>[SizedBox(height: 50)];
+    //   final days = <int>{};
+    //   for (var i = _displayed.length - 1; i >= 0; i--) {
+    //     final day =
+    //         _displayed[i].creationTime.millisecondsSinceEpoch ~/ 86400000;
+    //     if (!days.contains(day)) {
+    //       _children.insert(
+    //         0,
+    //         Container(
+    //           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+    //           child: Text(
+    //             DateFormat('MMM d, yyyy').format(_displayed[i].creationTime),
+    //             style: TextStyle(
+    //               color: Theme.of(context).textTheme.bodyText1.color,
+    //               fontSize: SettingsCubit.calculateSize(context, 15, 18, 25),
+    //             ),
+    //             textAlign: cubit.state.isDateCentered
+    //                 ? TextAlign.center
+    //                 : BlocProvider.of<SettingsCubit>(context)
+    //                         .state
+    //                         .isRightToLeft
+    //                     ? TextAlign.end
+    //                     : TextAlign.start,
+    //           ),
+    //         ),
+    //       );
+    //       days.add(day);
+    //     }
+    //     final event = _displayed[i];
+    //     _children.insert(
+    //       0,
+    //       EventMessageTile(
+    //         event,
+    //         cubit.state.isRightToLeft,
+    //         cubit.state.selected.contains(event),
+    //         onTap: () {
+    //           if (cubit.state.isOnSelectionMode) {
+    //             cubit.selectEvent(event);
+    //           }
+    //         },
+    //         onLongPress: () {
+    //           cubit.setSelectionMode(true);
+    //           cubit.selectEvent(event);
+    //         },
+    //         onHashTap: (text) {
+    //           cubit.setOnSearch(true);
+    //           _controller.text = text;
+    //         },
+    //       ),
+    //     );
+    //   }
+    //
+    //   return ListView(
+    //     reverse: true,
+    //     shrinkWrap: true,
+    //     physics: ScrollPhysics(),
+    //     children: _children,
+    //   );
+    // } else {
+    //   return Center(
+    //     child: Text(
+    //       'No events yet...',
+    //       style: TextStyle(
+    //         color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
+    //         fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
+    //       ),
+    //     ),
+    //   );
+    // }
   }
 
-  Widget _listItem(Event event, int index) {
+  Widget _listItem(Event event) {
     Widget _title(Event event) {
       return Row(
         children: [
@@ -356,10 +406,10 @@ class _EventPageState extends State<EventPage> {
               ),
               onTap: (text) {
                 cubit.setOnSearch(true);
-                controller.text = text;
+                _controller.text = text;
               },
             )
-          : Image.memory(File(event.imagePath).readAsBytesSync());
+          : Image.file(File(event.imagePath));
     }
 
     return GestureDetector(
@@ -497,13 +547,13 @@ class _EventPageState extends State<EventPage> {
           _showBottomSheet();
         } else {
           if (cubit.state.isOnEdit) {
-            cubit.editEvent(controller.text);
+            cubit.editEvent(_controller.text);
           } else {
             cubit.addEvent(
-              controller.text,
+              _controller.text,
             );
           }
-          controller.clear();
+          _controller.clear();
         }
       },
       child: Icon(
@@ -533,7 +583,7 @@ class _EventPageState extends State<EventPage> {
           cubit.setCanSelectImage(text.isEmpty);
         }
       },
-      controller: controller,
+      controller: _controller,
       focusNode: _focusNode,
       decoration: InputDecoration(
         hintText: 'Write event description...',
@@ -613,42 +663,46 @@ class _EventPageState extends State<EventPage> {
         Expanded(
           child: _listView,
         ),
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: Container(
-            padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
-            height: 60,
-            width: double.infinity,
+        Container(
+          decoration: BoxDecoration(
             color: Theme.of(context).primaryColor,
-            child: Row(
-              children: <Widget>[
-                if (!cubit.state.isSearching)
-                  IconButton(
-                    icon: Icon(
-                      cubit.state.selectedIconIndex == 0
-                          ? Icons.insert_emoticon
-                          : eventIconList[cubit.state.selectedIconIndex],
-                      color: Theme.of(context).accentColor,
-                    ),
-                    onPressed: () async {
-                      await showDialog(
-                        context: context,
-                        builder: (context) => _iconDialog(),
-                      );
-                    },
-                  ),
-                SizedBox(
-                  width: 5,
-                ),
-                Expanded(
-                  child: _textField,
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                if (!cubit.state.isSearching) _floatingActionButton,
-              ],
+            border: Border(
+              top: BorderSide(
+                color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.2),
+              ),
             ),
+          ),
+          padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
+          height: 60,
+          width: double.infinity,
+          child: Row(
+            children: <Widget>[
+              if (!cubit.state.isSearching)
+                IconButton(
+                  icon: Icon(
+                    cubit.state.selectedIconIndex == 0
+                        ? Icons.insert_emoticon
+                        : eventIconList[cubit.state.selectedIconIndex],
+                    color: Theme.of(context).accentColor,
+                  ),
+                  onPressed: () async {
+                    await showDialog(
+                      context: context,
+                      builder: (context) => _iconDialog(),
+                    );
+                  },
+                ),
+              SizedBox(
+                width: 5,
+              ),
+              Expanded(
+                child: _textField,
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              if (!cubit.state.isSearching) _floatingActionButton,
+            ],
           ),
         ),
       ],
@@ -657,7 +711,7 @@ class _EventPageState extends State<EventPage> {
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }

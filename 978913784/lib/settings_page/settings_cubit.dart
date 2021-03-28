@@ -10,11 +10,13 @@ class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit(SettingsState state) : super(state);
 
   void initialize() async {
-    emit(state.copyWith(
-      isRightToLeft: _preferencesAccess.fetchRightToLeft(),
-      isDateCentered: _preferencesAccess.fetchDateCentered(),
-      fontSizeIndex: _preferencesAccess.fetchFontSize(),
-    ));
+    emit(
+      state.copyWith(
+        isRightToLeft: _preferencesAccess.fetchRightToLeft(),
+        isDateCentered: _preferencesAccess.fetchDateCentered(),
+        fontSizeIndex: _preferencesAccess.fetchFontSize(),
+      ),
+    );
   }
 
   void changeRightToLeft(bool isRightToLeft) {
@@ -37,8 +39,13 @@ class SettingsCubit extends Cubit<SettingsState> {
     _preferencesAccess.saveDateCentered(false);
     _preferencesAccess.saveRightToLeft(false);
     await _preferencesAccess.saveTheme(true);
-    emit(state.copyWith(
-        fontSizeIndex: 0, isRightToLeft: false, isDateCentered: false));
+    emit(
+      state.copyWith(
+        fontSizeIndex: 0,
+        isRightToLeft: false,
+        isDateCentered: false,
+      ),
+    );
   }
 
   static double calculateSize(

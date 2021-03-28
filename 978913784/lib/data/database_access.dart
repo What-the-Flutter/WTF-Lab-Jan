@@ -104,8 +104,27 @@ class DatabaseAccess {
     return events;
   }
 
-  Future<void> insertPage(JournalPage page) async {
-    await _db.insert(
+  Future<List<Event>> fetchAllEvents() async {
+    final eventsMap =
+    await _db.rawQuery('SELECT * FROM events');
+    final events = List.generate(eventsMap.length, (i) {
+      return Event.fromDb(
+        eventsMap[i]['id'],
+        eventsMap[i]['pageId'],
+        eventsMap[i]['iconIndex'],
+        eventsMap[i]['isFavourite'] == 0 ? false : true,
+        eventsMap[i]['description'],
+        DateTime.fromMillisecondsSinceEpoch(
+            eventsMap[i]['creationTime'] * 1000),
+        eventsMap[i]['imagePath'],
+      );
+    });
+    events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
+    return events;
+  }
+
+  Future<int> insertPage(JournalPage page) async {
+    return _db.insert(
       'pages',
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -113,7 +132,7 @@ class DatabaseAccess {
   }
 
   Future<void> updatePage(JournalPage page) async {
-    await _db.update(
+     _db.update(
       'pages',
       page.toMap(),
       where: 'id = ?',
@@ -122,7 +141,7 @@ class DatabaseAccess {
   }
 
   Future<void> deletePage(JournalPage page) async {
-    await _db.delete(
+     _db.delete(
       'pages',
       where: 'id = ?',
       whereArgs: [page.id],
@@ -138,7 +157,7 @@ class DatabaseAccess {
   }
 
   Future<void> updateEvent(Event event) async {
-    await _db.update(
+     _db.update(
       'events',
       event.toMap(),
       where: 'id = ?',
@@ -147,7 +166,7 @@ class DatabaseAccess {
   }
 
   Future<void> deleteEvent(Event event) async {
-    await _db.delete(
+     _db.delete(
       'events',
       where: 'id = ?',
       whereArgs: [event.id],
