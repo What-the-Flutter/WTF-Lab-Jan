@@ -68,6 +68,11 @@ class _MessageRichTextState extends State<MessageRichText> {
 
   @override
   Widget build(BuildContext context) {
-    return RichText(text: TextSpan(children: textSpanArray));
+    return RichText(
+      text: TextSpan(
+        style: Theme.of(context).textTheme.bodyText2,
+        children: textSpanArray,
+      ),
+    );
   }
 }

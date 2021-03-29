@@ -85,6 +85,50 @@ class GeneralSettingPage extends StatelessWidget {
                   );
                 },
               ),
+              ListTile(
+                title: Text('Font size'),
+                subtitle: Text('Choose app font size'),
+                trailing: Icon(Icons.text_format),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return SimpleDialog(
+                        title: Text('Font size'),
+                        children: [
+                          SimpleDialogOption(
+                            child: Text('Small'),
+                            onPressed: () {
+                              context
+                                  .read<SettingsCubit>()
+                                  .setTextTheme('small');
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          SimpleDialogOption(
+                            child: Text('Normal'),
+                            onPressed: () {
+                              context
+                                  .read<SettingsCubit>()
+                                  .setTextTheme('default');
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          SimpleDialogOption(
+                            child: Text('Large'),
+                            onPressed: () {
+                              context
+                                  .read<SettingsCubit>()
+                                  .setTextTheme('large');
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           );
         },
