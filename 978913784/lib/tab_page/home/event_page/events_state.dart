@@ -1,4 +1,4 @@
-import '../entity/page.dart';
+import '../../../entity/page.dart';
 
 class EventsState {
   int selectedIconIndex = 0;

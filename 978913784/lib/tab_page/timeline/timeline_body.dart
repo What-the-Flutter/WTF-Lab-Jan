@@ -1,4 +1,3 @@
-import 'package:chat_journal/settings_page/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,6 +12,7 @@ class TimelineBody extends StatefulWidget {
 }
 
 class _TimelineBodyState extends State<TimelineBody> {
+
   @override
   void initState() {
     BlocProvider.of<TimelineCubit>(context).initialize();
@@ -25,8 +25,7 @@ class _TimelineBodyState extends State<TimelineBody> {
       builder: (context, state) {
         final _allowed = state.isOnSearch
             ? state.events
-                .where(
-                    (element) => element.description.contains(state.filter))
+                .where((element) => element.description.contains(state.filter))
                 .toList()
             : state.events;
 
@@ -43,6 +42,7 @@ class _TimelineBodyState extends State<TimelineBody> {
             return EventMessageTile(
               event,
               state.isRightToLeft,
+              false,
               false,
             );
           },

@@ -6,10 +6,10 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/icon_list.dart';
-import '../../edit_page/edit_page.dart';
 import '../../entity/page.dart';
-import '../../event_page/event_page.dart';
-import '../../settings_page/settings_cubit.dart';
+import '../settings_page/settings_cubit.dart';
+import 'edit_page/edit_page.dart';
+import 'event_page/event_page.dart';
 import 'pages_cubit.dart';
 
 class HomeBody extends StatefulWidget {

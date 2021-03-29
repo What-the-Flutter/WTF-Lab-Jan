@@ -4,16 +4,15 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hashtagable/hashtagable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../data/icon_list.dart';
-import '../entity/page.dart';
-import '../home_page/home/pages_cubit.dart';
-import '../settings_page/settings_cubit.dart';
-import '../widgets/event_message_list.dart';
-import '../widgets/event_message_tile.dart';
+import '../../../data/icon_list.dart';
+import '../../../entity/page.dart';
+import '../../settings_page/settings_cubit.dart';
+import '../../../tab_page/home/pages_cubit.dart';
+import '../../../widgets/event_message_list.dart';
+import '../../../widgets/event_message_tile.dart';
 import 'events_cubit.dart';
 import 'events_state.dart';
 
@@ -279,6 +278,7 @@ class _EventPageState extends State<EventPage> {
         return EventMessageTile(
           event,
           cubit.state.isRightToLeft,
+          true,
           cubit.state.selected.contains(event),
           onTap: () {
             if (cubit.state.isOnSelectionMode) {
@@ -293,194 +293,16 @@ class _EventPageState extends State<EventPage> {
             cubit.setOnSearch(true);
             _controller.text = text;
           },
+          onDelete: (event) => cubit.deleteSingle(event),
+          onEdit: (event) {
+            cubit.setSelectionMode(true);
+            cubit.selectEvent(event);
+            _controller.text = event.description;
+            _focusNode.requestFocus();
+            cubit.setOnEdit(true);
+          },
         );
       },
-    );
-
-    // if (_displayed.isNotEmpty) {
-    //   final _children = <Widget>[SizedBox(height: 50)];
-    //   final days = <int>{};
-    //   for (var i = _displayed.length - 1; i >= 0; i--) {
-    //     final day =
-    //         _displayed[i].creationTime.millisecondsSinceEpoch ~/ 86400000;
-    //     if (!days.contains(day)) {
-    //       _children.insert(
-    //         0,
-    //         Container(
-    //           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-    //           child: Text(
-    //             DateFormat('MMM d, yyyy').format(_displayed[i].creationTime),
-    //             style: TextStyle(
-    //               color: Theme.of(context).textTheme.bodyText1.color,
-    //               fontSize: SettingsCubit.calculateSize(context, 15, 18, 25),
-    //             ),
-    //             textAlign: cubit.state.isDateCentered
-    //                 ? TextAlign.center
-    //                 : BlocProvider.of<SettingsCubit>(context)
-    //                         .state
-    //                         .isRightToLeft
-    //                     ? TextAlign.end
-    //                     : TextAlign.start,
-    //           ),
-    //         ),
-    //       );
-    //       days.add(day);
-    //     }
-    //     final event = _displayed[i];
-    //     _children.insert(
-    //       0,
-    //       EventMessageTile(
-    //         event,
-    //         cubit.state.isRightToLeft,
-    //         cubit.state.selected.contains(event),
-    //         onTap: () {
-    //           if (cubit.state.isOnSelectionMode) {
-    //             cubit.selectEvent(event);
-    //           }
-    //         },
-    //         onLongPress: () {
-    //           cubit.setSelectionMode(true);
-    //           cubit.selectEvent(event);
-    //         },
-    //         onHashTap: (text) {
-    //           cubit.setOnSearch(true);
-    //           _controller.text = text;
-    //         },
-    //       ),
-    //     );
-    //   }
-    //
-    //   return ListView(
-    //     reverse: true,
-    //     shrinkWrap: true,
-    //     physics: ScrollPhysics(),
-    //     children: _children,
-    //   );
-    // } else {
-    //   return Center(
-    //     child: Text(
-    //       'No events yet...',
-    //       style: TextStyle(
-    //         color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
-    //         fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
-    //       ),
-    //     ),
-    //   );
-    // }
-  }
-
-  Widget _listItem(Event event) {
-    Widget _title(Event event) {
-      return Row(
-        children: [
-          Icon(
-            eventIconList[event.iconIndex],
-            color: Theme.of(context).textTheme.bodyText2.color,
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              eventStringList[event.iconIndex],
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).textTheme.bodyText2.color,
-                fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
-              ),
-            ),
-          )
-        ],
-      );
-    }
-
-    Widget _content(Event event) {
-      return event.imagePath.isEmpty
-          ? HashTagText(
-              text: event.description,
-              basicStyle: TextStyle(
-                color: Theme.of(context).textTheme.bodyText2.color,
-                fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
-              ),
-              decoratedStyle: TextStyle(
-                color: Colors.yellowAccent,
-                fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
-              ),
-              onTap: (text) {
-                cubit.setOnSearch(true);
-                _controller.text = text;
-              },
-            )
-          : Image.file(File(event.imagePath));
-    }
-
-    return GestureDetector(
-      onTap: () {
-        if (cubit.state.isOnSelectionMode) {
-          cubit.selectEvent(event);
-        }
-      },
-      onLongPress: () {
-        cubit.setSelectionMode(true);
-        cubit.selectEvent(event);
-      },
-      child: Container(
-        margin: cubit.state.isRightToLeft
-            ? EdgeInsets.only(top: 2, bottom: 2, left: 100, right: 5)
-            : EdgeInsets.only(top: 2, bottom: 2, left: 5, right: 100),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            bottomLeft:
-                cubit.state.isRightToLeft ? Radius.circular(10) : Radius.zero,
-            topRight: Radius.circular(10),
-            bottomRight:
-                cubit.state.isRightToLeft ? Radius.zero : Radius.circular(10),
-          ),
-          color: cubit.state.selected.contains(event)
-              ? Theme.of(context).shadowColor
-              : Theme.of(context).accentColor,
-        ),
-        padding: EdgeInsets.only(
-          top: 10,
-          left: 10,
-          right: 10,
-          bottom: 5,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (event.iconIndex != 0) _title(event),
-            _content(event),
-            SizedBox(
-              height: 5,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: event.isFavourite
-                      ? Align(
-                          alignment: Alignment.bottomRight,
-                          child: Icon(
-                            Icons.star,
-                            color: Colors.yellowAccent,
-                            size: 12,
-                          ),
-                        )
-                      : Container(),
-                ),
-                Text(
-                  DateFormat('HH:mm').format(event.creationTime),
-                  style: TextStyle(
-                    fontSize: SettingsCubit.calculateSize(context, 10, 12, 20),
-                    color: Theme.of(context).textTheme.bodyText2.color,
-                    fontWeight: FontWeight.normal,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -547,13 +369,14 @@ class _EventPageState extends State<EventPage> {
           _showBottomSheet();
         } else {
           if (cubit.state.isOnEdit) {
-            cubit.editEvent(_controller.text);
+            cubit.editEvent(_controller.text, cubit.state.selected.first);
           } else {
-            cubit.addEvent(
-              _controller.text,
-            );
+              cubit.addEvent(
+                _controller.text,
+              );
           }
           _controller.clear();
+          cubit.setCanSelectImage(true);
         }
       },
       child: Icon(
@@ -668,7 +491,11 @@ class _EventPageState extends State<EventPage> {
             color: Theme.of(context).primaryColor,
             border: Border(
               top: BorderSide(
-                color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.2),
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    .color
+                    .withOpacity(0.2),
               ),
             ),
           ),

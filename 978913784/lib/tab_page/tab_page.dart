@@ -1,20 +1,19 @@
-import 'package:chat_journal/home_page/timeline/timeline_body.dart';
-import 'package:chat_journal/home_page/timeline/timeline_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../app_theme_cubit.dart';
-import '../edit_page/edit_page.dart';
 import '../entity/page.dart';
-import '../settings_page/settings_cubit.dart';
-import '../settings_page/settings_page.dart';
+import 'settings_page/settings_cubit.dart';
+import 'settings_page/settings_page.dart';
+import 'home/edit_page/edit_page.dart';
 import 'home/home_body.dart';
 import 'home/pages_cubit.dart';
 import 'tab_cubit.dart';
+import 'timeline/timeline_body.dart';
 import 'timeline/timeline_cubit.dart';
+import 'timeline/timeline_state.dart';
 
 class TabPage extends StatelessWidget {
   TabPage();
@@ -196,8 +195,8 @@ class TabPage extends StatelessWidget {
     );
   }
 
-  Widget _floatingActionButton(BuildContext context) {
-    return FloatingActionButton(
+  Widget _floatingActionButton(BuildContext context) =>
+    FloatingActionButton(
       foregroundColor: Theme.of(context).textTheme.bodyText2.color,
       onPressed: () async {
         final pageInfo = await Navigator.push(
@@ -217,7 +216,7 @@ class TabPage extends StatelessWidget {
       tooltip: 'New page',
       child: Icon(Icons.add),
     );
-  }
+
 
   Widget _body(BuildContext context) {}
 }

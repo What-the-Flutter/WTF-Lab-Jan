@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../entity/page.dart';
-import '../settings_page/settings_cubit.dart';
+import '../tab_page/settings_page/settings_cubit.dart';
 
 class EventMessageList extends StatelessWidget {
   final bool _isDateCentered;

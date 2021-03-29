@@ -1,3 +1,4 @@
+import 'package:chat_journal/entity/label.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -37,23 +38,44 @@ class DatabaseAccess {
           ' imagePath TEXT'
           ');',
         );
+        db.execute(
+          'CREATE TABLE labels('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          ' iconIndex INTEGER,'
+          ' description TEXT,'
+          ');',
+        );
       },
       version: 1,
+    );
+  }
+
+  Future<List<Label>> fetchLabels() async {
+    final labelsMap = await _db.query('labels');
+
+    return List<Label>.generate(
+      labelsMap.length,
+      (i) => Label.fromDb(
+        labelsMap[i]['id'],
+        labelsMap[i]['iconIndex'],
+        labelsMap[i]['description'],
+      ),
     );
   }
 
   Future<List<JournalPage>> fetchPages() async {
     final pagesMap = await _db.query('pages');
 
-    var pages = List<JournalPage>.generate(pagesMap.length, (i) {
-      return JournalPage.fromDb(
+    var pages = List<JournalPage>.generate(
+      pagesMap.length,
+      (i) => JournalPage.fromDb(
         pagesMap[i]['id'],
         pagesMap[i]['title'],
         pagesMap[i]['iconIndex'],
         pagesMap[i]['isPinned'] == 0 ? false : true,
         DateTime.fromMillisecondsSinceEpoch(pagesMap[i]['creationTime'] * 1000),
-      );
-    });
+      ),
+    );
 
     for (var i = 0; i < pagesMap.length; i++) {
       await _fetchLastEvent(pages[i]);
@@ -105,8 +127,7 @@ class DatabaseAccess {
   }
 
   Future<List<Event>> fetchAllEvents() async {
-    final eventsMap =
-    await _db.rawQuery('SELECT * FROM events');
+    final eventsMap = await _db.rawQuery('SELECT * FROM events');
     final events = List.generate(eventsMap.length, (i) {
       return Event.fromDb(
         eventsMap[i]['id'],
@@ -132,7 +153,7 @@ class DatabaseAccess {
   }
 
   Future<void> updatePage(JournalPage page) async {
-     _db.update(
+    _db.update(
       'pages',
       page.toMap(),
       where: 'id = ?',
@@ -141,7 +162,7 @@ class DatabaseAccess {
   }
 
   Future<void> deletePage(JournalPage page) async {
-     _db.delete(
+    _db.delete(
       'pages',
       where: 'id = ?',
       whereArgs: [page.id],
@@ -157,7 +178,7 @@ class DatabaseAccess {
   }
 
   Future<void> updateEvent(Event event) async {
-     _db.update(
+    _db.update(
       'events',
       event.toMap(),
       where: 'id = ?',
@@ -166,10 +187,36 @@ class DatabaseAccess {
   }
 
   Future<void> deleteEvent(Event event) async {
-     _db.delete(
+    _db.delete(
       'events',
       where: 'id = ?',
       whereArgs: [event.id],
     );
   }
+
+  Future<int> insertLabel(Label label) async {
+    return _db.insert(
+      'labels',
+      label.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> updateLabel(Label label) async {
+    _db.update(
+      'labels',
+      label.toMap(),
+      where: 'id = ?',
+      whereArgs: [label.id],
+    );
+  }
+
+  Future<void> deleteLabel(Label label) async {
+    _db.delete(
+      'labels',
+      where: 'id = ?',
+      whereArgs: [label.id],
+    );
+  }
+
 }

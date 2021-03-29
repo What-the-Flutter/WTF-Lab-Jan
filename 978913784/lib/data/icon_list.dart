@@ -1,3 +1,4 @@
+import 'package:chat_journal/entity/label.dart';
 import 'package:flutter/material.dart';
 
 final List<IconData> iconList = [
@@ -47,3 +48,6 @@ final List<String> eventStringList = [
   'None',
   ...stringList,
 ];
+
+final List<Label> labels =
+    List.generate(iconList.length, (index) => Label(index, stringList[index]));

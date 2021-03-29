@@ -1,28 +1,35 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hashtagable/widgets/hashtag_text.dart';
 import 'package:intl/intl.dart';
 
 import '../data/icon_list.dart';
 import '../entity/page.dart';
-import '../settings_page/settings_cubit.dart';
+import '../tab_page/settings_page/settings_cubit.dart';
 
 class EventMessageTile extends StatelessWidget {
   final Event _event;
   final bool _isRightToLeft;
   final bool _isSelected;
+  final bool slidable;
   final Function(String) onHashTap;
   final Function() onTap;
   final Function() onLongPress;
+  final Function(Event) onDelete;
+  final Function(Event) onEdit;
 
   EventMessageTile(
     this._event,
     this._isRightToLeft,
+    this.slidable,
     this._isSelected, {
     this.onHashTap,
     this.onTap,
     this.onLongPress,
+    this.onDelete,
+    this.onEdit,
   });
 
   @override
@@ -66,66 +73,92 @@ class EventMessageTile extends StatelessWidget {
           : Image.file(File(event.imagePath));
     }
 
-    return GestureDetector(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      child: Container(
-        margin: _isRightToLeft
-            ? EdgeInsets.only(top: 2, bottom: 2, left: 100, right: 5)
-            : EdgeInsets.only(top: 2, bottom: 2, left: 5, right: 100),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            bottomLeft: _isRightToLeft ? Radius.circular(10) : Radius.zero,
-            topRight: Radius.circular(10),
-            bottomRight: _isRightToLeft ? Radius.zero : Radius.circular(10),
-          ),
-          color: _isSelected
-              ? Theme.of(context).shadowColor
-              : Theme.of(context).accentColor,
-        ),
-        padding: EdgeInsets.only(
-          top: 10,
-          left: 10,
-          right: 10,
-          bottom: 5,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_event.iconIndex != 0) _title(_event),
-            _content(_event),
-            SizedBox(
-              height: 5,
+    Widget _container() => GestureDetector(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          child: Container(
+            margin: _isRightToLeft
+                ? EdgeInsets.only(top: 2, bottom: 2, left: 100, right: 5)
+                : EdgeInsets.only(top: 2, bottom: 2, left: 5, right: 100),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                bottomLeft: _isRightToLeft ? Radius.circular(10) : Radius.zero,
+                topRight: Radius.circular(10),
+                bottomRight: _isRightToLeft ? Radius.zero : Radius.circular(10),
+              ),
+              color: _isSelected
+                  ? Theme.of(context).shadowColor
+                  : Theme.of(context).accentColor,
             ),
-            Row(
+            padding: EdgeInsets.only(
+              top: 10,
+              left: 10,
+              right: 10,
+              bottom: 5,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _event.isFavourite
-                      ? Align(
-                          alignment: Alignment.bottomRight,
-                          child: Icon(
-                            Icons.star,
-                            color: Colors.yellowAccent,
-                            size: 12,
-                          ),
-                        )
-                      : Container(),
+                if (_event.iconIndex != 0) _title(_event),
+                _content(_event),
+                SizedBox(
+                  height: 5,
                 ),
-                Text(
-                  DateFormat('HH:mm').format(_event.creationTime),
-                  style: TextStyle(
-                    fontSize: SettingsCubit.calculateSize(context, 10, 12, 20),
-                    color: Theme.of(context).textTheme.bodyText2.color,
-                    fontWeight: FontWeight.normal,
-                    fontStyle: FontStyle.italic,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _event.isFavourite
+                          ? Align(
+                              alignment: Alignment.bottomRight,
+                              child: Icon(
+                                Icons.star,
+                                color: Colors.yellowAccent,
+                                size: 12,
+                              ),
+                            )
+                          : Container(),
+                    ),
+                    Text(
+                      DateFormat('HH:mm').format(_event.creationTime),
+                      style: TextStyle(
+                        fontSize:
+                            SettingsCubit.calculateSize(context, 10, 12, 20),
+                        color: Theme.of(context).textTheme.bodyText2.color,
+                        fontWeight: FontWeight.normal,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
+
+    return slidable
+        ? Slidable(
+            actionPane: SlidableScrollActionPane(),
+            actions: [
+              IconSlideAction(
+                caption: 'Edit',
+                color: Theme.of(context).primaryColor,
+                icon: Icons.edit_outlined,
+                onTap: () => onEdit(_event),
+                closeOnTap: true,
+              )
+            ],
+            secondaryActions: [
+              IconSlideAction(
+                caption: 'Delete',
+                color: Theme.of(context).primaryColor,
+                icon: Icons.delete_outlined,
+                onTap: () => onDelete(_event),
+                closeOnTap: true,
+              )
+            ],
+            child: _container(),
+          )
+        : _container();
   }
 }

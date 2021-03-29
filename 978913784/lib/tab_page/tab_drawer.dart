@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../settings_page/settings_page.dart';
+import 'settings_page/settings_page.dart';
 
 class TabDrawer extends StatelessWidget {
   @override

@@ -24,14 +24,13 @@ class TimelineState {
     bool isRightToLeft,
     String filter,
     List<Event> events,
-  }) {
-    return TimelineState(
-      showingFavourites ?? this.showingFavourites,
-      isOnSearch ?? this.isOnSearch,
-      isDateCentered ?? this.isDateCentered,
-      isRightToLeft ?? this.isRightToLeft,
-      filter ?? this.filter,
-      events ?? this.events,
-    );
-  }
+  }) =>
+      TimelineState(
+        showingFavourites ?? this.showingFavourites,
+        isOnSearch ?? this.isOnSearch,
+        isDateCentered ?? this.isDateCentered,
+        isRightToLeft ?? this.isRightToLeft,
+        filter ?? this.filter,
+        events ?? this.events,
+      );
 }
