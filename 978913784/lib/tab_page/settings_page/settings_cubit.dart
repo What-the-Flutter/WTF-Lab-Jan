@@ -5,7 +5,7 @@ import '../../data/preferences_access.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
-  final _preferencesAccess = PreferencesAccess();
+  final _preferencesAccess = PreferencesAccess.instance();
 
   SettingsCubit(SettingsState state) : super(state);
 

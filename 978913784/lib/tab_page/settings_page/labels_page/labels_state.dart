@@ -1,4 +1,4 @@
-import 'package:chat_journal/entity/label.dart';
+import '../../../entity/label.dart';
 
 class LabelsState {
   final List<Label> added;

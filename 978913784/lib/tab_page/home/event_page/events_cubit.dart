@@ -10,12 +10,12 @@ import '../../../entity/page.dart';
 import 'events_state.dart';
 
 class EventCubit extends Cubit<EventsState> {
-  DatabaseAccess db = DatabaseAccess();
+  DatabaseAccess db = DatabaseAccess.instance();
 
   EventCubit(EventsState state) : super(state);
 
   void initialize(JournalPage page) async {
-    final prefs = PreferencesAccess();
+    final prefs = PreferencesAccess.instance();
     final events = await db.fetchEvents(page.id);
     events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
     emit(

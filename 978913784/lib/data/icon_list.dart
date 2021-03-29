@@ -1,5 +1,6 @@
-import 'package:chat_journal/entity/label.dart';
 import 'package:flutter/material.dart';
+
+import '../entity/label.dart';
 
 final List<IconData> iconList = [
   Icons.work_outlined,

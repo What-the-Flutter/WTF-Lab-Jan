@@ -1,16 +1,16 @@
+import 'package:animator/animator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import 'package:animator/animator.dart';
 import '../app_theme_cubit.dart';
 import '../entity/page.dart';
-import 'settings_page/settings_cubit.dart';
-import 'settings_page/settings_page.dart';
 import 'home/edit_page/edit_page.dart';
 import 'home/home_body.dart';
 import 'home/pages_cubit.dart';
+import 'settings_page/settings_cubit.dart';
+import 'settings_page/settings_page.dart';
 import 'tab_cubit.dart';
 import 'timeline/timeline_body.dart';
 import 'timeline/timeline_cubit.dart';

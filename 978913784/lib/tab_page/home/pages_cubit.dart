@@ -4,7 +4,7 @@ import '../../data/database_access.dart';
 import '../../entity/page.dart';
 
 class PagesCubit extends Cubit<List<JournalPage>> {
-  DatabaseAccess db = DatabaseAccess();
+  DatabaseAccess db = DatabaseAccess.instance();
 
   PagesCubit(List<JournalPage> state) : super(state);
 

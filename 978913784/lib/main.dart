@@ -1,9 +1,3 @@
-import 'package:chat_journal/tab_page/home/event_page/events_cubit.dart';
-import 'package:chat_journal/tab_page/home/event_page/events_state.dart';
-import 'package:chat_journal/tab_page/settings_page/labels_page/add_label_page/add_label_cubit.dart';
-import 'package:chat_journal/tab_page/settings_page/labels_page/add_label_page/add_label_state.dart';
-import 'package:chat_journal/tab_page/settings_page/labels_page/labels_cubit.dart';
-import 'package:chat_journal/tab_page/settings_page/labels_page/labels_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,7 +6,13 @@ import 'app_theme_state.dart';
 import 'data/database_access.dart';
 import 'data/preferences_access.dart';
 import 'entity/page.dart';
+import 'tab_page/home/event_page/events_cubit.dart';
+import 'tab_page/home/event_page/events_state.dart';
 import 'tab_page/home/pages_cubit.dart';
+import 'tab_page/settings_page/labels_page/add_label_page/add_label_cubit.dart';
+import 'tab_page/settings_page/labels_page/add_label_page/add_label_state.dart';
+import 'tab_page/settings_page/labels_page/labels_cubit.dart';
+import 'tab_page/settings_page/labels_page/labels_state.dart';
 import 'tab_page/settings_page/settings_cubit.dart';
 import 'tab_page/settings_page/settings_state.dart';
 import 'tab_page/tab_cubit.dart';
@@ -67,11 +67,22 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
     BlocProvider.of<AppThemeCubit>(context).initialize();
     BlocProvider.of<SettingsCubit>(context).initialize();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, state) {
@@ -89,3 +100,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

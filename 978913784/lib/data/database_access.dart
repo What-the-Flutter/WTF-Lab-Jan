@@ -1,7 +1,7 @@
-import 'package:chat_journal/entity/label.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../entity/label.dart';
 import '../entity/page.dart';
 
 class DatabaseAccess {
@@ -9,7 +9,7 @@ class DatabaseAccess {
 
   static Database _db;
 
-  factory DatabaseAccess() {
+  factory DatabaseAccess.instance() {
     return _databaseAccess;
   }
 

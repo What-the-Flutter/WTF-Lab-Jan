@@ -1,12 +1,12 @@
-import 'package:chat_journal/entity/label.dart';
-import 'package:chat_journal/tab_page/settings_page/labels_page/labels_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../data/icon_list.dart';
+import '../../../entity/label.dart';
 import '../settings_cubit.dart';
 import 'add_label_page/add_label_page.dart';
 import 'labels_cubit.dart';
+import 'labels_state.dart';
 
 class LabelsPage extends StatefulWidget {
   @override

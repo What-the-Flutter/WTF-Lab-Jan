@@ -7,10 +7,10 @@ import 'timeline_state.dart';
 class TimelineCubit extends Cubit<TimelineState> {
   TimelineCubit(TimelineState state) : super(state);
 
-  DatabaseAccess db = DatabaseAccess();
+  DatabaseAccess db = DatabaseAccess.instance();
 
   void initialize() async {
-    final prefs = PreferencesAccess();
+    final prefs = PreferencesAccess.instance();
     emit(state.copyWith(
       events: await db.fetchAllEvents(),
       isDateCentered: prefs.fetchDateCentered(),

@@ -9,12 +9,11 @@ import 'package:intl/intl.dart';
 
 import '../../../data/icon_list.dart';
 import '../../../entity/page.dart';
-import '../../settings_page/settings_cubit.dart';
 import '../../../tab_page/home/pages_cubit.dart';
 import '../../../widgets/event_message_list.dart';
 import '../../../widgets/event_message_tile.dart';
+import '../../settings_page/settings_cubit.dart';
 import 'events_cubit.dart';
-import 'events_state.dart';
 
 class EventPage extends StatefulWidget {
   EventPage(this.page, {Key key}) : super(key: key);
@@ -372,7 +371,7 @@ class _EventPageState extends State<EventPage> {
                   var image =
                       await ImagePicker().getImage(source: ImageSource.gallery);
                   if (image != null) {
-                    BlocProvider.of<EventCubit>(context)
+                    BlocProvider.of<EventCubit>(this.context)
                         .addEventFromResource(File(image.path));
                   }
                 },

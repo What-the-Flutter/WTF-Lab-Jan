@@ -18,7 +18,6 @@ class HomeBody extends StatefulWidget {
 }
 
 class _HomeBodyState extends State<HomeBody> {
-
   @override
   void initState() {
     BlocProvider.of<PagesCubit>(context).initialize();
@@ -130,25 +129,25 @@ class _HomeBodyState extends State<HomeBody> {
         padding: EdgeInsets.all(10),
         child: page.lastEvent == null
             ? Center(
-          child: Text(
-            'No events yet...',
-            style: TextStyle(
-              color: Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  .color
-                  .withOpacity(0.5),
-              fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
-            ),
-          ),
-        )
+                child: Text(
+                  'No events yet...',
+                  style: TextStyle(
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        .color
+                        .withOpacity(0.5),
+                    fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
+                  ),
+                ),
+              )
             : Text(
-          page.lastEvent.description,
-          style: TextStyle(
-            color: Theme.of(context).textTheme.bodyText1.color,
-            fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
-          ),
-        ),
+                page.lastEvent.description,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyText1.color,
+                  fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+                ),
+              ),
       );
     }
 
@@ -218,14 +217,14 @@ class _HomeBodyState extends State<HomeBody> {
           ),
           onTap: () async {
             final editState = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EditPage(
-                  JournalPage(selected.title, selected.iconIndex),
-                  'Edit',
-                ),
-              ),
-            ) ??
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditPage(
+                      JournalPage(selected.title, selected.iconIndex),
+                      'Edit',
+                    ),
+                  ),
+                ) ??
                 false;
             if (editState.isAllowedToSave) {
               BlocProvider.of<PagesCubit>(context)
