@@ -4,18 +4,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-import '../data/database_access.dart';
-import '../data/preferences_access.dart';
-import '../entity/page.dart';
+import '../../../data/database_access.dart';
+import '../../../data/preferences_access.dart';
+import '../../../entity/page.dart';
 import 'events_state.dart';
 
 class EventCubit extends Cubit<EventsState> {
-  DatabaseAccess db = DatabaseAccess();
+  DatabaseAccess db = DatabaseAccess.instance();
 
   EventCubit(EventsState state) : super(state);
 
   void initialize(JournalPage page) async {
-    final prefs = PreferencesAccess();
+    final prefs = PreferencesAccess.instance();
     final events = await db.fetchEvents(page.id);
     events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
     emit(
@@ -40,11 +40,19 @@ class EventCubit extends Cubit<EventsState> {
   }
 
   void setOnEdit(bool isOnEdit) {
-    emit(state.copyWith(isOnEdit: isOnEdit));
+    emit(state.copyWith(
+      isOnEdit: isOnEdit,
+      canSelectImage: false,
+    ));
   }
 
   void setOnSearch(bool isSearching) {
     emit(state.copyWith(isSearching: isSearching));
+  }
+
+  void deleteSingle(Event event) {
+    db.deleteEvent(event);
+    emit(state.copyWith(events: state.events..remove(event)));
   }
 
   void deleteEvents() async {
@@ -87,10 +95,10 @@ class EventCubit extends Cubit<EventsState> {
       event.creationTime = state.date;
     }
     event.id = await db.insertEvent(event);
-    state.events..insert(0, event);
     emit(
       state.copyWith(
           events: state.events
+            ..insert(0, event)
             ..sort((a, b) => b.creationTime.compareTo(a.creationTime))),
     );
   }
@@ -115,9 +123,9 @@ class EventCubit extends Cubit<EventsState> {
     );
   }
 
-  Future<void> editEvent(String description) async {
-    state.selected.first.description = description;
-    db.updateEvent(state.selected.first);
+  Future<void> editEvent(String description, Event event) async {
+    event.description = description;
+    db.updateEvent(event);
     setOnEdit(false);
     setSelectionMode(false);
     emit(state.copyWith());

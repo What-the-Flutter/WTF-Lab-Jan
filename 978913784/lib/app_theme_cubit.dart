@@ -5,7 +5,7 @@ import 'data/preferences_access.dart';
 
 class AppThemeCubit extends Cubit<AppThemeState> {
   bool _usingLightTheme = true;
-  final _preferencesAccess = PreferencesAccess();
+  final _preferencesAccess = PreferencesAccess.instance();
 
   AppThemeCubit() : super(AppThemeState.darkTheme);
 

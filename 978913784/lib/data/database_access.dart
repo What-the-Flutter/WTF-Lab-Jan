@@ -1,6 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../entity/label.dart';
 import '../entity/page.dart';
 
 class DatabaseAccess {
@@ -8,7 +9,7 @@ class DatabaseAccess {
 
   static Database _db;
 
-  factory DatabaseAccess() {
+  factory DatabaseAccess.instance() {
     return _databaseAccess;
   }
 
@@ -37,23 +38,44 @@ class DatabaseAccess {
           ' imagePath TEXT'
           ');',
         );
+        db.execute(
+          'CREATE TABLE labels('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          ' iconIndex INTEGER,'
+          ' description TEXT'
+          ');',
+        );
       },
       version: 1,
+    );
+  }
+
+  Future<List<Label>> fetchLabels() async {
+    final labelsMap = await _db.query('labels');
+
+    return List<Label>.generate(
+      labelsMap.length,
+      (i) => Label.fromDb(
+        labelsMap[i]['id'],
+        labelsMap[i]['iconIndex'],
+        labelsMap[i]['description'],
+      ),
     );
   }
 
   Future<List<JournalPage>> fetchPages() async {
     final pagesMap = await _db.query('pages');
 
-    var pages = List<JournalPage>.generate(pagesMap.length, (i) {
-      return JournalPage.fromDb(
+    var pages = List<JournalPage>.generate(
+      pagesMap.length,
+      (i) => JournalPage.fromDb(
         pagesMap[i]['id'],
         pagesMap[i]['title'],
         pagesMap[i]['iconIndex'],
         pagesMap[i]['isPinned'] == 0 ? false : true,
         DateTime.fromMillisecondsSinceEpoch(pagesMap[i]['creationTime'] * 1000),
-      );
-    });
+      ),
+    );
 
     for (var i = 0; i < pagesMap.length; i++) {
       await _fetchLastEvent(pages[i]);
@@ -104,8 +126,26 @@ class DatabaseAccess {
     return events;
   }
 
-  Future<void> insertPage(JournalPage page) async {
-    await _db.insert(
+  Future<List<Event>> fetchAllEvents() async {
+    final eventsMap = await _db.rawQuery('SELECT * FROM events');
+    final events = List.generate(eventsMap.length, (i) {
+      return Event.fromDb(
+        eventsMap[i]['id'],
+        eventsMap[i]['pageId'],
+        eventsMap[i]['iconIndex'],
+        eventsMap[i]['isFavourite'] == 0 ? false : true,
+        eventsMap[i]['description'],
+        DateTime.fromMillisecondsSinceEpoch(
+            eventsMap[i]['creationTime'] * 1000),
+        eventsMap[i]['imagePath'],
+      );
+    });
+    events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
+    return events;
+  }
+
+  Future<int> insertPage(JournalPage page) async {
+    return _db.insert(
       'pages',
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -113,7 +153,7 @@ class DatabaseAccess {
   }
 
   Future<void> updatePage(JournalPage page) async {
-    await _db.update(
+    _db.update(
       'pages',
       page.toMap(),
       where: 'id = ?',
@@ -122,7 +162,7 @@ class DatabaseAccess {
   }
 
   Future<void> deletePage(JournalPage page) async {
-    await _db.delete(
+    _db.delete(
       'pages',
       where: 'id = ?',
       whereArgs: [page.id],
@@ -138,7 +178,7 @@ class DatabaseAccess {
   }
 
   Future<void> updateEvent(Event event) async {
-    await _db.update(
+    _db.update(
       'events',
       event.toMap(),
       where: 'id = ?',
@@ -147,10 +187,36 @@ class DatabaseAccess {
   }
 
   Future<void> deleteEvent(Event event) async {
-    await _db.delete(
+    _db.delete(
       'events',
       where: 'id = ?',
       whereArgs: [event.id],
     );
   }
+
+  Future<int> insertLabel(Label label) async {
+    return _db.insert(
+      'labels',
+      label.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> updateLabel(Label label) async {
+    _db.update(
+      'labels',
+      label.toMap(),
+      where: 'id = ?',
+      whereArgs: [label.id],
+    );
+  }
+
+  Future<void> deleteLabel(Label label) async {
+    _db.delete(
+      'labels',
+      where: 'id = ?',
+      whereArgs: [label.id],
+    );
+  }
+
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../entity/label.dart';
+
 final List<IconData> iconList = [
   Icons.work_outlined,
   Icons.wifi_outlined,
@@ -47,3 +49,6 @@ final List<String> eventStringList = [
   'None',
   ...stringList,
 ];
+
+final List<Label> labels =
+    List.generate(iconList.length, (index) => Label(index, stringList[index]));

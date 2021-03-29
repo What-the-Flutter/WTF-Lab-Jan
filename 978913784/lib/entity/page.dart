@@ -1,5 +1,5 @@
 class JournalPage {
-  int _id;
+  int id;
   String title;
   int iconIndex;
   bool isPinned = false;
@@ -11,14 +11,12 @@ class JournalPage {
   }
 
   JournalPage.fromDb(
-    int id,
+    this.id,
     this.title,
     this.iconIndex,
     this.isPinned,
     this.creationTime,
-  ) {
-    _id = id;
-  }
+  );
 
   JournalPage copyWith({String title, int iconIndex}) {
     final copy = JournalPage(title ?? this.title, iconIndex ?? this.iconIndex,
@@ -34,15 +32,13 @@ class JournalPage {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': _id,
+      'id': id,
       'title': title,
       'iconIndex': iconIndex,
       'isPinned': isPinned ? 1 : 0,
       'creationTime': creationTime.millisecondsSinceEpoch ~/ 1000,
     };
   }
-
-  int get id => _id;
 }
 
 class Event {

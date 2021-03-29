@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
 
-import '../app_theme_cubit.dart';
+import '../../app_theme_cubit.dart';
+import 'labels_page/labels_page.dart';
 import 'settings_cubit.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -78,7 +79,7 @@ class SettingsPage extends StatelessWidget {
           'Light/Dark',
           BlocProvider.of<AppThemeCubit>(context).changeTheme,
         ),
-        Divider(color: Theme.of(context).dividerColor),
+        _divider(context),
         _header('General'),
         _tile(
           Icons.date_range_outlined,
@@ -89,7 +90,7 @@ class SettingsPage extends StatelessWidget {
           },
           trailing: dateSwitch,
         ),
-        Divider(color: Theme.of(context).dividerColor),
+        _divider(context),
         _tile(
           Icons.format_align_right,
           'Bubble alignment',
@@ -99,16 +100,27 @@ class SettingsPage extends StatelessWidget {
           },
           trailing: bubbleSwitch,
         ),
-        Divider(color: Theme.of(context).dividerColor),
+        _divider(context),
         _tile(
           Icons.sort_by_alpha,
           'Font size',
           'Small/Medium/Large',
+          () => BlocProvider.of<SettingsCubit>(context).changeFontSize(),
+        ),
+        _divider(context),
+        _tile(
+          Icons.label_outline,
+          'Label management',
+          'Create new label or edit created one',
           () {
-            BlocProvider.of<SettingsCubit>(context).changeFontSize();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LabelsPage(),
+              ),
+            );
           },
         ),
-        Divider(color: Theme.of(context).dividerColor),
         _header('Other'),
         _tile(
           Icons.settings_backup_restore_outlined,
@@ -123,18 +135,22 @@ class SettingsPage extends StatelessWidget {
             }
           },
         ),
-        Divider(color: Theme.of(context).dividerColor),
+        _divider(context),
         _tile(
           Icons.share,
           'Share app',
           'Share a link of the Chat journal with your friends!',
           () {
-            Share.share('Join us right now and download Chat journal! \n\r https://t.me/joinchat/yjKwXnOttL5kMGNi');
+            Share.share(
+                'Join us right now and download Chat journal! \n\r https://t.me/joinchat/yjKwXnOttL5kMGNi');
           },
         ),
       ],
     );
   }
+
+  Divider _divider(BuildContext context) =>
+      Divider(color: Theme.of(context).dividerColor.withOpacity(0.2));
 
   Widget _appBar(BuildContext context) {
     return AppBar(

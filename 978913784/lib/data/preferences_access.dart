@@ -4,7 +4,7 @@ class PreferencesAccess {
   static final _preferencesAccess = PreferencesAccess._internal();
   static SharedPreferences _prefs;
 
-  factory PreferencesAccess() {
+  factory PreferencesAccess.instance() {
     return _preferencesAccess;
   }
 
