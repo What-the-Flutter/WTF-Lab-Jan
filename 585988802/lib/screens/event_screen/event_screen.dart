@@ -14,7 +14,6 @@ import '../../models/category.dart';
 import '../../models/event_message.dart';
 import '../../models/font_size_customization.dart';
 import '../../models/suggestion.dart';
-import '../../theme/theme_bloc.dart';
 import '../setting_screen/settings_screen_bloc.dart';
 import 'event_screen_bloc.dart';
 import 'event_screen_event.dart';
@@ -115,10 +114,7 @@ class _EventScreenState extends State<EventScreen> {
               child: Text(
                 widget.title,
                 style: TextStyle(
-                  color: BlocProvider.of<ThemeBloc>(context).state ==
-                          ThemeMode.dark
-                      ? Theme.of(context).accentColor
-                      : Theme.of(context).primaryColor,
+                  color: Theme.of(context).secondaryHeaderColor,
                   fontSize: BlocProvider.of<SettingScreenBloc>(context)
                               .state
                               .fontSize ==
@@ -184,10 +180,7 @@ class _EventScreenState extends State<EventScreen> {
                                 ),
                               ),
                         style: TextStyle(
-                          color: BlocProvider.of<ThemeBloc>(context).state ==
-                                  ThemeMode.dark
-                              ? Theme.of(context).accentColor
-                              : Theme.of(context).primaryColor,
+                          color: Theme.of(context).secondaryHeaderColor,
                           fontSize: BlocProvider.of<SettingScreenBloc>(context)
                                       .state
                                       .fontSize ==
@@ -588,10 +581,7 @@ class _EventScreenState extends State<EventScreen> {
                           )
                         : Icon(
                             Icons.bookmark_border_outlined,
-                            color: BlocProvider.of<ThemeBloc>(context).state ==
-                                    ThemeMode.dark
-                                ? Theme.of(context).accentColor
-                                : Colors.black54,
+                            color: Theme.of(context).buttonColor,
                           ),
                     onPressed: () {
                       BlocProvider.of<EventScreenBloc>(context).add(
@@ -625,10 +615,7 @@ class _EventScreenState extends State<EventScreen> {
                           )
                         : Icon(
                             Icons.bookmark_border_outlined,
-                            color: BlocProvider.of<ThemeBloc>(context).state ==
-                                    ThemeMode.dark
-                                ? Theme.of(context).accentColor
-                                : Colors.black54,
+                            color: Theme.of(context).buttonColor,
                           ),
                     onPressed: () {
                       BlocProvider.of<EventScreenBloc>(context).add(
@@ -829,7 +816,7 @@ class _EventScreenState extends State<EventScreen> {
                           .state
                           .selectedCategory
                           .nameOfCategory ==
-                      'Null')
+                      'null')
               ? null
               : BlocProvider.of<EventScreenBloc>(context)
                   .state
@@ -843,7 +830,7 @@ class _EventScreenState extends State<EventScreen> {
                           .state
                           .selectedCategory
                           .nameOfCategory ==
-                      'Null')
+                      'null')
               ? null
               : BlocProvider.of<EventScreenBloc>(context)
                   .state
@@ -966,7 +953,7 @@ class _EventScreenState extends State<EventScreen> {
                             .state
                             .selectedCategory
                             .nameOfCategory ==
-                        'Null')
+                        'null')
                 ? null
                 : BlocProvider.of<EventScreenBloc>(context)
                     .state
@@ -980,7 +967,7 @@ class _EventScreenState extends State<EventScreen> {
                             .state
                             .selectedCategory
                             .nameOfCategory ==
-                        'Null')
+                        'null')
                 ? null
                 : BlocProvider.of<EventScreenBloc>(context)
                     .state
@@ -1269,9 +1256,8 @@ class _EventScreenState extends State<EventScreen> {
                 .nameOfCategory,
           );
     BlocProvider.of<EventScreenBloc>(context).add(
-      EventMessageAdded(
+      EventMessageForwardAdded(
         selectedEventMessage,
-        BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
       ),
     );
   }

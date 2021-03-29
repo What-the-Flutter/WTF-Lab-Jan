@@ -303,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return showGeneralDialog(
       barrierDismissible: false,
       context: context,
-      transitionDuration: Duration(milliseconds: 600),
+      transitionDuration: Duration(milliseconds: 700),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return ScaleTransition(
           scale: CurvedAnimation(
@@ -348,13 +348,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return showGeneralDialog(
       barrierDismissible: false,
       context: context,
-      transitionDuration: Duration(milliseconds: 1200),
+      transitionDuration: Duration(milliseconds: 800),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticIn,
-            reverseCurve: Curves.elasticOut,
+            curve: Curves.linear,
+            reverseCurve: Curves.linearToEaseOut,
           ),
           child: CustomDialog.editSuggestion(
             title: 'Edit the text',

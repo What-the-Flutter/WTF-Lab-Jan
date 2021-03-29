@@ -28,19 +28,13 @@ class CustomDrawer extends StatelessWidget {
               'Alex',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color:
-                    BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                        ? Theme.of(context).accentColor
-                        : Theme.of(context).primaryColor,
+                color: Theme.of(context).secondaryHeaderColor,
               ),
             ),
             accountEmail: Text(
               'shevelyanchik01@mail.ru',
               style: TextStyle(
-                color:
-                    BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                        ? Theme.of(context).accentColor
-                        : Theme.of(context).primaryColor,
+                color: Theme.of(context).secondaryHeaderColor,
               ),
             ),
             currentAccountPicture: CircleAvatar(

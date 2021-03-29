@@ -22,6 +22,12 @@ class EventMessageAdded extends EventScreenEvent {
   const EventMessageAdded(this.eventMessage, this.eventMessageList);
 }
 
+class EventMessageForwardAdded extends EventScreenEvent {
+  final EventMessage eventMessage;
+
+  const EventMessageForwardAdded(this.eventMessage);
+}
+
 class EventMessageDeleted extends EventScreenEvent {
   final List<EventMessage> eventMessageList;
 

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/font_size_customization.dart';
 
 import '../../models/suggestion.dart';
-import '../../theme/theme_bloc.dart';
 import '../setting_screen/settings_screen_bloc.dart';
 import 'creating_suggestion_screen_bloc.dart';
 import 'creating_suggestion_screen_event.dart';
@@ -120,9 +119,7 @@ class _CreatingSuggestionScreenState extends State<CreatingSuggestionScreen> {
         child: Text(
           'Create a new suggestion',
           style: TextStyle(
-            color: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                ? Theme.of(context).accentColor
-                : Theme.of(context).primaryColor,
+            color: Theme.of(context).secondaryHeaderColor,
             fontSize:
                 BlocProvider.of<SettingScreenBloc>(context).state.fontSize == 0
                     ? appBarSmallFontSize
