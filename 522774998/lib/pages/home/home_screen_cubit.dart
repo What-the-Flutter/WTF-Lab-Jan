@@ -1,40 +1,91 @@
 import 'package:bloc/bloc.dart';
-import '../../repository/messages_repository.dart';
-import '../../repository/pages_repository.dart';
 
-import '../../repository/property_page.dart';
-import '../dialogs/dialog_page_cubit.dart';
+import '../../properties/property_page.dart';
+import '../../repository/pages_repository.dart';
 
 part 'home_screen_state.dart';
 
-class HomePageCubit extends Cubit<HomeScreenInitial> {
+class HomeScreenCubit extends Cubit<HomeScreenState> {
   PagesRepository repository;
-  final List<DialogPageCubit> list = <DialogPageCubit>[];
 
-  HomePageCubit({this.repository}) : super(HomeScreenInitial());
+  HomeScreenCubit({
+    this.repository,
+  }) : super(
+          HomeScreenStateAwait(currentIndex: 0),
+        );
 
-  void removePage(int iPage) {
-    repository.removePage(iPage);
-    emit(HomeScreenInitial());
+  void loadData() async {
+    emit(
+      HomeScreenStateShow(
+        pages: await repository.pagesList(),
+        currentIndex: state.currentIndex,
+      ),
+    );
   }
 
-  void addPage(PropertyPage page) {
+  void removePage(int index) async {
+    repository.removeMessages(state.list[index].id);
+    repository.removePage(state.list[index].id);
+    var list = await repository.pagesList();
+    list.sort();
+    emit(
+      state.copyWith(
+        list: list,
+      ),
+    );
+  }
+
+  void addPage(PropertyPage page) async {
     repository.addPage(
       page.copyWith(
         isPin: false,
         creationTime: DateTime.now(),
-        messages: MessagesRepository(),
         lastModifiedTime: DateTime.now(),
       ),
     );
-    emit(HomeScreenInitial());
+    var list = await repository.pagesList();
+    list.sort();
+    emit(
+      HomeScreenStateShow(
+        pages: list,
+        currentIndex: state.currentIndex,
+      ),
+    );
   }
 
-  void updateList() {
-    repository.dialogPages.sort();
-    for (var i = 0; i < repository.dialogPages.length; i++) {
-      list[i].refreshDate(i);
-    }
-    emit(HomeScreenInitial());
+  void editPage(PropertyPage page) async {
+    repository.editPage(page);
+    var list = await repository.pagesList();
+    list.sort();
+    emit(
+      HomeScreenStateShow(
+        pages: list,
+        currentIndex: state.currentIndex,
+      ),
+    );
+  }
+
+  void pinPage(int index) async {
+    repository.editPage(
+      state.list[index].copyWith(
+        isPin: !state.list[index].isPin,
+      ),
+    );
+    var list = await repository.pagesList();
+    list.sort();
+    emit(
+      state.copyWith(
+        list: list,
+      ),
+    );
+  }
+
+  void gettingOutFreeze() {
+    emit(
+      HomeScreenStateShow(
+        pages: state.list,
+        currentIndex: state.currentIndex,
+      ),
+    );
   }
 }

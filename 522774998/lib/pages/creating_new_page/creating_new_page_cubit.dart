@@ -7,70 +7,53 @@ import '../../repository/icons_repository.dart';
 part 'creating_new_page_state.dart';
 
 class CreatingNewPageCubit extends Cubit<CreatingNewPageState> {
-  final controller = TextEditingController();
-  final List<ListItemIcon> repository;
+  final IconsRepository repository;
 
-  CreatingNewPageCubit({this.repository})
-      : super(
-          CreatingNewPageState(
-            iconButton: Icons.close,
-            selectionIcon: listIcon[0].iconData,
+  CreatingNewPageCubit({
+    this.repository,
+  }) : super(
+          CreatingNewPageStateInitial(
+            list: List.from(repository.listIcon),
           ),
         );
 
-  void changeButton() {
-    if (controller.text.isEmpty) {
-      emit(
-        CreatingNewPageState(
-            selectionIcon: state.selectionIcon, iconButton: Icons.close),
-      );
-    } else {
-      emit(
-        CreatingNewPageState(
-            selectionIcon: state.selectionIcon, iconButton: Icons.done),
-      );
-    }
-  }
-
-  void updateList(int index) {
-    for (var i = 0; i < listIcon.length; i++) {
-      if (i == index) {
-        continue;
-      }
-      if (listIcon[i].isSelected) {
-        listIcon[i].isSelected = false;
-        break;
-      }
-    }
+  void setIconIndex(int selectionIconIndex) {
+    repository.listIcon[selectionIconIndex] =
+        repository.listIcon[selectionIconIndex].copyWith(isSelected: true);
     emit(
-      CreatingNewPageState(
-        iconButton: state.iconButton,
-        selectionIcon: listIcon[index].iconData,
+      CreatingNewPageStateWork(
+        list: List.from(repository.listIcon),
+        selectionIconIndex: selectionIconIndex,
       ),
     );
   }
 
-  void findIcon(IconData icon) {
-    for (var i = 0; i < listIcon.length; i++) {
-      if (listIcon[i].iconData == icon) {
-        listIcon[i].isSelected = true;
-      } else {
-        listIcon[i].isSelected = false;
-      }
-    }
+  IconData getIcon(int index) {
+    return repository.listIcon[index].iconData;
+  }
+
+  void resetIcon() {
+    repository.listIcon[state.selectionIconIndex] = repository
+        .listIcon[state.selectionIconIndex]
+        .copyWith(isSelected: false);
     emit(
-      CreatingNewPageState(iconButton: state.iconButton, selectionIcon: icon),
+      state.copyWith(
+        list: List.from(repository.listIcon),
+      ),
     );
   }
 
-  @override
-  Future<void> close() async {
-    controller.dispose();
-    super.close();
-  }
-
-  void settingsController(String title) {
-    controller.addListener(changeButton);
-    controller.text = title;
+  void selectionIcon(int index) {
+    repository.listIcon[state.selectionIconIndex] = repository
+        .listIcon[state.selectionIconIndex]
+        .copyWith(isSelected: false);
+    repository.listIcon[index] =
+        repository.listIcon[index].copyWith(isSelected: true);
+    emit(
+      state.copyWith(
+        list: List.from(repository.listIcon),
+        selectionIconIndex: index,
+      ),
+    );
   }
 }

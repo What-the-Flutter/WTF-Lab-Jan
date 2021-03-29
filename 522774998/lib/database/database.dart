@@ -1,8 +1,9 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import '../properties/property_message.dart';
+import '../properties/property_page.dart';
+
 import '../repository/pages_repository.dart';
-import '../repository/property_message.dart';
-import '../repository/property_page.dart';
 
 final String tablePage = 'table_page';
 final String columnIdPage = 'id';
@@ -10,34 +11,24 @@ final String columnTitleOfPage = 'title';
 final String columnCreationTime = 'creation_time';
 final String columnLastModifiedTime = 'last_modified_time';
 final String columnIsPin = 'is_pin';
-final String columnIconCodePoint = 'icon_code_point';
+final String columnIconIndex = 'icon_index';
 
 final String tableMessage = 'table_message';
 final String columnIdMessage = 'id';
 final String columnTime = 'time';
-final String columnMessage = 'message';
+final String columnData = 'data';
 final String columnIconCodePointMessage = 'icon_code_point_message';
 final String columnIdMessagePage = 'id_message_page';
+final String columnIsSelected = 'is_selected';
 
 class DBHelper {
-  static Database _database;
-  static DBHelper _suggestionHelper;
+  final Database database;
 
-  DBHelper._createInstance();
+  DBHelper({this.database});
 
-  factory DBHelper() {
-    _suggestionHelper ??= DBHelper._createInstance();
-    return _suggestionHelper;
-  }
-
-  Future<Database> get database async {
-    _database ??= await initializeDatabase();
-    return _database;
-  }
-
-  Future<Database> initializeDatabase() async {
+  static Future<Database> initializeDatabase() async {
     var database = openDatabase(
-      join(await getDatabasesPath(), 'chat_journal_app.db'),
+      join(await getDatabasesPath(), 'temp17.db'),
       version: 1,
       onCreate: (db, version) {
         db.execute('''
@@ -46,7 +37,7 @@ class DBHelper {
       $columnTitleOfPage text not null,
       $columnCreationTime text not null,
       $columnLastModifiedTime text,
-      $columnIconCodePoint integer,
+      $columnIconIndex integer,
       $columnIsPin integer)
       ''');
         db.insert(tablePage, dialogPages[0].toMap());
@@ -56,35 +47,36 @@ class DBHelper {
       create table $tableMessage(
       $columnIdMessage integer primary key autoincrement,
       $columnTime text not null,
-      $columnMessage text not null,
+      $columnData text not null,
       $columnIconCodePointMessage integer,
-      $columnIdMessagePage integer)
+      $columnIdMessagePage integer,
+      $columnIsSelected integer)
       ''');
       },
     );
     return database;
   }
 
-  Future<int> insertPage(PropertyPage page) async {
+  Future<void> insertPage(PropertyPage page) async {
     final db = await database;
-    return db.insert(
+    await db.insert(
       tablePage,
       page.toMap(),
     );
   }
 
-  Future<int> deletePage(PropertyPage suggestion) async {
+  Future<void> deletePage(int id) async {
     final db = await database;
     return await db.delete(
       tablePage,
       where: '$columnIdPage = ?',
-      whereArgs: [suggestion.id],
+      whereArgs: [id],
     );
   }
 
-  Future<int> updatePage(PropertyPage suggestion) async {
+  Future<void> updatePage(PropertyPage suggestion) async {
     final db = await database;
-    return await db.update(
+    await db.update(
       tablePage,
       suggestion.toMap(),
       where: '$columnIdPage = ?',
@@ -102,25 +94,34 @@ class DBHelper {
     }
     return _pagesList;
   }
-  
-  void insertMessage(PropertyMessage message) async {
+
+  Future<void> insertMessage(PropertyMessage message) async {
     final db = await database;
-    db.insert(
+    await db.insert(
       tableMessage,
       message.toMap(),
     );
   }
 
-  Future<int> deleteMessage(PropertyMessage message) async {
+  Future<void> deleteMessage(int id) async {
     final db = await database;
-    return await db.delete(
+    await db.delete(
       tableMessage,
       where: '$columnIdMessage = ?',
-      whereArgs: [message.id],
+      whereArgs: [id],
     );
   }
 
-  Future<int> updateMessage(PropertyMessage message) async {
+  Future<void> deleteMessages(int idMessagePage) async {
+    final db = await database;
+    await db.delete(
+      tableMessage,
+      where: '$columnIdMessage = ?',
+      whereArgs: [idMessagePage],
+    );
+  }
+
+  Future<void> updateMessage(PropertyMessage message) async {
     final db = await database;
     return await db.update(
       tableMessage,
@@ -130,11 +131,11 @@ class DBHelper {
     );
   }
 
-  Future<List<PropertyMessage>> dbMessagesList(int index) async {
+  Future<List<PropertyMessage>> dbMessagesList(int idMessagePage) async {
     var _messagesList = <PropertyMessage>[];
     final db = await database;
     final dbMessagesList = await db.query(tableMessage,
-        where: '$columnIdMessagePage = ?', whereArgs: [index]);
+        where: '$columnIdMessagePage = ?', whereArgs: [idMessagePage]);
     for (final element in dbMessagesList) {
       final message = PropertyMessage.fromMap(element);
       _messagesList.add(message);

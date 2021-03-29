@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-final darkTheme = ThemeData(
+final darkThemeCustom = ThemeData(
   primaryColor: Colors.black,
   accentColor: Colors.orange,
   disabledColor: Colors.white,
@@ -23,7 +23,7 @@ final darkTheme = ThemeData(
   ),
 );
 
-final lightTheme = ThemeData(
+final lightThemeCustom = ThemeData(
   primaryColor: Colors.deepPurple,
   accentColor: Colors.orange,
   disabledColor: Colors.deepPurple,

@@ -1,95 +1,136 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import '../../theme/theme_cubit.dart';
+import '../messages/screen_messages_cubit.dart';
+import 'searching_messages_cubit.dart';
 
-import '../../repository/messages_repository.dart';
-import '../messages/widgets/input/input_cubit.dart';
-import '../messages/widgets/list_message/list_message_cubit.dart';
-
-bool isSearching = false;
-
-class SearchingPage extends StatefulWidget {
+class SearchingPage extends StatelessWidget {
   static const routeName = '/SearchMsg';
-  final MessagesRepository repositoryMessages;
 
-  SearchingPage(this.repositoryMessages);
-
-  @override
-  _SearchingPageState createState() => _SearchingPageState();
-}
-
-class _SearchingPageState extends State<SearchingPage> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<InputCubit>(
-          create: (context) => InputCubit(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Container(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          child: TextField(
+            cursorColor: Theme.of(context).accentColor,
+            controller: context.read<SearchMessageCubit>().controller,
+            decoration: InputDecoration(
+              hintText: 'Search',
+              hintStyle: TextStyle(fontSize: 20, color: Colors.white),
+              fillColor: Colors.white,
+            ),
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-      ],
-      child: Scaffold(
-        appBar: _searchingAppBar,
-        body: Column(
-          children: <Widget>[],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            context.read<SearchMessageCubit>().controller.clear();
+            Navigator.pop(context);
+          },
         ),
       ),
+      body: _listFoundMessage(),
     );
   }
 
-  AppBar get _searchingAppBar {
-    return AppBar(
-      title: Container(
-        alignment: Alignment.center,
-        child: _buildPanelInput(),
-      ),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
-      ),
-    );
-  }
-
-  Widget _buildPanelInput() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      child: BlocBuilder<InputCubit, InputState>(
-        builder: (context, stateInput) => Row(
-          children: <Widget>[
-            Expanded(
-              flex: 5,
-              child: TextField(
-                cursorColor: Theme.of(context).accentColor,
-                controller: context.read<InputCubit>().controller,
-                decoration: InputDecoration(
-                  hintText: 'Search',
-                  hintStyle: TextStyle(fontSize: 20, color: Colors.white),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      context.read<ListMessageCubit>().addSearchingMessage(
-                          context.read<InputCubit>().controller);
-                      isSearching = true;
-                    },
+  Widget _listFoundMessage() {
+    return Center(
+      child: BlocBuilder<SearchMessageCubit, SearchMessageState>(
+        builder: (context, state) {
+          if (state is SearchMessageScreenWait) {
+            return Container(
+              padding: EdgeInsets.all(20),
+              color: Colors.orange[50],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(
+                    Icons.search,
+                    size: 55,
                   ),
-                ),
-                style: TextStyle(color: Colors.white),
+                  Text(
+                    'Please enter a search query to begin searching',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ],
               ),
-            ),
-            Expanded(
-              flex: 1,
-              child: context.read<InputCubit>().controller.text == ''
-                  ? SizedBox()
-                  : IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () {
-                        context.read<InputCubit>().controller.text = '';
-                      },
+            );
+          } else if (state is SearchMessageScreenNotFound) {
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.all(20),
+              color: Colors.orange[50],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    'No search results available',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
-            ),
-          ],
+                  ),
+                  Center(
+                    child: Text(
+                      'Please try again.',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return ListView.builder(
+              itemCount: state.list.length,
+              itemBuilder: (context, index) {
+                return FoundMessage(
+                  index: index,
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+class FoundMessage extends StatelessWidget {
+  final int index;
+
+  const FoundMessage({
+    Key key,
+    this.index,
+  }) : super(
+          key: key,
+        );
+
+  @override
+  Widget build(BuildContext context) {
+    final data = context.read<SearchMessageCubit>().state.list[index];
+    return Container(
+      padding: EdgeInsets.all(10.0),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15.0),
+            color: BlocProvider.of<ThemeCubit>(context).state.theme.accentColor,
+          ),
+          padding: EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Text(context.read<ScreenMessagesCubit>().state.page.title),
+              data.message,
+            ],
+          ),
         ),
       ),
     );
