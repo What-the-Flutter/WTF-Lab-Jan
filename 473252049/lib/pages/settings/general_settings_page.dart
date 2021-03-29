@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../../default/default_categories.dart';
 import '../main/tabs/home/cubit/categories_cubit.dart';
 import 'cubit/settings_cubit.dart';
 
@@ -58,7 +59,7 @@ class GeneralSettingPage extends StatelessWidget {
               ListTile(
                 title: Text('Unpin all the categories'),
                 subtitle: Text('All categories will be unpinned'),
-                trailing: Icon(Icons.restore),
+                trailing: Icon(Icons.pin_drop_sharp),
                 onTap: () {
                   showDialog(
                     context: context,
@@ -120,6 +121,40 @@ class GeneralSettingPage extends StatelessWidget {
                               context
                                   .read<SettingsCubit>()
                                   .setTextTheme('large');
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Initial reset'),
+                subtitle: Text('App will be got initial state'),
+                trailing: Icon(Icons.restore),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return AlertDialog(
+                        title: Text('Are you sure?'),
+                        content: Text('All data will be erased'),
+                        actions: [
+                          TextButton(
+                            child: Text('No'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Yes'),
+                            onPressed: () async {
+                              await context.read<CategoriesCubit>().deleteAll();
+                              context
+                                  .read<CategoriesCubit>()
+                                  .addAll(categories: defaultCategories);
                               Navigator.of(context).pop();
                             },
                           ),

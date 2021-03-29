@@ -82,3 +82,17 @@ class CategoryChangePinSuccess extends CategoriesState {
 class AllUnpinSuccess extends CategoriesState {
   AllUnpinSuccess(List<CategoryWithLastRecord> categories) : super(categories);
 }
+
+class AllDeleteSuccess extends CategoriesState {
+  AllDeleteSuccess(List<CategoryWithLastRecord> categories) : super(categories);
+}
+
+class AllAddSuccess extends CategoriesState {
+  final List<Category> addedCategories;
+
+  AllAddSuccess(List<CategoryWithLastRecord> categories, this.addedCategories)
+      : super(categories);
+
+  @override
+  List<Object> get props => [categories, addedCategories];
+}

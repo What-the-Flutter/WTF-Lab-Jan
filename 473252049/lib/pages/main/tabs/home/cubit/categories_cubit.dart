@@ -51,6 +51,13 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     );
   }
 
+  void addAll({@required List<Category> categories}) async {
+    for (var category in categories) {
+      await repository.insert(category);
+    }
+    emit(AllAddSuccess(await categoriesWithLastRecords, categories));
+  }
+
   void update(Category category) async {
     await repository.update(category);
     emit(
@@ -69,6 +76,14 @@ class CategoriesCubit extends Cubit<CategoriesState> {
         deletedCategory,
       ),
     );
+  }
+
+  void deleteAll() async {
+    final categoriesId = (await repository.getAll()).map((e) => e.id);
+    for (var id in categoriesId) {
+      await repository.delete(id);
+    }
+    emit(AllDeleteSuccess([]));
   }
 
   void changePin({@required Category category}) async {
