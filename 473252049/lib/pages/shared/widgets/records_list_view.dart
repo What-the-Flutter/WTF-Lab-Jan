@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../model/category.dart';
 import '../../../model/record.dart';
+import '../../category/cubit/records_cubit.dart';
 import '../../main/tabs/home/cubit/categories_cubit.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import 'record/record_widget.dart';
@@ -25,6 +26,12 @@ class RecordsListView extends StatefulWidget {
 }
 
 class _RecordsListViewState extends State<RecordsListView> {
+  @override
+  void initState() {
+    context.read<RecordsCubit>().loadRecords(categoryId: widget.category?.id);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -77,6 +84,7 @@ List<Widget> recordWidgetsFromRecords({
       BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
           return RecordWidget(
+            key: UniqueKey(),
             record: records[i],
             category: category,
             bubbleAlignment: state.bubbleAlignment,
