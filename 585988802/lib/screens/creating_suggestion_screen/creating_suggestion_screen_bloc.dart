@@ -25,16 +25,22 @@ class CreatingSuggestionScreenBloc
   Stream<CreatingSuggestionScreenState>
       _mapCreatingSuggestionScreenInitToState() async* {
     yield state.copyWith(
-        currentImagePath: 'assets/images/journal.png', isWriting: false);
+      currentImagePath: 'assets/images/journal.png',
+      isWriting: false,
+    );
   }
 
   Stream<CreatingSuggestionScreenState> _mapCurrentImageChangedToState(
       CurrentImageChanged event) async* {
-    yield state.copyWith(currentImagePath: event.currentImagePath);
+    yield state.copyWith(
+      currentImagePath: event.currentImagePath,
+    );
   }
 
   Stream<CreatingSuggestionScreenState> _mapAddButtonChangedToState(
       AddButtonChanged event) async* {
-    yield state.copyWith(isWriting: event.isWriting);
+    yield state.copyWith(
+      isWriting: event.isWriting,
+    );
   }
 }

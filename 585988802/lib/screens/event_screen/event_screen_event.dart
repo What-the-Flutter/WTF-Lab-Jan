@@ -17,12 +17,15 @@ class EventMessageListInit extends EventScreenEvent {
 
 class EventMessageAdded extends EventScreenEvent {
   final EventMessage eventMessage;
+  final List<EventMessage> eventMessageList;
 
-  const EventMessageAdded(this.eventMessage);
+  const EventMessageAdded(this.eventMessage, this.eventMessageList);
 }
 
 class EventMessageDeleted extends EventScreenEvent {
-  const EventMessageDeleted();
+  final List<EventMessage> eventMessageList;
+
+  const EventMessageDeleted(this.eventMessageList);
 }
 
 class EventMessageSelected extends EventScreenEvent {
@@ -45,8 +48,10 @@ class UpdateEventMessageList extends EventScreenEvent {
 
 class EventMessageEdited extends EventScreenEvent {
   final String editedNameOfEventMessage;
+  final List<EventMessage> eventMessageList;
 
-  const EventMessageEdited(this.editedNameOfEventMessage);
+  const EventMessageEdited(
+      this.editedNameOfEventMessage, this.eventMessageList);
 }
 
 class EditingModeChanged extends EventScreenEvent {
@@ -119,22 +124,18 @@ class TimeSelected extends EventScreenEvent {
   const TimeSelected(this.selectedTime);
 }
 
-class TagAdded extends EventScreenEvent {
-  final Tag tag;
-
-  const TagAdded(this.tag);
-}
-
-class CheckEventMessageForTag extends EventScreenEvent {
+class CheckEventMessageForTagAndAdded extends EventScreenEvent {
   final String eventMessageText;
+  final List<Tag> tagList;
 
-  const CheckEventMessageForTag(this.eventMessageText);
+  const CheckEventMessageForTagAndAdded(this.eventMessageText, this.tagList);
 }
 
 class TagDeleted extends EventScreenEvent {
   final Tag tag;
+  final List<Tag> tagList;
 
-  const TagDeleted(this.tag);
+  const TagDeleted(this.tag, this.tagList);
 }
 
 class UpdateTagList extends EventScreenEvent {

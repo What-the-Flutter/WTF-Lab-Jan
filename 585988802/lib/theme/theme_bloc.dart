@@ -7,6 +7,9 @@ import 'theme_event.dart';
 class ThemeBloc extends Bloc<ThemeEvent, ThemeMode> {
   ThemeBloc() : super(ThemeMode.light);
 
+  final CustomSharedPreferences _customSharedPreferences =
+      CustomSharedPreferences();
+
   @override
   Stream<ThemeMode> mapEventToState(ThemeEvent event) async* {
     if (event is ChangeThemeEvent) {
@@ -20,19 +23,19 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeMode> {
 
   Stream<ThemeMode> _mapInitThemeEventToState() async* {
     final isCurrentThemeModeDark =
-        await CustomSharedPreferences.sharedPrefInitTheme();
+        await _customSharedPreferences.sharedPrefInitTheme();
     yield isCurrentThemeModeDark == true ? ThemeMode.dark : ThemeMode.light;
   }
 
   Stream<ThemeMode> _mapChangeThemeEventToState() async* {
     final themeMode =
         state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    CustomSharedPreferences.sharedPrefChangeTheme(themeMode);
+    _customSharedPreferences.sharedPrefChangeTheme(themeMode);
     yield themeMode;
   }
 
   Stream<ThemeMode> _mapResetThemeEventToState() async* {
-    CustomSharedPreferences.sharedPrefResetTheme();
+    _customSharedPreferences.sharedPrefResetTheme();
     yield ThemeMode.light;
   }
 }

@@ -8,6 +8,9 @@ import 'settings_screen_state.dart';
 class SettingScreenBloc extends Bloc<SettingScreenEvent, SettingsScreenState> {
   SettingScreenBloc(SettingsScreenState initialState) : super(initialState);
 
+  final CustomSharedPreferences _customSharedPreferences =
+      CustomSharedPreferences();
+
   @override
   Stream<SettingsScreenState> mapEventToState(SettingScreenEvent event) async* {
     if (event is ChangeBubbleAlignmentEvent) {
@@ -25,10 +28,10 @@ class SettingScreenBloc extends Bloc<SettingScreenEvent, SettingsScreenState> {
 
   Stream<SettingsScreenState> _mapInitSettingScreenToState() async* {
     final bubbleAlignment =
-        await CustomSharedPreferences.sharedPrefInitBubbleAlignment();
+        await _customSharedPreferences.sharedPrefInitBubbleAlignment();
     final dateTimeModification =
-        await CustomSharedPreferences.sharedPrefInitDateTimeModification();
-    final fontSize = await CustomSharedPreferences.sharedPrefInitFontSize();
+        await _customSharedPreferences.sharedPrefInitDateTimeModification();
+    final fontSize = await _customSharedPreferences.sharedPrefInitFontSize();
     yield state.copyWith(
       isLeftBubbleAlignment: bubbleAlignment,
       isDateTimeModification: dateTimeModification,
@@ -38,26 +41,32 @@ class SettingScreenBloc extends Bloc<SettingScreenEvent, SettingsScreenState> {
 
   Stream<SettingsScreenState> _mapChangeBubbleAlignmentToState() async* {
     final bubbleAlignment = state.isLeftBubbleAlignment ? false : true;
-    CustomSharedPreferences.sharedPrefChangeBubbleAlignment(bubbleAlignment);
-    yield state.copyWith(isLeftBubbleAlignment: bubbleAlignment);
+    _customSharedPreferences.sharedPrefChangeBubbleAlignment(bubbleAlignment);
+    yield state.copyWith(
+      isLeftBubbleAlignment: bubbleAlignment,
+    );
   }
 
   Stream<SettingsScreenState> _mapChangeDateTimeModificationToState() async* {
     final dateTimeModification = state.isDateTimeModification ? false : true;
-    CustomSharedPreferences.sharedPrefChangeDateTimeModification(
-        dateTimeModification);
-    yield state.copyWith(isDateTimeModification: dateTimeModification);
+    _customSharedPreferences
+        .sharedPrefChangeDateTimeModification(dateTimeModification);
+    yield state.copyWith(
+      isDateTimeModification: dateTimeModification,
+    );
   }
 
   Stream<SettingsScreenState> _mapChangeFontSizeEventToState(
       ChangeFontSizeEvent event) async* {
     final fontSize = event.selectedFontSize;
-    CustomSharedPreferences.sharedPrefChangeFontSize(fontSize);
-    yield state.copyWith(fontSize: fontSize);
+    _customSharedPreferences.sharedPrefChangeFontSize(fontSize);
+    yield state.copyWith(
+      fontSize: fontSize,
+    );
   }
 
   Stream<SettingsScreenState> _mapResetSettingsEventToState() async* {
-    CustomSharedPreferences.sharedPrefResetSettings();
+    _customSharedPreferences.sharedPrefResetSettings();
     yield state.copyWith(
       isDateTimeModification: false,
       isLeftBubbleAlignment: false,

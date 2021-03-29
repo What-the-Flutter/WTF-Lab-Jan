@@ -45,8 +45,6 @@ class _EventScreenState extends State<EventScreen> {
 
   _EventScreenState(this._listViewSuggestion, this._suggestionsList);
 
-  //a temporary list to check the functionality of
-  // adding a message with the selected category
   final List<Category> _categoryList = [
     Category(nameOfCategory: 'Journal', imagePath: 'assets/images/journal.png'),
     Category(nameOfCategory: 'Pig', imagePath: 'assets/images/pig.png'),
@@ -332,8 +330,13 @@ class _EventScreenState extends State<EventScreen> {
                         backgroundColor: Theme.of(context).cardTheme.color,
                         onPressed: () => _filterEventMessageList(tag.tagText),
                         onDeleted: () =>
-                            BlocProvider.of<EventScreenBloc>(context)
-                                .add(TagDeleted(tag)),
+                            BlocProvider.of<EventScreenBloc>(context).add(
+                          TagDeleted(
+                              tag,
+                              BlocProvider.of<EventScreenBloc>(context)
+                                  .state
+                                  .tagList),
+                        ),
                       ),
                     )
                     .toList(),
@@ -460,9 +463,8 @@ class _EventScreenState extends State<EventScreen> {
 
   void doSwipeSelectedItemAction(BuildContext context,
       EventMessage eventMessage, SwipeSelectedAction action) {
-    BlocProvider.of<EventScreenBloc>(context).add(
-      EventMessageSelected(eventMessage),
-    );
+    BlocProvider.of<EventScreenBloc>(context).state.selectedEventMessage =
+        eventMessage;
     switch (action) {
       case SwipeSelectedAction.edit:
         _editEventMessage();
@@ -484,7 +486,7 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
+            curve: Curves.decelerate,
             reverseCurve: Curves.easeOutCubic,
           ),
           child: CustomDialog.deleteEventMessage(
@@ -784,6 +786,7 @@ class _EventScreenState extends State<EventScreen> {
       EventMessageAdded(
         EventMessage(
           idOfSuggestion: _listViewSuggestion.id,
+          nameOfSuggestion: _listViewSuggestion.nameOfSuggestion,
           time: BlocProvider.of<SettingScreenBloc>(context)
                   .state
                   .isDateTimeModification
@@ -847,13 +850,14 @@ class _EventScreenState extends State<EventScreen> {
                   .selectedCategory
                   .nameOfCategory,
         ),
+        BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
       ),
     );
 
-    ///
-    BlocProvider.of<EventScreenBloc>(context)
-        .add(CheckEventMessageForTag(_textEditingController.text));
-    // _addTag(_textEditingController.text);
+    BlocProvider.of<EventScreenBloc>(context).add(
+      CheckEventMessageForTagAndAdded(_textEditingController.text,
+          BlocProvider.of<EventScreenBloc>(context).state.tagList),
+    );
     _textEditingController.clear();
     BlocProvider.of<EventScreenBloc>(context).add(
       SendButtonChanged(false),
@@ -866,19 +870,6 @@ class _EventScreenState extends State<EventScreen> {
         : () {};
   }
 
-  // void _addTag(String text) {
-  //   final list = text.split(RegExp(r'[ ]+'));
-  //   for (final str in list) {
-  //     if (tagRegExp.hasMatch(str)) {
-  //       BlocProvider.of<EventScreenBloc>(context).add(
-  //         TagAdded(
-  //           Tag(tagText: str),
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
-
   Future<Object> _showImageSelectionDialog() {
     return showGeneralDialog(
       barrierDismissible: false,
@@ -888,7 +879,7 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
+            curve: Curves.decelerate,
             reverseCurve: Curves.easeOutCubic,
           ),
           child: _customDialogImageSelect,
@@ -932,6 +923,7 @@ class _EventScreenState extends State<EventScreen> {
         EventMessageAdded(
           EventMessage(
             idOfSuggestion: _listViewSuggestion.id,
+            nameOfSuggestion: _listViewSuggestion.nameOfSuggestion,
             time: BlocProvider.of<SettingScreenBloc>(context)
                     .state
                     .isDateTimeModification
@@ -995,6 +987,7 @@ class _EventScreenState extends State<EventScreen> {
                     .selectedCategory
                     .nameOfCategory,
           ),
+          BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
         ),
       );
     }
@@ -1153,7 +1146,7 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
+            curve: Curves.decelerate,
             reverseCurve: Curves.easeOutCubic,
           ),
           child: ForwardDialog(
@@ -1179,6 +1172,7 @@ class _EventScreenState extends State<EventScreen> {
             1
         ? EventMessage(
             idOfSuggestion: selectedListViewSuggestion.id,
+            nameOfSuggestion: selectedListViewSuggestion.nameOfSuggestion,
             time: BlocProvider.of<SettingScreenBloc>(context)
                     .state
                     .isDateTimeModification
@@ -1227,6 +1221,7 @@ class _EventScreenState extends State<EventScreen> {
           )
         : EventMessage(
             idOfSuggestion: selectedListViewSuggestion.id,
+            nameOfSuggestion: selectedListViewSuggestion.nameOfSuggestion,
             time: BlocProvider.of<SettingScreenBloc>(context)
                     .state
                     .isDateTimeModification
@@ -1274,7 +1269,10 @@ class _EventScreenState extends State<EventScreen> {
                 .nameOfCategory,
           );
     BlocProvider.of<EventScreenBloc>(context).add(
-      EventMessageAdded(selectedEventMessage),
+      EventMessageAdded(
+        selectedEventMessage,
+        BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
+      ),
     );
   }
 
@@ -1306,8 +1304,8 @@ class _EventScreenState extends State<EventScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(
             parent: animation,
-            curve: Curves.elasticOut,
-            reverseCurve: Curves.easeOutCubic,
+            curve: Curves.decelerate,
+            reverseCurve: Curves.linearToEaseOut,
           ),
           child: CustomDialog.editEventMessage(
             title: 'Edit the text',
@@ -1342,7 +1340,10 @@ class _EventScreenState extends State<EventScreen> {
   void _selectedEdit() {
     if (_textEditingController.text.isNotEmpty) {
       BlocProvider.of<EventScreenBloc>(context).add(
-        EventMessageEdited(_textEditingController.text),
+        EventMessageEdited(
+          _textEditingController.text,
+          BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
+        ),
       );
       _textEditingController.clear();
     }
@@ -1360,7 +1361,9 @@ class _EventScreenState extends State<EventScreen> {
 
   void _deleteEventMessage() {
     BlocProvider.of<EventScreenBloc>(context).add(
-      EventMessageDeleted(),
+      EventMessageDeleted(
+        BlocProvider.of<EventScreenBloc>(context).state.eventMessageList,
+      ),
     );
   }
 }

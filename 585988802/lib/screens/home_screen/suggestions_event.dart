@@ -26,8 +26,9 @@ class SuggestionSelected extends SuggestionEvent {
 
 class SuggestionAdded extends SuggestionEvent {
   final Suggestion suggestion;
+  final List<Suggestion> suggestionList;
 
-  const SuggestionAdded(this.suggestion);
+  const SuggestionAdded(this.suggestion,this.suggestionList);
 }
 
 class SuggestionUpdated extends SuggestionEvent {
@@ -39,19 +40,26 @@ class SuggestionListUpdate extends SuggestionEvent {
 }
 
 class SuggestionPinned extends SuggestionEvent {
-  const SuggestionPinned();
+  final Suggestion selectedSuggestion;
+
+  const SuggestionPinned(this.selectedSuggestion);
 }
 
 class SuggestionUnpinned extends SuggestionEvent {
-  const SuggestionUnpinned();
+  final Suggestion selectedSuggestion;
+
+  const SuggestionUnpinned(this.selectedSuggestion);
 }
 
 class SuggestionDeleted extends SuggestionEvent {
-  const SuggestionDeleted();
+  final List<Suggestion> suggestionList;
+
+  const SuggestionDeleted(this.suggestionList);
 }
 
 class SuggestionEdited extends SuggestionEvent {
   final String editedNameOfSuggestion;
+  final Suggestion selectedSuggestion;
 
-  const SuggestionEdited(this.editedNameOfSuggestion);
+  const SuggestionEdited(this.editedNameOfSuggestion, this.selectedSuggestion);
 }

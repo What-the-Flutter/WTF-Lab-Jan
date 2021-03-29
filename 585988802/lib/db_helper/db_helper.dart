@@ -15,6 +15,7 @@ const String columnIsPinned = 'is_pinned';
 const String tableEventMessage = 'event_message';
 const String columnIdEventMessage = 'id';
 const String columnIdOfSuggestion = 'id_of_suggestion';
+const String columnNameOfSuggestionForEvMsg = 'name_of_suggestion';
 const String columnTime = 'time';
 const String columnText = 'text';
 const String columnIsFavorite = 'is_favorite';
@@ -59,6 +60,7 @@ class DBHelper {
       create table $tableEventMessage(
       $columnIdEventMessage integer primary key autoincrement,
       $columnIdOfSuggestion integer,
+      $columnNameOfSuggestionForEvMsg text not null,
       $columnTime text not null,
       $columnText text not null,
       $columnIsFavorite integer,
@@ -117,6 +119,19 @@ class DBHelper {
       suggestionsList.add(suggestion);
     }
     return suggestionsList;
+  }
+
+  void updateEventMessageListOfSuggestion(Suggestion suggestion) async {
+    final db = await database;
+    var dbEventMessagesList = await db.rawQuery(
+      'SELECT * FROM $tableEventMessage WHERE $columnIdOfSuggestion = ?',
+      [suggestion.id],
+    );
+    for (final element in dbEventMessagesList) {
+      final eventMessage = EventMessage.fromMap(element);
+      eventMessage.nameOfSuggestion = suggestion.nameOfSuggestion;
+      updateEventMessage(eventMessage);
+    }
   }
 
   void insertEventMessage(EventMessage eventMessage) async {

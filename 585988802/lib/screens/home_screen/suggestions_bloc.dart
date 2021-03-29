@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../db_helper/db_helper.dart';
 import '../../models/event_message.dart';
@@ -22,9 +23,9 @@ class SuggestionsBloc extends Bloc<SuggestionEvent, SuggestionsState> {
     } else if (event is SuggestionDeleted) {
       yield* _mapSuggestionDeletedToState(event);
     } else if (event is SuggestionPinned) {
-      yield* _mapSuggestionPinnedToState();
+      yield* _mapSuggestionPinnedToState(event);
     } else if (event is SuggestionUnpinned) {
-      yield* _mapSuggestionUnpinnedToState();
+      yield* _mapSuggestionUnpinnedToState(event);
     } else if (event is SuggestionSelected) {
       yield* _mapSuggestionSelectedToState(event);
     } else if (event is SuggestionEventMessageDistribute) {
@@ -51,29 +52,40 @@ class SuggestionsBloc extends Bloc<SuggestionEvent, SuggestionsState> {
         }
       }
       if (localEventMessageList.isNotEmpty) {
+        localEventMessageList.sort((a, b) {
+          final aDate = DateFormat.yMMMd().add_jm().parse(a.time);
+          final bDate = DateFormat.yMMMd().add_jm().parse(b.time);
+          return bDate.compareTo(aDate);
+        });
         suggestionList[i].firstEventMessage = localEventMessageList.last;
         suggestionList[i].lastEventMessage = localEventMessageList.first;
       }
     }
-
-    yield state.copyWith(suggestionList: suggestionList);
+    yield state.copyWith(
+      suggestionList: suggestionList,
+    );
   }
 
   Stream<SuggestionsState> _mapSuggestionListSortByPinnedToState(
       SuggestionListSortByPinned event) async* {
     yield state.copyWith(
-        suggestionList: event.suggestionList
-          ..sort((a, b) => (b.isPinned).compareTo(a.isPinned)));
+      suggestionList: event.suggestionList
+        ..sort((a, b) => (b.isPinned).compareTo(a.isPinned)),
+    );
   }
 
   Stream<SuggestionsState> _mapSuggestionSelectedToState(
       SuggestionSelected event) async* {
-    yield state.copyWith(selectedSuggestion: event.selectedSuggestion);
+    yield state.copyWith(
+      selectedSuggestion: event.selectedSuggestion,
+    );
   }
 
   Stream<SuggestionsState> _mapSuggestionListInitToState() async* {
-    add(SuggestionListUpdate());
-    yield state.copyWith();
+    final suggestionList = await _dbHelper.dbSuggestionsList();
+    yield state.copyWith(
+      suggestionList: suggestionList,
+    );
   }
 
   Stream<SuggestionsState> _mapSuggestionAddedToState(
@@ -82,7 +94,8 @@ class SuggestionsBloc extends Bloc<SuggestionEvent, SuggestionsState> {
       final id = await _dbHelper.insertSuggestion(event.suggestion);
       event.suggestion.id = id;
       yield state.copyWith(
-          suggestionList: state.suggestionList..add(event.suggestion));
+        suggestionList: event.suggestionList..add(event.suggestion),
+      );
     }
   }
 
@@ -90,30 +103,44 @@ class SuggestionsBloc extends Bloc<SuggestionEvent, SuggestionsState> {
       SuggestionDeleted event) async* {
     _dbHelper.deleteSuggestion(state.selectedSuggestion);
     yield state.copyWith(
-      suggestionList: state.suggestionList..remove(state.selectedSuggestion),
+      suggestionList: event.suggestionList
+        ..remove(
+          state.selectedSuggestion,
+        ),
     );
   }
 
-  Stream<SuggestionsState> _mapSuggestionPinnedToState() async* {
-    state.selectedSuggestion.isPinned = 1;
-    _dbHelper.updateSuggestion(state.selectedSuggestion);
-    yield state.copyWith();
+  Stream<SuggestionsState> _mapSuggestionPinnedToState(
+      SuggestionPinned event) async* {
+    event.selectedSuggestion.isPinned = 1;
+    _dbHelper.updateSuggestion(event.selectedSuggestion);
+    yield state.copyWith(
+      selectedSuggestion: event.selectedSuggestion,
+    );
   }
 
-  Stream<SuggestionsState> _mapSuggestionUnpinnedToState() async* {
-    state.selectedSuggestion.isPinned = 0;
-    _dbHelper.updateSuggestion(state.selectedSuggestion);
-    yield state.copyWith();
+  Stream<SuggestionsState> _mapSuggestionUnpinnedToState(
+      SuggestionUnpinned event) async* {
+    event.selectedSuggestion.isPinned = 0;
+    _dbHelper.updateSuggestion(event.selectedSuggestion);
+    yield state.copyWith(
+      selectedSuggestion: event.selectedSuggestion,
+    );
   }
 
   Stream<SuggestionsState> _mapSuggestionEditedToState(
       SuggestionEdited event) async* {
-    state.selectedSuggestion.nameOfSuggestion = event.editedNameOfSuggestion;
-    _dbHelper.updateSuggestion(state.selectedSuggestion);
-    yield state.copyWith();
+    event.selectedSuggestion.nameOfSuggestion = event.editedNameOfSuggestion;
+    _dbHelper.updateSuggestion(event.selectedSuggestion);
+    _dbHelper.updateEventMessageListOfSuggestion(event.selectedSuggestion);
+    yield state.copyWith(
+      selectedSuggestion: event.selectedSuggestion,
+    );
   }
 
   Stream<SuggestionsState> _mapSuggestionListUpdateToState() async* {
-    yield state.copyWith(suggestionList: await _dbHelper.dbSuggestionsList());
+    yield state.copyWith(
+      suggestionList: await _dbHelper.dbSuggestionsList(),
+    );
   }
 }
