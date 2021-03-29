@@ -8,7 +8,6 @@ part 'creating_new_page_state.dart';
 
 class CreatingNewPageCubit extends Cubit<CreatingNewPageState> {
   final IconsRepository repository;
-  final controller = TextEditingController();
 
   CreatingNewPageCubit({
     this.repository,
@@ -18,19 +17,9 @@ class CreatingNewPageCubit extends Cubit<CreatingNewPageState> {
           ),
         );
 
-  void changeButton() {
-    if (controller.text.isEmpty) {
-      emit(state.copyWith(iconButton: Icons.close));
-    } else {
-      emit(state.copyWith(iconButton: Icons.done));
-    }
-  }
-
-  void setting(String title, int selectionIconIndex) {
-    controller.addListener(changeButton);
+  void setIconIndex(int selectionIconIndex) {
     repository.listIcon[selectionIconIndex] =
         repository.listIcon[selectionIconIndex].copyWith(isSelected: true);
-    controller.text = title;
     emit(
       CreatingNewPageStateWork(
         list: List.from(repository.listIcon),

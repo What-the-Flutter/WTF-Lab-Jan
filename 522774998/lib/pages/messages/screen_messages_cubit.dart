@@ -15,7 +15,6 @@ part 'screen_messages_state.dart';
 
 class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
   MessagesRepository repository;
-  final controller = TextEditingController();
 
   ScreenMessagesCubit({
     this.repository,
@@ -24,6 +23,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
             appBar: InputAppBar(
               title: 'Title',
             ),
+            category: Icons.bubble_chart,
             counter: 0,
             list: <PropertyMessage>[],
           ),
@@ -31,7 +31,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
 
   void changeCategory(IconData categoryIcon) {
     emit(
-      ScreenMessageInput(
+      state.copyWith(
         category: categoryIcon,
       ),
     );
@@ -47,24 +47,8 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         appBar: appBar,
         list: await repository.messages(page.id),
         counter: 0,
+        category: Icons.bubble_chart,
       ),
-    );
-    controller.addListener(
-      () => controller.text.isEmpty
-          ? emit(
-              state.copyWith(
-                iconData: Icons.photo_camera,
-                onAddMessage:
-                    state is ScreenMessageInput ? addPhotoMessage : editMessage,
-              ),
-            )
-          : emit(
-              state.copyWith(
-                iconData: Icons.send,
-                onAddMessage:
-                    state is ScreenMessageInput ? addTextMessage : editMessage,
-              ),
-            ),
     );
     sortMessagesByDate();
   }
@@ -78,7 +62,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         data: pickedFile.path,
         isSelected: false,
         time: state.timeOfSending ?? DateTime.now(),
-        //time: DateTime.now(),
+        icon: state.category == Icons.bubble_chart ? null : state.category,
       ),
     );
     emit(
@@ -98,17 +82,16 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
     return false;
   }
 
-  void addTextMessage() async {
+  void addTextMessage(String data) async {
     repository.addMessage(
       TextMessage(
         idMessagePage: state.page.id,
-        data: controller.text,
+        data: data,
         isSelected: false,
         time: state.timeOfSending ?? DateTime.now(),
-        //time: DateTime.now(),
+        icon: state.category == Icons.bubble_chart ? null : state.category,
       ),
     );
-    controller.text = '';
     emit(
       state.copyWith(
         list: await repository.messages(state.page.id),
@@ -117,7 +100,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
     sortMessagesByDate();
   }
 
-  void editMessage() {
+  void editMessage(String data) {
     int index;
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
@@ -125,9 +108,8 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         break;
       }
     }
-    repository.editMessage(
-        state.list[index].copyWith(data: controller.text, isSelected: false));
-    controller.text = '';
+    repository
+        .editMessage(state.list[index].copyWith(data: data, isSelected: false));
     toInputAppBar();
   }
 
@@ -192,14 +174,13 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
     sortMessagesByDate();
   }
 
-  void toEditAppBar() {
+  String toEditAppBar() {
     String text;
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
         text = state.list[i].data;
       }
     }
-    controller.text = text;
     emit(
       ScreenMessageEdit(
         page: state.page,
@@ -213,6 +194,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
       ),
     );
     sortMessagesByDate();
+    return text;
   }
 
   void backToInputAppBar() async {
@@ -334,11 +316,5 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         timeOfSending: DateTime.now(),
       ),
     );
-  }
-
-  @override
-  Future<Function> close() {
-    controller.dispose();
-    return super.close();
   }
 }

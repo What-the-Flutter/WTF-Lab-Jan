@@ -18,7 +18,7 @@ class PropertyPage implements Comparable<PropertyPage> {
   });
 
   PropertyPage copyWith({
-    int id,
+    final int id,
     final bool isPin,
     final int iconIndex,
     final String title,

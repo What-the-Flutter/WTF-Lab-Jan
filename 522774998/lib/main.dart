@@ -8,12 +8,12 @@ import 'pages/home/home_screen_cubit.dart';
 import 'pages/messages/screen_messages_cubit.dart';
 import 'pages/search/searching_messages_cubit.dart';
 import 'pages/settings/settings_page_cubit.dart';
+import 'preferences.dart';
 import 'repository/icons_repository.dart';
 import 'repository/messages_repository.dart';
 import 'repository/pages_repository.dart';
 import 'routes/routes.dart';
 import 'theme/theme_cubit.dart';
-import 'preferences.dart';
 import 'theme/theme_state.dart';
 
 void main() async {
@@ -79,11 +79,13 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, state) => MaterialApp(
-          title: 'Chat Journal',
-          theme: BlocProvider.of<ThemeCubit>(context).state.theme,
-          onGenerateRoute: _appRouter.onGenerateRoute,
-        ),
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Chat Journal',
+            theme: BlocProvider.of<ThemeCubit>(context).state.theme,
+            onGenerateRoute: _appRouter.onGenerateRoute,
+          );
+        },
       ),
     );
   }

@@ -18,8 +18,9 @@ class AppRouter {
           builder: (context) => ScreenMessages(),
         );
       case CreateNewPage.routeName:
+        String title = settings.arguments;
         return MaterialPageRoute(
-          builder: (context) => CreateNewPage(),
+          builder: (context) => CreateNewPage(title: title),
         );
       case SearchingPage.routeName:
         return MaterialPageRoute(

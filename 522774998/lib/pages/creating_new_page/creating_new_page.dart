@@ -5,10 +5,26 @@ import 'package:provider/provider.dart';
 
 import 'creating_new_page_cubit.dart';
 
-class CreateNewPage extends StatelessWidget {
+class CreateNewPage extends StatefulWidget {
   static const routeName = '/CreatePage';
+  final String title;
 
-  CreateNewPage();
+  CreateNewPage({this.title});
+
+  @override
+  _CreateNewPageState createState() => _CreateNewPageState();
+}
+
+class _CreateNewPageState extends State<CreateNewPage> {
+  final controller = TextEditingController();
+  CreatingNewPageCubit cubit;
+  IconData iconFloatingButton = Icons.close;
+
+  @override
+  void initState() {
+    controller.text = widget.title;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +54,7 @@ class CreateNewPage extends StatelessWidget {
                 Expanded(
                   flex: 5,
                   child: TextField(
-                    controller: context.read<CreatingNewPageCubit>().controller,
+                    controller: controller,
                     decoration: InputDecoration(
                       hintText: 'Add new page',
                       focusedBorder: OutlineInputBorder(
@@ -58,21 +74,21 @@ class CreateNewPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         elevation: 10.0,
-        child: BlocBuilder<CreatingNewPageCubit, CreatingNewPageState>(
-          builder: (context, state) => Icon(
-            state.iconButton,
-            color: Colors.black,
-          ),
-          buildWhen: (prev, cur) {
-            if (prev.iconButton != cur.iconButton) {
-              return true;
+        child: BlocConsumer<CreatingNewPageCubit, CreatingNewPageState>(
+          listener: (context, state) {
+            if (controller.text.isEmpty) {
+              iconFloatingButton = Icons.close;
             } else {
-              return false;
+              iconFloatingButton = Icons.done;
             }
           },
+          builder: (context, state) => Icon(
+            iconFloatingButton,
+            color: Colors.black,
+          ),
         ),
         onPressed: () {
-          Navigator.pop(context);
+          Navigator.pop(context, controller.text);
         },
       ),
     );

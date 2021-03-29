@@ -28,9 +28,12 @@ class Preferences {
 
   bool fetchTheme() => _prefs.getBool('isLightTheme') ?? true;
 
-  bool fetchDateModification() => _prefs.getBool('isDateModificationSwitched') ?? false;
+  bool fetchDateModification() =>
+      _prefs.getBool('isDateModificationSwitched') ?? false;
 
-  bool fetchBubbleAlignment() => _prefs.getBool('isBubbleAlignmentSwitched') ?? false;
+  bool fetchBubbleAlignment() =>
+      _prefs.getBool('isBubbleAlignmentSwitched') ?? false;
 
-  bool fetchDateAlignment() => _prefs.getBool('isDateAlignmentSwitched') ?? false;
+  bool fetchDateAlignment() =>
+      _prefs.getBool('isDateAlignmentSwitched') ?? false;
 }

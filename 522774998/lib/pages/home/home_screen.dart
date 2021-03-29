@@ -102,20 +102,19 @@ class ButtonAddChat extends StatelessWidget {
         color: Colors.black,
       ),
       onPressed: () async {
-        context.read<CreatingNewPageCubit>().setting('', 0);
-        await Navigator.pushNamed(
+        context.read<CreatingNewPageCubit>().setIconIndex(0);
+        var title = await Navigator.pushNamed(
           context,
           CreateNewPage.routeName,
+          arguments: '',
         );
         final state = context.read<CreatingNewPageCubit>().state;
-        if (state.iconButton != Icons.close) {
-          context.read<HomeScreenCubit>().addPage(
-                PropertyPage(
-                  title: context.read<CreatingNewPageCubit>().controller.text,
-                  iconIndex: state.selectionIconIndex,
-                ),
-              );
-        }
+        context.read<HomeScreenCubit>().addPage(
+              PropertyPage(
+                title: title,
+                iconIndex: state.selectionIconIndex,
+              ),
+            );
         context.read<CreatingNewPageCubit>().resetIcon();
       },
     );
@@ -309,22 +308,20 @@ class DialogPage extends StatelessWidget {
                 ),
                 onTap: () async {
                   Navigator.pop(context);
-                  createNewPageCubit.setting(
-                    cubit.state.list[_index].title,
+                  createNewPageCubit.setIconIndex(
                     cubit.state.list[_index].iconIndex,
                   );
-                  await Navigator.pushNamed(
+                  var title = await Navigator.pushNamed(
                     context,
                     CreateNewPage.routeName,
+                    arguments: cubit.state.list[_index].title,
                   );
-                  if (createNewPageCubit.state.iconButton != Icons.close) {
-                    cubit.editPage(
-                      cubit.state.list[_index].copyWith(
-                        iconIndex: createNewPageCubit.state.selectionIconIndex,
-                        title: createNewPageCubit.controller.text,
-                      ),
-                    );
-                  }
+                  cubit.editPage(
+                    cubit.state.list[_index].copyWith(
+                      iconIndex: createNewPageCubit.state.selectionIconIndex,
+                      title: title,
+                    ),
+                  );
                   createNewPageCubit.resetIcon();
                 },
               ),

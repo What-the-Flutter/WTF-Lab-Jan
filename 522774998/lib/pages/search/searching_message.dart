@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:try_bloc_app/theme/theme_cubit.dart';
+import '../../theme/theme_cubit.dart';
 import '../messages/screen_messages_cubit.dart';
 import 'searching_messages_cubit.dart';
 
@@ -77,7 +77,8 @@ class SearchingPage extends StatelessWidget {
                     ),
                   ),
                   Center(
-                    child: Text('Please try again.',
+                    child: Text(
+                      'Please try again.',
                       style: TextStyle(color: Colors.black),
                     ),
                   ),

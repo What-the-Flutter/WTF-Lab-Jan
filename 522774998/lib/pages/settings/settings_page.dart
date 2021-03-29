@@ -4,8 +4,6 @@ import '../../theme/theme_cubit.dart';
 
 import 'settings_page_cubit.dart';
 
-bool isSwitched = true;
-
 class SettingsPage extends StatelessWidget {
   static const routeName = '/SettingsPage';
 
