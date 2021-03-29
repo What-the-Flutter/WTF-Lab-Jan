@@ -13,7 +13,7 @@ AppBar defaultAppBar(
   return AppBar(
     title: Text(categoryName),
     actions: [
-      ShowFavoriteIconButton(
+      ShowFavoriteRecordsIconButton(
         state: state,
         categoryId: categoryId,
       ),

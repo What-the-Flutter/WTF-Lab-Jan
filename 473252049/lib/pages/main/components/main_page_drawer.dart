@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share/share.dart';
 
 import '../../category/cubit/records_cubit.dart';
 import '../../search_record_page.dart';
@@ -26,7 +27,7 @@ class MainPageDrawer extends StatelessWidget {
               ),
             ),
           ),
-          drawerItem(Icons.card_giftcard, 'Help spread the world', () {}),
+          shareAppDrawerItem(),
           searchDrawerItem(context),
           drawerItem(Icons.notifications, 'Notifications', () {}),
           drawerItem(Icons.whatshot, 'Statistics', () {}),
@@ -58,6 +59,18 @@ Widget drawerItem(IconData icon, String text, void Function() onTap) {
     title: Text(text),
     leading: Icon(icon),
     onTap: onTap,
+  );
+}
+
+Widget shareAppDrawerItem() {
+  return ListTile(
+    title: Text('Share app'),
+    leading: Icon(Icons.share),
+    onTap: () {
+      Share.share(
+          'I recommend you to check out this app! Developer is https://instagram.com/ilyinmus',
+          subject: "It'll change your life");
+    },
   );
 }
 
