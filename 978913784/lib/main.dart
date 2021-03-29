@@ -1,3 +1,5 @@
+import 'package:chat_journal/tab_page/home/event_page/events_cubit.dart';
+import 'package:chat_journal/tab_page/home/event_page/events_state.dart';
 import 'package:chat_journal/tab_page/settings_page/labels_page/add_label_page/add_label_cubit.dart';
 import 'package:chat_journal/tab_page/settings_page/labels_page/add_label_page/add_label_state.dart';
 import 'package:chat_journal/tab_page/settings_page/labels_page/labels_cubit.dart';
@@ -9,6 +11,7 @@ import 'app_theme_cubit.dart';
 import 'app_theme_state.dart';
 import 'data/database_access.dart';
 import 'data/preferences_access.dart';
+import 'entity/page.dart';
 import 'tab_page/home/pages_cubit.dart';
 import 'tab_page/settings_page/settings_cubit.dart';
 import 'tab_page/settings_page/settings_state.dart';
@@ -38,6 +41,9 @@ void main() async {
           create: (context) => TabCubit(0),
         ),
         BlocProvider(
+          create: (context) => EventCubit(EventsState(JournalPage('Page', 0))),
+        ),
+        BlocProvider(
           create: (context) => TimelineCubit(
             TimelineState(
               false,
@@ -53,7 +59,7 @@ void main() async {
           create: (context) => LabelsCubit(LabelsState([])),
         ),
         BlocProvider(
-          create: (context) => AddLabelCubit(AddLabelState(0,false)),
+          create: (context) => AddLabelCubit(AddLabelState(0, false)),
         ),
       ],
       child: MyApp(),

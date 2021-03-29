@@ -42,7 +42,7 @@ class DatabaseAccess {
           'CREATE TABLE labels('
           'id INTEGER PRIMARY KEY AUTOINCREMENT,'
           ' iconIndex INTEGER,'
-          ' description TEXT,'
+          ' description TEXT'
           ');',
         );
       },

@@ -9,12 +9,10 @@ class EventMessageList extends StatelessWidget {
   final bool _isDateCentered;
   final bool _isRightToLeft;
   final List<Event> _displayed;
-  final Set<Event> _selected;
   final Function(Event) builder;
 
   EventMessageList(
     this._displayed,
-    this._selected,
     this._isDateCentered,
     this._isRightToLeft, {
     @required this.builder,
@@ -51,10 +49,9 @@ class EventMessageList extends StatelessWidget {
           );
           days.add(day);
         }
-        final event = _displayed[i];
         _children.insert(
           0,
-          builder(event),
+          builder(_displayed[i]),
         );
       }
 

@@ -57,7 +57,7 @@ class _HomeBodyState extends State<HomeBody> {
       shrinkWrap: true,
       itemCount: BlocProvider.of<PagesCubit>(context).state.length,
       itemBuilder: (context, index) {
-        return GestureDetector(
+        return InkWell(
           onTap: () async {
             await Navigator.push(
               context,

@@ -35,7 +35,6 @@ class _TimelineBodyState extends State<TimelineBody> {
 
         return EventMessageList(
           _displayed,
-          {},
           state.isDateCentered,
           state.isRightToLeft,
           builder: (event) {

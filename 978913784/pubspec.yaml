@@ -14,6 +14,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  animator: ^3.0.0
   clipboard: ^0.1.2+8
   hashtagable: ^1.0.8
   intl: ^0.16.1

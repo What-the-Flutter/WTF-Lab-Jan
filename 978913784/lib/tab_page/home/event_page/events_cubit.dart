@@ -95,10 +95,10 @@ class EventCubit extends Cubit<EventsState> {
       event.creationTime = state.date;
     }
     event.id = await db.insertEvent(event);
-    state.events..insert(0, event);
     emit(
       state.copyWith(
           events: state.events
+            ..insert(0, event)
             ..sort((a, b) => b.creationTime.compareTo(a.creationTime))),
     );
   }

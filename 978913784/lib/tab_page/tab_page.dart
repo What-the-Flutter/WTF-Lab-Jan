@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import 'package:animator/animator.dart';
 import '../app_theme_cubit.dart';
 import '../entity/page.dart';
 import 'settings_page/settings_cubit.dart';
@@ -15,10 +16,33 @@ import 'timeline/timeline_body.dart';
 import 'timeline/timeline_cubit.dart';
 import 'timeline/timeline_state.dart';
 
-class TabPage extends StatelessWidget {
-  TabPage();
+class TabPage extends StatefulWidget {
+  @override
+  _TabPageState createState() => _TabPageState();
+}
 
+class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
   final _controller = TextEditingController();
+  AnimationController _animationController;
+  Animation<Offset> _offsetAnimation;
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _offsetAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(-1.0, 0.0),
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInBack,
+      ),
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,12 +106,20 @@ class TabPage extends StatelessWidget {
           drawer: _drawer(context),
           bottomNavigationBar: _bottomNavigationBar(context),
           floatingActionButton: _floatingActionButton(context),
-          body: BlocProvider.of<TabCubit>(context).state == 0
-              ? HomeBody()
-              : Align(
-                  child: TimelineBody(),
-                  alignment: Alignment.bottomCenter,
-                ),
+          body: Animator<Offset>(
+            repeats: 1,
+            resetAnimationOnRebuild: true,
+            tween: Tween<Offset>(
+              begin: Offset(
+                  BlocProvider.of<TabCubit>(context).state == 0 ? -1 : 1, 0.0),
+              end: Offset.zero,
+            ),
+            curve: Curves.easeOutExpo,
+            builder: (context, animatorState, child) => SlideTransition(
+              position: animatorState.animation,
+              child: _body(context),
+            ),
+          ),
         );
       },
     );
@@ -195,28 +227,32 @@ class TabPage extends StatelessWidget {
     );
   }
 
-  Widget _floatingActionButton(BuildContext context) =>
-    FloatingActionButton(
-      foregroundColor: Theme.of(context).textTheme.bodyText2.color,
-      onPressed: () async {
-        final pageInfo = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EditPage(
-              JournalPage('New page', 0),
-              'New page',
+  Widget _floatingActionButton(BuildContext context) => FloatingActionButton(
+        foregroundColor: Theme.of(context).textTheme.bodyText2.color,
+        onPressed: () async {
+          final pageInfo = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EditPage(
+                JournalPage('New page', 0),
+                'New page',
+              ),
             ),
-          ),
-        );
-        if (pageInfo.isAllowedToSave) {
-          BlocProvider.of<PagesCubit>(context).addPage(pageInfo.page);
-        }
-      },
-      backgroundColor: Theme.of(context).accentColor,
-      tooltip: 'New page',
-      child: Icon(Icons.add),
-    );
+          );
+          if (pageInfo.isAllowedToSave) {
+            BlocProvider.of<PagesCubit>(context).addPage(pageInfo.page);
+          }
+        },
+        backgroundColor: Theme.of(context).accentColor,
+        tooltip: 'New page',
+        child: Icon(Icons.add),
+      );
 
-
-  Widget _body(BuildContext context) {}
+  Widget _body(BuildContext context) =>
+      BlocProvider.of<TabCubit>(context).state == 0
+          ? HomeBody()
+          : Align(
+              child: TimelineBody(),
+              alignment: Alignment.bottomCenter,
+            );
 }
