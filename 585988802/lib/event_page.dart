@@ -58,8 +58,8 @@ class _EventPage extends State<EventPage> {
 
   Widget _buildAppBarEventPage() {
     return AppBar(
-      titleStyle: Container(
-        child: Text(widget.titleStyle),
+      title: Container(
+        child: Text(widget.title),
         alignment: Alignment.centerLeft,
       ),
       elevation: 0.0,
@@ -121,10 +121,10 @@ class _EventPage extends State<EventPage> {
   }
 
   Widget _buildEventAndFavoriteMessage(EventMessage eventMessage) {
-    if ((widget.titleStyle == eventMessage.nameOfSuggestion &&
-            eventMessage.isFavorite &&
-            isFavoriteButPressed) ||
-        (widget.titleStyle == eventMessage.nameOfSuggestion &&
+    if ((widget.title == eventMessage.nameOfSuggestion &&
+        eventMessage.isFavorite &&
+        isFavoriteButPressed) ||
+        (widget.title == eventMessage.nameOfSuggestion &&
             !isFavoriteButPressed)) {
       return _buildEventMessage(eventMessage);
     } else {
@@ -185,9 +185,9 @@ class _EventPage extends State<EventPage> {
           IconButton(
             icon: eventMessage.isFavorite
                 ? Icon(
-                    Icons.bookmark,
-                    color: Colors.orangeAccent,
-                  )
+              Icons.bookmark,
+              color: Colors.orangeAccent,
+            )
                 : Icon(Icons.bookmark_border_outlined),
             onPressed: () {
               setState(() {
@@ -216,19 +216,19 @@ class _EventPage extends State<EventPage> {
           _buildInpEventMessageTextField(),
           isWriting
               ? IconButton(
-                  icon: Icon(Icons.send),
-                  iconSize: 25.0,
-                  color: Colors.white,
-                  onPressed: () {
-                    _sendIconPressed();
-                  },
-                )
+            icon: Icon(Icons.send),
+            iconSize: 25.0,
+            color: Colors.white,
+            onPressed: () {
+              _sendIconPressed();
+            },
+          )
               : IconButton(
-                  icon: Icon(Icons.photoPath),
-                  iconSize: 25.0,
-                  color: Colors.white,
-                  onPressed: () => _showImageSelectionDialog(),
-                ),
+            icon: Icon(Icons.photo),
+            iconSize: 25.0,
+            color: Colors.white,
+            onPressed: () => _showImageSelectionDialog(),
+          ),
         ],
       ),
     );
@@ -267,7 +267,7 @@ class _EventPage extends State<EventPage> {
     eventMessagesList.insert(
       0,
       EventMessage(
-          widget.titleStyle,
+          widget.title,
           DateFormat.yMMMd().add_jm().format(new DateTime.now()),
           _textEditingController.text,
           false),
@@ -311,7 +311,7 @@ class _EventPage extends State<EventPage> {
       firstBtnText: "Gallery",
       secondBtnText: "Camera",
       icon: Icon(
-        Icons.photoPath,
+        Icons.photo,
         color: Colors.white,
         size: 60,
       ),
@@ -397,7 +397,7 @@ class _EventPage extends State<EventPage> {
         icon,
         color: Colors.white,
       ),
-      titleStyle: Text(
+      title: Text(
         name,
         style: TextStyle(
           color: Colors.white,
@@ -476,7 +476,7 @@ class _EventPage extends State<EventPage> {
   _addToFavorites() {
     setState(() {
       _bottomSheetEventMessage.isFavorite =
-          !_bottomSheetEventMessage.isFavorite;
+      !_bottomSheetEventMessage.isFavorite;
     });
   }
 

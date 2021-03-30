@@ -12,8 +12,8 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      titleStyle: 'Chat journal',
-      previewTheme: ThemeData(
+      title: 'Chat journal',
+      theme: ThemeData(
         primarySwatch: Colors.red,
       ),
       home: HomePage(

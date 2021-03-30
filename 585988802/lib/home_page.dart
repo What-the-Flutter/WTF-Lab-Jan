@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      appBar: _buildAppBarHomePage(widget.titleStyle),
+      appBar: _buildAppBarHomePage(widget.title),
       drawer: _buildDrawer(),
       body: _buildHomePageBody(list),
       bottomNavigationBar: BottomNavigationBar(
@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
   ///Builds AppBar for [HomePage].
   Widget _buildAppBarHomePage(String title) {
     return AppBar(
-      titleStyle: Container(
+      title: Container(
         child: Text(title),
         alignment: Alignment.center,
       ),
@@ -124,27 +124,27 @@ class _HomePageState extends State<HomePage> {
           ),
           ListTile(
             leading: Icon(Icons.home),
-            titleStyle: Text('All Pages'),
+            title: Text('All Pages'),
           ),
           ListTile(
             leading: Icon(Icons.timeline),
-            titleStyle: Text('Timeline'),
+            title: Text('Timeline'),
           ),
           ListTile(
             leading: Icon(CupertinoIcons.smiley),
-            titleStyle: Text('Daily'),
+            title: Text('Daily'),
           ),
           ListTile(
             leading: Icon(Icons.tag),
-            titleStyle: Text('Tags'),
+            title: Text('Tags'),
           ),
           ListTile(
             leading: Icon(Icons.assessment_outlined),
-            titleStyle: Text('Statistics'),
+            title: Text('Statistics'),
           ),
           ListTile(
             leading: Icon(Icons.search),
-            titleStyle: Text('Search'),
+            title: Text('Search'),
           ),
           Divider(
             color: Colors.black54,
@@ -155,11 +155,11 @@ class _HomePageState extends State<HomePage> {
           ),
           ListTile(
             leading: Icon(Icons.notifications),
-            titleStyle: Text('Notifications'),
+            title: Text('Notifications'),
           ),
           ListTile(
             leading: Icon(Icons.invert_colors),
-            titleStyle: Text('Change Theme'),
+            title: Text('Change Theme'),
           ),
         ],
       ),
@@ -240,7 +240,7 @@ class _HomePageState extends State<HomePage> {
       color: Colors.redAccent,
       child: ListTile(
         leading: Image.asset(list[index].imagePathOfSuggestion),
-        titleStyle: Text(
+        title: Text(
           list[index].nameOfSuggestion,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
@@ -256,8 +256,8 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => EventPage(
-                          title: list[index].nameOfSuggestion,
-                        )));
+                      title: list[index].nameOfSuggestion,
+                    )));
             // print('tap ${list[index].nameOfSuggestion}');
           });
         },
