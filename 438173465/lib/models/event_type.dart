@@ -1,18 +1,34 @@
-import 'package:json_annotation/json_annotation.dart';
-import 'event.dart';
+import 'dart:convert';
 
-part'event_type.g.dart';
+EventType eventTypeFromMap(String str) => EventType.fromMap(json.decode(str));
 
-@JsonSerializable()
+String eventTypeToMap(EventType data) => json.encode(data.toMap());
+
 class EventType {
-  final String icon;
-  final String title;
-  final List<Event> listEvents;
+  EventType({
+    this.id,
+    this.title,
+    this.icon,
+  });
 
-  EventType({this.title, this.listEvents, this.icon});
+  int id;
+  String title;
+  String icon;
 
-  factory EventType.fromJson(Map<String, dynamic> json) =>
-      _$EventTypeFromJson(json);
+  factory EventType.fromMap(Map<String, dynamic> json) => EventType(
+        id: json['id'],
+        title: json['title'],
+        icon: json['icon'],
+      );
 
-  Map<String, dynamic> toJson() => _$EventTypeToJson(this);
+  Map toMap() {
+    var map = <String,dynamic>{
+      'title': title,
+      'icon': icon,
+    };
+    if (id != null) {
+      map['id'] = id;
+    }
+    return map;
+  }
 }

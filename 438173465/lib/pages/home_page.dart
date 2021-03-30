@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_wtf/models/event.dart';
+
+import '../db/db_helper.dart';
+import '../models/event_type.dart';
 import '../theme_changer.dart';
+import 'event_screen.dart';
+import 'events_type_add.dart';
 
 final Map<String, IconData> map = {
   'Travel': Icons.flight_takeoff,
@@ -16,6 +22,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+  DBProvider db;
+
+  @override
+  void initState() {
+    print('init');
+
+    super.initState();
+  }
 
   void _onItemTap(int index) {
     setState(() {
@@ -51,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 color: ThemeBuilder.of(context).getCurrentTheme() ==
-                    Brightness.dark
+                        Brightness.dark
                     ? Theme.of(context).colorScheme.secondary
                     : Colors.orangeAccent[100],
               ),
@@ -70,25 +84,43 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Divider(),
           Expanded(
-            child: ListView.separated(
-              itemCount: map.length,
-              separatorBuilder: (context, index) => Divider(),
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    radius: 40,
-                    child: Icon(
-                      map.values.elementAt(index),
-                      color: Colors.white,
-                    ),
-                    backgroundColor: Colors.grey,
-                  ),
-                  title: Text(map.keys.elementAt(index)),
-                  subtitle: Text('No Events. Click to create one.'),
-                  hoverColor: Colors.redAccent,
-                );
-              },
-            ),
+            child: FutureBuilder<List<EventType>>(
+                future: DBProvider.db.fetchEventTypeList(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.separated(
+                      itemCount: snapshot.data.length,
+                      separatorBuilder: (context, index) => Divider(),
+                      itemBuilder: (context, index) {
+                        var item = snapshot.data[index];
+                        return ListTile(
+                          leading: CircleAvatar(
+                            radius: 40,
+                            child: Icon(
+                              map.values.elementAt(1),
+                              color: Colors.white,
+                            ),
+                            backgroundColor: Colors.grey,
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              EventScreen.routeName,
+                              arguments: item,
+                            );
+                          },
+                          title: Text(item.title),
+                          subtitle: Text(item.icon),
+                          hoverColor: Colors.redAccent,
+                        );
+                      },
+                    );
+                  } else if (!snapshot.hasData) {
+                    return Center(child: Text('No events'));
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                }),
           )
         ],
       ),
@@ -96,7 +128,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(
           Icons.add,
         ),
-        onPressed: () {},
+        onPressed: () async {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EventTypeAdd()),
+          );
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -113,7 +150,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  BottomNavigationBarItem _bottomNavBarItem({IconData icon, String label, Function function}) {
-    return BottomNavigationBarItem(label: label, icon: Icon(icon));
+  BottomNavigationBarItem _bottomNavBarItem(
+      {IconData icon, String label, Function function}) {
+    return BottomNavigationBarItem(
+      label: label,
+      icon: Icon(icon),
+    );
   }
 }

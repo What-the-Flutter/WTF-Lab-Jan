@@ -4,10 +4,12 @@ part'event.g.dart';
 
 @JsonSerializable()
 class Event {
-  final String message;
-  final DateTime date;
+  int id;
+  int typeId;
+  String message;
+  DateTime date;
 
-  Event({this.message, this.date});
+  Event({this.id, this.typeId, this.message, this.date});
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 

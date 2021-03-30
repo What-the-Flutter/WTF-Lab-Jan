@@ -10,7 +10,7 @@ class ThemeBuilder extends StatefulWidget {
   _ThemeBuilderState createState() => _ThemeBuilderState();
 
   static _ThemeBuilderState of(BuildContext context) {
-    return context.ancestorStateOfType(const TypeMatcher<_ThemeBuilderState>());
+    return context.findAncestorStateOfType<_ThemeBuilderState>();
   }
 }
 
