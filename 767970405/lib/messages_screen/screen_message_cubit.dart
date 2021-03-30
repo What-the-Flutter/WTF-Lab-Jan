@@ -94,16 +94,18 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     );
   }
 
-  void toSelectionAppBar() {
+  void toSelectionAppBar(int index) async {
+    await selection(index);
     emit(state.copyWith(
       mode: Mode.selection,
-      onAddMessage: null,
+      enabledController: false,
     ));
   }
 
   void toInputAppBar() async {
     emit(state.copyWith(
       mode: Mode.input,
+      enabledController: true,
       list: await repository.messages(state.page.id),
       counter: 0,
       indexCategory: -1,
@@ -144,7 +146,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         isFavor: state.isBookmark,
         isSelected: false,
         text: null,
-        indexCategory: null,
+        indexCategory: -1,
         pubTime: state.isReset
             ? state.fromDate.applied(state.fromTime)
             : DateTime.now(),
@@ -196,9 +198,23 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     controller.text = state.list[index].text;
     emit(
       state.copyWith(
+        enabledController: true,
         mode: Mode.edit,
         onAddMessage: editMessage,
         indexCategory: state.list[index].indexCategory,
+      ),
+    );
+  }
+
+  void toEdAppBar(int index) async {
+    controller.text = state.list[index].text;
+    emit(
+      state.copyWith(
+        enabledController: true,
+        mode: Mode.edit,
+        onAddMessage: editMessage,
+        indexCategory: state.list[index].indexCategory,
+        list: await repository.messages(state.page.id),
       ),
     );
   }
@@ -245,7 +261,16 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     toInputAppBar();
   }
 
-  void delete() async {
+  void delete(int index) async {
+    repository.removeMessage(state.list[index].id);
+    emit(
+      state.copyWith(
+        list: await repository.messages(state.page.id),
+      ),
+    );
+  }
+
+  void deleteSelected() async {
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
         repository.removeMessage(state.list[i].id);

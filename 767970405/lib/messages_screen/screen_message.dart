@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../data/repository/event_repository.dart';
 import '../data/theme/custom_theme.dart';
@@ -159,7 +160,11 @@ class ChatElementList extends StatelessWidget {
             onTap: state.mode == Mode.selection
                 ? context.read<ScreenMessageCubit>().selection
                 : null,
-            onLongPress: context.read<ScreenMessageCubit>().selection,
+            onLongPress: state.mode == Mode.input
+                ? context.read<ScreenMessageCubit>().toSelectionAppBar
+                : state.mode == Mode.selection
+                    ? context.read<ScreenMessageCubit>().selection
+                    : null,
             theme: currentTheme.messageTheme,
           ),
         );
@@ -325,7 +330,8 @@ class InputPanel extends StatelessWidget {
                           .events[state.indexCategory]
                           .iconData,
                 ),
-                onPressed: state.onAddCategory,
+                onPressed:
+                    state.mode == Mode.selection ? null : state.onAddCategory,
               ),
             ),
             Expanded(
@@ -343,7 +349,8 @@ class InputPanel extends StatelessWidget {
               flex: 1,
               child: IconButton(
                 icon: Icon(state.iconDataPhoto),
-                onPressed: state.onAddMessage,
+                onPressed:
+                    state.mode == Mode.selection ? null : state.onAddMessage,
               ),
             ),
           ],
@@ -363,51 +370,45 @@ class InputAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ScreenMessageCubit, ScreenMessageState>(
-      listener: (context, state) =>
-          context.read<ScreenMessageCubit>().toSelectionAppBar(),
-      listenWhen: (prevState, curState) =>
-          prevState.counter == 0 && curState.counter == 1 ? true : false,
-      child: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(title),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-            ),
-            child: IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () => Navigator.pushNamed(
-                context,
-                SearchMessageScreen.routeName,
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-            ),
-            child: IconButton(
-              icon: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-                builder: (context, state) =>
-                    context.read<ScreenMessageCubit>().state.isBookmark
-                        ? Icon(
-                            Icons.bookmark,
-                            color: Colors.amberAccent,
-                          )
-                        : Icon(
-                            Icons.bookmark_border,
-                          ),
-              ),
-              onPressed: context.read<ScreenMessageCubit>().showBookmarkMessage,
-            ),
-          ),
-        ],
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () => Navigator.pop(context),
       ),
+      title: Text(title),
+      actions: [
+        Padding(
+          padding: EdgeInsets.only(
+            left: 10,
+          ),
+          child: IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () => Navigator.pushNamed(
+              context,
+              SearchMessageScreen.routeName,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            left: 10,
+          ),
+          child: IconButton(
+            icon: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+              builder: (context, state) =>
+                  context.read<ScreenMessageCubit>().state.isBookmark
+                      ? Icon(
+                          Icons.bookmark,
+                          color: Colors.amberAccent,
+                        )
+                      : Icon(
+                          Icons.bookmark_border,
+                        ),
+            ),
+            onPressed: context.read<ScreenMessageCubit>().showBookmarkMessage,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -468,7 +469,7 @@ class SelectionAppBar extends StatelessWidget {
             padding: EdgeInsets.only(right: 10),
             child: IconButton(
               icon: Icon(Icons.delete),
-              onPressed: context.read<ScreenMessageCubit>().delete,
+              onPressed: context.read<ScreenMessageCubit>().deleteSelected,
             ),
           ),
         ],
@@ -627,7 +628,9 @@ class EventMessage extends StatelessWidget {
     return GestureDetector(
       onTap: onTap != null ? () => onTap(index) : onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.0),
+        padding: direction == Axis.vertical
+            ? EdgeInsets.symmetric(horizontal: 10.0)
+            : EdgeInsets.only(),
         child: Wrap(
           alignment: WrapAlignment.spaceBetween,
           crossAxisAlignment: WrapCrossAlignment.center,
@@ -755,55 +758,101 @@ class Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(10.0),
-      child: Align(
-        alignment: align,
-        child: GestureDetector(
-          onTap: onTap != null ? () => onTap(index) : onTap,
-          onLongPress:
-              onLongPress != null ? () => onLongPress(index) : onLongPress,
-          child: Container(
-            constraints: BoxConstraints(maxWidth: 200),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              color: isSelected ? theme.selectedColor : theme.unselectedColor,
-            ),
-            padding: EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (title != null) Text(title),
-                if (photoPath != null) Image.file(File(photoPath)),
-                if (eventIndex != -1)
-                  EventMessage(
-                    iconData: Provider.of<EventRepository>(context)
-                        .events[eventIndex]
-                        .iconData,
-                    label: Provider.of<EventRepository>(context)
-                        .events[eventIndex]
-                        .label,
-                    color: Colors.teal,
-                    direction: Axis.horizontal,
-                  ),
-                if (text != null) Text(text, style: theme.contentStyle),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      date,
-                      style: theme.timeStyle,
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.25,
+      actions: <Widget>[
+        IconSlideAction(
+          caption: 'Edit',
+          color: Colors.indigo,
+          icon: Icons.edit,
+          onTap: () async {
+            await context.read<ScreenMessageCubit>().toSelectionAppBar(index);
+            context.read<ScreenMessageCubit>().toEditAppBar();
+          },
+        ),
+      ],
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          caption: 'Delete',
+          color: Colors.red,
+          icon: Icons.delete,
+          onTap: () async {
+            await context.read<ScreenMessageCubit>().toSelectionAppBar(index);
+            context.read<ScreenMessageCubit>().deleteSelected();
+          },
+        ),
+      ],
+      child: Container(
+        padding: EdgeInsets.all(10.0),
+        child: Align(
+          alignment: align,
+          child: GestureDetector(
+            onTap: onTap != null ? () => onTap(index) : onTap,
+            onLongPress:
+                onLongPress != null ? () => onLongPress(index) : onLongPress,
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 150),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15.0),
+                color: isSelected ? theme.selectedColor : theme.unselectedColor,
+              ),
+              padding: EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  if (title != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5.0),
+                      child: Text(title),
                     ),
-                    if (isFavor)
-                      Icon(
-                        Icons.bookmark,
-                        color: Colors.orangeAccent,
-                        size: 8,
+                  if (photoPath != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5.0),
+                      child: Image.file(
+                        File(photoPath),
                       ),
-                  ],
-                ),
-              ],
+                    ),
+                  if (eventIndex != -1)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5.0),
+                      child: EventMessage(
+                        iconData: Provider.of<EventRepository>(context)
+                            .events[eventIndex]
+                            .iconData,
+                        label: Provider.of<EventRepository>(context)
+                            .events[eventIndex]
+                            .label,
+                        color: Colors.teal,
+                        direction: Axis.horizontal,
+                      ),
+                    ),
+                  if (text != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5.0),
+                      child: Text(text, style: theme.contentStyle),
+                    ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5.0),
+                    child: Row(
+                      //mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          date,
+                          style: theme.timeStyle,
+                        ),
+                        if (isFavor)
+                          Icon(
+                            Icons.bookmark,
+                            color: Colors.orangeAccent,
+                            size: 8,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

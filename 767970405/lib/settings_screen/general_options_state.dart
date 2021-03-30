@@ -8,6 +8,7 @@ class GeneralOptionsState extends Equatable {
   final bool isDateTimeModification;
   final bool isLeftBubbleAlign;
   final bool isCenterDateBubble;
+  final bool isAuthentication;
 
   GeneralOptionsState({
     this.themeType,
@@ -15,6 +16,7 @@ class GeneralOptionsState extends Equatable {
     this.isDateTimeModification,
     this.isLeftBubbleAlign,
     this.isCenterDateBubble,
+    this.isAuthentication,
   });
 
   GeneralOptionsState copyWith({
@@ -23,6 +25,7 @@ class GeneralOptionsState extends Equatable {
     final bool isDateTimeModification,
     final bool isLeftBubbleAlign,
     final bool isCenterDateBubble,
+    final bool isAuthentication,
   }) {
     return GeneralOptionsState(
       themeType: themeType ?? this.themeType,
@@ -31,6 +34,7 @@ class GeneralOptionsState extends Equatable {
           isDateTimeModification ?? this.isDateTimeModification,
       isLeftBubbleAlign: isLeftBubbleAlign ?? this.isLeftBubbleAlign,
       isCenterDateBubble: isCenterDateBubble ?? this.isCenterDateBubble,
+      isAuthentication: isAuthentication ?? this.isAuthentication,
     );
   }
 
@@ -49,6 +53,7 @@ class GeneralOptionsState extends Equatable {
         currentTheme,
         isDateTimeModification,
         isLeftBubbleAlign,
-        isCenterDateBubble
+        isCenterDateBubble,
+        isAuthentication,
       ];
 }

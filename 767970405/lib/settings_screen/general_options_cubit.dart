@@ -18,6 +18,7 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
             isDateTimeModification: false,
             isLeftBubbleAlign: false,
             isCenterDateBubble: false,
+            isAuthentication: false,
           ),
         );
 
@@ -49,5 +50,8 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
 
   void changeCenterDateBubble(bool value) {
     emit(state.copyWith(isCenterDateBubble: value));
+  }
+  void changeAuthentication(bool value) {
+    emit(state.copyWith(isAuthentication: value));
   }
 }

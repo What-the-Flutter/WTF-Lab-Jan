@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,7 +19,6 @@ class SettingsScreen extends StatelessWidget {
         title: Center(
           child: Text('Settings'),
         ),
-        actions: <Widget>[],
       ),
       body: _settingsList(context),
     );
@@ -89,7 +87,10 @@ class SettingsScreen extends StatelessWidget {
           trailing: IconButton(
             icon: Icon(Icons.arrow_forward_ios),
             onPressed: () {
-              //TODO
+              Navigator.pushNamed(
+                context,
+                SecurityOption.routeName,
+              );
             },
           ),
         ),
@@ -119,7 +120,7 @@ class SettingsScreen extends StatelessWidget {
           trailing: IconButton(
             icon: Icon(Icons.arrow_forward_ios),
             onPressed: () {
-              //TODO
+              Navigator.pop(context);
             },
           ),
         ),
@@ -133,7 +134,7 @@ class SettingsScreen extends StatelessWidget {
           trailing: IconButton(
             icon: Icon(Icons.arrow_forward_ios),
             onPressed: () {
-              //TODO
+              Navigator.pop(context);
             },
           ),
         ),
@@ -320,6 +321,8 @@ class GeneralOption extends StatelessWidget {
 }
 
 class SecurityOption extends StatelessWidget {
+  static const routeName = 'SecurityOptions';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -339,12 +342,15 @@ class SecurityOption extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Divider(),
           ),
-          SwitchListTile(
-            secondary: Icon(Icons.mms),
-            title: Text('Fingerprint'),
-            subtitle: Text('Enable Fingerprint unlock'),
-            value: false,
-            onChanged: (value) => true,
+          BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
+            builder: (context, state) => SwitchListTile(
+              secondary: Icon(Icons.mms),
+              title: Text('Fingerprint'),
+              subtitle: Text('Enable Fingerprint unlock'),
+              value: state.isAuthentication,
+              onChanged:
+                  context.read<GeneralOptionsCubit>().changeAuthentication,
+            ),
           ),
         ],
       ),

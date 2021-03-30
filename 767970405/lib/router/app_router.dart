@@ -33,6 +33,10 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (context) => GeneralOption(),
         );
+      case SecurityOption.routeName:
+        return MaterialPageRoute(
+          builder: (context) => SecurityOption(),
+        );
       default:
         assert(false, 'Need to implement ${settings.name}');
         return null;

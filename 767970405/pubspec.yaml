@@ -39,6 +39,7 @@ dependencies:
   intl: ^0.17.0
   local_auth: ^1.1.0
   get_it: ^6.0.0
+  flutter_slidable: ^0.5.7
 
 dev_dependencies:
   flutter_test:

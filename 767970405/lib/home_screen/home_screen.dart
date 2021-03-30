@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
@@ -16,38 +17,45 @@ import '../settings_screen/settings_screen.dart';
 import 'home_screen_cubit.dart';
 
 class HomeWindow extends StatelessWidget {
+  final LocalAuthentication auth = LocalAuthentication();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: Text('Home'),
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.invert_colors),
-            onPressed: () {
-              context.read<GeneralOptionsCubit>().toggleTheme();
-              saveTheme(
-                  context.read<GeneralOptionsCubit>().state.themeType.index);
-            },
+    return Stack(
+      children: <Widget>[
+        Scaffold(
+          appBar: AppBar(
+            title: Center(
+              child: Text('Home'),
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.invert_colors),
+                onPressed: () {
+                  context.read<GeneralOptionsCubit>().toggleTheme();
+                  saveTheme(context
+                      .read<GeneralOptionsCubit>()
+                      .state
+                      .themeType
+                      .index);
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      drawer: _drawer(context),
-      body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-        builder: (context, state) => state is HomeScreenShow
-            ? ChatPreviewList()
-            : Center(child: Text('Await')),
-      ),
-      floatingActionButton: AddChatButton(),
-      bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-        builder: _bottomNavigationBar,
-      ),
+          drawer: _drawer(context),
+          body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+            builder: (context, state) => state is HomeScreenShow
+                ? ChatPreviewList()
+                : Center(child: Text('Await')),
+          ),
+          floatingActionButton: AddChatButton(),
+          bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+            builder: _bottomNavigationBar,
+          ),
+        ),
+      ],
     );
   }
-
-
 
   Widget _drawer(BuildContext context) {
     return Drawer(
