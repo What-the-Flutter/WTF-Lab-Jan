@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_page/settings/settings_page.dart';
-import '../data/db_provider.dart';
-import '../data/shared_preferences_provider.dart';
+import 'package:intl/intl.dart';
+
 import '../event_page/event_page.dart';
 import '../icon_list.dart';
 import '../note_page/note.dart';
 import '../note_page/note_page.dart';
-import '../theme/dark_theme.dart';
-import '../theme/light_theme.dart';
-import '../theme/theme.dart';
+import '../settings/settings_page.dart';
+import '../theme/theme_cubit.dart';
 import 'home_page_cubit.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,33 +19,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static final List<Note> noteList = <Note>[];
-  final DBProvider _dbProvider = DBProvider();
+  static final List<Note> _noteList = <Note>[];
   final HomePageCubit _cubit = HomePageCubit(
     HomePageStates(
-      noteList: noteList,
-      isThemeChange: SharedPreferencesProvider().fetchTheme(),
+      noteList: _noteList,
     ),
   );
 
   @override
   void initState() {
-    _dbProvider.initDatabase();
     _cubit.init();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocBuilder<HomePageCubit, HomePageStates>(
       cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
           drawer: _drawer,
-          body: _homePageBody(),
+          body: _homePageBody(state),
           appBar: _appBar,
           bottomNavigationBar: _bottomNavigationBar,
-          floatingActionButton: _floatingActionButton,
+          floatingActionButton: _floatingActionButton(
+            state,
+          ),
         );
       },
     );
@@ -64,62 +61,58 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: Icon(Icons.invert_colors),
           onPressed: () {
-            _cubit.state.isThemeChange
-                ? ThemeSwitcher.of(context).switchTheme(darkTheme)
-                : ThemeSwitcher.of(context).switchTheme(lightTheme);
-            _cubit.setThemeChangeState(!_cubit.state.isThemeChange);
+            BlocProvider.of<ThemeCubit>(context).changeTheme();
           },
         ),
       ],
     );
   }
 
-  ListView _homePageBody() {
+  ListView _homePageBody(HomePageStates state) {
     return ListView.builder(
       scrollDirection: Axis.vertical,
-      itemCount: _cubit.state.noteList.length,
+      itemCount: state.noteList.length,
       itemBuilder: (context, index) => ListTile(
-        title: Text(_cubit.state.noteList[index].noteName),
+        title: Text(state.noteList[index].noteName),
         leading: IconButton(
           icon: CircleAvatar(
-            child:
-                listOfIcons[_cubit.state.noteList[index].indexOfCircleAvatar],
+            child: listOfIcons[state.noteList[index].indexOfCircleAvatar],
           ),
           iconSize: 40,
           onPressed: () {},
         ),
-        subtitle: Text(_cubit.state.noteList[index].subTittleEvent),
+        subtitle: Text(state.noteList[index].subTittleEvent),
         onTap: () async {
           await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => EventPage(
-                title: _cubit.state.noteList[index].noteName,
-                note: _cubit.state.noteList[index],
-                noteList: _cubit.state.noteList,
+                title: state.noteList[index].noteName,
+                note: state.noteList[index],
+                noteList: state.noteList,
               ),
             ),
           );
-          _cubit.updateNote(_cubit.state.noteList[index]);
+          _cubit.updateNote(state.noteList[index]);
         },
-        onLongPress: () => _showBottomSheet(context, index),
+        onLongPress: () => _showBottomSheet(context, index, state),
       ),
     );
   }
 
-  void _showBottomSheet(BuildContext context, int index) {
+  void _showBottomSheet(BuildContext context, int index, HomePageStates state) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return Container(
           height: 170,
-          child: _buildBottomNavigationMenu(index),
+          child: _buildBottomNavigationMenu(index, state),
         );
       },
     );
   }
 
-  Column _buildBottomNavigationMenu(int index) {
+  Column _buildBottomNavigationMenu(int index, HomePageStates state) {
     return Column(
       children: <Widget>[
         ListTile(
@@ -140,11 +133,11 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                 builder: (context) => NotePage(
-                  note: _cubit.state.noteList[index],
+                  note: state.noteList[index],
                 ),
               ),
             );
-            _cubit.updateNote(_cubit.state.noteList[index]);
+            _cubit.updateNote(state.noteList[index]);
             Navigator.pop(context);
           },
         ),
@@ -155,7 +148,7 @@ class _HomePageState extends State<HomePage> {
           ),
           title: Text('Delete'),
           onTap: () {
-            _cubit.deleteNote(_cubit.state.noteList, index);
+            _cubit.deleteNote(state.noteList, index);
             Navigator.pop(context);
           },
         ),
@@ -167,11 +160,33 @@ class _HomePageState extends State<HomePage> {
     return Drawer(
       child: ListView(
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+          SizedBox(
+            height: 145,
+            child: DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: ListTile(
+                  title: Text(
+                    DateFormat.yMMMd('en_US').format(
+                      DateTime.now(),
+                    ),
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white
+                    ),
+                  ),
+                  subtitle: Text(
+                    '(Click here to setup Drive backups)',
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+              ),
             ),
-            child: Text('Notifications'),
           ),
           ListTile(
             title: Text('Search'),
@@ -229,18 +244,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  FloatingActionButton get _floatingActionButton {
+  FloatingActionButton _floatingActionButton(HomePageStates state) {
     return FloatingActionButton(
       onPressed: () async {
         await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => NotePage(
-              noteList: _cubit.state.noteList,
+              noteList: state.noteList,
             ),
           ),
         );
-        _cubit.updateList(_cubit.state.noteList);
+        _cubit.updateList(state.noteList);
       },
       child: Icon(Icons.add),
     );

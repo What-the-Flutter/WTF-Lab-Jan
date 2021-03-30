@@ -21,14 +21,13 @@ const String columnDate = 'date_format';
 
 class DBProvider {
   static Database _database;
-  static Database _eventDatabase;
-  static DBProvider dbProvider;
+  static DBProvider _dbProvider;
 
   DBProvider._createInstance();
 
   factory DBProvider() {
-    dbProvider ??= DBProvider._createInstance();
-    return dbProvider;
+    _dbProvider ??= DBProvider._createInstance();
+    return _dbProvider;
   }
 
   Future<Database> get database async {
@@ -87,13 +86,15 @@ class DBProvider {
     );
   }
 
-  void dbNotesList(List<Note> noteList) async {
+  Future<List<Note>> dbNotesList() async {
     final db = await database;
+    final noteList = <Note>[];
     final dbNotesList = await db.query(tableNotes);
     for (final element in dbNotesList) {
       final note = Note.fromMap(element);
-      noteList.insert(0, note);
+      await noteList.insert(0, note);
     }
+    return noteList;
   }
 
   Future<int> insertEvent(Event event) async {
@@ -123,15 +124,17 @@ class DBProvider {
     );
   }
 
-  void dbEventList(List<Event> eventList, int noteId) async {
+  Future<List<Event>> dbEventList(int noteId) async {
     final db = await database;
+    final eventList = <Event>[];
     var dbEventsList = await db.rawQuery(
       'SELECT * FROM $tableEvents WHERE $columnNoteId = ?',
       [noteId],
     );
     for (final element in dbEventsList) {
       final event = Event.fromMap(element);
-      eventList.insert(0, event);
+      await eventList.insert(0, event);
     }
+    return eventList;
   }
 }

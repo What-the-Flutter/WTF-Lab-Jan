@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_page/theme/dark_theme.dart';
-import 'package:home_page/theme/light_theme.dart';
-import 'package:home_page/theme/theme.dart';
-import '../../data/shared_preferences_provider.dart';
+import '../../theme/theme_cubit.dart';
+
+import 'background_image_setting/background_image_setting.dart';
 import 'general_settings_cubit.dart';
 
 class GeneralSettingsPage extends StatefulWidget {
@@ -14,43 +13,66 @@ class GeneralSettingsPage extends StatefulWidget {
 class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
   final GeneralSettingsCubit _cubit =
       GeneralSettingsCubit(GeneralSettingsStates());
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocBuilder<GeneralSettingsCubit, GeneralSettingsStates>(
       cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: Text('General'),
+            title: Text(
+              'General',
+            ),
           ),
-          body: _bodyListView,
+          body: _bodyListView(state),
         );
       },
     );
   }
 
-  ListView get _bodyListView {
+  @override
+  void initState() {
+    _cubit.initStates();
+    super.initState();
+  }
+
+  ListView _bodyListView(GeneralSettingsStates state) {
     return ListView(
       padding: EdgeInsets.only(top: 10),
       children: ListTile.divideTiles(
         context: context,
         tiles: [
           ListTile(
-              leading: Icon(Icons.invert_colors),
-              title: Text('Theme'),
-              subtitle: Text('Light / Dark'),
-              onTap: () {
-                _cubit.state.isThemeChange
-                    ? ThemeSwitcher.of(context).switchTheme(darkTheme)
-                    : ThemeSwitcher.of(context).switchTheme(lightTheme);
-                _cubit.setThemeChangeState(!_cubit.state.isThemeChange);
-              }),
+            leading: Icon(Icons.invert_colors),
+            title: Text('Theme'),
+            subtitle: Text('Light / Dark'),
+            onTap: () {
+              BlocProvider.of<ThemeCubit>(context).changeTheme();
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.text_fields),
+            title: Text('Font Size'),
+            subtitle: Text('Small / Default / Large'),
+            onTap: () {
+              _showDialogWindow();
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.replay),
+            title: Text('Reset All Preferences'),
+            subtitle: Text('Reset all Visual Customization'),
+            onTap: () {
+              _cubit.resetAllPreferences();
+              BlocProvider.of<ThemeCubit>(context).setLightTheme();
+            },
+          ),
           ListTile(
             leading: Icon(Icons.calendar_today_outlined),
             trailing: Switch(
-              value:
-                  SharedPreferencesProvider().fetchDateTimeModificationState(),
+              value: state.isDateTimeModification,
               onChanged: (isDateTimeModification) {
                 _cubit.setDateTimeModificationState(isDateTimeModification);
               },
@@ -61,7 +83,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
           ListTile(
             leading: Icon(Icons.format_align_right),
             trailing: Switch(
-              value: SharedPreferencesProvider().fetchBubbleAlignmentState(),
+              value: state.isBubbleAlignment,
               onChanged: (isBubbleAlignment) {
                 _cubit.setBubbleAlignmentState(isBubbleAlignment);
               },
@@ -72,15 +94,100 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
           ListTile(
             leading: Icon(Icons.vertical_align_center),
             trailing: Switch(
-              value: SharedPreferencesProvider().fetchCenterDateBubbleState(),
+              value: state.isCenterDateBubble,
               onChanged: (isCenterDateBubble) {
                 _cubit.setCenterDateBubbleState(isCenterDateBubble);
               },
             ),
             title: Text('Center Date Bubble'),
           ),
+          ListTile(
+            leading: Icon(Icons.image),
+            title: Text('Background Image'),
+            subtitle: Text('Chat background image'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BackgroundImageSetting(),
+                ),
+              );
+            },
+          ),
         ],
       ).toList(),
+    );
+  }
+
+  void _showDialogWindow() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return BlocBuilder<GeneralSettingsCubit, GeneralSettingsStates>(
+          cubit: _cubit,
+          builder: (context, state) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+              elevation: 16,
+              child: Container(
+                width: 150,
+                height: 250,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: 10,
+                      ),
+                      child: Text(
+                        'Font Size',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                    _listTile(
+                      'Small',
+                      0,
+                    ),
+                    _listTile(
+                      'Default',
+                      1,
+                    ),
+                    _listTile(
+                      'Large',
+                      2,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Ok',
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  ListTile _listTile(String size, int index) {
+    return ListTile(
+      title: Text(
+        size,
+      ),
+      onTap: () {
+        BlocProvider.of<ThemeCubit>(context).changeTextTheme(
+          index,
+        );
+        Navigator.pop(context);
+      },
     );
   }
 }
