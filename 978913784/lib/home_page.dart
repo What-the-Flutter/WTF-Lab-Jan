@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        titleStyle: Text("Home"),
+        title: Text("Home"),
       ),
       drawer: _buildDrawer(),
       floatingActionButton: _buildFloatingActionButton(),
@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
           ),
           ListTile(
             leading: Icon(Icons.shop),
-            titleStyle: Text('Item'),
+            title: Text('Item'),
             onTap: () {
               Navigator.pop(context);
             },
