@@ -32,8 +32,8 @@ class _HomePageState extends State<HomePage> {
         'assets/images/game_controller.png'),
     ListViewSuggestions('Study', 'No Events. Click to create one.',
         'assets/images/university.png'),
-    ListViewSuggestions('Work', 'No Events. Click to create one.',
-        'assets/images/work.png'),
+    ListViewSuggestions(
+        'Work', 'No Events. Click to create one.', 'assets/images/work.png'),
     ListViewSuggestions('Supermarket', 'No Events. Click to create one.',
         'assets/images/supermarket.png'),
   ];
@@ -256,8 +256,8 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => EventPage(
-                      title: list[index].nameOfSuggestion,
-                    )));
+                          title: list[index].nameOfSuggestion,
+                        )));
             // print('tap ${list[index].nameOfSuggestion}');
           });
         },
