@@ -5,14 +5,10 @@ import 'model/model_message.dart';
 import 'model/model_page.dart';
 
 class PagesAPI {
-  final Database database;
+  Database _database;
 
-  PagesAPI({
-    this.database,
-  });
-
-  static Future<Database> init() async {
-    final database = await openDatabase(
+  Future<void> init() async {
+    _database = await openDatabase(
       join(await getDatabasesPath(), 'database.db'),
       onCreate: (db, version) {
         db.execute(
@@ -21,14 +17,17 @@ class PagesAPI {
           ' pageId INTEGER,'
           ' isFavor INTEGER,'
           ' isSelected INTEGER,'
-          ' data TEXT'
+          ' text TEXT,'
+          ' photo TEXT,'
+          ' indexCategory INTEGER,'
+          ' pubTime TEXT'
           ');',
         );
         db.execute(
           'CREATE TABLE pages('
           'id INTEGER PRIMARY KEY AUTOINCREMENT,'
           ' title TEXT, iconIndex INTEGER,'
-          ' isPin INTEGER,'
+          ' isPinned INTEGER,'
           ' creationTime TEXT,'
           ' lastModifiedTime TEXT'
           ');',
@@ -36,11 +35,10 @@ class PagesAPI {
       },
       version: 1,
     );
-    return database;
   }
 
   Future<void> insertPage(ModelPage page) async {
-    final db = await database;
+    final db = await _database;
 
     await db.insert(
       'pages',
@@ -50,7 +48,7 @@ class PagesAPI {
   }
 
   Future<List<ModelPage>> pages() async {
-    final db = await database;
+    final db = await _database;
 
     final List<Map<String, dynamic>> maps = await db.query('pages');
 
@@ -60,7 +58,7 @@ class PagesAPI {
         id: maps[i]['id'],
         title: maps[i]['title'],
         iconIndex: maps[i]['iconIndex'],
-        isPin: maps[i]['isPin'] == 0 ? false : true,
+        isPinned: maps[i]['isPinned'] == 0 ? false : true,
         creationTime: DateTime.parse(maps[i]['creationTime']),
         lastModifiedTime: DateTime.parse(maps[i]['lastModifiedTime']),
       ),
@@ -68,7 +66,7 @@ class PagesAPI {
   }
 
   Future<void> updatePage(ModelPage page) async {
-    final db = await database;
+    final db = await _database;
 
     await db.update(
       'pages',
@@ -79,7 +77,7 @@ class PagesAPI {
   }
 
   Future<void> deletePage(int id) async {
-    final db = await database;
+    final db = await _database;
     await db.delete(
       'pages',
       where: 'id = ?',
@@ -88,7 +86,7 @@ class PagesAPI {
   }
 
   Future<List<ModelMessage>> messages(int pageId) async {
-    final db = await database;
+    final db = await _database;
 
     final List<Map<String, dynamic>> maps = await db.query(
       'msg',
@@ -97,18 +95,21 @@ class PagesAPI {
     );
     return List.generate(
       maps.length,
-      (i) => TextMessage(
+      (i) => ModelMessage(
         id: maps[i]['id'],
         pageId: maps[i]['pageId'],
         isFavor: maps[i]['isFavor'] == 0 ? false : true,
         isSelected: maps[i]['isSelected'] == 0 ? false : true,
-        data: maps[i]['data'],
+        text: maps[i]['text'],
+        photo: maps[i]['photo'],
+        indexCategory: maps[i]['indexCategory'],
+        pubTime: DateTime.parse(maps[i]['pubTime']),
       ),
     );
   }
 
   Future<void> insertMessage(ModelMessage msg) async {
-    final db = await database;
+    final db = await _database;
 
     await db.insert(
       'msg',
@@ -118,7 +119,7 @@ class PagesAPI {
   }
 
   Future<void> updateMessage(ModelMessage msg) async {
-    final db = await database;
+    final db = await _database;
 
     await db.update(
       'msg',
@@ -129,7 +130,7 @@ class PagesAPI {
   }
 
   Future<void> deleteMessage(int id) async {
-    final db = await database;
+    final db = await _database;
     await db.delete(
       'msg',
       where: 'id = ?',
@@ -138,12 +139,17 @@ class PagesAPI {
   }
 
   Future<void> deleteMessages(int pageId) async {
-    final db = await database;
+    final db = await _database;
 
     await db.delete(
       'msg',
       where: 'pageId = ?',
       whereArgs: [pageId],
     );
+  }
+
+  @override
+  String toString() {
+    return 'PagesAPI{_database: $_database}';
   }
 }

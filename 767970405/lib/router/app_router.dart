@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/messages_screen/screen_message_cubit.dart';
-import 'package:my_chat_journal/search_messages_screen/search_message_screen.dart';
 
-import '../data/model/model_page.dart';
 import '../home_screen/home_screen.dart';
 import '../messages_screen/screen_message.dart';
 import '../screen_creating_page/create_new_page.dart';
+import '../search_messages_screen/search_message_screen.dart';
+import '../settings_screen/settings_screen.dart';
 
 class AppRouter {
   Route onGenerateRoute(RouteSettings settings) {
@@ -20,13 +18,25 @@ class AppRouter {
           builder: (context) => ScreenMessage(),
         );
       case CreateNewPage.routName:
-        return MaterialPageRoute(builder: (context) {
-          return CreateNewPage();
-        });
+        return MaterialPageRoute(
+          builder: (context) => CreateNewPage(),
+        );
       case SearchMessageScreen.routeName:
-        return MaterialPageRoute(builder: (context) {
-          return SearchMessageScreen();
-        });
+        return MaterialPageRoute(
+          builder: (context) => SearchMessageScreen(),
+        );
+      case SettingsScreen.routeName:
+        return MaterialPageRoute(
+          builder: (context) => SettingsScreen(),
+        );
+      case GeneralOption.routeName:
+        return MaterialPageRoute(
+          builder: (context) => GeneralOption(),
+        );
+      case SecurityOption.routeName:
+        return MaterialPageRoute(
+          builder: (context) => SecurityOption(),
+        );
       default:
         assert(false, 'Need to implement ${settings.name}');
         return null;

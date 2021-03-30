@@ -21,7 +21,7 @@ class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
   void setting(String title, int selectionIconIndex) {
     controller.addListener(changeButton);
     repository.listIcon[selectionIconIndex] =
-        repository.listIcon[selectionIconIndex].copyWith(isVisible: true);
+        repository.listIcon[selectionIconIndex].copyWith(isSelected: true);
     controller.text = title;
     emit(
       ScreenCreatingPageWork(
@@ -46,16 +46,16 @@ class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
   void resetIcon() {
     repository.listIcon[state.selectionIconIndex] = repository
         .listIcon[state.selectionIconIndex]
-        .copyWith(isVisible: false);
+        .copyWith(isSelected: false);
     emit(state.copyWith(list: List.from(repository.listIcon)));
   }
 
   void selectionIcon(int index) {
     repository.listIcon[state.selectionIconIndex] = repository
         .listIcon[state.selectionIconIndex]
-        .copyWith(isVisible: false);
+        .copyWith(isSelected: false);
     repository.listIcon[index] =
-        repository.listIcon[index].copyWith(isVisible: true);
+        repository.listIcon[index].copyWith(isSelected: true);
     emit(state.copyWith(
       list: List.from(repository.listIcon),
       selectionIconIndex: index,

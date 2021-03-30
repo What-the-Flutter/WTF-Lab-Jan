@@ -1,82 +1,106 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
+import 'package:my_chat_journal/data/repository/event_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 
 import 'data/data_provider.dart';
 import 'data/repository/icons_repository.dart';
 import 'data/repository/messages_repository.dart';
 import 'data/repository/pages_repository.dart';
-import 'data/theme/theme_model.dart';
+import 'data/repository/theme_repository.dart';
 import 'home_screen/home_screen_cubit.dart';
 import 'messages_screen/screen_message_cubit.dart';
 import 'router/app_router.dart';
 import 'screen_creating_page/screen_creating_page_cubit.dart';
 import 'search_messages_screen/search_message_screen_cubit.dart';
+import 'settings_screen/general_options_cubit.dart';
+
+GetIt getIt = GetIt.instance;
 
 Future<int> loadTheme() async {
   var prefs = await SharedPreferences.getInstance();
-  return prefs.getInt('theme');
+  return prefs.getInt('theme') ?? 0;
 }
 
-Future<void> saveTheme(ThemeModel themeModel) async {
+Future<void> saveTheme(int index) async {
   var prefs = await SharedPreferences.getInstance();
-  prefs.setInt('theme', themeModel.themeType.index);
+  prefs.setInt('theme', index);
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  getIt.registerSingleton<PagesAPI>(PagesAPI());
   Bloc.observer = MyBlocObserver();
-  final themeModel = ThemeModel(index: await loadTheme());
   runApp(
-    ChangeNotifierProvider<ThemeModel>(
-      create: (context) => themeModel,
-      child: MyApp(db: await PagesAPI.init()),
+    MyApp(
+      index: await loadTheme(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final Database db;
+  final int index;
 
   MyApp({
-    this.db,
+    this.index,
   });
 
   final AppRouter _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
-    final api = PagesAPI(database: db);
-    final msgRep = MessagesRepository(api: api);
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider(
-          create: (homeScreenContext) => HomeScreenCubit(
-            repository: PagesRepository(pagesAPI: api),
+        RepositoryProvider<MessagesRepository>(
+          create: (context) => MessagesRepository(
+            api: getIt<PagesAPI>(),
           ),
         ),
-        BlocProvider(
-          create: (context) => ScreenMessageCubit(
-            repository: msgRep,
-          ),
+        RepositoryProvider<EventRepository>(
+          create: (context) => EventRepository(),
         ),
-        BlocProvider(
-          create: (context) => SearchMessageScreenCubit(
-            repository: msgRep,
-          ),
-        ),
-        BlocProvider(
-          create: (context) => ScreenCreatingPageCubit(
-            repository: IconsRepository(),
-          ),
+        RepositoryProvider<IconsRepository>(
+          create: (context) => IconsRepository(),
         ),
       ],
-      child: MaterialApp(
-        title: 'Chat Journal',
-        theme: Provider.of<ThemeModel>(context).currentTheme,
-        onGenerateRoute: _appRouter.onGenerateRoute,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (homeScreenContext) => HomeScreenCubit(
+              repository: PagesRepository(pagesAPI: getIt<PagesAPI>()),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => ScreenMessageCubit(
+              time: DateTime.now(),
+              repository: RepositoryProvider.of<MessagesRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => SearchMessageScreenCubit(
+              repository: RepositoryProvider.of<MessagesRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => ScreenCreatingPageCubit(
+              repository: RepositoryProvider.of<IconsRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => GeneralOptionsCubit(
+              themeRepository: ThemeRepository(),
+              index: index,
+            ),
+          ),
+        ],
+        child: BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
+          builder: (context, state) => MaterialApp(
+            title: 'Chat Journal',
+            theme: state.currentTheme.appTheme,
+            onGenerateRoute: _appRouter.onGenerateRoute,
+          ),
+        ),
       ),
     );
   }

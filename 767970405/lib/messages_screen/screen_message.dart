@@ -1,11 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
-import '../data/theme/theme.dart';
-import '../data/theme/theme_model.dart';
+import '../data/repository/event_repository.dart';
+import '../data/theme/custom_theme.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
+import '../settings_screen/general_options_cubit.dart';
 import 'screen_message_cubit.dart';
 
 class ScreenMessage extends StatefulWidget {
@@ -21,35 +27,27 @@ class _ScreenMessageState extends State<ScreenMessage> {
     return Scaffold(
       appBar: PreferredSize(
         child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-          builder: (context, state) => state.appBar,
+          builder: (context, state) {
+            switch (state.mode) {
+              case Mode.await:
+                return AppBar(title: Text(''));
+              case Mode.input:
+                return InputAppBar(title: state.page.title);
+              case Mode.selection:
+                return SelectionAppBar();
+              case Mode.edit:
+                return EditAppBar(title: 'Edit mode');
+              default:
+                return null;
+            }
+          },
         ),
         preferredSize: Size.fromHeight(56),
       ),
       body: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
         builder: (context, state) {
-          if (state is! ScreenMessageAwait) {
-            return Column(
-              children: <Widget>[
-                Expanded(
-                  child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-                    builder: (context, state) => ListView.builder(
-                      reverse: true,
-                      itemCount: state.list.length,
-                      itemBuilder: (context, i) {
-                        if (state.isBookmark &&
-                            !state.list[state.list.length - i - 1].isFavor) {
-                          return Container();
-                        }
-                        return Message(
-                          index: state.list.length - i - 1,
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                PanelInput(),
-              ],
-            );
+          if (state.mode != Mode.await) {
+            return body;
           } else {
             return Center(
               child: Text('Await'),
@@ -59,9 +57,262 @@ class _ScreenMessageState extends State<ScreenMessage> {
       ),
     );
   }
+
+  Widget get body => BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+        builder: (context, state) => Column(
+          children: <Widget>[
+            Expanded(
+              child: ChatElementList(
+                alignment:
+                    context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
+                        ? Alignment.topLeft
+                        : Alignment.topRight,
+                isDateTimeModEnabled: context
+                    .read<GeneralOptionsCubit>()
+                    .state
+                    .isDateTimeModification,
+              ),
+            ),
+            Builder(
+              builder: (context) {
+                switch (state.floatingBar) {
+                  case FloatingBar.nothing:
+                    return Container();
+                  case FloatingBar.events:
+                    return EventList();
+                  case FloatingBar.photosOption:
+                    return AttachPhotoOption();
+                  default:
+                    return Container();
+                }
+              },
+            ),
+            InputPanel(),
+          ],
+        ),
+      );
 }
 
-class PanelInput extends StatelessWidget {
+class ChatElementList extends StatelessWidget {
+  final AlignmentGeometry alignment;
+  final bool isDateTimeModEnabled;
+
+  const ChatElementList({
+    Key key,
+    this.alignment,
+    this.isDateTimeModEnabled,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: alignment,
+      children: <Widget>[
+        ListView(
+          reverse: true,
+          children: _generateChatElementsList(
+              context, context.read<ScreenMessageCubit>().state),
+        ),
+        if (isDateTimeModEnabled)
+          BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+            builder: (context, state) => DateTimeModButton(
+              date: DateFormat.yMMMEd().format(state.fromDate),
+              theme: context
+                  .read<GeneralOptionsCubit>()
+                  .state
+                  .currentTheme
+                  .dateTimeModButtonTheme,
+            ),
+          ),
+      ],
+    );
+  }
+
+  List<Widget> _generateChatElementsList(
+    BuildContext context,
+    ScreenMessageState state,
+  ) {
+    var list = <Widget>[];
+    var index = state.list.length - 1;
+    var filterList = context.read<ScreenMessageCubit>().groupMsgByDate;
+    final currentTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
+    for (var i = filterList.length - 1; i > -1; i--) {
+      var flag = false;
+      for (var j = 0; j < filterList[i].length; j++) {
+        if (state.isBookmark && !state.list[index].isFavor) {
+          list.add(Container());
+          index--;
+          continue;
+        }
+        flag = true;
+        list.add(
+          Message(
+            index: index,
+            isSelected: state.list[index].isSelected,
+            isFavor: state.list[index].isFavor,
+            photoPath: state.list[index].photo,
+            eventIndex: state.list[index].indexCategory,
+            text: state.list[index].text,
+            date: DateFormat.Hm().format(state.list[index].pubTime),
+            align: context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
+                ? Alignment.topRight
+                : Alignment.topLeft,
+            onTap: state.mode == Mode.selection
+                ? context.read<ScreenMessageCubit>().selection
+                : null,
+            onLongPress: state.mode == Mode.input
+                ? context.read<ScreenMessageCubit>().toSelectionAppBar
+                : state.mode == Mode.selection
+                    ? context.read<ScreenMessageCubit>().selection
+                    : null,
+            theme: currentTheme.messageTheme,
+          ),
+        );
+        index--;
+      }
+      if (state.isBookmark && !flag) {
+        list.add(Container());
+        index--;
+        continue;
+      }
+      list.add(
+        DateLabel(
+          theme: currentTheme.labelDateTheme,
+          date: DateFormat.yMMMd().format(
+            filterList[i][0].pubTime,
+          ),
+          alignment:
+              context.read<GeneralOptionsCubit>().state.isCenterDateBubble
+                  ? Alignment.center
+                  : Alignment.topLeft,
+        ),
+      );
+    }
+    return list;
+  }
+}
+
+class DateTimeModButton extends StatelessWidget {
+  final String date;
+  final DateTimeModButtonTheme theme;
+
+  const DateTimeModButton({
+    Key key,
+    this.date,
+    this.theme,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.read<ScreenMessageCubit>().state;
+    return GestureDetector(
+      onTap: () => selectDateAndTime(context, state),
+      child: Container(
+        margin: EdgeInsets.all(10.0),
+        padding: EdgeInsets.all(5.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
+              child: Icon(
+                Icons.calendar_today,
+                size: 16.0,
+                color: theme.iconColor,
+              ),
+            ),
+            Text(
+              date,
+              style: theme.dateStyle,
+            ),
+            if (state.isReset)
+              IconButton(
+                onPressed: context.read<ScreenMessageCubit>().reset,
+                icon: Icon(
+                  Icons.close,
+                  size: 16.0,
+                ),
+              ),
+          ],
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15.0),
+          color: theme.backgroundColor,
+        ),
+      ),
+    );
+  }
+
+  Future<void> selectDateAndTime(
+    BuildContext context,
+    ScreenMessageState state,
+  ) async {
+    final datePicked = await _showDatePicker(context, state.fromDate);
+
+    final timePicked = await _showTimePicker(context, state.fromTime);
+    context
+        .read<ScreenMessageCubit>()
+        .updateDateAndTime(date: datePicked, time: timePicked);
+  }
+
+  Future<TimeOfDay> _showTimePicker(
+    BuildContext context,
+    TimeOfDay initialTime,
+  ) async {
+    return await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+  }
+
+  Future<DateTime> _showDatePicker(
+    BuildContext context,
+    DateTime initialDate,
+  ) async {
+    return await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2015, 1),
+      lastDate: DateTime(2100),
+    );
+  }
+}
+
+class DateLabel extends StatelessWidget {
+  final String date;
+  final AlignmentGeometry alignment;
+  final LabelDateTheme theme;
+
+  DateLabel({
+    Key key,
+    this.alignment,
+    this.date,
+    this.theme,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10.0),
+      child: Align(
+        alignment: alignment,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15.0),
+            color: theme.backgroundColor,
+          ),
+          padding: EdgeInsets.all(10.0),
+          child: Text(
+            date,
+            style: theme.dateStyle,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class InputPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
@@ -71,7 +322,17 @@ class PanelInput extends StatelessWidget {
           children: <Widget>[
             Expanded(
               flex: 1,
-              child: Icon(Icons.bubble_chart),
+              child: IconButton(
+                icon: Icon(
+                  state.indexCategory == -1
+                      ? Icons.bubble_chart
+                      : RepositoryProvider.of<EventRepository>(context)
+                          .events[state.indexCategory]
+                          .iconData,
+                ),
+                onPressed:
+                    state.mode == Mode.selection ? null : state.onAddCategory,
+              ),
             ),
             Expanded(
               flex: 5,
@@ -87,8 +348,9 @@ class PanelInput extends StatelessWidget {
             Expanded(
               flex: 1,
               child: IconButton(
-                icon: Icon(state.iconData),
-                onPressed: state.onAddMessage,
+                icon: Icon(state.iconDataPhoto),
+                onPressed:
+                    state.mode == Mode.selection ? null : state.onAddMessage,
               ),
             ),
           ],
@@ -108,51 +370,45 @@ class InputAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ScreenMessageCubit, ScreenMessageState>(
-      listener: (context, state) =>
-          context.read<ScreenMessageCubit>().toSelectionAppBar(),
-      listenWhen: (prevState, curState) =>
-          prevState.counter == 0 && curState.counter == 1 ? true : false,
-      child: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(title),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-            ),
-            child: IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () => Navigator.pushNamed(
-                context,
-                SearchMessageScreen.routeName,
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-            ),
-            child: IconButton(
-              icon: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-                builder: (context, state) =>
-                    context.read<ScreenMessageCubit>().state.isBookmark
-                        ? Icon(
-                            Icons.bookmark,
-                            color: Colors.amberAccent,
-                          )
-                        : Icon(
-                            Icons.bookmark_border,
-                          ),
-              ),
-              onPressed: context.read<ScreenMessageCubit>().showBookmarkMessage,
-            ),
-          ),
-        ],
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () => Navigator.pop(context),
       ),
+      title: Text(title),
+      actions: [
+        Padding(
+          padding: EdgeInsets.only(
+            left: 10,
+          ),
+          child: IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () => Navigator.pushNamed(
+              context,
+              SearchMessageScreen.routeName,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            left: 10,
+          ),
+          child: IconButton(
+            icon: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+              builder: (context, state) =>
+                  context.read<ScreenMessageCubit>().state.isBookmark
+                      ? Icon(
+                          Icons.bookmark,
+                          color: Colors.amberAccent,
+                        )
+                      : Icon(
+                          Icons.bookmark_border,
+                        ),
+            ),
+            onPressed: context.read<ScreenMessageCubit>().showBookmarkMessage,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -184,8 +440,7 @@ class SelectionAppBar extends StatelessWidget {
             ),
           ),
           BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-            builder: (context, state) => state.counter == 1 &&
-                    !context.read<ScreenMessageCubit>().isPhotoMessage()
+            builder: (context, state) => state.counter == 1
                 ? Padding(
                     padding: EdgeInsets.only(right: 10),
                     child: IconButton(
@@ -214,7 +469,7 @@ class SelectionAppBar extends StatelessWidget {
             padding: EdgeInsets.only(right: 10),
             child: IconButton(
               icon: Icon(Icons.delete),
-              onPressed: context.read<ScreenMessageCubit>().delete,
+              onPressed: context.read<ScreenMessageCubit>().deleteSelected,
             ),
           ),
         ],
@@ -266,9 +521,9 @@ class SelectionAppBar extends StatelessWidget {
                 padding: EdgeInsets.only(left: 5),
                 child: OutlinedButton(
                   onPressed: () {
-                    context
-                        .read<ScreenMessageCubit>()
-                        .listSelected(list[index].id);
+                    context.read<ScreenMessageCubit>().listSelected(
+                          list[index].id,
+                        );
                     Navigator.pop(context);
                   },
                   child: Center(
@@ -279,6 +534,162 @@ class SelectionAppBar extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class AttachPhotoOption extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        AttachPhotoButton(
+          iconData: Icons.camera_alt_outlined,
+          text: 'Open Camera',
+          source: ImageSource.camera,
+        ),
+        AttachPhotoButton(
+          iconData: Icons.photo,
+          text: 'Open Gallery',
+          source: ImageSource.gallery,
+        )
+      ],
+    );
+  }
+}
+
+class EventList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final events = RepositoryProvider.of<EventRepository>(context).events;
+    return Container(
+      constraints: BoxConstraints(maxHeight: 70),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: events.length,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return GestureDetector(
+              onTap: context.read<ScreenMessageCubit>().cancelSelected,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Container(
+                      child: Icon(Icons.close),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.red,
+                      ),
+                    ),
+                    Text('Cancel'),
+                  ],
+                ),
+              ),
+            );
+          }
+          return EventMessage(
+            index: index - 1,
+            iconData: events[index - 1].iconData,
+            label: events[index - 1].label,
+            color: Colors.teal,
+            direction: Axis.vertical,
+            onTap: context.read<ScreenMessageCubit>().selectedCategory,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class EventMessage extends StatelessWidget {
+  final int index;
+  final IconData iconData;
+  final String label;
+  final Color color;
+  final Axis direction;
+  final Function onTap;
+
+  EventMessage({
+    Key key,
+    this.index,
+    this.iconData,
+    this.label,
+    this.color,
+    this.direction,
+    this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap != null ? () => onTap(index) : onTap,
+      child: Padding(
+        padding: direction == Axis.vertical
+            ? EdgeInsets.symmetric(horizontal: 10.0)
+            : EdgeInsets.only(),
+        child: Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          direction: direction,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color,
+              ),
+              child: Icon(
+                iconData,
+              ),
+            ),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AttachPhotoButton extends StatelessWidget {
+  final IconData iconData;
+  final String text;
+  final ImageSource source;
+
+  const AttachPhotoButton({
+    Key key,
+    this.iconData,
+    this.source,
+    this.text,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.read<ScreenMessageCubit>().addPhotoMessage(source),
+      child: Container(
+        //constraints: BoxConstraints(maxWidth: 100),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          color: Colors.red,
+        ),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(
+                iconData,
+                color: Colors.black,
+              ),
+            ),
+            Text(text),
+          ],
+        ),
       ),
     );
   }
@@ -317,57 +728,131 @@ class EditAppBar extends StatelessWidget {
 
 class Message extends StatelessWidget {
   final int index;
+  final bool isSelected;
+  final bool isFavor;
+  final String title;
+  final String photoPath;
+  final int eventIndex;
+  final String text;
+  final String date;
+  final AlignmentGeometry align;
+  final Function onTap;
+  final Function onLongPress;
+  final MessageTheme theme;
 
-  const Message({Key key, this.index}) : super(key: key);
+  const Message({
+    Key key,
+    this.index,
+    this.isSelected,
+    this.isFavor,
+    this.title,
+    this.photoPath,
+    this.eventIndex,
+    this.text,
+    this.date,
+    this.align,
+    this.onTap,
+    this.onLongPress,
+    this.theme,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var color;
-    if (Provider.of<ThemeModel>(context).currentTheme == darkTheme) {
-      if (context.read<ScreenMessageCubit>().state.list[index].isSelected) {
-        color = Colors.orangeAccent;
-      } else {
-        color = Colors.black;
-      }
-    } else {
-      if (context.read<ScreenMessageCubit>().state.list[index].isSelected) {
-        color = Colors.green[200];
-      } else {
-        color = Colors.green[50];
-      }
-    }
-    return Container(
-      padding: EdgeInsets.all(10.0),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: GestureDetector(
-          onTap:
-              context.read<ScreenMessageCubit>().state is ScreenMessageSelection
-                  ? () => context.read<ScreenMessageCubit>().selection(index)
-                  : null,
-          onLongPress: () =>
-              context.read<ScreenMessageCubit>().selection(index),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              color: color,
-            ),
-            padding: EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                context.read<ScreenMessageCubit>().state.list[index].message,
-                if (context
-                    .read<ScreenMessageCubit>()
-                    .state
-                    .list[index]
-                    .isFavor)
-                  Icon(
-                    Icons.bookmark,
-                    color: Colors.orangeAccent,
-                    size: 8,
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.25,
+      actions: <Widget>[
+        IconSlideAction(
+          caption: 'Edit',
+          color: Colors.indigo,
+          icon: Icons.edit,
+          onTap: () async {
+            await context.read<ScreenMessageCubit>().toSelectionAppBar(index);
+            context.read<ScreenMessageCubit>().toEditAppBar();
+          },
+        ),
+      ],
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          caption: 'Delete',
+          color: Colors.red,
+          icon: Icons.delete,
+          onTap: () async {
+            await context.read<ScreenMessageCubit>().toSelectionAppBar(index);
+            context.read<ScreenMessageCubit>().deleteSelected();
+          },
+        ),
+      ],
+      child: Container(
+        padding: EdgeInsets.all(10.0),
+        child: Align(
+          alignment: align,
+          child: GestureDetector(
+            onTap: onTap != null ? () => onTap(index) : onTap,
+            onLongPress:
+                onLongPress != null ? () => onLongPress(index) : onLongPress,
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 150),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15.0),
+                color: isSelected ? theme.selectedColor : theme.unselectedColor,
+              ),
+              padding: EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  if (title != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5.0),
+                      child: Text(title),
+                    ),
+                  if (photoPath != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5.0),
+                      child: Image.file(
+                        File(photoPath),
+                      ),
+                    ),
+                  if (eventIndex != -1)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5.0),
+                      child: EventMessage(
+                        iconData: Provider.of<EventRepository>(context)
+                            .events[eventIndex]
+                            .iconData,
+                        label: Provider.of<EventRepository>(context)
+                            .events[eventIndex]
+                            .label,
+                        color: Colors.teal,
+                        direction: Axis.horizontal,
+                      ),
+                    ),
+                  if (text != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5.0),
+                      child: Text(text, style: theme.contentStyle),
+                    ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5.0),
+                    child: Row(
+                      //mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          date,
+                          style: theme.timeStyle,
+                        ),
+                        if (isFavor)
+                          Icon(
+                            Icons.bookmark,
+                            color: Colors.orangeAccent,
+                            size: 8,
+                          ),
+                      ],
+                    ),
                   ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

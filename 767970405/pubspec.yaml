@@ -28,7 +28,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  image_picker: ^0.6.7+22
+  image_picker: ^0.7.3
   provider: ^4.3.3
   flutter_bloc: ^6.1.0
   bloc: ^6.1.0
@@ -36,6 +36,10 @@ dependencies:
   sqflite: ^2.0.0+2
   path_provider: ^2.0.1
   shared_preferences: ^2.0.4
+  intl: ^0.17.0
+  local_auth: ^1.1.0
+  get_it: ^6.0.0
+  flutter_slidable: ^0.5.7
 
 dev_dependencies:
   flutter_test:
@@ -54,9 +58,21 @@ flutter:
   uses-material-design: true
 
   fonts:
-      - family:  MyFlutterApp
-        fonts:
-         - asset: fonts/MyFlutterApp.ttf
+    - family:  MyFlutterApp
+      fonts:
+        - asset: fonts/MyFlutterApp.ttf
+    - family: Roboto
+      fonts:
+        - asset: fonts/roboto/Roboto-Regular.ttf
+        - asset: fonts/roboto/Roboto-Bold.ttf
+          weight: 700
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/roboto_mono/RobotoMono-Regular.ttf
+        - asset: fonts/roboto_mono/RobotoMono-Bold.ttf
+          weight: 700
+
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

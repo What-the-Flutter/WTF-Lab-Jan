@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import '../data/model/model_message.dart';
 import '../data/model/model_page.dart';
 import '../data/repository/messages_repository.dart';
-import 'screen_message.dart';
 
 part 'screen_message_state.dart';
 
@@ -18,44 +17,48 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
 
   ScreenMessageCubit({
     this.repository,
+    DateTime time,
   }) : super(
-          ScreenMessageAwait(
-            appBar: InputAppBar(
-              title: 'Title',
-            ),
+          ScreenMessageState(
+            fromDate: time,
+            fromTime: TimeOfDay.fromDateTime(time),
+            isReset: false,
+            mode: Mode.await,
             counter: 0,
             isBookmark: false,
             list: <ModelMessage>[],
+            enabledController: true,
+            floatingBar: FloatingBar.nothing,
+            indexCategory: -1,
+            iconDataPhoto: Icons.photo_camera,
           ),
         );
 
   void downloadData(
     ModelPage page,
-    Widget appBar,
   ) async {
     emit(
-      ScreenMessageInput(
+      state.copyWith(
         page: page,
-        appBar: appBar,
+        mode: Mode.input,
         list: await repository.messages(page.id),
-        counter: 0,
-        isBookmark: false,
+        onAddCategory: showEventList,
       ),
     );
     controller.addListener(
       () => controller.text.isEmpty
           ? emit(
               state.copyWith(
-                iconData: Icons.photo_camera,
+                iconDataPhoto: Icons.photo_camera,
                 onAddMessage:
-                    state is ScreenMessageInput ? addPhotoMessage : editMessage,
+                    state.mode == Mode.input ? showPhotoOption : editMessage,
               ),
             )
           : emit(
               state.copyWith(
-                iconData: Icons.add,
+                iconDataPhoto: Icons.add,
                 onAddMessage:
-                    state is ScreenMessageInput ? addTextMessage : editMessage,
+                    state.mode == Mode.input ? addTextMessage : editMessage,
               ),
             ),
     );
@@ -67,59 +70,86 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
 
   void addTextMessage() async {
     repository.addMessage(
-      TextMessage(
+      ModelMessage(
         pageId: state.page.id,
-        data: controller.text,
+        text: controller.text,
         isFavor: state.isBookmark,
         isSelected: false,
+        indexCategory: state.indexCategory,
+        photo: null,
+        pubTime: state.isReset
+            ? state.fromDate.applied(state.fromTime)
+            : DateTime.now(),
       ),
     );
     controller.text = '';
     emit(
       state.copyWith(
         list: await repository.messages(state.page.id),
+        indexCategory: -1,
+        floatingBar: FloatingBar.nothing,
+        iconDataPhoto: Icons.photo_camera,
+        onAddMessage: showPhotoOption,
       ),
     );
   }
 
-  void toSelectionAppBar() {
-    emit(
-      ScreenMessageSelection(
-        page: state.page,
-        appBar: SelectionAppBar(),
-        list: state.list,
-        counter: state.counter,
-        isBookmark: state.isBookmark,
-        iconData: state.iconData,
-        onAddMessage: null,
-      ),
-    );
+  void toSelectionAppBar(int index) async {
+    await selection(index);
+    emit(state.copyWith(
+      mode: Mode.selection,
+      enabledController: false,
+    ));
   }
 
   void toInputAppBar() async {
-    emit(
-      ScreenMessageInput(
-          page: state.page,
-          appBar: InputAppBar(
-            title: state.page.title,
-          ),
-          list: await repository.messages(state.page.id),
-          isBookmark: state.isBookmark,
-          counter: 0,
-          iconData: state.iconData,
-          onAddMessage: addPhotoMessage),
-    );
+    emit(state.copyWith(
+      mode: Mode.input,
+      enabledController: true,
+      list: await repository.messages(state.page.id),
+      counter: 0,
+      indexCategory: -1,
+      onAddCategory: showEventList,
+      iconDataPhoto: Icons.photo_camera,
+      onAddMessage: showPhotoOption,
+    ));
   }
 
-  Future<void> addPhotoMessage() async {
-    final pickedFile =
-        await ImagePicker().getImage(source: ImageSource.gallery);
+  List<List<ModelMessage>> get groupMsgByDate {
+    var list = <List<ModelMessage>>[];
+    var temp = <ModelMessage>[];
+    if (state.list.length == 1) {
+      temp.add(state.list[0]);
+      list.add(List.from(temp));
+      return list;
+    }
+    for (var i = 0; i < state.list.length - 1; i++) {
+      temp.add(state.list[i]);
+      if (!state.list[i].pubTime.isSameDate(state.list[i + 1].pubTime)) {
+        list.add(List.from(temp));
+        temp = <ModelMessage>[];
+      }
+    }
+    if (state.list.isNotEmpty) {
+      temp.add(state.list[state.list.length - 1]);
+      list.add(List.from(temp));
+    }
+    return list;
+  }
+
+  Future<void> addPhotoMessage(ImageSource source) async {
+    final pickedFile = await ImagePicker().getImage(source: source);
     repository.addMessage(
-      ImageMessage(
+      ModelMessage(
         pageId: state.page.id,
-        data: pickedFile.path,
+        photo: pickedFile.path,
         isFavor: state.isBookmark,
         isSelected: false,
+        text: null,
+        indexCategory: -1,
+        pubTime: state.isReset
+            ? state.fromDate.applied(state.fromTime)
+            : DateTime.now(),
       ),
     );
     emit(
@@ -127,15 +157,6 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         list: await repository.messages(state.page.id),
       ),
     );
-  }
-
-  bool isPhotoMessage() {
-    for (var i = 0; i < state.list.length; i++) {
-      if (state.list[i].isSelected && state.list[i] is ImageMessage) {
-        return true;
-      }
-    }
-    return false;
   }
 
   void selection(int index) async {
@@ -167,24 +188,33 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   }
 
   void toEditAppBar() {
-    String text;
+    var index = 0;
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
-        text = state.list[i].data;
+        index = i;
+        break;
       }
     }
-    controller.text = text;
+    controller.text = state.list[index].text;
     emit(
-      ScreenMessageEdit(
-        page: state.page,
-        appBar: EditAppBar(
-          title: 'Edit mode',
-        ),
-        list: state.list,
-        counter: state.counter,
-        iconData: state.iconData,
-        isBookmark: state.isBookmark,
-        onEditMessage: editMessage,
+      state.copyWith(
+        enabledController: true,
+        mode: Mode.edit,
+        onAddMessage: editMessage,
+        indexCategory: state.list[index].indexCategory,
+      ),
+    );
+  }
+
+  void toEdAppBar(int index) async {
+    controller.text = state.list[index].text;
+    emit(
+      state.copyWith(
+        enabledController: true,
+        mode: Mode.edit,
+        onAddMessage: editMessage,
+        indexCategory: state.list[index].indexCategory,
+        list: await repository.messages(state.page.id),
       ),
     );
   }
@@ -197,17 +227,20 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         break;
       }
     }
-    repository.editMessage(
-        state.list[index].copyWith(data: controller.text, isSelected: false));
-    controller.text = '';
+    repository.editMessage(state.list[index].copyWith(
+      text: controller.text,
+      isSelected: false,
+      indexCategory: state.indexCategory,
+    ));
     toInputAppBar();
+    controller.text = '';
   }
 
   void copy() {
     var clipBoard = '';
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
-        clipBoard += state.list[i].data;
+        clipBoard += state.list[i].text;
         selection(i);
       }
     }
@@ -228,7 +261,16 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     toInputAppBar();
   }
 
-  void delete() async {
+  void delete(int index) async {
+    repository.removeMessage(state.list[index].id);
+    emit(
+      state.copyWith(
+        list: await repository.messages(state.page.id),
+      ),
+    );
+  }
+
+  void deleteSelected() async {
     for (var i = 0; i < state.list.length; i++) {
       if (state.list[i].isSelected) {
         repository.removeMessage(state.list[i].id);
@@ -257,19 +299,71 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         selection(i);
       }
     }
-    emit(
-      ScreenMessageInput(
-        page: state.page,
-        appBar: InputAppBar(
-          title: state.page.title,
-        ),
-        list: await repository.messages(state.page.id),
-        counter: 0,
-        isBookmark: state.isBookmark,
-        iconData: state.iconData,
-        onAddMessage: addPhotoMessage,
-      ),
-    );
+    toInputAppBar();
+  }
+
+  void showEventList() {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.events,
+      onAddCategory: closeFloatingBar,
+    ));
+  }
+
+  void closeFloatingBar() {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.nothing,
+      onAddCategory: showEventList,
+      onAddMessage: showPhotoOption,
+    ));
+  }
+
+  void cancelSelected() {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.nothing,
+      onAddCategory: showEventList,
+      indexCategory: -1,
+      onAddMessage: state.mode == Mode.input ? showPhotoOption : null,
+      iconDataPhoto: state.mode == Mode.input ? Icons.photo_camera : null,
+    ));
+  }
+
+  void showPhotoOption() {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.photosOption,
+      onAddMessage: closeFloatingBar,
+    ));
+  }
+
+  void selectedCategory(int index) {
+    emit(state.copyWith(
+      floatingBar: FloatingBar.nothing,
+      onAddCategory: showEventList,
+      indexCategory: index,
+      iconDataPhoto: Icons.add,
+      onAddMessage: state.mode == Mode.input ? addTextMessage : editMessage,
+    ));
+  }
+
+  void updateDateAndTime({
+    DateTime date,
+    TimeOfDay time,
+  }) {
+    if (date != state.fromDate || time != state.fromTime) {
+      emit(state.copyWith(
+        fromDate: date,
+        fromTime: time,
+        isReset: true,
+      ));
+    }
+  }
+
+  void reset() {
+    final date = DateTime.now();
+    emit(state.copyWith(
+      fromDate: date,
+      fromTime: TimeOfDay.fromDateTime(date),
+      isReset: false,
+    ));
   }
 
   @override

@@ -18,6 +18,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   }
 
   void loadData() async {
+    await repository.pagesAPI.init();
     emit(
       HomeScreenShow(
         pages: await repository.pages(),
@@ -41,7 +42,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   void addPage(ModelPage page) async {
     repository.addPage(
       page.copyWith(
-        isPin: false,
+        isPinned: false,
         creationTime: DateTime.now(),
         lastModifiedTime: DateTime.now(),
       ),
@@ -59,7 +60,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   void pinPage(int index) async {
     repository.editPage(
       state.list[index].copyWith(
-        isPin: !state.list[index].isPin,
+        isPinned: !state.list[index].isPinned,
       ),
     );
     var list = await repository.pages();
@@ -83,14 +84,6 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     );
   }
 
-  void gettingOutFreeze() {
-    emit(
-      HomeScreenShow(
-        pages: state.list,
-        currentIndex: state.currentIndex,
-      ),
-    );
-  }
 
   void changeScreen(int index) {
     emit(state.copyWith(currentIndex: index));

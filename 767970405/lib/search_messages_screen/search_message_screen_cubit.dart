@@ -35,7 +35,7 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
     var list = <ModelMessage>[];
     var repList = await repository.messages(state.page.id);
     for (var i = 0; i < repList.length; i++) {
-      if (repList[i].data.contains(substring)) {
+      if (repList[i].text != null && repList[i].text.contains(substring)) {
         list.add(repList[i]);
       }
     }
@@ -46,7 +46,9 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
     }
   }
 
-  void resetController() {
+
+
+  void reset() {
     controller.text = '';
   }
 

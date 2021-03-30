@@ -1,37 +1,53 @@
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-abstract class ModelMessage extends Equatable {
+class ModelMessage extends Equatable implements Comparable<ModelMessage> {
   final int id;
   final int pageId;
   final bool isFavor;
   final bool isSelected;
-  final String data;
+  final String text;
+  final String photo;
+  final int indexCategory;
+  final DateTime pubTime;
 
   ModelMessage({
     this.id,
     this.pageId,
     this.isFavor,
     this.isSelected,
-    this.data,
+    this.text,
+    this.photo,
+    this.indexCategory,
+    this.pubTime,
   });
-
-  Widget get message;
 
   ModelMessage copyWith({
     final int id,
     final int pageId,
-    final String data,
+    final String text,
+    final String photo,
+    final int indexCategory,
+    final DateTime pubTime,
     final bool isFavor,
     final bool isSelected,
-  });
+  }) {
+    return ModelMessage(
+      id: id ?? this.id,
+      pageId: pageId ?? this.pageId,
+      text: text ?? this.text,
+      photo: photo ?? this.photo,
+      indexCategory: indexCategory ?? this.indexCategory,
+      isSelected: isSelected ?? this.isSelected,
+      isFavor: isFavor ?? this.isFavor,
+      pubTime: pubTime ?? this.pubTime,
+    );
+  }
 
   @override
   String toString() {
     return '\nModelMessage{isFavor: $isFavor,'
-        ' isSelected: $isSelected, data: $data}\n';
+        ' isSelected: $isSelected, data: $text}\n';
   }
 
   Map<String, dynamic> toMap() {
@@ -40,85 +56,45 @@ abstract class ModelMessage extends Equatable {
       'pageId': pageId,
       'isFavor': isFavor ? 1 : 0,
       'isSelected': isSelected ? 1 : 0,
-      'data': data,
+      'text': text,
+      'photo': photo,
+      'indexCategory': indexCategory,
+      'pubTime': pubTime.toString(),
     };
   }
+
+  @override
+  List<Object> get props => [
+        isFavor,
+        isSelected,
+        text,
+        photo,
+        indexCategory,
+        pubTime,
+      ];
+
+  @override
+  int compareTo(ModelMessage other) {
+    if (pubTime.isBefore(other.pubTime)) {
+      return -1;
+    } else {
+      return 1;
+    }
+  }
 }
 
-class TextMessage extends ModelMessage {
-  TextMessage({
-    int id,
-    int pageId,
-    String data,
-    bool isFavor,
-    bool isSelected,
-  }) : super(
-          id: id,
-          pageId: pageId,
-          data: data,
-          isFavor: isFavor,
-          isSelected: isSelected,
-        );
-
-  @override
-  ModelMessage copyWith({
-    final int id,
-    final int pageId,
-    final String data,
-    final bool isFavor,
-    final bool isSelected,
-  }) {
-    return TextMessage(
-      id: id ?? this.id,
-      pageId: pageId ?? this.pageId,
-      data: data ?? this.data,
-      isFavor: isFavor ?? this.isFavor,
-      isSelected: isSelected ?? this.isSelected,
-    );
+extension DateOnlyCompare on DateTime {
+  bool isSameDate(DateTime other) {
+    return year == other.year && month == other.month && day == other.day;
   }
 
-  @override
-  Widget get message => Text(data);
-
-  @override
-  List<Object> get props => [data, isSelected, isFavor];
-}
-
-class ImageMessage extends ModelMessage {
-  ImageMessage({
-    int id,
-    int pageId,
-    String data,
-    bool isFavor,
-    bool isSelected,
-  }) : super(
-          id: id,
-          pageId: pageId,
-          data: data,
-          isFavor: isFavor,
-          isSelected: isSelected,
-        );
-
-  @override
-  ModelMessage copyWith({
-    final int id,
-    final int pageId,
-    final String data,
-    final bool isFavor,
-    final bool isSelected,
-  }) {
-    return ImageMessage(
-      id: id ?? this.id,
-      pageId: pageId ?? this.pageId,
-      data: data ?? this.data,
-      isFavor: isFavor ?? this.isFavor,
-      isSelected: isSelected ?? this.isSelected,
+  DateTime applied(TimeOfDay time) {
+    return DateTime(
+      year,
+      month,
+      day,
+      time.hour,
+      time.minute,
     );
   }
-
-  @override
-  Widget get message => Image.file(File(data));
-
-  @override
-  List<Object> get props => [isFavor, isSelected, data];
 }
