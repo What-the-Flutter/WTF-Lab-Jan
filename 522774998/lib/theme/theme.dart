@@ -13,7 +13,7 @@ final darkThemeCustom = ThemeData(
   ),
   textTheme: TextTheme(
     bodyText2: TextStyle(
-      color: Colors.white,
+      color: Colors.black,
       fontSize: 16,
     ),
   ),

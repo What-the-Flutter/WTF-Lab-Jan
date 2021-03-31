@@ -11,6 +11,7 @@ import '../messages/screen_messages.dart';
 import '../messages/screen_messages_cubit.dart';
 import '../search/searching_messages_cubit.dart';
 import '../settings/settings_page.dart';
+import '../settings/settings_page_cubit.dart';
 import 'home_screen_cubit.dart';
 import 'widgets/bottom_panel_tabs.dart';
 
@@ -216,7 +217,11 @@ class DialogPage extends StatelessWidget {
             ListTile(
               title: Text(
                 state.list[_index].title,
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(
+                    fontSize: BlocProvider.of<SettingPageCubit>(context)
+                            .state
+                            .fontSize +
+                        5),
               ),
               subtitle: Text('No Events. Click to create one.'),
               contentPadding: EdgeInsets.all(5.0),
@@ -350,7 +355,7 @@ class DialogPage extends StatelessWidget {
     Navigator.pop(context);
     showDialog<void>(
       context: context,
-      builder: (context) {
+      builder: (alertContext) {
         return AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -387,7 +392,7 @@ class DialogPage extends StatelessWidget {
           ),
           actions: <Widget>[
             OutlinedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(alertContext),
               child: Center(
                 child: Text('OK'),
               ),

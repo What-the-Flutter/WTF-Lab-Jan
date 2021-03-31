@@ -24,10 +24,8 @@ abstract class CreatingNewPageState extends Equatable {
 }
 
 class CreatingNewPageStateInitial extends CreatingNewPageState {
-  CreatingNewPageStateInitial({
-    List<ListItemIcon> list,
-    int selectionIconIndex,
-  }) : super(
+  CreatingNewPageStateInitial({List<ListItemIcon> list, int selectionIconIndex})
+      : super(
           list: list,
           selectionIconIndex: selectionIconIndex,
         );
@@ -45,10 +43,8 @@ class CreatingNewPageStateInitial extends CreatingNewPageState {
 }
 
 class CreatingNewPageStateWork extends CreatingNewPageState {
-  CreatingNewPageStateWork({
-    List<ListItemIcon> list,
-    int selectionIconIndex,
-  }) : super(
+  CreatingNewPageStateWork({List<ListItemIcon> list, int selectionIconIndex})
+      : super(
           list: list,
           selectionIconIndex: selectionIconIndex,
         );

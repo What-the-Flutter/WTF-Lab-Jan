@@ -19,11 +19,7 @@ abstract class SearchMessageState extends Equatable {
 }
 
 class SearchMessageScreenWait extends SearchMessageState {
-  SearchMessageScreenWait({
-    PropertyPage page,
-  }) : super(
-          page: page,
-        );
+  SearchMessageScreenWait({PropertyPage page}) : super(page: page);
 
   @override
   SearchMessageState copyWith({
@@ -36,11 +32,7 @@ class SearchMessageScreenWait extends SearchMessageState {
 }
 
 class SearchMessageScreenNotFound extends SearchMessageState {
-  SearchMessageScreenNotFound({
-    PropertyPage page,
-  }) : super(
-          page: page,
-        );
+  SearchMessageScreenNotFound({PropertyPage page}) : super(page: page);
 
   @override
   SearchMessageState copyWith({
@@ -53,10 +45,8 @@ class SearchMessageScreenNotFound extends SearchMessageState {
 }
 
 class SearchMessageScreenFound extends SearchMessageState {
-  SearchMessageScreenFound({
-    PropertyPage page,
-    List<PropertyMessage> list,
-  }) : super(
+  SearchMessageScreenFound({PropertyPage page, List<PropertyMessage> list})
+      : super(
           page: page,
           list: list,
         );

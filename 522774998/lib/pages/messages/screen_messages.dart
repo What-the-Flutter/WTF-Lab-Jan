@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/widgets/hashtag_text.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,8 @@ import '../../repository/category_repository.dart';
 import '../../theme/theme_cubit.dart';
 import '../home/home_screen_cubit.dart';
 import '../search/searching_message.dart';
+import '../search/searching_messages_cubit.dart';
+import '../settings/settings_page.dart';
 import '../settings/settings_page_cubit.dart';
 import 'screen_messages_cubit.dart';
 
@@ -27,6 +30,8 @@ class ScreenMessages extends StatefulWidget {
 class _ScreenMessagesState extends State<ScreenMessages> {
   @override
   Widget build(BuildContext context) {
+    final indexBackground =
+        BlocProvider.of<SettingPageCubit>(context).state.indexBackground;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56),
@@ -37,171 +42,188 @@ class _ScreenMessagesState extends State<ScreenMessages> {
       body: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
         builder: (context, state) {
           if (state is! ScreenMessageAwait) {
-            return Column(
-              children: <Widget>[
-                Expanded(
-                  child: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
-                    builder: (context, state) {
-                      return Stack(
-                        children: [
-                          ListView.builder(
-                            reverse: true,
-                            itemCount: state.list.length,
-                            itemBuilder: (context, i) {
-                              return Column(
-                                children: [
-                                  if (state
-                                          .list[state.list.length - i - 1].id ==
-                                      context
-                                          .read<ScreenMessagesCubit>()
-                                          .checkDate(
-                                            state
-                                                .list[state.list.length - i - 1]
-                                                .time,
-                                            state
-                                                .list[state.list.length - i - 1]
-                                                .idMessagePage,
-                                          ))
-                                    DateMessage(
-                                      index: state.list.length - i - 1,
-                                      idMessagePage:
-                                          state.list.first.idMessagePage,
-                                    ),
-                                  Dismissible(
-                                    confirmDismiss: (direction) async {
-                                      context
-                                          .read<ScreenMessagesCubit>()
-                                          .selection(state.list.length - i - 1);
-                                      if (direction ==
-                                          DismissDirection.endToStart) {
-                                        final res = await showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              content: Text(
-                                                  'Are you sure you want to delete?'),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  child: Text(
-                                                    'Cancel',
-                                                    style: TextStyle(
-                                                        color: Colors.black),
-                                                  ),
-                                                  onPressed: () {
-                                                    context
-                                                        .read<
-                                                            ScreenMessagesCubit>()
-                                                        .toInputAppBar();
-                                                    context
-                                                        .read<
-                                                            ScreenMessagesCubit>()
-                                                        .selection(
-                                                            state.list.length -
-                                                                i -
-                                                                1);
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                                TextButton(
-                                                  child: Text(
-                                                    'Delete',
-                                                    style: TextStyle(
-                                                        color: Colors.red),
-                                                  ),
-                                                  onPressed: () {
-                                                    context
-                                                        .read<
-                                                            ScreenMessagesCubit>()
-                                                        .delete();
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                        return res;
-                                      } else {
-                                        final res = await showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              content: Text(
-                                                  'Are you sure you want to edit?'),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  child: Text(
-                                                    'Cancel',
-                                                    style: TextStyle(
-                                                        color: Colors.black),
-                                                  ),
-                                                  onPressed: () {
-                                                    context
-                                                        .read<
-                                                            ScreenMessagesCubit>()
-                                                        .toInputAppBar();
-                                                    context
-                                                        .read<
-                                                            ScreenMessagesCubit>()
-                                                        .selection(
-                                                            state.list.length -
-                                                                i -
-                                                                1);
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                                TextButton(
-                                                  child: Text(
-                                                    'Edit',
-                                                    style: TextStyle(
-                                                        color: Colors.green),
-                                                  ),
-                                                  onPressed: () {
-                                                    controller.text = context
-                                                        .read<
-                                                            ScreenMessagesCubit>()
-                                                        .toEditAppBar();
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                        return res;
-                                      }
-                                    },
-                                    background: slideRightBackground(),
-                                    secondaryBackground: slideLeftBackground(),
-                                    key: UniqueKey(),
-                                    child: Message(
-                                      index: state.list.length - i - 1,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                          if (BlocProvider.of<SettingPageCubit>(context)
-                              .state
-                              .isDateModificationSwitched)
-                            Align(
-                              alignment:
-                                  BlocProvider.of<SettingPageCubit>(context)
-                                          .state
-                                          .isBubbleAlignmentSwitched
-                                      ? Alignment.topLeft
-                                      : Alignment.topRight,
-                              child: DateMark(),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
+            return Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(galleryItems[indexBackground]),
+                  fit: BoxFit.cover,
                 ),
-                if (isVisibleCategories) _categoryLine(),
-                _panelInput(),
-              ],
+              ),
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child:
+                        BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
+                      builder: (context, state) {
+                        return Stack(
+                          children: [
+                            ListView.builder(
+                              reverse: true,
+                              itemCount: state.list.length,
+                              itemBuilder: (context, i) {
+                                return Column(
+                                  children: [
+                                    if (state.list[state.list.length - i - 1]
+                                            .id ==
+                                        context
+                                            .read<ScreenMessagesCubit>()
+                                            .checkDate(
+                                              state
+                                                  .list[
+                                                      state.list.length - i - 1]
+                                                  .time,
+                                              state
+                                                  .list[
+                                                      state.list.length - i - 1]
+                                                  .idMessagePage,
+                                            ))
+                                      DateMessage(
+                                        index: state.list.length - i - 1,
+                                        idMessagePage:
+                                            state.list.first.idMessagePage,
+                                      ),
+                                    Dismissible(
+                                      confirmDismiss: (direction) async {
+                                        context
+                                            .read<ScreenMessagesCubit>()
+                                            .selection(
+                                                state.list.length - i - 1);
+                                        if (direction ==
+                                            DismissDirection.endToStart) {
+                                          final res = await showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                content: Text(
+                                                    'Are you sure you want to delete?'),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    child: Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                          color: Colors.black),
+                                                    ),
+                                                    onPressed: () {
+                                                      context
+                                                          .read<
+                                                              ScreenMessagesCubit>()
+                                                          .toInputAppBar();
+                                                      context
+                                                          .read<
+                                                              ScreenMessagesCubit>()
+                                                          .selection(state
+                                                                  .list.length -
+                                                              i -
+                                                              1);
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                  ),
+                                                  TextButton(
+                                                    child: Text(
+                                                      'Delete',
+                                                      style: TextStyle(
+                                                          color: Colors.red),
+                                                    ),
+                                                    onPressed: () {
+                                                      context
+                                                          .read<
+                                                              ScreenMessagesCubit>()
+                                                          .delete();
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                          return res;
+                                        } else {
+                                          final res = await showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                content: Text(
+                                                    'Are you sure you want to edit?'),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    child: Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                          color: Colors.black),
+                                                    ),
+                                                    onPressed: () {
+                                                      context
+                                                          .read<
+                                                              ScreenMessagesCubit>()
+                                                          .toInputAppBar();
+                                                      context
+                                                          .read<
+                                                              ScreenMessagesCubit>()
+                                                          .selection(state
+                                                                  .list.length -
+                                                              i -
+                                                              1);
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                  ),
+                                                  TextButton(
+                                                    child: Text(
+                                                      'Edit',
+                                                      style: TextStyle(
+                                                          color: Colors.green),
+                                                    ),
+                                                    onPressed: () {
+                                                      controller.text = context
+                                                          .read<
+                                                              ScreenMessagesCubit>()
+                                                          .toEditAppBar();
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                          return res;
+                                        }
+                                      },
+                                      background: slideRightBackground(),
+                                      secondaryBackground:
+                                          slideLeftBackground(),
+                                      key: UniqueKey(),
+                                      child: Message(
+                                        index: state.list.length - i - 1,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            if (BlocProvider.of<SettingPageCubit>(context)
+                                .state
+                                .isDateModificationSwitched)
+                              Align(
+                                alignment:
+                                    BlocProvider.of<SettingPageCubit>(context)
+                                            .state
+                                            .isBubbleAlignmentSwitched
+                                        ? Alignment.topLeft
+                                        : Alignment.topRight,
+                                child: DateMark(),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  if (isVisibleCategories) _categoryLine(),
+                  _panelInput(),
+                ],
+              ),
             );
           } else {
             return Center(
@@ -259,6 +281,7 @@ class _ScreenMessagesState extends State<ScreenMessages> {
 
   Widget _categoryLine() {
     return Container(
+      color: Colors.white,
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
         builder: (context, stateInput) => Row(
@@ -367,6 +390,7 @@ class _ScreenMessagesState extends State<ScreenMessages> {
 
   Widget _panelInput() {
     return Container(
+      color: Colors.white,
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: BlocBuilder<ScreenMessagesCubit, ScreenMessagesState>(
         builder: (context, stateInput) => Row(
@@ -375,7 +399,8 @@ class _ScreenMessagesState extends State<ScreenMessages> {
               flex: 1,
               child: IconButton(
                 icon: Icon(
-                  context.read<ScreenMessagesCubit>().state.category,
+                  context.read<ScreenMessagesCubit>().state.category ??
+                      Icons.bubble_chart,
                 ),
                 onPressed: () {
                   isVisibleCategories = !isVisibleCategories;
@@ -433,12 +458,7 @@ class _ScreenMessagesState extends State<ScreenMessages> {
 class InputAppBar extends StatelessWidget {
   final String title;
 
-  const InputAppBar({
-    Key key,
-    this.title,
-  }) : super(
-          key: key,
-        );
+  const InputAppBar({Key key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -623,12 +643,7 @@ class SelectionAppBar extends StatelessWidget {
 class EditAppBar extends StatelessWidget {
   final String title;
 
-  const EditAppBar({
-    Key key,
-    this.title,
-  }) : super(
-          key: key,
-        );
+  const EditAppBar({Key key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -720,13 +735,40 @@ class Message extends StatelessWidget {
                           File(state.list[index].data),
                         ),
                       )
-                    : Text(
-                        state.list[index].data,
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                    : HashTagText(
+                        text: state.list[index].data,
+                        basicStyle: TextStyle(
+                          fontSize: BlocProvider.of<SettingPageCubit>(context)
+                              .state
+                              .fontSize,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w300,
+                        ),
+                        decoratedStyle: TextStyle(
+                          fontSize: BlocProvider.of<SettingPageCubit>(context)
+                              .state
+                              .fontSize,
+                          color: Colors.deepPurple,
+                        ),
+                        onTap: (text) {
+                          BlocProvider.of<SearchMessageCubit>(context)
+                              .controller
+                              .text = text;
+                          Navigator.pushNamed(
+                            context,
+                            SearchingPage.routeName,
+                          );
+                          // cubit.setOnSearch(true);
+                          // controller.text = text;
+                        },
                       ),
                 Text(
                   DateFormat('HH:mm').format(state.list[index].time),
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                  style: TextStyle(
+                      fontSize: BlocProvider.of<SettingPageCubit>(context)
+                          .state
+                          .fontSize,
+                      color: Colors.grey),
                 ),
               ],
             ),
@@ -747,9 +789,7 @@ class DateMessage extends StatelessWidget {
     this.index,
     this.idMessagePage,
     this.idDateMessage,
-  }) : super(
-          key: key,
-        );
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -789,7 +829,8 @@ class DateMessage extends StatelessWidget {
                 .read<ScreenMessagesCubit>()
                 .calculateDate(state.list[index].time),
             style: TextStyle(
-              fontSize: 14,
+              fontSize:
+                  BlocProvider.of<SettingPageCubit>(context).state.fontSize,
               color: Colors.black,
             ),
           ),
@@ -885,7 +926,11 @@ class DateMark extends StatelessWidget {
                 ),
                 Text(
                   date,
-                  style: TextStyle(fontSize: 14, color: Colors.black),
+                  style: TextStyle(
+                      fontSize: BlocProvider.of<SettingPageCubit>(context)
+                          .state
+                          .fontSize,
+                      color: Colors.black),
                 ),
                 SizedBox(
                   width: 10,

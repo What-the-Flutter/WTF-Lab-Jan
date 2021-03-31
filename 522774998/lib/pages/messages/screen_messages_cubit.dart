@@ -14,19 +14,17 @@ import 'screen_messages.dart';
 part 'screen_messages_state.dart';
 
 class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
-  MessagesRepository repository;
+  final MessagesRepository repository;
 
-  ScreenMessagesCubit({
-    this.repository,
-  }) : super(
+  ScreenMessagesCubit({this.repository})
+      : super(
           ScreenMessageAwait(
-            appBar: InputAppBar(
-              title: 'Title',
-            ),
-            category: Icons.bubble_chart,
-            counter: 0,
-            list: <PropertyMessage>[],
-          ),
+              appBar: InputAppBar(
+                title: 'Title',
+              ),
+              category: Icons.bubble_chart,
+              counter: 0,
+              list: <PropertyMessage>[]),
         );
 
   void changeCategory(IconData categoryIcon) {
