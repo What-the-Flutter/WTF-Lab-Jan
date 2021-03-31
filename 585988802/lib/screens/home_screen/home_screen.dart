@@ -64,8 +64,21 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () async {
         final createdSuggestion = await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => CreatingSuggestionScreen(),
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => CreatingSuggestionScreen(),
+            transitionsBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+                ) {
+              return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.0, 1.0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child);
+            },
           ),
         );
         BlocProvider.of<SuggestionsBloc>(context).add(

@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 
 import '../../db_helper/db_helper.dart';
 import '../../models/event_message.dart';
+import '../../models/time_series_of_event_messages.dart';
 import 'summary_event.dart';
 import 'summary_state.dart';
-import 'timing_chart.dart';
 
 class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
   SummaryScreenBloc(SummaryScreenState initialState) : super(initialState);
@@ -44,9 +44,9 @@ class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
     );
   }
 
-  List<TimeSeriesCountOfEventMessages> _timeSeriesCountOfEventMessagesList(
+  List<TimeSeriesOfEventMessages> _timeSeriesCountOfEventMessagesList(
       List<EventMessage> eventMessageList) {
-    var timeSeriesCountOfEventMessagesList = <TimeSeriesCountOfEventMessages>[];
+    var timeSeriesOfEventMessagesList = <TimeSeriesOfEventMessages>[];
     if (eventMessageList.isNotEmpty) {
       eventMessageList.sort((a, b) {
         final aDate = DateFormat.yMMMd().add_jm().parse(a.time);
@@ -54,24 +54,25 @@ class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
         return bDate.compareTo(aDate);
       });
 
-      var time = eventMessageList.first.time;
+      var time = DateFormat.yMMMd().parse(eventMessageList.first.time);
       var counter = 1;
       for (final eventMessage in eventMessageList) {
-        if (time == eventMessage.time &&
+        final eventMessageTime = DateFormat.yMMMd().parse(eventMessage.time);
+        if (time == eventMessageTime &&
             eventMessage.id != eventMessageList.first.id) {
           counter++;
         } else {
-          timeSeriesCountOfEventMessagesList.add(
-            TimeSeriesCountOfEventMessages(
-              time: DateFormat.yMMMd().add_jm().parse(time),
+          timeSeriesOfEventMessagesList.add(
+            TimeSeriesOfEventMessages(
+              time: time,
               countOfEventMessages: counter,
             ),
           );
-          time = eventMessage.time;
+          time = eventMessageTime;
           counter = 1;
         }
       }
     }
-    return timeSeriesCountOfEventMessagesList;
+    return timeSeriesOfEventMessagesList;
   }
 }

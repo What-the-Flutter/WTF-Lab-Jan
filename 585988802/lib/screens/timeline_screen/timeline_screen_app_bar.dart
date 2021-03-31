@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/font_size_customization.dart';
-import '../../theme/theme_bloc.dart';
 import '../setting_screen/settings_screen_bloc.dart';
 import 'timeline_bloc.dart';
 import 'timeline_event.dart';
@@ -62,10 +61,7 @@ class _TimelineScreenAppBarState extends State<TimelineScreenAppBar> {
               child: Text(
                 'Timeline',
                 style: TextStyle(
-                  color: BlocProvider.of<ThemeBloc>(context).state ==
-                          ThemeMode.dark
-                      ? Theme.of(context).accentColor
-                      : Theme.of(context).primaryColor,
+                  color: Theme.of(context).secondaryHeaderColor,
                   fontSize: BlocProvider.of<SettingScreenBloc>(context)
                               .state
                               .fontSize ==

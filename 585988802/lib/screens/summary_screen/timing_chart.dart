@@ -16,10 +16,3 @@ class TimeSeriesChart extends StatelessWidget {
     );
   }
 }
-
-class TimeSeriesCountOfEventMessages {
-  final DateTime time;
-  final int countOfEventMessages;
-
-  TimeSeriesCountOfEventMessages({this.time, this.countOfEventMessages});
-}

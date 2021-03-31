@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../common_widgets/custom_drawer.dart';
 import '../../db_helper/db_helper.dart';
 import '../../models/font_size_customization.dart';
-import '../../theme/theme_bloc.dart';
+import '../../models/time_series_of_event_messages.dart';
 import '../setting_screen/settings_screen_bloc.dart';
 import 'summary_bloc.dart';
 import 'summary_event.dart';
@@ -59,9 +59,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
         child: Text(
           'Statistics',
           style: TextStyle(
-            color: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                ? Theme.of(context).accentColor
-                : Theme.of(context).primaryColor,
+            color: Theme.of(context).secondaryHeaderColor,
             fontSize:
                 BlocProvider.of<SettingScreenBloc>(context).state.fontSize == 0
                     ? appBarSmallFontSize
@@ -155,7 +153,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                       flex: 4,
                       child: TimeSeriesChart(
                         eventMessagesList:
-                            _timeSeriesCountOfEventMessagesList(context),
+                            _timeSeriesOfEventMessagesList(context),
                         isAnimate: true,
                       ),
                     ),
@@ -169,10 +167,10 @@ class _SummaryScreenState extends State<SummaryScreen> {
     );
   }
 
-  List<charts.Series<TimeSeriesCountOfEventMessages, DateTime>>
-      _timeSeriesCountOfEventMessagesList(BuildContext context) {
+  List<charts.Series<TimeSeriesOfEventMessages, DateTime>>
+      _timeSeriesOfEventMessagesList(BuildContext context) {
     return [
-      charts.Series<TimeSeriesCountOfEventMessages, DateTime>(
+      charts.Series<TimeSeriesOfEventMessages, DateTime>(
         id: 'event_messages',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         domainFn: (eventMessages, _) => eventMessages.time,

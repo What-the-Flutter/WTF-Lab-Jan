@@ -1,9 +1,9 @@
 import '../../models/event_message.dart';
-import 'timing_chart.dart';
+import '../../models/time_series_of_event_messages.dart';
 
 class SummaryScreenState {
   List<EventMessage> eventMessageList;
-  List<TimeSeriesCountOfEventMessages> timeSeriesCountOfEventMessagesList;
+  List<TimeSeriesOfEventMessages> timeSeriesCountOfEventMessagesList;
   int countOfAllEventMessages;
   int countOfFavoriteEventMessages;
   int countOfCategoryEventMessages;
@@ -20,8 +20,7 @@ class SummaryScreenState {
 
   SummaryScreenState copyWith({
     final List<EventMessage> eventMessageList,
-    final List<TimeSeriesCountOfEventMessages>
-        timeSeriesCountOfEventMessagesList,
+    final List<TimeSeriesOfEventMessages> timeSeriesCountOfEventMessagesList,
     final int countOfAllEventMessages,
     final int countOfFavoriteEventMessages,
     final int countOfCategoryEventMessages,
