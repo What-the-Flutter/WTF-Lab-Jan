@@ -1,4 +1,4 @@
-class NotePage {
+class Note {
   int noteId;
   String title;
   String subtitle;
@@ -21,8 +21,8 @@ class NotePage {
     };
   }
 
-  factory NotePage.fromMap(Map<String, dynamic> map) {
-    return NotePage(
+  factory Note.fromMap(Map<String, dynamic> map) {
+    return Note(
       noteId: map['note_id'],
       title: map['title'],
       subtitle: map['sub_title'],
@@ -30,5 +30,5 @@ class NotePage {
     );
   }
 
-  NotePage({this.noteId, this.title, this.subtitle, this.circleAvatarIndex});
+  Note({this.noteId, this.title, this.subtitle, this.circleAvatarIndex});
 }
