@@ -1,43 +1,87 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../data/repository/theme_repository.dart';
-import '../data/theme/custom_theme.dart';
+import 'package:flutter/material.dart';
+import '../data/constans/constans.dart';
 
 part 'general_options_state.dart';
 
 class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
-  final ThemeRepository themeRepository;
-
   GeneralOptionsCubit({
-    this.themeRepository,
     int index,
-  }) : super(
-          GeneralOptionsState(
-            themeType: ThemeType.values[index],
-            currentTheme: themeRepository.themes[index],
-            isDateTimeModification: false,
-            isLeftBubbleAlign: false,
-            isCenterDateBubble: false,
-            isAuthentication: false,
-          ),
-        );
+  }) : super(GeneralOptionsState()) {
+    emit(index == 0 ? lightTheme : darkTheme);
+  }
+
+  GeneralOptionsState get lightTheme => GeneralOptionsState(
+        titleColor: Colors.black,
+        bodyColor: Colors.black.withOpacity(0.4),
+        botIconColor: Colors.black,
+        botBackgroundColor: Colors.green[50],
+        categoryBackgroundColor: Colors.teal[200],
+        categoryIconColor: Colors.white,
+        messageUnselectedColor: Colors.green[50],
+        messageSelectedColor: Colors.green[200],
+        dateTimeModeButtonBackgroundColor: Colors.red[50],
+        dateTimeModeButtonIconColor: Colors.white,
+        labelDateBackgroundColor: Colors.red,
+        helpWindowBackgroundColor: Colors.green[50],
+        appBrightness: Brightness.light,
+        appPrimaryColor: Colors.teal,
+      );
+
+  GeneralOptionsState get darkTheme => GeneralOptionsState(
+        titleColor: Colors.white,
+        bodyColor: Colors.white,
+        botIconColor: Colors.white,
+        botBackgroundColor: Colors.black,
+        categoryBackgroundColor: Colors.teal[200],
+        categoryIconColor: Colors.white,
+        messageUnselectedColor: Colors.black,
+        messageSelectedColor: Colors.orangeAccent,
+        dateTimeModeButtonBackgroundColor: Colors.red[50],
+        dateTimeModeButtonIconColor: Colors.white,
+        labelDateBackgroundColor: Colors.red,
+        helpWindowBackgroundColor: Colors.black,
+        appBrightness: Brightness.dark,
+        appPrimaryColor: Colors.black,
+      );
 
   void toggleTheme() {
-    if (state.themeType == ThemeType.dark) {
-      emit(
-        state.copyWith(
-          themeType: ThemeType.light,
-          currentTheme: themeRepository.themes[ThemeType.light.index],
-        ),
-      );
-    } else if (state.themeType == ThemeType.light) {
-      emit(
-        state.copyWith(
-          themeType: ThemeType.dark,
-          currentTheme: themeRepository.themes[ThemeType.dark.index],
-        ),
-      );
+    if (state.appBrightness == Brightness.dark) {
+      emit(lightTheme);
+    } else if (state.appBrightness == Brightness.light) {
+      emit(darkTheme);
     }
+  }
+
+  void changeFontSize(TypeFontSize typeFontSize) {
+    switch (typeFontSize) {
+      case TypeFontSize.small:
+        emit(state.copyWith(
+          titleFontSize: DefaultFontSize.titleText * kSmall,
+          bodyFontSize: DefaultFontSize.bodyText * kSmall,
+          appBarTitleFontSize: DefaultFontSize.appBarTitle * kSmall,
+        ));
+        break;
+      case TypeFontSize.def:
+        emit(state.copyWith(
+          titleFontSize: DefaultFontSize.titleText,
+          bodyFontSize: DefaultFontSize.bodyText,
+          appBarTitleFontSize: DefaultFontSize.appBarTitle,
+        ));
+        break;
+      case TypeFontSize.large:
+        emit(state.copyWith(
+          titleFontSize: DefaultFontSize.titleText * kLarge,
+          bodyFontSize: DefaultFontSize.bodyText * kLarge,
+          appBarTitleFontSize: DefaultFontSize.appBarTitle * kLarge,
+        ));
+        break;
+    }
+  }
+
+  void resetSettings() {
+    emit(lightTheme);
   }
 
   void changeBubbleAlign(bool value) {
@@ -51,6 +95,7 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
   void changeCenterDateBubble(bool value) {
     emit(state.copyWith(isCenterDateBubble: value));
   }
+
   void changeAuthentication(bool value) {
     emit(state.copyWith(isAuthentication: value));
   }

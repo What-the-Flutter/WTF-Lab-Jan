@@ -105,6 +105,7 @@ class ChatElementList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final generalOptionState = context.read<GeneralOptionsCubit>().state;
     return Stack(
       alignment: alignment,
       children: <Widget>[
@@ -117,11 +118,14 @@ class ChatElementList extends StatelessWidget {
           BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
             builder: (context, state) => DateTimeModButton(
               date: DateFormat.yMMMEd().format(state.fromDate),
-              theme: context
-                  .read<GeneralOptionsCubit>()
-                  .state
-                  .currentTheme
-                  .dateTimeModButtonTheme,
+              theme: DateTimeModButtonTheme(
+                backgroundColor: generalOptionState.dateTimeModeButtonBackgroundColor,
+                iconColor: generalOptionState.dateTimeModeButtonIconColor,
+                dateStyle: TextStyle(
+                  fontSize: generalOptionState.bodyFontSize,
+                  color: generalOptionState.titleColor,
+                )
+              )
             ),
           ),
       ],
@@ -135,7 +139,26 @@ class ChatElementList extends StatelessWidget {
     var list = <Widget>[];
     var index = state.list.length - 1;
     var filterList = context.read<ScreenMessageCubit>().groupMsgByDate;
-    final currentTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
+    final generalOptionState = context.read<GeneralOptionsCubit>().state;
+    final messageTheme = MessageTheme(
+      contentStyle: TextStyle(
+        fontSize: generalOptionState.bodyFontSize,
+        color: generalOptionState.titleColor,
+      ),
+      timeStyle: TextStyle(
+        fontSize: generalOptionState.bodyFontSize,
+        color: generalOptionState.bodyColor,
+      ),
+      unselectedColor: generalOptionState.messageUnselectedColor,
+      selectedColor: generalOptionState.messageSelectedColor,
+    );
+    final dateLabelTheme = LabelDateTheme(
+      backgroundColor: generalOptionState.labelDateBackgroundColor,
+      dateStyle: TextStyle(
+        fontSize: generalOptionState.bodyFontSize,
+        color: generalOptionState.bodyColor,
+      ),
+    );
     for (var i = filterList.length - 1; i > -1; i--) {
       var flag = false;
       for (var j = 0; j < filterList[i].length; j++) {
@@ -165,7 +188,7 @@ class ChatElementList extends StatelessWidget {
                 : state.mode == Mode.selection
                     ? context.read<ScreenMessageCubit>().selection
                     : null,
-            theme: currentTheme.messageTheme,
+            theme: messageTheme,
           ),
         );
         index--;
@@ -177,7 +200,7 @@ class ChatElementList extends StatelessWidget {
       }
       list.add(
         DateLabel(
-          theme: currentTheme.labelDateTheme,
+          theme: dateLabelTheme,
           date: DateFormat.yMMMd().format(
             filterList[i][0].pubTime,
           ),
@@ -646,6 +669,7 @@ class EventMessage extends StatelessWidget {
               ),
               child: Icon(
                 iconData,
+                color: Colors.white,
               ),
             ),
             Text(label),
@@ -684,7 +708,7 @@ class AttachPhotoButton extends StatelessWidget {
               onPressed: () {},
               icon: Icon(
                 iconData,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             Text(text),
@@ -767,7 +791,7 @@ class Message extends StatelessWidget {
           color: Colors.indigo,
           icon: Icons.edit,
           onTap: () async {
-            await context.read<ScreenMessageCubit>().toSelectionAppBar(index);
+            await context.read<ScreenMessageCubit>().selection(index);
             context.read<ScreenMessageCubit>().toEditAppBar();
           },
         ),
@@ -835,7 +859,7 @@ class Message extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 5.0),
                     child: Row(
-                      //mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(

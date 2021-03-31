@@ -19,20 +19,20 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     this.repository,
     DateTime time,
   }) : super(
-          ScreenMessageState(
-            fromDate: time,
-            fromTime: TimeOfDay.fromDateTime(time),
-            isReset: false,
-            mode: Mode.await,
-            counter: 0,
-            isBookmark: false,
-            list: <ModelMessage>[],
+    ScreenMessageState(
+      fromDate: time,
+      fromTime: TimeOfDay.fromDateTime(time),
+      isReset: false,
+      mode: Mode.await,
+      counter: 0,
+      isBookmark: false,
+      list: <ModelMessage>[],
             enabledController: true,
             floatingBar: FloatingBar.nothing,
             indexCategory: -1,
             iconDataPhoto: Icons.photo_camera,
           ),
-        );
+  );
 
   void downloadData(
     ModelPage page,
@@ -145,7 +145,6 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         photo: pickedFile.path,
         isFavor: state.isBookmark,
         isSelected: false,
-        text: null,
         indexCategory: -1,
         pubTime: state.isReset
             ? state.fromDate.applied(state.fromTime)

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/data/constans/constans.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
+import '../data/theme/custom_theme.dart';
 import '../main.dart';
 import 'general_options_cubit.dart';
 
@@ -25,124 +27,144 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _settingsList(BuildContext context) {
+    final listTileTheme = ListTileSettingsTheme(
+      titleStyle: TextStyle(
+        fontSize: context.read<GeneralOptionsCubit>().state.titleFontSize,
+      ),
+      contentStyle: TextStyle(
+        fontSize: context.read<GeneralOptionsCubit>().state.bodyFontSize,
+      ),
+      leadingIconColor: Colors.blue,
+    );
     return ListView(
       padding: EdgeInsets.zero,
       children: <Widget>[
-        Padding(
-          child: Divider(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        padding,
+        SettingOptions(
+          leadingIcon: Icons.nature_people,
+          title: 'General',
+          subtitle: 'Themes & Interface settings',
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              GeneralOption.routeName,
+            );
+          },
+          theme: listTileTheme,
         ),
-        ListTile(
-          leading: Icon(Icons.nature_people),
-          title: Text('General'),
-          subtitle: Text('Themes & Interface settings'),
-          trailing: IconButton(
-            icon: Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                GeneralOption.routeName,
-              );
-            },
-          ),
+        padding,
+        SettingOptions(
+          leadingIcon: Icons.cloud,
+          title: 'Backup & Sync',
+          subtitle: 'Local & Drive backup & sync',
+          onPressed: () {
+            //TODO
+          },
+          theme: listTileTheme,
         ),
-        Padding(
-          child: Divider(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        padding,
+        SettingOptions(
+          leadingIcon: Icons.archive,
+          title: 'Exports',
+          subtitle: 'Textual backup of all your entries',
+          onPressed: () {
+            //TODO
+          },
+          theme: listTileTheme,
         ),
-        ListTile(
-          leading: Icon(Icons.cloud),
-          title: Text('Backup & Sync'),
-          subtitle: Text('Local & Drive backup & sync'),
-          trailing: IconButton(
-            icon: Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              //TODO
-            },
-          ),
+        padding,
+        SettingOptions(
+          leadingIcon: Icons.lock,
+          title: 'Security',
+          subtitle: 'Pin & Fingerprint protection',
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              SecurityOption.routeName,
+            );
+          },
+          theme: listTileTheme,
         ),
-        Padding(
-          child: Divider(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        padding,
+        SettingOptions(
+          leadingIcon: Icons.offline_bolt_outlined,
+          title: 'Quick Setup',
+          subtitle: 'Create pre-defined pages quickly',
+          onPressed: () {
+            //TODO
+          },
+          theme: listTileTheme,
         ),
-        ListTile(
-          leading: Icon(Icons.archive),
-          title: Text('Exports'),
-          subtitle: Text('Textual backup of all your entries'),
-          trailing: IconButton(
-            icon: Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              //TODO
-            },
-          ),
+        padding,
+        SettingOptions(
+          leadingIcon: Icons.help_outline,
+          title: 'Help',
+          subtitle: 'Basic usage guide',
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          theme: listTileTheme,
         ),
-        Padding(
-          child: Divider(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        padding,
+        SettingOptions(
+          leadingIcon: Icons.info_outline,
+          title: 'App Info',
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          theme: listTileTheme,
         ),
-        ListTile(
-          leading: Icon(Icons.lock),
-          title: Text('Security'),
-          subtitle: Text('Pin & Fingerprint protection'),
-          trailing: IconButton(
-            icon: Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                SecurityOption.routeName,
-              );
-            },
-          ),
-        ),
-        Padding(
-          child: Divider(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-        ),
-        ListTile(
-          leading: Icon(Icons.offline_bolt_outlined),
-          title: Text('Quick Setup'),
-          subtitle: Text('Create pre-defined pages quickly'),
-          trailing: IconButton(
-            icon: Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              //TODO
-            },
-          ),
-        ),
-        Padding(
-          child: Divider(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-        ),
-        ListTile(
-          leading: Icon(Icons.help_outline),
-          title: Text('Help'),
-          subtitle: Text('Basic usage guide'),
-          trailing: IconButton(
-            icon: Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        Padding(
-          child: Divider(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-        ),
-        ListTile(
-          leading: Icon(Icons.info_outline),
-          title: Text('App Info'),
-          trailing: IconButton(
-            icon: Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        Padding(
-          child: Divider(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-        ),
+        padding,
       ],
+    );
+  }
+
+  Widget get padding => Padding(
+        child: Divider(),
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+      );
+}
+
+class SettingOptions extends StatelessWidget {
+  final IconData leadingIcon;
+  final String title;
+  final String subtitle;
+  final Function onPressed;
+  final ListTileSettingsTheme theme;
+
+  const SettingOptions({
+    Key key,
+    this.leadingIcon,
+    this.title,
+    this.subtitle,
+    this.onPressed,
+    this.theme,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(
+        leadingIcon,
+        color: theme.leadingIconColor,
+      ),
+      title: Text(
+        title,
+        style: theme.titleStyle,
+      ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: theme.contentStyle,
+            )
+          : null,
+      trailing: IconButton(
+        icon: Icon(
+          Icons.arrow_forward_ios,
+          color: context.read<GeneralOptionsCubit>().state.appAccentColor,
+        ),
+        onPressed: onPressed,
+      ),
     );
   }
 }
@@ -158,9 +180,7 @@ class GeneralOption extends StatelessWidget {
           icon: Icon(Icons.keyboard_backspace_rounded),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Center(
-          child: Text('General'),
-        ),
+        title: Text('General'),
         actions: <Widget>[],
       ),
       body: ListView(
@@ -176,8 +196,11 @@ class GeneralOption extends StatelessWidget {
             subtitle: Text('Light / Dark'),
             onTap: () {
               context.read<GeneralOptionsCubit>().toggleTheme();
-              saveTheme(
-                  context.read<GeneralOptionsCubit>().state.themeType.index);
+              saveTheme(context
+                  .read<GeneralOptionsCubit>()
+                  .state
+                  .appBrightness
+                  .index);
             },
           ),
           Padding(
@@ -200,6 +223,7 @@ class GeneralOption extends StatelessWidget {
             leading: Icon(Icons.title),
             title: Text('Typeface'),
             subtitle: Text('OpenSans / RobotoMono'),
+            onTap: () => context.read<GeneralOptionsCubit>(),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -209,6 +233,11 @@ class GeneralOption extends StatelessWidget {
             leading: Icon(Icons.text_fields),
             title: Text('Font size'),
             subtitle: Text('Small / Default / Large'),
+            onTap: () async {
+              context
+                  .read<GeneralOptionsCubit>()
+                  .changeFontSize(await _showDialog(context));
+            },
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -218,6 +247,7 @@ class GeneralOption extends StatelessWidget {
             leading: Icon(Icons.settings_backup_restore),
             title: Text('Reset all Preference'),
             subtitle: Text('Reset all visual Customizations'),
+            onTap: context.read<GeneralOptionsCubit>().resetSettings,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -315,6 +345,37 @@ class GeneralOption extends StatelessWidget {
             subtitle: Text('Unpin all pages'),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<TypeFontSize> _showDialog(BuildContext context) async {
+    return await showDialog<TypeFontSize>(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              title: Text(
+                'Font Size',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              title: Text('Small'),
+              onTap: () => Navigator.pop(context, TypeFontSize.small),
+            ),
+            ListTile(
+              title: Text('Default'),
+              onTap: () => Navigator.pop(context, TypeFontSize.def),
+            ),
+            ListTile(
+              title: Text('Large'),
+              onTap: () => Navigator.pop(context, TypeFontSize.large),
+            ),
+          ],
+        ),
       ),
     );
   }

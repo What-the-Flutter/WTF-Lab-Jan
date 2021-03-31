@@ -82,7 +82,11 @@ class CreateNewPage extends StatelessWidget {
   Widget _listIcons() {
     return BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
       builder: (context, state) {
-        final curTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
+        final generalOptionState = context.read<GeneralOptionsCubit>().state;
+        final curTheme = CategoryTheme(
+          backgroundColor: generalOptionState.categoryBackgroundColor,
+          iconColor: generalOptionState.categoryIconColor,
+        );
         return GridView.count(
           crossAxisCount: 4,
           crossAxisSpacing: 30.0,
@@ -92,7 +96,7 @@ class CreateNewPage extends StatelessWidget {
               Category(
                 index: i,
                 isSelected: state.list[i].isSelected,
-                theme: curTheme.categoryTheme,
+                theme: curTheme,
               ),
           ],
         );

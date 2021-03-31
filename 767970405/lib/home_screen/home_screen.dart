@@ -25,9 +25,7 @@ class HomeWindow extends StatelessWidget {
       children: <Widget>[
         Scaffold(
           appBar: AppBar(
-            title: Center(
-              child: Text('Home'),
-            ),
+            title: Text('Home'),
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.invert_colors),
@@ -36,7 +34,7 @@ class HomeWindow extends StatelessWidget {
                   saveTheme(context
                       .read<GeneralOptionsCubit>()
                       .state
-                      .themeType
+                      .appBrightness
                       .index);
                 },
               ),
@@ -151,12 +149,38 @@ class HomeWindow extends StatelessWidget {
 class ChatPreviewList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final curTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
+    final generalOptionState = context.read<GeneralOptionsCubit>().state;
+    final previewTheme = ChatPreviewTheme(
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: generalOptionState.titleFontSize,
+        color: generalOptionState.titleColor,
+      ),
+      contentStyle: TextStyle(
+        fontSize: generalOptionState.bodyFontSize,
+        color: generalOptionState.bodyColor,
+      ),
+    );
+    final categoryTheme = CategoryTheme(
+      backgroundColor: generalOptionState.categoryBackgroundColor,
+      iconColor: generalOptionState.categoryIconColor,
+    );
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
       builder: (context, state) => ListView.separated(
         itemCount: state.list.length + 1,
         itemBuilder: (context, i) {
-          if (i == 0) return Bot(theme: curTheme.botTheme);
+          if (i == 0) {
+            return Bot(
+              theme: BotTheme(
+                contentStyle: TextStyle(
+                  fontSize: generalOptionState.bodyFontSize,
+                  color: generalOptionState.titleColor,
+                ),
+                iconColor: generalOptionState.botIconColor,
+                backgroundColor: generalOptionState.botBackgroundColor,
+              ),
+            );
+          }
           return ChatPreview(
             index: i - 1,
             title: state.list[i - 1].title,
@@ -165,8 +189,8 @@ class ChatPreviewList extends StatelessWidget {
             iconData: context
                 .read<ScreenCreatingPageCubit>()
                 .getIcon(state.list[i - 1].iconIndex),
-            previewTheme: curTheme.chatPreviewTheme,
-            categoryTheme: curTheme.categoryTheme,
+            previewTheme: previewTheme,
+            categoryTheme: categoryTheme,
           );
         },
         separatorBuilder: (context, index) => Divider(),
