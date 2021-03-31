@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../model/record.dart';
 import 'category/cubit/records_cubit.dart';
-import 'category/widgets/records_list_view.dart';
 import 'main/tabs/home/cubit/categories_cubit.dart';
+import 'shared/widgets/records_list_view.dart';
 
 class SearchRecordPage extends SearchDelegate<Record> {
   final List<Record> records;

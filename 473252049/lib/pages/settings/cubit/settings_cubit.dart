@@ -3,6 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../themes/text_themes.dart';
+
 part 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
@@ -21,26 +23,38 @@ class SettingsCubit extends Cubit<SettingsState> {
             showCreateRecordDateTimePicker:
                 preferences.getBool('showCreateRecordDateTimePicker'),
             isAuthenticationOn: preferences.getBool('isAuthenticationOn'),
+            textTheme: _textThemeFromString(preferences.getString('textTheme')),
           ),
         );
 
-  void switchAuthenticationOn() {
-    preferences.setBool(
-      'isAuthenticationOn',
-      !state.isAuthenticationOn,
-    );
+  void setTextTheme(String textThemeName) {
+    preferences.setString('textTheme', textThemeName);
     emit(
       state.copyWith(
-        isAuthenticationOn: !state.isAuthenticationOn,
+        textTheme: _textThemeFromString(textThemeName),
       ),
     );
   }
 
+  static TextTheme _textThemeFromString(String string) {
+    switch (string) {
+      case 'small':
+        return smallTextTheme;
+      case 'large':
+        return largeTextTheme;
+      default:
+        return defaultTextTheme;
+    }
+  }
+
+  void switchAuthenticationOn() {
+    preferences.setBool('isAuthenticationOn', !state.isAuthenticationOn);
+    emit(state.copyWith(isAuthenticationOn: !state.isAuthenticationOn));
+  }
+
   void switchShowCreateRecordDateTimePicker() async {
-    preferences.setBool(
-      'showCreateRecordDateTimePicker',
-      !state.showCreateRecordDateTimePickerButton,
-    );
+    preferences.setBool('showCreateRecordDateTimePicker',
+        !state.showCreateRecordDateTimePickerButton);
     emit(
       state.copyWith(
         showCreateRecordDateTimePicker:
@@ -68,15 +82,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   void switchCenterDateBubble() async {
-    preferences.setBool(
-      'centerDateBubble',
-      !state.centerDateBubble,
-    );
-    emit(
-      state.copyWith(
-        centerDateBubble: !state.centerDateBubble,
-      ),
-    );
+    preferences.setBool('centerDateBubble', !state.centerDateBubble);
+    emit(state.copyWith(centerDateBubble: !state.centerDateBubble));
   }
 
   void switchThemeMode() async {

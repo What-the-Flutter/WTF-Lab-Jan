@@ -44,8 +44,20 @@ class MyApp extends StatelessWidget {
             ..authenticate(),
           child: MaterialApp(
             title: '473252049',
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
+            theme: ThemeData.light().copyWith(
+              textTheme: settingsState.textTheme.apply(
+                displayColor: Colors.black,
+                bodyColor: Colors.black,
+                decorationColor: Colors.black,
+              ),
+            ),
+            darkTheme: ThemeData.dark().copyWith(
+              textTheme: settingsState.textTheme.apply(
+                displayColor: Colors.white,
+                bodyColor: Colors.white,
+                decorationColor: Colors.white,
+              ),
+            ),
             themeMode: settingsState.themeMode,
             home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
               builder: (context, authState) {

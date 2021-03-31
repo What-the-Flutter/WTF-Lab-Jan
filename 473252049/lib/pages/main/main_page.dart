@@ -60,16 +60,13 @@ class _MainPageState extends State<MainPage> {
                     IconButton(
                       icon: Icon(Icons.bookmark_outlined),
                       onPressed: () async {
-                        await context.read<RecordsCubit>().changeFavorite(
-                              state.records
-                                  .where(
-                                    (element) => element.isSelected,
-                                  )
-                                  .toList(),
-                            );
-                        await context.read<RecordsCubit>().unselectAll(
-                              records: state.records,
-                            );
+                        await context.read<RecordsCubit>().changeFavorite(state
+                            .records
+                            .where((element) => element.isSelected)
+                            .toList());
+                        await context
+                            .read<RecordsCubit>()
+                            .unselectAll(records: state.records);
                       },
                     ),
                     Builder(
@@ -78,9 +75,7 @@ class _MainPageState extends State<MainPage> {
                         onPressed: () {
                           context.read<RecordsCubit>().copyToClipboard(
                               records: state.records
-                                  .where(
-                                    (element) => element.isSelected,
-                                  )
+                                  .where((element) => element.isSelected)
                                   .toList());
                           context.read<RecordsCubit>().unselectAll();
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -109,9 +104,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   actions: [
                     if (currentPageIndex == 2)
-                      ShowFavoriteIconButton(
-                        state: state,
-                      ),
+                      ShowFavoriteRecordsIconButton(state: state),
                     if (currentPageIndex == 2)
                       IconButton(
                         icon: Icon(Icons.search),

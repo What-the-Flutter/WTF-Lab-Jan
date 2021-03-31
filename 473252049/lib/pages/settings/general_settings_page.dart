@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../../default/default_categories.dart';
 import '../main/tabs/home/cubit/categories_cubit.dart';
 import 'cubit/settings_cubit.dart';
 
@@ -58,7 +59,7 @@ class GeneralSettingPage extends StatelessWidget {
               ListTile(
                 title: Text('Unpin all the categories'),
                 subtitle: Text('All categories will be unpinned'),
-                trailing: Icon(Icons.restore),
+                trailing: Icon(Icons.pin_drop_sharp),
                 onTap: () {
                   showDialog(
                     context: context,
@@ -78,6 +79,84 @@ class GeneralSettingPage extends StatelessWidget {
                               Navigator.of(context).pop();
                             },
                             child: Text('Ok'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Font size'),
+                subtitle: Text('Choose app font size'),
+                trailing: Icon(Icons.text_format),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return SimpleDialog(
+                        title: Text('Font size'),
+                        children: [
+                          SimpleDialogOption(
+                            child: Text('Small'),
+                            onPressed: () {
+                              context
+                                  .read<SettingsCubit>()
+                                  .setTextTheme('small');
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          SimpleDialogOption(
+                            child: Text('Normal'),
+                            onPressed: () {
+                              context
+                                  .read<SettingsCubit>()
+                                  .setTextTheme('default');
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          SimpleDialogOption(
+                            child: Text('Large'),
+                            onPressed: () {
+                              context
+                                  .read<SettingsCubit>()
+                                  .setTextTheme('large');
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Initial reset'),
+                subtitle: Text('App will be got initial state'),
+                trailing: Icon(Icons.restore),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return AlertDialog(
+                        title: Text('Are you sure?'),
+                        content: Text('All data will be erased'),
+                        actions: [
+                          TextButton(
+                            child: Text('No'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Yes'),
+                            onPressed: () async {
+                              await context.read<CategoriesCubit>().deleteAll();
+                              context
+                                  .read<CategoriesCubit>()
+                                  .addAll(categories: defaultCategories);
+                              Navigator.of(context).pop();
+                            },
                           ),
                         ],
                       );
