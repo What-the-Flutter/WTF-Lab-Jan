@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/app_tab.dart';
-import '../../theme/theme_bloc.dart';
 
 class TabSelector extends StatelessWidget {
   final AppTab activeTab;
@@ -21,18 +19,22 @@ class TabSelector extends StatelessWidget {
       currentIndex: AppTab.values.indexOf(activeTab),
       onTap: (index) => onTabSelected(AppTab.values[index]),
       type: BottomNavigationBarType.fixed,
-      fixedColor: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-          ? Theme.of(context).floatingActionButtonTheme.backgroundColor
-          : Theme.of(context).scaffoldBackgroundColor,
+      fixedColor: Theme.of(context).indicatorColor,
       items: AppTab.values.map((tab) {
         return BottomNavigationBarItem(
           icon: Icon(
-            tab == AppTab.home ? Icons.home_sharp : Icons.timeline,
-            color: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                ? Theme.of(context).floatingActionButtonTheme.backgroundColor
-                : Theme.of(context).scaffoldBackgroundColor,
+            tab == AppTab.home
+                ? Icons.home_sharp
+                : tab == AppTab.timeline
+                    ? Icons.timeline
+                    : Icons.insert_chart_outlined_sharp,
+            color: Theme.of(context).indicatorColor,
           ),
-          label: tab == AppTab.home ? 'Home' : 'Timeline',
+          label: tab == AppTab.home
+              ? 'Home'
+              : tab == AppTab.timeline
+                  ? 'Timeline'
+                  : 'Summary',
         );
       }).toList(),
     );

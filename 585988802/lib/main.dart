@@ -1,6 +1,8 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:project_app/screens/summary_screen/summary_bloc.dart';
+import 'package:project_app/screens/summary_screen/summary_state.dart';
 
 import 'screens/creating_categories_screen/creating_categories_screen_bloc.dart';
 import 'screens/creating_categories_screen/creating_categories_screen_state.dart';
@@ -89,6 +91,18 @@ void main() async {
               false,
               [],
               [],
+            ),
+          ),
+        ),
+        BlocProvider<SummaryScreenBloc>(
+          create: (context) => SummaryScreenBloc(
+            SummaryScreenState(
+              [],
+              [],
+              0,
+              0,
+              0,
+              0,
             ),
           ),
         ),

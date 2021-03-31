@@ -27,6 +27,7 @@ final darkTheme = ThemeData(
   secondaryHeaderColor: Colors.white,
   buttonColor: Colors.white,
   hintColor: Color.fromRGBO(46, 46, 46, 1),
+  indicatorColor: Colors.purple.shade300,
 );
 
 final lightTheme = ThemeData(
@@ -56,4 +57,5 @@ final lightTheme = ThemeData(
   secondaryHeaderColor: Colors.white,
   buttonColor: Colors.black54,
   hintColor: Colors.white,
+  indicatorColor: Colors.red,
 );

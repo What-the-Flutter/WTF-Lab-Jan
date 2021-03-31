@@ -28,6 +28,7 @@ dependencies:
   path: ^1.7.0
   animated_splash_screen: ^1.0.1+2
   share: ^0.6.5+4
+  charts_flutter: ^0.10.0
 
 dev_dependencies:
   flutter_test:
