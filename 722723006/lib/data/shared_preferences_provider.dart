@@ -18,6 +18,22 @@ class SharedPreferencesProvider {
     _prefs.setBool('isLightTheme', isLightTheme);
   }
 
+  void changeFontSizeIndex(int fontSizeIndex) {
+    _prefs.setInt('fontSizeIndex', fontSizeIndex);
+  }
+
+  void changeBackGroundImagePath(String backGroundImagePath) {
+    _prefs.setString('backGroundImagePath', backGroundImagePath);
+  }
+
+  String fetchBackGroundImagePath() {
+    return _prefs.getString('backGroundImagePath') ?? '';
+  }
+
+  int fetchFontSizeIndex() {
+    return _prefs.getInt('fontSizeIndex') ?? 1;
+  }
+
   void changeBubbleAlignmentState(bool isBubbleAlignment) {
     _prefs.setBool('isBubbleAlignment', isBubbleAlignment);
   }

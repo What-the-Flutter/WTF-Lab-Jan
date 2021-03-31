@@ -31,37 +31,37 @@ class _NotePageState extends State<NotePage> {
   @override
   void initState() {
     if (note != null) {
-      _cubit.state.indexOfSelectIcon = note.indexOfCircleAvatar;
+     _cubit.setIndexOfIcon(note.indexOfCircleAvatar);
       textController.text = note.noteName;
       _focusNode.requestFocus();
     } else {
-      _cubit.state.indexOfSelectIcon = 0;
+      _cubit.setIndexOfIcon(0);
     }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocBuilder<NotesCubit, NotesState>(
       cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
           appBar: _appBar,
-          body: _notePageBody(context),
-          floatingActionButton: _floatingActionButton,
+          body: _notePageBody(context, state),
+          floatingActionButton: _floatingActionButton(state),
         );
       },
     );
   }
 
-  Widget _notePageBody(BuildContext context) {
+  Widget _notePageBody(BuildContext context, NotesState state) {
     return Container(
       padding: EdgeInsets.only(top: 20),
       child: Column(
         children: <Widget>[
           Align(
             alignment: Alignment.topCenter,
-            child: _textFieldAria,
+            child: _textFieldAria(state),
           ),
           Expanded(
             child: _gridView,
@@ -105,13 +105,13 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  Row get _textFieldAria {
+  Row _textFieldAria (NotesState state) {
     return Row(
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(left: 20, right: 20),
           child: CircleAvatar(
-            child: listOfIcons[_cubit.state.indexOfSelectIcon],
+            child: listOfIcons[state.indexOfSelectIcon],
           ),
         ),
         Expanded(
@@ -144,12 +144,12 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  FloatingActionButton get _floatingActionButton {
+  FloatingActionButton _floatingActionButton (NotesState state) {
     return FloatingActionButton(
       onPressed: () {
-        _floatingActionButtonEvent();
+        _floatingActionButtonEvent(state);
       },
-      child: _cubit.state.isWriting
+      child: state.isWriting
           ? Icon(
               Icons.check,
             )
@@ -159,13 +159,13 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  void _floatingActionButtonEvent() {
-    if (note != null && _cubit.state.isWriting) {
+  void _floatingActionButtonEvent(NotesState state) {
+    if (note != null && state.isWriting) {
       note.noteName = textController.text;
-      note.indexOfCircleAvatar = _cubit.state.indexOfSelectIcon;
+      note.indexOfCircleAvatar = state.indexOfSelectIcon;
       Navigator.of(context).pop();
     } else {
-      if (_cubit.state.isWriting) {
+      if (state.isWriting) {
         _cubit.addNote(textController.text);
         Navigator.of(context).pop();
       } else {

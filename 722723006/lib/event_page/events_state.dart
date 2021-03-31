@@ -2,7 +2,7 @@ part of 'events_cubit.dart';
 
 class EventsState {
   bool eventSelected = true;
-  int indexOfSelectedElement = 0;
+  Event selectedElement;
   bool isEditing = false;
   bool isIconButtonSearchPressed = false;
   bool isWriting = false;
@@ -13,10 +13,14 @@ class EventsState {
   int indexOfCircleAvatar;
   bool isEditingPhoto = false;
   String dateTime;
+  bool isCenterDateBubble = false;
+  bool isBubbleAlignment = false;
+  bool isDateTimeModification = false;
+  String backgroundImagePath;
 
   EventsState copyWith({
     bool eventSelected,
-    int indexOfSelectedElement,
+    Event selectedElement,
     bool isEditing,
     bool isIconButtonSearchPressed,
     bool isWriting,
@@ -27,11 +31,14 @@ class EventsState {
     int indexOfCircleAvatar,
     bool isEditingPhoto,
     String dateTime,
+    bool isCenterDateBubble,
+    bool isBubbleAlignment,
+    bool isDateTimeModification,
+    String backgroundImagePath
   }) {
     var state = EventsState(note ?? this.note);
     state.eventSelected = eventSelected ?? this.eventSelected;
-    state.indexOfSelectedElement =
-        indexOfSelectedElement ?? this.indexOfSelectedElement;
+    state.selectedElement = selectedElement ?? this.selectedElement;
     state.isEditing = isEditing ?? this.isEditing;
     state.isIconButtonSearchPressed =
         isIconButtonSearchPressed ?? this.isIconButtonSearchPressed;
@@ -43,6 +50,11 @@ class EventsState {
         isWritingBottomTextField ?? this.isWritingBottomTextField;
     state.isEditingPhoto = isEditingPhoto ?? this.isEditingPhoto;
     state.dateTime = dateTime ?? this.dateTime;
+    state.isCenterDateBubble = isCenterDateBubble ?? this.isCenterDateBubble;
+    state.isBubbleAlignment = isBubbleAlignment ?? this.isBubbleAlignment;
+    state.isDateTimeModification =
+        isDateTimeModification ?? this.isDateTimeModification;
+    state.backgroundImagePath = backgroundImagePath ?? this.backgroundImagePath;
     return state;
   }
 

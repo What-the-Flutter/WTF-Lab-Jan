@@ -1,11 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+
 import '../data/db_provider.dart';
+import '../data/shared_preferences_provider.dart';
 import '../note_page/note.dart';
 import 'event.dart';
 
@@ -14,10 +15,10 @@ part 'events_state.dart';
 class EventCubit extends Cubit<EventsState> {
   EventCubit(EventsState state) : super(state);
   final DBProvider _dbProvider = DBProvider();
+  final _prefs = SharedPreferencesProvider();
+
   void initEventList() async {
-    final eventsList = <Event>[];
-    await _dbProvider.dbEventList(eventsList, state.note.id);
-    emit(state.copyWith(eventList: eventsList));
+    state.eventList = await _dbProvider.dbEventList(state.note.id);
     emit(
       state.copyWith(
         eventList: state.eventList
@@ -32,6 +33,35 @@ class EventCubit extends Cubit<EventsState> {
     );
   }
 
+  void initSettingsState() {
+    final isBubbleAlignment = _prefs.fetchBubbleAlignmentState();
+    final isCenterDateBubble = _prefs.fetchCenterDateBubbleState();
+    final isDateTimeModification = _prefs.fetchDateTimeModificationState();
+    final backgroundImagePath = _prefs.fetchBackGroundImagePath();
+    emit(
+      state.copyWith(
+        isBubbleAlignment: isBubbleAlignment,
+        isCenterDateBubble: isCenterDateBubble,
+        isDateTimeModification: isDateTimeModification,
+        backgroundImagePath: backgroundImagePath,
+      ),
+    );
+  }
+
+  void transferEvent(Event currentEvent, List<Note> noteList) {
+    final event = Event(
+      text: currentEvent.text,
+      time: DateFormat('yyyy-MM-dd kk:mm').format(
+        DateTime.now(),
+      ),
+      date: currentEvent.date,
+      noteId: noteList[state.selectedTile].id,
+      indexOfCircleAvatar: currentEvent.indexOfCircleAvatar,
+      imagePath: currentEvent.imagePath,
+    );
+    _dbProvider.insertEvent(event);
+  }
+
   void setWritingBottomTextFieldState(bool isWritingBottomTextField) =>
       emit(state.copyWith(isWritingBottomTextField: isWritingBottomTextField));
 
@@ -42,8 +72,8 @@ class EventCubit extends Cubit<EventsState> {
     emit(state.copyWith(dateTime: dateTime));
   }
 
-  void setIndexOfSelectedElement(int index) =>
-      emit(state.copyWith(indexOfSelectedElement: index));
+  void setSelectedElement(Event event) =>
+      emit(state.copyWith(selectedElement: event));
 
   void setEventSelectedState(bool isEventSelected) =>
       emit(state.copyWith(eventSelected: isEventSelected));
@@ -57,9 +87,9 @@ class EventCubit extends Cubit<EventsState> {
   void setIndexOfSelectedTile(int index) =>
       emit(state.copyWith(selectedTile: index));
 
-  void deleteEvent(int index) {
-    _dbProvider.deleteEvent(state.eventList[index]);
-    state.eventList.removeAt(index);
+  void deleteEvent(Event event) {
+    _dbProvider.deleteEvent(event);
+    state.eventList.remove(event);
     if (state.eventList.isEmpty) {
       state.note.subTittleEvent = 'Add event';
     } else {
@@ -74,9 +104,7 @@ class EventCubit extends Cubit<EventsState> {
 
   Future<void> addImageEventFromResource(File image) async {
     final appDir = await getApplicationDocumentsDirectory();
-    print(appDir);
     final fileName = path.basename(image.path);
-    print(fileName);
     final saved = await image.copy('${appDir.path}/$fileName');
     final event = Event(
       time: DateFormat('yyyy-MM-dd kk:mm').format(
@@ -99,13 +127,13 @@ class EventCubit extends Cubit<EventsState> {
   void setIndexOfCircleAvatar(int indexOfCircleAvatar) =>
       emit(state.copyWith(indexOfCircleAvatar: indexOfCircleAvatar));
 
-  void sendEvent(TextEditingController textController) async {
+  void sendEvent(String text) async {
     final event = Event(
-      text: textController.text,
+      text: text,
       time: DateFormat('yyyy-MM-dd kk:mm').format(
         DateTime.now(),
       ),
-      date: state.dateTime ?? DateFormat.yMMMd('en_US').format(DateTime.now()),
+      date: state.dateTime ?? DateFormat.yMMMd().format(DateTime.now()),
       indexOfCircleAvatar:
           state.indexOfCircleAvatar ?? state.indexOfCircleAvatar,
       noteId: state.note.id,
@@ -114,9 +142,6 @@ class EventCubit extends Cubit<EventsState> {
       0,
       event,
     );
-    event.id = await _dbProvider.insertEvent(event);
-    state.note.subTittleEvent = state.eventList[0].text;
-    textController.clear();
     emit(
       state.copyWith(
         eventList: state.eventList
@@ -129,19 +154,15 @@ class EventCubit extends Cubit<EventsState> {
           ),
       ),
     );
+    event.id = await _dbProvider.insertEvent(event);
+    state.note.subTittleEvent = state.eventList[0].text;
     emit(state.copyWith(note: state.note));
   }
 
-  void editEvent(int index, TextEditingController textController) {
-    setEditState(true);
-    textController.text = state.eventList[index].text;
-  }
-
-  void editText(int index, TextEditingController textController) {
-    state.eventList[index].text = textController.text;
-    state.eventList[index].indexOfCircleAvatar = state.indexOfCircleAvatar;
-    _dbProvider.updateEvent(state.eventList[index]);
-    textController.clear();
+  void editText(Event event, String text) {
+    event.text = text;
+    event.indexOfCircleAvatar = state.indexOfCircleAvatar;
+    _dbProvider.updateEvent(event);
     setEditState(false);
   }
 }

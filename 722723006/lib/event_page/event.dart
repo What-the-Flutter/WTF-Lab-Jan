@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class Event {
   String text;
   String time;
@@ -8,14 +6,15 @@ class Event {
   int indexOfCircleAvatar;
   String imagePath = '';
   String date = '';
-  Event(
-      {this.noteId,
-      this.id,
-      this.text,
-      this.time,
-      this.indexOfCircleAvatar,
-      this.imagePath,
-      this.date});
+  Event({
+    this.noteId,
+    this.id,
+    this.text,
+    this.time,
+    this.indexOfCircleAvatar,
+    this.imagePath,
+    this.date,
+  });
 
   Map<String, dynamic> insertToMap() {
     return {
