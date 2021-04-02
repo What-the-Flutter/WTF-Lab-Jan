@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 import '../event.dart';
-import '../note_page.dart';
+import '../note.dart';
 
 const String notesTable = 'notes';
 const String columnNoteId = 'note_id';
@@ -17,6 +17,8 @@ const String columnCurrentNoteId = 'current_note_id';
 const String columnText = 'text';
 const String columnTime = 'time';
 const String columnEventCircleAvatarIndex = 'event_circle_avatar_index';
+const String columnImagePath = 'image_path';
+const String columnDate = 'date';
 
 class DatabaseProvider {
   static DatabaseProvider _databaseProvider;
@@ -24,13 +26,10 @@ class DatabaseProvider {
 
   DatabaseProvider._createInstance();
 
-  Future<Database> get database async {
-    return _database ?? await initDB();
-  }
+  Future<Database> get database async => _database ?? await initDB();
 
-  factory DatabaseProvider() {
-    return _databaseProvider ?? DatabaseProvider._createInstance();
-  }
+  factory DatabaseProvider() =>
+      _databaseProvider ?? DatabaseProvider._createInstance();
 
   Future<Database> initDB() async {
     return openDatabase(
@@ -50,13 +49,15 @@ class DatabaseProvider {
       $columnCurrentNoteId integer,
       $columnText text not null,
       $columnTime text not null,
-      $columnEventCircleAvatarIndex integer
+      $columnEventCircleAvatarIndex integer,
+      $columnImagePath text, 
+      $columnDate text not null
       )
       ''');
     });
   }
 
-  Future<int> insertNote(NotePage note) async {
+  Future<int> insertNote(Note note) async {
     final db = await database;
     return db.insert(
       notesTable,
@@ -64,7 +65,7 @@ class DatabaseProvider {
     );
   }
 
-  Future<int> deleteNote(NotePage note) async {
+  Future<int> deleteNote(Note note) async {
     final db = await database;
     return db.delete(
       notesTable,
@@ -73,7 +74,7 @@ class DatabaseProvider {
     );
   }
 
-  Future<int> updateNote(NotePage note) async {
+  Future<int> updateNote(Note note) async {
     final db = await database;
     return await db.update(
       notesTable,
@@ -83,13 +84,15 @@ class DatabaseProvider {
     );
   }
 
-  void downloadNotesList(List<NotePage> noteList) async {
+  Future<List<Note>> fetchNotesList() async {
     final db = await database;
     final dbNotesList = await db.query(notesTable);
+    final notesList = <Note>[];
     for (final item in dbNotesList) {
-      final note = NotePage.fromMap(item);
-      noteList.insert(0, note);
+      final note = Note.fromMap(item);
+      notesList.insert(0, note);
     }
+    return notesList;
   }
 
   Future<int> insertEvent(Event event) async {
@@ -119,15 +122,17 @@ class DatabaseProvider {
     );
   }
 
-  void downloadEventsList(List<Event> eventList, int noteId) async {
+  Future<List<Event>> fetchEventsList(int noteId) async {
+    final eventsList = <Event>[];
     final db = await database;
-    var dbEventsList = await db.rawQuery(
+    final dbEventsList = await db.rawQuery(
       'SELECT * FROM $eventsTable WHERE $columnCurrentNoteId = ?',
       [noteId],
     );
     for (final item in dbEventsList) {
       final event = Event.fromMap(item);
-      eventList.insert(0, event);
+      eventsList.insert(0, event);
     }
+    return eventsList;
   }
 }

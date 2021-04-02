@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../home_page/home_page.dart';
-import '../note_page.dart';
-import '../utils/database.dart';
+import '../note.dart';
 import '../utils/icons.dart';
 import 'cubit_create_page.dart';
 import 'states_create_page.dart';
 
 class CreatePage extends StatefulWidget {
-  final List<NotePage> noteList;
+  final List<Note> noteList;
   final bool isEditing;
   final int index;
 
@@ -22,22 +21,21 @@ class CreatePage extends StatefulWidget {
 }
 
 class _CreatePageState extends State<CreatePage> {
-  final DatabaseProvider _databaseProvider = DatabaseProvider();
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final bool isEditing;
-  final int index;
-  List<NotePage> noteList;
+  final bool _isEditing;
+  final int _index;
+  final List<Note> _noteList;
   CubitCreatePage _cubit;
 
-  _CreatePageState(this.noteList, this.isEditing, this.index) {
+  _CreatePageState(this._noteList, this._isEditing, this._index) {
     _cubit = CubitCreatePage(StatesCreatePage(0));
   }
 
   @override
   void initState() {
-    if (isEditing) {
-      _textEditingController.text = noteList[index].title;
+    if (_isEditing) {
+      _textEditingController.text = _noteList[_index].title;
     }
     _focusNode.requestFocus();
     super.initState();
@@ -50,9 +48,9 @@ class _CreatePageState extends State<CreatePage> {
       builder: (context, state) {
         return Scaffold(
           appBar:
-              isEditing ? _appBar('Edit event') : _appBar('Create new event'),
-          body: _createPageBody,
-          floatingActionButton: _floatingActionButton,
+              _isEditing ? _appBar('Edit event') : _appBar('Create new event'),
+          body: _createPageBody(state),
+          floatingActionButton: _floatingActionButton(state),
         );
       },
     );
@@ -69,13 +67,13 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
 
-  FloatingActionButton get _floatingActionButton {
+  FloatingActionButton _floatingActionButton(StatesCreatePage state) {
     return FloatingActionButton(
       child: Icon(
         Icons.check,
       ),
       onPressed: () {
-        isEditing ? _editEvent() : _createEvent();
+        _isEditing ? _editPage(state) : _createPage(state);
         Navigator.pop(
           context,
           MaterialPageRoute(
@@ -86,32 +84,32 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
 
-  void _editEvent() {
-    noteList[index].title = _textEditingController.text;
-    noteList[index].circleAvatarIndex = _cubit.state.selectedIconIndex;
-    _databaseProvider.updateNote(noteList[index]);
+  void _editPage(StatesCreatePage state) {
+    _noteList[_index].title = _textEditingController.text;
+    _noteList[_index].circleAvatarIndex = state.selectedIconIndex;
+    _cubit.editPage(_noteList[_index]);
   }
 
-  void _createEvent() async {
-    var note = NotePage(
+  void _createPage(StatesCreatePage state) async {
+    var note = Note(
       title: _textEditingController.text,
       subtitle: 'No events. Click to create one.',
-      circleAvatarIndex: _cubit.state.selectedIconIndex,
+      circleAvatarIndex: state.selectedIconIndex,
     );
-    noteList.insert(0, note);
-    note.noteId = await _databaseProvider.insertNote(note);
+    _noteList.insert(0, note);
+    await _cubit.addPage(note);
   }
 
-  Column get _createPageBody {
+  Column _createPageBody(StatesCreatePage state) {
     return Column(
       children: <Widget>[
-        _inputArea,
+        _inputArea(state),
         _iconsGrid,
       ],
     );
   }
 
-  Widget get _inputArea {
+  Widget _inputArea(StatesCreatePage state) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: 10.0,
@@ -123,7 +121,7 @@ class _CreatePageState extends State<CreatePage> {
             padding: EdgeInsets.only(right: 15),
             child: Ink(
               child: _circleAvatar(
-                  Icon(icons[_cubit.state.selectedIconIndex]), Colors.green),
+                  Icon(icons[state.selectedIconIndex]), Colors.green),
             ),
           ),
           Expanded(

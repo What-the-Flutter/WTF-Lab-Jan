@@ -1,17 +1,16 @@
-import '../note_page.dart';
+import '../note.dart';
 
 class StatesHomePage {
-  List<NotePage> noteList = <NotePage>[];
+  List<Note> noteList = <Note>[];
   bool isLightTheme;
 
   StatesHomePage copyWith({
-    List<NotePage> noteList,
+    List<Note> noteList,
     bool isLightTheme,
   }) {
-    var state = StatesHomePage(isLightTheme ?? this.isLightTheme);
+    var state = StatesHomePage();
     state.noteList = noteList ?? this.noteList;
+    state.isLightTheme = isLightTheme ?? this.isLightTheme;
     return state;
   }
-
-  StatesHomePage(this.isLightTheme);
 }

@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../themes/shared_preferences_provider.dart';
+
+import '../note.dart';
 import '../utils/database.dart';
+import '../utils/shared_preferences_provider.dart';
 import 'states_home_page.dart';
 
 class CubitHomePage extends Cubit<StatesHomePage> {
@@ -8,9 +10,16 @@ class CubitHomePage extends Cubit<StatesHomePage> {
   final DatabaseProvider _databaseProvider = DatabaseProvider();
 
   void init() async {
-    await _databaseProvider.downloadNotesList(state.noteList);
-    noteListRedrawing();
+    await _databaseProvider.initDB();
+    setNoteList(await _databaseProvider.fetchNotesList());
+    initSharedPreferences();
   }
+
+  void initSharedPreferences() =>
+      state.isLightTheme = SharedPreferencesProvider().fetchTheme();
+
+  void setNoteList(List<Note> noteList) =>
+      emit(state.copyWith(noteList: noteList));
 
   void changeTheme() {
     SharedPreferencesProvider().changeTheme(!state.isLightTheme);

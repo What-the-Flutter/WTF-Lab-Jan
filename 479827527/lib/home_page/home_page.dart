@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_lesson_1/themes/shared_preferences_provider.dart';
+import 'package:intl/intl.dart';
 
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
-import '../note_page.dart';
-import '../themes/dark_theme.dart';
-import '../themes/light_theme.dart';
-import '../themes/theme_switcher.dart';
-import '../utils/database.dart';
+import '../note.dart';
+import '../settings/settings.dart';
+import '../themes/cubit_theme.dart';
 import '../utils/icons.dart';
 import 'cubit_home_page.dart';
 import 'states_home_page.dart';
@@ -19,13 +17,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _State extends State<HomePage> {
-  final DatabaseProvider _databaseProvider = DatabaseProvider();
-  final CubitHomePage _cubit =
-      CubitHomePage(StatesHomePage(SharedPreferencesProvider().fetchTheme()));
+  final CubitHomePage _cubit = CubitHomePage(StatesHomePage());
 
   @override
   void initState() {
-    _databaseProvider.initDB();
     _cubit.init();
     super.initState();
   }
@@ -37,16 +32,16 @@ class _State extends State<HomePage> {
       builder: (context, state) {
         return Scaffold(
           bottomNavigationBar: _bottomNavigationBar,
-          floatingActionButton: _floatingActionButton,
+          floatingActionButton: _floatingActionButton(state),
           drawer: _drawer(context),
-          appBar: _appBar,
-          body: _homePageBody(_cubit.state.noteList),
+          appBar: _appBar(state),
+          body: _homePageBody(state, state.noteList),
         );
       },
     );
   }
 
-  AppBar get _appBar {
+  AppBar _appBar(StatesHomePage state) {
     return AppBar(
       title: Text(
         'Home',
@@ -59,21 +54,14 @@ class _State extends State<HomePage> {
           padding: EdgeInsets.only(right: 10),
           child: IconButton(
             icon: Icon(Icons.invert_colors),
-            onPressed: () {
-              if (_cubit.state.isLightTheme) {
-                ThemeSwitcher.of(context).switchTheme(darkThemeData);
-              } else {
-                ThemeSwitcher.of(context).switchTheme(lightThemeData);
-              }
-              _cubit.changeTheme();
-            },
+            onPressed: () => BlocProvider.of<CubitTheme>(context).changeTheme(),
           ),
         ),
       ],
     );
   }
 
-  FloatingActionButton get _floatingActionButton {
+  FloatingActionButton _floatingActionButton(StatesHomePage state) {
     return FloatingActionButton(
       child: Icon(Icons.add),
       onPressed: () async {
@@ -81,7 +69,7 @@ class _State extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (context) => CreatePage(
-              noteList: _cubit.state.noteList,
+              noteList: state.noteList,
               isEditing: false,
             ),
           ),
@@ -91,7 +79,7 @@ class _State extends State<HomePage> {
     );
   }
 
-  Widget _homePageBody(List<NotePage> noteList) {
+  Widget _homePageBody(StatesHomePage state, List<Note> noteList) {
     return ListView.builder(
       scrollDirection: Axis.vertical,
       itemCount: noteList.length,
@@ -104,41 +92,42 @@ class _State extends State<HomePage> {
         ),
         leading: IconButton(
           icon: CircleAvatar(
-            child: Icon(icons[_cubit.state.noteList[index].circleAvatarIndex]),
+            child: Icon(icons[state.noteList[index].circleAvatarIndex]),
           ),
           iconSize: 35,
-          onPressed: () => _openEventPage(index),
+          onPressed: () => _openEventPage(state, index),
         ),
         subtitle: Text(
-          _cubit.state.noteList[index].subtitle,
+          state.noteList[index].subtitle,
           style: TextStyle(
             fontSize: 15,
           ),
         ),
-        onTap: () => _openEventPage(index),
-        onLongPress: () => _showBottomSheet(context, index),
+        onTap: () => _openEventPage(state, index),
+        onLongPress: () => _showBottomSheet(state, context, index),
       ),
     );
   }
 
-  void _showBottomSheet(BuildContext context, var index) {
+  void _showBottomSheet(StatesHomePage state, BuildContext context, var index) {
     showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Container(
-            height: 120,
-            child: _bottomSheetMenu(index),
-          );
-        });
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 120,
+          child: _bottomSheetMenu(state, index),
+        );
+      },
+    );
   }
 
-  void _editEvent(var index) async {
+  void _editEvent(StatesHomePage state, var index) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CreatePage(
           isEditing: true,
-          noteList: _cubit.state.noteList,
+          noteList: state.noteList,
           index: index,
         ),
       ),
@@ -147,7 +136,7 @@ class _State extends State<HomePage> {
     Navigator.pop(context);
   }
 
-  Column _bottomSheetMenu(var index) {
+  Column _bottomSheetMenu(StatesHomePage state, var index) {
     return Column(
       children: <Widget>[
         ListTile(
@@ -155,7 +144,7 @@ class _State extends State<HomePage> {
             Icons.edit,
             color: Theme.of(context).accentColor,
           ),
-          onTap: () => _editEvent(index),
+          onTap: () => _editEvent(state, index),
           title: Text(
             'Edit event',
           ),
@@ -177,13 +166,13 @@ class _State extends State<HomePage> {
     );
   }
 
-  void _openEventPage(var index) async {
+  void _openEventPage(StatesHomePage state, var index) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EventPage(
-          note: _cubit.state.noteList[index],
-          noteList: _cubit.state.noteList,
+          note: state.noteList[index],
+          noteList: state.noteList,
         ),
       ),
     );
@@ -219,46 +208,76 @@ class _State extends State<HomePage> {
   Widget _drawer(BuildContext context) {
     return Drawer(
       child: ListView(
-        children: [
-          // Sized box to change the drawer header height.
+        children: <Widget>[
           SizedBox(
-            height: 120,
+            height: 110,
             child: DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
               child: ListTile(
                 title: Text(
-                  'Menu',
+                  DateFormat.yMMMMd('en_US').format(DateTime.now()),
                   style: TextStyle(
                     fontSize: 20,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ),
           ),
-          ListTile(
-            title: Text(
-              'Item 1',
-              style: TextStyle(
-                fontSize: 15,
-              ),
-            ),
+          GestureDetector(
+            child: _listTile(Icons.search, 'Search'),
             onTap: () {
-              // Need to add realization!
-              Navigator.pop(context);
+              //TODO
             },
           ),
-          ListTile(
-            title: Text(
-              'Item 2',
-              style: TextStyle(
-                fontSize: 15,
-              ),
-            ),
+          GestureDetector(
+            child: _listTile(Icons.insert_chart, 'Statistics'),
             onTap: () {
-              // Need to add realization!
-              Navigator.pop(context);
+              //TODO
+            },
+          ),
+          GestureDetector(
+            child: _listTile(Icons.notifications, 'Notifications'),
+            onTap: () {
+              //TODO
+            },
+          ),
+          GestureDetector(
+            child: _listTile(Icons.settings, 'Settings'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Settings(),
+                ),
+              );
+            },
+          ),
+          GestureDetector(
+            child: _listTile(Icons.mail, 'Feedback'),
+            onTap: () {
+              //TODO
             },
           ),
         ],
+      ),
+    );
+  }
+
+  ListTile _listTile(IconData icon, String title) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        size: 25,
+        color: Theme.of(context).iconTheme.color,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+        ),
       ),
     );
   }

@@ -4,13 +4,18 @@ class Event {
   String text;
   String time;
   int circleAvatarIndex;
+  String imagePath;
+  String date;
 
-  Event(
-      {this.eventId,
-      this.currentNoteId,
-      this.text,
-      this.time,
-      this.circleAvatarIndex});
+  Event({
+    this.eventId,
+    this.currentNoteId,
+    this.text,
+    this.time,
+    this.circleAvatarIndex,
+    this.imagePath,
+    this.date,
+  });
 
   Map<String, dynamic> convertEventToMap() {
     return {
@@ -18,6 +23,8 @@ class Event {
       'text': text,
       'time': time,
       'event_circle_avatar_index': circleAvatarIndex,
+      'image_path': imagePath,
+      'date': date,
     };
   }
 
@@ -28,6 +35,8 @@ class Event {
       'text': text,
       'time': time,
       'event_circle_avatar_index': circleAvatarIndex,
+      'image_path': imagePath,
+      'date': date,
     };
   }
 
@@ -38,6 +47,8 @@ class Event {
       text: map['text'],
       time: map['time'],
       circleAvatarIndex: map['event_circle_avatar_index'],
+      imagePath: map['image_path'],
+      date: map['date'],
     );
   }
 }
