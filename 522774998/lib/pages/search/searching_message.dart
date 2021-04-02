@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import '../../theme/theme_cubit.dart';
+
 import '../messages/screen_messages_cubit.dart';
+import '../settings/settings_page_cubit.dart';
 import 'searching_messages_cubit.dart';
 
 class SearchingPage extends StatelessWidget {
@@ -104,12 +105,7 @@ class SearchingPage extends StatelessWidget {
 class FoundMessage extends StatelessWidget {
   final int index;
 
-  const FoundMessage({
-    Key key,
-    this.index,
-  }) : super(
-          key: key,
-        );
+  const FoundMessage({Key key, this.index}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -121,13 +117,23 @@ class FoundMessage extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15.0),
-            color: BlocProvider.of<ThemeCubit>(context).state.theme.accentColor,
+            border: Border.all(
+              color: Colors.orange,
+            ),
+            color: Colors.orange[50],
           ),
           padding: EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              Text(context.read<ScreenMessagesCubit>().state.page.title),
+              Text(
+                context.read<ScreenMessagesCubit>().state.page.title,
+                style: TextStyle(
+                  fontSize:
+                      BlocProvider.of<SettingPageCubit>(context).state.fontSize,
+                  color: Colors.black,
+                ),
+              ),
               data.message,
             ],
           ),

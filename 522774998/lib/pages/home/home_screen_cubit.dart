@@ -8,9 +8,8 @@ part 'home_screen_state.dart';
 class HomeScreenCubit extends Cubit<HomeScreenState> {
   PagesRepository repository;
 
-  HomeScreenCubit({
-    this.repository,
-  }) : super(
+  HomeScreenCubit({this.repository})
+      : super(
           HomeScreenStateAwait(currentIndex: 0),
         );
 
@@ -55,7 +54,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
 
   void editPage(PropertyPage page) async {
     repository.editPage(page);
-    var list = await repository.pagesList();
+    final list = await repository.pagesList();
     list.sort();
     emit(
       HomeScreenStateShow(
@@ -71,7 +70,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         isPin: !state.list[index].isPin,
       ),
     );
-    var list = await repository.pagesList();
+    final list = await repository.pagesList();
     list.sort();
     emit(
       state.copyWith(

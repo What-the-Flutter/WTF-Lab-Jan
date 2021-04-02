@@ -20,12 +20,16 @@ class SettingPageCubit extends Cubit<SettingsPageState> {
             prefs.getBool('isBubbleAlignmentSwitched') ?? false,
         isDateAlignmentSwitched:
             prefs.getBool('isDateAlignmentSwitched') ?? false,
+        fontSize: prefs.getDouble('fontSize' ?? 12),
+        indexBackground: prefs.getInt('indexBackground' ?? 0),
       ),
     );
     emit(state.copyWith(
       isDateModificationSwitched: _preferences.fetchDateModification(),
       isBubbleAlignmentSwitched: _preferences.fetchBubbleAlignment(),
       isDateAlignmentSwitched: _preferences.fetchDateAlignment(),
+      fontSize: _preferences.fetchFontSize(),
+      indexBackground: _preferences.fetchIndexBackground(),
     ));
   }
 
@@ -43,5 +47,33 @@ class SettingPageCubit extends Cubit<SettingsPageState> {
   void changeDateAlignment(bool isDateAlignmentSwitched) {
     _preferences.saveDateAlignment(isDateAlignmentSwitched);
     emit(state.copyWith(isDateAlignmentSwitched: isDateAlignmentSwitched));
+  }
+
+  void changeFontSize(double fontSize) {
+    _preferences.saveFontSize(fontSize);
+    emit(state.copyWith(fontSize: fontSize));
+  }
+
+  void changeIndexBackground(int index) {
+    _preferences.saveIndexBackground(index);
+    emit(state.copyWith(indexBackground: index));
+  }
+
+  void reset() async {
+    _preferences.saveFontSize(16);
+    _preferences.saveDateAlignment(false);
+    _preferences.saveBubbleAlignment(false);
+    _preferences.saveDateModification(false);
+    await _preferences.saveTheme(true);
+    _preferences.saveIndexBackground(0);
+    emit(
+      state.copyWith(
+        fontSize: 16,
+        isBubbleAlignmentSwitched: false,
+        isDateAlignmentSwitched: false,
+        isDateModificationSwitched: false,
+        indexBackground: 0,
+      ),
+    );
   }
 }

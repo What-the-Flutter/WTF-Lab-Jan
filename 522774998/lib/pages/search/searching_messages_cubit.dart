@@ -11,9 +11,8 @@ class SearchMessageCubit extends Cubit<SearchMessageState> {
   final controller = TextEditingController();
   final MessagesRepository repository;
 
-  SearchMessageCubit({
-    this.repository,
-  }) : super(
+  SearchMessageCubit({this.repository})
+      : super(
           SearchMessageScreenWait(),
         ) {
     controller.addListener(

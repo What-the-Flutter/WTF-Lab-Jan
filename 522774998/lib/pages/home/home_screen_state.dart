@@ -16,9 +16,8 @@ abstract class HomeScreenState {
 }
 
 class HomeScreenStateAwait extends HomeScreenState {
-  HomeScreenStateAwait({
-    int currentIndex,
-  }) : super(
+  HomeScreenStateAwait({int currentIndex})
+      : super(
           currentIndex: currentIndex,
         );
 
@@ -32,10 +31,8 @@ class HomeScreenStateAwait extends HomeScreenState {
 }
 
 class HomeScreenStateShow extends HomeScreenState {
-  HomeScreenStateShow({
-    List<PropertyPage> pages,
-    int currentIndex,
-  }) : super(
+  HomeScreenStateShow({List<PropertyPage> pages, int currentIndex})
+      : super(
           list: pages,
           currentIndex: currentIndex,
         );

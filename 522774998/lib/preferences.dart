@@ -26,6 +26,11 @@ class Preferences {
   void saveDateAlignment(bool isBubbleCentered) =>
       _prefs.setBool('isDateAlignmentSwitched', isBubbleCentered);
 
+  void saveFontSize(double fontSize) => _prefs.setDouble('fontSize', fontSize);
+
+  void saveIndexBackground(int index) =>
+      _prefs.setInt('indexBackground', index);
+
   bool fetchTheme() => _prefs.getBool('isLightTheme') ?? true;
 
   bool fetchDateModification() =>
@@ -36,4 +41,8 @@ class Preferences {
 
   bool fetchDateAlignment() =>
       _prefs.getBool('isDateAlignmentSwitched') ?? false;
+
+  double fetchFontSize() => _prefs.getDouble('fontSize') ?? 16.0;
+
+  int fetchIndexBackground() => _prefs.getInt('indexBackground') ?? 0;
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:splashscreen/splashscreen.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'database/database.dart';
@@ -32,8 +33,23 @@ void main() async {
           create: (context) => ThemeCubit(),
         ),
       ],
-      child: MyApp(
-        db: await DBHelper.initializeDatabase(),
+      child: MaterialApp(
+        home: SplashScreen(
+          seconds: 5,
+          navigateAfterSeconds: MyApp(
+            db: await DBHelper.initializeDatabase(),
+          ),
+          title: Text(
+            'Welcome to Chat Journal',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+          ),
+          image: Image(image: AssetImage('images/splashScreen.png')),
+          backgroundColor: Colors.white,
+          styleTextUnderTheLoader: TextStyle(),
+          photoSize: 100.0,
+          onClick: () => print('Loading app'),
+          loaderColor: Colors.orange,
+        ),
       ),
     ),
   );
@@ -43,9 +59,7 @@ class MyApp extends StatelessWidget {
   final Database db;
   final AppRouter _appRouter = AppRouter();
 
-  MyApp({
-    this.db,
-  });
+  MyApp({this.db});
 
   @override
   Widget build(BuildContext context) {

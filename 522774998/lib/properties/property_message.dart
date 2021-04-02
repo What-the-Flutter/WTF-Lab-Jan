@@ -58,14 +58,14 @@ abstract class PropertyMessage {
 }
 
 class TextMessage extends PropertyMessage {
-  TextMessage({
-    int id,
-    bool isSelected,
-    IconData icon,
-    String data,
-    DateTime time,
-    int idMessagePage,
-  }) : super(
+  TextMessage(
+      {int id,
+      bool isSelected,
+      IconData icon,
+      String data,
+      DateTime time,
+      int idMessagePage})
+      : super(
           id: id,
           isSelected: isSelected,
           icon: icon,
@@ -98,14 +98,14 @@ class TextMessage extends PropertyMessage {
 }
 
 class ImageMessage extends PropertyMessage {
-  ImageMessage({
-    int id,
-    bool isSelected,
-    IconData icon,
-    String data,
-    DateTime time,
-    int idMessagePage,
-  }) : super(
+  ImageMessage(
+      {int id,
+      bool isSelected,
+      IconData icon,
+      String data,
+      DateTime time,
+      int idMessagePage})
+      : super(
           id: id,
           isSelected: isSelected,
           icon: icon,
