@@ -15,15 +15,12 @@ final List<String> galleryItems = [
   'images/planets.jpg',
 ];
 
-final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
 class SettingsPage extends StatelessWidget {
   static const routeName = '/SettingsPage';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Container(
           alignment: Alignment.center,

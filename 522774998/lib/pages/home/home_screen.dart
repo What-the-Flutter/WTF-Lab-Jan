@@ -218,10 +218,11 @@ class DialogPage extends StatelessWidget {
               title: Text(
                 state.list[_index].title,
                 style: TextStyle(
-                    fontSize: BlocProvider.of<SettingPageCubit>(context)
-                            .state
-                            .fontSize +
-                        5),
+                  fontSize: BlocProvider.of<SettingPageCubit>(context)
+                          .state
+                          .fontSize +
+                      5,
+                ),
               ),
               subtitle: Text('No Events. Click to create one.'),
               contentPadding: EdgeInsets.all(5.0),

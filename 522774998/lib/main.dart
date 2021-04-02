@@ -94,10 +94,9 @@ class MyApp extends StatelessWidget {
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
-          final theme = BlocProvider.of<ThemeCubit>(context).state.theme;
           return MaterialApp(
             title: 'Chat Journal',
-            theme: theme,
+            theme: BlocProvider.of<ThemeCubit>(context).state.theme,
             onGenerateRoute: _appRouter.onGenerateRoute,
           );
         },
