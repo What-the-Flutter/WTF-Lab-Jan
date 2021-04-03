@@ -27,6 +27,20 @@ class SettingsCubit extends Cubit<SettingsState> {
           ),
         );
 
+  void reset() {
+    final initialState = SettingsState();
+    preferences
+      ..setString('themeMode', _stringFromThemeMode(initialState.themeMode))
+      ..setBool('centerDateBubble', initialState.centerDateBubble)
+      ..setString('bubbleAlignment',
+          _stringFromBubbleAlignment(initialState.bubbleAlignment))
+      ..setBool('showCreateRecordDateTimePicker',
+          initialState.showCreateRecordDateTimePickerButton)
+      ..setBool('isAuthenticationOn', initialState.isAuthenticationOn)
+      ..setString('textTheme', _stringFromTextTheme(initialState.textTheme));
+    emit(initialState);
+  }
+
   void setTextTheme(String textThemeName) {
     preferences.setString('textTheme', textThemeName);
     emit(
@@ -45,6 +59,12 @@ class SettingsCubit extends Cubit<SettingsState> {
       default:
         return defaultTextTheme;
     }
+  }
+
+  static String _stringFromTextTheme(TextTheme textTheme) {
+    if (textTheme == smallTextTheme) return 'small';
+    if (textTheme == largeTextTheme) return 'large';
+    return 'default';
   }
 
   void switchAuthenticationOn() {
@@ -100,21 +120,28 @@ class SettingsCubit extends Cubit<SettingsState> {
     switch (string) {
       case 'dark':
         return ThemeMode.dark;
-      case 'light':
-        return ThemeMode.light;
       default:
         return ThemeMode.light;
     }
   }
 
+  static String _stringFromThemeMode(ThemeMode themeMode) {
+    if (themeMode == ThemeMode.dark) return 'dark';
+    return 'light';
+  }
+
   static Alignment _bubbleAlignmentFromString(String string) {
     switch (string) {
-      case 'right':
-        return Alignment.centerRight;
       case 'left':
         return Alignment.centerLeft;
       default:
         return Alignment.centerRight;
     }
+  }
+
+  static String _stringFromBubbleAlignment(Alignment alignment) {
+    if (alignment == Alignment.centerRight) return 'right';
+    if (alignment == Alignment.centerLeft) return 'left';
+    return 'right';
   }
 }
