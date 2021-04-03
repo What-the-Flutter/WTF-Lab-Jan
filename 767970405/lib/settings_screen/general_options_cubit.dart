@@ -9,7 +9,7 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
   GeneralOptionsCubit({
     int index,
   }) : super(GeneralOptionsState()) {
-    emit(index == 0 ? lightTheme : darkTheme);
+    emit(index == 0 ? darkTheme : lightTheme);
   }
 
   GeneralOptionsState get lightTheme => GeneralOptionsState(

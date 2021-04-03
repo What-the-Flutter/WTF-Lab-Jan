@@ -1,3 +1,5 @@
+import 'package:my_chat_journal/data/model/model_tag.dart';
+
 import '../data_provider.dart';
 
 import '../model/model_message.dart';
@@ -27,8 +29,12 @@ class MessagesRepository {
     api.deleteMessage(index);
   }
 
-  @override
-  String toString() {
-    return 'MessagesRepository{api: $api}';
+  Future<List<ModelTag>> tags() async {
+    return await api.tags();
   }
+
+  void addTag(ModelTag tag) async {
+    api.insertTag(tag);
+  }
+
 }

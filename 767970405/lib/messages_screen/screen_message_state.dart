@@ -2,7 +2,9 @@ part of 'screen_message_cubit.dart';
 
 enum Mode { await, input, selection, edit }
 
-enum FloatingBar { nothing, events, photosOption }
+enum FloatingBar { nothing, category, photosOption, tag }
+
+enum ModeListTag { listTags, newTag, nothing }
 
 class ScreenMessageState extends Equatable {
   final ModelPage page;
@@ -19,6 +21,9 @@ class ScreenMessageState extends Equatable {
   final Function onAddCategory;
   final IconData iconDataPhoto;
   final Function onAddMessage;
+  final ModeListTag listTag;
+  final String curTag;
+  final List<ModelTag> tags;
 
   const ScreenMessageState({
     this.fromDate,
@@ -35,6 +40,9 @@ class ScreenMessageState extends Equatable {
     this.onAddCategory,
     this.iconDataPhoto,
     this.onAddMessage,
+    this.listTag,
+    this.curTag,
+    this.tags,
   });
 
   @override
@@ -60,6 +68,9 @@ class ScreenMessageState extends Equatable {
     final Function onAddCategory,
     final IconData iconDataPhoto,
     final Function onAddMessage,
+    final ModeListTag listTag,
+    final String curTag,
+    final List<ModelTag> tags,
   }) {
     return ScreenMessageState(
       fromDate: fromDate ?? this.fromDate,
@@ -76,6 +87,9 @@ class ScreenMessageState extends Equatable {
       onAddCategory: onAddCategory ?? this.onAddCategory,
       iconDataPhoto: iconDataPhoto ?? this.iconDataPhoto,
       onAddMessage: onAddMessage ?? this.onAddMessage,
+      listTag: listTag ?? this.listTag,
+      curTag: curTag ?? this.curTag,
+      tags: tags ?? this.tags,
     );
   }
 
@@ -94,5 +108,8 @@ class ScreenMessageState extends Equatable {
         fromTime,
         fromDate,
         isReset,
+        listTag,
+        curTag,
+        tags,
       ];
 }

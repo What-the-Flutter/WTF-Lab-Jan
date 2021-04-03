@@ -1,3 +1,4 @@
+import 'package:my_chat_journal/data/model/model_tag.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -32,6 +33,12 @@ class PagesAPI {
           ' lastModifiedTime TEXT'
           ');',
         );
+        db.execute(
+          'CREATE TABLE tags('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          ' name TEXT'
+          ');',
+        );
       },
       version: 1,
     );
@@ -44,6 +51,17 @@ class PagesAPI {
       'pages',
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<ModelTag>> tags() async {
+    final db = await _database;
+
+    final List<Map<String, dynamic>> maps = await db.query('tags');
+
+    return List.generate(
+      maps.length,
+      (i) => ModelTag(id: maps[i]['id'], name: maps[i]['name']),
     );
   }
 
@@ -62,6 +80,16 @@ class PagesAPI {
         creationTime: DateTime.parse(maps[i]['creationTime']),
         lastModifiedTime: DateTime.parse(maps[i]['lastModifiedTime']),
       ),
+    );
+  }
+
+  Future<void> insertTag(ModelTag tag) async {
+    final db = await _database;
+
+    await db.insert(
+      'tags',
+      tag.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 

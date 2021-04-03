@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_chat_journal/data/model/model_tag.dart';
 
 import '../data/model/model_message.dart';
 import '../data/model/model_page.dart';
@@ -19,32 +20,22 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     this.repository,
     DateTime time,
   }) : super(
-    ScreenMessageState(
-      fromDate: time,
-      fromTime: TimeOfDay.fromDateTime(time),
-      isReset: false,
-      mode: Mode.await,
-      counter: 0,
-      isBookmark: false,
-      list: <ModelMessage>[],
+          ScreenMessageState(
+            fromDate: time,
+            fromTime: TimeOfDay.fromDateTime(time),
+            isReset: false,
+            mode: Mode.await,
+            counter: 0,
+            isBookmark: false,
+            list: <ModelMessage>[],
             enabledController: true,
             floatingBar: FloatingBar.nothing,
             indexCategory: -1,
             iconDataPhoto: Icons.photo_camera,
+            curTag: '',
+            listTag: ModeListTag.nothing,
           ),
-  );
-
-  void downloadData(
-    ModelPage page,
-  ) async {
-    emit(
-      state.copyWith(
-        page: page,
-        mode: Mode.input,
-        list: await repository.messages(page.id),
-        onAddCategory: showEventList,
-      ),
-    );
+        ) {
     controller.addListener(
       () => controller.text.isEmpty
           ? emit(
@@ -62,6 +53,66 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
               ),
             ),
     );
+    controller.addListener(showListTags);
+    controller.addListener(closeListTags);
+    controller.addListener(updateCurTag);
+    controller.addListener(updateListTag);
+  }
+
+  void downloadData(
+    ModelPage page,
+  ) async {
+    emit(
+      state.copyWith(
+        page: page,
+        mode: Mode.input,
+        list: await repository.messages(page.id),
+        tags: await repository.tags(),
+        onAddCategory: showEventList,
+      ),
+    );
+  }
+
+  void showListTags() {
+    if (controller.text.endsWith('#') && state.floatingBar != FloatingBar.tag) {
+      emit(state.copyWith(
+          floatingBar: FloatingBar.tag,
+          listTag: ModeListTag.listTags,
+          curTag: '#'));
+    }
+  }
+
+  void updateListTag() async {
+    if (state.floatingBar == FloatingBar.tag) {
+      var tags = (await repository.tags())
+          .where((element) => element.name.contains(state.curTag))
+          .toList();
+      if (tags.isEmpty) {
+        emit(state.copyWith(listTag: ModeListTag.newTag, tags: tags));
+      } else {
+        emit(state.copyWith(tags: tags, listTag: ModeListTag.listTags));
+      }
+    }
+  }
+
+  void updateCurTag() {
+    if (state.floatingBar == FloatingBar.tag) {
+      var text = controller.text;
+      var i = text.lastIndexOf('#');
+      var iSpace = text.lastIndexOf(' ', i);
+      var lastIndex = iSpace > i ? iSpace : text.length;
+      emit(state.copyWith(curTag: text.substring(i, lastIndex)));
+    }
+  }
+
+  void closeListTags() {
+    if (!controller.text.contains('#') ||
+        (state.curTag.isNotEmpty && controller.text.endsWith(' '))) {
+      emit(state.copyWith(
+        floatingBar: FloatingBar.nothing,
+        listTag: ModeListTag.nothing,
+      ));
+    }
   }
 
   void showBookmarkMessage() {
@@ -69,6 +120,19 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   }
 
   void addTextMessage() async {
+    final listTags = controller.text
+        .split(' ')
+        .where((element) => element.startsWith('#'))
+        .toList();
+    if (listTags.isNotEmpty) {
+      final tags = await repository.tags();
+      for (var i = 0; i < listTags.length; i++) {
+        var tag = ModelTag(name: listTags[i]);
+        if (!tags.contains(tag)) {
+          repository.addTag(tag);
+        }
+      }
+    }
     repository.addMessage(
       ModelMessage(
         pageId: state.page.id,
@@ -82,6 +146,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
             : DateTime.now(),
       ),
     );
+
     controller.text = '';
     emit(
       state.copyWith(
@@ -90,6 +155,9 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         floatingBar: FloatingBar.nothing,
         iconDataPhoto: Icons.photo_camera,
         onAddMessage: showPhotoOption,
+        curTag: '',
+        tags: await repository.tags(),
+        listTag: ModeListTag.nothing,
       ),
     );
   }
@@ -303,7 +371,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
 
   void showEventList() {
     emit(state.copyWith(
-      floatingBar: FloatingBar.events,
+      floatingBar: FloatingBar.category,
       onAddCategory: closeFloatingBar,
     ));
   }

@@ -100,7 +100,7 @@ class MyApp extends StatelessWidget {
               primaryColor: state.appPrimaryColor,
               accentColor: state.appAccentColor,
               iconTheme: IconThemeData(
-                color: Colors.white,
+                color: Colors.black,
               ),
               appBarTheme: AppBarTheme(
                 textTheme: TextTheme(
@@ -143,7 +143,7 @@ class MyBlocObserver extends BlocObserver {
   @override
   void onChange(Cubit cubit, Change change) {
     super.onChange(cubit, change);
-    print('onChange -- cubit: ${cubit.runtimeType}, change: $change');
+    //print('onChange -- cubit: ${cubit.runtimeType}, change: $change');
   }
 
   @override

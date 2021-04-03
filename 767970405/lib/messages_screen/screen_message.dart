@@ -78,10 +78,21 @@ class _ScreenMessageState extends State<ScreenMessage> {
                 switch (state.floatingBar) {
                   case FloatingBar.nothing:
                     return Container();
-                  case FloatingBar.events:
+                  case FloatingBar.category:
                     return EventList();
                   case FloatingBar.photosOption:
                     return AttachPhotoOption();
+                  case FloatingBar.tag:
+                    return state.listTag == ModeListTag.listTags
+                        ? TagList()
+                        : Container(
+                            padding: EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15.0),
+                              color: Colors.red,
+                            ),
+                            child: Text('Add new Tag: ${state.curTag}'),
+                          );
                   default:
                     return Container();
                 }
@@ -91,6 +102,36 @@ class _ScreenMessageState extends State<ScreenMessage> {
           ],
         ),
       );
+}
+
+class TagList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final state = context.read<ScreenMessageCubit>().state;
+    return Container(
+      constraints: BoxConstraints(maxHeight: 60),
+      padding: EdgeInsets.all(5.0),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: state.tags.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5.0),
+            child: GestureDetector(
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                  color: Colors.red,
+                ),
+                child: Text(state.tags[index].name),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 class ChatElementList extends StatelessWidget {
@@ -117,16 +158,15 @@ class ChatElementList extends StatelessWidget {
         if (isDateTimeModEnabled)
           BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
             builder: (context, state) => DateTimeModButton(
-              date: DateFormat.yMMMEd().format(state.fromDate),
-              theme: DateTimeModButtonTheme(
-                backgroundColor: generalOptionState.dateTimeModeButtonBackgroundColor,
-                iconColor: generalOptionState.dateTimeModeButtonIconColor,
-                dateStyle: TextStyle(
-                  fontSize: generalOptionState.bodyFontSize,
-                  color: generalOptionState.titleColor,
-                )
-              )
-            ),
+                date: DateFormat.yMMMEd().format(state.fromDate),
+                theme: DateTimeModButtonTheme(
+                    backgroundColor:
+                        generalOptionState.dateTimeModeButtonBackgroundColor,
+                    iconColor: generalOptionState.dateTimeModeButtonIconColor,
+                    dateStyle: TextStyle(
+                      fontSize: generalOptionState.bodyFontSize,
+                      color: generalOptionState.titleColor,
+                    ))),
           ),
       ],
     );
@@ -854,7 +894,7 @@ class Message extends StatelessWidget {
                   if (text != null)
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: Text(text, style: theme.contentStyle),
+                      child: _contentMsg(theme.contentStyle),
                     ),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 5.0),
@@ -880,6 +920,29 @@ class Message extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _contentMsg(TextStyle defaultStyle) {
+    final words = text.split(' ');
+    return Text.rich(
+      TextSpan(
+        children: <TextSpan>[
+          for (var i = 0; i < words.length; i++)
+            words[i].startsWith('#')
+                ? TextSpan(
+                    text: words[i] + (i != words.length - 1 ? ' ' : ''),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  )
+                : TextSpan(
+                    text: words[i] + (i != words.length - 1 ? ' ' : ''),
+                    style: defaultStyle,
+                  ),
+        ],
       ),
     );
   }
