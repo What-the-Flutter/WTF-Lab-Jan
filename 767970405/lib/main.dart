@@ -19,7 +19,7 @@ GetIt getIt = GetIt.instance;
 
 Future<int> loadTheme() async {
   var prefs = await SharedPreferences.getInstance();
-  return prefs.getInt('theme') ?? 0;
+  return prefs.getInt('theme') ?? 1;
 }
 
 Future<void> saveTheme(int index) async {

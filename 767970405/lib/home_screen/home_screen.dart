@@ -7,13 +7,14 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
+import '../widgets/custom_list_tile.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
-import '../data/theme/custom_theme.dart';
+import '../data/theme/custom_theme.dart' as my;
 import '../main.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
@@ -69,6 +70,12 @@ class HomeWindow extends StatelessWidget {
   }
 
   Widget _drawer(BuildContext context) {
+    final listTileTheme = my.ListTileTheme(
+      titleStyle: TextStyle(
+        fontSize:
+            context.read<GeneralOptionsCubit>().state.floatingWindowFontSize,
+      ),
+    );
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -76,35 +83,39 @@ class HomeWindow extends StatelessWidget {
           DrawerHeader(
             child: Text('Drawer Header'),
           ),
-          ListTile(
-            leading: Icon(Icons.card_giftcard),
-            title: Text('Help spread the word'),
+          CustomListTile(
+            leadingIcon: Icons.card_giftcard,
+            title: 'Help spread the word',
             onTap: () => shareScreenshot(context),
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.yellow),
           ),
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text('Search'),
+          CustomListTile(
+            leadingIcon: Icons.search,
+            title: 'Search',
             onTap: () {
               // TODO
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.cyan),
           ),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text('Notifications'),
+          CustomListTile(
+            leadingIcon: Icons.notifications,
+            title: 'Notifications',
             onTap: () {
               //TODO
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
           ),
-          ListTile(
-            leading: Icon(Icons.stacked_line_chart),
-            title: Text('Statistics'),
+          CustomListTile(
+            leadingIcon: Icons.stacked_line_chart,
+            title: 'Statistics',
             onTap: () {
               //TODO
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
           ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
+          CustomListTile(
+            leadingIcon: Icons.settings,
+            title: 'Settings',
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(
@@ -112,11 +123,13 @@ class HomeWindow extends StatelessWidget {
                 SettingsScreen.routeName,
               );
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.brown),
           ),
-          ListTile(
-            leading: Icon(Icons.feedback),
-            title: Text('Feedback'),
+          CustomListTile(
+            leadingIcon: Icons.feedback,
+            title: 'Feedback',
             onTap: () {},
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.orange),
           )
         ],
       ),
@@ -186,7 +199,7 @@ class ChatPreviewList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final generalOptionState = context.read<GeneralOptionsCubit>().state;
-    final previewTheme = ChatPreviewTheme(
+    final previewTheme = my.ChatPreviewTheme(
       titleStyle: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: generalOptionState.titleFontSize,
@@ -197,7 +210,7 @@ class ChatPreviewList extends StatelessWidget {
         color: generalOptionState.bodyColor,
       ),
     );
-    final categoryTheme = CategoryTheme(
+    final categoryTheme = my.CategoryTheme(
       backgroundColor: generalOptionState.categoryBackgroundColor,
       iconColor: generalOptionState.categoryIconColor,
     );
@@ -207,7 +220,7 @@ class ChatPreviewList extends StatelessWidget {
         itemBuilder: (context, i) {
           if (i == 0) {
             return Bot(
-              theme: BotTheme(
+              theme: my.BotTheme(
                 contentStyle: TextStyle(
                   fontSize: generalOptionState.bodyFontSize,
                   color: generalOptionState.titleColor,
@@ -236,7 +249,7 @@ class ChatPreviewList extends StatelessWidget {
 }
 
 class Bot extends StatelessWidget {
-  final BotTheme theme;
+  final my.BotTheme theme;
 
   const Bot({
     Key key,
@@ -306,8 +319,8 @@ class ChatPreview extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool isPinned;
-  final ChatPreviewTheme previewTheme;
-  final CategoryTheme categoryTheme;
+  final my.ChatPreviewTheme previewTheme;
+  final my.CategoryTheme categoryTheme;
   final IconData iconData;
 
   ChatPreview({
@@ -372,57 +385,42 @@ class ChatPreview extends StatelessWidget {
   void _showActionMenu(BuildContext context) {
     final homeCubit = context.read<HomeScreenCubit>();
     final screenCreatingCubit = context.read<ScreenCreatingPageCubit>();
+    final listTileTheme = my.ListTileTheme(
+      titleStyle: TextStyle(
+        fontSize:
+            context.read<GeneralOptionsCubit>().state.floatingWindowFontSize,
+      ),
+    );
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          ListTile(
-            leading: Icon(
-              Icons.info,
-              color: Colors.teal,
-            ),
-            title: Text(
-              'info',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.info,
+            title: 'info',
             onTap: () => _showPreviewInfo(homeCubit, context),
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.teal),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.attach_file,
-              color: Colors.teal,
-            ),
-            title: Text(
-              'Pin/Unpin Page',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.attach_file,
+            title: 'Pin/Unpin Page',
             onTap: () {
               Navigator.pop(context);
               homeCubit.pinPage(index);
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.green),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.archive,
-              color: Colors.orange,
-            ),
-            title: Text(
-              'Archive Page',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.archive,
+            title: 'Archive Page',
             onTap: () {},
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.orange),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.edit,
-              color: Colors.blue,
-            ),
-            title: Text(
-              'Edit page',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.edit,
+            title: 'Edit page',
             onTap: () async {
               Navigator.pop(context);
               screenCreatingCubit.setting(
@@ -443,20 +441,16 @@ class ChatPreview extends StatelessWidget {
               }
               screenCreatingCubit.resetIcon();
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.delete,
-              color: Colors.red,
-            ),
-            title: Text(
-              'Delete Page',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.delete,
+            title: 'Delete Page',
             onTap: () {
               Navigator.pop(context);
               context.read<HomeScreenCubit>().removePage(index);
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
           ),
         ],
       ),

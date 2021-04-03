@@ -22,6 +22,7 @@ class GeneralOptionsState extends Equatable {
   final Color appAccentColor;
   final String appFontFamily;
   final double appBarTitleFontSize;
+  final double floatingWindowFontSize;
 
   final bool isDateTimeModification;
   final bool isLeftBubbleAlign;
@@ -50,6 +51,7 @@ class GeneralOptionsState extends Equatable {
     this.appAccentColor = Colors.amberAccent,
     this.appFontFamily,
     this.appBarTitleFontSize = DefaultFontSize.appBarTitle,
+    this.floatingWindowFontSize = DefaultFontSize.floatingWindowText,
     this.isDateTimeModification = false,
     this.isLeftBubbleAlign = false,
     this.isCenterDateBubble = false,
@@ -75,13 +77,14 @@ class GeneralOptionsState extends Equatable {
     final Brightness appBrightness,
     final Color appPrimaryColor,
     final Color appAccentColor,
-    final String appFontFamily,
+    final String appFontFamily = 'Roboto',
     final double appBarTitleFontSize,
     final bool isDateTimeModification,
     final bool isLeftBubbleAlign,
     final bool isCenterDateBubble,
     final bool isAuthentication,
     final String pathBackgroundImage,
+    final double floatingWindowFontSize,
   }) {
     return GeneralOptionsState(
       titleFontSize: titleFontSize ?? this.titleFontSize,
@@ -115,6 +118,8 @@ class GeneralOptionsState extends Equatable {
       isCenterDateBubble: isCenterDateBubble ?? this.isCenterDateBubble,
       isAuthentication: isAuthentication ?? this.isAuthentication,
       pathBackgroundImage: pathBackgroundImage ?? this.pathBackgroundImage,
+      floatingWindowFontSize:
+          floatingWindowFontSize ?? this.floatingWindowFontSize,
     );
   }
 
@@ -142,5 +147,6 @@ class GeneralOptionsState extends Equatable {
         isCenterDateBubble,
         isAuthentication,
         pathBackgroundImage,
+        floatingWindowFontSize,
       ];
 }

@@ -13,7 +13,7 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
     emit(index == 0 ? darkTheme : lightTheme);
   }
 
-  GeneralOptionsState get lightTheme => GeneralOptionsState(
+  GeneralOptionsState get lightTheme => state.copyWith(
         titleColor: Colors.black,
         bodyColor: Colors.black.withOpacity(0.4),
         botIconColor: Colors.black,
@@ -30,7 +30,7 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
         appPrimaryColor: Colors.teal,
       );
 
-  GeneralOptionsState get darkTheme => GeneralOptionsState(
+  GeneralOptionsState get darkTheme => state.copyWith(
         titleColor: Colors.white,
         bodyColor: Colors.white,
         botIconColor: Colors.white,
@@ -62,6 +62,7 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
           titleFontSize: DefaultFontSize.titleText * kSmall,
           bodyFontSize: DefaultFontSize.bodyText * kSmall,
           appBarTitleFontSize: DefaultFontSize.appBarTitle * kSmall,
+          floatingWindowFontSize: DefaultFontSize.floatingWindowText * kSmall,
         ));
         break;
       case TypeFontSize.def:
@@ -69,6 +70,7 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
           titleFontSize: DefaultFontSize.titleText,
           bodyFontSize: DefaultFontSize.bodyText,
           appBarTitleFontSize: DefaultFontSize.appBarTitle,
+          floatingWindowFontSize: DefaultFontSize.floatingWindowText,
         ));
         break;
       case TypeFontSize.large:
@@ -76,13 +78,21 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
           titleFontSize: DefaultFontSize.titleText * kLarge,
           bodyFontSize: DefaultFontSize.bodyText * kLarge,
           appBarTitleFontSize: DefaultFontSize.appBarTitle * kLarge,
+          floatingWindowFontSize: DefaultFontSize.floatingWindowText * kLarge,
         ));
         break;
     }
   }
 
   void resetSettings() {
-    emit(lightTheme);
+    emit(lightTheme.copyWith(
+      titleFontSize: DefaultFontSize.titleText,
+      bodyFontSize: DefaultFontSize.bodyText,
+      appBarTitleFontSize: DefaultFontSize.appBarTitle,
+      floatingWindowFontSize: DefaultFontSize.floatingWindowText,
+      appAccentColor: Colors.amberAccent,
+      appFontFamily: 'Roboto',
+    ));
   }
 
   void changeBubbleAlign(bool value) {

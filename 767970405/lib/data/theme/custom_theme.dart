@@ -80,14 +80,26 @@ class HelpWindowTheme {
   });
 }
 
-class ListTileSettingsTheme {
+class ListTileTheme {
   final TextStyle titleStyle;
   final TextStyle contentStyle;
   final Color leadingIconColor;
 
-  ListTileSettingsTheme({
+  ListTileTheme({
     this.titleStyle,
     this.contentStyle,
     this.leadingIconColor,
   });
+
+  ListTileTheme copyWith({
+    final TextStyle titleStyle,
+    final TextStyle contentStyle,
+    final Color leadingIconColor,
+  }) {
+    return ListTileTheme(
+      titleStyle: titleStyle ?? this.titleStyle,
+      contentStyle: contentStyle ?? this.contentStyle,
+      leadingIconColor: leadingIconColor ?? this.leadingIconColor,
+    );
+  }
 }

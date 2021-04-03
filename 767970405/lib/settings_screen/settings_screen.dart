@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../data/constans/constans.dart';
 
+import '../data/constans/constans.dart';
 import '../data/custom_icon/my_flutter_app_icons.dart';
-import '../data/theme/custom_theme.dart';
+import '../data/theme/custom_theme.dart' as my;
 import '../main.dart';
+import '../widgets/custom_list_tile.dart';
 import 'general_options_cubit.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -29,92 +30,119 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _settingsList(BuildContext context) {
-    final listTileTheme = ListTileSettingsTheme(
+    final listTileTheme = my.ListTileTheme(
       titleStyle: TextStyle(
         fontSize: context.read<GeneralOptionsCubit>().state.titleFontSize,
       ),
       contentStyle: TextStyle(
         fontSize: context.read<GeneralOptionsCubit>().state.bodyFontSize,
       ),
-      leadingIconColor: Colors.blue,
     );
     return ListView(
       padding: EdgeInsets.zero,
       children: <Widget>[
         padding,
-        SettingOptions(
+        CustomListTile(
           leadingIcon: Icons.nature_people,
           title: 'General',
           subtitle: 'Themes & Interface settings',
-          onPressed: () {
+          onTap: () {
             Navigator.pushNamed(
               context,
               GeneralOption.routeName,
             );
           },
-          theme: listTileTheme,
+          theme: listTileTheme.copyWith(leadingIconColor: Colors.green),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            color: context.read<GeneralOptionsCubit>().state.appAccentColor,
+          ),
         ),
         padding,
-        SettingOptions(
+        CustomListTile(
           leadingIcon: Icons.cloud,
           title: 'Backup & Sync',
           subtitle: 'Local & Drive backup & sync',
-          onPressed: () {
+          onTap: () {
             //TODO
           },
-          theme: listTileTheme,
+          theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            color: context.read<GeneralOptionsCubit>().state.appAccentColor,
+          ),
         ),
         padding,
-        SettingOptions(
+        CustomListTile(
           leadingIcon: Icons.archive,
           title: 'Exports',
           subtitle: 'Textual backup of all your entries',
-          onPressed: () {
+          onTap: () {
             //TODO
           },
-          theme: listTileTheme,
+          theme: listTileTheme.copyWith(leadingIconColor: Colors.orangeAccent),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            color: context.read<GeneralOptionsCubit>().state.appAccentColor,
+          ),
         ),
         padding,
-        SettingOptions(
+        CustomListTile(
           leadingIcon: Icons.lock,
           title: 'Security',
           subtitle: 'Pin & Fingerprint protection',
-          onPressed: () {
+          onTap: () {
             Navigator.pushNamed(
               context,
               SecurityOption.routeName,
             );
           },
-          theme: listTileTheme,
+          theme: listTileTheme.copyWith(leadingIconColor: Colors.grey),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            color: context.read<GeneralOptionsCubit>().state.appAccentColor,
+          ),
         ),
         padding,
-        SettingOptions(
+        CustomListTile(
           leadingIcon: Icons.offline_bolt_outlined,
           title: 'Quick Setup',
           subtitle: 'Create pre-defined pages quickly',
-          onPressed: () {
+          onTap: () {
             //TODO
           },
-          theme: listTileTheme,
+          theme: listTileTheme.copyWith(leadingIconColor: Colors.yellow),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            color: context.read<GeneralOptionsCubit>().state.appAccentColor,
+          ),
         ),
         padding,
-        SettingOptions(
+        CustomListTile(
           leadingIcon: Icons.help_outline,
           title: 'Help',
           subtitle: 'Basic usage guide',
-          onPressed: () {
+          onTap: () {
             Navigator.pop(context);
           },
-          theme: listTileTheme,
+          theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            color: context.read<GeneralOptionsCubit>().state.appAccentColor,
+          ),
         ),
         padding,
-        SettingOptions(
+        CustomListTile(
           leadingIcon: Icons.info_outline,
           title: 'App Info',
-          onPressed: () {
+          onTap: () {
             Navigator.pop(context);
           },
-          theme: listTileTheme,
+          theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            color: context.read<GeneralOptionsCubit>().state.appAccentColor,
+          ),
         ),
         padding,
       ],
@@ -127,55 +155,19 @@ class SettingsScreen extends StatelessWidget {
       );
 }
 
-class SettingOptions extends StatelessWidget {
-  final IconData leadingIcon;
-  final String title;
-  final String subtitle;
-  final Function onPressed;
-  final ListTileSettingsTheme theme;
-
-  const SettingOptions({
-    Key key,
-    this.leadingIcon,
-    this.title,
-    this.subtitle,
-    this.onPressed,
-    this.theme,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(
-        leadingIcon,
-        color: theme.leadingIconColor,
-      ),
-      title: Text(
-        title,
-        style: theme.titleStyle,
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle,
-              style: theme.contentStyle,
-            )
-          : null,
-      trailing: IconButton(
-        icon: Icon(
-          Icons.arrow_forward_ios,
-          color: context.read<GeneralOptionsCubit>().state.appAccentColor,
-        ),
-        onPressed: onPressed,
-      ),
-    );
-  }
-}
-
 class GeneralOption extends StatelessWidget {
   static const routeName = 'GeneralOptions';
 
   @override
   Widget build(BuildContext context) {
+    final listTileTheme = my.ListTileTheme(
+      titleStyle: TextStyle(
+        fontSize: context.read<GeneralOptionsCubit>().state.titleFontSize,
+      ),
+      contentStyle: TextStyle(
+        fontSize: context.read<GeneralOptionsCubit>().state.bodyFontSize,
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -190,74 +182,67 @@ class GeneralOption extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text('Visual'),
+            child: Text(
+              'Visual',
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
           ),
-          ListTile(
-            title: Text('Theme'),
-            leading: Icon(Icons.invert_colors),
-            subtitle: Text('Light / Dark'),
+          CustomListTile(
+            title: 'Theme',
+            leadingIcon: Icons.invert_colors,
+            subtitle: 'Light / Dark',
             onTap: () {
               context.read<GeneralOptionsCubit>().toggleTheme();
-              saveTheme(context
-                  .read<GeneralOptionsCubit>()
-                  .state
-                  .appBrightness
-                  .index);
+              saveTheme(
+                context.read<GeneralOptionsCubit>().state.appBrightness.index,
+              );
             },
+            theme:
+                listTileTheme.copyWith(leadingIconColor: Colors.purpleAccent),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
+          padding,
+          CustomListTile(
+            leadingIcon: Icons.circle,
+            title: 'Accent Color',
+            subtitle: 'Cyan, Mint, Lime and more',
+            theme: listTileTheme.copyWith(
+                leadingIconColor: Theme.of(context).accentColor),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.circle,
-              color: Colors.black,
-            ),
-            title: Text('Accent Color'),
-            subtitle: Text('Cyan, Mint, Lime and more'),
+          padding,
+          CustomListTile(
+            leadingIcon: Icons.title,
+            title: 'Typeface',
+            subtitle: 'OpenSans / RobotoMono',
+            theme:
+                listTileTheme.copyWith(leadingIconColor: Colors.orangeAccent),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
-          ListTile(
-            leading: Icon(Icons.title),
-            title: Text('Typeface'),
-            subtitle: Text('OpenSans / RobotoMono'),
-            onTap: () => context.read<GeneralOptionsCubit>(),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
-          ListTile(
-            leading: Icon(Icons.text_fields),
-            title: Text('Font size'),
-            subtitle: Text('Small / Default / Large'),
+          padding,
+          CustomListTile(
+            leadingIcon: Icons.text_fields,
+            title: 'Font size',
+            subtitle: 'Small / Default / Large',
             onTap: () async {
               context
                   .read<GeneralOptionsCubit>()
                   .changeFontSize(await _showDialog(context));
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.indigo),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
-          ListTile(
-            leading: Icon(Icons.settings_backup_restore),
-            title: Text('Reset all Preference'),
-            subtitle: Text('Reset all visual Customizations'),
+          padding,
+          CustomListTile(
+            leadingIcon: Icons.settings_backup_restore,
+            title: 'Reset all Preference',
+            subtitle: 'Reset all visual Customizations',
             onTap: context.read<GeneralOptionsCubit>().resetSettings,
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.orangeAccent),
           ),
+          padding,
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text('Chat Interface'),
+            child: Text(
+              'Chat Interface',
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
           ),
           BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
             builder: (context, state) => SwitchListTile(
@@ -270,10 +255,7 @@ class GeneralOption extends StatelessWidget {
                   .changeDateTimeModification,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
+          padding,
           BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
             builder: (context, state) => SwitchListTile(
               secondary: Icon(Icons.format_align_right),
@@ -283,10 +265,7 @@ class GeneralOption extends StatelessWidget {
               onChanged: context.read<GeneralOptionsCubit>().changeBubbleAlign,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
+         padding,
           BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
             builder: (context, state) => SwitchListTile(
               secondary: Icon(Icons.wb_iridescent),
@@ -296,10 +275,7 @@ class GeneralOption extends StatelessWidget {
                   context.read<GeneralOptionsCubit>().changeCenterDateBubble,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
+          padding,
           SwitchListTile(
             secondary: Icon(Icons.save),
             title: Text('Save Images Locally'),
@@ -307,21 +283,16 @@ class GeneralOption extends StatelessWidget {
             value: false,
             onChanged: (value) => true,
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
-          ListTile(
-            leading: Icon(Icons.wallpaper),
-            title: Text('Background Image'),
-            subtitle: Text('Chat background image'),
+          padding,
+          CustomListTile(
+            leadingIcon: Icons.wallpaper,
+            title: 'Background Image',
+            subtitle: 'Chat background image',
             onTap: () =>
                 Navigator.pushNamed(context, BackgroundImageScreen.routeName),
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.deepOrange),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
+          padding,
           SwitchListTile(
             secondary: Icon(Icons.mms),
             title: Text('Images Date-time'),
@@ -329,29 +300,29 @@ class GeneralOption extends StatelessWidget {
             value: false,
             onChanged: (value) => true,
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
+          padding,
           SwitchListTile(
             secondary: Icon(MyFlutterApp.smart_toy_24px),
             title: Text('Hide Questionnaire Bot'),
             value: false,
             onChanged: (value) => true,
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
-          ),
-          ListTile(
-            leading: Icon(Icons.refresh),
-            title: Text('Reset all pinned pages'),
-            subtitle: Text('Unpin all pages'),
+          padding,
+          CustomListTile(
+            leadingIcon: Icons.refresh,
+            title: 'Reset all pinned pages',
+            subtitle: 'Unpin all pages',
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
           ),
         ],
       ),
     );
   }
+
+  Widget get padding => Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        child: Divider(),
+      );
 
   Future<TypeFontSize> _showDialog(BuildContext context) async {
     return await showDialog<TypeFontSize>(
@@ -493,16 +464,4 @@ class BackgroundImageScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-Size displaySize(BuildContext context) {
-  return MediaQuery.of(context).size;
-}
-
-double displayHeight(BuildContext context) {
-  return displaySize(context).height;
-}
-
-double displayWidth(BuildContext context) {
-  return displaySize(context).width;
 }

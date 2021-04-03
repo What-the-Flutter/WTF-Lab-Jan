@@ -128,14 +128,15 @@ class HelpWindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
-      constraints: BoxConstraints(maxWidth: 350, maxHeight: 150),
+      width: size.width * (9 / 10),
+      height: size.height * (2 / 10),
       padding: EdgeInsets.all(10),
       color: theme.backgroundColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        //mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           if (iconData != null)
             Icon(
