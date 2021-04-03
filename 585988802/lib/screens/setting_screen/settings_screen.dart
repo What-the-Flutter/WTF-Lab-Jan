@@ -20,10 +20,7 @@ class SettingsScreen extends StatelessWidget {
     return BlocBuilder<SettingScreenBloc, SettingsScreenState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor:
-              BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                  ? Theme.of(context).scaffoldBackgroundColor
-                  : Theme.of(context).primaryColor,
+          backgroundColor: Theme.of(context).hintColor,
           appBar: _appBar(context),
           body: _body(context),
         );
@@ -49,9 +46,7 @@ class SettingsScreen extends StatelessWidget {
                             1
                         ? appBarDefaultFontSize
                         : appBarLargeFontSize,
-            color: BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                ? Theme.of(context).accentColor
-                : Theme.of(context).primaryColor,
+            color: Theme.of(context).secondaryHeaderColor,
           ),
         ),
         alignment: Alignment.centerLeft,

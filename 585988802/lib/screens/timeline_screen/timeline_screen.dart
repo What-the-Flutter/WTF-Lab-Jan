@@ -11,7 +11,6 @@ import '../../common_widgets/custom_drawer.dart';
 import '../../db_helper/db_helper.dart';
 import '../../models/event_message.dart';
 import '../../models/font_size_customization.dart';
-import '../../theme/theme_bloc.dart';
 import '../event_screen/slidable_swipe_widget.dart';
 import '../setting_screen/settings_screen_bloc.dart';
 import 'timeline_bloc.dart';
@@ -401,10 +400,7 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
                           )
                         : Icon(
                             Icons.bookmark_border_outlined,
-                            color: BlocProvider.of<ThemeBloc>(context).state ==
-                                    ThemeMode.dark
-                                ? Theme.of(context).accentColor
-                                : Colors.black54,
+                            color: Theme.of(context).buttonColor,
                           ),
                     onPressed: () {
                       BlocProvider.of<TimelineScreenBloc>(context).add(
@@ -438,10 +434,7 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
                           )
                         : Icon(
                             Icons.bookmark_border_outlined,
-                            color: BlocProvider.of<ThemeBloc>(context).state ==
-                                    ThemeMode.dark
-                                ? Theme.of(context).accentColor
-                                : Colors.black54,
+                            color: Theme.of(context).buttonColor,
                           ),
                     onPressed: () {
                       BlocProvider.of<TimelineScreenBloc>(context).add(
@@ -482,16 +475,6 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
                     SizedBox(
                       height: 7.0,
                     ),
-                    Text(
-                      eventMessage.time,
-                      style: TextStyle(
-                        color: Colors.blueGrey,
-                        fontSize: 15.0,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 5.0,
-                    ),
                     eventMessage.isImageMessage == 1
                         ? Image(image: FileImage(File(eventMessage.imagePath)))
                         : Text(
@@ -502,6 +485,16 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
                               fontSize: 17.0,
                             ),
                           ),
+                    SizedBox(
+                      height: 5.0,
+                    ),
+                    Text(
+                      eventMessage.time,
+                      style: TextStyle(
+                        color: Colors.blueGrey,
+                        fontSize: 15.0,
+                      ),
+                    ),
                   ],
                 ),
               ),

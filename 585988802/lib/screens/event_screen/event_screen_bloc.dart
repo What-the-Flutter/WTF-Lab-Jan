@@ -16,7 +16,7 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
 
   final DBHelper _dbHelper = DBHelper();
   final Category _emptyCategory = Category(
-    nameOfCategory: 'Null',
+    nameOfCategory: 'null',
     imagePath: 'assets/images/journal.png',
   );
   final _tagRegExp = RegExp(r'^#[^ !@#$%^&*(),.?":{}|/?\\<>]+$');
@@ -65,6 +65,8 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
       yield* _mapUpdateTagListToState();
     } else if (event is CheckEventMessageForTagAndAdded) {
       yield* _mapCheckEventMessageForTagToState(event);
+    } else if (event is EventMessageForwardAdded) {
+      yield* _mapEventMessageForwardAddedToState(event);
     }
   }
 
@@ -163,6 +165,12 @@ class EventScreenBloc extends Bloc<EventScreenEvent, EventScreenState> {
       filteredEventMessageList: dbEventMessageList,
       eventMessageList: dbEventMessageList,
     );
+  }
+
+  Stream<EventScreenState> _mapEventMessageForwardAddedToState(
+      EventMessageForwardAdded event) async* {
+    _dbHelper.insertEventMessage(event.eventMessage);
+    yield state.copyWith();
   }
 
   Stream<EventScreenState> _mapEventMessageAddedToState(

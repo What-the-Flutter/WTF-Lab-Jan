@@ -123,7 +123,8 @@ class CustomDialog extends StatelessWidget {
                     child: Text(
                       firstBtnText,
                       style: TextStyle(
-                          color: Theme.of(context).scaffoldBackgroundColor),
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                      ),
                     ),
                     onPressed: () {
                       firstBtnFunc();
@@ -134,7 +135,8 @@ class CustomDialog extends StatelessWidget {
                     child: Text(
                       secondBtnText,
                       style: TextStyle(
-                          color: Theme.of(context).scaffoldBackgroundColor),
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                      ),
                     ),
                     onPressed: () {
                       secondBtnFunc();
@@ -147,8 +149,8 @@ class CustomDialog extends StatelessWidget {
                           child: Text(
                             'Cancel',
                             style: TextStyle(
-                                color:
-                                    Theme.of(context).scaffoldBackgroundColor),
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                            ),
                           ),
                           onPressed: () {
                             Navigator.of(context).pop();

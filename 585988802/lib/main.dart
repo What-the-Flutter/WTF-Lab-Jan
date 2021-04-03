@@ -12,6 +12,8 @@ import 'screens/home_screen/suggestions_bloc.dart';
 import 'screens/home_screen/suggestions_state.dart';
 import 'screens/setting_screen/settings_screen_bloc.dart';
 import 'screens/setting_screen/settings_screen_state.dart';
+import 'screens/summary_screen/summary_bloc.dart';
+import 'screens/summary_screen/summary_state.dart';
 import 'screens/tab_screen/tab_bloc.dart';
 import 'screens/tab_screen/tab_screen.dart';
 import 'screens/timeline_screen/timeline_bloc.dart';
@@ -89,6 +91,18 @@ void main() async {
               false,
               [],
               [],
+            ),
+          ),
+        ),
+        BlocProvider<SummaryScreenBloc>(
+          create: (context) => SummaryScreenBloc(
+            SummaryScreenState(
+              [],
+              [],
+              0,
+              0,
+              0,
+              0,
             ),
           ),
         ),

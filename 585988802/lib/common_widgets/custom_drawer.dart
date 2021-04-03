@@ -28,19 +28,13 @@ class CustomDrawer extends StatelessWidget {
               'Alex',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color:
-                    BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                        ? Theme.of(context).accentColor
-                        : Theme.of(context).primaryColor,
+                color: Theme.of(context).secondaryHeaderColor,
               ),
             ),
             accountEmail: Text(
               'shevelyanchik01@mail.ru',
               style: TextStyle(
-                color:
-                    BlocProvider.of<ThemeBloc>(context).state == ThemeMode.dark
-                        ? Theme.of(context).accentColor
-                        : Theme.of(context).primaryColor,
+                color: Theme.of(context).secondaryHeaderColor,
               ),
             ),
             currentAccountPicture: CircleAvatar(
@@ -94,8 +88,21 @@ class CustomDrawer extends StatelessWidget {
             onTap: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => CreatingCategoriesScreen(),
+                PageRouteBuilder(
+                  pageBuilder: (c, a1, a2) => CreatingCategoriesScreen(),
+                  transitionsBuilder: (
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                  ) {
+                    return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.0, 1.0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child);
+                  },
                 ),
               );
             },
@@ -142,8 +149,21 @@ class CustomDrawer extends StatelessWidget {
             onTap: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsScreen(),
+                PageRouteBuilder(
+                  pageBuilder: (c, a1, a2) => SettingsScreen(),
+                  transitionsBuilder: (
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                  ) {
+                    return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.0, 1.0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child);
+                  },
                 ),
               );
             },

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 final darkTheme = ThemeData(
-  appBarTheme: AppBarTheme(color: Color.fromRGBO(46, 46, 46, 1)),
+  appBarTheme: AppBarTheme(
+    color: Color.fromRGBO(46, 46, 46, 1),
+  ),
   scaffoldBackgroundColor: Color.fromRGBO(46, 46, 46, 1),
   primaryColor: Colors.white38,
   accentColor: Colors.white,
@@ -12,7 +14,9 @@ final darkTheme = ThemeData(
     backgroundColor: Color.fromRGBO(46, 46, 46, 1),
   ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: Colors.purple.shade300, foregroundColor: Colors.black),
+    backgroundColor: Colors.purple.shade300,
+    foregroundColor: Colors.black,
+  ),
   backgroundColor: Colors.black26,
   cardTheme: CardTheme(
     color: Colors.white12,
@@ -20,6 +24,10 @@ final darkTheme = ThemeData(
   dialogBackgroundColor: Color.fromRGBO(151, 157, 155, 1),
   bottomAppBarColor: Color.fromRGBO(46, 46, 46, 1),
   dividerColor: Colors.white38,
+  secondaryHeaderColor: Colors.white,
+  buttonColor: Colors.white,
+  hintColor: Color.fromRGBO(46, 46, 46, 1),
+  indicatorColor: Colors.purple.shade300,
 );
 
 final lightTheme = ThemeData(
@@ -36,7 +44,9 @@ final lightTheme = ThemeData(
     backgroundColor: Color.fromRGBO(236, 67, 67, 1),
   ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: Colors.red, foregroundColor: Colors.white),
+    backgroundColor: Colors.red,
+    foregroundColor: Colors.white,
+  ),
   backgroundColor: Colors.white,
   cardTheme: CardTheme(
     color: Color(0xFFFFEFEE),
@@ -44,4 +54,8 @@ final lightTheme = ThemeData(
   dialogBackgroundColor: Colors.white,
   bottomAppBarColor: Colors.white,
   dividerColor: Colors.white38,
+  secondaryHeaderColor: Colors.white,
+  buttonColor: Colors.black54,
+  hintColor: Colors.white,
+  indicatorColor: Colors.red,
 );
