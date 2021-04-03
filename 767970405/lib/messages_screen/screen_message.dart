@@ -59,48 +59,66 @@ class _ScreenMessageState extends State<ScreenMessage> {
   }
 
   Widget get body => BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-        builder: (context, state) => Column(
-          children: <Widget>[
-            Expanded(
-              child: ChatElementList(
-                alignment:
-                    context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
-                        ? Alignment.topLeft
-                        : Alignment.topRight,
-                isDateTimeModEnabled: context
-                    .read<GeneralOptionsCubit>()
-                    .state
-                    .isDateTimeModification,
+        builder: (context, state) {
+          final backImage =
+              context.read<GeneralOptionsCubit>().state.pathBackgroundImage;
+          return Stack(
+            children: <Widget>[
+              backImage.isNotEmpty
+                  ? Image.file(
+                      File(backImage),
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(),
+              Column(
+                children: <Widget>[
+                  Expanded(
+                    child: ChatElementList(
+                      alignment: context
+                              .read<GeneralOptionsCubit>()
+                              .state
+                              .isLeftBubbleAlign
+                          ? Alignment.topLeft
+                          : Alignment.topRight,
+                      isDateTimeModEnabled: context
+                          .read<GeneralOptionsCubit>()
+                          .state
+                          .isDateTimeModification,
+                    ),
+                  ),
+                  Builder(
+                    builder: (context) {
+                      switch (state.floatingBar) {
+                        case FloatingBar.nothing:
+                          return Container();
+                        case FloatingBar.category:
+                          return EventList();
+                        case FloatingBar.photosOption:
+                          return AttachPhotoOption();
+                        case FloatingBar.tag:
+                          return state.listTag == ModeListTag.listTags
+                              ? TagList()
+                              : Container(
+                                  padding: EdgeInsets.all(10.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    color: Colors.red,
+                                  ),
+                                  child: Text('Add new Tag: ${state.curTag}'),
+                                );
+                        default:
+                          return Container();
+                      }
+                    },
+                  ),
+                  InputPanel(),
+                ],
               ),
-            ),
-            Builder(
-              builder: (context) {
-                switch (state.floatingBar) {
-                  case FloatingBar.nothing:
-                    return Container();
-                  case FloatingBar.category:
-                    return EventList();
-                  case FloatingBar.photosOption:
-                    return AttachPhotoOption();
-                  case FloatingBar.tag:
-                    return state.listTag == ModeListTag.listTags
-                        ? TagList()
-                        : Container(
-                            padding: EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15.0),
-                              color: Colors.red,
-                            ),
-                            child: Text('Add new Tag: ${state.curTag}'),
-                          );
-                  default:
-                    return Container();
-                }
-              },
-            ),
-            InputPanel(),
-          ],
-        ),
+            ],
+          );
+        },
       );
 }
 

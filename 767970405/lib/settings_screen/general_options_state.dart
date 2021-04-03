@@ -28,6 +28,8 @@ class GeneralOptionsState extends Equatable {
   final bool isCenterDateBubble;
   final bool isAuthentication;
 
+  final String pathBackgroundImage;
+
   GeneralOptionsState({
     this.titleFontSize = DefaultFontSize.titleText,
     this.titleColor,
@@ -52,6 +54,7 @@ class GeneralOptionsState extends Equatable {
     this.isLeftBubbleAlign = false,
     this.isCenterDateBubble = false,
     this.isAuthentication = false,
+    this.pathBackgroundImage = '',
   });
 
   GeneralOptionsState copyWith({
@@ -78,6 +81,7 @@ class GeneralOptionsState extends Equatable {
     final bool isLeftBubbleAlign,
     final bool isCenterDateBubble,
     final bool isAuthentication,
+    final String pathBackgroundImage,
   }) {
     return GeneralOptionsState(
       titleFontSize: titleFontSize ?? this.titleFontSize,
@@ -110,6 +114,7 @@ class GeneralOptionsState extends Equatable {
       isLeftBubbleAlign: isLeftBubbleAlign ?? this.isLeftBubbleAlign,
       isCenterDateBubble: isCenterDateBubble ?? this.isCenterDateBubble,
       isAuthentication: isAuthentication ?? this.isAuthentication,
+      pathBackgroundImage: pathBackgroundImage ?? this.pathBackgroundImage,
     );
   }
 
@@ -136,5 +141,6 @@ class GeneralOptionsState extends Equatable {
         isLeftBubbleAlign,
         isCenterDateBubble,
         isAuthentication,
+        pathBackgroundImage,
       ];
 }

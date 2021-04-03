@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../data/constans/constans.dart';
 
 part 'general_options_state.dart';
@@ -98,5 +99,15 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
 
   void changeAuthentication(bool value) {
     emit(state.copyWith(isAuthentication: value));
+  }
+
+  void pickImage() async {
+    final pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    emit(state.copyWith(pathBackgroundImage: pickedFile.path));
+  }
+
+  void unsetImage() {
+    emit(state.copyWith(pathBackgroundImage: ''));
   }
 }

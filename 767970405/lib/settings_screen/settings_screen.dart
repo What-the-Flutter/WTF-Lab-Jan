@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/constans/constans.dart';
@@ -313,6 +315,8 @@ class GeneralOption extends StatelessWidget {
             leading: Icon(Icons.wallpaper),
             title: Text('Background Image'),
             subtitle: Text('Chat background image'),
+            onTap: () =>
+                Navigator.pushNamed(context, BackgroundImageScreen.routeName),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -417,4 +421,88 @@ class SecurityOption extends StatelessWidget {
       ),
     );
   }
+}
+
+class BackgroundImageScreen extends StatelessWidget {
+  static const routeName = 'BackgroundImage';
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('BackgroundImage'),
+        centerTitle: true,
+      ),
+      body: BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
+        builder: (context, state) => state.pathBackgroundImage.isEmpty
+            ? Container(
+                alignment: Alignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: size.height * (2 / 5),
+                    ),
+                    Text('Click the button below to set the'),
+                    Text('Background Image'),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: OutlinedButton(
+                        onPressed:
+                            context.read<GeneralOptionsCubit>().pickImage,
+                        child: Text('Pick an Image'),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : Container(
+                alignment: Alignment.center,
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(top: 5.0, bottom: 10.0),
+                        child: SizedBox(
+                          width: size.width * (4 / 5),
+                          height: size.height * (3 / 5),
+                          child: Image.file(
+                            File(state.pathBackgroundImage),
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.delete),
+                        title: Text('Unset Image'),
+                        onTap: context.read<GeneralOptionsCubit>().unsetImage,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: ListTile(
+                          leading: Icon(Icons.wallpaper),
+                          title: Text('Pick a new Image'),
+                          onTap: context.read<GeneralOptionsCubit>().pickImage,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+Size displaySize(BuildContext context) {
+  return MediaQuery.of(context).size;
+}
+
+double displayHeight(BuildContext context) {
+  return displaySize(context).height;
+}
+
+double displayWidth(BuildContext context) {
+  return displaySize(context).width;
 }

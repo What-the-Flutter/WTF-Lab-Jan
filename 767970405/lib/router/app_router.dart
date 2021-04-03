@@ -37,6 +37,10 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (context) => SecurityOption(),
         );
+      case BackgroundImageScreen.routeName:
+        return MaterialPageRoute(
+          builder: (context) => BackgroundImageScreen(),
+        );
       default:
         assert(false, 'Need to implement ${settings.name}');
         return null;
