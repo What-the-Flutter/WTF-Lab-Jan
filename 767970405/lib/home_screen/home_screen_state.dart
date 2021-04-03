@@ -22,8 +22,8 @@ class HomeScreenAwait extends HomeScreenState {
   HomeScreenAwait({
     int currentIndex,
   }) : super(
-          currentIndex: currentIndex,
-        );
+    currentIndex: currentIndex,
+  );
 
   @override
   List<Object> get props => [list, currentIndex];

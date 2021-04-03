@@ -158,15 +158,17 @@ class ChatElementList extends StatelessWidget {
         if (isDateTimeModEnabled)
           BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
             builder: (context, state) => DateTimeModButton(
-                date: DateFormat.yMMMEd().format(state.fromDate),
-                theme: DateTimeModButtonTheme(
-                    backgroundColor:
-                        generalOptionState.dateTimeModeButtonBackgroundColor,
-                    iconColor: generalOptionState.dateTimeModeButtonIconColor,
-                    dateStyle: TextStyle(
-                      fontSize: generalOptionState.bodyFontSize,
-                      color: generalOptionState.titleColor,
-                    ))),
+              date: DateFormat.yMMMEd().format(state.fromDate),
+              theme: DateTimeModButtonTheme(
+                backgroundColor:
+                    generalOptionState.dateTimeModeButtonBackgroundColor,
+                iconColor: generalOptionState.dateTimeModeButtonIconColor,
+                dateStyle: TextStyle(
+                  fontSize: generalOptionState.bodyFontSize,
+                  color: generalOptionState.titleColor,
+                ),
+              ),
+            ),
           ),
       ],
     );
@@ -737,7 +739,6 @@ class AttachPhotoButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.read<ScreenMessageCubit>().addPhotoMessage(source),
       child: Container(
-        //constraints: BoxConstraints(maxWidth: 100),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
           color: Colors.red,

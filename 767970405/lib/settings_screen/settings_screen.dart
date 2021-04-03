@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/data/constans/constans.dart';
+import '../data/constans/constans.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/theme/custom_theme.dart';

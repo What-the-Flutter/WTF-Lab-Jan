@@ -1,8 +1,6 @@
-import 'package:my_chat_journal/data/model/model_tag.dart';
-
 import '../data_provider.dart';
-
 import '../model/model_message.dart';
+import '../model/model_tag.dart';
 
 class MessagesRepository {
   final PagesAPI api;
@@ -36,5 +34,4 @@ class MessagesRepository {
   void addTag(ModelTag tag) async {
     api.insertTag(tag);
   }
-
 }

@@ -20,22 +20,22 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     this.repository,
     DateTime time,
   }) : super(
-          ScreenMessageState(
-            fromDate: time,
-            fromTime: TimeOfDay.fromDateTime(time),
-            isReset: false,
-            mode: Mode.await,
-            counter: 0,
-            isBookmark: false,
-            list: <ModelMessage>[],
-            enabledController: true,
-            floatingBar: FloatingBar.nothing,
-            indexCategory: -1,
-            iconDataPhoto: Icons.photo_camera,
-            curTag: '',
-            listTag: ModeListTag.nothing,
-          ),
-        ) {
+    ScreenMessageState(
+      fromDate: time,
+      fromTime: TimeOfDay.fromDateTime(time),
+      isReset: false,
+      mode: Mode.await,
+      counter: 0,
+      isBookmark: false,
+      list: <ModelMessage>[],
+      enabledController: true,
+      floatingBar: FloatingBar.nothing,
+      indexCategory: -1,
+      iconDataPhoto: Icons.photo_camera,
+      curTag: '',
+      listTag: ModeListTag.nothing,
+    ),
+  ) {
     controller.addListener(
       () => controller.text.isEmpty
           ? emit(

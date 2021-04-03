@@ -32,10 +32,10 @@ class ScreenCreatingPageInitial extends ScreenCreatingPageState {
     int selectionIconIndex,
     IconData iconButton,
   }) : super(
-          list: list,
-          selectionIconIndex: selectionIconIndex,
-          iconButton: iconButton,
-        );
+    list: list,
+    selectionIconIndex: selectionIconIndex,
+    iconButton: iconButton,
+  );
 
   @override
   ScreenCreatingPageState copyWith({
@@ -57,10 +57,10 @@ class ScreenCreatingPageWork extends ScreenCreatingPageState {
     int selectionIconIndex,
     IconData iconButton,
   }) : super(
-          list: list,
-          selectionIconIndex: selectionIconIndex,
-          iconButton: iconButton,
-        );
+    list: list,
+    selectionIconIndex: selectionIconIndex,
+    iconButton: iconButton,
+  );
 
   @override
   ScreenCreatingPageState copyWith({

@@ -118,7 +118,7 @@ class MyApp extends StatelessWidget {
                 bodyText2: TextStyle(
                   fontSize: state.bodyFontSize,
                   color: state.bodyColor,
-                )
+                ),
               ),
               bottomNavigationBarTheme: BottomNavigationBarThemeData(
                 selectedItemColor: Colors.teal,
@@ -143,7 +143,7 @@ class MyBlocObserver extends BlocObserver {
   @override
   void onChange(Cubit cubit, Change change) {
     super.onChange(cubit, change);
-    //print('onChange -- cubit: ${cubit.runtimeType}, change: $change');
+    print('onChange -- cubit: ${cubit.runtimeType}, change: $change');
   }
 
   @override

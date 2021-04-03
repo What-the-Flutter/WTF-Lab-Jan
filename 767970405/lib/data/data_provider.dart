@@ -1,9 +1,9 @@
-import 'package:my_chat_journal/data/model/model_tag.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'model/model_message.dart';
 import 'model/model_page.dart';
+import 'model/model_tag.dart';
 
 class PagesAPI {
   Database _database;

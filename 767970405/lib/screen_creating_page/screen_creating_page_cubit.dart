@@ -13,10 +13,10 @@ class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
   ScreenCreatingPageCubit({
     this.repository,
   }) : super(
-          ScreenCreatingPageInitial(
-            list: List.from(repository.listIcon),
-          ),
-        );
+    ScreenCreatingPageInitial(
+      list: List.from(repository.listIcon),
+    ),
+  );
 
   void setting(String title, int selectionIconIndex) {
     controller.addListener(changeButton);

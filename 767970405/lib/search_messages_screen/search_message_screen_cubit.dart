@@ -46,8 +46,6 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
     }
   }
 
-
-
   void reset() {
     controller.text = '';
   }

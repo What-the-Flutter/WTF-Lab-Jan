@@ -1,7 +1,15 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
@@ -19,39 +27,44 @@ import 'home_screen_cubit.dart';
 class HomeWindow extends StatelessWidget {
   final LocalAuthentication auth = LocalAuthentication();
 
+  static final GlobalKey _globalKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Scaffold(
-          appBar: AppBar(
-            title: Text('Home'),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.invert_colors),
-                onPressed: () {
-                  context.read<GeneralOptionsCubit>().toggleTheme();
-                  saveTheme(context
-                      .read<GeneralOptionsCubit>()
-                      .state
-                      .appBrightness
-                      .index);
-                },
-              ),
-            ],
+    return RepaintBoundary(
+      key: _globalKey,
+      child: Stack(
+        children: <Widget>[
+          Scaffold(
+            appBar: AppBar(
+              title: Text('Home'),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.invert_colors),
+                  onPressed: () {
+                    context.read<GeneralOptionsCubit>().toggleTheme();
+                    saveTheme(context
+                        .read<GeneralOptionsCubit>()
+                        .state
+                        .appBrightness
+                        .index);
+                  },
+                ),
+              ],
+            ),
+            drawer: _drawer(context),
+            body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+              builder: (context, state) => state is HomeScreenShow
+                  ? ChatPreviewList()
+                  : Center(child: Text('Await')),
+            ),
+            floatingActionButton: AddChatButton(),
+            bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+              builder: _bottomNavigationBar,
+            ),
           ),
-          drawer: _drawer(context),
-          body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-            builder: (context, state) => state is HomeScreenShow
-                ? ChatPreviewList()
-                : Center(child: Text('Await')),
-          ),
-          floatingActionButton: AddChatButton(),
-          bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-            builder: _bottomNavigationBar,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -66,9 +79,7 @@ class HomeWindow extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.card_giftcard),
             title: Text('Help spread the word'),
-            onTap: () {
-              //TODO
-            },
+            onTap: () => shareScreenshot(context),
           ),
           ListTile(
             leading: Icon(Icons.search),
@@ -110,6 +121,31 @@ class HomeWindow extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<Null> shareScreenshot(BuildContext context) async {
+    Navigator.pop(context);
+    try {
+      RenderRepaintBoundary boundary =
+          _globalKey.currentContext.findRenderObject();
+      if (boundary.debugNeedsPaint) {
+        Timer(Duration(seconds: 1), () => shareScreenshot(context));
+        return null;
+      }
+      var image = await boundary.toImage();
+      final directory = (await getExternalStorageDirectory()).path;
+      var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      var pngBytes = byteData.buffer.asUint8List();
+      var imgFile = File('$directory/screenshot.png');
+      imgFile.writeAsBytes(pngBytes);
+      final RenderBox box = context.findRenderObject();
+      Share.shareFiles(['$directory/screenshot.png'],
+          subject: 'Share ScreenShot',
+          text: 'Hello, check your share files!',
+          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+    } on PlatformException catch (e) {
+      print('Exception while taking screenshot:$e');
+    }
   }
 
   Widget _bottomNavigationBar(BuildContext context, HomeScreenState state) {

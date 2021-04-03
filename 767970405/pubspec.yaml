@@ -40,6 +40,9 @@ dependencies:
   local_auth: ^1.1.0
   get_it: ^6.0.0
   flutter_slidable: ^0.5.7
+  social_share: ^2.1.1
+  share: ^2.0.1
+  http: ^0.13.1
 
 dev_dependencies:
   flutter_test:

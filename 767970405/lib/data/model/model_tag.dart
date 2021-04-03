@@ -1,5 +1,3 @@
-import 'package:equatable/equatable.dart';
-
 class ModelTag {
   final int id;
   final String name;
