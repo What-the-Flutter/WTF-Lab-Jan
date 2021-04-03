@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../../../extensions/list_get_element.dart';
+import '../../../model/category.dart';
 import '../../../model/record.dart';
 import '../../../repositories/records_repository.dart';
 import '../../../utils/utils.dart' as utils;
@@ -17,13 +17,28 @@ class RecordsCubit extends Cubit<RecordsState> {
           RecordsLoadInProcess(null),
         );
 
+  Future<List<RecordWithCategory>> getRecordsWithCategory(
+      {int categoryId}) async {
+    final records = await repository.getAllRecords(categoryId: categoryId);
+    final recordsWithCategory = <RecordWithCategory>[];
+    for (var record in records) {
+      recordsWithCategory.add(
+        RecordWithCategory(
+          record: record,
+          category: await repository.getCategory(
+            categoryId: categoryId ?? record.categoryId,
+          ),
+        ),
+      );
+    }
+    return recordsWithCategory;
+  }
+
   void loadRecords({int categoryId}) async {
     emit(RecordsLoadInProcess(null));
     emit(
       RecordsLoadSuccess(
-        await repository.getAllRecords(
-          categoryId: categoryId,
-        ),
+        await getRecordsWithCategory(categoryId: categoryId),
       ),
     );
   }
@@ -32,7 +47,7 @@ class RecordsCubit extends Cubit<RecordsState> {
     await repository.insert(record);
     emit(
       RecordAddSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        await getRecordsWithCategory(categoryId: categoryId),
         record,
       ),
     );
@@ -42,7 +57,7 @@ class RecordsCubit extends Cubit<RecordsState> {
     await repository.update(record);
     emit(
       RecordUpdateSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        await getRecordsWithCategory(categoryId: categoryId),
         record,
       ),
     );
@@ -52,7 +67,7 @@ class RecordsCubit extends Cubit<RecordsState> {
     final deletedRecord = await repository.delete(recordId);
     emit(
       RecordDeleteSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        await getRecordsWithCategory(categoryId: categoryId),
         deletedRecord,
       ),
     );
@@ -69,12 +84,10 @@ class RecordsCubit extends Cubit<RecordsState> {
     await repository.update(
       record.copyWith(isSelected: true),
     );
-    state.records.get(record).select();
-    record.select();
     emit(
       RecordSelectSuccess(
-        state.records,
-        record,
+        await getRecordsWithCategory(categoryId: categoryId),
+        record..select(),
       ),
     );
   }
@@ -83,28 +96,30 @@ class RecordsCubit extends Cubit<RecordsState> {
     await repository.update(
       record.copyWith(isSelected: false),
     );
-    state.records.get(record).unselect();
-    record.unselect();
     emit(
       RecordUnselectSuccess(
-        state.records,
-        record,
+        await getRecordsWithCategory(categoryId: categoryId),
+        record..unselect(),
       ),
     );
   }
 
   void unselectAll({List<Record> records, int categoryId}) async {
     final recordsForUnselect = records ??
-        state.records.where((element) => element.isSelected).toList();
+        state.records
+            .where((element) => element.record.isSelected)
+            .map((e) => e.record)
+            .toList();
 
     for (var record in recordsForUnselect) {
       await repository.update(
         record.copyWith(isSelected: false),
       );
+      record.unselect();
     }
     emit(
       RecordsUnselectSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        await getRecordsWithCategory(categoryId: categoryId),
         recordsForUnselect,
       ),
     );
@@ -123,7 +138,7 @@ class RecordsCubit extends Cubit<RecordsState> {
     }
     emit(
       RecordsChangeFavoriteSuccess(
-        await repository.getAllRecords(
+        await getRecordsWithCategory(
           categoryId: categoryId,
         ),
         favoirteChangedRecords: recordsForChange,
@@ -137,7 +152,7 @@ class RecordsCubit extends Cubit<RecordsState> {
     }
     emit(
       RecordsDeleteSuccess(
-        await repository.getAllRecords(
+        await getRecordsWithCategory(
           categoryId: categoryId,
         ),
         deletedRecords: recordsForDelete,
@@ -151,7 +166,7 @@ class RecordsCubit extends Cubit<RecordsState> {
     }
     emit(
       RecordsAddSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        await getRecordsWithCategory(categoryId: categoryId),
         recordsForAdd,
       ),
     );
@@ -168,7 +183,7 @@ class RecordsCubit extends Cubit<RecordsState> {
     }
     emit(
       RecordsSendSuccess(
-        await repository.getAllRecords(categoryId: categoryId),
+        await getRecordsWithCategory(categoryId: categoryId),
         recordsForSend,
       ),
     );
@@ -177,7 +192,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   void showFavorite() {
     emit(
       RecordsShowFavoriteSuccess(
-        state.records.where((element) => element.isFavorite).toList(),
+        state.records.where((element) => element.record.isFavorite).toList(),
       ),
     );
   }

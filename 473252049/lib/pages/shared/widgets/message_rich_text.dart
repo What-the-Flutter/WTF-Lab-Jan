@@ -1,12 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../../model/record.dart';
+import '../../category/cubit/records_cubit.dart';
 import '../../search_record_page.dart';
 
 class MessageRichText extends StatefulWidget {
   final String message;
-  final List<Record> records;
+  final List<RecordWithCategory> records;
 
   const MessageRichText({Key key, this.message, this.records})
       : super(key: key);

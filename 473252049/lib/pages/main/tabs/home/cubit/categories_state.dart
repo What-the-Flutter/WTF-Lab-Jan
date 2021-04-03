@@ -1,8 +1,8 @@
 part of 'categories_cubit.dart';
 
 class CategoryWithLastRecord {
-  Category category;
-  Record lastRecord;
+  final Category category;
+  final Record lastRecord;
 
   CategoryWithLastRecord({
     @required this.category,

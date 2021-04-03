@@ -5,33 +5,17 @@ import 'package:intl/intl.dart';
 import '../../../model/category.dart';
 import '../../../model/record.dart';
 import '../../category/cubit/records_cubit.dart';
-import '../../main/tabs/home/cubit/categories_cubit.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import 'record/record_widget.dart';
 
-class RecordsListView extends StatefulWidget {
-  final List<Record> records;
+class RecordsListView extends StatelessWidget {
+  final List<RecordWithCategory> records;
   final Category category;
   final bool withCategories;
 
-  const RecordsListView({
-    Key key,
-    @required this.records,
-    this.category,
-    this.withCategories,
-  }) : super(key: key);
-
-  @override
-  _RecordsListViewState createState() => _RecordsListViewState();
-}
-
-class _RecordsListViewState extends State<RecordsListView> {
-  @override
-  void initState() {
-    context.read<RecordsCubit>().loadRecords(categoryId: widget.category?.id);
-    super.initState();
-  }
-
+  const RecordsListView(
+      {Key key, this.records, this.category, this.withCategories})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -40,10 +24,10 @@ class _RecordsListViewState extends State<RecordsListView> {
         reverse: true,
         children: [
           ...recordWidgetsFromRecords(
-            records: widget.records,
-            category: widget.category,
+            records: records,
+            category: category,
             context: context,
-            withCategories: widget.withCategories,
+            withCategories: withCategories,
           ),
         ],
       ),
@@ -52,7 +36,7 @@ class _RecordsListViewState extends State<RecordsListView> {
 }
 
 List<Widget> recordWidgetsFromRecords({
-  List<Record> records,
+  List<RecordWithCategory> records,
   Category category,
   BuildContext context,
   bool withCategories,
@@ -60,14 +44,15 @@ List<Widget> recordWidgetsFromRecords({
   final recordWidgets = <Widget>[];
   for (var i = 0; i < records.length; ++i) {
     if (i > 0 &&
-        records[i].createDateTime.day != records[i - 1].createDateTime.day) {
+        records[i].record.createDateTime.day !=
+            records[i - 1].record.createDateTime.day) {
       recordWidgets.add(
         BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
             return RecordWidget(
               record: Record(
                 DateFormat.yMEd().format(
-                  records[i - 1].createDateTime,
+                  records[i - 1].record.createDateTime,
                 ),
                 categoryId: category?.id,
               ),
@@ -85,12 +70,10 @@ List<Widget> recordWidgetsFromRecords({
         builder: (context, state) {
           return RecordWidget(
             key: UniqueKey(),
-            record: records[i],
-            category: category,
+            record: records[i].record,
+            category: category ?? records[i].category,
             bubbleAlignment: state.bubbleAlignment,
             withCategory: withCategories,
-            futureCategory:
-                context.read<CategoriesCubit>().getById(records[i].categoryId),
           );
         },
       ),
@@ -103,7 +86,7 @@ List<Widget> recordWidgetsFromRecords({
           return RecordWidget(
             record: Record(
               DateFormat.yMEd().format(
-                records.last.createDateTime,
+                records.last.record.createDateTime,
               ),
               categoryId: category?.id,
             ),

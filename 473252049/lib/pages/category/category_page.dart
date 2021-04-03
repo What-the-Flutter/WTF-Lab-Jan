@@ -41,7 +41,7 @@ class _CategoryPageState extends State<CategoryPage> {
               ? AppBar(
                   title: Text(widget.category.name),
                 )
-              : state.records.map((e) => e.isSelected).contains(true)
+              : state.records.map((e) => e.record.isSelected).contains(true)
                   ? state is RecordUpdateInProcess
                       ? editModeAppBar(
                           context,

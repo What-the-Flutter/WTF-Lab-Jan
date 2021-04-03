@@ -15,9 +15,9 @@ class CategoriesCubit extends Cubit<CategoriesState> {
 
   Future<List<CategoryWithLastRecord>> get categoriesWithLastRecords async {
     final categories = await repository.getAll();
-    final categoriesWithLastRecords = <CategoryWithLastRecord>[];
+    final categoriesWithLastRecord = <CategoryWithLastRecord>[];
     for (var category in categories) {
-      categoriesWithLastRecords.add(
+      categoriesWithLastRecord.add(
         CategoryWithLastRecord(
           category: category,
           lastRecord: await repository.getLastRecord(
@@ -26,7 +26,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
         ),
       );
     }
-    return categoriesWithLastRecords;
+    return categoriesWithLastRecord;
   }
 
   Future<Category> getById(int categoryId) async {

@@ -46,8 +46,9 @@ class _MainPageState extends State<MainPage> {
     return BlocBuilder<RecordsCubit, RecordsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: currentPageIndex == 2 &&
-                  state.records.map((e) => e.isSelected).contains(true)
+          appBar: !(state is RecordsLoadInProcess) &&
+                  currentPageIndex == 2 &&
+                  state.records.map((e) => e.record.isSelected).contains(true)
               ? AppBar(
                   title: Text('Select'),
                   leading: IconButton(
@@ -62,11 +63,12 @@ class _MainPageState extends State<MainPage> {
                       onPressed: () async {
                         await context.read<RecordsCubit>().changeFavorite(state
                             .records
-                            .where((element) => element.isSelected)
+                            .where((element) => element.record.isSelected)
+                            .map((e) => e.record)
                             .toList());
-                        await context
-                            .read<RecordsCubit>()
-                            .unselectAll(records: state.records);
+                        await context.read<RecordsCubit>().unselectAll(
+                            records:
+                                state.records.map((e) => e.record).toList());
                       },
                     ),
                     Builder(
@@ -75,7 +77,8 @@ class _MainPageState extends State<MainPage> {
                         onPressed: () {
                           context.read<RecordsCubit>().copyToClipboard(
                               records: state.records
-                                  .where((element) => element.isSelected)
+                                  .where((element) => element.record.isSelected)
+                                  .map((e) => e.record)
                                   .toList());
                           context.read<RecordsCubit>().unselectAll();
                           ScaffoldMessenger.of(context).showSnackBar(

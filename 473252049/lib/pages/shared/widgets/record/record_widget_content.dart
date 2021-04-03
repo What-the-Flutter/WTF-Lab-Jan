@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../model/record.dart';
+import '../../../category/cubit/records_cubit.dart';
 import '../message_rich_text.dart';
 import 'record_category_name.dart';
 import 'record_info_row.dart';
@@ -15,7 +15,7 @@ class RecordWidgetContent extends StatelessWidget {
   final File image;
   final String message;
   final bool isDateRecord;
-  final List<Record> records;
+  final List<RecordWithCategory> records;
   final DateTime createDateTime;
   final bool withCategory;
   final String categoryName;

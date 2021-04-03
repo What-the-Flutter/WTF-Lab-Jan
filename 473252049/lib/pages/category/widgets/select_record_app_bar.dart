@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../model/category.dart';
-import '../../../model/record.dart';
 import '../cubit/records_cubit.dart';
 import '../dialogs/delete_records_dialog.dart';
 import '../dialogs/send_records_dialog.dart';
 
 AppBar selectRecordAppBar(
   BuildContext context, {
-  List<Record> records,
+  List<RecordWithCategory> records,
   FocusNode messageFocus,
   TextEditingController controller,
   Category category,
@@ -28,7 +27,7 @@ AppBar selectRecordAppBar(
     actions: [
       if (records
               .where(
-                (element) => element.isSelected,
+                (element) => element.record.isSelected,
               )
               .length <
           2)
@@ -37,18 +36,23 @@ AppBar selectRecordAppBar(
           onPressed: () {
             setCreateRecordDateTime(records
                 .where(
-                  (element) => element.isSelected,
+                  (element) => element.record.isSelected,
                 )
                 .first
+                .record
                 .createDateTime);
             context.read<RecordsCubit>().beginUpdate(
-                records.firstWhere(
-                  (element) => element.isSelected,
-                ),
+                records
+                    .firstWhere(
+                      (element) => element.record.isSelected,
+                    )
+                    .record,
                 categoryId: category.id);
 
-            controller.text =
-                records.firstWhere((element) => element.isSelected).message;
+            controller.text = records
+                .firstWhere((element) => element.record.isSelected)
+                .record
+                .message;
             messageFocus.requestFocus();
           },
         ),
@@ -67,13 +71,14 @@ AppBar selectRecordAppBar(
           await context.read<RecordsCubit>().changeFavorite(
                 records
                     .where(
-                      (element) => element.isSelected,
+                      (element) => element.record.isSelected,
                     )
+                    .map((e) => e.record)
                     .toList(),
                 categoryId: category.id,
               );
           await context.read<RecordsCubit>().unselectAll(
-                records: records,
+                records: records.map((e) => e.record).toList(),
                 categoryId: category.id,
               );
         },
@@ -85,8 +90,9 @@ AppBar selectRecordAppBar(
             context.read<RecordsCubit>().copyToClipboard(
                 records: records
                     .where(
-                      (element) => element.isSelected,
+                      (element) => element.record.isSelected,
                     )
+                    .map((e) => e.record)
                     .toList());
             context.read<RecordsCubit>().unselectAll(
                   categoryId: category.id,

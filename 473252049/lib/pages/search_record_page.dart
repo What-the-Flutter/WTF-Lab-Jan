@@ -7,7 +7,7 @@ import 'main/tabs/home/cubit/categories_cubit.dart';
 import 'shared/widgets/records_list_view.dart';
 
 class SearchRecordPage extends SearchDelegate<Record> {
-  final List<Record> records;
+  final List<RecordWithCategory> records;
   final BuildContext context;
   final bool withCategories;
 
@@ -53,9 +53,9 @@ class SearchRecordPage extends SearchDelegate<Record> {
         child: BlocBuilder<RecordsCubit, RecordsState>(
           builder: (context, state) {
             return RecordsListView(
-              records: state.records.where(
+              records: records.where(
                 (record) {
-                  return record.message.contains(query);
+                  return record.record.message.contains(query);
                 },
               ).toList(),
               withCategories: withCategories,
@@ -75,9 +75,9 @@ class SearchRecordPage extends SearchDelegate<Record> {
         child: BlocBuilder<RecordsCubit, RecordsState>(
           builder: (context, state) {
             return RecordsListView(
-              records: state.records.where(
+              records: records.where(
                 (record) {
-                  return record.message.toLowerCase().contains(
+                  return record.record.message.toLowerCase().contains(
                         query.toLowerCase(),
                       );
                 },

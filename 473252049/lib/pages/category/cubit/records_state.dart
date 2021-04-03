@@ -1,7 +1,17 @@
 part of 'records_cubit.dart';
 
+class RecordWithCategory {
+  final Record record;
+  final Category category;
+
+  RecordWithCategory({
+    @required this.record,
+    @required this.category,
+  });
+}
+
 abstract class RecordsState extends Equatable {
-  final List<Record> records;
+  final List<RecordWithCategory> records;
 
   const RecordsState(this.records);
 
@@ -10,17 +20,18 @@ abstract class RecordsState extends Equatable {
 }
 
 class RecordsLoadInProcess extends RecordsState {
-  RecordsLoadInProcess(List<Record> records) : super(records);
+  RecordsLoadInProcess(List<RecordWithCategory> records) : super(records);
 }
 
 class RecordsLoadSuccess extends RecordsState {
-  RecordsLoadSuccess(List<Record> records) : super(records);
+  RecordsLoadSuccess(List<RecordWithCategory> records) : super(records);
 }
 
 class RecordAddSuccess extends RecordsState {
   final Record record;
 
-  RecordAddSuccess(List<Record> records, this.record) : super(records);
+  RecordAddSuccess(List<RecordWithCategory> records, this.record)
+      : super(records);
 
   @override
   List<Object> get props => [records, record];
@@ -29,7 +40,8 @@ class RecordAddSuccess extends RecordsState {
 class RecordDeleteSuccess extends RecordsState {
   final Record record;
 
-  RecordDeleteSuccess(List<Record> records, this.record) : super(records);
+  RecordDeleteSuccess(List<RecordWithCategory> records, this.record)
+      : super(records);
 
   @override
   List<Object> get props => [records, record];
@@ -38,7 +50,8 @@ class RecordDeleteSuccess extends RecordsState {
 class RecordUpdateSuccess extends RecordsState {
   final Record record;
 
-  RecordUpdateSuccess(List<Record> records, this.record) : super(records);
+  RecordUpdateSuccess(List<RecordWithCategory> records, this.record)
+      : super(records);
 
   @override
   List<Object> get props => [records, record];
@@ -47,7 +60,8 @@ class RecordUpdateSuccess extends RecordsState {
 class RecordsCopyToClipboardSuccess extends RecordsState {
   final List<Record> copiedRecords;
 
-  RecordsCopyToClipboardSuccess(List<Record> records, this.copiedRecords)
+  RecordsCopyToClipboardSuccess(
+      List<RecordWithCategory> records, this.copiedRecords)
       : super(records);
 
   @override
@@ -57,7 +71,8 @@ class RecordsCopyToClipboardSuccess extends RecordsState {
 class RecordSelectSuccess extends RecordsState {
   final Record record;
 
-  RecordSelectSuccess(List<Record> records, this.record) : super(records);
+  RecordSelectSuccess(List<RecordWithCategory> records, this.record)
+      : super(records);
 
   @override
   List<Object> get props => [records, record];
@@ -66,7 +81,8 @@ class RecordSelectSuccess extends RecordsState {
 class RecordUnselectSuccess extends RecordsState {
   final Record record;
 
-  RecordUnselectSuccess(List<Record> records, this.record) : super(records);
+  RecordUnselectSuccess(List<RecordWithCategory> records, this.record)
+      : super(records);
 
   @override
   List<Object> get props => [records, record];
@@ -75,7 +91,8 @@ class RecordUnselectSuccess extends RecordsState {
 class RecordsUnselectSuccess extends RecordsState {
   final List<Record> unselectedRecords;
 
-  RecordsUnselectSuccess(List<Record> records, this.unselectedRecords)
+  RecordsUnselectSuccess(
+      List<RecordWithCategory> records, this.unselectedRecords)
       : super(records);
 
   @override
@@ -85,7 +102,8 @@ class RecordsUnselectSuccess extends RecordsState {
 class RecordUpdateInProcess extends RecordsState {
   final Record record;
 
-  RecordUpdateInProcess(List<Record> records, this.record) : super(records);
+  RecordUpdateInProcess(List<RecordWithCategory> records, this.record)
+      : super(records);
 
   @override
   List<Object> get props => [records, record];
@@ -95,7 +113,7 @@ class RecordsChangeFavoriteSuccess extends RecordsState {
   final List<Record> favoirteChangedRecords;
 
   RecordsChangeFavoriteSuccess(
-    List<Record> records, {
+    List<RecordWithCategory> records, {
     @required this.favoirteChangedRecords,
   }) : super(records);
 
@@ -107,7 +125,7 @@ class RecordsDeleteSuccess extends RecordsState {
   final List<Record> deletedRecords;
 
   RecordsDeleteSuccess(
-    List<Record> records, {
+    List<RecordWithCategory> records, {
     this.deletedRecords,
   }) : super(records);
 
@@ -118,7 +136,8 @@ class RecordsDeleteSuccess extends RecordsState {
 class RecordsAddSuccess extends RecordsState {
   final List<Record> addedRecords;
 
-  RecordsAddSuccess(List<Record> records, this.addedRecords) : super(records);
+  RecordsAddSuccess(List<RecordWithCategory> records, this.addedRecords)
+      : super(records);
 
   @override
   List<Object> get props => [records, addedRecords];
@@ -127,12 +146,13 @@ class RecordsAddSuccess extends RecordsState {
 class RecordsSendSuccess extends RecordsState {
   final List<Record> sentRecords;
 
-  RecordsSendSuccess(List<Record> records, this.sentRecords) : super(records);
+  RecordsSendSuccess(List<RecordWithCategory> records, this.sentRecords)
+      : super(records);
 
   @override
   List<Object> get props => [records, sentRecords];
 }
 
 class RecordsShowFavoriteSuccess extends RecordsState {
-  RecordsShowFavoriteSuccess(List<Record> records) : super(records);
+  RecordsShowFavoriteSuccess(List<RecordWithCategory> records) : super(records);
 }
