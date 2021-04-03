@@ -63,7 +63,15 @@ class _CategoryPageState extends State<CategoryPage> {
                       categoryName: widget.category.name,
                     ),
           body: Column(
+            verticalDirection: VerticalDirection.up,
             children: [
+              CreateRecordForm(
+                formKey: _formKey,
+                textEditingController: _textEditingController,
+                messageFocus: _messageFocus,
+                categoryId: widget.category.id,
+                createRecordDateTime: createRecordDateTime,
+              ),
               if (state is RecordsLoadInProcess)
                 Center(
                   child: CircularProgressIndicator(),
@@ -98,13 +106,6 @@ class _CategoryPageState extends State<CategoryPage> {
                     },
                   ),
                 ),
-              CreateRecordForm(
-                formKey: _formKey,
-                textEditingController: _textEditingController,
-                messageFocus: _messageFocus,
-                categoryId: widget.category.id,
-                createRecordDateTime: createRecordDateTime,
-              ),
             ],
           ),
         );
