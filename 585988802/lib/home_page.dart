@@ -135,7 +135,7 @@ class _HomePageState extends State<HomePage> {
             title: Text('Daily'),
           ),
           ListTile(
-            leading: Icon(Icons.curTag),
+            leading: Icon(Icons.tag),
             title: Text('Tags'),
           ),
           ListTile(
