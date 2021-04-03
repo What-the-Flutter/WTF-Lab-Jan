@@ -12,9 +12,14 @@ class RecordsListView extends StatelessWidget {
   final List<RecordWithCategory> records;
   final Category category;
   final bool withCategories;
+  final bool isOnSearchPage;
 
   const RecordsListView(
-      {Key key, this.records, this.category, this.withCategories})
+      {Key key,
+      this.records,
+      this.category,
+      this.withCategories,
+      this.isOnSearchPage})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -28,6 +33,7 @@ class RecordsListView extends StatelessWidget {
             category: category,
             context: context,
             withCategories: withCategories,
+            isOnSearchPage: isOnSearchPage,
           ),
         ],
       ),
@@ -35,12 +41,12 @@ class RecordsListView extends StatelessWidget {
   }
 }
 
-List<Widget> recordWidgetsFromRecords({
-  List<RecordWithCategory> records,
-  Category category,
-  BuildContext context,
-  bool withCategories,
-}) {
+List<Widget> recordWidgetsFromRecords(
+    {List<RecordWithCategory> records,
+    Category category,
+    BuildContext context,
+    bool withCategories,
+    bool isOnSearchPage}) {
   final recordWidgets = <Widget>[];
   for (var i = 0; i < records.length; ++i) {
     if (i > 0 &&
@@ -74,6 +80,7 @@ List<Widget> recordWidgetsFromRecords({
             category: category ?? records[i].category,
             bubbleAlignment: state.bubbleAlignment,
             withCategory: withCategories,
+            isOnSearchPage: isOnSearchPage,
           );
         },
       ),

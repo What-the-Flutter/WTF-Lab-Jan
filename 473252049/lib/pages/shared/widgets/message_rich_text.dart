@@ -7,8 +7,10 @@ import '../../search_record_page.dart';
 class MessageRichText extends StatefulWidget {
   final String message;
   final List<RecordWithCategory> records;
+  final bool isOnSearchPage;
 
-  const MessageRichText({Key key, this.message, this.records})
+  const MessageRichText(
+      {Key key, this.message, this.records, this.isOnSearchPage = false})
       : super(key: key);
 
   @override
@@ -46,7 +48,9 @@ class _MessageRichTextState extends State<MessageRichText> {
         TextSpan(
           text: tags[i],
           style: TextStyle(decoration: TextDecoration.underline),
-          recognizer: tapGestureRecognizers.last,
+          recognizer: widget.isOnSearchPage ?? false
+              ? null
+              : tapGestureRecognizers.last,
         ),
       );
     }

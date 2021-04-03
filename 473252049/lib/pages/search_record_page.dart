@@ -59,6 +59,7 @@ class SearchRecordPage extends SearchDelegate<Record> {
                 },
               ).toList(),
               withCategories: withCategories,
+              isOnSearchPage: true,
             );
           },
         ),
@@ -83,6 +84,7 @@ class SearchRecordPage extends SearchDelegate<Record> {
                 },
               ).toList(),
               withCategories: withCategories,
+              isOnSearchPage: true,
             );
           },
         ),

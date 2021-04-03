@@ -13,6 +13,7 @@ class RecordWidget extends StatelessWidget {
   final bool isDateRecord;
   final Alignment bubbleAlignment;
   final bool withCategory;
+  final bool isOnSearchPage;
 
   const RecordWidget({
     Key key,
@@ -21,6 +22,7 @@ class RecordWidget extends StatelessWidget {
     this.isDateRecord = false,
     this.bubbleAlignment,
     this.withCategory = false,
+    this.isOnSearchPage = false,
   }) : super(key: key);
 
   @override
@@ -59,6 +61,7 @@ class RecordWidget extends StatelessWidget {
             withCategory: withCategory,
             categoryName: category?.name,
             categoryId: category?.id,
+            isOnSearchPage: isOnSearchPage,
           ),
         );
       },

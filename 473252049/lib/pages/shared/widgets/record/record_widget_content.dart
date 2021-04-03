@@ -20,6 +20,7 @@ class RecordWidgetContent extends StatelessWidget {
   final bool withCategory;
   final String categoryName;
   final int categoryId;
+  final bool isOnSearchPage;
 
   const RecordWidgetContent({
     Key key,
@@ -34,6 +35,7 @@ class RecordWidgetContent extends StatelessWidget {
     @required this.withCategory,
     @required this.categoryName,
     @required this.categoryId,
+    this.isOnSearchPage,
   }) : super(key: key);
 
   @override
@@ -89,6 +91,7 @@ class RecordWidgetContent extends StatelessWidget {
                           key: UniqueKey(),
                           message: message,
                           records: records,
+                          isOnSearchPage: isOnSearchPage,
                         ),
                       if (isDateRecord)
                         Text(
