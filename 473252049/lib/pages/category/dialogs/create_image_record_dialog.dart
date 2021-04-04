@@ -42,7 +42,7 @@ Future showCreateImageRecordDialog({
                 onPressed: () async {
                   await context.read<RecordsCubit>().add(
                         Record(
-                          textEditingController.text,
+                          textEditingController.text.trim(),
                           categoryId: categoryId,
                           image: image,
                         ),
