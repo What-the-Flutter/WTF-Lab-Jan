@@ -15,6 +15,7 @@ class MessageText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ParsedText(
+      style: Theme.of(context).textTheme.bodyText2,
       text: message,
       parse: <MatchText>[
         MatchText(
