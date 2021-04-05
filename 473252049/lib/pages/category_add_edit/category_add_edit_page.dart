@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../model/category.dart';
 import '../main/tabs/home/cubit/categories_cubit.dart';
-import 'category_choose_icon_widget.dart';
 import 'category_icons.dart';
 
 enum CategoryAddEditMode { add, edit }

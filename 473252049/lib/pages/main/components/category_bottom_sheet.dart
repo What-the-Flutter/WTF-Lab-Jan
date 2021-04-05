@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../model/category.dart';
 import '../../category_add_edit/category_add_edit_page.dart';
+import '../dialogs/animated_dialog.dart';
+import '../dialogs/category_info_dialog.dart';
+import '../dialogs/delete_category_dialog.dart';
 import '../tabs/home/cubit/categories_cubit.dart';
 
 class CategoryBottomSheet extends StatelessWidget {
@@ -34,21 +36,13 @@ class CategoryBottomSheet extends StatelessWidget {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text(category.name),
-                    content: Text(
-                      'Create date: ${DateFormat.yMMMd().format(category.createDateTime)}',
-                    ),
-                    actions: [
-                      TextButton(
-                        child: Text('OK'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pop();
-                        },
+                  builder: (context) {
+                    return AnimatedDialog(
+                      dialog: CategoryInfoDialog(
+                        category: category,
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             ),
@@ -94,27 +88,11 @@ class CategoryBottomSheet extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (newContext) {
-                    return AlertDialog(
-                      title: Text('Delete ${category.name}?'),
-                      actions: [
-                        TextButton(
-                          child: Text("Don't"),
-                          onPressed: () {
-                            Navigator.of(newContext).pop();
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        TextButton(
-                          child: Text('Delete'),
-                          onPressed: () {
-                            context
-                                .read<CategoriesCubit>()
-                                .delete(id: category.id);
-                            Navigator.of(newContext).pop();
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
+                    return AnimatedDialog(
+                      dialog: DeleteCategoryDialog(
+                        category: category,
+                        categoriesCubitContext: context,
+                      ),
                     );
                   },
                 );
