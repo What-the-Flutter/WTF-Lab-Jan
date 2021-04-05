@@ -2,58 +2,75 @@ import '../event.dart';
 import '../note.dart';
 
 class StatesEventPage {
-  List<Event> currentEventsList = [];
-  Note note;
-  int selectedIconIndex;
-  bool isEventSelected = false;
-  bool isEditing = false;
-  bool isSearch = false;
-  bool isAddingPhoto = false;
-  bool isSendPhotoButton = true;
-  bool isDateTimeModification = false;
-  bool isBubbleAlignment = false;
-  bool isCenterDateBubble = false;
-  int selectedItemIndex = 0;
-  int selectedPageReplyIndex = 0;
-  String selectedDate;
-  String selectedTime;
+  final List<Event> currentEventsList;
+  final Note note;
+  final int selectedIconIndex;
+  final bool isEventSelected;
+  final bool isEditing;
+  final bool isSearch;
+  final bool isAddingPhoto;
+  final bool isSendPhotoButton;
+  final bool isDateTimeModification;
+  final bool isBubbleAlignment;
+  final bool isCenterDateBubble;
+  final int selectedItemIndex;
+  final int selectedPageReplyIndex;
+  final String selectedDate;
+  final String selectedTime;
+
+  const StatesEventPage({
+    this.note,
+    this.currentEventsList,
+    this.selectedIconIndex,
+    this.isEventSelected,
+    this.isEditing,
+    this.isSearch,
+    this.isAddingPhoto,
+    this.isSendPhotoButton,
+    this.isDateTimeModification,
+    this.isBubbleAlignment,
+    this.isCenterDateBubble,
+    this.selectedItemIndex,
+    this.selectedPageReplyIndex,
+    this.selectedDate,
+    this.selectedTime,
+  });
 
   StatesEventPage copyWith({
-    List<Event> currentEventsList,
-    Note note,
-    String selectedDate,
-    String selectedTime,
-    int selectedIconIndex,
-    bool isDateTimeModification,
-    bool isBubbleAlignment,
-    bool isCenterDateBubble,
-    bool isEventSelected,
-    bool isEditing,
-    bool isAddingPhoto,
-    bool isSendPhotoButton,
-    bool isSearch,
-    int selectedItemIndex,
-    int selectedPageReplyIndex,
+    final List<Event> currentEventsList,
+    final Note note,
+    final String selectedDate,
+    final String selectedTime,
+    final int selectedIconIndex,
+    final bool isDateTimeModification,
+    final bool isBubbleAlignment,
+    final bool isCenterDateBubble,
+    final bool isEventSelected,
+    final bool isEditing,
+    final bool isAddingPhoto,
+    final bool isSendPhotoButton,
+    final bool isSearch,
+    final int selectedItemIndex,
+    final int selectedPageReplyIndex,
   }) {
-    var state = StatesEventPage(note ?? this.note);
-    state.currentEventsList = currentEventsList ?? this.currentEventsList;
-    state.selectedIconIndex = selectedIconIndex ?? this.selectedIconIndex;
-    state.isEventSelected = isEventSelected ?? this.isEventSelected;
-    state.selectedDate = selectedDate ?? this.selectedDate;
-    state.selectedTime = selectedTime ?? this.selectedTime;
-    state.isDateTimeModification =
-        isDateTimeModification ?? this.isDateTimeModification;
-    state.isBubbleAlignment = isBubbleAlignment ?? this.isBubbleAlignment;
-    state.isCenterDateBubble = isCenterDateBubble ?? this.isCenterDateBubble;
-    state.isEditing = isEditing ?? this.isEditing;
-    state.isAddingPhoto = isAddingPhoto ?? this.isAddingPhoto;
-    state.isSendPhotoButton = isSendPhotoButton ?? this.isSendPhotoButton;
-    state.isSearch = isSearch ?? this.isSearch;
-    state.selectedItemIndex = selectedItemIndex ?? this.selectedItemIndex;
-    state.selectedPageReplyIndex =
-        selectedPageReplyIndex ?? this.selectedPageReplyIndex;
-    return state;
+    return StatesEventPage(
+      note: note ?? this.note,
+      currentEventsList: currentEventsList ?? this.currentEventsList,
+      selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
+      isEventSelected: isEventSelected ?? this.isEventSelected,
+      selectedDate: selectedDate ?? this.selectedDate,
+      selectedTime: selectedTime ?? this.selectedTime,
+      isDateTimeModification:
+          isDateTimeModification ?? this.isDateTimeModification,
+      isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,
+      isCenterDateBubble: isCenterDateBubble ?? this.isCenterDateBubble,
+      isEditing: isEditing ?? this.isEditing,
+      isAddingPhoto: isAddingPhoto ?? this.isAddingPhoto,
+      isSendPhotoButton: isSendPhotoButton ?? this.isSendPhotoButton,
+      isSearch: isSearch ?? this.isSearch,
+      selectedItemIndex: selectedItemIndex ?? this.selectedItemIndex,
+      selectedPageReplyIndex:
+          selectedPageReplyIndex ?? this.selectedPageReplyIndex,
+    );
   }
-
-  StatesEventPage(this.note);
 }

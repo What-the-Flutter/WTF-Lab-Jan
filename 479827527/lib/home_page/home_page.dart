@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
-import '../note.dart';
 import '../settings/settings.dart';
 import '../themes/cubit_theme.dart';
 import '../utils/icons.dart';
@@ -17,25 +16,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _State extends State<HomePage> {
-  final CubitHomePage _cubit = CubitHomePage(StatesHomePage());
-
   @override
   void initState() {
-    _cubit.init();
+    BlocProvider.of<CubitHomePage>(context).init();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-      cubit: _cubit,
+    return BlocBuilder<CubitHomePage, StatesHomePage>(
       builder: (context, state) {
         return Scaffold(
           bottomNavigationBar: _bottomNavigationBar,
           floatingActionButton: _floatingActionButton(state),
           drawer: _drawer(context),
           appBar: _appBar(state),
-          body: _homePageBody(state, state.noteList),
+          body: _homePageBody(state),
         );
       },
     );
@@ -46,7 +42,7 @@ class _State extends State<HomePage> {
       title: Text(
         'Home',
         style: TextStyle(
-          fontSize: 20,
+          color: Colors.white,
         ),
       ),
       actions: <Widget>[
@@ -74,21 +70,18 @@ class _State extends State<HomePage> {
             ),
           ),
         );
-        _cubit.noteListRedrawing();
+        BlocProvider.of<CubitHomePage>(context).noteListRedrawing();
       },
     );
   }
 
-  Widget _homePageBody(StatesHomePage state, List<Note> noteList) {
+  Widget _homePageBody(StatesHomePage state) {
     return ListView.builder(
       scrollDirection: Axis.vertical,
-      itemCount: noteList.length,
+      itemCount: state.noteList.length,
       itemBuilder: (context, index) => ListTile(
         title: Text(
-          noteList[index].title,
-          style: TextStyle(
-            fontSize: 20,
-          ),
+          state.noteList[index].title,
         ),
         leading: IconButton(
           icon: CircleAvatar(
@@ -99,9 +92,6 @@ class _State extends State<HomePage> {
         ),
         subtitle: Text(
           state.noteList[index].subtitle,
-          style: TextStyle(
-            fontSize: 15,
-          ),
         ),
         onTap: () => _openEventPage(state, index),
         onLongPress: () => _showBottomSheet(state, context, index),
@@ -132,7 +122,7 @@ class _State extends State<HomePage> {
         ),
       ),
     );
-    _cubit.noteListRedrawing();
+    BlocProvider.of<CubitHomePage>(context).noteListRedrawing();
     Navigator.pop(context);
   }
 
@@ -158,7 +148,7 @@ class _State extends State<HomePage> {
             'Delete event',
           ),
           onTap: () {
-            _cubit.removeNote(index);
+            BlocProvider.of<CubitHomePage>(context).removeNote(index);
             Navigator.pop(context);
           },
         ),
@@ -176,7 +166,7 @@ class _State extends State<HomePage> {
         ),
       ),
     );
-    _cubit.noteListRedrawing();
+    BlocProvider.of<CubitHomePage>(context).noteListRedrawing();
   }
 
   BottomNavigationBar get _bottomNavigationBar {
@@ -219,7 +209,6 @@ class _State extends State<HomePage> {
                 title: Text(
                   DateFormat.yMMMMd('en_US').format(DateTime.now()),
                   style: TextStyle(
-                    fontSize: 20,
                     color: Colors.white,
                   ),
                 ),
@@ -275,9 +264,6 @@ class _State extends State<HomePage> {
       ),
       title: Text(
         title,
-        style: TextStyle(
-          fontSize: 20,
-        ),
       ),
     );
   }

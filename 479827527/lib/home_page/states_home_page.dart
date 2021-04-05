@@ -1,16 +1,18 @@
 import '../note.dart';
 
 class StatesHomePage {
-  List<Note> noteList = <Note>[];
-  bool isLightTheme;
+  final List<Note> noteList;
+  final bool isLightTheme;
+
+  const StatesHomePage({this.noteList, this.isLightTheme});
 
   StatesHomePage copyWith({
-    List<Note> noteList,
-    bool isLightTheme,
+    final List<Note> noteList,
+    final bool isLightTheme,
   }) {
-    var state = StatesHomePage();
-    state.noteList = noteList ?? this.noteList;
-    state.isLightTheme = isLightTheme ?? this.isLightTheme;
-    return state;
+    return StatesHomePage(
+      noteList: noteList ?? this.noteList,
+      isLightTheme: isLightTheme ?? this.isLightTheme,
+    );
   }
 }

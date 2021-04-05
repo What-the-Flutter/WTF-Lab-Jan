@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/hashtagable.dart';
+import 'package:hashtagable/widgets/hashtag_text.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -31,24 +33,20 @@ class _EventPageState extends State<EventPage> {
   final FocusNode _focusSearchNode = FocusNode();
   final Note _note;
   final List<Note> _noteList;
-  List<Event> _searchEventList;
-  CubitEventPage _cubit;
+  List<Event> _eventList;
 
-  _EventPageState(this._note, this._noteList) {
-    _cubit = CubitEventPage(StatesEventPage(_note));
-  }
+  _EventPageState(this._note, this._noteList);
 
   @override
   void initState() {
-    _focusNode.requestFocus();
-    _cubit.init();
     super.initState();
+    BlocProvider.of<CubitEventPage>(context).init(_note);
+    _focusNode.requestFocus();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-      cubit: _cubit,
+    return BlocBuilder<CubitEventPage, StatesEventPage>(
       builder: (context, state) {
         return Scaffold(
           appBar: state.isEventSelected
@@ -66,7 +64,8 @@ class _EventPageState extends State<EventPage> {
         icon: Icon(
           Icons.clear,
         ),
-        onPressed: () => _cubit.changeAppBar(),
+        onPressed: () =>
+            BlocProvider.of<CubitEventPage>(context).changeAppBar(),
       ),
       actions: <Widget>[
         IconButton(
@@ -74,7 +73,7 @@ class _EventPageState extends State<EventPage> {
             Icons.reply,
           ),
           onPressed: () {
-            _cubit.changeAppBar();
+            BlocProvider.of<CubitEventPage>(context).changeAppBar();
             _showReplyDialog(index);
           },
         ),
@@ -84,8 +83,8 @@ class _EventPageState extends State<EventPage> {
               Icons.edit,
             ),
             onPressed: () {
-              _cubit.changeAppBar();
-              _cubit.setTextEditState(true);
+              BlocProvider.of<CubitEventPage>(context).changeAppBar();
+              BlocProvider.of<CubitEventPage>(context).setTextEditState(true);
               _textController.text = state.currentEventsList[index].text;
               _textController.selection = TextSelection(
                 baseOffset: _textController.text.length,
@@ -99,7 +98,7 @@ class _EventPageState extends State<EventPage> {
               Icons.copy,
             ),
             onPressed: () {
-              _cubit.changeAppBar();
+              BlocProvider.of<CubitEventPage>(context).changeAppBar();
               _copyEvent(state, index);
             },
           ),
@@ -108,7 +107,7 @@ class _EventPageState extends State<EventPage> {
             Icons.bookmark_border,
           ),
           onPressed: () {
-            _cubit.changeAppBar();
+            BlocProvider.of<CubitEventPage>(context).changeAppBar();
             //TODO
           },
         ),
@@ -117,8 +116,10 @@ class _EventPageState extends State<EventPage> {
             Icons.delete,
           ),
           onPressed: () {
-            _cubit.changeAppBar();
-            _cubit.deleteEvent(index);
+            BlocProvider.of<CubitEventPage>(context).changeAppBar();
+            BlocProvider.of<CubitEventPage>(context).deleteEvent(index);
+            updateNoteSubtitle();
+            BlocProvider.of<CubitEventPage>(context).updateNote();
           },
         ),
       ],
@@ -131,22 +132,23 @@ class _EventPageState extends State<EventPage> {
           ? _textFieldSearch
           : Text(
               _note.title,
-              style: TextStyle(
-                fontSize: 20,
-              ),
             ),
       actions: <Widget>[
         Padding(
-          padding: EdgeInsets.only(right: 10),
+          padding: EdgeInsets.only(
+            right: 10.0,
+          ),
           child: IconButton(
             icon: Icon(
               state.isSearch ? Icons.clear : Icons.search,
             ),
             onPressed: () {
-              _cubit.setTextSearchState(!state.isSearch);
+              BlocProvider.of<CubitEventPage>(context)
+                  .setTextSearchState(!state.isSearch);
               _textSearchController.addListener(
                 () {
-                  _cubit.setCurrentEventsList(state.currentEventsList);
+                  BlocProvider.of<CubitEventPage>(context)
+                      .setCurrentEventsList(state.currentEventsList);
                 },
               );
               _focusSearchNode.requestFocus();
@@ -167,7 +169,9 @@ class _EventPageState extends State<EventPage> {
             ),
             if (state.isAddingPhoto)
               Padding(
-                padding: EdgeInsets.all(10.0),
+                padding: EdgeInsets.all(
+                  10.0,
+                ),
                 child: _imageChooserRow,
               ),
             Align(
@@ -188,9 +192,15 @@ class _EventPageState extends State<EventPage> {
                   left: 10,
                 ),
                 child: Container(
-                  padding: EdgeInsets.all(5.0),
+                  padding: EdgeInsets.all(
+                    5.0,
+                  ),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(70)),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(
+                        70.0,
+                      ),
+                    ),
                     color: Theme.of(context)
                         .floatingActionButtonTheme
                         .backgroundColor,
@@ -210,9 +220,13 @@ class _EventPageState extends State<EventPage> {
                     context: context,
                     initialTime: TimeOfDay.fromDateTime(date),
                   );
-                  _cubit.setSelectedDate(DateFormat.yMMMd().format(date));
+                  BlocProvider.of<CubitEventPage>(context).setSelectedDate(
+                    DateFormat.yMMMd().format(date),
+                  );
                   if (time != null) {
-                    _cubit.setSelectedTime(time.format(context));
+                    BlocProvider.of<CubitEventPage>(context).setSelectedTime(
+                      time.format(context),
+                    );
                   }
                 }
               },
@@ -244,12 +258,13 @@ class _EventPageState extends State<EventPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return BlocBuilder(
-          cubit: _cubit,
+        return BlocBuilder<CubitEventPage, StatesEventPage>(
           builder: (context, state) {
             return Dialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(
+                  20.0,
+                ),
               ),
               elevation: 3,
               child: Container(
@@ -268,21 +283,22 @@ class _EventPageState extends State<EventPage> {
       children: <Widget>[
         Container(
           padding: EdgeInsets.symmetric(
-            horizontal: 5,
-            vertical: 15,
+            horizontal: 5.0,
+            vertical: 15.0,
           ),
           child: Text(
             'Choose the page to migrate event',
-            style: TextStyle(fontSize: 20),
           ),
         ),
-        Expanded(child: _dialogListView(state)),
+        Expanded(
+          child: _dialogListView(state),
+        ),
         Row(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(
-                left: 10,
-                bottom: 15,
+                left: 10.0,
+                bottom: 15.0,
               ),
               child: IconButton(
                 icon: Icon(
@@ -295,9 +311,9 @@ class _EventPageState extends State<EventPage> {
             ),
             Padding(
               padding: const EdgeInsets.only(
-                right: 10,
-                bottom: 15,
-                left: 180,
+                right: 10.0,
+                bottom: 15.0,
+                left: 180.0,
               ),
               child: _transferEventButton(index),
             ),
@@ -315,7 +331,8 @@ class _EventPageState extends State<EventPage> {
         color: Theme.of(context).floatingActionButtonTheme.backgroundColor,
       ),
       onPressed: () {
-        _cubit.transferEvent(_noteList, index);
+        BlocProvider.of<CubitEventPage>(context)
+            .transferEvent(_noteList, index);
         Navigator.pop(context);
       },
     );
@@ -337,7 +354,8 @@ class _EventPageState extends State<EventPage> {
       value: index,
       activeColor: Theme.of(context).accentColor,
       groupValue: state.selectedPageReplyIndex,
-      onChanged: (value) => _cubit.setSelectedPageReplyIndex(value),
+      onChanged: (value) => BlocProvider.of<CubitEventPage>(context)
+          .setSelectedPageReplyIndex(value),
     );
   }
 
@@ -360,8 +378,8 @@ class _EventPageState extends State<EventPage> {
         ),
         Padding(
           padding: EdgeInsets.only(
-            left: 5,
-            right: 5,
+            left: 5.0,
+            right: 5.0,
           ),
           child: Text(
             _calendarTitle(state),
@@ -377,16 +395,17 @@ class _EventPageState extends State<EventPage> {
               color: Colors.white,
               size: 18,
             ),
-            onTap: () => _cubit.resetDateTimeModifications(),
+            onTap: () => BlocProvider.of<CubitEventPage>(context)
+                .resetDateTimeModifications(),
           ),
       ],
     );
   }
 
   String _calendarTitle(StatesEventPage state) {
-    if (state.selectedDate != null && state.selectedTime != null) {
+    if (state.selectedDate != '' && state.selectedTime != '') {
       return '${state.selectedDate} ${state.selectedTime}';
-    } else if (state.selectedTime == null && state.selectedDate != null) {
+    } else if (state.selectedTime == '' && state.selectedDate != '') {
       return '${state.selectedDate}';
     } else {
       return 'Calendar';
@@ -413,8 +432,15 @@ class _EventPageState extends State<EventPage> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
         _chooseImageResource(
-            Icons.add_a_photo, 'Open camera', ImageSource.camera),
-        _chooseImageResource(Icons.photo, 'Open gallery', ImageSource.gallery),
+          Icons.add_a_photo,
+          'Open camera',
+          ImageSource.camera,
+        ),
+        _chooseImageResource(
+          Icons.photo,
+          'Open gallery',
+          ImageSource.gallery,
+        ),
       ],
     );
   }
@@ -425,7 +451,11 @@ class _EventPageState extends State<EventPage> {
       child: Container(
         width: 180,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(80.0)),
+          borderRadius: BorderRadius.all(
+            Radius.circular(
+              80.0,
+            ),
+          ),
           color: Theme.of(context).primaryColor,
         ),
         child: _imageChooserListTile(
@@ -436,7 +466,11 @@ class _EventPageState extends State<EventPage> {
       onTap: () async {
         final image = await ImagePicker().getImage(source: imageSource);
         if (image != null) {
-          _cubit.addImageEvent(File(image.path));
+          BlocProvider.of<CubitEventPage>(context).addImageEvent(
+            File(image.path),
+          );
+          updateNoteSubtitle();
+          BlocProvider.of<CubitEventPage>(context).updateNote();
         }
       },
     );
@@ -444,23 +478,25 @@ class _EventPageState extends State<EventPage> {
 
   void updateList(StatesEventPage state) {
     if (state.isSearch) {
-      _searchEventList = state.currentEventsList
-          .where((element) => element.text.contains(_textSearchController.text))
+      _eventList = state.currentEventsList
+          .where(
+            (element) => element.text.contains(_textSearchController.text),
+          )
           .toList();
     } else {
-      _searchEventList = state.currentEventsList;
+      _eventList = state.currentEventsList;
     }
   }
 
   ListView _listView(StatesEventPage state) {
-    _cubit.sortEventsByDate();
+    BlocProvider.of<CubitEventPage>(context).sortEventsByDate();
     updateList(state);
     return ListView.builder(
       reverse: true,
       scrollDirection: Axis.vertical,
-      itemCount: _searchEventList.length,
+      itemCount: _eventList.length,
       itemBuilder: (context, index) {
-        final _event = _searchEventList[index];
+        final _event = _eventList[index];
         return _showEventList(state, _event, index);
       },
     );
@@ -484,20 +520,22 @@ class _EventPageState extends State<EventPage> {
                   ? Alignment.center
                   : Alignment.centerLeft,
               child: Container(
-                width: 150,
+                width: 140,
+                height: 52,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(
+                      40.0,
+                    ),
+                  ),
                   color: Theme.of(context)
                       .floatingActionButtonTheme
                       .backgroundColor,
                 ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
+                child: Center(
                   child: ListTile(
-                    title: Center(
-                      child: Text(
-                        event.date,
-                      ),
+                    title: Text(
+                      event.date,
                     ),
                   ),
                 ),
@@ -505,11 +543,13 @@ class _EventPageState extends State<EventPage> {
             ),
           ),
           ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(
+              20.0,
+            ),
             child: Card(
               elevation: 3,
               child: ListTile(
-                leading: event.circleAvatarIndex != null
+                leading: event.circleAvatarIndex != -1
                     ? _circleAvatar(
                         icons[event.circleAvatarIndex],
                       )
@@ -519,27 +559,36 @@ class _EventPageState extends State<EventPage> {
                     ? Image.file(
                         File(event.imagePath),
                       )
-                    : Text(
-                        event.text,
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: Theme.of(context)
-                              .floatingActionButtonTheme
-                              .foregroundColor,
+                    : HashTagText(
+                        text: event.text,
+                        basicStyle: TextStyle(
+                          color: Colors.white,
+                          fontSize:
+                              Theme.of(context).textTheme.bodyText1.fontSize,
                         ),
+                        decoratedStyle: TextStyle(
+                          color: Colors.yellow,
+                          fontSize:
+                              Theme.of(context).textTheme.bodyText1.fontSize,
+                        ),
+                        onTap: (text) {
+                          BlocProvider.of<CubitEventPage>(context)
+                              .setTextSearchState(!state.isSearch);
+                          _textSearchController.text = text;
+                        },
                       ),
                 subtitle: Text(
                   event.time,
                   style: TextStyle(
-                    fontSize: 15,
                     color: Theme.of(context)
                         .floatingActionButtonTheme
                         .foregroundColor,
                   ),
                 ),
                 onLongPress: () {
-                  _cubit.setSelectedItemIndex(index);
-                  _cubit.changeAppBar();
+                  BlocProvider.of<CubitEventPage>(context)
+                      .setSelectedItemIndex(index);
+                  BlocProvider.of<CubitEventPage>(context).changeAppBar();
                 },
               ),
             ),
@@ -553,7 +602,7 @@ class _EventPageState extends State<EventPage> {
     return Row(
       children: <Widget>[
         IconButton(
-          icon: state.selectedIconIndex != null
+          icon: state.selectedIconIndex != -1
               ? Icon(icons[state.selectedIconIndex])
               : Icon(Icons.category),
           iconSize: 30,
@@ -561,15 +610,18 @@ class _EventPageState extends State<EventPage> {
           onPressed: () => _showBottomSheet(context),
         ),
         Expanded(
-          child: TextField(
+          child: HashTagTextField(
             controller: _textController,
             focusNode: _focusNode,
             onChanged: (value) {
               if (value.isNotEmpty) {
-                _cubit.setSendButtonState(false);
-                _cubit.setAddingPhotoState(false);
+                BlocProvider.of<CubitEventPage>(context)
+                    .setSendPhotoButtonState(false);
+                BlocProvider.of<CubitEventPage>(context)
+                    .setAddingPhotoState(false);
               } else {
-                _cubit.setSendButtonState(true);
+                BlocProvider.of<CubitEventPage>(context)
+                    .setSendPhotoButtonState(true);
               }
             },
             decoration: InputDecoration(
@@ -587,21 +639,39 @@ class _EventPageState extends State<EventPage> {
           color: Theme.of(context).floatingActionButtonTheme.backgroundColor,
           onPressed: () {
             if (state.isSendPhotoButton) {
-              _cubit.setAddingPhotoState(true);
+              BlocProvider.of<CubitEventPage>(context)
+                  .setAddingPhotoState(true);
             } else {
               state.isEditing
-                  ? _cubit.editText(
-                      state.selectedItemIndex, _textController.text)
-                  : _cubit.addEvent(_textController.text);
+                  ? BlocProvider.of<CubitEventPage>(context)
+                      .editText(state.selectedItemIndex, _textController.text)
+                  : BlocProvider.of<CubitEventPage>(context)
+                      .addEvent(_textController.text);
               _textController.clear();
-              _cubit.removeSelectedIcon();
-              _cubit.updateCurrentNoteSubtitle();
-              _cubit.setSendButtonState(true);
+              BlocProvider.of<CubitEventPage>(context).removeSelectedIcon();
+              BlocProvider.of<CubitEventPage>(context)
+                  .setSendPhotoButtonState(true);
+              updateNoteSubtitle();
             }
           },
         ),
       ],
     );
+  }
+
+  void updateNoteSubtitle() {
+    final state = BlocProvider.of<CubitEventPage>(context).state;
+    if (state.currentEventsList.isNotEmpty) {
+      if (state.currentEventsList[0].imagePath == null) {
+        state.note.subtitle =
+            '${state.currentEventsList[0].text}  ${state.currentEventsList[0].time}';
+      } else {
+        state.note.subtitle = 'Image';
+      }
+    } else {
+      state.note.subtitle = 'No events. Click to create one';
+    }
+    BlocProvider.of<CubitEventPage>(context).updateNote();
   }
 
   void _showBottomSheet(BuildContext context) {
@@ -624,7 +694,7 @@ class _EventPageState extends State<EventPage> {
     return IconButton(
       icon: _circleAvatar(icons[index]),
       onPressed: () {
-        _cubit.setSelectedIcon(index);
+        BlocProvider.of<CubitEventPage>(context).setSelectedIconIndex(index);
         Navigator.pop(context);
       },
     );
@@ -642,5 +712,6 @@ class _EventPageState extends State<EventPage> {
   }
 
   void _copyEvent(StatesEventPage state, int index) => Clipboard.setData(
-      ClipboardData(text: state.currentEventsList[index].text));
+        ClipboardData(text: state.currentEventsList[index].text),
+      );
 }

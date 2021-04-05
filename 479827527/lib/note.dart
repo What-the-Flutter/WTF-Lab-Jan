@@ -4,6 +4,13 @@ class Note {
   String subtitle;
   int circleAvatarIndex;
 
+  Note({
+    this.noteId,
+    this.title,
+    this.subtitle,
+    this.circleAvatarIndex,
+  });
+
   Map<String, dynamic> convertNoteToMapWithId() {
     return {
       'note_id': noteId,
@@ -29,6 +36,4 @@ class Note {
       circleAvatarIndex: map['note_circle_avatar_index'],
     );
   }
-
-  Note({this.noteId, this.title, this.subtitle, this.circleAvatarIndex});
 }
