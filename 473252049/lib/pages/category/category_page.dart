@@ -90,6 +90,7 @@ class _CategoryPageState extends State<CategoryPage> {
                             records: state.records,
                             category: widget.category,
                             withCategories: false,
+                            isOnSearchPage: false,
                           ),
                           if (settingsState
                               .showCreateRecordDateTimePickerButton)

@@ -4,7 +4,7 @@ import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 
 import '../../../category/cubit/records_cubit.dart';
-import '../message_rich_text.dart';
+import '../message_text.dart';
 import 'record_category_name.dart';
 import 'record_info_row.dart';
 
@@ -87,7 +87,7 @@ class RecordWidgetContent extends StatelessWidget {
                         : CrossAxisAlignment.start,
                     children: [
                       if (message.isNotEmpty && !isDateRecord)
-                        MessageRichText(
+                        MessageText(
                           key: UniqueKey(),
                           message: message,
                           records: records,
