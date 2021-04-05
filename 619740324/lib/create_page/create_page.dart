@@ -28,18 +28,13 @@ class _CreatePageState extends State<CreatePage> {
   CubitCreatePage _cubit;
 
   _CreatePageState(this.noteList, this.isEditing, this.index) {
-    _cubit = CubitCreatePage(
-      StatesCreatePage(
-        CircleAvatar(
-          child: Icon(Icons.home),
-        ),
-      ),
-    );
+    _cubit = CubitCreatePage(StatesCreatePage(0, noteList));
   }
 
   @override
   void initState() {
     if (isEditing) {
+      _cubit.state.indexOfSelectedIcon = noteList[index].indexOfCircleAvatar;
       _textController.text = noteList[index].eventName;
       _focusNode.requestFocus();
     }
@@ -66,7 +61,7 @@ class _CreatePageState extends State<CreatePage> {
     return FloatingActionButton(
       child: Icon(Icons.check),
       onPressed: () {
-        isEditing ? _editPage() : _createPage();
+        isEditing ? _editPage() : _cubit.addNote(_textController.text);
         if (_textController.text.isNotEmpty) {
           Navigator.pop(context);
         }
@@ -74,18 +69,10 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
 
-  void _createPage() {
-    if (_textController.text.isNotEmpty) {
-      noteList.add(
-        Note(_textController.text, _cubit.state.selectedIcon, ''),
-      );
-    }
-  }
-
   void _editPage() {
     if (_textController.text.isNotEmpty) {
       noteList[index].eventName = _textController.text;
-      noteList[index].circleAvatar = _cubit.state.selectedIcon;
+      noteList[index].indexOfCircleAvatar = _cubit.state.indexOfSelectedIcon;
     }
   }
 
@@ -104,7 +91,7 @@ class _CreatePageState extends State<CreatePage> {
         Container(
           padding: EdgeInsets.all(10),
           child: CircleAvatar(
-            child: _cubit.state.selectedIcon,
+            child: listIcons[_cubit.state.indexOfSelectedIcon],
           ),
         ),
         Expanded(
@@ -126,13 +113,13 @@ class _CreatePageState extends State<CreatePage> {
 
   GridView get _iconGrid {
     return GridView.builder(
+      scrollDirection: Axis.vertical,
       shrinkWrap: true,
       itemCount: listIcons.length,
       itemBuilder: (context, index) {
         return IconButton(
           icon: _circleAvatar(listIcons[index]),
-          onPressed: () =>
-              _cubit.setSelectedIcon(_circleAvatar(listIcons[index])),
+          onPressed: () => _cubit.setIndexOfIcon(index),
         );
       },
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

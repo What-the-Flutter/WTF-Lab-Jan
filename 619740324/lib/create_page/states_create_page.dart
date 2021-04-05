@@ -1,13 +1,16 @@
-import 'package:flutter/material.dart';
+import '../note.dart';
 
 class StatesCreatePage {
-  CircleAvatar selectedIcon;
+  int indexOfSelectedIcon;
+  List<Note> noteList;
 
-  StatesCreatePage(this.selectedIcon);
+  StatesCreatePage(this.indexOfSelectedIcon, this.noteList);
 
   StatesCreatePage copyWith({
-    CircleAvatar selectedIcon,
+    List<Note> noteList,
+    int indexOfSelectedIcon,
   }) {
-    return StatesCreatePage(selectedIcon ?? this.selectedIcon);
+    return StatesCreatePage(indexOfSelectedIcon ?? this.indexOfSelectedIcon,
+        noteList ?? this.noteList);
   }
 }
