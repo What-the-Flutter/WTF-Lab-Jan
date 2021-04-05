@@ -21,6 +21,14 @@ class CategoryBottomSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
+              title: Text(
+                category.name,
+                style: Theme.of(context).textTheme.headline5,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Divider(),
+            ListTile(
               leading: Icon(Icons.info),
               title: Text('Info'),
               onTap: () {
