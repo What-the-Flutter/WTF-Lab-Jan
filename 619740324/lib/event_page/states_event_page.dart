@@ -1,35 +1,35 @@
-import 'package:flutter/material.dart';
-
 import '../event.dart';
-
+import '../note.dart';
 
 class StatesEventPage {
-  int indexOfSelectedElement = 0;
+  Event selectedElement;
   int selectedIndex = 0;
+  int indexOfSelectedCircleAvatar;
   bool isEditing = false;
-  List<Event> eventList ;
   bool isSearch = false;
-  List<Event> newEventList ;
-  CircleAvatar selectedCircleAvatar;
+  Note note;
 
-  StatesEventPage(this.eventList);
+  List<Event> eventList = [];
+
+  StatesEventPage(this.note);
 
   StatesEventPage copyWith({
     List<Event> eventList,
-    int indexOfSelectedElement,
+    Note note,
     bool isEditing,
     bool isSearch,
+    Event selectedElement,
     int selectedIndex,
-    CircleAvatar selectedCircleAvatar,
-    List<Event> newEventList,
+    int indexOfSelectedCircleAvatar,
   }) {
-    var state = StatesEventPage(eventList ?? this.eventList);
-    state.selectedCircleAvatar= selectedCircleAvatar ?? this.selectedCircleAvatar;
-    state.selectedIndex= selectedIndex ?? this.selectedIndex;
-    state.newEventList = newEventList ?? this.newEventList;
+    var state = StatesEventPage(note ?? this.note);
+    state.eventList = eventList ?? this.eventList;
+    state.indexOfSelectedCircleAvatar =
+        indexOfSelectedCircleAvatar ?? this.indexOfSelectedCircleAvatar;
+    state.selectedIndex = selectedIndex ?? this.selectedIndex;
     state.isEditing = isEditing ?? this.isEditing;
     state.isSearch = isSearch ?? this.isSearch;
-    state.indexOfSelectedElement = indexOfSelectedElement ?? this.indexOfSelectedElement;
+    state.selectedElement = selectedElement ?? this.selectedElement;
     return state;
   }
 }

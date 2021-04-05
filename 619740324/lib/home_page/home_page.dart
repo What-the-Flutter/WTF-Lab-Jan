@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../create_page/create_page.dart';
+import '../create_page/icons.dart';
+import '../data/database_provider.dart';
+import '../data/shared_preferences_provider.dart';
 import '../event_page/event_page.dart';
+import '../note.dart';
 import '../theme/dark_theme.dart';
 import '../theme/light_theme.dart';
 import '../theme/theme.dart';
@@ -15,15 +19,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  CubitHomePage _cubit;
+  final DatabaseProvider _databaseProvider = DatabaseProvider();
+  static final List<Note> _noteList = <Note>[];
+  final CubitHomePage _cubit = CubitHomePage(
+    StatesHomePage(
+      noteList: _noteList,
+      isLightTheme: SharedPreferencesProvider().fetchTheme(),
+    ),
+  );
 
-  _HomePageState() {
-    _cubit = CubitHomePage(StatesHomePage());
+  @override
+  void initState() {
+    _cubit.init();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocBuilder<CubitHomePage, StatesHomePage>(
       cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
@@ -44,7 +57,9 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (context, index) => ListTile(
         title: Text(_cubit.state.noteList[index].eventName),
         leading: IconButton(
-          icon: _cubit.state.noteList[index].circleAvatar,
+          icon: CircleAvatar(
+            child: listIcons[_cubit.state.noteList[index].indexOfCircleAvatar],
+          ),
           iconSize: 50,
           onPressed: () {},
         ),
@@ -128,10 +143,12 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: Icon(Icons.invert_colors),
           onPressed: () {
-            _cubit.state.themeSwitcher
-                ? ThemeSwitcher.of(context).switchTheme(lightThemeData)
-                : ThemeSwitcher.of(context).switchTheme(darkThemeData);
-            _cubit.state.themeSwitcher = !_cubit.state.themeSwitcher;
+            if (_cubit.state.isLightTheme) {
+              ThemeSwitcher.of(context).switchTheme(darkThemeData);
+            } else {
+              ThemeSwitcher.of(context).switchTheme(lightThemeData);
+            }
+            _cubit.changeTheme();
           },
         ),
       ],
@@ -188,6 +205,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             );
+            _cubit.updateNote(_cubit.state.noteList[index]);
             _cubit.redrawingList();
             Navigator.pop(context);
           },
@@ -199,9 +217,8 @@ class _HomePageState extends State<HomePage> {
           ),
           title: Text('Delete'),
           onTap: () {
-              _cubit.state.noteList.removeAt(index);
-              _cubit.redrawingList();
-              Navigator.pop(context);
+            _cubit.deleteNote(_cubit.state.noteList, index);
+            Navigator.pop(context);
           },
         ),
       ],
