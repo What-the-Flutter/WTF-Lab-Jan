@@ -101,15 +101,21 @@ class _CategoryAddEditPageState extends State<CategoryAddEditPage> {
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4),
                 itemBuilder: (context, index) {
-                  if (categoryIcons[index] == iconData) {
-                    return CategoryChooseIconWidget(
-                      iconData: categoryIcons[index],
-                      backgroundColor: Colors.grey,
-                    );
-                  }
                   return GestureDetector(
-                    child: CategoryChooseIconWidget(
-                      iconData: categoryIcons[index],
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 100),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(60),
+                          ),
+                          color: iconData == categoryIcons[index]
+                              ? Colors.grey
+                              : Theme.of(context).backgroundColor,
+                        ),
+                        child: Icon(categoryIcons[index]),
+                      ),
                     ),
                     onTap: () {
                       setState(() {
