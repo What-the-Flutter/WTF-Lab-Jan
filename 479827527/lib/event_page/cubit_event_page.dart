@@ -11,20 +11,34 @@ import '../utils/shared_preferences_provider.dart';
 import 'states_event_page.dart';
 
 class CubitEventPage extends Cubit<StatesEventPage> {
-  CubitEventPage(state) : super(state);
+  CubitEventPage() : super(StatesEventPage());
 
   final DatabaseProvider _databaseProvider = DatabaseProvider();
 
-  void init() async {
+  void init(Note note) async {
+    setCurrentNote(note);
+    setCurrentEventsList(<Event>[]);
+    setSelectedIconIndex(-1);
+    setSelectedEventState(false);
+    setTextEditState(false);
+    setTextSearchState(false);
+    setAddingPhotoState(false);
+    setSendPhotoButtonState(true);
+    setSelectedItemIndex(0);
+    setSelectedPageReplyIndex(0);
+    setSelectedDate('');
+    setSelectedTime('');
+    initSharedPreferences();
     setCurrentEventsList(
         await _databaseProvider.fetchEventsList(state.note.noteId));
-    initSharedPreferences();
   }
+
+  void setCurrentNote(Note note) => emit(state.copyWith(note: note));
 
   void setAddingPhotoState(bool isAddingPhoto) =>
       emit(state.copyWith(isAddingPhoto: isAddingPhoto));
 
-  void setSendButtonState(bool isSendPhotoButton) =>
+  void setSendPhotoButtonState(bool isSendPhotoButton) =>
       emit(state.copyWith(isSendPhotoButton: isSendPhotoButton));
 
   void setTextEditState(bool isEditing) =>
@@ -45,7 +59,7 @@ class CubitEventPage extends Cubit<StatesEventPage> {
   void setCurrentEventsList(List<Event> currentEventsList) =>
       emit(state.copyWith(currentEventsList: currentEventsList));
 
-  void setSelectedIcon(int index) =>
+  void setSelectedIconIndex(int index) =>
       emit(state.copyWith(selectedIconIndex: index));
 
   void setSelectedDate(String selectedDate) =>
@@ -57,20 +71,18 @@ class CubitEventPage extends Cubit<StatesEventPage> {
   void changeAppBar() => setSelectedEventState(!state.isEventSelected);
 
   void initSharedPreferences() {
-    state.isDateTimeModification =
-        SharedPreferencesProvider().fetchDateTimeModification();
-    state.isBubbleAlignment =
-        SharedPreferencesProvider().fetchBubbleAlignment();
-    state.isCenterDateBubble =
-        SharedPreferencesProvider().fetchCenterDateBubble();
+    emit(state.copyWith(
+        isDateTimeModification:
+            SharedPreferencesProvider().fetchDateTimeModification()));
+    emit(state.copyWith(
+        isBubbleAlignment: SharedPreferencesProvider().fetchBubbleAlignment()));
+    emit(state.copyWith(
+        isCenterDateBubble:
+            SharedPreferencesProvider().fetchCenterDateBubble()));
   }
 
-  void resetDateTimeModifications() {
-    state.selectedTime = null;
-    state.selectedDate = null;
-    emit(state.copyWith(
-        selectedTime: state.selectedTime, selectedDate: state.selectedDate));
-  }
+  void resetDateTimeModifications() =>
+      emit(state.copyWith(selectedTime: '', selectedDate: ''));
 
   void editText(int index, String text) {
     state.currentEventsList[index].text = text;
@@ -79,55 +91,45 @@ class CubitEventPage extends Cubit<StatesEventPage> {
   }
 
   void sortEventsByDate() {
-    state.currentEventsList
-      ..sort((a, b) {
-        var aDate = DateFormat().add_yMMMd().parse(a.date);
-        var bDate = DateFormat().add_yMMMd().parse(b.date);
-        return bDate.compareTo(aDate);
-      });
-    emit(state.copyWith(currentEventsList: state.currentEventsList));
+    if (state.currentEventsList != null) {
+      state.currentEventsList
+        ..sort(
+          (a, b) {
+            final aDate = DateFormat().add_yMMMd().parse(a.date);
+            final bDate = DateFormat().add_yMMMd().parse(b.date);
+            return bDate.compareTo(aDate);
+          },
+        );
+      emit(state.copyWith(currentEventsList: state.currentEventsList));
+    }
   }
 
   void deleteEvent(int index) {
     _databaseProvider.deleteEvent(state.currentEventsList[index]);
     state.currentEventsList.removeAt(index);
-    updateCurrentNoteSubtitle();
     emit(state.copyWith(currentEventsList: state.currentEventsList));
   }
 
-  void removeSelectedIcon() {
-    state.selectedIconIndex = null;
-    emit(state.copyWith(selectedIconIndex: state.selectedIconIndex));
-  }
+  void removeSelectedIcon() => emit(state.copyWith(selectedIconIndex: -1));
 
-  void updateCurrentNoteSubtitle() {
-    if (state.currentEventsList.isNotEmpty) {
-      if (state.currentEventsList[0].imagePath == null) {
-        state.note.subtitle =
-            '${state.currentEventsList[0].text}  ${state.currentEventsList[0].time}';
-      } else {
-        state.note.subtitle = 'Image';
-      }
-    } else {
-      state.note.subtitle = 'No events. Click to create one';
-    }
-    _databaseProvider.updateNote(state.note);
-  }
+  void updateNote() => _databaseProvider.updateNote(state.note);
 
   void addEvent(String text) async {
     final event = Event(
-      date: state.selectedDate ??
-          DateFormat.yMMMd().format(
-            DateTime.now(),
-          ),
+      date: state.selectedDate != ''
+          ? state.selectedDate
+          : DateFormat.yMMMd().format(
+              DateTime.now(),
+            ),
       imagePath: null,
       circleAvatarIndex: state.selectedIconIndex,
       text: text,
       currentNoteId: state.note.noteId,
-      time: state.selectedTime ??
-          DateFormat('hh:mm a').format(
-            DateTime.now(),
-          ),
+      time: state.selectedTime != ''
+          ? state.selectedTime
+          : DateFormat('hh:mm a').format(
+              DateTime.now(),
+            ),
     );
     state.currentEventsList.insert(0, event);
     emit(state.copyWith(currentEventsList: state.currentEventsList));
@@ -139,22 +141,24 @@ class CubitEventPage extends Cubit<StatesEventPage> {
     final fileName = path.basename(image.path);
     final savedImage = await image.copy('${appDirectory.path}/$fileName');
     final event = Event(
-      date: state.selectedDate ??
-          DateFormat.yMMMd().format(
-            DateTime.now(),
-          ),
-      time: state.selectedTime ??
-          DateFormat('hh:mm a').format(
-            DateTime.now(),
-          ),
+      date: state.selectedDate != ''
+          ? state.selectedDate
+          : DateFormat.yMMMd().format(
+              DateTime.now(),
+            ),
+      time: state.selectedTime != ''
+          ? state.selectedTime
+          : DateFormat('hh:mm a').format(
+              DateTime.now(),
+            ),
       text: '',
       imagePath: savedImage.path,
       currentNoteId: state.note.noteId,
     );
-    event.eventId = await _databaseProvider.insertEvent(event);
+    event.circleAvatarIndex = -1;
     setAddingPhotoState(false);
     state.currentEventsList.insert(0, event);
-    updateCurrentNoteSubtitle();
+    event.eventId = await _databaseProvider.insertEvent(event);
   }
 
   void transferEvent(List<Note> noteList, int index) async {

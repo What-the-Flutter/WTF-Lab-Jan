@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../themes/cubit_theme.dart';
 import 'cubit_general_settings.dart';
 import 'states_general_settings.dart';
 
@@ -10,27 +12,20 @@ class GeneralSettings extends StatefulWidget {
 }
 
 class _GeneralSettingsState extends State<GeneralSettings> {
-  final CubitGeneralSettings _cubit =
-      CubitGeneralSettings(StatesGeneralSettings());
-
   @override
   void initState() {
-    _cubit.initSharedPreferences();
+    BlocProvider.of<CubitGeneralSettings>(context).updateState();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-      cubit: _cubit,
+    return BlocBuilder<CubitGeneralSettings, StatesGeneralSettings>(
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
             title: Text(
               'General',
-              style: TextStyle(
-                fontSize: 20,
-              ),
             ),
           ),
           body: _listView(state),
@@ -42,7 +37,6 @@ class _GeneralSettingsState extends State<GeneralSettings> {
   ListTile _visualSettingsListTile(
       IconData icon, String title, String subtitle) {
     return ListTile(
-      dense: true,
       leading: Icon(
         icon,
         color: Theme.of(context).iconTheme.color,
@@ -50,16 +44,94 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       ),
       title: Text(
         title,
-        style: TextStyle(
-          fontSize: 20,
-        ),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          fontSize: 15,
-        ),
       ),
+    );
+  }
+
+  void _showFontSizeDialog(StatesGeneralSettings state) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 3,
+          child: Container(
+            height: 270,
+            child: _dialogColumn(state),
+          ),
+        );
+      },
+    );
+  }
+
+  Column _dialogColumn(StatesGeneralSettings state) {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Text(
+              'Choose font size',
+            ),
+          ),
+        ),
+        Expanded(
+          child: _dialogListView(state),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: IconButton(
+              icon: Icon(
+                Icons.clear,
+                size: 35,
+                color: Theme.of(context).floatingActionButtonTheme.backgroundColor,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  ListView _dialogListView(StatesGeneralSettings state) {
+    return ListView(
+      children: <ListTile>[
+        ListTile(
+          title: Text(
+            'Small',
+          ),
+          onTap: () {
+            BlocProvider.of<CubitTheme>(context).setTextTheme(1);
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          title: Text(
+            'Default',
+          ),
+          onTap: () {
+            BlocProvider.of<CubitTheme>(context).setTextTheme(2);
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          title: Text(
+            'Large',
+          ),
+          onTap: () {
+            BlocProvider.of<CubitTheme>(context).setTextTheme(3);
+            Navigator.pop(context);
+          },
+        ),
+      ],
     );
   }
 
@@ -67,7 +139,6 @@ class _GeneralSettingsState extends State<GeneralSettings> {
     return ListView(
       children: <Widget>[
         ListTile(
-          dense: true,
           title: Padding(
             padding: const EdgeInsets.only(
               top: 10.0,
@@ -75,7 +146,6 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             child: Text(
               'Visuals',
               style: TextStyle(
-                fontSize: 17,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -86,14 +156,12 @@ class _GeneralSettingsState extends State<GeneralSettings> {
               'Theme',
               'Light / Dark',
             ),
-            onTap: () {
-              //TODO
-            },
+            onTap: () => BlocProvider.of<CubitTheme>(context).changeTheme(),
           ),
         ),
         GestureDetector(
           child: Padding(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               left: 17,
             ),
             child: _visualSettingsListTile(
@@ -102,13 +170,11 @@ class _GeneralSettingsState extends State<GeneralSettings> {
               'Small / Default / Large',
             ),
           ),
-          onTap: () {
-            //TODO
-          },
+          onTap: () => _showFontSizeDialog(state),
         ),
         GestureDetector(
           child: Padding(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               left: 17,
             ),
             child: _visualSettingsListTile(
@@ -118,11 +184,15 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             ),
           ),
           onTap: () {
-            //TODO
+            if (!BlocProvider.of<CubitTheme>(context).state.isLightTheme) {
+              BlocProvider.of<CubitTheme>(context).changeTheme();
+            }
+            BlocProvider.of<CubitGeneralSettings>(context)
+                .resetAllPreferences();
+            BlocProvider.of<CubitTheme>(context).setTextTheme(2);
           },
         ),
         ListTile(
-          dense: true,
           title: Padding(
             padding: const EdgeInsets.only(
               top: 10.0,
@@ -131,13 +201,11 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             child: Text(
               'Chat Interface',
               style: TextStyle(
-                fontSize: 17,
                 fontStyle: FontStyle.italic,
               ),
             ),
           ),
           subtitle: ListTile(
-            dense: true,
             leading: Icon(
               Icons.date_range_outlined,
               color: Theme.of(context).iconTheme.color,
@@ -145,27 +213,25 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             ),
             title: Text(
               'Date-Time Modification',
-              style: TextStyle(
-                fontSize: 20,
-              ),
             ),
             subtitle: Text(
               'Allows manual date & time for an entry',
-              style: TextStyle(
-                fontSize: 15,
-              ),
             ),
             trailing: Switch(
+              activeColor:
+                  Theme.of(context).floatingActionButtonTheme.backgroundColor,
               value: state.isDateTimeModification,
               onChanged: (value) {
-                _cubit.changeDateTimeModification();
+                BlocProvider.of<CubitGeneralSettings>(context)
+                    .changeDateTimeModification();
               },
             ),
           ),
         ),
         ListTile(
-          dense: true,
-          contentPadding: EdgeInsets.only(left: 30.0),
+          contentPadding: const EdgeInsets.only(
+            left: 30.0,
+          ),
           leading: Icon(
             Icons.notes,
             color: Theme.of(context).iconTheme.color,
@@ -173,29 +239,29 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           ),
           title: Text(
             'Bubble Alignment',
-            style: TextStyle(
-              fontSize: 20,
-            ),
           ),
           subtitle: Text(
             'Force right-to-left bubble alignment',
-            style: TextStyle(
-              fontSize: 15,
-            ),
           ),
           trailing: Padding(
-            padding: const EdgeInsets.only(right: 32.0),
+            padding: const EdgeInsets.only(
+              right: 32.0,
+            ),
             child: Switch(
+              activeColor:
+                  Theme.of(context).floatingActionButtonTheme.backgroundColor,
               value: state.isBubbleAlignment,
               onChanged: (value) {
-                _cubit.changeBubbleAlignment();
+                BlocProvider.of<CubitGeneralSettings>(context)
+                    .changeBubbleAlignment();
               },
             ),
           ),
         ),
         ListTile(
-          dense: true,
-          contentPadding: EdgeInsets.only(left: 30.0),
+          contentPadding: const EdgeInsets.only(
+            left: 30.0,
+          ),
           leading: Icon(
             Icons.calendar_view_day,
             color: Theme.of(context).iconTheme.color,
@@ -203,16 +269,16 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           ),
           title: Text(
             'Center Date Bubble',
-            style: TextStyle(
-              fontSize: 20,
-            ),
           ),
           trailing: Padding(
             padding: const EdgeInsets.only(right: 32.0),
             child: Switch(
+              activeColor:
+                  Theme.of(context).floatingActionButtonTheme.backgroundColor,
               value: state.isCenterDateBubble,
               onChanged: (value) {
-                _cubit.changeCenterDateBubble();
+                BlocProvider.of<CubitGeneralSettings>(context)
+                    .changeCenterDateBubble();
               },
             ),
           ),

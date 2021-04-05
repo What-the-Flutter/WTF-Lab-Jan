@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'application_info.dart';
 import 'general_settings.dart';
 
 class Settings extends StatefulWidget {
@@ -19,9 +20,6 @@ class _SettingsState extends State<Settings> {
     return AppBar(
       title: Text(
         'Settings',
-        style: TextStyle(
-          fontSize: 20,
-        ),
       ),
     );
   }
@@ -64,6 +62,21 @@ class _SettingsState extends State<Settings> {
             //TODO
           },
         ),
+        GestureDetector(
+          child: _listTile(
+            leadingIcon: Icons.info,
+            title: 'App info',
+            subtitle: 'Feedback & Specifications',
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ApplicationInfo(),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
@@ -81,15 +94,9 @@ class _SettingsState extends State<Settings> {
       ),
       title: Text(
         title,
-        style: TextStyle(
-          fontSize: 20,
-        ),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          fontSize: 15,
-        ),
       ),
       trailing: Icon(
         Icons.arrow_forward_ios,

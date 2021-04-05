@@ -1,9 +1,8 @@
 class StatesCreatePage {
-  int selectedIconIndex;
+  final int selectedIconIndex;
 
-  StatesCreatePage updateIndex(int index) {
-    return StatesCreatePage(index);
-  }
+  const StatesCreatePage({this.selectedIconIndex});
 
-  StatesCreatePage(this.selectedIconIndex);
+  StatesCreatePage updateSelectedIconIndex(final int selectedIconIndex) =>
+      StatesCreatePage(selectedIconIndex: selectedIconIndex);
 }

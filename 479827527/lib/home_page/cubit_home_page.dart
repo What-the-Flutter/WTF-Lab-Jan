@@ -6,17 +6,19 @@ import '../utils/shared_preferences_provider.dart';
 import 'states_home_page.dart';
 
 class CubitHomePage extends Cubit<StatesHomePage> {
-  CubitHomePage(StatesHomePage state) : super(state);
+  CubitHomePage() : super(StatesHomePage());
   final DatabaseProvider _databaseProvider = DatabaseProvider();
 
   void init() async {
+    setNoteList(<Note>[]);
+    initSharedPreferences();
     await _databaseProvider.initDB();
     setNoteList(await _databaseProvider.fetchNotesList());
-    initSharedPreferences();
   }
 
-  void initSharedPreferences() =>
-      state.isLightTheme = SharedPreferencesProvider().fetchTheme();
+
+  void initSharedPreferences() => emit(
+      state.copyWith(isLightTheme: SharedPreferencesProvider().fetchTheme()));
 
   void setNoteList(List<Note> noteList) =>
       emit(state.copyWith(noteList: noteList));

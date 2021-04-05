@@ -26,14 +26,12 @@ class _CreatePageState extends State<CreatePage> {
   final bool _isEditing;
   final int _index;
   final List<Note> _noteList;
-  CubitCreatePage _cubit;
 
-  _CreatePageState(this._noteList, this._isEditing, this._index) {
-    _cubit = CubitCreatePage(StatesCreatePage(0));
-  }
+  _CreatePageState(this._noteList, this._isEditing, this._index);
 
   @override
   void initState() {
+    BlocProvider.of<CubitCreatePage>(context).init();
     if (_isEditing) {
       _textEditingController.text = _noteList[_index].title;
     }
@@ -43,8 +41,7 @@ class _CreatePageState extends State<CreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-      cubit: _cubit,
+    return BlocBuilder<CubitCreatePage, StatesCreatePage>(
       builder: (context, state) {
         return Scaffold(
           appBar:
@@ -60,9 +57,6 @@ class _CreatePageState extends State<CreatePage> {
     return AppBar(
       title: Text(
         title,
-        style: TextStyle(
-          fontSize: 20,
-        ),
       ),
     );
   }
@@ -87,7 +81,7 @@ class _CreatePageState extends State<CreatePage> {
   void _editPage(StatesCreatePage state) {
     _noteList[_index].title = _textEditingController.text;
     _noteList[_index].circleAvatarIndex = state.selectedIconIndex;
-    _cubit.editPage(_noteList[_index]);
+    BlocProvider.of<CubitCreatePage>(context).editPage(_noteList[_index]);
   }
 
   void _createPage(StatesCreatePage state) async {
@@ -97,7 +91,7 @@ class _CreatePageState extends State<CreatePage> {
       circleAvatarIndex: state.selectedIconIndex,
     );
     _noteList.insert(0, note);
-    await _cubit.addPage(note);
+    await BlocProvider.of<CubitCreatePage>(context).addPage(note);
   }
 
   Column _createPageBody(StatesCreatePage state) {
@@ -163,7 +157,8 @@ class _CreatePageState extends State<CreatePage> {
   IconButton _iconButton(int index) {
     return IconButton(
       icon: _circleAvatar(Icon(icons[index]), Theme.of(context).accentColor),
-      onPressed: () => _cubit.setSelectedIconIndex(index),
+      onPressed: () =>
+          BlocProvider.of<CubitCreatePage>(context).setSelectedIconIndex(index),
     );
   }
 

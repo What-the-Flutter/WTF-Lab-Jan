@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'create_page/cubit_create_page.dart';
 
+import 'event_page/cubit_event_page.dart';
+import 'home_page/cubit_home_page.dart';
 import 'home_page/home_page.dart';
+import 'settings/cubit_general_settings.dart';
 import 'themes/cubit_theme.dart';
 import 'themes/states_theme.dart';
 import 'utils/shared_preferences_provider.dart';
@@ -10,8 +14,24 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferencesProvider.initialize();
   runApp(
-    BlocProvider(
-      create: (context) => CubitTheme(),
+    MultiBlocProvider(
+      providers: <BlocProvider>[
+        BlocProvider<CubitTheme>(
+          create: (context) => CubitTheme(),
+        ),
+        BlocProvider<CubitHomePage>(
+          create: (context) => CubitHomePage(),
+        ),
+        BlocProvider<CubitEventPage>(
+          create: (context) => CubitEventPage(),
+        ),
+        BlocProvider<CubitCreatePage>(
+          create: (context) => CubitCreatePage(),
+        ),
+        BlocProvider<CubitGeneralSettings>(
+          create: (context) => CubitGeneralSettings(),
+        ),
+      ],
       child: ChatJournal(),
     ),
   );

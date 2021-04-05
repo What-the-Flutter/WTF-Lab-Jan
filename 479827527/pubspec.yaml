@@ -33,9 +33,10 @@ dependencies:
   intl: ^0.16.0
   shared_preferences:
   path: ^1.7.0
+  share: ^2.0.1
   path_provider:
   image_picker:
-
+  hashtagable:
 
 dev_dependencies:
   flutter_test:

@@ -4,15 +4,25 @@ import '../utils/shared_preferences_provider.dart';
 import 'states_general_settings.dart';
 
 class CubitGeneralSettings extends Cubit<StatesGeneralSettings> {
-  CubitGeneralSettings(state) : super(state);
+  CubitGeneralSettings() : super(StatesGeneralSettings());
 
-  void initSharedPreferences() {
-    state.isDateTimeModification =
-        SharedPreferencesProvider().fetchDateTimeModification();
-    state.isBubbleAlignment =
-        SharedPreferencesProvider().fetchBubbleAlignment();
-    state.isCenterDateBubble =
-        SharedPreferencesProvider().fetchCenterDateBubble();
+  void updateState() {
+    emit(
+      state.copyWith(
+        isDateTimeModification:
+            SharedPreferencesProvider().fetchDateTimeModification(),
+        isCenterDateBubble: SharedPreferencesProvider().fetchCenterDateBubble(),
+        isBubbleAlignment: SharedPreferencesProvider().fetchBubbleAlignment(),
+      ),
+    );
+  }
+
+  void resetAllPreferences() {
+    SharedPreferencesProvider().changeFontSize(2);
+    SharedPreferencesProvider().changeDateTimeModification(false);
+    SharedPreferencesProvider().changeBubbleAlignment(false);
+    SharedPreferencesProvider().changeCenterDateBubble(false);
+    updateState();
   }
 
   void changeDateTimeModification() {

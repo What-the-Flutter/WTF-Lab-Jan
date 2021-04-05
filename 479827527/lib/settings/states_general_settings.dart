@@ -1,18 +1,24 @@
 class StatesGeneralSettings {
-  bool isDateTimeModification;
-  bool isBubbleAlignment;
-  bool isCenterDateBubble;
+  final bool isDateTimeModification;
+  final bool isBubbleAlignment;
+  final bool isCenterDateBubble;
+
+  const StatesGeneralSettings({
+    this.isDateTimeModification,
+    this.isBubbleAlignment,
+    this.isCenterDateBubble,
+  });
 
   StatesGeneralSettings copyWith({
-    bool isDateTimeModification,
-    bool isBubbleAlignment,
-    bool isCenterDateBubble,
+    final bool isDateTimeModification,
+    final bool isBubbleAlignment,
+    final bool isCenterDateBubble,
   }) {
-    var state = StatesGeneralSettings();
-    state.isDateTimeModification =
-        isDateTimeModification ?? this.isDateTimeModification;
-    state.isBubbleAlignment = isBubbleAlignment ?? this.isBubbleAlignment;
-    state.isCenterDateBubble = isCenterDateBubble ?? this.isCenterDateBubble;
-    return state;
+    return StatesGeneralSettings(
+      isDateTimeModification:
+          isDateTimeModification ?? this.isDateTimeModification,
+      isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,
+      isCenterDateBubble: isCenterDateBubble ?? this.isCenterDateBubble,
+    );
   }
 }
