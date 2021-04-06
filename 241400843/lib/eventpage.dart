@@ -1,56 +1,123 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
 
 class EventPage extends StatefulWidget {
   @override
   _EventPageState createState() => _EventPageState();
 }
 
-class Notes {
-  IconData notesIcon;
-  String notesTitle;
-  String notesSubtitle;
+//  class CreateNewEvent {
+//  List<EventPageMessages> events = [];
 
-  Notes(this.notesIcon, this.notesTitle, this.notesSubtitle);
+//    List<EventPageMessages> get getEvents {
+//      return events;
+//    }
+//}
+class EventPageMessages {
+  String eventsDescription;
+
+  EventPageMessages({this.eventsDescription});
 }
 
-List<Notes> notes = [
-  Notes(Icons.airport_shuttle, 'First ', 'Something about fisrt'),
-  Notes(Icons.airplanemode_active, 'Second ', 'Something about second'),
-  Notes(Icons.bike_scooter, 'Third', 'Something about third'),
-];
-
 class _EventPageState extends State<EventPage> {
-  TextEditingController inputcontroller = TextEditingController();
+  List<EventPageMessages> events = [];
+  TextEditingController inputtextcontroller = TextEditingController();
+  EventPageMessages addnewevent;
+  bool onPressed = false;
+  int pressIndex = 0;
+
+  void _addToEventList() {
+    //addnewevent.eventsDescription = inputtextcontroller.text;
+    setState(() {
+      events
+          .add(EventPageMessages(eventsDescription: inputtextcontroller.text));
+      inputtextcontroller.clear();
+    });
+  }
+
+//for input images from galery or camera
+  File _imageFile;
+  final picker = ImagePicker();
+
+  void _openGallery() async {
+    final picture = await picker.getImage(source: ImageSource.gallery);
+    setState(() {
+      if (picture != null) {
+        _imageFile = File(picture.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
+  void _openCamera() async {
+    final picture = await picker.getImage(source: ImageSource.camera);
+    setState(() {
+      if (picture != null) {
+        _imageFile = File(picture.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
+  Future<void> _showCameradialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Choose'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: [
+                  GestureDetector(
+                    child: Text('Gallery'),
+                    onTap: () {
+                      _openGallery();
+                    },
+                  ),
+                  Padding(padding: EdgeInsets.all(5.0)),
+                  GestureDetector(
+                    child: Text('Camera'),
+                    onTap: () {
+                      _openCamera();
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Something'),
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.search), onPressed: () {}),
-          IconButton(icon: Icon(Icons.bookmark_border), onPressed: () {}),
-        ],
-      ),
+      appBar: _edidingEvent(onPressed),
       body: Column(
         children: [
           _eventPageCard,
-          // child: ListView.builder(
-          //   scrollDirection: Axis.vertical,
-          //   itemCount: events.length + 1,
-          //   itemBuilder: () {
-          //     // if (index == 0) {
-          //        _eventPageCard;
-          //     // }
-          //     // events.forEach((element) {
-          //     //   return events;
-          //     // });
-          //   },
-          // ),
-          // Align(
-          //   alignment: Alignment.bottomCenter,
-          //   child:
-          //Row(
-          // children: [
+          //Container(
+          // height: 300,
+          Expanded(
+            child: ListView.builder(
+                reverse: false,
+                scrollDirection: Axis.vertical,
+                physics: BouncingScrollPhysics(),
+                itemCount: events.length,
+                itemBuilder: (context, index) {
+                  // return Text('I want to be free');
+                  return _newListTile(index);
+                  //{  if (index == 0) {
+                  //   _eventPageCard;
+                  // }
+                }),
+          ),
+          // Container(
+          // child: Row(
+          //   children: [
           IconButton(
             icon: Icon(
               Icons.bubble_chart,
@@ -58,27 +125,60 @@ class _EventPageState extends State<EventPage> {
             onPressed: () {},
           ),
           TextField(
-            controller: inputcontroller,
+            controller: inputtextcontroller,
             decoration: InputDecoration(
-              hintText: 'Enter event',
-            ),
-            onChanged: (text) {},
+                hintText: 'Enter event',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(width: 2),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(30.0),
+                  ),
+                )),
+            // onChanged: (somenewevent) {
+            //   setState(() {
+            //    somenewevent = inputtextcontroller.text;
+            //   });
+            // },
           ),
           IconButton(
             icon: Icon(
               Icons.send_sharp,
             ),
             onPressed: () {
-              // setState(() {
-              //   //     eventpagemessages = inputcontroller.text;
-              // });
+              _addToEventList();
+
+              // EventPageMessages addnewevent;
+              // addnewevent.eventsDescription = inputtextcontroller.text;
+              // events.add(addnewevent);
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.camera_alt,
+            ),
+            onPressed: () {
+              _showCameradialog(context);
             },
           ),
           // ],
-          // ),
-          // ),
+          //),
+          //),
         ],
       ),
+    );
+  }
+
+  Widget _newListTile(index) {
+    return TextButton(
+      child: ListTile(
+        title: Text(events[index].eventsDescription),
+      ),
+      onPressed: () {
+        setState(() {
+          pressIndex = index;
+          onPressed = true;
+        });
+      },
     );
   }
 
@@ -112,20 +212,65 @@ class _EventPageState extends State<EventPage> {
           ),
         ));
   }
-}
 
-class EventPageMessages {
-  String eventsDescription;
-
-  EventPageMessages(this.eventsDescription);
-}
-
-List<EventPageMessages> events = [];
-
-class CreateNewEvent {
-  // List<EventPageMessages> events = List<EventPageMessages>();
-
-  List<EventPageMessages> get getEvents {
-    return events;
+  AppBar _edidingEvent(bool flag) {
+    if (flag) {
+      return AppBar(
+          leading: IconButton(
+            icon: Icon(
+              Icons.clear,
+            ),
+            onPressed: () {
+              setState(() {
+                onPressed = false;
+              });
+            },
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.reply,
+              ),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.edit,
+              ),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.content_copy,
+              ),
+              onPressed: () {
+                Clipboard.setData(
+                    ClipboardData(text: events[pressIndex].eventsDescription));
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.bookmark_border,
+              ),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.delete,
+              ),
+              onPressed: () {
+                // events.remove(addnewevent);
+              },
+            ),
+          ]);
+    } else {
+      return AppBar(
+        title: Text('Something'),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.search), onPressed: () {}),
+          IconButton(icon: Icon(Icons.bookmark_border), onPressed: () {}),
+        ],
+      );
+    }
   }
 }

@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
 import 'eventpage.dart';
 
+class Notes {
+  IconData notesIcon;
+  String notesTitle;
+  String notesSubtitle;
+
+  Notes(this.notesIcon, this.notesTitle, this.notesSubtitle);
+}
+
+List<Notes> notes = [
+  Notes(Icons.airport_shuttle, 'First ', 'Something about fisrt'),
+  Notes(Icons.airplanemode_active, 'Second ', 'Something about second'),
+  Notes(Icons.bike_scooter, 'Third', 'Something about third'),
+];
+
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
 
