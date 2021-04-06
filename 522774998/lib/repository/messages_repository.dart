@@ -13,6 +13,10 @@ class MessagesRepository {
     return await dbHelper.dbMessagesList(idMessagePage);
   }
 
+  Future<List<PropertyMessage>> messagesFromAllPages() async {
+    return await dbHelper.dbMessagesListFromAllPages();
+  }
+
   void addMessage(PropertyMessage message) {
     dbHelper.insertMessage(message);
   }

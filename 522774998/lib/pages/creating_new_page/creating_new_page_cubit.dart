@@ -9,12 +9,13 @@ part 'creating_new_page_state.dart';
 class CreatingNewPageCubit extends Cubit<CreatingNewPageState> {
   final IconsRepository repository;
 
-  CreatingNewPageCubit({this.repository})
-      : super(
+  CreatingNewPageCubit({
+    this.repository,
+  }) : super(
           CreatingNewPageStateInitial(
             list: List.from(repository.listIcon),
           ),
-        );
+  );
 
   void setIconIndex(int selectionIconIndex) {
     repository.listIcon[selectionIconIndex] =

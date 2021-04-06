@@ -10,6 +10,8 @@ abstract class PropertyMessage {
   final String data;
   final DateTime time;
   final int idMessagePage;
+  final bool isBookmark;
+  final bool isVisible;
 
   PropertyMessage({
     this.id,
@@ -18,6 +20,8 @@ abstract class PropertyMessage {
     this.time,
     this.isSelected = false,
     this.icon,
+    this.isBookmark = false,
+    this.isVisible = true,
   });
 
   Widget get message;
@@ -29,6 +33,8 @@ abstract class PropertyMessage {
     final DateTime time,
     final bool isSelected,
     final IconData icon,
+    final bool isBookmark,
+    final bool isVisible,
   });
 
   Map<String, dynamic> toMap() {
@@ -39,6 +45,8 @@ abstract class PropertyMessage {
       'icon_code_point_message': icon == null ? null : icon.codePoint,
       'id_message_page': idMessagePage,
       'is_selected': isSelected ? 1 : 0,
+      'is_bookmark': isBookmark ? 1 : 0,
+      'is_visible': isVisible ? 1 : 0,
     };
   }
 
@@ -53,26 +61,32 @@ abstract class PropertyMessage {
               fontFamily: 'MaterialIcons'),
       idMessagePage: map['id_message_page'],
       isSelected: map['is_selected'] == 1 ? true : false,
+      isBookmark: map['is_bookmark'] == 1 ? true : false,
+      isVisible: map['is_visible'] == 1 ? true : false,
     );
   }
 }
 
 class TextMessage extends PropertyMessage {
-  TextMessage(
-      {int id,
-      bool isSelected,
-      IconData icon,
-      String data,
-      DateTime time,
-      int idMessagePage})
-      : super(
+  TextMessage({
+    int id,
+    bool isSelected,
+    IconData icon,
+    String data,
+    DateTime time,
+    int idMessagePage,
+    bool isBookmark,
+    bool isVisible,
+  }) : super(
           id: id,
           isSelected: isSelected,
           icon: icon,
           data: data,
           time: time,
           idMessagePage: idMessagePage,
-        );
+          isBookmark: isBookmark,
+          isVisible: isVisible,
+  );
 
   @override
   PropertyMessage copyWith({
@@ -82,6 +96,8 @@ class TextMessage extends PropertyMessage {
     final String data,
     final DateTime time,
     final int idMessagePage,
+    final bool isBookmark,
+    final bool isVisible,
   }) {
     return TextMessage(
       id: id ?? this.id,
@@ -90,6 +106,8 @@ class TextMessage extends PropertyMessage {
       data: data ?? this.data,
       time: time ?? this.time,
       idMessagePage: idMessagePage ?? this.idMessagePage,
+      isBookmark: isBookmark ?? this.isBookmark,
+      isVisible: isVisible ?? this.isVisible,
     );
   }
 
@@ -98,21 +116,25 @@ class TextMessage extends PropertyMessage {
 }
 
 class ImageMessage extends PropertyMessage {
-  ImageMessage(
-      {int id,
-      bool isSelected,
-      IconData icon,
-      String data,
-      DateTime time,
-      int idMessagePage})
-      : super(
+  ImageMessage({
+    int id,
+    bool isSelected,
+    IconData icon,
+    String data,
+    DateTime time,
+    int idMessagePage,
+    bool isBookmark,
+    bool isVisible,
+  }) : super(
           id: id,
           isSelected: isSelected,
           icon: icon,
           data: data,
           time: time,
           idMessagePage: idMessagePage,
-        );
+          isBookmark: isBookmark,
+          isVisible: isVisible,
+  );
 
   @override
   PropertyMessage copyWith({
@@ -122,6 +144,8 @@ class ImageMessage extends PropertyMessage {
     final String data,
     final DateTime time,
     final int idMessagePage,
+    final bool isBookmark,
+    final bool isVisible,
   }) {
     return TextMessage(
       id: id ?? this.id,
@@ -130,6 +154,8 @@ class ImageMessage extends PropertyMessage {
       data: data ?? this.data,
       time: time ?? this.time,
       idMessagePage: idMessagePage ?? this.idMessagePage,
+      isBookmark: isBookmark ?? this.isBookmark,
+      isVisible: isVisible ?? this.isVisible,
     );
   }
 

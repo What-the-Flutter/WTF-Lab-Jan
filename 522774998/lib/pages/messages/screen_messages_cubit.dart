@@ -16,8 +16,9 @@ part 'screen_messages_state.dart';
 class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
   final MessagesRepository repository;
 
-  ScreenMessagesCubit({this.repository})
-      : super(
+  ScreenMessagesCubit({
+    this.repository,
+  }) : super(
           ScreenMessageAwait(
               appBar: InputAppBar(
                 title: 'Title',
@@ -25,7 +26,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
               category: Icons.bubble_chart,
               counter: 0,
               list: <PropertyMessage>[]),
-        );
+  );
 
   void changeCategory(IconData categoryIcon) {
     emit(
@@ -51,6 +52,48 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
     sortMessagesByDate();
   }
 
+  void showBookmarks() async {
+    for (var i = 0; i < state.list.length; i++) {
+      if (!state.list[i].isBookmark) {
+        repository.editMessage(state.list[i].copyWith(isVisible: false));
+      }
+    }
+    if (state.page.id != null) {
+      emit(
+        state.copyWith(
+          list: await repository.messages(state.page.id),
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          list: await repository.messagesFromAllPages(),
+        ),
+      );
+    }
+    sortMessagesByDate();
+  }
+
+  void showAll() async {
+    for (var i = 0; i < state.list.length; i++) {
+      repository.editMessage(state.list[i].copyWith(isVisible: true));
+    }
+    if (state.page.id != null) {
+      emit(
+        state.copyWith(
+          list: await repository.messages(state.page.id),
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          list: await repository.messagesFromAllPages(),
+        ),
+      );
+    }
+    sortMessagesByDate();
+  }
+
   Future<void> addPhotoMessage() async {
     final pickedFile =
         await ImagePicker().getImage(source: ImageSource.gallery);
@@ -59,8 +102,10 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         idMessagePage: state.page.id,
         data: pickedFile.path,
         isSelected: false,
+        isBookmark: false,
         time: state.timeOfSending ?? DateTime.now(),
         icon: state.category == Icons.bubble_chart ? null : state.category,
+        isVisible: true,
       ),
     );
     emit(
@@ -86,8 +131,10 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         idMessagePage: state.page.id,
         data: data,
         isSelected: false,
+        isBookmark: false,
         time: state.timeOfSending ?? DateTime.now(),
         icon: state.category == Icons.bubble_chart ? null : state.category,
+        isVisible: true,
       ),
     );
     emit(
@@ -134,6 +181,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         list: await repository.messages(state.page.id),
       ),
     );
+    toInputAppBar();
   }
 
   void remove(int id) {
@@ -235,6 +283,31 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         ),
       );
     }
+    sortMessagesByDate();
+  }
+
+  void makeBookmark(int index) async {
+    var isBookmark = state.list[index].isBookmark;
+    repository.editMessage(state.list[index].copyWith(isBookmark: !isBookmark));
+    emit(
+      state.copyWith(
+        list: await repository.messages(state.page.id),
+      ),
+    );
+    sortMessagesByDate();
+  }
+
+  void makeBookmarkSelected() async {
+    for (var i = 0; i < state.list.length; i++) {
+      if (state.list[i].isSelected) {
+        makeBookmark(i);
+      }
+    }
+    emit(
+      state.copyWith(
+        list: await repository.messages(state.page.id),
+      ),
+    );
     sortMessagesByDate();
   }
 

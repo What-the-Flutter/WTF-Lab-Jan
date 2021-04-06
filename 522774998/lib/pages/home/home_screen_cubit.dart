@@ -8,10 +8,11 @@ part 'home_screen_state.dart';
 class HomeScreenCubit extends Cubit<HomeScreenState> {
   PagesRepository repository;
 
-  HomeScreenCubit({this.repository})
-      : super(
+  HomeScreenCubit({
+    this.repository,
+  }) : super(
           HomeScreenStateAwait(currentIndex: 0),
-        );
+  );
 
   void loadData() async {
     emit(

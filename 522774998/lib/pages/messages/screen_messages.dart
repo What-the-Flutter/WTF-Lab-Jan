@@ -27,9 +27,40 @@ class ScreenMessages extends StatefulWidget {
   _ScreenMessagesState createState() => _ScreenMessagesState();
 }
 
-class _ScreenMessagesState extends State<ScreenMessages> {
+class _ScreenMessagesState extends State<ScreenMessages>
+    with SingleTickerProviderStateMixin {
+  AnimationController _controller;
+  Animation<Offset> _slideMessages;
+  Animation<Offset> _slideDates;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+    );
+    _slideMessages = Tween(
+      begin: Offset(0.0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.ease,
+    ));
+    _slideDates = Tween(
+      begin: const Offset(-0.5, 0.0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.ease,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    _controller.forward();
     final indexBackground =
         BlocProvider.of<SettingPageCubit>(context).state.indexBackground;
     return Scaffold(
@@ -64,141 +95,163 @@ class _ScreenMessagesState extends State<ScreenMessages> {
                                 return Column(
                                   children: [
                                     if (state.list[state.list.length - i - 1]
-                                            .id ==
-                                        context
-                                            .read<ScreenMessagesCubit>()
-                                            .checkDate(
-                                              state
-                                                  .list[
-                                                      state.list.length - i - 1]
-                                                  .time,
-                                              state
-                                                  .list[
-                                                      state.list.length - i - 1]
-                                                  .idMessagePage,
-                                            ))
-                                      DateMessage(
-                                        index: state.list.length - i - 1,
-                                        idMessagePage:
-                                            state.list.first.idMessagePage,
+                                        .isVisible)
+                                      if (state.list[state.list.length - i - 1]
+                                              .id ==
+                                          context
+                                              .read<ScreenMessagesCubit>()
+                                              .checkDate(
+                                                state
+                                                    .list[state.list.length -
+                                                        i -
+                                                        1]
+                                                    .time,
+                                                state
+                                                    .list[state.list.length -
+                                                        i -
+                                                        1]
+                                                    .idMessagePage,
+                                              ))
+                                        SlideTransition(
+                                          position: _slideDates,
+                                          child: DateMessage(
+                                            index: state.list.length - i - 1,
+                                            idMessagePage:
+                                                state.list.first.idMessagePage,
+                                          ),
+                                        ),
+                                    if (state.list[state.list.length - i - 1]
+                                        .isVisible)
+                                      Dismissible(
+                                        confirmDismiss: (direction) async {
+                                          context
+                                              .read<ScreenMessagesCubit>()
+                                              .selection(
+                                                  state.list.length - i - 1);
+                                          if (direction ==
+                                              DismissDirection.endToStart) {
+                                            final res = await showDialog(
+                                              context: context,
+                                              builder: (alertContext) {
+                                                return AlertDialog(
+                                                  content: Text(
+                                                      'Are you sure you want to delete?'),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      child: Text(
+                                                        'Cancel',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.black),
+                                                      ),
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                                ScreenMessagesCubit>()
+                                                            .toInputAppBar();
+                                                        context
+                                                            .read<
+                                                                ScreenMessagesCubit>()
+                                                            .selection(state
+                                                                    .list
+                                                                    .length -
+                                                                i -
+                                                                1);
+                                                        Navigator.of(
+                                                                alertContext)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                    TextButton(
+                                                      child: Text(
+                                                        'Delete',
+                                                        style: TextStyle(
+                                                            color: Colors.red),
+                                                      ),
+                                                      onPressed: () {
+                                                        _controller
+                                                            .reverse()
+                                                            .then((value) => context
+                                                                .read<
+                                                                    ScreenMessagesCubit>()
+                                                                .delete())
+                                                            .then((value) =>
+                                                                Navigator.of(
+                                                                        alertContext)
+                                                                    .pop());
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                            return res;
+                                          } else {
+                                            final res = await showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  content: Text(
+                                                      'Are you sure you want to edit?'),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      child: Text(
+                                                        'Cancel',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.black),
+                                                      ),
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                                ScreenMessagesCubit>()
+                                                            .toInputAppBar();
+                                                        context
+                                                            .read<
+                                                                ScreenMessagesCubit>()
+                                                            .selection(state
+                                                                    .list
+                                                                    .length -
+                                                                i -
+                                                                1);
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                    TextButton(
+                                                      child: Text(
+                                                        'Edit',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.green),
+                                                      ),
+                                                      onPressed: () {
+                                                        controller.text = context
+                                                            .read<
+                                                                ScreenMessagesCubit>()
+                                                            .toEditAppBar();
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                            return res;
+                                          }
+                                        },
+                                        background: slideRightBackground(),
+                                        secondaryBackground:
+                                            slideLeftBackground(),
+                                        key: UniqueKey(),
+                                        child: SlideTransition(
+                                          position: _slideMessages,
+                                          child: Message(
+                                            index: state.list.length - i - 1,
+                                          ),
+                                        ),
                                       ),
-                                    Dismissible(
-                                      confirmDismiss: (direction) async {
-                                        context
-                                            .read<ScreenMessagesCubit>()
-                                            .selection(
-                                                state.list.length - i - 1);
-                                        if (direction ==
-                                            DismissDirection.endToStart) {
-                                          final res = await showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                content: Text(
-                                                    'Are you sure you want to delete?'),
-                                                actions: <Widget>[
-                                                  TextButton(
-                                                    child: Text(
-                                                      'Cancel',
-                                                      style: TextStyle(
-                                                          color: Colors.black),
-                                                    ),
-                                                    onPressed: () {
-                                                      context
-                                                          .read<
-                                                              ScreenMessagesCubit>()
-                                                          .toInputAppBar();
-                                                      context
-                                                          .read<
-                                                              ScreenMessagesCubit>()
-                                                          .selection(state
-                                                                  .list.length -
-                                                              i -
-                                                              1);
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                  ),
-                                                  TextButton(
-                                                    child: Text(
-                                                      'Delete',
-                                                      style: TextStyle(
-                                                          color: Colors.red),
-                                                    ),
-                                                    onPressed: () {
-                                                      context
-                                                          .read<
-                                                              ScreenMessagesCubit>()
-                                                          .delete();
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                          return res;
-                                        } else {
-                                          final res = await showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                content: Text(
-                                                    'Are you sure you want to edit?'),
-                                                actions: <Widget>[
-                                                  TextButton(
-                                                    child: Text(
-                                                      'Cancel',
-                                                      style: TextStyle(
-                                                          color: Colors.black),
-                                                    ),
-                                                    onPressed: () {
-                                                      context
-                                                          .read<
-                                                              ScreenMessagesCubit>()
-                                                          .toInputAppBar();
-                                                      context
-                                                          .read<
-                                                              ScreenMessagesCubit>()
-                                                          .selection(state
-                                                                  .list.length -
-                                                              i -
-                                                              1);
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                  ),
-                                                  TextButton(
-                                                    child: Text(
-                                                      'Edit',
-                                                      style: TextStyle(
-                                                          color: Colors.green),
-                                                    ),
-                                                    onPressed: () {
-                                                      controller.text = context
-                                                          .read<
-                                                              ScreenMessagesCubit>()
-                                                          .toEditAppBar();
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                          return res;
-                                        }
-                                      },
-                                      background: slideRightBackground(),
-                                      secondaryBackground:
-                                          slideLeftBackground(),
-                                      key: UniqueKey(),
-                                      child: Message(
-                                        index: state.list.length - i - 1,
-                                      ),
-                                    ),
                                   ],
                                 );
                               },
@@ -453,12 +506,25 @@ class _ScreenMessagesState extends State<ScreenMessages> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }
 
-class InputAppBar extends StatelessWidget {
+class InputAppBar extends StatefulWidget {
   final String title;
 
   const InputAppBar({Key key, this.title}) : super(key: key);
+
+  @override
+  _InputAppBarState createState() => _InputAppBarState();
+}
+
+class _InputAppBarState extends State<InputAppBar> {
+  bool _pressAttention = true;
 
   @override
   Widget build(BuildContext context) {
@@ -474,7 +540,7 @@ class InputAppBar extends StatelessWidget {
         ),
         title: Center(
           child: Text(
-            title,
+            widget.title,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
           ),
         ),
@@ -484,11 +550,34 @@ class InputAppBar extends StatelessWidget {
               left: 10,
             ),
             child: IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () => Navigator.pushNamed(
-                context,
-                SearchingPage.routeName,
-              ),
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  context.read<SearchMessageCubit>().isAll = false;
+                  Navigator.pushNamed(
+                    context,
+                    SearchingPage.routeName,
+                  );
+                }),
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+              left: 10,
+            ),
+            child: IconButton(
+              icon: _pressAttention
+                  ? Icon(Icons.bookmark_border)
+                  : Icon(
+                      Icons.bookmark,
+                      color: Colors.yellow,
+                    ),
+              onPressed: () {
+                setState(() {
+                  _pressAttention = !_pressAttention;
+                });
+                _pressAttention
+                    ? context.read<ScreenMessagesCubit>().showAll()
+                    : context.read<ScreenMessagesCubit>().showBookmarks();
+              },
             ),
           ),
         ],
@@ -549,14 +638,16 @@ class SelectionAppBar extends StatelessWidget {
             padding: EdgeInsets.only(right: 10),
             child: IconButton(
               icon: Icon(Icons.bookmark_border),
-              onPressed: () {},
+              onPressed: () {
+                context.read<ScreenMessagesCubit>().makeBookmarkSelected();
+              },
             ),
           ),
           Padding(
             padding: EdgeInsets.only(right: 10),
             child: IconButton(
               icon: Icon(Icons.delete),
-              onPressed: context.read<ScreenMessagesCubit>().delete,
+              onPressed: () => context.read<ScreenMessagesCubit>().delete(),
             ),
           ),
         ],
@@ -598,7 +689,7 @@ class SelectionAppBar extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(right: 5),
                 child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(alertContext),
                   child: Center(
                     child: Text(
                       'Cancel',
@@ -618,7 +709,7 @@ class SelectionAppBar extends StatelessWidget {
                     context
                         .read<ScreenMessagesCubit>()
                         .listSelected(list[index].id);
-                    Navigator.pop(context);
+                    Navigator.pop(alertContext);
                   },
                   child: Center(
                     child: Text(
@@ -687,7 +778,7 @@ class Message extends StatelessWidget {
         child: GestureDetector(
           onTap: state is ScreenMessageSelection
               ? () => context.read<ScreenMessagesCubit>().selection(index)
-              : null,
+              : () => context.read<ScreenMessagesCubit>().makeBookmark(index),
           onLongPress: () =>
               context.read<ScreenMessagesCubit>().selection(index),
           child: Container(
@@ -751,6 +842,7 @@ class Message extends StatelessWidget {
                           color: Colors.deepPurple,
                         ),
                         onTap: (text) {
+                          context.read<SearchMessageCubit>().isAll = false;
                           BlocProvider.of<SearchMessageCubit>(context)
                               .controller
                               .text = text;
@@ -762,13 +854,24 @@ class Message extends StatelessWidget {
                           // controller.text = text;
                         },
                       ),
-                Text(
-                  DateFormat('HH:mm').format(state.list[index].time),
-                  style: TextStyle(
-                      fontSize: BlocProvider.of<SettingPageCubit>(context)
-                          .state
-                          .fontSize,
-                      color: Colors.grey),
+                Wrap(
+                  direction: Axis.horizontal,
+                  children: [
+                    Text(
+                      DateFormat('HH:mm').format(state.list[index].time),
+                      style: TextStyle(
+                          fontSize: BlocProvider.of<SettingPageCubit>(context)
+                              .state
+                              .fontSize,
+                          color: Colors.grey),
+                    ),
+                    if (state.list[index].isBookmark)
+                      Icon(
+                        Icons.bookmark,
+                        color: Colors.yellow,
+                        size: 20,
+                      ),
+                  ],
                 ),
               ],
             ),

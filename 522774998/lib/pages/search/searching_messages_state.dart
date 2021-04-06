@@ -45,11 +45,13 @@ class SearchMessageScreenNotFound extends SearchMessageState {
 }
 
 class SearchMessageScreenFound extends SearchMessageState {
-  SearchMessageScreenFound({PropertyPage page, List<PropertyMessage> list})
-      : super(
+  SearchMessageScreenFound({
+    PropertyPage page,
+    List<PropertyMessage> list,
+  }) : super(
           page: page,
           list: list,
-        );
+  );
 
   @override
   SearchMessageState copyWith({PropertyPage page}) {

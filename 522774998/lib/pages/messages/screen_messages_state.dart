@@ -64,17 +64,17 @@ abstract class ScreenMessagesState extends Equatable {
 }
 
 class ScreenMessageAwait extends ScreenMessagesState {
-  ScreenMessageAwait(
-      {PropertyPage page,
-      Widget appBar,
-      int counter,
-      List<PropertyMessage> list,
-      IconData iconData,
-      Function onAddMessage,
-      IconData category,
-      String dateOfSending,
-      DateTime timeOfSending})
-      : super(
+  ScreenMessageAwait({
+    PropertyPage page,
+    Widget appBar,
+    int counter,
+    List<PropertyMessage> list,
+    IconData iconData,
+    Function onAddMessage,
+    IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
+  }) : super(
           page: page,
           appBar: appBar,
           list: list,
@@ -85,7 +85,7 @@ class ScreenMessageAwait extends ScreenMessagesState {
           category: category,
           dateOfSending: dateOfSending,
           timeOfSending: timeOfSending,
-        );
+  );
 
   @override
   ScreenMessagesState copyWith({
@@ -105,17 +105,17 @@ class ScreenMessageAwait extends ScreenMessagesState {
 }
 
 class ScreenMessageInput extends ScreenMessagesState {
-  ScreenMessageInput(
-      {PropertyPage page,
-      Widget appBar,
-      int counter,
-      List<PropertyMessage> list,
-      IconData iconData,
-      Function onAddMessage,
-      IconData category,
-      String dateOfSending,
-      DateTime timeOfSending})
-      : super(
+  ScreenMessageInput({
+    PropertyPage page,
+    Widget appBar,
+    int counter,
+    List<PropertyMessage> list,
+    IconData iconData,
+    Function onAddMessage,
+    IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
+  }) : super(
           page: page,
           appBar: appBar,
           list: list,
@@ -126,7 +126,7 @@ class ScreenMessageInput extends ScreenMessagesState {
           category: category,
           dateOfSending: dateOfSending,
           timeOfSending: timeOfSending,
-        );
+  );
 
   @override
   ScreenMessagesState copyWith({
@@ -156,17 +156,17 @@ class ScreenMessageInput extends ScreenMessagesState {
 }
 
 class ScreenMessageSelection extends ScreenMessagesState {
-  ScreenMessageSelection(
-      {PropertyPage page,
-      Widget appBar,
-      List<PropertyMessage> list,
-      int counter,
-      IconData iconData,
-      Function onAddMessage,
-      IconData category,
-      String dateOfSending,
-      DateTime timeOfSending})
-      : super(
+  ScreenMessageSelection({
+    PropertyPage page,
+    Widget appBar,
+    List<PropertyMessage> list,
+    int counter,
+    IconData iconData,
+    Function onAddMessage,
+    IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
+  }) : super(
           page: page,
           appBar: appBar,
           list: list,
@@ -177,7 +177,7 @@ class ScreenMessageSelection extends ScreenMessagesState {
           category: category,
           dateOfSending: dateOfSending,
           timeOfSending: timeOfSending,
-        );
+  );
 
   @override
   ScreenMessagesState copyWith({
@@ -207,17 +207,17 @@ class ScreenMessageSelection extends ScreenMessagesState {
 }
 
 class ScreenMessageEdit extends ScreenMessagesState {
-  ScreenMessageEdit(
-      {PropertyPage page,
-      Widget appBar,
-      List<PropertyMessage> list,
-      int counter,
-      IconData iconData,
-      Function onEditMessage,
-      IconData category,
-      String dateOfSending,
-      DateTime timeOfSending})
-      : super(
+  ScreenMessageEdit({
+    PropertyPage page,
+    Widget appBar,
+    List<PropertyMessage> list,
+    int counter,
+    IconData iconData,
+    Function onEditMessage,
+    IconData category,
+    String dateOfSending,
+    DateTime timeOfSending,
+  }) : super(
           page: page,
           appBar: appBar,
           list: list,
@@ -228,7 +228,7 @@ class ScreenMessageEdit extends ScreenMessagesState {
           category: category,
           dateOfSending: dateOfSending,
           timeOfSending: timeOfSending,
-        );
+  );
 
   @override
   ScreenMessagesState copyWith({
