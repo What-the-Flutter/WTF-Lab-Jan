@@ -7,18 +7,10 @@ final List<IconData> iconList = [
   Icons.wifi_outlined,
   Icons.weekend,
   Icons.airplanemode_on_rounded,
-  Icons.work_outlined,
-  Icons.wifi_outlined,
-  Icons.weekend,
-  Icons.airplanemode_on_rounded,
-  Icons.work_outlined,
-  Icons.wifi_outlined,
-  Icons.weekend,
-  Icons.airplanemode_on_rounded,
-  Icons.work_outlined,
-  Icons.wifi_outlined,
-  Icons.weekend,
-  Icons.airplanemode_on_rounded,
+  Icons.whatshot,
+  Icons.alarm_sharp,
+  Icons.audiotrack_outlined,
+  Icons.analytics,
 ];
 
 final List<String> stringList = [
@@ -26,18 +18,10 @@ final List<String> stringList = [
   'Internet',
   'Weekend',
   'Travel',
-  'Work',
-  'Internet',
-  'Weekend',
-  'Travel',
-  'Work',
-  'Internet',
-  'Weekend',
-  'Travel',
-  'Work',
-  'Internet',
-  'Weekend',
-  'Travel',
+  'Trending',
+  'Alarm',
+  'Music',
+  'Analytics',
 ];
 
 final List<IconData> eventIconList = [
@@ -50,5 +34,5 @@ final List<String> eventStringList = [
   ...stringList,
 ];
 
-final List<Label> labels =
+final List<Label> stockLabels =
     List.generate(iconList.length, (index) => Label(index, stringList[index]));

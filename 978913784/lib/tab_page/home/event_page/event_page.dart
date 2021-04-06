@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:chat_journal/entity/label.dart';
+import 'package:chat_journal/labels_cubit.dart';
+import 'package:chat_journal/labels_state.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -442,6 +445,36 @@ class _EventPageState extends State<EventPage> {
   Widget get _body {
     Widget _iconDialog() {
       Widget _content() {
+        Widget _element(IconData icon, String text, Function onTap) {
+          return GestureDetector(
+            onTap: onTap,
+            child: Center(
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Theme.of(context).accentColor,
+                    foregroundColor:
+                        Theme.of(context).textTheme.bodyText2.color,
+                    child: Icon(icon),
+                  ),
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyText1.color,
+                        fontSize:
+                            SettingsCubit.calculateSize(context, 12, 15, 20),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final labels = BlocProvider.of<LabelsCubit>(context).state;
+
         return Container(
           width: double.maxFinite,
           child: GridView.extent(
@@ -452,35 +485,23 @@ class _EventPageState extends State<EventPage> {
             padding: EdgeInsets.all(10),
             maxCrossAxisExtent: 100,
             children: [
-              for (var index = 0; index < eventIconList.length; index++)
-                GestureDetector(
-                  onTap: () async {
-                    BlocProvider.of<EventCubit>(context).selectIcon(index);
-                    Navigator.pop(context, index);
+              _element(
+                Icons.close,
+                'None',
+                () {
+                  BlocProvider.of<EventCubit>(context).selectId(0);
+                  Navigator.pop(context);
+                },
+              ),
+              for (var index = 0; index < labels.length; index++)
+                _element(
+                  iconList[labels[index].iconIndex],
+                  labels[index].description,
+                  () async {
+                    BlocProvider.of<EventCubit>(context)
+                        .selectId(labels[index].id);
+                    Navigator.pop(context);
                   },
-                  child: Center(
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Theme.of(context).accentColor,
-                          foregroundColor:
-                              Theme.of(context).textTheme.bodyText2.color,
-                          child: Icon(eventIconList[index]),
-                        ),
-                        Expanded(
-                          child: Text(
-                            eventStringList[index],
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1.color,
-                              fontSize: SettingsCubit.calculateSize(
-                                  context, 12, 15, 20),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
             ],
           ),
@@ -499,6 +520,21 @@ class _EventPageState extends State<EventPage> {
         ),
         content: _content(),
       );
+    }
+
+    IconData _leftIcon() {
+      final selectedId =
+          BlocProvider.of<EventCubit>(context).state.selectedLabelId;
+      if (selectedId == 0) {
+        return Icons.insert_emoticon;
+      } else {
+        final label = LabelsState.labelById(
+          BlocProvider.of<LabelsCubit>(context).state,
+          selectedId,
+        );
+        if (label == null) return Icons.insert_emoticon;
+        return iconList[label.iconIndex];
+      }
     }
 
     return Column(
@@ -527,14 +563,7 @@ class _EventPageState extends State<EventPage> {
               if (!BlocProvider.of<EventCubit>(context).state.isSearching)
                 IconButton(
                   icon: Icon(
-                    BlocProvider.of<EventCubit>(context)
-                                .state
-                                .selectedIconIndex ==
-                            0
-                        ? Icons.insert_emoticon
-                        : eventIconList[BlocProvider.of<EventCubit>(context)
-                            .state
-                            .selectedIconIndex],
+                    _leftIcon(),
                     color: Theme.of(context).accentColor,
                   ),
                   onPressed: () async {

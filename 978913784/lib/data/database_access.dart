@@ -3,15 +3,14 @@ import 'package:sqflite/sqflite.dart';
 
 import '../entity/label.dart';
 import '../entity/page.dart';
+import 'icon_list.dart';
 
 class DatabaseAccess {
   static final DatabaseAccess _databaseAccess = DatabaseAccess._internal();
 
   static Database _db;
 
-  factory DatabaseAccess.instance() {
-    return _databaseAccess;
-  }
+  factory DatabaseAccess.instance() => _databaseAccess;
 
   DatabaseAccess._internal();
 
@@ -31,7 +30,7 @@ class DatabaseAccess {
           'CREATE TABLE events('
           'id INTEGER PRIMARY KEY AUTOINCREMENT,'
           ' pageId INTEGER,'
-          ' iconIndex INTEGER,'
+          ' labelId INTEGER,'
           ' isFavourite INTEGER,'
           ' description TEXT,'
           ' creationTime INTEGER,'
@@ -42,9 +41,13 @@ class DatabaseAccess {
           'CREATE TABLE labels('
           'id INTEGER PRIMARY KEY AUTOINCREMENT,'
           ' iconIndex INTEGER,'
-          ' description TEXT'
+          ' description TEXT,'
+          ' creationTime INTEGER'
           ');',
         );
+        for (var i = 0; i < iconList.length; i++) {
+          db.insert('labels', stockLabels[i].toMap());
+        }
       },
       version: 1,
     );
@@ -59,6 +62,7 @@ class DatabaseAccess {
         labelsMap[i]['id'],
         labelsMap[i]['iconIndex'],
         labelsMap[i]['description'],
+        DateTime.fromMillisecondsSinceEpoch(labelsMap[i]['creationTime'] * 1000),
       ),
     );
   }
@@ -95,7 +99,7 @@ class DatabaseAccess {
       page.lastEvent = Event.fromDb(
         eventMap.first['id'],
         eventMap.first['pageId'],
-        eventMap.first['iconIndex'],
+        eventMap.first['labelId'],
         eventMap.first['isFavourite'] == 0 ? false : true,
         eventMap.first['description'],
         DateTime.fromMillisecondsSinceEpoch(
@@ -114,7 +118,7 @@ class DatabaseAccess {
       return Event.fromDb(
         eventsMap[i]['id'],
         eventsMap[i]['pageId'],
-        eventsMap[i]['iconIndex'],
+        eventsMap[i]['labelId'],
         eventsMap[i]['isFavourite'] == 0 ? false : true,
         eventsMap[i]['description'],
         DateTime.fromMillisecondsSinceEpoch(
@@ -218,5 +222,4 @@ class DatabaseAccess {
       whereArgs: [label.id],
     );
   }
-
 }

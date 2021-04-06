@@ -44,20 +44,20 @@ class JournalPage {
 class Event {
   int id;
   int pageId;
-  int iconIndex = 0;
+  int labelId = 0;
   bool isFavourite = false;
   String description;
   DateTime creationTime;
   String imagePath = '';
 
-  Event(this.pageId, this.description, this.iconIndex) {
+  Event(this.pageId, this.description, this.labelId) {
     creationTime = DateTime.now();
   }
 
   Event.fromDb(
     this.id,
     this.pageId,
-    this.iconIndex,
+    this.labelId,
     this.isFavourite,
     this.description,
     this.creationTime,
@@ -66,7 +66,7 @@ class Event {
 
   Event.fromResource(
     this.pageId,
-    this.iconIndex,
+    this.labelId,
     this.imagePath,
   ) {
     creationTime = DateTime.now();
@@ -77,7 +77,7 @@ class Event {
     return {
       'id': id,
       'pageId': pageId,
-      'iconIndex': iconIndex,
+      'labelId': labelId,
       'isFavourite': isFavourite ? 1 : 0,
       'description': description,
       'creationTime': creationTime.millisecondsSinceEpoch ~/ 1000,

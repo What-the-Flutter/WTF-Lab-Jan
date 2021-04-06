@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_journal/entity/label.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -90,7 +91,10 @@ class EventCubit extends Cubit<EventsState> {
   }
 
   Future<void> addEvent(String description) async {
-    final event = Event(state.page.id, description, state.selectedIconIndex);
+
+    print(state.selectedLabelId);
+
+    final event = Event(state.page.id, description, state.selectedLabelId);
     if (state.isDateSelected) {
       event.creationTime = state.date;
     }
@@ -110,7 +114,7 @@ class EventCubit extends Cubit<EventsState> {
     print(fileName);
     final saved = await image.copy('${appDir.path}/$fileName');
     final event =
-        Event.fromResource(state.page.id, state.selectedIconIndex, saved.path);
+        Event.fromResource(state.page.id, state.selectedLabelId, saved.path);
     if (state.isDateSelected) {
       event.creationTime = state.date;
     }
@@ -141,9 +145,8 @@ class EventCubit extends Cubit<EventsState> {
     emit(state.copyWith(events: await db.fetchEvents(state.page.id)));
   }
 
-  void selectIcon(int selectedIndex) {
-    emit(state.copyWith(selectedIconIndex: selectedIndex));
-  }
+  void selectId(int labelId) =>
+      emit(state.copyWith(selectedLabelId: labelId));
 
   void setDate(DateTime date) {
     final isDateSelected = date != null;

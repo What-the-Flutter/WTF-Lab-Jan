@@ -20,8 +20,8 @@ class HomeBody extends StatefulWidget {
 class _HomeBodyState extends State<HomeBody> {
   @override
   void initState() {
-    BlocProvider.of<PagesCubit>(context).initialize();
     super.initState();
+    BlocProvider.of<PagesCubit>(context).initialize();
   }
 
   @override
