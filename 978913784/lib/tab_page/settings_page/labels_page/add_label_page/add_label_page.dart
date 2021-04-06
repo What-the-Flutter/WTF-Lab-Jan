@@ -1,55 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../data/icon_list.dart';
+import '../../../../entity/label.dart';
 import 'add_label_cubit.dart';
 import 'add_label_state.dart';
 
 class AddLabelPage extends StatefulWidget {
+  final Label label;
+
+  AddLabelPage(this.label);
+
   @override
-  _AddLabelPageState createState() => _AddLabelPageState();
+  _AddLabelPageState createState() => _AddLabelPageState(label);
 }
 
 class _AddLabelPageState extends State<AddLabelPage> {
-
-  final _cubit = AddLabelCubit(AddLabelState(0, false));
+  final Label label;
+  final _cubit = AddLabelCubit(AddLabelState(0, false, Label(0, '')));
 
   final _controller = TextEditingController();
 
+  _AddLabelPageState(this.label);
+
+  @override
+  void initState() {
+    _cubit.selectLabel(label);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _appBar,
-      body: _body,
+    return BlocBuilder<AddLabelCubit,AddLabelState>(
+      cubit: _cubit,
+      builder: (context, state) => Scaffold(
+        appBar: _appBar,
+        body: _body,
+      ),
     );
   }
 
   Widget get _appBar => AppBar(
-    leading: IconButton(
-      onPressed: () => Navigator.pop(context, _cubit.state),
-      icon: Icon(
-        Icons.arrow_back,
-        color: Theme.of(context).textTheme.bodyText2.color,
-      ),
-    ),
-    backgroundColor: Theme.of(context).accentColor,
-    actions: [
-      IconButton(
-        onPressed: () =>
-          Navigator.pop(context, _cubit.state),
-        icon: Icon(
-          _cubit.state.isAllowedToSave ? Icons.check : Icons.close,
-          color: Theme.of(context).textTheme.bodyText2.color,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context, _cubit.state),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).textTheme.bodyText2.color,
+          ),
         ),
-      ),
-    ],
-    title: Text(
-      'New label',
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).textTheme.bodyText2.color,
-      ),
-    ),
-  );
+        backgroundColor: Theme.of(context).accentColor,
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context, _cubit.state),
+            icon: Icon(
+              _cubit.state.isAllowedToSave ? Icons.check : Icons.close,
+              color: Theme.of(context).textTheme.bodyText2.color,
+            ),
+          ),
+        ],
+        title: Text(
+          'New label',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.bodyText2.color,
+          ),
+        ),
+      );
 
   Widget get _body {
     return Container(
@@ -65,27 +81,22 @@ class _AddLabelPageState extends State<AddLabelPage> {
               mainAxisSpacing: 15,
               children: [
                 ...iconList.map(
-                      (e) =>
-                      GestureDetector(
-                        onTap: () {
-                          _cubit.changeIcon(iconList.indexOf(e));
-                        },
-                        child: Center(
-                          child: CircleAvatar(
-                            maxRadius: 30,
-                            backgroundColor: Theme
-                                .of(context)
-                                .accentColor,
-                            foregroundColor:
-                            Theme
-                                .of(context)
-                                .textTheme
-                                .bodyText2
-                                .color,
-                            child: Icon(e),
-                          ),
-                        ),
+                  (e) => GestureDetector(
+                    onTap: () {
+                      _cubit.changeIcon(iconList.indexOf(e));
+                      _cubit.updateLabel(_cubit.state.label.description,
+                          _cubit.state.selectedIconIndex);
+                    },
+                    child: Center(
+                      child: CircleAvatar(
+                        maxRadius: 30,
+                        backgroundColor: Theme.of(context).accentColor,
+                        foregroundColor:
+                            Theme.of(context).textTheme.bodyText2.color,
+                        child: Icon(e),
                       ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -98,35 +109,24 @@ class _AddLabelPageState extends State<AddLabelPage> {
   Widget get _labelInfo {
     Widget _textField() {
       return TextField(
-        onChanged: _cubit.updateAllowance,
-        cursorColor: Theme
-            .of(context)
-            .textTheme
-            .bodyText2
-            .color,
+        onChanged: (text) {
+          _cubit.updateAllowance(text.isNotEmpty);
+          _cubit.updateLabel(text, _cubit.state.selectedIconIndex);
+        },
+        cursorColor: Theme.of(context).textTheme.bodyText2.color,
         style: TextStyle(
-          color: Theme
-              .of(context)
-              .textTheme
-              .bodyText2
-              .color,
+          color: Theme.of(context).textTheme.bodyText2.color,
           fontWeight: FontWeight.bold,
         ),
         controller: _controller,
         decoration: InputDecoration(
           hintText: 'Write page name...',
           hintStyle: TextStyle(
-            color: Theme
-                .of(context)
-                .textTheme
-                .bodyText2
-                .color
-                .withOpacity(0.5),
+            color: Theme.of(context).textTheme.bodyText2.color.withOpacity(0.5),
           ),
           border: OutlineInputBorder(
-            borderSide: BorderSide(color: Theme
-                .of(context)
-                .primaryColor, width: 2.0),
+            borderSide:
+                BorderSide(color: Theme.of(context).primaryColor, width: 2.0),
           ),
           labelText: 'Label Description',
         ),
@@ -140,14 +140,8 @@ class _AddLabelPageState extends State<AddLabelPage> {
         children: [
           CircleAvatar(
             maxRadius: 20,
-            foregroundColor: Theme
-                .of(context)
-                .textTheme
-                .bodyText2
-                .color,
-            backgroundColor: Theme
-                .of(context)
-                .accentColor,
+            foregroundColor: Theme.of(context).textTheme.bodyText2.color,
+            backgroundColor: Theme.of(context).accentColor,
             child: Icon(
               iconList[_cubit.state.selectedIconIndex],
             ),
@@ -160,5 +154,4 @@ class _AddLabelPageState extends State<AddLabelPage> {
       ),
     );
   }
-
 }

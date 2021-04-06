@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_journal/labels_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -8,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import '../data/icon_list.dart';
 import '../entity/page.dart';
+import '../labels_state.dart';
 import '../tab_page/home/event_page/events_cubit.dart';
 import '../tab_page/settings_page/settings_cubit.dart';
 
@@ -97,17 +99,22 @@ class _EventMessageTileState extends State<EventMessageTile>
   Widget build(BuildContext context) {
     _isSelected = BlocProvider.of<EventCubit>(context).state.selected.contains(_event);
 
+    final labels = BlocProvider.of<LabelsCubit>(context).state;
+    final label = LabelsState.labelById(labels, _event.labelId);
+
+
     Widget _title(Event event) {
+
       return Row(
         children: [
           Icon(
-            eventIconList[event.iconIndex],
+            iconList[label.iconIndex],
             color: Theme.of(context).textTheme.bodyText2.color,
           ),
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              eventStringList[event.iconIndex],
+              label.description,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.bodyText2.color,
@@ -155,8 +162,8 @@ class _EventMessageTileState extends State<EventMessageTile>
                       _isRightToLeft ? Radius.zero : Radius.circular(10),
                 ),
                 color: _isSelected
-                    ? Theme.of(context).shadowColor
-                    : Theme.of(context).accentColor,
+                  ? Theme.of(context).shadowColor
+                  : Theme.of(context).accentColor,
               ),
               padding: EdgeInsets.only(
                 top: 10,
@@ -168,7 +175,7 @@ class _EventMessageTileState extends State<EventMessageTile>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (_event.iconIndex != 0) _title(_event),
+                  if (label != null) _title(_event),
                   _content(_event),
                   SizedBox(
                     height: 5,

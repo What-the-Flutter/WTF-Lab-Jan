@@ -1,7 +1,7 @@
 import '../../../entity/page.dart';
 
 class EventsState {
-  int selectedIconIndex = 0;
+  int selectedLabelId = 0;
 
   bool isSearching = false;
   bool isOnEdit = false;
@@ -22,7 +22,7 @@ class EventsState {
 
   EventsState copyWith({
     bool isSearching,
-    int selectedIconIndex,
+    int selectedLabelId,
     bool isOnEdit,
     bool isOnSelectionMode,
     bool showingFavourites,
@@ -38,7 +38,7 @@ class EventsState {
     final state = EventsState(page ?? this.page);
     state.date = date;
     state.events = events ?? this.events;
-    state.selectedIconIndex = selectedIconIndex ?? this.selectedIconIndex;
+    state.selectedLabelId = selectedLabelId ?? this.selectedLabelId;
     state.isSearching = isSearching ?? this.isSearching;
     state.isOnEdit = isOnEdit ?? this.isOnEdit;
     state.isOnSelectionMode = isOnSelectionMode ?? this.isOnSelectionMode;
