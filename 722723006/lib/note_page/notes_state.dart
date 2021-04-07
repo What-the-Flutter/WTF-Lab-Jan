@@ -1,23 +1,30 @@
 part of 'notes_cubit.dart';
 
 class NotesState {
-  List<Note> noteList;
-  Note note;
-  bool isWriting = false;
-  int indexOfSelectIcon;
+  final List<Note> noteList;
+  final Note note;
+  final bool isWriting;
+  final int indexOfSelectIcon;
 
   NotesState copyWith({
-    List<Note> noteList,
-    Note note,
-    bool isWriting,
-    CircleAvatar selectIcon,
-    int indexOfSelectIcon,
+    final List<Note> noteList,
+    final Note note,
+    final bool isWriting,
+    final CircleAvatar selectIcon,
+    final int indexOfSelectIcon,
   }) {
-    var state = NotesState(note ?? this.note, noteList ?? this.noteList);
-    state.isWriting = isWriting ?? this.isWriting;
-    state.indexOfSelectIcon = indexOfSelectIcon ?? this.indexOfSelectIcon;
-    return state;
+    return NotesState(
+      noteList: noteList ?? this.noteList,
+      note: note ?? this.note,
+      isWriting: isWriting ?? this.isWriting,
+      indexOfSelectIcon: indexOfSelectIcon ?? this.indexOfSelectIcon,
+    );
   }
 
-  NotesState(this.note, this.noteList);
+  const NotesState({
+    this.noteList,
+    this.note,
+    this.isWriting,
+    this.indexOfSelectIcon,
+  });
 }

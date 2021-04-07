@@ -13,15 +13,29 @@ import 'event.dart';
 part 'events_state.dart';
 
 class EventCubit extends Cubit<EventsState> {
-  EventCubit(EventsState state) : super(state);
+  EventCubit() : super(EventsState());
   final DBProvider _dbProvider = DBProvider();
   final _prefs = SharedPreferencesProvider();
 
+  void init(Note note) {
+    setNote(note);
+    setEventListState(<Event>[]);
+    setWritingState(false);
+    setAllBookmarkState(false);
+    setIconButtonSearchPressedState(false);
+    setWritingBottomTextFieldState(false);
+    setIndexOfSelectedTile(0);
+    setEditingPhotoState(false);
+    setEditState(false);
+    setEventSelectedState(false);
+    initSettingsState();
+    initEventList();
+  }
+
   void initEventList() async {
-    state.eventList = await _dbProvider.dbEventList(state.note.id);
     emit(
       state.copyWith(
-        eventList: state.eventList
+        eventList: await _dbProvider.dbEventList(state.note.id)
           ..sort(
             (a, b) {
               var aDate = DateFormat().add_yMMMd().parse(a.date);
@@ -32,6 +46,13 @@ class EventCubit extends Cubit<EventsState> {
       ),
     );
   }
+
+  void setEventListState(List<Event> eventList) =>
+      emit(state.copyWith(eventList: eventList));
+
+  void setNote(Note note) => emit(state.copyWith(note: note));
+
+  void setDate(String date) => emit(state.copyWith(date: date));
 
   void initSettingsState() {
     final isBubbleAlignment = _prefs.fetchBubbleAlignmentState();
@@ -51,13 +72,15 @@ class EventCubit extends Cubit<EventsState> {
   void transferEvent(Event currentEvent, List<Note> noteList) {
     final event = Event(
       text: currentEvent.text,
-      time: DateFormat('yyyy-MM-dd kk:mm').format(
+      time: DateFormat.jm().format(
         DateTime.now(),
       ),
       date: currentEvent.date,
+      isBookmarked: currentEvent.isBookmarked,
       noteId: noteList[state.selectedTile].id,
       indexOfCircleAvatar: currentEvent.indexOfCircleAvatar,
       imagePath: currentEvent.imagePath,
+      isSelected: false,
     );
     _dbProvider.insertEvent(event);
   }
@@ -68,9 +91,9 @@ class EventCubit extends Cubit<EventsState> {
   void setEditState(bool isEditing) =>
       emit(state.copyWith(isEditing: isEditing));
 
-  void setDateTime(String dateTime) {
-    emit(state.copyWith(dateTime: dateTime));
-  }
+  void setDateTime(String dateTime) => emit(state.copyWith(dateTime: dateTime));
+
+  void setHourTime(String hourTime) => emit(state.copyWith(hourTime: hourTime));
 
   void setSelectedElement(Event event) =>
       emit(state.copyWith(selectedElement: event));
@@ -87,6 +110,11 @@ class EventCubit extends Cubit<EventsState> {
   void setIndexOfSelectedTile(int index) =>
       emit(state.copyWith(selectedTile: index));
 
+  void setEventState(Event event) {
+    event.isSelected = !event.isSelected;
+    emit(state.copyWith(event: event));
+  }
+
   void deleteEvent(Event event) {
     _dbProvider.deleteEvent(event);
     state.eventList.remove(event);
@@ -98,16 +126,24 @@ class EventCubit extends Cubit<EventsState> {
     emit(state.copyWith(eventList: state.eventList));
   }
 
-  void setEditingPhotoState(bool isEditingPhoto) {
-    emit(state.copyWith(isEditingPhoto: isEditingPhoto));
+  void setBookmarkState(Event event) {
+    event.isBookmarked = !event.isBookmarked;
+    emit(state.copyWith(event: event));
+    _dbProvider.updateEvent(event);
   }
+
+  void setEditingPhotoState(bool isEditingPhoto) =>
+      emit(state.copyWith(isEditingPhoto: isEditingPhoto));
+
+  void setAllBookmarkState(bool isAllBookmarked) =>
+      emit(state.copyWith(isAllBookmarked: isAllBookmarked));
 
   Future<void> addImageEventFromResource(File image) async {
     final appDir = await getApplicationDocumentsDirectory();
     final fileName = path.basename(image.path);
     final saved = await image.copy('${appDir.path}/$fileName');
     final event = Event(
-      time: DateFormat('yyyy-MM-dd kk:mm').format(
+      time: DateFormat.jm().format(
         DateTime.now(),
       ),
       text: '',
@@ -115,7 +151,9 @@ class EventCubit extends Cubit<EventsState> {
       date: DateFormat.yMMMd('en_US').format(
         DateTime.now(),
       ),
+      isBookmarked: false,
       noteId: state.note.id,
+      isSelected: false,
     );
     event.id = await _dbProvider.insertEvent(event);
 
@@ -130,18 +168,18 @@ class EventCubit extends Cubit<EventsState> {
   void sendEvent(String text) async {
     final event = Event(
       text: text,
-      time: DateFormat('yyyy-MM-dd kk:mm').format(
-        DateTime.now(),
-      ),
+      time: state.hourTime ??
+          DateFormat.jm().format(
+            DateTime.now(),
+          ),
+      isBookmarked: false,
       date: state.dateTime ?? DateFormat.yMMMd().format(DateTime.now()),
       indexOfCircleAvatar:
           state.indexOfCircleAvatar ?? state.indexOfCircleAvatar,
       noteId: state.note.id,
+      isSelected: false,
     );
-    state.eventList.insert(
-      0,
-      event,
-    );
+    state.eventList.insert(0, event);
     emit(
       state.copyWith(
         eventList: state.eventList

@@ -11,20 +11,14 @@ class GeneralSettingsPage extends StatefulWidget {
 }
 
 class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
-  final GeneralSettingsCubit _cubit =
-      GeneralSettingsCubit(GeneralSettingsStates());
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GeneralSettingsCubit, GeneralSettingsStates>(
-      cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: Text(
-              'General',
-            ),
+            title: Text('General'),
           ),
           body: _bodyListView(state),
         );
@@ -34,7 +28,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
 
   @override
   void initState() {
-    _cubit.initStates();
+    BlocProvider.of<GeneralSettingsCubit>(context).initStates();
     super.initState();
   }
 
@@ -48,24 +42,21 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
             leading: Icon(Icons.invert_colors),
             title: Text('Theme'),
             subtitle: Text('Light / Dark'),
-            onTap: () {
-              BlocProvider.of<ThemeCubit>(context).changeTheme();
-            },
+            onTap: () => BlocProvider.of<ThemeCubit>(context).changeTheme(),
           ),
           ListTile(
             leading: Icon(Icons.text_fields),
             title: Text('Font Size'),
             subtitle: Text('Small / Default / Large'),
-            onTap: () {
-              _showDialogWindow();
-            },
+            onTap: _showDialogWindow,
           ),
           ListTile(
             leading: Icon(Icons.replay),
             title: Text('Reset All Preferences'),
             subtitle: Text('Reset all Visual Customization'),
             onTap: () {
-              _cubit.resetAllPreferences();
+              BlocProvider.of<GeneralSettingsCubit>(context)
+                  .resetAllPreferences();
               BlocProvider.of<ThemeCubit>(context).setLightTheme();
             },
           ),
@@ -73,9 +64,8 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
             leading: Icon(Icons.calendar_today_outlined),
             trailing: Switch(
               value: state.isDateTimeModification,
-              onChanged: (isDateTimeModification) {
-                _cubit.setDateTimeModificationState(isDateTimeModification);
-              },
+              onChanged: BlocProvider.of<GeneralSettingsCubit>(context)
+                  .setDateTimeModificationState,
             ),
             title: Text('Date-Time Modification'),
             subtitle: Text('Allows manual date & time for an entry'),
@@ -84,9 +74,8 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
             leading: Icon(Icons.format_align_right),
             trailing: Switch(
               value: state.isBubbleAlignment,
-              onChanged: (isBubbleAlignment) {
-                _cubit.setBubbleAlignmentState(isBubbleAlignment);
-              },
+              onChanged: BlocProvider.of<GeneralSettingsCubit>(context)
+                  .setBubbleAlignmentState,
             ),
             title: Text('Bubble Alignment'),
             subtitle: Text('Force right-to-left bubble alignment'),
@@ -95,9 +84,8 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
             leading: Icon(Icons.vertical_align_center),
             trailing: Switch(
               value: state.isCenterDateBubble,
-              onChanged: (isCenterDateBubble) {
-                _cubit.setCenterDateBubbleState(isCenterDateBubble);
-              },
+              onChanged: BlocProvider.of<GeneralSettingsCubit>(context)
+                  .setCenterDateBubbleState,
             ),
             title: Text('Center Date Bubble'),
           ),
@@ -105,14 +93,12 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
             leading: Icon(Icons.image),
             title: Text('Background Image'),
             subtitle: Text('Chat background image'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BackgroundImageSetting(),
-                ),
-              );
-            },
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BackgroundImageSetting(),
+              ),
+            ),
           ),
         ],
       ).toList(),
@@ -124,7 +110,6 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
       context: context,
       builder: (context) {
         return BlocBuilder<GeneralSettingsCubit, GeneralSettingsStates>(
-          cubit: _cubit,
           builder: (context, state) {
             return Dialog(
               shape: RoundedRectangleBorder(
@@ -137,35 +122,18 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(
-                        top: 10,
-                      ),
+                      padding: EdgeInsets.only(top: 10),
                       child: Text(
                         'Font Size',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
+                        style: TextStyle(fontSize: 20),
                       ),
                     ),
-                    _listTile(
-                      'Small',
-                      0,
-                    ),
-                    _listTile(
-                      'Default',
-                      1,
-                    ),
-                    _listTile(
-                      'Large',
-                      2,
-                    ),
+                    _listTile('Small', 0),
+                    _listTile('Default', 1),
+                    _listTile('Large', 2),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        'Ok',
-                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Ok'),
                     )
                   ],
                 ),
@@ -179,13 +147,9 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
 
   ListTile _listTile(String size, int index) {
     return ListTile(
-      title: Text(
-        size,
-      ),
+      title: Text(size),
       onTap: () {
-        BlocProvider.of<ThemeCubit>(context).changeTextTheme(
-          index,
-        );
+        BlocProvider.of<ThemeCubit>(context).changeTextTheme(index);
         Navigator.pop(context);
       },
     );

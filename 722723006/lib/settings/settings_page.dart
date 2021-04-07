@@ -13,9 +13,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          'Settings',
-        ),
+        title: Text('Settings'),
       ),
       body: _listView,
     );
@@ -31,14 +29,12 @@ class _SettingsPageState extends State<SettingsPage> {
             trailing: Icon(Icons.navigate_next),
             title: Text('General'),
             subtitle: Text('Themes & Interface settings'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GeneralSettingsPage(),
-                ),
-              );
-            },
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GeneralSettingsPage(),
+              ),
+            ),
           ),
           ListTile(
             leading: Icon(Icons.cloud),
@@ -50,14 +46,12 @@ class _SettingsPageState extends State<SettingsPage> {
             leading: Icon(Icons.info),
             trailing: Icon(Icons.navigate_next),
             title: Text('App info'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AppInfoSettings(),
-                ),
-              );
-            },
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AppInfoSettings(),
+              ),
+            ),
           ),
         ],
       ).toList(),

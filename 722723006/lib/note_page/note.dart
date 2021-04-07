@@ -30,5 +30,10 @@ class Note {
     );
   }
 
-  Note({this.id, this.noteName, this.subTittleEvent, this.indexOfCircleAvatar});
+  Note({
+    this.id,
+    this.noteName,
+    this.subTittleEvent,
+    this.indexOfCircleAvatar,
+  });
 }

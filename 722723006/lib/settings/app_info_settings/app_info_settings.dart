@@ -12,9 +12,7 @@ class _AppInfoSettingsState extends State<AppInfoSettings> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          'App Info',
-        ),
+        title: Text('App Info'),
       ),
       body: _listView,
     );
@@ -29,9 +27,7 @@ class _AppInfoSettingsState extends State<AppInfoSettings> {
             leading: Icon(Icons.share),
             title: Text('Spread the word'),
             subtitle: Text('Share the app with your friends'),
-            onTap: () {
-              share();
-            },
+            onTap: share,
           ),
         ],
       ).toList(),
@@ -41,8 +37,6 @@ class _AppInfoSettingsState extends State<AppInfoSettings> {
   void share() {
     const text = 'For all questions, please contact this link:'
         ' https://vk.com/nikitossssb';
-    Share.share(
-      text,
-    );
+    Share.share(text);
   }
 }

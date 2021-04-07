@@ -7,7 +7,6 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import 'background_image_setting_cubit.dart';
-import 'background_image_setting_states.dart';
 
 class BackgroundImageSetting extends StatefulWidget {
   @override
@@ -15,21 +14,18 @@ class BackgroundImageSetting extends StatefulWidget {
 }
 
 class _BackgroundImageSettingState extends State<BackgroundImageSetting> {
-  final BackGroundImageSettingCubit _cubit =
-      BackGroundImageSettingCubit(BackgroundImageSettingStates());
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-      cubit: _cubit,
+    return BlocBuilder<BackGroundImageSettingCubit, String>(
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: Text(
-              'Background image',
-            ),
+            title: Text('Background image'),
           ),
-          body: _cubit.state.backGroundImagePath == ''
+          body: BlocProvider.of<BackGroundImageSettingCubit>(context)
+                  .state
+                  .isEmpty
               ? Align(
                   alignment: Alignment.center,
                   child: _pickBackgroundImageColumn,
@@ -40,8 +36,9 @@ class _BackgroundImageSettingState extends State<BackgroundImageSetting> {
     );
   }
 
-  @override void initState(){
-    _cubit.initState();
+  @override
+  void initState() {
+    BlocProvider.of<BackGroundImageSettingCubit>(context).initState();
     super.initState();
   }
 
@@ -49,9 +46,7 @@ class _BackgroundImageSettingState extends State<BackgroundImageSetting> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'Click the button bellow to set the background image',
-        ),
+        Text('Click the button bellow to set the background image'),
         ElevatedButton(
           child: Text('Pick an image'),
           onPressed: () async {
@@ -70,26 +65,17 @@ class _BackgroundImageSettingState extends State<BackgroundImageSetting> {
     return Column(
       children: [
         Image.file(
-          File(_cubit.state.backGroundImagePath),
+          File(BlocProvider.of<BackGroundImageSettingCubit>(context).state),
         ),
         ListTile(
-          leading: Icon(
-            Icons.delete,
-          ),
-          title: Text(
-            'Unset image',
-          ),
-          onTap: () {
-            _cubit.setBackGroundImageSettingState('');
-          },
+          leading: Icon(Icons.delete),
+          title: Text('Unset image'),
+          onTap: () => BlocProvider.of<BackGroundImageSettingCubit>(context)
+              .setBackGroundImageSettingState(''),
         ),
         ListTile(
-          leading: Icon(
-            Icons.image,
-          ),
-          title: Text(
-            'Pick a new image',
-          ),
+          leading: Icon(Icons.image),
+          title: Text('Pick a new image'),
           onTap: () async {
             final image =
                 await ImagePicker().getImage(source: ImageSource.gallery);
@@ -106,7 +92,7 @@ class _BackgroundImageSettingState extends State<BackgroundImageSetting> {
     final appDir = await getApplicationDocumentsDirectory();
     final fileName = path.basename(image.path);
     final saved = await image.copy('${appDir.path}/$fileName');
-    _cubit.setBackGroundImageSettingState(saved.path);
+    BlocProvider.of<BackGroundImageSettingCubit>(context)
+        .setBackGroundImageSettingState(saved.path);
   }
-
 }

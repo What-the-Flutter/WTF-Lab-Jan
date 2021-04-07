@@ -5,9 +5,12 @@ import 'note.dart';
 part 'notes_state.dart';
 
 class NotesCubit extends Cubit<NotesState> {
-  NotesCubit(NotesState state) : super(state);
+  NotesCubit() : super(NotesState());
 
   final DBProvider _dbHelper = DBProvider();
+
+  void init(Note note, List<Note> noteList) =>
+      emit(state.copyWith(noteList: noteList, note: note, isWriting: false));
 
   void setWritingState(bool isWriting) =>
       emit(state.copyWith(isWriting: isWriting));
