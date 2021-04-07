@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-import '../data/repository/event_repository.dart';
+import '../data/repository/category_repository.dart';
 import '../data/theme/custom_theme.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
@@ -94,7 +94,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
                         case FloatingBar.nothing:
                           return Container();
                         case FloatingBar.category:
-                          return EventList();
+                          return CategoryList();
                         case FloatingBar.photosOption:
                           return AttachPhotoOption();
                         case FloatingBar.tag:
@@ -409,7 +409,7 @@ class InputPanel extends StatelessWidget {
                 icon: Icon(
                   state.indexCategory == -1
                       ? Icons.bubble_chart
-                      : RepositoryProvider.of<EventRepository>(context)
+                      : RepositoryProvider.of<CategoryRepository>(context)
                           .events[state.indexCategory]
                           .iconData,
                 ),
@@ -643,15 +643,15 @@ class AttachPhotoOption extends StatelessWidget {
   }
 }
 
-class EventList extends StatelessWidget {
+class CategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final events = RepositoryProvider.of<EventRepository>(context).events;
+    final categories = RepositoryProvider.of<CategoryRepository>(context).events;
     return Container(
       constraints: BoxConstraints(maxHeight: 70),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: events.length,
+        itemCount: categories.length,
         itemBuilder: (context, index) {
           if (index == 0) {
             return GestureDetector(
@@ -674,10 +674,10 @@ class EventList extends StatelessWidget {
               ),
             );
           }
-          return EventMessage(
+          return CategoryMessage(
             index: index - 1,
-            iconData: events[index - 1].iconData,
-            label: events[index - 1].label,
+            iconData: categories[index - 1].iconData,
+            label: categories[index - 1].label,
             color: Colors.teal,
             direction: Axis.vertical,
             onTap: context.read<ScreenMessageCubit>().selectedCategory,
@@ -688,7 +688,7 @@ class EventList extends StatelessWidget {
   }
 }
 
-class EventMessage extends StatelessWidget {
+class CategoryMessage extends StatelessWidget {
   final int index;
   final IconData iconData;
   final String label;
@@ -696,7 +696,7 @@ class EventMessage extends StatelessWidget {
   final Axis direction;
   final Function onTap;
 
-  EventMessage({
+  CategoryMessage({
     Key key,
     this.index,
     this.iconData,
@@ -899,11 +899,11 @@ class Message extends StatelessWidget {
                   if (eventIndex != -1)
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: EventMessage(
-                        iconData: Provider.of<EventRepository>(context)
+                      child: CategoryMessage(
+                        iconData: Provider.of<CategoryRepository>(context)
                             .events[eventIndex]
                             .iconData,
-                        label: Provider.of<EventRepository>(context)
+                        label: Provider.of<CategoryRepository>(context)
                             .events[eventIndex]
                             .label,
                         color: Colors.teal,

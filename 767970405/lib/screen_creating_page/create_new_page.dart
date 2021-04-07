@@ -93,7 +93,7 @@ class CreateNewPage extends StatelessWidget {
           mainAxisSpacing: 30.0,
           children: <Widget>[
             for (var i = 0; i < state.list.length; i++)
-              Category(
+              CategoryPreviewChat(
                 index: i,
                 isSelected: state.list[i].isSelected,
                 theme: curTheme,
@@ -109,12 +109,12 @@ class CreateNewPage extends StatelessWidget {
   }
 }
 
-class Category extends StatelessWidget {
+class CategoryPreviewChat extends StatelessWidget {
   final int index;
   final bool isSelected;
   final CategoryTheme theme;
 
-  const Category({
+  const CategoryPreviewChat({
     Key key,
     this.index,
     this.theme,

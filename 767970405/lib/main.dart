@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/data_provider.dart';
-import 'data/repository/event_repository.dart';
+import 'data/repository/category_repository.dart';
 import 'data/repository/icons_repository.dart';
 import 'data/repository/messages_repository.dart';
 import 'data/repository/pages_repository.dart';
@@ -56,8 +56,8 @@ class MyApp extends StatelessWidget {
             api: getIt<PagesAPI>(),
           ),
         ),
-        RepositoryProvider<EventRepository>(
-          create: (context) => EventRepository(),
+        RepositoryProvider<CategoryRepository>(
+          create: (context) => CategoryRepository(),
         ),
         RepositoryProvider<IconsRepository>(
           create: (context) => IconsRepository(),
