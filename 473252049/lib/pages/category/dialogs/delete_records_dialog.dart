@@ -24,13 +24,12 @@ class DeleteRecordsDialog extends StatelessWidget {
           TextButton(
             child: Text('Delete'),
             onPressed: () {
-              //don't pass state, format methods (not widgets) to 80/100 symb's
-              //delete unnessecary awaits (on cubits)
               context.read<RecordsCubit>().deleteAll(
                     state.records
                         .where(
-                          (e) => e.isSelected,
+                          (e) => e.record.isSelected,
                         )
+                        .map((e) => e.record)
                         .toList(),
                     categoryId: categoryId,
                   );

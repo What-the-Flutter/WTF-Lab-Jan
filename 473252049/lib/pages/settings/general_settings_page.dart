@@ -131,8 +131,45 @@ class GeneralSettingPage extends StatelessWidget {
                 },
               ),
               ListTile(
-                title: Text('Initial reset'),
-                subtitle: Text('App will be got initial state'),
+                title: Text('Categories reset'),
+                subtitle: Text(
+                  'All the custom categories will be deleted. '
+                  'Initial categories will be cleared',
+                ),
+                trailing: Icon(Icons.delete),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return AlertDialog(
+                        title: Text('Are you sure?'),
+                        content: Text('All categories will be deleted'),
+                        actions: [
+                          TextButton(
+                            child: Text('No'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Yes'),
+                            onPressed: () async {
+                              await context.read<CategoriesCubit>().deleteAll();
+                              context
+                                  .read<CategoriesCubit>()
+                                  .addAll(categories: defaultCategories);
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('App initial reset'),
+                subtitle: Text('All the app settings will be resetted'),
                 trailing: Icon(Icons.restore),
                 onTap: () {
                   showDialog(
@@ -155,6 +192,7 @@ class GeneralSettingPage extends StatelessWidget {
                               context
                                   .read<CategoriesCubit>()
                                   .addAll(categories: defaultCategories);
+                              context.read<SettingsCubit>().reset();
                               Navigator.of(context).pop();
                             },
                           ),

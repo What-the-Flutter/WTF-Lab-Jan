@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../model/category.dart';
 import '../../model/record.dart';
 import '../records_repository.dart';
 import 'provider/local_database_provider.dart';
@@ -74,6 +75,18 @@ class LocalDatabaseRecordsRepository extends LocalDatabaseProvider
         'records',
         where: 'id = ?',
         whereArgs: [id],
+      ))
+          .first,
+    );
+  }
+
+  @override
+  Future<Category> getCategory({int categoryId}) async {
+    return Category.fromMap(
+      (await (await database).query(
+        'categories',
+        where: 'id = ?',
+        whereArgs: [categoryId],
       ))
           .first,
     );

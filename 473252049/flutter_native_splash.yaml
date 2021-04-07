@@ -1,0 +1,4 @@
+flutter_native_splash:
+  image: assets/splash_screen/splash.png
+  color: "#ffffff"
+  color_dark: "#000000"

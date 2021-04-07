@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 //20 percents less than default
-final TextTheme smallTextTheme = TextTheme(
+const TextTheme smallTextTheme = TextTheme(
   headline1: TextStyle(fontSize: 76.8),
   headline2: TextStyle(fontSize: 48),
   headline3: TextStyle(fontSize: 38.4),
@@ -17,7 +17,7 @@ final TextTheme smallTextTheme = TextTheme(
   overline: TextStyle(fontSize: 8),
 );
 
-final TextTheme defaultTextTheme = TextTheme(
+const TextTheme defaultTextTheme = TextTheme(
   headline1: TextStyle(),
   headline2: TextStyle(),
   headline3: TextStyle(),
@@ -34,7 +34,7 @@ final TextTheme defaultTextTheme = TextTheme(
 );
 
 //20 percents more than default
-final TextTheme largeTextTheme = TextTheme(
+const TextTheme largeTextTheme = TextTheme(
   headline1: TextStyle(fontSize: 115.2),
   headline2: TextStyle(fontSize: 72),
   headline3: TextStyle(fontSize: 57.6),

@@ -28,8 +28,9 @@ class SendRecordsDialog extends StatelessWidget {
                     await context.read<RecordsCubit>().sendAll(
                           state.records
                               .where(
-                                (element) => element.isSelected,
+                                (element) => element.record.isSelected,
                               )
+                              .map((e) => e.record)
                               .toList(),
                           categoryId: categoryFrom.id,
                           categoryToId: category.category.id,

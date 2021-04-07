@@ -7,45 +7,23 @@ import '../../../../model/record.dart';
 import '../../../category/cubit/records_cubit.dart';
 import 'record_widget_content.dart';
 
-class RecordWidget extends StatefulWidget {
+class RecordWidget extends StatelessWidget {
   final Category category;
   final Record record;
   final bool isDateRecord;
   final Alignment bubbleAlignment;
   final bool withCategory;
-  final Future<Category> futureCategory;
+  final bool isOnSearchPage;
 
   const RecordWidget({
     Key key,
-    this.record,
     this.category,
+    this.record,
     this.isDateRecord = false,
-    this.bubbleAlignment = Alignment.centerRight,
+    this.bubbleAlignment,
     this.withCategory = false,
-    this.futureCategory,
+    this.isOnSearchPage = false,
   }) : super(key: key);
-
-  @override
-  _RecordWidgetState createState() => _RecordWidgetState();
-}
-
-class _RecordWidgetState extends State<RecordWidget> {
-  Category category;
-
-  @override
-  void initState() {
-    if (category == null) {
-      setCategory();
-    }
-    super.initState();
-  }
-
-  void setCategory() async {
-    category = await Future(() => widget.futureCategory);
-    if (mounted) {
-      setState(() {});
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,31 +32,36 @@ class _RecordWidgetState extends State<RecordWidget> {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
           onLongPress: () {
-            if (widget.isDateRecord) return;
-            context.read<RecordsCubit>().select(widget.record);
+            if (isDateRecord) return;
+            context
+                .read<RecordsCubit>()
+                .select(record, categoryId: withCategory ? null : category.id);
           },
           onTap: () {
-            if (widget.isDateRecord) return;
-            if (state.records.map((e) => e.isSelected).contains(true)) {
-              if (widget.record.isSelected) {
-                context.read<RecordsCubit>().unselect(widget.record);
+            if (isDateRecord) return;
+            if (state.records.map((e) => e.record.isSelected).contains(true)) {
+              if (record.isSelected) {
+                context.read<RecordsCubit>().unselect(record,
+                    categoryId: withCategory ? null : category.id);
               } else {
-                context.read<RecordsCubit>().select(widget.record);
+                context.read<RecordsCubit>().select(record,
+                    categoryId: withCategory ? null : category.id);
               }
             }
           },
           child: RecordWidgetContent(
-            isSelected: widget.record.isSelected,
-            isFavorite: widget.record.isFavorite,
-            bubbleAlignment: widget.bubbleAlignment,
-            image: widget.record.image,
-            message: widget.record.message,
-            isDateRecord: widget.isDateRecord,
+            isSelected: record.isSelected,
+            isFavorite: record.isFavorite,
+            bubbleAlignment: bubbleAlignment,
+            image: record.image,
+            message: record.message,
+            isDateRecord: isDateRecord,
             records: state.records,
-            createDateTime: widget.record.createDateTime,
-            withCategory: widget.withCategory,
+            createDateTime: record.createDateTime,
+            withCategory: withCategory,
             categoryName: category?.name,
             categoryId: category?.id,
+            isOnSearchPage: isOnSearchPage,
           ),
         );
       },
