@@ -9,6 +9,7 @@ import 'pages/home/home_screen_cubit.dart';
 import 'pages/messages/screen_messages_cubit.dart';
 import 'pages/search/searching_messages_cubit.dart';
 import 'pages/settings/settings_page_cubit.dart';
+import 'pages/timeline/timeline_screen_cubit.dart';
 import 'preferences.dart';
 import 'repository/icons_repository.dart';
 import 'repository/messages_repository.dart';
@@ -35,7 +36,7 @@ void main() async {
       ],
       child: MaterialApp(
         home: SplashScreen(
-          seconds: 5,
+          seconds: 2,
           navigateAfterSeconds: MyApp(
             db: await DBHelper.initializeDatabase(),
           ),
@@ -74,6 +75,11 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => HomeScreenCubit(
             repository: repositoryPages,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => TimelineScreenCubit(
+            repository: repositoryMessages,
           ),
         ),
         BlocProvider(

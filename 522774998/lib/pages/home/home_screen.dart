@@ -13,9 +13,10 @@ import '../search/searching_messages_cubit.dart';
 import '../settings/settings_page.dart';
 import '../settings/settings_page_cubit.dart';
 import 'home_screen_cubit.dart';
-import 'widgets/bottom_panel_tabs.dart';
 
 class HomePage extends StatelessWidget {
+  static const routeName = '/HomePage';
+
   @override
   Widget build(BuildContext context) {
     context.read<HomeScreenCubit>().loadData();
@@ -88,7 +89,7 @@ class HomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: ButtonAddChat(),
-      bottomNavigationBar: BottomPanelTabs(),
+      //bottomNavigationBar: BottomPanelTabs(),
     );
   }
 }

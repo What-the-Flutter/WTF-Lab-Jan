@@ -20,6 +20,8 @@ final String columnData = 'data';
 final String columnIconCodePointMessage = 'icon_code_point_message';
 final String columnIdMessagePage = 'id_message_page';
 final String columnIsSelected = 'is_selected';
+final String columnIsBookmark = 'is_bookmark';
+final String columnIsVisible = 'is_visible';
 
 class DBHelper {
   final Database database;
@@ -28,7 +30,7 @@ class DBHelper {
 
   static Future<Database> initializeDatabase() async {
     var database = openDatabase(
-      join(await getDatabasesPath(), 'temp17.db'),
+      join(await getDatabasesPath(), 'chat_journal.db'),
       version: 1,
       onCreate: (db, version) {
         db.execute('''
@@ -50,7 +52,9 @@ class DBHelper {
       $columnData text not null,
       $columnIconCodePointMessage integer,
       $columnIdMessagePage integer,
-      $columnIsSelected integer)
+      $columnIsSelected integer,
+      $columnIsBookmark integer,
+      $columnIsVisible integer)
       ''');
       },
     );
@@ -136,6 +140,17 @@ class DBHelper {
     final db = await database;
     final dbMessagesList = await db.query(tableMessage,
         where: '$columnIdMessagePage = ?', whereArgs: [idMessagePage]);
+    for (final element in dbMessagesList) {
+      final message = PropertyMessage.fromMap(element);
+      _messagesList.add(message);
+    }
+    return _messagesList;
+  }
+
+  Future<List<PropertyMessage>> dbMessagesListFromAllPages() async {
+    var _messagesList = <PropertyMessage>[];
+    final db = await database;
+    final dbMessagesList = await db.query(tableMessage);
     for (final element in dbMessagesList) {
       final message = PropertyMessage.fromMap(element);
       _messagesList.add(message);

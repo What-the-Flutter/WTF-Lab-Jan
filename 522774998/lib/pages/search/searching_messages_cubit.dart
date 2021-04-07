@@ -10,26 +10,31 @@ part 'searching_messages_state.dart';
 class SearchMessageCubit extends Cubit<SearchMessageState> {
   final controller = TextEditingController();
   final MessagesRepository repository;
+  bool isAll;
 
-  SearchMessageCubit({this.repository})
-      : super(
+  SearchMessageCubit({
+    this.isAll,
+    this.repository,
+  }) : super(
           SearchMessageScreenWait(),
-        ) {
+  ) {
     controller.addListener(
       () {
         if (controller.text.isEmpty) {
           emit(SearchMessageScreenWait(page: state.page));
         } else {
-          searchMessages();
+          searchMessages(isAll);
         }
       },
     );
   }
 
-  void searchMessages() async {
+  void searchMessages(bool isAll) async {
     var substring = controller.text;
     var list = <PropertyMessage>[];
-    var repList = await repository.messages(state.page.id);
+    var repList = isAll
+        ? await repository.messagesFromAllPages()
+        : await repository.messages(state.page.id);
     for (var i = 0; i < repList.length; i++) {
       if (repList[i].data.contains(substring)) {
         list.add(repList[i]);

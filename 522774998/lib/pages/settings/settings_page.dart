@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share/share.dart';
-import '../../theme/theme_cubit.dart';
 
+import '../../theme/theme_cubit.dart';
+import 'animations_settings.dart';
 import 'settings_page_cubit.dart';
 
 final List<String> galleryItems = [
@@ -16,7 +16,7 @@ final List<String> galleryItems = [
 ];
 
 class SettingsPage extends StatelessWidget {
-  static const routeName = '/SettingsPage';
+  static const routeName = '/Settings';
 
   @override
   Widget build(BuildContext context) {
@@ -99,146 +99,17 @@ class SettingsPage extends StatelessWidget {
       onChanged: BlocProvider.of<SettingPageCubit>(context).changeDateAlignment,
     );
 
-    var currentIndex = 0;
-
-    void onPageChanged(int index) {
-      currentIndex = index;
-    }
-
     void showGallery(BuildContext context) {
       showDialog(
         context: context,
-        builder: (galleryContext) => Scaffold(
-          body: Stack(
-            children: [
-              PhotoViewGallery.builder(
-                itemCount: galleryItems.length,
-                scrollPhysics: const BouncingScrollPhysics(),
-                builder: (context, index) {
-                  return PhotoViewGalleryPageOptions(
-                    imageProvider: AssetImage(
-                      galleryItems[index],
-                    ),
-                  );
-                },
-                loadingBuilder: (context, event) => Center(
-                  child: Container(
-                    width: 20.0,
-                    height: 20.0,
-                    child: CircularProgressIndicator(
-                      value: event == null
-                          ? 0
-                          : event.cumulativeBytesLoaded /
-                              event.expectedTotalBytes,
-                    ),
-                  ),
-                ),
-                onPageChanged: onPageChanged,
-              ),
-              Container(
-                padding: EdgeInsets.only(top: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: BlocProvider.of<ThemeCubit>(context)
-                          .state
-                          .theme
-                          .accentColor,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.close,
-                          color: Colors.black,
-                        ),
-                        onPressed: () => Navigator.pop(galleryContext),
-                      ),
-                    ),
-                    CircleAvatar(
-                      backgroundColor: BlocProvider.of<ThemeCubit>(context)
-                          .state
-                          .theme
-                          .accentColor,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.done,
-                          color: Colors.black,
-                        ),
-                        onPressed: () {
-                          print(currentIndex);
-                          BlocProvider.of<SettingPageCubit>(context)
-                              .changeIndexBackground(currentIndex);
-                          Navigator.pop(galleryContext);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        builder: (_) => AnimatedGallery(),
       );
     }
 
     void fontSize(BuildContext context) async {
       showDialog(
         context: context,
-        builder: (alertContext) => AlertDialog(
-          content: StatefulBuilder(
-            builder: (context, setState) => Container(
-              height: 150,
-              width: 100,
-              child: ListView(
-                children: <Widget>[
-                  TextButton(
-                    child: Text(
-                      'Small',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    onPressed: () {
-                      BlocProvider.of<SettingPageCubit>(context)
-                          .changeFontSize(14);
-                      Navigator.of(alertContext).pop();
-                    },
-                  ),
-                  TextButton(
-                    child: Text(
-                      'Medium',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    onPressed: () {
-                      BlocProvider.of<SettingPageCubit>(context)
-                          .changeFontSize(16);
-                      Navigator.of(alertContext).pop();
-                    },
-                  ),
-                  TextButton(
-                    child: Text(
-                      'Large',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    onPressed: () {
-                      BlocProvider.of<SettingPageCubit>(context)
-                          .changeFontSize(18);
-                      Navigator.of(alertContext).pop();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Ok',
-                style: TextStyle(color: Colors.black),
-              ),
-              onPressed: () {
-                Navigator.of(alertContext).pop();
-              },
-            ),
-          ],
-        ),
+        builder: (_) => AnimatedDialog(),
       );
     }
 

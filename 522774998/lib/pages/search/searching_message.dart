@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import '../messages/screen_messages_cubit.dart';
+import '../home/home_screen_cubit.dart';
 import '../settings/settings_page_cubit.dart';
+import '../timeline/timeline_screen_cubit.dart';
 import 'searching_messages_cubit.dart';
 
 class SearchingPage extends StatelessWidget {
   static const routeName = '/SearchMsg';
+
+  const SearchingPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +130,8 @@ class FoundMessage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               Text(
-                context.read<ScreenMessagesCubit>().state.page.title,
+                context.read<TimelineScreenCubit>().getTitle(data.idMessagePage,
+                    context.read<HomeScreenCubit>().state.list),
                 style: TextStyle(
                   fontSize:
                       BlocProvider.of<SettingPageCubit>(context).state.fontSize,
