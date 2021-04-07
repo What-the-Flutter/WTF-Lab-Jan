@@ -1,12 +1,12 @@
 part of 'home_page_cubit.dart';
 
 class HomePageStates {
-  List<Note> noteList;
-  Note note;
+  final List<Note> noteList;
+  final Note note;
   HomePageStates copyWith({
-    bool isThemeChange,
-    List<Note> noteList,
-    Note note,
+   final bool isThemeChange,
+   final List<Note> noteList,
+   final Note note,
   }) {
     return HomePageStates(
       noteList: noteList ?? this.noteList,
@@ -14,5 +14,8 @@ class HomePageStates {
     );
   }
 
-  HomePageStates({ this.noteList, this.note});
+  const HomePageStates({
+    this.noteList,
+    this.note,
+  });
 }

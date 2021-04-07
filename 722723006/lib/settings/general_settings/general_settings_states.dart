@@ -1,20 +1,26 @@
 part of 'general_settings_cubit.dart';
 
 class GeneralSettingsStates {
-  bool isCenterDateBubble;
-  bool isBubbleAlignment;
-  bool isDateTimeModification;
+  final bool isCenterDateBubble;
+  final bool isBubbleAlignment;
+  final bool isDateTimeModification;
 
   GeneralSettingsStates copyWith({
-    bool isCenterDateBubble,
-    bool isBubbleAlignment,
-    bool isDateTimeModification,
+    final bool isCenterDateBubble,
+    final bool isBubbleAlignment,
+    final bool isDateTimeModification,
   }) {
-    var state = GeneralSettingsStates();
-    state.isCenterDateBubble = isCenterDateBubble ?? this.isCenterDateBubble;
-    state.isBubbleAlignment = isBubbleAlignment ?? this.isBubbleAlignment;
-    state.isDateTimeModification =
-        isDateTimeModification ?? this.isDateTimeModification;
-    return state;
+    return GeneralSettingsStates(
+      isCenterDateBubble: isCenterDateBubble ?? this.isCenterDateBubble,
+      isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,
+      isDateTimeModification:
+          isDateTimeModification ?? this.isDateTimeModification,
+    );
   }
+
+  const GeneralSettingsStates({
+    this.isCenterDateBubble,
+    this.isBubbleAlignment,
+    this.isDateTimeModification,
+  });
 }

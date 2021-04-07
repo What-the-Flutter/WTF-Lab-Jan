@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 class ThemeStates {
-  bool isLightTheme;
+  final bool isLightTheme;
   final ThemeData theme;
-  TextTheme textTheme;
+  final TextTheme textTheme;
 
-   ThemeStates({
+  const ThemeStates({
      this.isLightTheme,
      this.theme,
      this.textTheme,
   });
 
   ThemeStates copyWith({
-    bool isLightTheme,
-    ThemeData theme,
-    TextTheme textTheme,
+   final bool isLightTheme,
+   final ThemeData theme,
+   final TextTheme textTheme,
   }) {
     return ThemeStates(
       isLightTheme: isLightTheme ?? this.isLightTheme,

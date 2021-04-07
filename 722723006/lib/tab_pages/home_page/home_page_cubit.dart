@@ -1,17 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../data/db_provider.dart';
-import '../note_page/note.dart';
+import '../../data/db_provider.dart';
+import '../../note_page/note.dart';
+
 
 part 'home_page_states.dart';
 
 class HomePageCubit extends Cubit<HomePageStates> {
-  HomePageCubit(HomePageStates state) : super(state);
+  HomePageCubit() : super(HomePageStates());
   final DBProvider _dbProvider = DBProvider();
 
   void init() async {
+    emit(state.copyWith(noteList: <Note>[]));
     _dbProvider.initDatabase();
-    state.noteList = await _dbProvider.dbNotesList();
-    emit(state.copyWith(noteList: state.noteList));
+    emit(state.copyWith(noteList: await _dbProvider.dbNotesList()));
   }
 
   void updateNote(Note note) {
@@ -24,6 +25,7 @@ class HomePageCubit extends Cubit<HomePageStates> {
 
   void deleteNote(List<Note> noteList, int index) {
     _dbProvider.deleteNote(noteList[index]);
+    _dbProvider.deleteAllEventFromNote(noteList[index].id);
     noteList.removeAt(index);
     emit(state.copyWith(noteList: noteList));
   }

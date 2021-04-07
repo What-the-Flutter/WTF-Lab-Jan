@@ -6,45 +6,49 @@ class ThemeCubit extends Cubit<ThemeStates> {
   ThemeCubit() : super(ThemeStates());
   final _prefs = SharedPreferencesProvider();
 
-  void _applyTheme() async {
+  void _updateTheme() async {
     final updatedState =
         state.isLightTheme ? state.lightTheme : state.darkTheme;
     emit(updatedState);
   }
 
   void initialize() async {
-    state.isLightTheme = _prefs.fetchTheme();
-    checkFontSizeIndex();
+    await emit(state.copyWith(isLightTheme: _prefs.fetchTheme()));
+    initTextTheme(_prefs.fetchFontSizeIndex());
     emit(state.copyWith(textTheme: state.textTheme));
-    _applyTheme();
+    _updateTheme();
   }
 
-  void checkFontSizeIndex() {
-    if (_prefs.fetchFontSizeIndex() == 1) {
-      state.textTheme = ThemeStates.defaultTextTheme;
-    } else if (_prefs.fetchFontSizeIndex() == 0) {
-      state.textTheme = ThemeStates.smallTextTheme;
-    } else {
-      state.textTheme = ThemeStates.largeTextTheme;
+  void initTextTheme(int fontSizeIndex) {
+    switch (fontSizeIndex) {
+      case 0:
+        emit(state.copyWith(textTheme: ThemeStates.smallTextTheme));
+        break;
+      case 1:
+        emit(state.copyWith(textTheme: ThemeStates.defaultTextTheme));
+        break;
+      case 2:
+        emit(state.copyWith(textTheme: ThemeStates.largeTextTheme));
+        break;
     }
   }
 
   void setLightTheme() async {
-    state.isLightTheme = true;
+    emit(state.copyWith(isLightTheme: true));
     _prefs.changeTheme(state.isLightTheme);
-    _applyTheme();
+    _updateTheme();
   }
 
   void changeTextTheme(int index) async {
     _prefs.changeFontSizeIndex(index);
-    checkFontSizeIndex();
+    initTextTheme(index);
     emit(state.copyWith(textTheme: state.textTheme));
-    _applyTheme();
+    _updateTheme();
   }
 
   void changeTheme() async {
-    state.isLightTheme = !state.isLightTheme;
+    emit(state.copyWith(isLightTheme: !state.isLightTheme));
     _prefs.changeTheme(state.isLightTheme);
-    _applyTheme();
+    _updateTheme();
   }
 }

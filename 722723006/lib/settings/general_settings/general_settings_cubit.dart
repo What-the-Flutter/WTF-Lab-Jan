@@ -4,7 +4,7 @@ import '../../data/shared_preferences_provider.dart';
 part 'general_settings_states.dart';
 
 class GeneralSettingsCubit extends Cubit<GeneralSettingsStates> {
-  GeneralSettingsCubit(GeneralSettingsStates state) : super(state);
+  GeneralSettingsCubit() : super(GeneralSettingsStates());
   final _prefs = SharedPreferencesProvider();
 
   void initStates() {

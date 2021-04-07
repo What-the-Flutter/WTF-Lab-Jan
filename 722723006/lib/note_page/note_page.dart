@@ -22,28 +22,27 @@ class _NotePageState extends State<NotePage> {
   final FocusNode _focusNode = FocusNode();
   final List<Note> noteList;
   final Note note;
-  final TextEditingController textController = TextEditingController();
-  NotesCubit _cubit;
-  _NotePageState({this.noteList, this.note}) {
-    _cubit = NotesCubit(NotesState(note, noteList));
-  }
+  final TextEditingController _textController = TextEditingController();
+
+  _NotePageState({this.noteList, this.note});
 
   @override
   void initState() {
     if (note != null) {
-     _cubit.setIndexOfIcon(note.indexOfCircleAvatar);
-      textController.text = note.noteName;
+      BlocProvider.of<NotesCubit>(context)
+          .setIndexOfIcon(note.indexOfCircleAvatar);
+      _textController.text = note.noteName;
       _focusNode.requestFocus();
     } else {
-      _cubit.setIndexOfIcon(0);
+      BlocProvider.of<NotesCubit>(context).setIndexOfIcon(0);
     }
+    BlocProvider.of<NotesCubit>(context).init(note, noteList);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NotesCubit, NotesState>(
-      cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
           appBar: _appBar,
@@ -82,11 +81,8 @@ class _NotePageState extends State<NotePage> {
       children: [
         for (var index = 0; index < listOfIcons.length; index++)
           GestureDetector(
-            onTap: () {
-              _cubit.setIndexOfIcon(
-                index,
-              );
-            },
+            onTap: () =>
+                BlocProvider.of<NotesCubit>(context).setIndexOfIcon(index),
             child: Row(
               children: [
                 Container(
@@ -105,7 +101,7 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  Row _textFieldAria (NotesState state) {
+  Row _textFieldAria(NotesState state) {
     return Row(
       children: <Widget>[
         Padding(
@@ -121,13 +117,11 @@ class _NotePageState extends State<NotePage> {
               style: TextStyle(
                 color: Colors.black,
               ),
-              controller: textController,
+              controller: _textController,
               focusNode: _focusNode,
-              onChanged: (value) {
-                value.isNotEmpty
-                    ? _cubit.setWritingState(true)
-                    : _cubit.setWritingState(false);
-              },
+              onChanged: (value) => value.isNotEmpty
+                  ? BlocProvider.of<NotesCubit>(context).setWritingState(true)
+                  : BlocProvider.of<NotesCubit>(context).setWritingState(false),
               decoration: InputDecoration(
                 hintText: 'Enter event',
                 hintStyle: TextStyle(
@@ -144,11 +138,9 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  FloatingActionButton _floatingActionButton (NotesState state) {
+  FloatingActionButton _floatingActionButton(NotesState state) {
     return FloatingActionButton(
-      onPressed: () {
-        _floatingActionButtonEvent(state);
-      },
+      onPressed: () => _floatingActionButtonEvent(state),
       child: state.isWriting
           ? Icon(
               Icons.check,
@@ -161,12 +153,12 @@ class _NotePageState extends State<NotePage> {
 
   void _floatingActionButtonEvent(NotesState state) {
     if (note != null && state.isWriting) {
-      note.noteName = textController.text;
+      note.noteName = _textController.text;
       note.indexOfCircleAvatar = state.indexOfSelectIcon;
       Navigator.of(context).pop();
     } else {
       if (state.isWriting) {
-        _cubit.addNote(textController.text);
+        BlocProvider.of<NotesCubit>(context).addNote(_textController.text);
         Navigator.of(context).pop();
       } else {
         Navigator.pop(
