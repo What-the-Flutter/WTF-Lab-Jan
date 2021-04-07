@@ -112,6 +112,7 @@ class MyApp extends StatelessWidget {
               ),
               textTheme: TextTheme(
                 subtitle1: TextStyle(
+                  fontWeight: FontWeight.bold,
                   fontSize: state.titleFontSize,
                   color: state.titleColor,
                 ),

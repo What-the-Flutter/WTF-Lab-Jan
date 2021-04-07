@@ -232,14 +232,15 @@ class ChatElementList extends StatelessWidget {
           Message(
             index: index,
             isSelected: state.list[index].isSelected,
-            isFavor: state.list[index].isFavor,
             photoPath: state.list[index].photo,
             eventIndex: state.list[index].indexCategory,
+            isFavor:state.list[index].isFavor,
             text: state.list[index].text,
             date: DateFormat.Hm().format(state.list[index].pubTime),
-            align: context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
-                ? Alignment.topRight
-                : Alignment.topLeft,
+            align:
+                context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
+                    ? Alignment.topRight
+                    : Alignment.topLeft,
             onTap: state.mode == Mode.selection
                 ? context.read<ScreenMessageCubit>().selection
                 : null,
@@ -578,7 +579,12 @@ class SelectionAppBar extends StatelessWidget {
               children: <Widget>[
                 for (var i = 0; i < list.length; i++)
                   RadioListTile<int>(
-                    title: Text(list[i].title),
+                    title: Text(
+                      list[i].title,
+                      style: Theme.of(context).textTheme.subtitle1.copyWith(
+                            fontWeight: FontWeight.normal,
+                          ),
+                    ),
                     value: i,
                     groupValue: index,
                     onChanged: (value) => setState(() => index = value),
@@ -646,7 +652,8 @@ class AttachPhotoOption extends StatelessWidget {
 class CategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final categories = RepositoryProvider.of<CategoryRepository>(context).events;
+    final categories =
+        RepositoryProvider.of<CategoryRepository>(context).events;
     return Container(
       constraints: BoxConstraints(maxHeight: 70),
       child: ListView.builder(
@@ -812,11 +819,11 @@ class EditAppBar extends StatelessWidget {
 class Message extends StatelessWidget {
   final int index;
   final bool isSelected;
-  final bool isFavor;
   final String title;
   final String photoPath;
   final int eventIndex;
   final String text;
+  final bool isFavor;
   final String date;
   final AlignmentGeometry align;
   final Function onTap;
@@ -827,9 +834,9 @@ class Message extends StatelessWidget {
     Key key,
     this.index,
     this.isSelected,
-    this.isFavor,
     this.title,
     this.photoPath,
+    this.isFavor,
     this.eventIndex,
     this.text,
     this.date,
@@ -874,68 +881,78 @@ class Message extends StatelessWidget {
             onTap: onTap != null ? () => onTap(index) : onTap,
             onLongPress:
                 onLongPress != null ? () => onLongPress(index) : onLongPress,
-            child: Container(
-              constraints: BoxConstraints(maxWidth: 150),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                color: isSelected ? theme.selectedColor : theme.unselectedColor,
-              ),
-              padding: EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if (title != null)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: Text(title),
-                    ),
-                  if (photoPath != null)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: Image.file(
-                        File(photoPath),
-                      ),
-                    ),
-                  if (eventIndex != -1)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: CategoryMessage(
-                        iconData: Provider.of<CategoryRepository>(context)
-                            .events[eventIndex]
-                            .iconData,
-                        label: Provider.of<CategoryRepository>(context)
-                            .events[eventIndex]
-                            .label,
-                        color: Colors.teal,
-                        direction: Axis.horizontal,
-                      ),
-                    ),
-                  if (text != null)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: _contentMsg(theme.contentStyle),
-                    ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          date,
-                          style: theme.timeStyle,
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  constraints: BoxConstraints(maxWidth: 150),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15.0),
+                    color: isSelected
+                        ? theme.selectedColor
+                        : theme.unselectedColor,
+                  ),
+                  padding: EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (title != null)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0),
+                          child: Text(title),
                         ),
-                        if (isFavor)
-                          Icon(
-                            Icons.bookmark,
-                            color: Colors.orangeAccent,
-                            size: 8,
+                      if (photoPath != null)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0),
+                          child: Image.file(
+                            File(photoPath),
                           ),
-                      ],
+                        ),
+                      if (eventIndex != -1)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0),
+                          child: CategoryMessage(
+                            iconData: Provider.of<CategoryRepository>(context)
+                                .events[eventIndex]
+                                .iconData,
+                            label: Provider.of<CategoryRepository>(context)
+                                .events[eventIndex]
+                                .label,
+                            color: Colors.teal,
+                            direction: Axis.horizontal,
+                          ),
+                        ),
+                      if (text != null)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0),
+                          child: _contentMsg(theme.contentStyle),
+                        ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              date,
+                              style: theme.timeStyle,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isFavor)
+                  Positioned(
+                    right: 10,
+                    bottom: 10,
+                    child: Icon(
+                      Icons.bookmark,
+                      color: Colors.orangeAccent,
+                      size: 10,
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
           ),
         ),

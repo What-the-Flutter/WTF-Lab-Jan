@@ -387,6 +387,7 @@ class ChatPreview extends StatelessWidget {
     final screenCreatingCubit = context.read<ScreenCreatingPageCubit>();
     final listTileTheme = my.ListTileTheme(
       titleStyle: TextStyle(
+        fontWeight: FontWeight.normal,
         fontSize:
             context.read<GeneralOptionsCubit>().state.floatingWindowFontSize,
       ),
