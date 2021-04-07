@@ -62,52 +62,54 @@ class _CategoryPageState extends State<CategoryPage> {
                       categoryId: widget.category.id,
                       categoryName: widget.category.name,
                     ),
-          body: Column(
-            verticalDirection: VerticalDirection.up,
-            children: [
-              CreateRecordForm(
-                formKey: _formKey,
-                textEditingController: _textEditingController,
-                messageFocus: _messageFocus,
-                categoryId: widget.category.id,
-                createRecordDateTime: createRecordDateTime,
-              ),
-              if (state is RecordsLoadInProcess)
-                Center(
-                  child: CircularProgressIndicator(),
+          body: SafeArea(
+            child: Column(
+              verticalDirection: VerticalDirection.up,
+              children: [
+                CreateRecordForm(
+                  formKey: _formKey,
+                  textEditingController: _textEditingController,
+                  messageFocus: _messageFocus,
+                  categoryId: widget.category.id,
+                  createRecordDateTime: createRecordDateTime,
                 ),
-              if (!(state is RecordsLoadInProcess))
-                Expanded(
-                  child: BlocBuilder<SettingsCubit, SettingsState>(
-                    builder: (context, settingsState) {
-                      return Stack(
-                        alignment: settingsState.bubbleAlignment ==
-                                Alignment.centerRight
-                            ? AlignmentDirectional.topStart
-                            : AlignmentDirectional.topEnd,
-                        children: [
-                          RecordsListView(
-                            records: state.records,
-                            category: widget.category,
-                            withCategories: false,
-                            isOnSearchPage: false,
-                          ),
-                          if (settingsState
-                              .showCreateRecordDateTimePickerButton)
-                            Padding(
-                              padding: const EdgeInsets.all(4),
-                              child: RecordCreateDateTimeChoiceButton(
-                                createRecordDateTime: createRecordDateTime,
-                                setCreateRecordDateTime:
-                                    setCreateRecordDateTime,
-                              ),
-                            ),
-                        ],
-                      );
-                    },
+                if (state is RecordsLoadInProcess)
+                  Center(
+                    child: CircularProgressIndicator(),
                   ),
-                ),
-            ],
+                if (!(state is RecordsLoadInProcess))
+                  Expanded(
+                    child: BlocBuilder<SettingsCubit, SettingsState>(
+                      builder: (context, settingsState) {
+                        return Stack(
+                          alignment: settingsState.bubbleAlignment ==
+                                  Alignment.centerRight
+                              ? AlignmentDirectional.topStart
+                              : AlignmentDirectional.topEnd,
+                          children: [
+                            RecordsListView(
+                              records: state.records,
+                              category: widget.category,
+                              withCategories: false,
+                              isOnSearchPage: false,
+                            ),
+                            if (settingsState
+                                .showCreateRecordDateTimePickerButton)
+                              Padding(
+                                padding: const EdgeInsets.all(4),
+                                child: RecordCreateDateTimeChoiceButton(
+                                  createRecordDateTime: createRecordDateTime,
+                                  setCreateRecordDateTime:
+                                      setCreateRecordDateTime,
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },
