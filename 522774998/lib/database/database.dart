@@ -30,7 +30,7 @@ class DBHelper {
 
   static Future<Database> initializeDatabase() async {
     var database = openDatabase(
-      join(await getDatabasesPath(), 'temp21.db'),
+      join(await getDatabasesPath(), 'chat_journal.db'),
       version: 1,
       onCreate: (db, version) {
         db.execute('''

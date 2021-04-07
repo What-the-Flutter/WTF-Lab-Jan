@@ -34,10 +34,6 @@ class AnimatedDialogState extends State<AnimatedDialog>
       ),
     );
 
-    _controller.addListener(() {
-      setState(() {});
-    });
-
     _controller.forward();
   }
 
@@ -137,10 +133,6 @@ class AnimatedGalleryState extends State<AnimatedGallery>
       parent: _controller,
       curve: Curves.ease,
     );
-
-    _controller.addListener(() {
-      setState(() {});
-    });
 
     _controller.forward();
   }
