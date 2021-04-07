@@ -7,11 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-import '../data/repository/event_repository.dart';
+import '../data/repository/category_repository.dart';
 import '../data/theme/custom_theme.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
-import '../settings_screen/general_options_cubit.dart';
+import '../settings_screen/setting_screen_cubit.dart';
 import 'screen_message_cubit.dart';
 
 class ScreenMessage extends StatefulWidget {
@@ -59,38 +59,95 @@ class _ScreenMessageState extends State<ScreenMessage> {
   }
 
   Widget get body => BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-        builder: (context, state) => Column(
-          children: <Widget>[
-            Expanded(
-              child: ChatElementList(
-                alignment:
-                    context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
-                        ? Alignment.topLeft
-                        : Alignment.topRight,
-                isDateTimeModEnabled: context
-                    .read<GeneralOptionsCubit>()
-                    .state
-                    .isDateTimeModification,
+        builder: (context, state) {
+          final backImage =
+              context.read<SettingScreenCubit>().state.pathBackgroundImage;
+          return Stack(
+            children: <Widget>[
+              backImage.isNotEmpty
+                  ? Image.file(
+                      File(backImage),
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(),
+              Column(
+                children: <Widget>[
+                  Expanded(
+                    child: ChatElementList(
+                      alignment: context
+                              .read<SettingScreenCubit>()
+                              .state
+                              .isLeftBubbleAlign
+                          ? Alignment.topLeft
+                          : Alignment.topRight,
+                      isDateTimeModEnabled: context
+                          .read<SettingScreenCubit>()
+                          .state
+                          .isDateTimeModification,
+                    ),
+                  ),
+                  Builder(
+                    builder: (context) {
+                      switch (state.floatingBar) {
+                        case FloatingBar.nothing:
+                          return Container();
+                        case FloatingBar.category:
+                          return CategoryList();
+                        case FloatingBar.photosOption:
+                          return AttachPhotoOption();
+                        case FloatingBar.tag:
+                          return state.listTag == ModeListTag.listTags
+                              ? TagList()
+                              : Container(
+                                  padding: EdgeInsets.all(10.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    color: Colors.red,
+                                  ),
+                                  child: Text('Add new Tag: ${state.curTag}'),
+                                );
+                        default:
+                          return Container();
+                      }
+                    },
+                  ),
+                  InputPanel(),
+                ],
               ),
-            ),
-            Builder(
-              builder: (context) {
-                switch (state.floatingBar) {
-                  case FloatingBar.nothing:
-                    return Container();
-                  case FloatingBar.events:
-                    return EventList();
-                  case FloatingBar.photosOption:
-                    return AttachPhotoOption();
-                  default:
-                    return Container();
-                }
-              },
-            ),
-            InputPanel(),
-          ],
-        ),
+            ],
+          );
+        },
       );
+}
+
+class TagList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final state = context.read<ScreenMessageCubit>().state;
+    return Container(
+      constraints: BoxConstraints(maxHeight: 60),
+      padding: EdgeInsets.all(5.0),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: state.tags.length,
+        itemBuilder: (context, index) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5.0),
+          child: GestureDetector(
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15.0),
+                color: Colors.red,
+              ),
+              child: Text(state.tags[index].name),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class ChatElementList extends StatelessWidget {
@@ -105,23 +162,30 @@ class ChatElementList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final generalOptionState = context.read<SettingScreenCubit>().state;
     return Stack(
       alignment: alignment,
       children: <Widget>[
         ListView(
           reverse: true,
           children: _generateChatElementsList(
-              context, context.read<ScreenMessageCubit>().state),
+            context,
+            context.read<ScreenMessageCubit>().state,
+          ),
         ),
         if (isDateTimeModEnabled)
           BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
             builder: (context, state) => DateTimeModButton(
               date: DateFormat.yMMMEd().format(state.fromDate),
-              theme: context
-                  .read<GeneralOptionsCubit>()
-                  .state
-                  .currentTheme
-                  .dateTimeModButtonTheme,
+              theme: DateTimeModButtonTheme(
+                backgroundColor:
+                    generalOptionState.dateTimeModeButtonBackgroundColor,
+                iconColor: generalOptionState.dateTimeModeButtonIconColor,
+                dateStyle: TextStyle(
+                  fontSize: generalOptionState.bodyFontSize,
+                  color: generalOptionState.titleColor,
+                ),
+              ),
             ),
           ),
       ],
@@ -135,7 +199,26 @@ class ChatElementList extends StatelessWidget {
     var list = <Widget>[];
     var index = state.list.length - 1;
     var filterList = context.read<ScreenMessageCubit>().groupMsgByDate;
-    final currentTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
+    final generalOptionState = context.read<SettingScreenCubit>().state;
+    final messageTheme = MessageTheme(
+      contentStyle: TextStyle(
+        fontSize: generalOptionState.bodyFontSize,
+        color: generalOptionState.titleColor,
+      ),
+      timeStyle: TextStyle(
+        fontSize: generalOptionState.bodyFontSize,
+        color: generalOptionState.bodyColor,
+      ),
+      unselectedColor: generalOptionState.messageUnselectedColor,
+      selectedColor: generalOptionState.messageSelectedColor,
+    );
+    final dateLabelTheme = LabelDateTheme(
+      backgroundColor: generalOptionState.labelDateBackgroundColor,
+      dateStyle: TextStyle(
+        fontSize: generalOptionState.bodyFontSize,
+        color: generalOptionState.bodyColor,
+      ),
+    );
     for (var i = filterList.length - 1; i > -1; i--) {
       var flag = false;
       for (var j = 0; j < filterList[i].length; j++) {
@@ -149,12 +232,12 @@ class ChatElementList extends StatelessWidget {
           Message(
             index: index,
             isSelected: state.list[index].isSelected,
-            isFavor: state.list[index].isFavor,
             photoPath: state.list[index].photo,
             eventIndex: state.list[index].indexCategory,
+            isFavor: state.list[index].isFavor,
             text: state.list[index].text,
             date: DateFormat.Hm().format(state.list[index].pubTime),
-            align: context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
+            align: context.read<SettingScreenCubit>().state.isLeftBubbleAlign
                 ? Alignment.topRight
                 : Alignment.topLeft,
             onTap: state.mode == Mode.selection
@@ -165,7 +248,7 @@ class ChatElementList extends StatelessWidget {
                 : state.mode == Mode.selection
                     ? context.read<ScreenMessageCubit>().selection
                     : null,
-            theme: currentTheme.messageTheme,
+            theme: messageTheme,
           ),
         );
         index--;
@@ -177,12 +260,12 @@ class ChatElementList extends StatelessWidget {
       }
       list.add(
         DateLabel(
-          theme: currentTheme.labelDateTheme,
+          theme: dateLabelTheme,
           date: DateFormat.yMMMd().format(
             filterList[i][0].pubTime,
           ),
           alignment:
-              context.read<GeneralOptionsCubit>().state.isCenterDateBubble
+              context.read<SettingScreenCubit>().state.isCenterDateBubble
                   ? Alignment.center
                   : Alignment.topLeft,
         ),
@@ -326,7 +409,7 @@ class InputPanel extends StatelessWidget {
                 icon: Icon(
                   state.indexCategory == -1
                       ? Icons.bubble_chart
-                      : RepositoryProvider.of<EventRepository>(context)
+                      : RepositoryProvider.of<CategoryRepository>(context)
                           .events[state.indexCategory]
                           .iconData,
                 ),
@@ -495,7 +578,12 @@ class SelectionAppBar extends StatelessWidget {
               children: <Widget>[
                 for (var i = 0; i < list.length; i++)
                   RadioListTile<int>(
-                    title: Text(list[i].title),
+                    title: Text(
+                      list[i].title,
+                      style: Theme.of(context).textTheme.subtitle1.copyWith(
+                            fontWeight: FontWeight.normal,
+                          ),
+                    ),
                     value: i,
                     groupValue: index,
                     onChanged: (value) => setState(() => index = value),
@@ -554,21 +642,22 @@ class AttachPhotoOption extends StatelessWidget {
           iconData: Icons.photo,
           text: 'Open Gallery',
           source: ImageSource.gallery,
-        )
+        ),
       ],
     );
   }
 }
 
-class EventList extends StatelessWidget {
+class CategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final events = RepositoryProvider.of<EventRepository>(context).events;
+    final categories =
+        RepositoryProvider.of<CategoryRepository>(context).events;
     return Container(
       constraints: BoxConstraints(maxHeight: 70),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: events.length,
+        itemCount: categories.length,
         itemBuilder: (context, index) {
           if (index == 0) {
             return GestureDetector(
@@ -591,10 +680,10 @@ class EventList extends StatelessWidget {
               ),
             );
           }
-          return EventMessage(
+          return CategoryMessage(
             index: index - 1,
-            iconData: events[index - 1].iconData,
-            label: events[index - 1].label,
+            iconData: categories[index - 1].iconData,
+            label: categories[index - 1].label,
             color: Colors.teal,
             direction: Axis.vertical,
             onTap: context.read<ScreenMessageCubit>().selectedCategory,
@@ -605,7 +694,7 @@ class EventList extends StatelessWidget {
   }
 }
 
-class EventMessage extends StatelessWidget {
+class CategoryMessage extends StatelessWidget {
   final int index;
   final IconData iconData;
   final String label;
@@ -613,7 +702,7 @@ class EventMessage extends StatelessWidget {
   final Axis direction;
   final Function onTap;
 
-  EventMessage({
+  CategoryMessage({
     Key key,
     this.index,
     this.iconData,
@@ -646,6 +735,7 @@ class EventMessage extends StatelessWidget {
               ),
               child: Icon(
                 iconData,
+                color: Colors.white,
               ),
             ),
             Text(label),
@@ -673,7 +763,6 @@ class AttachPhotoButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.read<ScreenMessageCubit>().addPhotoMessage(source),
       child: Container(
-        //constraints: BoxConstraints(maxWidth: 100),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
           color: Colors.red,
@@ -684,7 +773,7 @@ class AttachPhotoButton extends StatelessWidget {
               onPressed: () {},
               icon: Icon(
                 iconData,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             Text(text),
@@ -729,11 +818,11 @@ class EditAppBar extends StatelessWidget {
 class Message extends StatelessWidget {
   final int index;
   final bool isSelected;
-  final bool isFavor;
   final String title;
   final String photoPath;
   final int eventIndex;
   final String text;
+  final bool isFavor;
   final String date;
   final AlignmentGeometry align;
   final Function onTap;
@@ -744,9 +833,9 @@ class Message extends StatelessWidget {
     Key key,
     this.index,
     this.isSelected,
-    this.isFavor,
     this.title,
     this.photoPath,
+    this.isFavor,
     this.eventIndex,
     this.text,
     this.date,
@@ -767,7 +856,7 @@ class Message extends StatelessWidget {
           color: Colors.indigo,
           icon: Icons.edit,
           onTap: () async {
-            await context.read<ScreenMessageCubit>().toSelectionAppBar(index);
+            await context.read<ScreenMessageCubit>().selection(index);
             context.read<ScreenMessageCubit>().toEditAppBar();
           },
         ),
@@ -791,71 +880,104 @@ class Message extends StatelessWidget {
             onTap: onTap != null ? () => onTap(index) : onTap,
             onLongPress:
                 onLongPress != null ? () => onLongPress(index) : onLongPress,
-            child: Container(
-              constraints: BoxConstraints(maxWidth: 150),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                color: isSelected ? theme.selectedColor : theme.unselectedColor,
-              ),
-              padding: EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if (title != null)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: Text(title),
-                    ),
-                  if (photoPath != null)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: Image.file(
-                        File(photoPath),
-                      ),
-                    ),
-                  if (eventIndex != -1)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: EventMessage(
-                        iconData: Provider.of<EventRepository>(context)
-                            .events[eventIndex]
-                            .iconData,
-                        label: Provider.of<EventRepository>(context)
-                            .events[eventIndex]
-                            .label,
-                        color: Colors.teal,
-                        direction: Axis.horizontal,
-                      ),
-                    ),
-                  if (text != null)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: Text(text, style: theme.contentStyle),
-                    ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5.0),
-                    child: Row(
-                      //mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          date,
-                          style: theme.timeStyle,
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  constraints: BoxConstraints(maxWidth: 150),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15.0),
+                    color: isSelected
+                        ? theme.selectedColor
+                        : theme.unselectedColor,
+                  ),
+                  padding: EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (title != null)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0),
+                          child: Text(title),
                         ),
-                        if (isFavor)
-                          Icon(
-                            Icons.bookmark,
-                            color: Colors.orangeAccent,
-                            size: 8,
+                      if (photoPath != null)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0),
+                          child: Image.file(
+                            File(photoPath),
                           ),
-                      ],
+                        ),
+                      if (eventIndex != -1)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0),
+                          child: CategoryMessage(
+                            iconData: Provider.of<CategoryRepository>(context)
+                                .events[eventIndex]
+                                .iconData,
+                            label: Provider.of<CategoryRepository>(context)
+                                .events[eventIndex]
+                                .label,
+                            color: Colors.teal,
+                            direction: Axis.horizontal,
+                          ),
+                        ),
+                      if (text != null)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0),
+                          child: _contentMsg(theme.contentStyle),
+                        ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              date,
+                              style: theme.timeStyle,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isFavor)
+                  Positioned(
+                    right: 10,
+                    bottom: 10,
+                    child: Icon(
+                      Icons.bookmark,
+                      color: Colors.orangeAccent,
+                      size: 10,
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _contentMsg(TextStyle defaultStyle) {
+    final words = text.split(' ');
+    return Text.rich(
+      TextSpan(
+        children: <TextSpan>[
+          for (var i = 0; i < words.length; i++)
+            words[i].startsWith('#')
+                ? TextSpan(
+                    text: words[i] + (i != words.length - 1 ? ' ' : ''),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  )
+                : TextSpan(
+                    text: words[i] + (i != words.length - 1 ? ' ' : ''),
+                    style: defaultStyle,
+                  ),
+        ],
       ),
     );
   }

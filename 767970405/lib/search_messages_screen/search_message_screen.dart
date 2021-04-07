@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -5,7 +6,7 @@ import '../data/theme/custom_theme.dart';
 
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
-import '../settings_screen/general_options_cubit.dart';
+import '../settings_screen/setting_screen_cubit.dart';
 import 'search_message_screen_cubit.dart';
 
 class SearchMessageScreen extends StatelessWidget {
@@ -34,7 +35,8 @@ class SearchMessageScreen extends StatelessWidget {
             builder: (context, state) => state is! SearchMessageScreenWait
                 ? IconButton(
                     icon: Icon(Icons.close),
-                    onPressed: context.read<SearchMessageScreenCubit>().reset)
+                    onPressed: context.read<SearchMessageScreenCubit>().reset,
+                  )
                 : Container(),
           ),
         ],
@@ -47,38 +49,58 @@ class SearchMessageScreen extends StatelessWidget {
     return Center(
       child: BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
         builder: (context, state) {
-          final curTheme =
-              context.read<GeneralOptionsCubit>().state.currentTheme;
+          final generalOptionState = context.read<SettingScreenCubit>().state;
+          final curTheme = HelpWindowTheme(
+            backgroundColor: generalOptionState.helpWindowBackgroundColor,
+            titleStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: generalOptionState.titleFontSize,
+              color: generalOptionState.titleColor,
+            ),
+            contentStyle: TextStyle(
+              fontSize: generalOptionState.bodyFontSize,
+              color: generalOptionState.titleColor,
+            ),
+          );
           if (state is SearchMessageScreenWait) {
             return HelpWindow(
               iconData: Icons.search,
               content: 'Please enter a search query to begin searching',
-              theme: curTheme.helpWindowTheme,
+              theme: curTheme,
             );
           } else if (state is SearchMessageScreenNotFound) {
             return HelpWindow(
               title: 'No search results available',
               content: 'No entries math the given'
                   ' search query. Please try again.',
-              theme: curTheme.helpWindowTheme,
+              theme: curTheme,
             );
           } else {
-            final isLeftBubbleAlign =
-                context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign;
             return ListView.builder(
               itemCount: state.list.length,
               itemBuilder: (context, index) {
                 return Message(
-                  theme: curTheme.messageTheme,
+                  theme: MessageTheme(
+                    contentStyle: TextStyle(
+                      fontSize: generalOptionState.bodyFontSize,
+                      color: generalOptionState.titleColor,
+                    ),
+                    timeStyle: TextStyle(
+                      fontSize: generalOptionState.bodyFontSize,
+                      color: generalOptionState.bodyColor,
+                    ),
+                    unselectedColor: generalOptionState.messageUnselectedColor,
+                    selectedColor: generalOptionState.messageSelectedColor,
+                  ),
                   index: index,
                   isSelected: state.list[index].isSelected,
-                  isFavor: state.list[index].isFavor,
                   title: state.page.title,
                   photoPath: state.list[index].photo,
+                  isFavor: state.list[index].isFavor,
                   eventIndex: state.list[index].indexCategory,
                   text: state.list[index].text,
                   date: DateFormat.Hm().format(state.list[index].pubTime),
-                  align: isLeftBubbleAlign
+                  align: generalOptionState.isLeftBubbleAlign
                       ? Alignment.topLeft
                       : Alignment.topRight,
                 );
@@ -107,14 +129,15 @@ class HelpWindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
-      constraints: BoxConstraints(maxWidth: 350, maxHeight: 150),
+      width: size.width * (9 / 10),
+      height: size.height * (2 / 10),
       padding: EdgeInsets.all(10),
       color: theme.backgroundColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        //mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           if (iconData != null)
             Icon(

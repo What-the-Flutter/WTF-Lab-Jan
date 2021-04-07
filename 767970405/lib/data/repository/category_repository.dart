@@ -1,39 +1,39 @@
 import 'package:flutter/material.dart';
 
-class EventRepository {
-  final List<Event> events = <Event>[
-    Event(
+class CategoryRepository {
+  final List<Category> events = <Category>[
+    Category(
       iconData: Icons.directions_run,
       label: 'Running',
     ),
-    Event(
+    Category(
       iconData: Icons.sports_basketball,
       label: 'Sports',
     ),
-    Event(
+    Category(
       iconData: Icons.local_movies,
       label: 'Movie',
     ),
-    Event(
+    Category(
       iconData: Icons.fastfood,
       label: 'FastFood',
     ),
-    Event(
+    Category(
       iconData: Icons.fitness_center,
       label: 'Workout',
     ),
-    Event(
+    Category(
       iconData: Icons.local_laundry_service,
       label: 'Laundry',
     ),
   ];
 }
 
-class Event {
+class Category {
   final IconData iconData;
   final String label;
 
-  Event({
+  Category({
     this.iconData,
     this.label,
   });

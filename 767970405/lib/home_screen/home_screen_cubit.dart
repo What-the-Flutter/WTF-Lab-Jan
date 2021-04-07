@@ -12,8 +12,8 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   HomeScreenCubit({
     this.repository,
   }) : super(
-          HomeScreenAwait(currentIndex: 0),
-        ) {
+    HomeScreenAwait(currentIndex: 0),
+  ) {
     loadData();
   }
 

@@ -1,6 +1,6 @@
 import '../data_provider.dart';
-
 import '../model/model_message.dart';
+import '../model/model_tag.dart';
 
 class MessagesRepository {
   final PagesAPI api;
@@ -27,8 +27,11 @@ class MessagesRepository {
     api.deleteMessage(index);
   }
 
-  @override
-  String toString() {
-    return 'MessagesRepository{api: $api}';
+  Future<List<ModelTag>> tags() async {
+    return await api.tags();
+  }
+
+  void addTag(ModelTag tag) async {
+    api.insertTag(tag);
   }
 }

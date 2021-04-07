@@ -22,8 +22,8 @@ class HomeScreenAwait extends HomeScreenState {
   HomeScreenAwait({
     int currentIndex,
   }) : super(
-          currentIndex: currentIndex,
-        );
+    currentIndex: currentIndex,
+  );
 
   @override
   List<Object> get props => [list, currentIndex];
@@ -42,9 +42,9 @@ class HomeScreenShow extends HomeScreenState {
     List<ModelPage> pages,
     int currentIndex,
   }) : super(
-          list: pages,
-          currentIndex: currentIndex,
-        );
+    list: pages,
+    currentIndex: currentIndex,
+  );
 
   @override
   HomeScreenState copyWith({

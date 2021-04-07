@@ -13,10 +13,10 @@ class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
   ScreenCreatingPageCubit({
     this.repository,
   }) : super(
-          ScreenCreatingPageInitial(
-            list: List.from(repository.listIcon),
-          ),
-        );
+    ScreenCreatingPageInitial(
+      list: List.from(repository.listIcon),
+    ),
+  );
 
   void setting(String title, int selectionIconIndex) {
     controller.addListener(changeButton);
@@ -56,10 +56,12 @@ class ScreenCreatingPageCubit extends Cubit<ScreenCreatingPageState> {
         .copyWith(isSelected: false);
     repository.listIcon[index] =
         repository.listIcon[index].copyWith(isSelected: true);
-    emit(state.copyWith(
-      list: List.from(repository.listIcon),
-      selectionIconIndex: index,
-    ));
+    emit(
+      state.copyWith(
+        list: List.from(repository.listIcon),
+        selectionIconIndex: index,
+      ),
+    );
   }
 
   @override

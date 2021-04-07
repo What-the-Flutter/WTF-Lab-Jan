@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:my_chat_journal/data/repository/event_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/data_provider.dart';
+import 'data/repository/category_repository.dart';
 import 'data/repository/icons_repository.dart';
 import 'data/repository/messages_repository.dart';
 import 'data/repository/pages_repository.dart';
-import 'data/repository/theme_repository.dart';
 import 'home_screen/home_screen_cubit.dart';
 import 'messages_screen/screen_message_cubit.dart';
 import 'router/app_router.dart';
 import 'screen_creating_page/screen_creating_page_cubit.dart';
 import 'search_messages_screen/search_message_screen_cubit.dart';
-import 'settings_screen/general_options_cubit.dart';
+import 'settings_screen/setting_screen_cubit.dart';
 
 GetIt getIt = GetIt.instance;
 
 Future<int> loadTheme() async {
   var prefs = await SharedPreferences.getInstance();
-  return prefs.getInt('theme') ?? 0;
+  return prefs.getInt('theme') ?? 1;
 }
 
 Future<void> saveTheme(int index) async {
@@ -57,8 +56,8 @@ class MyApp extends StatelessWidget {
             api: getIt<PagesAPI>(),
           ),
         ),
-        RepositoryProvider<EventRepository>(
-          create: (context) => EventRepository(),
+        RepositoryProvider<CategoryRepository>(
+          create: (context) => CategoryRepository(),
         ),
         RepositoryProvider<IconsRepository>(
           create: (context) => IconsRepository(),
@@ -88,16 +87,45 @@ class MyApp extends StatelessWidget {
             ),
           ),
           BlocProvider(
-            create: (context) => GeneralOptionsCubit(
-              themeRepository: ThemeRepository(),
+            create: (context) => SettingScreenCubit(
               index: index,
             ),
           ),
         ],
-        child: BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
+        child: BlocBuilder<SettingScreenCubit, SettingScreenState>(
           builder: (context, state) => MaterialApp(
             title: 'Chat Journal',
-            theme: state.currentTheme.appTheme,
+            theme: ThemeData(
+              brightness: state.appBrightness,
+              primaryColor: state.appPrimaryColor,
+              accentColor: state.appAccentColor,
+              iconTheme: IconThemeData(
+                color: Colors.black,
+              ),
+              appBarTheme: AppBarTheme(
+                textTheme: TextTheme(
+                  headline6: TextStyle(
+                    fontSize: state.appBarTitleFontSize,
+                  ),
+                ),
+                centerTitle: true,
+              ),
+              textTheme: TextTheme(
+                subtitle1: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: state.titleFontSize,
+                  color: state.titleColor,
+                ),
+                bodyText2: TextStyle(
+                  fontSize: state.bodyFontSize,
+                  color: state.bodyColor,
+                ),
+              ),
+              bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                selectedItemColor: Colors.teal,
+                unselectedItemColor: Colors.grey,
+              ),
+            ),
             onGenerateRoute: _appRouter.onGenerateRoute,
           ),
         ),

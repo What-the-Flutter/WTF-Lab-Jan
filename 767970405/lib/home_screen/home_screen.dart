@@ -1,63 +1,83 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
-import '../data/theme/custom_theme.dart';
+import '../data/theme/custom_theme.dart' as my;
 import '../main.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
 import '../screen_creating_page/create_new_page.dart';
 import '../screen_creating_page/screen_creating_page_cubit.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
-import '../settings_screen/general_options_cubit.dart';
-import '../settings_screen/settings_screen.dart';
+import '../settings_screen/setting_screen_cubit.dart';
+import '../settings_screen/setting_screen.dart';
+import '../widgets/custom_list_tile.dart';
 import 'home_screen_cubit.dart';
 
 class HomeWindow extends StatelessWidget {
-  final LocalAuthentication auth = LocalAuthentication();
+  static final GlobalKey _globalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Scaffold(
-          appBar: AppBar(
-            title: Center(
-              child: Text('Home'),
+    return RepaintBoundary(
+      key: _globalKey,
+      child: Stack(
+        children: <Widget>[
+          Scaffold(
+            appBar: AppBar(
+              title: Text('Home'),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.invert_colors),
+                  onPressed: () {
+                    context.read<SettingScreenCubit>().toggleTheme();
+                    saveTheme(
+                      context
+                          .read<SettingScreenCubit>()
+                          .state
+                          .appBrightness
+                          .index,
+                    );
+                  },
+                ),
+              ],
             ),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.invert_colors),
-                onPressed: () {
-                  context.read<GeneralOptionsCubit>().toggleTheme();
-                  saveTheme(context
-                      .read<GeneralOptionsCubit>()
-                      .state
-                      .themeType
-                      .index);
-                },
-              ),
-            ],
+            drawer: _drawer(context),
+            body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+              builder: (context, state) => state is HomeScreenShow
+                  ? ChatPreviewList()
+                  : Center(
+                      child: Text('Await'),
+                    ),
+            ),
+            floatingActionButton: AddChatButton(),
+            bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+              builder: _bottomNavigationBar,
+            ),
           ),
-          drawer: _drawer(context),
-          body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-            builder: (context, state) => state is HomeScreenShow
-                ? ChatPreviewList()
-                : Center(child: Text('Await')),
-          ),
-          floatingActionButton: AddChatButton(),
-          bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-            builder: _bottomNavigationBar,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _drawer(BuildContext context) {
+    final listTileTheme = my.ListTileTheme(
+      titleStyle: TextStyle(
+        fontSize:
+            context.read<SettingScreenCubit>().state.floatingWindowFontSize,
+      ),
+    );
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -65,37 +85,39 @@ class HomeWindow extends StatelessWidget {
           DrawerHeader(
             child: Text('Drawer Header'),
           ),
-          ListTile(
-            leading: Icon(Icons.card_giftcard),
-            title: Text('Help spread the word'),
-            onTap: () {
-              //TODO
-            },
+          CustomListTile(
+            leadingIcon: Icons.card_giftcard,
+            title: 'Help spread the word',
+            onTap: () => shareScreenshot(context),
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.yellow),
           ),
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text('Search'),
+          CustomListTile(
+            leadingIcon: Icons.search,
+            title: 'Search',
             onTap: () {
-              // TODO
+              Navigator.pop(context);
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.cyan),
           ),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text('Notifications'),
+          CustomListTile(
+            leadingIcon: Icons.notifications,
+            title: 'Notifications',
             onTap: () {
-              //TODO
+              Navigator.pop(context);
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
           ),
-          ListTile(
-            leading: Icon(Icons.stacked_line_chart),
-            title: Text('Statistics'),
+          CustomListTile(
+            leadingIcon: Icons.stacked_line_chart,
+            title: 'Statistics',
             onTap: () {
-              //TODO
+              Navigator.pop(context);
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
           ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
+          CustomListTile(
+            leadingIcon: Icons.settings,
+            title: 'Settings',
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(
@@ -103,15 +125,44 @@ class HomeWindow extends StatelessWidget {
                 SettingsScreen.routeName,
               );
             },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.brown),
           ),
-          ListTile(
-            leading: Icon(Icons.feedback),
-            title: Text('Feedback'),
-            onTap: () {},
+          CustomListTile(
+            leadingIcon: Icons.feedback,
+            title: 'Feedback',
+            onTap: () {
+              Navigator.pop(context);
+            },
+            theme: listTileTheme.copyWith(leadingIconColor: Colors.orange),
           )
         ],
       ),
     );
+  }
+
+  Future<Null> shareScreenshot(BuildContext context) async {
+    Navigator.pop(context);
+    try {
+      RenderRepaintBoundary boundary =
+          _globalKey.currentContext.findRenderObject();
+      if (boundary.debugNeedsPaint) {
+        Timer(Duration(seconds: 1), () => shareScreenshot(context));
+        return null;
+      }
+      var image = await boundary.toImage();
+      final directory = (await getExternalStorageDirectory()).path;
+      var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      var pngBytes = byteData.buffer.asUint8List();
+      var imgFile = File('$directory/screenshot.png');
+      imgFile.writeAsBytes(pngBytes);
+      final RenderBox box = context.findRenderObject();
+      Share.shareFiles(['$directory/screenshot.png'],
+          subject: 'Share ScreenShot',
+          text: 'Hello, check your share files!',
+          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+    } on PlatformException catch (e) {
+      print('Exception while taking screenshot:$e');
+    }
   }
 
   Widget _bottomNavigationBar(BuildContext context, HomeScreenState state) {
@@ -151,22 +202,48 @@ class HomeWindow extends StatelessWidget {
 class ChatPreviewList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final curTheme = context.read<GeneralOptionsCubit>().state.currentTheme;
+    final generalOptionState = context.read<SettingScreenCubit>().state;
+    final previewTheme = my.ChatPreviewTheme(
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: generalOptionState.titleFontSize,
+        color: generalOptionState.titleColor,
+      ),
+      contentStyle: TextStyle(
+        fontSize: generalOptionState.bodyFontSize,
+        color: generalOptionState.bodyColor,
+      ),
+    );
+    final categoryTheme = my.CategoryTheme(
+      backgroundColor: generalOptionState.categoryBackgroundColor,
+      iconColor: generalOptionState.categoryIconColor,
+    );
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
       builder: (context, state) => ListView.separated(
         itemCount: state.list.length + 1,
         itemBuilder: (context, i) {
-          if (i == 0) return Bot(theme: curTheme.botTheme);
+          if (i == 0) {
+            return Bot(
+              theme: my.BotTheme(
+                contentStyle: TextStyle(
+                  fontSize: generalOptionState.bodyFontSize,
+                  color: generalOptionState.titleColor,
+                ),
+                iconColor: generalOptionState.botIconColor,
+                backgroundColor: generalOptionState.botBackgroundColor,
+              ),
+            );
+          }
           return ChatPreview(
             index: i - 1,
             title: state.list[i - 1].title,
             subtitle: 'No events click create to one',
             isPinned: state.list[i - 1].isPinned,
-            iconData: context
-                .read<ScreenCreatingPageCubit>()
-                .getIcon(state.list[i - 1].iconIndex),
-            previewTheme: curTheme.chatPreviewTheme,
-            categoryTheme: curTheme.categoryTheme,
+            iconData: context.read<ScreenCreatingPageCubit>().getIcon(
+                  state.list[i - 1].iconIndex,
+                ),
+            previewTheme: previewTheme,
+            categoryTheme: categoryTheme,
           );
         },
         separatorBuilder: (context, index) => Divider(),
@@ -176,7 +253,7 @@ class ChatPreviewList extends StatelessWidget {
 }
 
 class Bot extends StatelessWidget {
-  final BotTheme theme;
+  final my.BotTheme theme;
 
   const Bot({
     Key key,
@@ -246,8 +323,8 @@ class ChatPreview extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool isPinned;
-  final ChatPreviewTheme previewTheme;
-  final CategoryTheme categoryTheme;
+  final my.ChatPreviewTheme previewTheme;
+  final my.CategoryTheme categoryTheme;
   final IconData iconData;
 
   ChatPreview({
@@ -264,12 +341,12 @@ class ChatPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        context
-            .read<ScreenMessageCubit>()
-            .downloadData(context.read<HomeScreenCubit>().state.list[index]);
-        context
-            .read<SearchMessageScreenCubit>()
-            .setting(page: context.read<HomeScreenCubit>().state.list[index]);
+        context.read<ScreenMessageCubit>().downloadData(
+              context.read<HomeScreenCubit>().state.list[index],
+            );
+        context.read<SearchMessageScreenCubit>().setting(
+              page: context.read<HomeScreenCubit>().state.list[index],
+            );
         await Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
@@ -312,57 +389,51 @@ class ChatPreview extends StatelessWidget {
   void _showActionMenu(BuildContext context) {
     final homeCubit = context.read<HomeScreenCubit>();
     final screenCreatingCubit = context.read<ScreenCreatingPageCubit>();
+    final listTileTheme = my.ListTileTheme(
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.normal,
+        fontSize:
+            context.read<SettingScreenCubit>().state.floatingWindowFontSize,
+      ),
+    );
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          ListTile(
-            leading: Icon(
-              Icons.info,
-              color: Colors.teal,
-            ),
-            title: Text(
-              'info',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.info,
+            title: 'info',
             onTap: () => _showPreviewInfo(homeCubit, context),
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.teal,
+            ),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.attach_file,
-              color: Colors.teal,
-            ),
-            title: Text(
-              'Pin/Unpin Page',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.attach_file,
+            title: 'Pin/Unpin Page',
             onTap: () {
               Navigator.pop(context);
               homeCubit.pinPage(index);
             },
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.green,
+            ),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.archive,
-              color: Colors.orange,
+          CustomListTile(
+            leadingIcon: Icons.archive,
+            title: 'Archive Page',
+            onTap: () {
+              Navigator.pop(context);
+            },
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.orange,
             ),
-            title: Text(
-              'Archive Page',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
-            onTap: () {},
           ),
-          ListTile(
-            leading: Icon(
-              Icons.edit,
-              color: Colors.blue,
-            ),
-            title: Text(
-              'Edit page',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.edit,
+            title: 'Edit page',
             onTap: () async {
               Navigator.pop(context);
               screenCreatingCubit.setting(
@@ -383,20 +454,20 @@ class ChatPreview extends StatelessWidget {
               }
               screenCreatingCubit.resetIcon();
             },
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.blue,
+            ),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.delete,
-              color: Colors.red,
-            ),
-            title: Text(
-              'Delete Page',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
+          CustomListTile(
+            leadingIcon: Icons.delete,
+            title: 'Delete Page',
             onTap: () {
               Navigator.pop(context);
               context.read<HomeScreenCubit>().removePage(index);
             },
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.red,
+            ),
           ),
         ],
       ),
@@ -417,9 +488,9 @@ class ChatPreview extends StatelessWidget {
                 width: 75,
                 height: 75,
                 child: Icon(
-                  context
-                      .read<ScreenCreatingPageCubit>()
-                      .getIcon(cubit.state.list[index].iconIndex),
+                  context.read<ScreenCreatingPageCubit>().getIcon(
+                        cubit.state.list[index].iconIndex,
+                      ),
                 ),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,

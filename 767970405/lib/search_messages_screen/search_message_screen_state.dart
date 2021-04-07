@@ -19,8 +19,8 @@ class SearchMessageScreenWait extends SearchMessageScreenState {
   SearchMessageScreenWait({
     ModelPage page,
   }) : super(
-          page: page,
-        );
+    page: page,
+  );
 
   @override
   SearchMessageScreenState copyWith({
@@ -36,8 +36,8 @@ class SearchMessageScreenNotFound extends SearchMessageScreenState {
   SearchMessageScreenNotFound({
     ModelPage page,
   }) : super(
-          page: page,
-        );
+    page: page,
+  );
 
   @override
   SearchMessageScreenState copyWith({
@@ -54,9 +54,9 @@ class SearchMessageScreenFound extends SearchMessageScreenState {
     ModelPage page,
     List<ModelMessage> list,
   }) : super(
-          page: page,
-          list: list,
-        );
+    page: page,
+    list: list,
+  );
 
   @override
   SearchMessageScreenState copyWith({ModelPage page}) {

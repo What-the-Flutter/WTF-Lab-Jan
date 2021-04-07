@@ -1,27 +1,5 @@
 import 'package:flutter/material.dart';
 
-class CustomTheme {
-  final ChatPreviewTheme chatPreviewTheme;
-  final BotTheme botTheme;
-  final CategoryTheme categoryTheme;
-  final MessageTheme messageTheme;
-  final DateTimeModButtonTheme dateTimeModButtonTheme;
-  final LabelDateTheme labelDateTheme;
-  final HelpWindowTheme helpWindowTheme;
-  final ThemeData appTheme;
-
-  CustomTheme({
-    this.chatPreviewTheme,
-    this.botTheme,
-    this.categoryTheme,
-    this.messageTheme,
-    this.dateTimeModButtonTheme,
-    this.labelDateTheme,
-    this.helpWindowTheme,
-    this.appTheme,
-  });
-}
-
 class ChatPreviewTheme {
   final TextStyle titleStyle;
   final TextStyle contentStyle;
@@ -100,4 +78,28 @@ class HelpWindowTheme {
     this.titleStyle,
     this.contentStyle,
   });
+}
+
+class ListTileTheme {
+  final TextStyle titleStyle;
+  final TextStyle contentStyle;
+  final Color leadingIconColor;
+
+  ListTileTheme({
+    this.titleStyle,
+    this.contentStyle,
+    this.leadingIconColor,
+  });
+
+  ListTileTheme copyWith({
+    final TextStyle titleStyle,
+    final TextStyle contentStyle,
+    final Color leadingIconColor,
+  }) {
+    return ListTileTheme(
+      titleStyle: titleStyle ?? this.titleStyle,
+      contentStyle: contentStyle ?? this.contentStyle,
+      leadingIconColor: leadingIconColor ?? this.leadingIconColor,
+    );
+  }
 }

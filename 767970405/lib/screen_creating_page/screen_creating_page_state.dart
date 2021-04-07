@@ -23,7 +23,11 @@ abstract class ScreenCreatingPageState extends Equatable {
   }
 
   @override
-  List<Object> get props => [list, selectionIconIndex, iconButton];
+  List<Object> get props => [
+        list,
+        selectionIconIndex,
+        iconButton,
+      ];
 }
 
 class ScreenCreatingPageInitial extends ScreenCreatingPageState {
@@ -32,10 +36,10 @@ class ScreenCreatingPageInitial extends ScreenCreatingPageState {
     int selectionIconIndex,
     IconData iconButton,
   }) : super(
-          list: list,
-          selectionIconIndex: selectionIconIndex,
-          iconButton: iconButton,
-        );
+    list: list,
+    selectionIconIndex: selectionIconIndex,
+    iconButton: iconButton,
+  );
 
   @override
   ScreenCreatingPageState copyWith({
@@ -57,10 +61,10 @@ class ScreenCreatingPageWork extends ScreenCreatingPageState {
     int selectionIconIndex,
     IconData iconButton,
   }) : super(
-          list: list,
-          selectionIconIndex: selectionIconIndex,
-          iconButton: iconButton,
-        );
+    list: list,
+    selectionIconIndex: selectionIconIndex,
+    iconButton: iconButton,
+  );
 
   @override
   ScreenCreatingPageState copyWith({
