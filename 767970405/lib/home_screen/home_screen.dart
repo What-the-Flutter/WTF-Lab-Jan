@@ -7,7 +7,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
-import '../widgets/custom_list_tile.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
@@ -21,13 +20,12 @@ import '../messages_screen/screen_message_cubit.dart';
 import '../screen_creating_page/create_new_page.dart';
 import '../screen_creating_page/screen_creating_page_cubit.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
-import '../settings_screen/general_options_cubit.dart';
-import '../settings_screen/settings_screen.dart';
+import '../settings_screen/setting_screen_cubit.dart';
+import '../settings_screen/setting_screen.dart';
+import '../widgets/custom_list_tile.dart';
 import 'home_screen_cubit.dart';
 
 class HomeWindow extends StatelessWidget {
-  final LocalAuthentication auth = LocalAuthentication();
-
   static final GlobalKey _globalKey = GlobalKey();
 
   @override
@@ -43,12 +41,14 @@ class HomeWindow extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.invert_colors),
                   onPressed: () {
-                    context.read<GeneralOptionsCubit>().toggleTheme();
-                    saveTheme(context
-                        .read<GeneralOptionsCubit>()
-                        .state
-                        .appBrightness
-                        .index);
+                    context.read<SettingScreenCubit>().toggleTheme();
+                    saveTheme(
+                      context
+                          .read<SettingScreenCubit>()
+                          .state
+                          .appBrightness
+                          .index,
+                    );
                   },
                 ),
               ],
@@ -57,7 +57,9 @@ class HomeWindow extends StatelessWidget {
             body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
               builder: (context, state) => state is HomeScreenShow
                   ? ChatPreviewList()
-                  : Center(child: Text('Await')),
+                  : Center(
+                      child: Text('Await'),
+                    ),
             ),
             floatingActionButton: AddChatButton(),
             bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
@@ -73,7 +75,7 @@ class HomeWindow extends StatelessWidget {
     final listTileTheme = my.ListTileTheme(
       titleStyle: TextStyle(
         fontSize:
-            context.read<GeneralOptionsCubit>().state.floatingWindowFontSize,
+            context.read<SettingScreenCubit>().state.floatingWindowFontSize,
       ),
     );
     return Drawer(
@@ -93,7 +95,7 @@ class HomeWindow extends StatelessWidget {
             leadingIcon: Icons.search,
             title: 'Search',
             onTap: () {
-              // TODO
+              Navigator.pop(context);
             },
             theme: listTileTheme.copyWith(leadingIconColor: Colors.cyan),
           ),
@@ -101,7 +103,7 @@ class HomeWindow extends StatelessWidget {
             leadingIcon: Icons.notifications,
             title: 'Notifications',
             onTap: () {
-              //TODO
+              Navigator.pop(context);
             },
             theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
           ),
@@ -109,7 +111,7 @@ class HomeWindow extends StatelessWidget {
             leadingIcon: Icons.stacked_line_chart,
             title: 'Statistics',
             onTap: () {
-              //TODO
+              Navigator.pop(context);
             },
             theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
           ),
@@ -128,7 +130,9 @@ class HomeWindow extends StatelessWidget {
           CustomListTile(
             leadingIcon: Icons.feedback,
             title: 'Feedback',
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+            },
             theme: listTileTheme.copyWith(leadingIconColor: Colors.orange),
           )
         ],
@@ -198,7 +202,7 @@ class HomeWindow extends StatelessWidget {
 class ChatPreviewList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final generalOptionState = context.read<GeneralOptionsCubit>().state;
+    final generalOptionState = context.read<SettingScreenCubit>().state;
     final previewTheme = my.ChatPreviewTheme(
       titleStyle: TextStyle(
         fontWeight: FontWeight.bold,
@@ -235,9 +239,9 @@ class ChatPreviewList extends StatelessWidget {
             title: state.list[i - 1].title,
             subtitle: 'No events click create to one',
             isPinned: state.list[i - 1].isPinned,
-            iconData: context
-                .read<ScreenCreatingPageCubit>()
-                .getIcon(state.list[i - 1].iconIndex),
+            iconData: context.read<ScreenCreatingPageCubit>().getIcon(
+                  state.list[i - 1].iconIndex,
+                ),
             previewTheme: previewTheme,
             categoryTheme: categoryTheme,
           );
@@ -337,12 +341,12 @@ class ChatPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        context
-            .read<ScreenMessageCubit>()
-            .downloadData(context.read<HomeScreenCubit>().state.list[index]);
-        context
-            .read<SearchMessageScreenCubit>()
-            .setting(page: context.read<HomeScreenCubit>().state.list[index]);
+        context.read<ScreenMessageCubit>().downloadData(
+              context.read<HomeScreenCubit>().state.list[index],
+            );
+        context.read<SearchMessageScreenCubit>().setting(
+              page: context.read<HomeScreenCubit>().state.list[index],
+            );
         await Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
@@ -389,7 +393,7 @@ class ChatPreview extends StatelessWidget {
       titleStyle: TextStyle(
         fontWeight: FontWeight.normal,
         fontSize:
-            context.read<GeneralOptionsCubit>().state.floatingWindowFontSize,
+            context.read<SettingScreenCubit>().state.floatingWindowFontSize,
       ),
     );
     showModalBottomSheet<void>(
@@ -402,7 +406,9 @@ class ChatPreview extends StatelessWidget {
             leadingIcon: Icons.info,
             title: 'info',
             onTap: () => _showPreviewInfo(homeCubit, context),
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.teal),
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.teal,
+            ),
           ),
           CustomListTile(
             leadingIcon: Icons.attach_file,
@@ -411,13 +417,19 @@ class ChatPreview extends StatelessWidget {
               Navigator.pop(context);
               homeCubit.pinPage(index);
             },
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.green),
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.green,
+            ),
           ),
           CustomListTile(
             leadingIcon: Icons.archive,
             title: 'Archive Page',
-            onTap: () {},
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.orange),
+            onTap: () {
+              Navigator.pop(context);
+            },
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.orange,
+            ),
           ),
           CustomListTile(
             leadingIcon: Icons.edit,
@@ -442,7 +454,9 @@ class ChatPreview extends StatelessWidget {
               }
               screenCreatingCubit.resetIcon();
             },
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.blue,
+            ),
           ),
           CustomListTile(
             leadingIcon: Icons.delete,
@@ -451,7 +465,9 @@ class ChatPreview extends StatelessWidget {
               Navigator.pop(context);
               context.read<HomeScreenCubit>().removePage(index);
             },
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
+            theme: listTileTheme.copyWith(
+              leadingIconColor: Colors.red,
+            ),
           ),
         ],
       ),
@@ -472,9 +488,9 @@ class ChatPreview extends StatelessWidget {
                 width: 75,
                 height: 75,
                 child: Icon(
-                  context
-                      .read<ScreenCreatingPageCubit>()
-                      .getIcon(cubit.state.list[index].iconIndex),
+                  context.read<ScreenCreatingPageCubit>().getIcon(
+                        cubit.state.list[index].iconIndex,
+                      ),
                 ),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,

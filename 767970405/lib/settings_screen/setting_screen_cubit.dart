@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../data/constans/constans.dart';
 
-part 'general_options_state.dart';
+part 'setting_screen_state.dart';
 
-class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
-  GeneralOptionsCubit({
+class SettingScreenCubit extends Cubit<SettingScreenState> {
+  SettingScreenCubit({
     int index,
-  }) : super(GeneralOptionsState()) {
+  }) : super(SettingScreenState()) {
     emit(index == 0 ? darkTheme : lightTheme);
   }
 
-  GeneralOptionsState get lightTheme => state.copyWith(
+  SettingScreenState get lightTheme => state.copyWith(
         titleColor: Colors.black,
         bodyColor: Colors.black.withOpacity(0.4),
         botIconColor: Colors.black,
@@ -30,7 +30,7 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
         appPrimaryColor: Colors.teal,
       );
 
-  GeneralOptionsState get darkTheme => state.copyWith(
+  SettingScreenState get darkTheme => state.copyWith(
         titleColor: Colors.white,
         bodyColor: Colors.white,
         botIconColor: Colors.white,
@@ -58,41 +58,49 @@ class GeneralOptionsCubit extends Cubit<GeneralOptionsState> {
   void changeFontSize(TypeFontSize typeFontSize) {
     switch (typeFontSize) {
       case TypeFontSize.small:
-        emit(state.copyWith(
-          titleFontSize: DefaultFontSize.titleText * kSmall,
-          bodyFontSize: DefaultFontSize.bodyText * kSmall,
-          appBarTitleFontSize: DefaultFontSize.appBarTitle * kSmall,
-          floatingWindowFontSize: DefaultFontSize.floatingWindowText * kSmall,
-        ));
+        emit(
+          state.copyWith(
+            titleFontSize: DefaultFontSize.titleText * kSmall,
+            bodyFontSize: DefaultFontSize.bodyText * kSmall,
+            appBarTitleFontSize: DefaultFontSize.appBarTitle * kSmall,
+            floatingWindowFontSize: DefaultFontSize.floatingWindowText * kSmall,
+          ),
+        );
         break;
       case TypeFontSize.def:
-        emit(state.copyWith(
-          titleFontSize: DefaultFontSize.titleText,
-          bodyFontSize: DefaultFontSize.bodyText,
-          appBarTitleFontSize: DefaultFontSize.appBarTitle,
-          floatingWindowFontSize: DefaultFontSize.floatingWindowText,
-        ));
+        emit(
+          state.copyWith(
+            titleFontSize: DefaultFontSize.titleText,
+            bodyFontSize: DefaultFontSize.bodyText,
+            appBarTitleFontSize: DefaultFontSize.appBarTitle,
+            floatingWindowFontSize: DefaultFontSize.floatingWindowText,
+          ),
+        );
         break;
       case TypeFontSize.large:
-        emit(state.copyWith(
-          titleFontSize: DefaultFontSize.titleText * kLarge,
-          bodyFontSize: DefaultFontSize.bodyText * kLarge,
-          appBarTitleFontSize: DefaultFontSize.appBarTitle * kLarge,
-          floatingWindowFontSize: DefaultFontSize.floatingWindowText * kLarge,
-        ));
+        emit(
+          state.copyWith(
+            titleFontSize: DefaultFontSize.titleText * kLarge,
+            bodyFontSize: DefaultFontSize.bodyText * kLarge,
+            appBarTitleFontSize: DefaultFontSize.appBarTitle * kLarge,
+            floatingWindowFontSize: DefaultFontSize.floatingWindowText * kLarge,
+          ),
+        );
         break;
     }
   }
 
   void resetSettings() {
-    emit(lightTheme.copyWith(
-      titleFontSize: DefaultFontSize.titleText,
-      bodyFontSize: DefaultFontSize.bodyText,
-      appBarTitleFontSize: DefaultFontSize.appBarTitle,
-      floatingWindowFontSize: DefaultFontSize.floatingWindowText,
-      appAccentColor: Colors.amberAccent,
-      appFontFamily: 'Roboto',
-    ));
+    emit(
+      lightTheme.copyWith(
+        titleFontSize: DefaultFontSize.titleText,
+        bodyFontSize: DefaultFontSize.bodyText,
+        appBarTitleFontSize: DefaultFontSize.appBarTitle,
+        floatingWindowFontSize: DefaultFontSize.floatingWindowText,
+        appAccentColor: Colors.amberAccent,
+        appFontFamily: 'Roboto',
+      ),
+    );
   }
 
   void changeBubbleAlign(bool value) {

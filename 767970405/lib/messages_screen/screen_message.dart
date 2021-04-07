@@ -11,7 +11,7 @@ import '../data/repository/category_repository.dart';
 import '../data/theme/custom_theme.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
-import '../settings_screen/general_options_cubit.dart';
+import '../settings_screen/setting_screen_cubit.dart';
 import 'screen_message_cubit.dart';
 
 class ScreenMessage extends StatefulWidget {
@@ -61,7 +61,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
   Widget get body => BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
         builder: (context, state) {
           final backImage =
-              context.read<GeneralOptionsCubit>().state.pathBackgroundImage;
+              context.read<SettingScreenCubit>().state.pathBackgroundImage;
           return Stack(
             children: <Widget>[
               backImage.isNotEmpty
@@ -77,13 +77,13 @@ class _ScreenMessageState extends State<ScreenMessage> {
                   Expanded(
                     child: ChatElementList(
                       alignment: context
-                              .read<GeneralOptionsCubit>()
+                              .read<SettingScreenCubit>()
                               .state
                               .isLeftBubbleAlign
                           ? Alignment.topLeft
                           : Alignment.topRight,
                       isDateTimeModEnabled: context
-                          .read<GeneralOptionsCubit>()
+                          .read<SettingScreenCubit>()
                           .state
                           .isDateTimeModification,
                     ),
@@ -132,21 +132,19 @@ class TagList extends StatelessWidget {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: state.tags.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.0),
-            child: GestureDetector(
-              child: Container(
-                padding: EdgeInsets.all(10.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15.0),
-                  color: Colors.red,
-                ),
-                child: Text(state.tags[index].name),
+        itemBuilder: (context, index) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5.0),
+          child: GestureDetector(
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15.0),
+                color: Colors.red,
               ),
+              child: Text(state.tags[index].name),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -164,14 +162,16 @@ class ChatElementList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final generalOptionState = context.read<GeneralOptionsCubit>().state;
+    final generalOptionState = context.read<SettingScreenCubit>().state;
     return Stack(
       alignment: alignment,
       children: <Widget>[
         ListView(
           reverse: true,
           children: _generateChatElementsList(
-              context, context.read<ScreenMessageCubit>().state),
+            context,
+            context.read<ScreenMessageCubit>().state,
+          ),
         ),
         if (isDateTimeModEnabled)
           BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
@@ -199,7 +199,7 @@ class ChatElementList extends StatelessWidget {
     var list = <Widget>[];
     var index = state.list.length - 1;
     var filterList = context.read<ScreenMessageCubit>().groupMsgByDate;
-    final generalOptionState = context.read<GeneralOptionsCubit>().state;
+    final generalOptionState = context.read<SettingScreenCubit>().state;
     final messageTheme = MessageTheme(
       contentStyle: TextStyle(
         fontSize: generalOptionState.bodyFontSize,
@@ -234,13 +234,12 @@ class ChatElementList extends StatelessWidget {
             isSelected: state.list[index].isSelected,
             photoPath: state.list[index].photo,
             eventIndex: state.list[index].indexCategory,
-            isFavor:state.list[index].isFavor,
+            isFavor: state.list[index].isFavor,
             text: state.list[index].text,
             date: DateFormat.Hm().format(state.list[index].pubTime),
-            align:
-                context.read<GeneralOptionsCubit>().state.isLeftBubbleAlign
-                    ? Alignment.topRight
-                    : Alignment.topLeft,
+            align: context.read<SettingScreenCubit>().state.isLeftBubbleAlign
+                ? Alignment.topRight
+                : Alignment.topLeft,
             onTap: state.mode == Mode.selection
                 ? context.read<ScreenMessageCubit>().selection
                 : null,
@@ -266,7 +265,7 @@ class ChatElementList extends StatelessWidget {
             filterList[i][0].pubTime,
           ),
           alignment:
-              context.read<GeneralOptionsCubit>().state.isCenterDateBubble
+              context.read<SettingScreenCubit>().state.isCenterDateBubble
                   ? Alignment.center
                   : Alignment.topLeft,
         ),
@@ -643,7 +642,7 @@ class AttachPhotoOption extends StatelessWidget {
           iconData: Icons.photo,
           text: 'Open Gallery',
           source: ImageSource.gallery,
-        )
+        ),
       ],
     );
   }

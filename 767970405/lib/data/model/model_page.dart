@@ -51,8 +51,14 @@ class ModelPage extends Equatable implements Comparable<ModelPage> {
   }
 
   @override
-  List<Object> get props =>
-      [id, isPinned, iconIndex, title, lastModifiedTime, creationTime];
+  List<Object> get props => [
+        id,
+        isPinned,
+        iconIndex,
+        title,
+        lastModifiedTime,
+        creationTime,
+      ];
 
   Map<String, dynamic> toMap() {
     return {

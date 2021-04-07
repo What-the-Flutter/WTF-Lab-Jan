@@ -13,7 +13,7 @@ import 'messages_screen/screen_message_cubit.dart';
 import 'router/app_router.dart';
 import 'screen_creating_page/screen_creating_page_cubit.dart';
 import 'search_messages_screen/search_message_screen_cubit.dart';
-import 'settings_screen/general_options_cubit.dart';
+import 'settings_screen/setting_screen_cubit.dart';
 
 GetIt getIt = GetIt.instance;
 
@@ -87,12 +87,12 @@ class MyApp extends StatelessWidget {
             ),
           ),
           BlocProvider(
-            create: (context) => GeneralOptionsCubit(
+            create: (context) => SettingScreenCubit(
               index: index,
             ),
           ),
         ],
-        child: BlocBuilder<GeneralOptionsCubit, GeneralOptionsState>(
+        child: BlocBuilder<SettingScreenCubit, SettingScreenState>(
           builder: (context, state) => MaterialApp(
             title: 'Chat Journal',
             theme: ThemeData(

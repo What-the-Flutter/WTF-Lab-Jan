@@ -61,7 +61,10 @@ class PagesAPI {
 
     return List.generate(
       maps.length,
-      (i) => ModelTag(id: maps[i]['id'], name: maps[i]['name']),
+      (i) => ModelTag(
+        id: maps[i]['id'],
+        name: maps[i]['name'],
+      ),
     );
   }
 
@@ -78,7 +81,9 @@ class PagesAPI {
         iconIndex: maps[i]['iconIndex'],
         isPinned: maps[i]['isPinned'] == 0 ? false : true,
         creationTime: DateTime.parse(maps[i]['creationTime']),
-        lastModifiedTime: DateTime.parse(maps[i]['lastModifiedTime']),
+        lastModifiedTime: DateTime.parse(
+          maps[i]['lastModifiedTime'],
+        ),
       ),
     );
   }
@@ -131,7 +136,9 @@ class PagesAPI {
         text: maps[i]['text'],
         photo: maps[i]['photo'],
         indexCategory: maps[i]['indexCategory'],
-        pubTime: DateTime.parse(maps[i]['pubTime']),
+        pubTime: DateTime.parse(
+          maps[i]['pubTime'],
+        ),
       ),
     );
   }

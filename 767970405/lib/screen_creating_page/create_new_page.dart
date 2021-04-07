@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../data/theme/custom_theme.dart';
-import '../settings_screen/general_options_cubit.dart';
+import '../settings_screen/setting_screen_cubit.dart';
 import 'screen_creating_page_cubit.dart';
 
 class CreateNewPage extends StatelessWidget {
@@ -64,13 +64,7 @@ class CreateNewPage extends StatelessWidget {
           builder: (context, state) => Icon(
             state.iconButton,
           ),
-          buildWhen: (prev, cur) {
-            if (prev.iconButton != cur.iconButton) {
-              return true;
-            } else {
-              return false;
-            }
-          },
+          buildWhen: (prev, cur) => prev.iconButton != cur.iconButton,
         ),
         onPressed: () {
           Navigator.pop(context);
@@ -82,7 +76,7 @@ class CreateNewPage extends StatelessWidget {
   Widget _listIcons() {
     return BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
       builder: (context, state) {
-        final generalOptionState = context.read<GeneralOptionsCubit>().state;
+        final generalOptionState = context.read<SettingScreenCubit>().state;
         final curTheme = CategoryTheme(
           backgroundColor: generalOptionState.categoryBackgroundColor,
           iconColor: generalOptionState.categoryIconColor,
@@ -102,9 +96,7 @@ class CreateNewPage extends StatelessWidget {
         );
       },
       buildWhen: (prevState, curState) =>
-          curState.selectionIconIndex != prevState.selectionIconIndex
-              ? true
-              : false,
+          curState.selectionIconIndex != prevState.selectionIconIndex,
     );
   }
 }

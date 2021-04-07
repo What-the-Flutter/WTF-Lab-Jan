@@ -23,7 +23,11 @@ abstract class ScreenCreatingPageState extends Equatable {
   }
 
   @override
-  List<Object> get props => [list, selectionIconIndex, iconButton];
+  List<Object> get props => [
+        list,
+        selectionIconIndex,
+        iconButton,
+      ];
 }
 
 class ScreenCreatingPageInitial extends ScreenCreatingPageState {

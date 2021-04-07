@@ -1,8 +1,8 @@
-part of 'general_options_cubit.dart';
+part of 'setting_screen_cubit.dart';
 
 enum ThemeType { light, dark }
 
-class GeneralOptionsState extends Equatable {
+class SettingScreenState extends Equatable {
   final double titleFontSize;
   final Color titleColor;
   final double bodyFontSize;
@@ -31,7 +31,7 @@ class GeneralOptionsState extends Equatable {
 
   final String pathBackgroundImage;
 
-  GeneralOptionsState({
+  SettingScreenState({
     this.titleFontSize = DefaultFontSize.titleText,
     this.titleColor,
     this.bodyFontSize = DefaultFontSize.bodyText,
@@ -59,7 +59,7 @@ class GeneralOptionsState extends Equatable {
     this.pathBackgroundImage = '',
   });
 
-  GeneralOptionsState copyWith({
+  SettingScreenState copyWith({
     final double titleFontSize,
     final Color titleColor,
     final double bodyFontSize,
@@ -86,7 +86,7 @@ class GeneralOptionsState extends Equatable {
     final String pathBackgroundImage,
     final double floatingWindowFontSize,
   }) {
-    return GeneralOptionsState(
+    return SettingScreenState(
       titleFontSize: titleFontSize ?? this.titleFontSize,
       titleColor: titleColor ?? this.titleColor,
       bodyFontSize: bodyFontSize ?? this.bodyFontSize,

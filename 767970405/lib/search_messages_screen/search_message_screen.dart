@@ -6,7 +6,7 @@ import '../data/theme/custom_theme.dart';
 
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
-import '../settings_screen/general_options_cubit.dart';
+import '../settings_screen/setting_screen_cubit.dart';
 import 'search_message_screen_cubit.dart';
 
 class SearchMessageScreen extends StatelessWidget {
@@ -35,7 +35,8 @@ class SearchMessageScreen extends StatelessWidget {
             builder: (context, state) => state is! SearchMessageScreenWait
                 ? IconButton(
                     icon: Icon(Icons.close),
-                    onPressed: context.read<SearchMessageScreenCubit>().reset)
+                    onPressed: context.read<SearchMessageScreenCubit>().reset,
+                  )
                 : Container(),
           ),
         ],
@@ -48,7 +49,7 @@ class SearchMessageScreen extends StatelessWidget {
     return Center(
       child: BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
         builder: (context, state) {
-          final generalOptionState = context.read<GeneralOptionsCubit>().state;
+          final generalOptionState = context.read<SettingScreenCubit>().state;
           final curTheme = HelpWindowTheme(
             backgroundColor: generalOptionState.helpWindowBackgroundColor,
             titleStyle: TextStyle(
@@ -88,8 +89,7 @@ class SearchMessageScreen extends StatelessWidget {
                       fontSize: generalOptionState.bodyFontSize,
                       color: generalOptionState.bodyColor,
                     ),
-                    unselectedColor:
-                        generalOptionState.messageUnselectedColor,
+                    unselectedColor: generalOptionState.messageUnselectedColor,
                     selectedColor: generalOptionState.messageSelectedColor,
                   ),
                   index: index,

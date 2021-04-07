@@ -42,7 +42,12 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
     if (list.isEmpty) {
       emit(SearchMessageScreenNotFound(page: state.page));
     } else {
-      emit(SearchMessageScreenFound(list: list, page: state.page));
+      emit(
+        SearchMessageScreenFound(
+          list: list,
+          page: state.page,
+        ),
+      );
     }
   }
 

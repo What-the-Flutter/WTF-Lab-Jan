@@ -42,9 +42,9 @@ class HomeScreenShow extends HomeScreenState {
     List<ModelPage> pages,
     int currentIndex,
   }) : super(
-          list: pages,
-          currentIndex: currentIndex,
-        );
+    list: pages,
+    currentIndex: currentIndex,
+  );
 
   @override
   HomeScreenState copyWith({
