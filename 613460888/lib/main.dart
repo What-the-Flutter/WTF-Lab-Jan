@@ -2,9 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'home_page/home_page.dart';
+import 'themes/light_theme.dart';
+import 'themes/theme_switcher.dart';
+
 
 void main() {
-  runApp(MyApp());
+  runApp(
+      ThemeSwitcherWidget(
+        child: MyApp(),
+        initialTheme: lightTheme,
+
+      )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -12,9 +21,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Home Page',
-      theme: ThemeData(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      themeMode: ThemeMode.system,
+      theme: ThemeSwitcher.of(context).themeData,
       home: HomePage(title: 'Home'),
     );
   }

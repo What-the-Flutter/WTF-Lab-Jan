@@ -38,7 +38,6 @@ class _EventPageState extends State<EventPage> {
 
   AppBar get defaultAppBar {
     return AppBar(
-      backgroundColor: Colors.deepPurple,
       title: Center(
         child: Text(widget.title),
       ),
@@ -100,7 +99,6 @@ class _EventPageState extends State<EventPage> {
         IconButton(
           icon: Icon(Icons.camera_alt_outlined),
           iconSize: 30,
-          color: Colors.deepPurple,
           onPressed: () {
             setState(() {});
           },
@@ -125,12 +123,9 @@ class _EventPageState extends State<EventPage> {
         IconButton(
           icon: Icon(Icons.send),
           iconSize: 30,
-          color: Colors.deepPurple,
           onPressed: () {
             if (isEditing) {
-              setState(() {
-                editText(indexOfSelectedElement);
-              });
+              setState(() => editText(indexOfSelectedElement));
             } else {
               setState(sendEvent);
             }
@@ -167,36 +162,40 @@ class _EventPageState extends State<EventPage> {
 
   AppBar appBarMenu(int index, {int count}) {
     return AppBar(
-      backgroundColor: Colors.deepPurple,
       leading: IconButton(
-          icon: Icon(Icons.clear),
-          onPressed: () {
-            appBarChange();
-          }),
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          appBarChange();
+        },
+      ),
       actions: <Widget>[
         IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {
-              appBarChange();
-              editEvent(index);
-            }),
+          icon: Icon(Icons.edit),
+          onPressed: () {
+            appBarChange();
+            editEvent(index);
+          },
+        ),
         IconButton(
-            icon: Icon(Icons.copy),
-            onPressed: () {
-              appBarChange();
-              copyEvent(index);
-            }),
+          icon: Icon(Icons.copy),
+          onPressed: () {
+            appBarChange();
+            copyEvent(index);
+          },
+        ),
         IconButton(
-            icon: Icon(Icons.bookmark_border),
-            onPressed: () {
-              appBarChange();
-            }),
+          icon: Icon(Icons.bookmark_border),
+          onPressed: () {
+            appBarChange();
+          },
+        ),
         IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              appBarChange();
-              deleteEvent(index);
-            }),
+          icon: Icon(Icons.delete),
+          onPressed: () {
+            appBarChange();
+            deleteEvent(index);
+          },
+        ),
       ],
     );
   }
@@ -220,17 +219,21 @@ class _EventPageState extends State<EventPage> {
   }
 
   void appBarChange() {
-    setState(() {
-      eventSelected = !eventSelected;
-    });
+    setState(
+      () {
+        eventSelected = !eventSelected;
+      },
+    );
   }
 
   void editEvent(int index) {
-    setState(() {
-      isEditing = true;
-      textEditingController.text = note.eventList[index].text;
-      focusNode.requestFocus();
-    });
+    setState(
+      () {
+        isEditing = true;
+        textEditingController.text = note.eventList[index].text;
+        focusNode.requestFocus();
+      },
+    );
   }
 
   void copyEvent(int index) {
