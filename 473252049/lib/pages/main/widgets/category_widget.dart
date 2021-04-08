@@ -1,3 +1,4 @@
+import 'package:chat_journal/repositories/local_database/local_database_categories_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -39,7 +40,9 @@ class CategoryWidget extends StatelessWidget {
                     value: context.read<CategoriesCubit>(),
                     child: BlocProvider(
                       create: (context) => RecordsCubit(
-                        LocalDatabaseRecordsRepository(),
+                        recordsRepository: LocalDatabaseRecordsRepository(),
+                        categoriesRepository:
+                            LocalDatabaseCategoriesRepository(),
                       )..loadRecords(
                           categoryId: categoryWithLastRecord.category.id,
                         ),

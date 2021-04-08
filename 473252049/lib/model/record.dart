@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class Record implements Comparable {
-  int id;
+  final int id;
   String message;
   File image;
   DateTime createDateTime;
@@ -12,13 +12,15 @@ class Record implements Comparable {
   bool isSelected;
   bool isFavorite;
 
-  Record(this.message,
-      {this.image,
-      this.id,
-      @required this.categoryId,
-      this.isSelected = false,
-      this.isFavorite = false,
-      this.createDateTime}) {
+  Record(
+    this.message, {
+    this.image,
+    this.id,
+    @required this.categoryId,
+    this.isSelected = false,
+    this.isFavorite = false,
+    this.createDateTime,
+  }) {
     createDateTime ??= DateTime.now();
   }
 
