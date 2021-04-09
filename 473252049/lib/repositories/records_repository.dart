@@ -9,4 +9,6 @@ abstract class RecordsRepository implements Repository<Record> {
   Future<List<Record>> getAllRecords({int categoryId});
 
   Future<Record> getLastFromCategory({int categoryId});
+
+  Future<int> getRecordsCount({int categoryId, bool onlyFavorites});
 }

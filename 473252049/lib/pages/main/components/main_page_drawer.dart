@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:share/share.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../category/cubit/records_cubit.dart';
 import '../../search_record_page.dart';
 import '../../settings/settings_page.dart';
+import '../../statistics/statistics_page.dart';
 import '../tabs/home/cubit/categories_cubit.dart';
 
 class MainPageDrawer extends StatelessWidget {
@@ -30,7 +31,7 @@ class MainPageDrawer extends StatelessWidget {
           shareAppDrawerItem(),
           searchDrawerItem(context),
           drawerItem(Icons.notifications, 'Notifications', () {}),
-          drawerItem(Icons.whatshot, 'Statistics', () {}),
+          statisticsDrawerItem(context: context),
           drawerItem(
             Icons.settings,
             'Settings',
@@ -52,6 +53,22 @@ class MainPageDrawer extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget statisticsDrawerItem({BuildContext context}) {
+  return ListTile(
+    title: Text('Statistics'),
+    leading: Icon(Icons.data_usage_outlined),
+    onTap: () {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return StatisticsPage();
+          },
+        ),
+      );
+    },
+  );
 }
 
 Widget drawerItem(IconData icon, String text, void Function() onTap) {
