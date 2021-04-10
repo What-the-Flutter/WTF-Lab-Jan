@@ -31,7 +31,7 @@ class Record implements Comparable {
           map['createDateTime'],
         ),
         categoryId = map['categoryId'],
-        isSelected = map['isSelected'] == 0 ? false : true,
+        isSelected = false,
         isFavorite = map['isFavorite'] == 0 ? false : true {
     if (map['imageUri'] != null) {
       image = File.fromUri(
@@ -50,7 +50,6 @@ class Record implements Comparable {
       if (image != null) 'imageUri': image.uri.toString(),
       'createDateTime': createDateTime.millisecondsSinceEpoch,
       'categoryId': categoryId,
-      'isSelected': isSelected ? 1 : 0,
       'isFavorite': isFavorite ? 1 : 0,
     };
   }
@@ -89,9 +88,6 @@ class Record implements Comparable {
   @override
   int compareTo(Object other) {
     if (other is Record) {
-      // comparision is reversed because records
-      // are being inserted into the begin of records list in
-      // categories
       return other.createDateTime.compareTo(createDateTime);
     }
     return 0;

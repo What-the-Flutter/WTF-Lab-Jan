@@ -1,10 +1,10 @@
 import 'package:bloc/bloc.dart';
-import 'package:chat_journal/repositories/categories_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../model/category.dart';
 import '../../../model/record.dart';
+import '../../../repositories/categories_repository.dart';
 import '../../../repositories/records_repository.dart';
 import '../../../utils/utils.dart' as utils;
 
@@ -83,24 +83,30 @@ class RecordsCubit extends Cubit<RecordsState> {
   }
 
   void select(Record record, {int categoryId}) async {
-    await recordsRepository.update(
-      record.copyWith(isSelected: true),
-    );
+    state.records
+        .where((element) => element.record.id == record.id)
+        .first
+        .record
+        .isSelected = true;
+    ;
     emit(
       RecordSelectSuccess(
-        await getRecordsWithCategory(categoryId: categoryId),
+        state.records,
         record..select(),
       ),
     );
   }
 
   void unselect(Record record, {int categoryId}) async {
-    await recordsRepository.update(
-      record.copyWith(isSelected: false),
-    );
+    state.records
+        .where((element) => element.record.id == record.id)
+        .first
+        .record
+        .isSelected = true;
+    ;
     emit(
       RecordUnselectSuccess(
-        await getRecordsWithCategory(categoryId: categoryId),
+        state.records,
         record..unselect(),
       ),
     );
@@ -114,14 +120,16 @@ class RecordsCubit extends Cubit<RecordsState> {
             .toList();
 
     for (var record in recordsForUnselect) {
-      await recordsRepository.update(
-        record.copyWith(isSelected: false),
-      );
+      state.records
+          .where((element) => element.record.id == record.id)
+          .first
+          .record
+          .isSelected = false;
       record.unselect();
     }
     emit(
       RecordsUnselectSuccess(
-        await getRecordsWithCategory(categoryId: categoryId),
+        state.records,
         recordsForUnselect,
       ),
     );
