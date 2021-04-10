@@ -5,15 +5,11 @@ import '../../model/category.dart';
 import '../main/tabs/home/cubit/categories_cubit.dart';
 import 'category_icons.dart';
 
-enum CategoryAddEditMode { add, edit }
-
 class CategoryAddEditPage extends StatefulWidget {
-  final CategoryAddEditMode mode;
   final Category category;
   final IconData defaultIconData;
 
-  CategoryAddEditPage(
-      {Key key, @required this.mode, this.category, this.defaultIconData})
+  CategoryAddEditPage({Key key, this.category, this.defaultIconData})
       : super(key: key);
 
   @override
@@ -37,16 +33,12 @@ class _CategoryAddEditPageState extends State<CategoryAddEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.mode == CategoryAddEditMode.edit) {
+    if (widget.category != null) {
       _textEditingController.text = widget.category.name;
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.mode == CategoryAddEditMode.add
-            ? 'Add category'
-            : widget.mode == CategoryAddEditMode.edit
-                ? 'Edit category'
-                : null),
+        title: Text(widget.category == null ? 'Add category' : 'Edit category'),
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () {
@@ -58,17 +50,17 @@ class _CategoryAddEditPageState extends State<CategoryAddEditPage> {
             icon: Icon(Icons.check),
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                if (widget.mode == CategoryAddEditMode.add) {
-                  context.read<CategoriesCubit>().add(
-                        category: Category(
-                          _textEditingController.text.trim(),
-                          icon: iconData,
-                        ),
-                      );
-                } else if (widget.mode == CategoryAddEditMode.edit) {
+                if (widget.category != null) {
                   context.read<CategoriesCubit>().update(
                         widget.category.copyWith(
                           name: _textEditingController.text.trim(),
+                          icon: iconData,
+                        ),
+                      );
+                } else {
+                  context.read<CategoriesCubit>().add(
+                        category: Category(
+                          _textEditingController.text.trim(),
                           icon: iconData,
                         ),
                       );

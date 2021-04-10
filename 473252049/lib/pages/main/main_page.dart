@@ -194,9 +194,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                         builder: (_) {
                           return BlocProvider.value(
                             value: BlocProvider.of<CategoriesCubit>(context),
-                            child: CategoryAddEditPage(
-                              mode: CategoryAddEditMode.add,
-                            ),
+                            child: CategoryAddEditPage(),
                           );
                         },
                       ),

@@ -72,7 +72,6 @@ class CategoryBottomSheet extends StatelessWidget {
                         return BlocProvider.value(
                           value: context.read<CategoriesCubit>(),
                           child: CategoryAddEditPage(
-                            mode: CategoryAddEditMode.edit,
                             category: category,
                             defaultIconData: category.icon,
                           ),
