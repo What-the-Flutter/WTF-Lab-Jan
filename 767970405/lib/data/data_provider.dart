@@ -64,6 +64,7 @@ class PagesAPI {
       (i) => ModelTag(
         id: maps[i]['id'],
         name: maps[i]['name'],
+        isSelected: false,
       ),
     );
   }

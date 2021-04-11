@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:my_chat_journal/data/model/model_tag.dart';
 
 import '../data/model/model_message.dart';
 import '../data/model/model_page.dart';
@@ -14,14 +15,20 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
 
   SearchMessageScreenCubit({
     this.repository,
-  }) : super(SearchMessageScreenWait()) {
+  }) : super(SearchMessageScreenState(type: ModeScreen.wait)) {
     controller.addListener(() {
-      if (controller.text.isEmpty) {
-        emit(SearchMessageScreenWait(page: state.page));
+      if (isReset()) {
+        emit(state.copyWith(
+          type: ModeScreen.wait,
+        ));
       } else {
-        searchMessages();
+        search();
       }
     });
+  }
+
+  bool isNotEmptyTag() {
+    return state.tags.isNotEmpty;
   }
 
   @override
@@ -30,24 +37,67 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
     return super.close();
   }
 
-  void searchMessages() async {
+  void search() async {
+    var list = await repository.messages(state.page.id);
+    var selectedTags =
+        state.tags.where((element) => element.isSelected).toList();
     var substring = controller.text;
-    var list = <ModelMessage>[];
-    var repList = await repository.messages(state.page.id);
-    for (var i = 0; i < repList.length; i++) {
-      if (repList[i].text != null && repList[i].text.contains(substring)) {
-        list.add(repList[i]);
+
+    list = list.where((element) {
+      var words = element.text.split(' ');
+      if (selectedTags.isNotEmpty && substring.isNotEmpty) {
+        return _searchForTag(words, selectedTags) ||
+            _searchForText(words, substring);
+      }
+      if (selectedTags.isNotEmpty && substring.isEmpty) {
+        return _searchForTag(words, selectedTags);
+      }
+      if (substring.isNotEmpty && selectedTags.isEmpty) {
+        return _searchForText(words, substring);
+      } else {
+        return false;
+      }
+    }).toList();
+
+    emit(state.copyWith(
+      type: list.isEmpty ? ModeScreen.notFound : ModeScreen.found,
+      list: list,
+    ));
+  }
+
+  bool _searchForTag(List<String> words, List<ModelTag> selectedTags) {
+    for (var i = 0; i < selectedTags.length; i++) {
+      for (var j = 0; j < words.length; j++) {
+        if (words[j] == selectedTags[i].name) {
+          return true;
+        }
       }
     }
-    if (list.isEmpty) {
-      emit(SearchMessageScreenNotFound(page: state.page));
-    } else {
-      emit(
-        SearchMessageScreenFound(
-          list: list,
-          page: state.page,
-        ),
-      );
+    return false;
+  }
+
+  bool _searchForText(List<String> words, String subString) {
+    for (var i = 0; i < words.length; i++) {
+      if (!words[i].startsWith('#') && words[i].contains(subString)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool isReset() {
+    return state.tags.where((element) => element.isSelected).toList().isEmpty &&
+        controller.text.isEmpty;
+  }
+
+  void configureTagSearch(int index, bool isSelected) async {
+    state.tags[index] = state.tags[index].copyWith(isSelected: isSelected);
+    emit(state.copyWith(
+      type: isReset() ? ModeScreen.wait : state.type,
+      tags: List.from(state.tags),
+    ));
+    if (!isReset()) {
+      search();
     }
   }
 
@@ -55,7 +105,18 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
     controller.text = '';
   }
 
-  void setting({ModelPage page}) {
-    emit(state.copyWith(page: page));
+  bool isTextEmpty() => controller.text.isEmpty;
+
+  void updateTag() async {
+    emit(state.copyWith(
+      tags: await repository.tags(),
+    ));
+  }
+
+  void setting({ModelPage page}) async {
+    emit(state.copyWith(
+      page: page,
+      tags: await repository.tags(),
+    ));
   }
 }

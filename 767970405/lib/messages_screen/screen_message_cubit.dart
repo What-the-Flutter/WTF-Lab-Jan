@@ -124,6 +124,15 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     emit(state.copyWith(isBookmark: !state.isBookmark));
   }
 
+  void addTagToText(int index) {
+    final text = '${controller.text}${state.tags[index].name.substring(1)} ';
+    controller.value = controller.value.copyWith(
+      text: text,
+      selection: TextSelection(baseOffset: text.length, extentOffset: text.length),
+      composing: TextRange.empty,
+    );
+  }
+
   void addMessage() async {
     final listTags = controller.text
         .split(' ')

@@ -8,6 +8,7 @@ import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
 import '../settings_screen/chat_interface_setting_cubit.dart';
 import '../settings_screen/visual_setting_cubit.dart';
+import '../widgets/tag.dart';
 import 'search_message_screen_cubit.dart';
 
 class SearchMessageScreen extends StatelessWidget {
@@ -27,13 +28,13 @@ class SearchMessageScreen extends StatelessWidget {
           autofocus: true,
           controller: context.read<SearchMessageScreenCubit>().controller,
           decoration: InputDecoration(
-            labelText:
+            hintText:
                 'Search in ${context.read<ScreenMessageCubit>().state.page.title}',
           ),
         ),
         actions: <Widget>[
           BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
-            builder: (context, state) => state is! SearchMessageScreenWait
+            builder: (context, state) => !context.read<SearchMessageScreenCubit>().isTextEmpty()
                 ? IconButton(
                     icon: Icon(Icons.close),
                     onPressed: context.read<SearchMessageScreenCubit>().reset,
@@ -41,6 +42,49 @@ class SearchMessageScreen extends StatelessWidget {
                 : Container(),
           ),
         ],
+        bottom: context.read<SearchMessageScreenCubit>().isNotEmptyTag()
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(42),
+                child: Container(
+                  constraints: BoxConstraints(maxHeight: 42),
+                  padding: EdgeInsets.all(5.0),
+                  child: BlocBuilder<SearchMessageScreenCubit,
+                      SearchMessageScreenState>(
+                    builder: (context, state) {
+                      final visualSettingState =
+                          context.read<VisualSettingCubit>().state;
+                      final theme = TagTheme(
+                        nameStyle: TextStyle(
+                          fontSize: visualSettingState.bodyFontSize,
+                          color: visualSettingState.titleColor,
+                        ),
+                        backgroundColor: Colors.red[200],
+                        radius: 30,
+                      );
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: state.tags.length,
+                        itemBuilder: (context, index) => Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 5.0),
+                          child: Tag(
+                            key: ValueKey(index),
+                            name: state.tags[index].name,
+                            isSelected: state.tags[index].isSelected,
+                            onTap: () async {
+                              await context
+                                  .read<SearchMessageScreenCubit>()
+                                  .configureTagSearch(
+                                      index, !state.tags[index].isSelected);
+                            },
+                            theme: theme,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              )
+            : null,
       ),
       body: _searchResult(),
     );
@@ -63,13 +107,13 @@ class SearchMessageScreen extends StatelessWidget {
               color: visualSettingState.titleColor,
             ),
           );
-          if (state is SearchMessageScreenWait) {
+          if (state.type == ModeScreen.wait) {
             return HelpWindow(
               iconData: Icons.search,
               content: 'Please enter a search query to begin searching',
               theme: curTheme,
             );
-          } else if (state is SearchMessageScreenNotFound) {
+          } else if (state.type == ModeScreen.notFound) {
             return HelpWindow(
               title: 'No search results available',
               content: 'No entries math the given'

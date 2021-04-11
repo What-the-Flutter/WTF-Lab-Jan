@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:my_chat_journal/search_messages_screen/search_message_screen_cubit.dart';
+import 'package:my_chat_journal/widgets/tag.dart';
 import 'package:provider/provider.dart';
 
 import '../data/repository/category_repository.dart';
@@ -27,6 +29,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
+        preferredSize: Size.fromHeight(56),
         child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
           builder: (context, state) {
             switch (state.mode) {
@@ -43,7 +46,6 @@ class _ScreenMessageState extends State<ScreenMessage> {
             }
           },
         ),
-        preferredSize: Size.fromHeight(56),
       ),
       body: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
         builder: (context, state) {
@@ -133,6 +135,16 @@ class TagList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.read<ScreenMessageCubit>().state;
+    final visualSettingState =
+        context.read<VisualSettingCubit>().state;
+    final theme = TagTheme(
+      nameStyle: TextStyle(
+        fontSize: visualSettingState.bodyFontSize,
+        color: visualSettingState.titleColor,
+      ),
+      backgroundColor: Colors.red,
+      radius: 15,
+    );
     return Container(
       constraints: BoxConstraints(maxHeight: 60),
       padding: EdgeInsets.all(5.0),
@@ -141,15 +153,12 @@ class TagList extends StatelessWidget {
         itemCount: state.tags.length,
         itemBuilder: (context, index) => Padding(
           padding: EdgeInsets.symmetric(horizontal: 5.0),
-          child: GestureDetector(
-            child: Container(
-              padding: EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                color: Colors.red,
-              ),
-              child: Text(state.tags[index].name),
-            ),
+          child: Tag(
+            key: ValueKey(index),
+            name: state.tags[index].name,
+            isSelected: false,
+            onTap: () => context.read<ScreenMessageCubit>().addTagToText(index),
+            theme: theme,
           ),
         ),
       ),
@@ -430,11 +439,32 @@ class InputPanel extends StatelessWidget {
             Expanded(
               flex: 5,
               child: TextField(
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize:
+                      context.read<VisualSettingCubit>().state.bodyFontSize,
+                  color: state.enabledController
+                      ? context.read<VisualSettingCubit>().state.textFieldColor
+                      : context
+                          .read<VisualSettingCubit>()
+                          .state
+                          .disabledTextFieldColor,
+                ),
                 autofocus: true,
-                enabled: state.enabledController,
                 controller: context.read<ScreenMessageCubit>().controller,
                 decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color:
+                          state.enabledController ? Colors.orange : Colors.grey,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color:
+                          state.enabledController ? Colors.orange : Colors.grey,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -475,12 +505,14 @@ class InputAppBar extends StatelessWidget {
             left: 10,
           ),
           child: IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () => Navigator.pushNamed(
-              context,
-              SearchMessageScreen.routeName,
-            ),
-          ),
+              icon: Icon(Icons.search),
+              onPressed: () {
+                context.read<SearchMessageScreenCubit>().updateTag();
+                Navigator.pushNamed(
+                  context,
+                  SearchMessageScreen.routeName,
+                );
+              }),
         ),
         Padding(
           padding: EdgeInsets.only(
@@ -934,7 +966,7 @@ class Message extends StatelessWidget {
                           padding: EdgeInsets.symmetric(vertical: 5.0),
                           child: Text(title),
                         ),
-                      if (photoPath != null && photoPath.isNotEmpty )
+                      if (photoPath != null && photoPath.isNotEmpty)
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 5.0),
                           child: Image.file(

@@ -19,6 +19,8 @@ class VisualSettingState extends Equatable {
   final Brightness appBrightness;
   final Color appPrimaryColor;
   final Color appAccentColor;
+  final Color textFieldColor;
+  final Color disabledTextFieldColor;
   final String appFontFamily;
   final double appBarTitleFontSize;
   final double floatingWindowFontSize;
@@ -40,6 +42,8 @@ class VisualSettingState extends Equatable {
     this.labelDateBackgroundColor,
     this.helpWindowBackgroundColor,
     this.appBrightness,
+    this.textFieldColor,
+    this.disabledTextFieldColor,
     this.appPrimaryColor,
     this.appAccentColor = Colors.amberAccent,
     this.appFontFamily = 'Roboto',
@@ -61,6 +65,8 @@ class VisualSettingState extends Equatable {
     final Color messageSelectedColor,
     final Color dateTimeModeButtonBackgroundColor,
     final Color dateTimeModeButtonIconColor,
+    final Color textFieldColor,
+    final Color disabledTextFieldColor,
     final Color labelDateBackgroundColor,
     final Color helpWindowBackgroundColor,
     final Brightness appBrightness,
@@ -92,6 +98,8 @@ class VisualSettingState extends Equatable {
       labelDateBackgroundColor ?? this.labelDateBackgroundColor,
       helpWindowBackgroundColor:
       helpWindowBackgroundColor ?? this.helpWindowBackgroundColor,
+      textFieldColor: textFieldColor ?? this.textFieldColor,
+      disabledTextFieldColor: disabledTextFieldColor ?? this.disabledTextFieldColor,
       appBrightness: appBrightness ?? this.appBrightness,
       appPrimaryColor: appPrimaryColor ?? this.appPrimaryColor,
       appAccentColor: appAccentColor ?? this.appAccentColor,
@@ -122,5 +130,7 @@ class VisualSettingState extends Equatable {
     appAccentColor,
     appFontFamily,
     floatingWindowFontSize,
+    textFieldColor,
+    disabledTextFieldColor,
   ];
 }

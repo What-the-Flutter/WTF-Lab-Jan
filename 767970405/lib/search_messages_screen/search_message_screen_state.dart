@@ -1,67 +1,34 @@
 part of 'search_message_screen_cubit.dart';
 
-abstract class SearchMessageScreenState extends Equatable {
+enum ModeScreen { found, notFound, wait }
+
+class SearchMessageScreenState extends Equatable {
+  final ModeScreen type;
   final List<ModelMessage> list;
+  final List<ModelTag> tags;
   final ModelPage page;
 
   SearchMessageScreenState({
+    this.type,
     this.page,
     this.list,
+    this.tags,
   });
 
   @override
-  List<Object> get props => [list, page];
+  List<Object> get props => [list, page, tags, type];
 
-  SearchMessageScreenState copyWith({ModelPage page});
-}
-
-class SearchMessageScreenWait extends SearchMessageScreenState {
-  SearchMessageScreenWait({
-    ModelPage page,
-  }) : super(
-    page: page,
-  );
-
-  @override
   SearchMessageScreenState copyWith({
     ModelPage page,
-  }) {
-    return SearchMessageScreenWait(
-      page: page ?? this.page,
-    );
-  }
-}
-
-class SearchMessageScreenNotFound extends SearchMessageScreenState {
-  SearchMessageScreenNotFound({
-    ModelPage page,
-  }) : super(
-    page: page,
-  );
-
-  @override
-  SearchMessageScreenState copyWith({
-    ModelPage page,
-  }) {
-    return SearchMessageScreenNotFound(
-      page: page,
-    );
-  }
-}
-
-class SearchMessageScreenFound extends SearchMessageScreenState {
-  SearchMessageScreenFound({
-    ModelPage page,
+    ModeScreen type,
     List<ModelMessage> list,
-  }) : super(
-    page: page,
-    list: list,
-  );
-
-  @override
-  SearchMessageScreenState copyWith({ModelPage page}) {
-    return SearchMessageScreenFound(
-      page: page,
+    List<ModelTag> tags,
+  }) {
+    return SearchMessageScreenState(
+      page: page ?? this.page,
+      type: type ?? this.type,
+      list: list ?? this.list,
+      tags: tags ?? this.tags,
     );
   }
 }

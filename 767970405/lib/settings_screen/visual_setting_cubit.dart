@@ -29,6 +29,8 @@ class VisualSettingCubit extends Cubit<VisualSettingState> {
       helpWindowBackgroundColor: Colors.green[50],
       appBrightness: Brightness.light,
       appPrimaryColor: Colors.teal,
+      textFieldColor: Colors.black,
+      disabledTextFieldColor: Colors.grey,
     );
   }
 
@@ -49,6 +51,8 @@ class VisualSettingCubit extends Cubit<VisualSettingState> {
       helpWindowBackgroundColor: Colors.black,
       appBrightness: Brightness.dark,
       appPrimaryColor: Colors.black,
+      textFieldColor: Colors.white,
+      disabledTextFieldColor: Colors.grey,
     );
   }
 

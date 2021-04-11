@@ -103,3 +103,15 @@ class ListTileTheme {
     );
   }
 }
+
+class TagTheme {
+  final TextStyle nameStyle;
+  final Color backgroundColor;
+  final double radius;
+
+  TagTheme({
+    this.nameStyle,
+    this.backgroundColor,
+    this.radius,
+  });
+}
