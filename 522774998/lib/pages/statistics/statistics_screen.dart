@@ -281,7 +281,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         date = today;
         date = DateTime(date.year, date.month - i, date.day, 0, 0);
         list.add(Statistics(
-            DateFormat('MMM').format(date).substring(0, 3), func(i)));
+            DateFormat('MMM').format(date).substring(0, 3), func(i + 1)));
         print('DATE $date');
       }
       return list;
@@ -503,17 +503,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         today.month - monthsAgo + 1, today.day, 0, 0)))
                 .length;
 
-        int countTotal(int daysAgo) =>
-            countBookmarks(daysAgo) +
-            countMessages(daysAgo) +
-            countPages(daysAgo);
+        int countTotal(int monthsAgo) =>
+            countBookmarks(monthsAgo) +
+            countMessages(monthsAgo) +
+            countPages(monthsAgo);
 
         return [
           charts.Series<Statistics, String>(
             id: 'total',
             measureFn: (sales, _) => sales.value,
             data: generateYearStatistics(
-                DateTime.now().month - 1, DateTime.now().month - 3, countTotal),
+                DateTime.now().month, DateTime.january, countTotal),
             colorFn: (_, __) => charts.Color.fromHex(code: '#A4EAF1'),
             domainFn: (sales, _) => sales.text,
           ),
@@ -521,7 +521,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             id: 'pages',
             measureFn: (sales, _) => sales.value,
             data:
-                generateYearStatistics(DateTime.now().month - 1, 1, countPages),
+                generateYearStatistics(DateTime.now().month, DateTime.january, countPages),
             colorFn: (_, __) => charts.Color.fromHex(code: '#BAF67F'),
             domainFn: (sales, _) => sales.text,
           ),
@@ -529,7 +529,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             id: 'messages',
             measureFn: (sales, _) => sales.value,
             data: generateYearStatistics(
-                DateTime.now().month - 1, 1, countMessages),
+                DateTime.now().month, DateTime.january, countMessages),
             colorFn: (_, __) => charts.Color.fromHex(code: '#FFC966'),
             domainFn: (sales, _) => sales.text,
           ),
@@ -537,7 +537,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             id: 'bookmarks',
             measureFn: (sales, _) => sales.value,
             data: generateYearStatistics(
-                DateTime.now().month - 1, 1, countBookmarks),
+                DateTime.now().month, DateTime.january, countBookmarks),
             colorFn: (_, __) => charts.Color.fromHex(code: '#EE82EE'),
             domainFn: (sales, _) => sales.text,
           ),
