@@ -2,13 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/settings_screen/visual_setting_cubit.dart';
 
-import '../data/constans/constans.dart';
+import '../data/constants/constants.dart';
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/theme/custom_theme.dart' as my;
 import '../main.dart';
 import '../widgets/custom_list_tile.dart';
-import 'setting_screen_cubit.dart';
+import 'chat_interface_setting_cubit.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const routeName = 'SettingsPage';
@@ -33,10 +34,10 @@ class SettingsScreen extends StatelessWidget {
     final listTileTheme = my.ListTileTheme(
       titleStyle: TextStyle(
         fontWeight: FontWeight.normal,
-        fontSize: context.read<SettingScreenCubit>().state.titleFontSize,
+        fontSize: context.read<VisualSettingCubit>().state.titleFontSize,
       ),
       contentStyle: TextStyle(
-        fontSize: context.read<SettingScreenCubit>().state.bodyFontSize,
+        fontSize: context.read<VisualSettingCubit>().state.bodyFontSize,
       ),
     );
     return ListView(
@@ -58,7 +59,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -74,7 +75,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -90,7 +91,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -109,7 +110,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -125,7 +126,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -141,7 +142,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -156,7 +157,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -175,7 +176,7 @@ class GeneralOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.read<SettingScreenCubit>().state;
+    final state = context.read<VisualSettingCubit>().state;
     final listTileTheme = my.ListTileTheme(
       titleStyle: TextStyle(
         fontWeight: FontWeight.normal,
@@ -223,9 +224,9 @@ class GeneralOption extends StatelessWidget {
               leadingIcon: Icons.invert_colors,
               subtitle: 'Light / Dark',
               onTap: () {
-                context.read<SettingScreenCubit>().toggleTheme();
+                context.read<VisualSettingCubit>().toggleTheme();
                 saveTheme(
-                  context.read<SettingScreenCubit>().state.appBrightness.index,
+                  context.read<VisualSettingCubit>().state.appBrightness.index,
                 );
               },
               theme: listTileTheme.copyWith(
@@ -257,7 +258,7 @@ class GeneralOption extends StatelessWidget {
               subtitle: 'Small / Default / Large',
               onTap: () async {
                 context
-                    .read<SettingScreenCubit>()
+                    .read<VisualSettingCubit>()
                     .changeFontSize(await _showDialog(context));
               },
               theme: listTileTheme.copyWith(
@@ -269,7 +270,7 @@ class GeneralOption extends StatelessWidget {
               leadingIcon: Icons.settings_backup_restore,
               title: 'Reset all Preference',
               subtitle: 'Reset all visual Customizations',
-              onTap: context.read<SettingScreenCubit>().resetSettings,
+              onTap: context.read<VisualSettingCubit>().resetVisualSetting,
               theme: listTileTheme.copyWith(
                 leadingIconColor: Colors.orangeAccent,
               ),
@@ -282,7 +283,7 @@ class GeneralOption extends StatelessWidget {
                 style: Theme.of(context).textTheme.subtitle1,
               ),
             ),
-            BlocBuilder<SettingScreenCubit, SettingScreenState>(
+            BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
               builder: (context, state) => SwitchListTile(
                 secondary: Icon(
                   Icons.date_range,
@@ -292,12 +293,12 @@ class GeneralOption extends StatelessWidget {
                 subtitle: Text('Allows manual date & time for an entry'),
                 value: state.isDateTimeModification,
                 onChanged: context
-                    .read<SettingScreenCubit>()
+                    .read<ChatInterfaceSettingCubit>()
                     .changeDateTimeModification,
               ),
             ),
             padding,
-            BlocBuilder<SettingScreenCubit, SettingScreenState>(
+            BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
               builder: (context, state) => SwitchListTile(
                 secondary: Icon(
                   Icons.format_align_right,
@@ -307,11 +308,11 @@ class GeneralOption extends StatelessWidget {
                 subtitle: Text('Force right-to-left bubble alignment'),
                 value: state.isLeftBubbleAlign,
                 onChanged:
-                    context.read<SettingScreenCubit>().changeBubbleAlign,
+                    context.read<ChatInterfaceSettingCubit>().changeBubbleAlign,
               ),
             ),
             padding,
-            BlocBuilder<SettingScreenCubit, SettingScreenState>(
+            BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
               builder: (context, state) => SwitchListTile(
                 secondary: Icon(
                   Icons.wb_iridescent,
@@ -320,7 +321,7 @@ class GeneralOption extends StatelessWidget {
                 title: Text('Center Date Bubble'),
                 value: state.isCenterDateBubble,
                 onChanged:
-                    context.read<SettingScreenCubit>().changeCenterDateBubble,
+                    context.read<ChatInterfaceSettingCubit>().changeCenterDateBubble,
               ),
             ),
             padding,
@@ -404,30 +405,18 @@ class GeneralOption extends StatelessWidget {
             ListTile(
               title: Text(
                 'Small',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText2
-                    .copyWith(color: Colors.black),
               ),
               onTap: () => Navigator.pop(context, TypeFontSize.small),
             ),
             ListTile(
               title: Text(
                 'Default',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText2
-                    .copyWith(color: Colors.black),
               ),
               onTap: () => Navigator.pop(context, TypeFontSize.def),
             ),
             ListTile(
               title: Text(
                 'Large',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText2
-                    .copyWith(color: Colors.black),
               ),
               onTap: () => Navigator.pop(context, TypeFontSize.large),
             ),
@@ -459,7 +448,7 @@ class SecurityOption extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Divider(),
           ),
-          BlocBuilder<SettingScreenCubit, SettingScreenState>(
+          BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
             builder: (context, state) => SwitchListTile(
               secondary: Icon(
                 Icons.mms,
@@ -469,7 +458,7 @@ class SecurityOption extends StatelessWidget {
               subtitle: Text('Enable Fingerprint unlock'),
               value: state.isAuthentication,
               onChanged:
-                  context.read<SettingScreenCubit>().changeAuthentication,
+                  context.read<ChatInterfaceSettingCubit>().changeAuthentication,
             ),
           ),
         ],
@@ -489,7 +478,7 @@ class BackgroundImageScreen extends StatelessWidget {
         title: Text('BackgroundImage'),
         centerTitle: true,
       ),
-      body: BlocBuilder<SettingScreenCubit, SettingScreenState>(
+      body: BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
         builder: (context, state) => Container(
           alignment: Alignment.center,
           child: state.pathBackgroundImage.isEmpty
@@ -505,7 +494,7 @@ class BackgroundImageScreen extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
                       child: OutlinedButton(
                         onPressed:
-                            context.read<SettingScreenCubit>().pickImage,
+                            context.read<ChatInterfaceSettingCubit>().pickImage,
                         child: Text('Pick an Image'),
                       ),
                     ),
@@ -527,14 +516,14 @@ class BackgroundImageScreen extends StatelessWidget {
                     ListTile(
                       leading: Icon(Icons.delete),
                       title: Text('Unset Image'),
-                      onTap: context.read<SettingScreenCubit>().unsetImage,
+                      onTap: context.read<ChatInterfaceSettingCubit>().unsetImage,
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 10.0),
                       child: ListTile(
                         leading: Icon(Icons.wallpaper),
                         title: Text('Pick a new Image'),
-                        onTap: context.read<SettingScreenCubit>().pickImage,
+                        onTap: context.read<ChatInterfaceSettingCubit>().pickImage,
                       ),
                     ),
                   ],

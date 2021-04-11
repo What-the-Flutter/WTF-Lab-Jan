@@ -455,6 +455,6 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   @override
   Future<Function> close() {
     controller.dispose();
-    super.close();
+    return super.close();
   }
 }

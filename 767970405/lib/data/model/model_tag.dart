@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+@immutable
 class ModelTag {
   final int id;
   final String name;

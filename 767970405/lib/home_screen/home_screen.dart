@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:local_auth/local_auth.dart';
+import 'package:my_chat_journal/settings_screen/visual_setting_cubit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
@@ -20,8 +20,8 @@ import '../messages_screen/screen_message_cubit.dart';
 import '../screen_creating_page/create_new_page.dart';
 import '../screen_creating_page/screen_creating_page_cubit.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
-import '../settings_screen/setting_screen_cubit.dart';
 import '../settings_screen/setting_screen.dart';
+import '../settings_screen/chat_interface_setting_cubit.dart';
 import '../widgets/custom_list_tile.dart';
 import 'home_screen_cubit.dart';
 
@@ -32,41 +32,64 @@ class HomeWindow extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepaintBoundary(
       key: _globalKey,
-      child: Stack(
-        children: <Widget>[
-          Scaffold(
-            appBar: AppBar(
-              title: Text('Home'),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.invert_colors),
-                  onPressed: () {
-                    context.read<SettingScreenCubit>().toggleTheme();
-                    saveTheme(
-                      context
-                          .read<SettingScreenCubit>()
-                          .state
-                          .appBrightness
-                          .index,
-                    );
-                  },
-                ),
-              ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Home'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.invert_colors),
+              onPressed: () {
+                context.read<VisualSettingCubit>().toggleTheme();
+                saveTheme(
+                  context.read<VisualSettingCubit>().state.appBrightness.index,
+                );
+              },
             ),
-            drawer: _drawer(context),
-            body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-              builder: (context, state) => state is HomeScreenShow
-                  ? ChatPreviewList()
-                  : Center(
-                      child: Text('Await'),
+          ],
+        ),
+        drawer: _drawer(context),
+        body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+          builder: (context, state) => state is HomeScreenShow
+              ? Stack(
+                  alignment: AlignmentDirectional.topEnd,
+                  children: <Widget>[
+                    ChatPreviewList(),
+                    Positioned(
+                      top: MediaQuery.of(context).size.height * (1 / 10),
+                      right: MediaQuery.of(context).size.height * (1 / 100),
+                      child: Bot(
+                        theme: my.BotTheme(
+                          contentStyle: TextStyle(
+                            fontSize: context
+                                .read<VisualSettingCubit>()
+                                .state
+                                .bodyFontSize,
+                            color: context
+                                .read<VisualSettingCubit>()
+                                .state
+                                .titleColor,
+                          ),
+                          iconColor: context
+                              .read<VisualSettingCubit>()
+                              .state
+                              .botIconColor,
+                          backgroundColor: context
+                              .read<VisualSettingCubit>()
+                              .state
+                              .botBackgroundColor,
+                        ),
+                      ),
                     ),
-            ),
-            floatingActionButton: AddChatButton(),
-            bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-              builder: _bottomNavigationBar,
-            ),
-          ),
-        ],
+                  ],
+                )
+              : Center(
+                  child: Text('Await'),
+                ),
+        ),
+        floatingActionButton: AddChatButton(),
+        bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
+          builder: _bottomNavigationBar,
+        ),
       ),
     );
   }
@@ -75,7 +98,7 @@ class HomeWindow extends StatelessWidget {
     final listTileTheme = my.ListTileTheme(
       titleStyle: TextStyle(
         fontSize:
-            context.read<SettingScreenCubit>().state.floatingWindowFontSize,
+            context.read<VisualSettingCubit>().state.floatingWindowFontSize,
       ),
     );
     return Drawer(
@@ -202,51 +225,38 @@ class HomeWindow extends StatelessWidget {
 class ChatPreviewList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final generalOptionState = context.read<SettingScreenCubit>().state;
+    final visualSettingState = context.read<VisualSettingCubit>().state;
     final previewTheme = my.ChatPreviewTheme(
       titleStyle: TextStyle(
         fontWeight: FontWeight.bold,
-        fontSize: generalOptionState.titleFontSize,
-        color: generalOptionState.titleColor,
+        fontSize: visualSettingState.titleFontSize,
+        color: visualSettingState.titleColor,
       ),
       contentStyle: TextStyle(
-        fontSize: generalOptionState.bodyFontSize,
-        color: generalOptionState.bodyColor,
+        fontSize: visualSettingState.bodyFontSize,
+        color: visualSettingState.bodyColor,
       ),
     );
     final categoryTheme = my.CategoryTheme(
-      backgroundColor: generalOptionState.categoryBackgroundColor,
-      iconColor: generalOptionState.categoryIconColor,
+      backgroundColor: visualSettingState.categoryBackgroundColor,
+      iconColor: visualSettingState.categoryIconColor,
     );
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
-      builder: (context, state) => ListView.separated(
-        itemCount: state.list.length + 1,
+      builder: (context, state) => ListView.builder(
+        itemCount: state.list.length,
         itemBuilder: (context, i) {
-          if (i == 0) {
-            return Bot(
-              theme: my.BotTheme(
-                contentStyle: TextStyle(
-                  fontSize: generalOptionState.bodyFontSize,
-                  color: generalOptionState.titleColor,
-                ),
-                iconColor: generalOptionState.botIconColor,
-                backgroundColor: generalOptionState.botBackgroundColor,
-              ),
-            );
-          }
           return ChatPreview(
-            index: i - 1,
-            title: state.list[i - 1].title,
+            index: i,
+            title: state.list[i].title,
             subtitle: 'No events click create to one',
-            isPinned: state.list[i - 1].isPinned,
+            isPinned: state.list[i].isPinned,
             iconData: context.read<ScreenCreatingPageCubit>().getIcon(
-                  state.list[i - 1].iconIndex,
+                  state.list[i].iconIndex,
                 ),
             previewTheme: previewTheme,
             categoryTheme: categoryTheme,
           );
         },
-        separatorBuilder: (context, index) => Divider(),
       ),
     );
   }
@@ -263,27 +273,16 @@ class Bot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Icon(
-            MyFlutterApp.smart_toy_24px,
-            size: 30,
-            color: theme.iconColor,
-          ),
-          Text(
-            'Questionnaire Bot',
-            style: theme.contentStyle,
-          ),
-        ],
+      padding: EdgeInsets.all(10.0),
+      child: Icon(
+        MyFlutterApp.smart_toy_24px,
+        size: 50,
+        color: theme.iconColor,
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.0),
         color: theme.backgroundColor,
+        shape: BoxShape.circle,
       ),
-      margin: EdgeInsetsDirectional.only(start: 30.0, top: 5.0, end: 30.0),
-      width: 200,
-      height: 50,
     );
   }
 }
@@ -356,27 +355,31 @@ class ChatPreview extends StatelessWidget {
       child: Stack(
         alignment: Alignment.bottomRight,
         children: <Widget>[
-          ListTile(
-            title: Text(
-              title,
-              style: previewTheme.titleStyle,
-            ),
-            subtitle: Text(
-              subtitle,
-              style: previewTheme.contentStyle,
-            ),
-            horizontalTitleGap: 5.0,
-            contentPadding: EdgeInsets.all(5.0),
-            leading: Container(
-              width: 75,
-              height: 75,
-              child: Icon(
-                iconData,
-                color: categoryTheme.iconColor,
+          Card(
+            margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+            elevation: 10.0,
+            child: ListTile(
+              title: Text(
+                title,
+                style: previewTheme.titleStyle,
               ),
-              decoration: BoxDecoration(
-                color: categoryTheme.backgroundColor,
-                shape: BoxShape.circle,
+              subtitle: Text(
+                subtitle,
+                style: previewTheme.contentStyle,
+              ),
+              horizontalTitleGap: 5.0,
+              contentPadding: EdgeInsets.all(5.0),
+              leading: Container(
+                width: 75,
+                height: 75,
+                child: Icon(
+                  iconData,
+                  color: categoryTheme.iconColor,
+                ),
+                decoration: BoxDecoration(
+                  color: categoryTheme.backgroundColor,
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
           ),
@@ -393,7 +396,7 @@ class ChatPreview extends StatelessWidget {
       titleStyle: TextStyle(
         fontWeight: FontWeight.normal,
         fontSize:
-            context.read<SettingScreenCubit>().state.floatingWindowFontSize,
+            context.read<VisualSettingCubit>().state.floatingWindowFontSize,
       ),
     );
     showModalBottomSheet<void>(

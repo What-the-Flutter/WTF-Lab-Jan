@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../data/theme/custom_theme.dart';
 
+import '../data/theme/custom_theme.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
-import '../settings_screen/setting_screen_cubit.dart';
+import '../settings_screen/chat_interface_setting_cubit.dart';
+import '../settings_screen/visual_setting_cubit.dart';
 import 'search_message_screen_cubit.dart';
 
 class SearchMessageScreen extends StatelessWidget {
@@ -49,17 +50,17 @@ class SearchMessageScreen extends StatelessWidget {
     return Center(
       child: BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
         builder: (context, state) {
-          final generalOptionState = context.read<SettingScreenCubit>().state;
+          final visualSettingState = context.read<VisualSettingCubit>().state;
           final curTheme = HelpWindowTheme(
-            backgroundColor: generalOptionState.helpWindowBackgroundColor,
+            backgroundColor: visualSettingState.helpWindowBackgroundColor,
             titleStyle: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: generalOptionState.titleFontSize,
-              color: generalOptionState.titleColor,
+              fontSize: visualSettingState.titleFontSize,
+              color: visualSettingState.titleColor,
             ),
             contentStyle: TextStyle(
-              fontSize: generalOptionState.bodyFontSize,
-              color: generalOptionState.titleColor,
+              fontSize: visualSettingState.bodyFontSize,
+              color: visualSettingState.titleColor,
             ),
           );
           if (state is SearchMessageScreenWait) {
@@ -82,15 +83,15 @@ class SearchMessageScreen extends StatelessWidget {
                 return Message(
                   theme: MessageTheme(
                     contentStyle: TextStyle(
-                      fontSize: generalOptionState.bodyFontSize,
-                      color: generalOptionState.titleColor,
+                      fontSize: visualSettingState.bodyFontSize,
+                      color: visualSettingState.titleColor,
                     ),
                     timeStyle: TextStyle(
-                      fontSize: generalOptionState.bodyFontSize,
-                      color: generalOptionState.bodyColor,
+                      fontSize: visualSettingState.bodyFontSize,
+                      color: visualSettingState.bodyColor,
                     ),
-                    unselectedColor: generalOptionState.messageUnselectedColor,
-                    selectedColor: generalOptionState.messageSelectedColor,
+                    unselectedColor: visualSettingState.messageUnselectedColor,
+                    selectedColor: visualSettingState.messageSelectedColor,
                   ),
                   index: index,
                   isSelected: state.list[index].isSelected,
@@ -100,7 +101,10 @@ class SearchMessageScreen extends StatelessWidget {
                   eventIndex: state.list[index].indexCategory,
                   text: state.list[index].text,
                   date: DateFormat.Hm().format(state.list[index].pubTime),
-                  align: generalOptionState.isLeftBubbleAlign
+                  align: context
+                          .read<ChatInterfaceSettingCubit>()
+                          .state
+                          .isLeftBubbleAlign
                       ? Alignment.topLeft
                       : Alignment.topRight,
                 );

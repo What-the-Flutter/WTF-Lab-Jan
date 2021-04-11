@@ -25,9 +25,9 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
   }
 
   @override
-  Future<Function> close() async {
+  Future<Function> close() {
     controller.dispose();
-    super.close();
+    return super.close();
   }
 
   void searchMessages() async {
