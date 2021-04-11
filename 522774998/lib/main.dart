@@ -9,6 +9,8 @@ import 'pages/home/home_screen_cubit.dart';
 import 'pages/messages/screen_messages_cubit.dart';
 import 'pages/search/searching_messages_cubit.dart';
 import 'pages/settings/settings_page_cubit.dart';
+import 'pages/statistics/statistics_screen_cubit.dart';
+import 'pages/statistics/statistics_screen_state.dart';
 import 'pages/timeline/timeline_screen_cubit.dart';
 import 'preferences.dart';
 import 'repository/icons_repository.dart';
@@ -80,11 +82,13 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => TimelineScreenCubit(
             repository: repositoryMessages,
+            isPressed: false,
           ),
         ),
         BlocProvider(
           create: (context) => ScreenMessagesCubit(
             repository: repositoryMessages,
+            isPressed: false,
           ),
         ),
         BlocProvider(
@@ -95,6 +99,13 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => CreatingNewPageCubit(
             repository: IconsRepository(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => StatisticsCubit(
+            StatisticsState('Today', [], []),
+            repositoryMessages,
+            repositoryPages,
           ),
         ),
       ],

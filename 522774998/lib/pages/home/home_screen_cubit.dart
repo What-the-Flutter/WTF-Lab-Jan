@@ -11,7 +11,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   HomeScreenCubit({
     this.repository,
   }) : super(
-          HomeScreenStateAwait(currentIndex: 0),
+    HomeScreenStateAwait(currentIndex: 0),
   );
 
   void loadData() async {
@@ -26,7 +26,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   void removePage(int index) async {
     repository.removeMessages(state.list[index].id);
     repository.removePage(state.list[index].id);
-    var list = await repository.pagesList();
+    final list = await repository.pagesList();
     list.sort();
     emit(
       state.copyWith(
@@ -43,7 +43,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         lastModifiedTime: DateTime.now(),
       ),
     );
-    var list = await repository.pagesList();
+    final list = await repository.pagesList();
     list.sort();
     emit(
       HomeScreenStateShow(

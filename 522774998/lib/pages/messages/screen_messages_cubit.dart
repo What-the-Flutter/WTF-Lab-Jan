@@ -15,17 +15,20 @@ part 'screen_messages_state.dart';
 
 class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
   final MessagesRepository repository;
+  bool isPressed = false;
 
   ScreenMessagesCubit({
     this.repository,
+    bool isPressed,
   }) : super(
-          ScreenMessageAwait(
-              appBar: InputAppBar(
-                title: 'Title',
-              ),
-              category: Icons.bubble_chart,
-              counter: 0,
-              list: <PropertyMessage>[]),
+    ScreenMessageAwait(
+      appBar: InputAppBar(
+        title: 'Title',
+      ),
+      category: Icons.bubble_chart,
+      counter: 0,
+      list: <PropertyMessage>[],
+    ),
   );
 
   void changeCategory(IconData categoryIcon) {
@@ -208,14 +211,15 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
   void toInputAppBar() async {
     emit(
       ScreenMessageInput(
-          page: state.page,
-          appBar: InputAppBar(
-            title: state.page.title,
-          ),
-          list: await repository.messages(state.page.id),
-          counter: 0,
-          iconData: state.iconData,
-          onAddMessage: addPhotoMessage),
+        page: state.page,
+        appBar: InputAppBar(
+          title: state.page.title,
+        ),
+        list: await repository.messages(state.page.id),
+        counter: 0,
+        iconData: state.iconData,
+        onAddMessage: addPhotoMessage,
+      ),
     );
     sortMessagesByDate();
   }
@@ -266,7 +270,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
   }
 
   void selection(int index) async {
-    var isSelected = state.list[index].isSelected;
+    final isSelected = state.list[index].isSelected;
     repository.editMessage(state.list[index].copyWith(isSelected: !isSelected));
     if (isSelected) {
       emit(
@@ -287,7 +291,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
   }
 
   void makeBookmark(int index) async {
-    var isBookmark = state.list[index].isBookmark;
+    final isBookmark = state.list[index].isBookmark;
     repository.editMessage(state.list[index].copyWith(isBookmark: !isBookmark));
     emit(
       state.copyWith(
@@ -330,7 +334,7 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
   }
 
   int checkDate(DateTime time, int index) {
-    var timeOfSending = DateFormat('yyyy-MM-dd').format(time);
+    final timeOfSending = DateFormat('yyyy-MM-dd').format(time);
     for (var i = 0; i < state.list.length; i++) {
       if (index == state.list[i].idMessagePage) {
         if (DateFormat('yyyy-MM-dd').format(state.list[i].time) ==
@@ -342,25 +346,46 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
     return 0;
   }
 
+  int checkDateBookmarks(DateTime time, int index) {
+    final timeOfSending = DateFormat('yyyy-MM-dd').format(time);
+    for (var i = 0; i < state.list.length; i++) {
+      if (index == state.list[i].idMessagePage) {
+        if (DateFormat('yyyy-MM-dd').format(state.list[i].time) ==
+                timeOfSending &&
+            state.list[i].isBookmark) {
+          return state.list[i].id;
+        }
+      }
+    }
+    return 0;
+  }
+
   String calculateDate(DateTime dateOfSending) {
     final dateToday = DateTime.now();
-    final difference = dateToday.difference(dateOfSending).inDays;
-    switch (difference) {
-      case 0:
-        return 'Today';
-        break;
-      case 1:
-        return 'Yesterday';
-        break;
-      case 7:
-        return 'Week ago';
-        break;
-      default:
-        if (difference > 7) {
-          return DateFormat.yMMMMd('en_US').format(dateOfSending);
-        } else {
-          return '$difference days ago';
-        }
+    if(dateOfSending != null) {
+      final difference = dateToday
+          .difference(dateOfSending)
+          .inDays;
+      switch (difference) {
+        case 0:
+          return 'Today';
+          break;
+        case 1:
+          return 'Yesterday';
+          break;
+        case 7:
+          return 'Week ago';
+          break;
+        default:
+          if (difference > 7 || difference < 0) {
+            return DateFormat.yMMMMd('en_US').format(dateOfSending);
+          } else {
+            return '$difference days ago';
+          }
+      }
+    }
+    else{
+      return 'Error';
     }
   }
 
@@ -387,5 +412,37 @@ class ScreenMessagesCubit extends Cubit<ScreenMessagesState> {
         timeOfSending: DateTime.now(),
       ),
     );
+  }
+
+  bool isVisibleLabel(PropertyMessage message) {
+    if (message.id == checkDate(message.time, message.idMessagePage)) {
+      if (message.isVisible) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  bool isVisibleLabelForBookmarks(PropertyMessage message) {
+    if (message.id == checkDateBookmarks(message.time, message.idMessagePage)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool isBookmarksShown(bool isPressed, PropertyMessage message) {
+    if (isPressed) {
+      return isVisibleLabelForBookmarks(message);
+    } else {
+      return isVisibleLabel(message);
+    }
+  }
+
+  void selectBookmarks() {
+    isPressed = !isPressed;
   }
 }

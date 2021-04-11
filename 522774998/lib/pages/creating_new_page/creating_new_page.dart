@@ -74,18 +74,9 @@ class _CreateNewPageState extends State<CreateNewPage> {
       ),
       floatingActionButton: FloatingActionButton(
         elevation: 10.0,
-        child: BlocConsumer<CreatingNewPageCubit, CreatingNewPageState>(
-          listener: (context, state) {
-            if (controller.text.isEmpty) {
-              iconFloatingButton = Icons.close;
-            } else {
-              iconFloatingButton = Icons.done;
-            }
-          },
-          builder: (context, state) => Icon(
-            iconFloatingButton,
-            color: Colors.black,
-          ),
+        child: Icon(
+          Icons.done,
+          color: Colors.black,
         ),
         onPressed: () {
           Navigator.pop(context, controller.text);

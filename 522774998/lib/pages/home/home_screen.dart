@@ -12,6 +12,7 @@ import '../messages/screen_messages_cubit.dart';
 import '../search/searching_messages_cubit.dart';
 import '../settings/settings_page.dart';
 import '../settings/settings_page_cubit.dart';
+import '../statistics/statistics_screen.dart';
 import 'home_screen_cubit.dart';
 
 class HomePage extends StatelessWidget {
@@ -85,11 +86,26 @@ class HomePage extends StatelessWidget {
                 );
               },
             ),
+            ListTile(
+              leading: Icon(
+                Icons.analytics_outlined,
+                size: 30,
+              ),
+              title: Text(
+                'Statistics',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () async {
+                await Navigator.pushNamed(
+                  context,
+                  StatisticsScreen.routeName,
+                );
+              },
+            ),
           ],
         ),
       ),
       floatingActionButton: ButtonAddChat(),
-      //bottomNavigationBar: BottomPanelTabs(),
     );
   }
 }
@@ -105,19 +121,21 @@ class ButtonAddChat extends StatelessWidget {
       ),
       onPressed: () async {
         context.read<CreatingNewPageCubit>().setIconIndex(0);
-        var title = await Navigator.pushNamed(
+        final title = await Navigator.pushNamed(
           context,
           CreateNewPage.routeName,
           arguments: '',
         );
-        final state = context.read<CreatingNewPageCubit>().state;
-        context.read<HomeScreenCubit>().addPage(
-              PropertyPage(
-                title: title,
-                iconIndex: state.selectionIconIndex,
-              ),
-            );
-        context.read<CreatingNewPageCubit>().resetIcon();
+        if (title != null) {
+          final state = context.read<CreatingNewPageCubit>().state;
+          context.read<HomeScreenCubit>().addPage(
+                PropertyPage(
+                  title: title,
+                  iconIndex: state.selectionIconIndex,
+                ),
+              );
+          context.read<CreatingNewPageCubit>().resetIcon();
+        }
       },
     );
   }
@@ -318,18 +336,20 @@ class DialogPage extends StatelessWidget {
                   createNewPageCubit.setIconIndex(
                     cubit.state.list[_index].iconIndex,
                   );
-                  var title = await Navigator.pushNamed(
+                  final title = await Navigator.pushNamed(
                     context,
                     CreateNewPage.routeName,
                     arguments: cubit.state.list[_index].title,
                   );
-                  cubit.editPage(
-                    cubit.state.list[_index].copyWith(
-                      iconIndex: createNewPageCubit.state.selectionIconIndex,
-                      title: title,
-                    ),
-                  );
-                  createNewPageCubit.resetIcon();
+                  if (title != '') {
+                    cubit.editPage(
+                      cubit.state.list[_index].copyWith(
+                        iconIndex: createNewPageCubit.state.selectionIconIndex,
+                        title: title,
+                      ),
+                    );
+                    createNewPageCubit.resetIcon();
+                  }
                 },
               ),
               ListTile(

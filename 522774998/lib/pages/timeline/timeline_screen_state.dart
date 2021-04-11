@@ -46,10 +46,10 @@ class TimelineScreenAwait extends TimelineScreenState {
     int counter,
     List<PropertyMessage> list,
   }) : super(
-          pages: pages,
-          appBar: appBar,
-          list: list,
-          counter: counter,
+    pages: pages,
+    appBar: appBar,
+    list: list,
+    counter: counter,
   );
 
   @override
@@ -70,10 +70,10 @@ class TimelineScreenSelection extends TimelineScreenState {
     List<PropertyMessage> list,
     int counter,
   }) : super(
-          pages: pages,
-          appBar: appBar,
-          list: list,
-          counter: counter,
+    pages: pages,
+    appBar: appBar,
+    list: list,
+    counter: counter,
   );
 
   @override
@@ -99,10 +99,10 @@ class TimelineScreenMain extends TimelineScreenState {
     List<PropertyMessage> list,
     int counter,
   }) : super(
-          pages: pages,
-          appBar: appBar,
-          list: list,
-          counter: counter,
+    pages: pages,
+    appBar: appBar,
+    list: list,
+    counter: counter,
   );
 
   @override

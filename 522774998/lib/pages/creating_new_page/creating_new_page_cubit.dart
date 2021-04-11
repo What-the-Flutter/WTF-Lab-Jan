@@ -12,9 +12,9 @@ class CreatingNewPageCubit extends Cubit<CreatingNewPageState> {
   CreatingNewPageCubit({
     this.repository,
   }) : super(
-          CreatingNewPageStateInitial(
-            list: List.from(repository.listIcon),
-          ),
+    CreatingNewPageStateInitial(
+      list: List.from(repository.listIcon),
+    ),
   );
 
   void setIconIndex(int selectionIconIndex) {

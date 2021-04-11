@@ -40,9 +40,9 @@ class PropertyPage implements Comparable<PropertyPage> {
       'id': id,
       'title': title,
       'icon_index': iconIndex,
-      'creation_time': DateFormat('yyyy-MM-dd hh:mm:ss').format(creationTime),
+      'creation_time': DateFormat('yyyy-MM-dd – HH:mm').format(creationTime),
       'last_modified_time':
-          DateFormat('yyyy-MM-dd hh:mm:ss').format(lastModifiedTime),
+          DateFormat('yyyy-MM-dd – HH:mm').format(lastModifiedTime),
       'is_pin': isPin ? 1 : 0,
     };
   }
@@ -53,9 +53,9 @@ class PropertyPage implements Comparable<PropertyPage> {
       title: map['title'],
       iconIndex: map['icon_index'],
       creationTime:
-          DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['creation_time']),
+          DateFormat('yyyy-MM-dd – HH:mm').parse(map['creation_time']),
       lastModifiedTime:
-          DateFormat('yyyy-MM-dd hh:mm:ss').parse(map['last_modified_time']),
+          DateFormat('yyyy-MM-dd – HH:mm').parse(map['last_modified_time']),
       isPin: map['is_pin'] == 1 ? true : false,
     );
   }

@@ -73,7 +73,7 @@ class SettingsPage extends StatelessWidget {
       );
     }
 
-    var dateSwitch = Switch(
+    final dateSwitch = Switch(
       value: BlocProvider.of<SettingPageCubit>(context)
               .state
               .isDateModificationSwitched ??
@@ -82,7 +82,7 @@ class SettingsPage extends StatelessWidget {
           BlocProvider.of<SettingPageCubit>(context).changeDateModification,
     );
 
-    var bubbleSwitch = Switch(
+    final bubbleSwitch = Switch(
       value: BlocProvider.of<SettingPageCubit>(context)
               .state
               .isBubbleAlignmentSwitched ??
@@ -91,7 +91,7 @@ class SettingsPage extends StatelessWidget {
           BlocProvider.of<SettingPageCubit>(context).changeBubbleAlignment,
     );
 
-    var dateBubbleSwitch = Switch(
+    final dateBubbleSwitch = Switch(
       value: BlocProvider.of<SettingPageCubit>(context)
               .state
               .isDateAlignmentSwitched ??

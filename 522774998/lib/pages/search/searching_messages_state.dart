@@ -49,8 +49,8 @@ class SearchMessageScreenFound extends SearchMessageState {
     PropertyPage page,
     List<PropertyMessage> list,
   }) : super(
-          page: page,
-          list: list,
+    page: page,
+    list: list,
   );
 
   @override

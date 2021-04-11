@@ -8,10 +8,12 @@ import 'package:provider/provider.dart';
 
 import '../../theme/theme_cubit.dart';
 import '../home/home_screen_cubit.dart';
+import '../messages/screen_messages_cubit.dart';
 import '../search/searching_message.dart';
 import '../search/searching_messages_cubit.dart';
 import '../settings/settings_page.dart';
 import '../settings/settings_page_cubit.dart';
+import '../statistics/statistics_screen.dart';
 import 'timeline_screen_cubit.dart';
 import 'timeline_screen_state.dart';
 
@@ -70,6 +72,22 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 );
               },
             ),
+            ListTile(
+              leading: Icon(
+                Icons.analytics_outlined,
+                size: 30,
+              ),
+              title: Text(
+                'Statistics',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () async {
+                await Navigator.pushNamed(
+                  context,
+                  StatisticsScreen.routeName,
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -97,20 +115,22 @@ class _TimelineScreenState extends State<TimelineScreen> {
                               reverse: true,
                               itemCount: state.list.length,
                               itemBuilder: (context, i) {
+                                final isVisibleLabel = context
+                                        .read<TimelineScreenCubit>()
+                                        .isPressed
+                                    ? context
+                                        .read<TimelineScreenCubit>()
+                                        .isVisibleLabelForBookmarks(state
+                                            .list[state.list.length - i - 1])
+                                    : context
+                                        .read<TimelineScreenCubit>()
+                                        .isVisibleLabel(state
+                                            .list[state.list.length - i - 1]);
                                 return Column(
                                   children: [
-                                    if (state.list[state.list.length - i - 1]
-                                        .isVisible)
-                                      if (state.list[state.list.length - i - 1]
-                                              .id ==
-                                          context
-                                              .read<TimelineScreenCubit>()
-                                              .checkDate(state
-                                                  .list[
-                                                      state.list.length - i - 1]
-                                                  .time))
-                                        DateMessageTimeline(
-                                            index: state.list.length - i - 1),
+                                    if (isVisibleLabel)
+                                      DateMessageTimeline(
+                                          index: state.list.length - i - 1),
                                     if (state.list[state.list.length - i - 1]
                                         .isVisible)
                                       Dismissible(
@@ -169,7 +189,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                                           );
                                           return res;
                                         },
-                                        background: slideLeftBackground(),
+                                        background: _slideLeftBackground(),
                                         key: UniqueKey(),
                                         child: MessageTimeline(
                                           index: state.list.length - i - 1,
@@ -197,7 +217,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
     );
   }
 
-  Widget slideLeftBackground() {
+  Widget _slideLeftBackground() {
     return Align(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -228,8 +248,6 @@ class TimelineMainAppBar extends StatefulWidget {
 }
 
 class _TimelineMainAppBarState extends State<TimelineMainAppBar> {
-  bool _isPressed = true;
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<TimelineScreenCubit, TimelineScreenState>(
@@ -265,19 +283,17 @@ class _TimelineMainAppBarState extends State<TimelineMainAppBar> {
               left: 10,
             ),
             child: IconButton(
-              icon: _isPressed
-                  ? Icon(Icons.bookmark_border)
-                  : Icon(
+              icon: context.read<ScreenMessagesCubit>().isPressed
+                  ? Icon(
                       Icons.bookmark,
                       color: Colors.yellow,
-                    ),
+                    )
+                  : Icon(Icons.bookmark_border),
               onPressed: () {
-                setState(() {
-                  _isPressed = !_isPressed;
-                });
-                _isPressed
-                    ? context.read<TimelineScreenCubit>().showAll()
-                    : context.read<TimelineScreenCubit>().showBookmarks();
+                context.read<TimelineScreenCubit>().selectBookmarks();
+                context.read<TimelineScreenCubit>().isPressed
+                    ? context.read<TimelineScreenCubit>().showBookmarks()
+                    : context.read<TimelineScreenCubit>().showAll();
               },
             ),
           ),
