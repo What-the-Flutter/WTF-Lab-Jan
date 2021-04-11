@@ -59,70 +59,74 @@ class _ScreenMessageState extends State<ScreenMessage> {
     );
   }
 
-  Widget get body => BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-        builder: (context, state) {
-          final backImage = context
-              .read<ChatInterfaceSettingCubit>()
-              .state
-              .pathBackgroundImage;
-          return Stack(
-            children: <Widget>[
-              backImage.isNotEmpty
-                  ? Image.file(
-                      File(backImage),
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(),
-              Column(
-                children: <Widget>[
-                  Expanded(
-                    child: ChatElementList(
-                      alignment: context
-                              .read<ChatInterfaceSettingCubit>()
-                              .state
-                              .isLeftBubbleAlign
-                          ? Alignment.topLeft
-                          : Alignment.topRight,
-                      isDateTimeModEnabled: context
-                          .read<ChatInterfaceSettingCubit>()
-                          .state
-                          .isDateTimeModification,
-                    ),
+  Widget get body {
+    return BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+      builder: (context, state) {
+        final backImage =
+            context.read<ChatInterfaceSettingCubit>().state.pathBackgroundImage;
+        return Stack(
+          children: <Widget>[
+            backImage.isNotEmpty
+                ? Image.file(
+                    File(backImage),
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.cover,
+                  )
+                : Container(),
+            Column(
+              children: <Widget>[
+                Expanded(
+                  child: ChatElementList(
+                    alignment: context
+                            .read<ChatInterfaceSettingCubit>()
+                            .state
+                            .isLeftBubbleAlign
+                        ? Alignment.topLeft
+                        : Alignment.topRight,
+                    isDateTimeModEnabled: context
+                        .read<ChatInterfaceSettingCubit>()
+                        .state
+                        .isDateTimeModification,
                   ),
-                  Builder(
-                    builder: (context) {
-                      switch (state.floatingBar) {
-                        case FloatingBar.nothing:
-                          return Container();
-                        case FloatingBar.category:
-                          return CategoryList();
-                        case FloatingBar.photosOption:
-                          return AttachPhotoOption();
-                        case FloatingBar.tag:
-                          return state.listTag == ModeListTag.listTags
-                              ? TagList()
-                              : Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    color: Colors.red,
-                                  ),
-                                  child: Text('Add new Tag: ${state.curTag}'),
-                                );
-                        default:
-                          return Container();
-                      }
-                    },
-                  ),
-                  InputPanel(),
-                ],
-              ),
-            ],
-          );
-        },
-      );
+                ),
+                Builder(
+                  builder: (context) {
+                    switch (state.floatingBar) {
+                      case FloatingBar.nothing:
+                        return Container();
+                      case FloatingBar.category:
+                        return CategoryList();
+                      case FloatingBar.photosOption:
+                        return AttachPhotoOption();
+                      case FloatingBar.tag:
+                        return state.listTag == ModeListTag.listTags
+                            ? TagList()
+                            : Container(
+                                padding: EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  color: Colors.red,
+                                ),
+                                child: Text('Add new Tag: ${state.curTag}'),
+                              );
+                      case FloatingBar.attach:
+                        return AttachedPhoto(
+                          photoPath: state.attachedPhotoPath,
+                        );
+                      default:
+                        return Container();
+                    }
+                  },
+                ),
+                InputPanel(),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 class TagList extends StatelessWidget {
@@ -654,6 +658,25 @@ class AttachPhotoOption extends StatelessWidget {
   }
 }
 
+class AttachedPhoto extends StatelessWidget {
+  final String photoPath;
+
+  const AttachedPhoto({
+    Key key,
+    this.photoPath,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(maxHeight: 70),
+      child: Image.file(
+        File(photoPath),
+      ),
+    );
+  }
+}
+
 class CategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -767,7 +790,7 @@ class AttachPhotoButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.read<ScreenMessageCubit>().addPhotoMessage(source),
+      onTap: () => context.read<ScreenMessageCubit>().attachedPhoto(source),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
@@ -911,7 +934,7 @@ class Message extends StatelessWidget {
                           padding: EdgeInsets.symmetric(vertical: 5.0),
                           child: Text(title),
                         ),
-                      if (photoPath != null)
+                      if (photoPath != null && photoPath.isNotEmpty )
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 5.0),
                           child: Image.file(

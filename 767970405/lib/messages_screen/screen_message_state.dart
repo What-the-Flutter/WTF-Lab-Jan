@@ -2,7 +2,7 @@ part of 'screen_message_cubit.dart';
 
 enum Mode { await, input, selection, edit }
 
-enum FloatingBar { nothing, category, photosOption, tag }
+enum FloatingBar { nothing, category, photosOption, tag, attach }
 
 enum ModeListTag { listTags, newTag, nothing }
 
@@ -24,6 +24,7 @@ class ScreenMessageState extends Equatable {
   final ModeListTag listTag;
   final String curTag;
   final List<ModelTag> tags;
+  final String attachedPhotoPath;
 
   const ScreenMessageState({
     this.fromDate,
@@ -43,6 +44,7 @@ class ScreenMessageState extends Equatable {
     this.listTag,
     this.curTag,
     this.tags,
+    this.attachedPhotoPath = '',
   });
 
   @override
@@ -71,6 +73,7 @@ class ScreenMessageState extends Equatable {
     final ModeListTag listTag,
     final String curTag,
     final List<ModelTag> tags,
+    final String attachedPhotoPath,
   }) {
     return ScreenMessageState(
       fromDate: fromDate ?? this.fromDate,
@@ -90,6 +93,7 @@ class ScreenMessageState extends Equatable {
       listTag: listTag ?? this.listTag,
       curTag: curTag ?? this.curTag,
       tags: tags ?? this.tags,
+      attachedPhotoPath: attachedPhotoPath ?? this.attachedPhotoPath,
     );
   }
 
@@ -111,5 +115,6 @@ class ScreenMessageState extends Equatable {
         listTag,
         curTag,
         tags,
+        attachedPhotoPath,
       ];
 }
