@@ -85,6 +85,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   ? 'Select'
                   : _tabNames[currentPageIndex],
             ),
+            centerTitle: false,
             leading: Builder(
               builder: (context) {
                 return IconButton(

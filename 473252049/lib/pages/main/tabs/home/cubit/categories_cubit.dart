@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
-import 'package:chat_journal/repositories/records_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../model/category.dart';
 import '../../../../../model/record.dart';
 import '../../../../../repositories/categories_repository.dart';
+import '../../../../../repositories/records_repository.dart';
 
 part 'categories_state.dart';
 
