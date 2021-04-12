@@ -43,6 +43,7 @@ dependencies:
   social_share: ^2.1.1
   share: ^2.0.1
   http: ^0.13.1
+  splashscreen: ^1.3.5
 
 dev_dependencies:
   flutter_test:

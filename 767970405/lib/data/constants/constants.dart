@@ -1,4 +1,8 @@
-enum TypeFontSize { small, def, large }
+enum TypeFontSize { def, small, large }
+
+enum TypeFontFamily { roboto, robotoMono }
+
+enum TypeAccentColor { gold, cyan, mint, lime, pink, green, orange }
 
 const double kSmall = 0.8;
 const double kLarge = 1.2;

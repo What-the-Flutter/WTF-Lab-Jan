@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/settings_screen/visual_setting_cubit.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:my_chat_journal/auth_screen/auth_screen.dart';
+import 'package:my_chat_journal/settings_screen/chat_interface_setting_cubit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
@@ -21,9 +23,10 @@ import '../screen_creating_page/create_new_page.dart';
 import '../screen_creating_page/screen_creating_page_cubit.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
 import '../settings_screen/setting_screen.dart';
-import '../settings_screen/chat_interface_setting_cubit.dart';
+import '../settings_screen/visual_setting_cubit.dart';
 import '../widgets/custom_list_tile.dart';
 import 'home_screen_cubit.dart';
+
 
 class HomeWindow extends StatelessWidget {
   static final GlobalKey _globalKey = GlobalKey();
@@ -39,9 +42,11 @@ class HomeWindow extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.invert_colors),
               onPressed: () {
-                context.read<VisualSettingCubit>().toggleTheme();
-                saveTheme(
-                  context.read<VisualSettingCubit>().state.appBrightness.index,
+                final cubit = context.read<VisualSettingCubit>();
+                cubit.toggleTheme();
+                cubit.saveVisualSettings(
+                  'theme',
+                  cubit.state.appBrightness.index,
                 );
               },
             ),

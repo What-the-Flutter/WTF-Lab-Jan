@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 import 'data/data_provider.dart';
 import 'data/repository/category_repository.dart';
@@ -18,34 +19,42 @@ import 'settings_screen/visual_setting_cubit.dart';
 
 GetIt getIt = GetIt.instance;
 
-Future<int> loadTheme() async {
-  var prefs = await SharedPreferences.getInstance();
-  return prefs.getInt('theme') ?? 1;
-}
-
-Future<void> saveTheme(int index) async {
-  var prefs = await SharedPreferences.getInstance();
-  prefs.setInt('theme', index);
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   getIt.registerSingleton<PagesAPI>(PagesAPI());
   Bloc.observer = MyBlocObserver();
   runApp(
-    MyApp(
-      index: await loadTheme(),
-    ),
+    MyApp(),
   );
 }
 
+class MyBlocObserver extends BlocObserver {
+  @override
+  void onCreate(Cubit cubit) {
+    super.onCreate(cubit);
+    print('onCreate -- cubit: ${cubit.runtimeType}');
+  }
+
+  @override
+  void onChange(Cubit cubit, Change change) {
+    super.onChange(cubit, change);
+    print('onChange -- cubit: ${cubit.runtimeType}, change: $change');
+  }
+
+  @override
+  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
+    print('onError -- cubit: ${cubit.runtimeType}, error: $error');
+    super.onError(cubit, error, stackTrace);
+  }
+
+  @override
+  void onClose(Cubit cubit) {
+    super.onClose(cubit);
+    print('onClose -- cubit: ${cubit.runtimeType}');
+  }
+}
+
 class MyApp extends StatelessWidget {
-  final int index;
-
-  MyApp({
-    this.index,
-  });
-
   final AppRouter _appRouter = AppRouter();
 
   @override
@@ -91,9 +100,7 @@ class MyApp extends StatelessWidget {
             create: (context) => ChatInterfaceSettingCubit(),
           ),
           BlocProvider(
-            create: (context) => VisualSettingCubit(
-              index: index,
-            ),
+            create: (context) => VisualSettingCubit(),
           ),
         ],
         child: BlocBuilder<VisualSettingCubit, VisualSettingState>(
@@ -103,6 +110,7 @@ class MyApp extends StatelessWidget {
               brightness: state.appBrightness,
               primaryColor: state.appPrimaryColor,
               accentColor: state.appAccentColor,
+              fontFamily: state.appFontFamily,
               iconTheme: IconThemeData(
                 color: state.iconColor,
               ),
@@ -135,31 +143,5 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class MyBlocObserver extends BlocObserver {
-  @override
-  void onCreate(Cubit cubit) {
-    super.onCreate(cubit);
-    print('onCreate -- cubit: ${cubit.runtimeType}');
-  }
-
-  @override
-  void onChange(Cubit cubit, Change change) {
-    super.onChange(cubit, change);
-    print('onChange -- cubit: ${cubit.runtimeType}, change: $change');
-  }
-
-  @override
-  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
-    print('onError -- cubit: ${cubit.runtimeType}, error: $error');
-    super.onError(cubit, error, stackTrace);
-  }
-
-  @override
-  void onClose(Cubit cubit) {
-    super.onClose(cubit);
-    print('onClose -- cubit: ${cubit.runtimeType}');
   }
 }

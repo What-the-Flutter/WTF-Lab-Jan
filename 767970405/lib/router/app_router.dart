@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_chat_journal/auth_screen/auth_screen.dart';
 
 import '../home_screen/home_screen.dart';
 import '../messages_screen/screen_message.dart';
@@ -40,6 +41,10 @@ class AppRouter {
       case BackgroundImageScreen.routeName:
         return MaterialPageRoute(
           builder: (context) => BackgroundImageScreen(),
+        );
+      case AuthScreen.routeName:
+        return MaterialPageRoute(
+          builder: (context) => AuthScreen(),
         );
       default:
         assert(false, 'Need to implement ${settings.name}');

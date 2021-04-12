@@ -1,15 +1,14 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../data/constants/constants.dart';
 
 part 'visual_setting_state.dart';
 
 class VisualSettingCubit extends Cubit<VisualSettingState> {
-  VisualSettingCubit({
-    int index,
-  }) : super(VisualSettingState()) {
-    emit(index == 0 ? darkTheme : lightTheme);
+  VisualSettingCubit() : super(VisualSettingState()) {
+   loadAllSettings();
   }
 
   VisualSettingState get lightTheme {
@@ -99,6 +98,54 @@ class VisualSettingCubit extends Cubit<VisualSettingState> {
     }
   }
 
+  void changeFontFamily(TypeFontFamily typeFontFamily) {
+    switch(typeFontFamily) {
+      case TypeFontFamily.roboto:
+        emit(state.copyWith(appFontFamily: 'Roboto'));
+        break;
+      case TypeFontFamily.robotoMono:
+        emit(state.copyWith(appFontFamily: 'RobotoMono'));
+        break;
+    }
+  }
+
+  void loadAllSettings() async {
+    var indexTheme = await loadVisualSettings('theme');
+    var indexAccentColor = await loadVisualSettings('accentColor');
+    var indexTypeFace = await loadVisualSettings('typeFace');
+    var indexFontSize = await loadVisualSettings('fontSize');
+    emit(indexTheme == 0 ? darkTheme : lightTheme);
+    changeAccentColor(TypeAccentColor.values[indexAccentColor]);
+    changeFontFamily(TypeFontFamily.values[indexTypeFace]);
+    changeFontSize(TypeFontSize.values[indexFontSize]);
+  }
+
+  void changeAccentColor(TypeAccentColor typeAccentColor) {
+    switch(typeAccentColor) {
+      case TypeAccentColor.gold:
+        emit(state.copyWith(appAccentColor: Colors.amberAccent));
+        break;
+      case TypeAccentColor.cyan:
+        emit(state.copyWith(appAccentColor: Colors.cyan));
+        break;
+      case TypeAccentColor.mint:
+        emit(state.copyWith(appAccentColor: Colors.greenAccent));
+        break;
+      case TypeAccentColor.lime:
+        emit(state.copyWith(appAccentColor: Colors.lime));
+        break;
+      case TypeAccentColor.pink:
+        emit(state.copyWith(appAccentColor: Colors.pink));
+        break;
+      case TypeAccentColor.green:
+        emit(state.copyWith(appAccentColor: Colors.green));
+        break;
+      case TypeAccentColor.orange:
+        emit(state.copyWith(appAccentColor: Colors.orange));
+        break;
+    }
+  }
+
   void resetVisualSetting() {
     emit(
       lightTheme.copyWith(
@@ -110,5 +157,21 @@ class VisualSettingCubit extends Cubit<VisualSettingState> {
         appFontFamily: 'Roboto',
       ),
     );
+    saveVisualSettings('fontSize', 0);
+    saveVisualSettings('accentColor', 0);
+    saveVisualSettings('typeFace', 0);
+    saveVisualSettings('theme', 1);
+  }
+
+
+
+  Future<int> loadVisualSettings(String key) async {
+    var prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(key) ?? 0;
+  }
+
+  Future<void> saveVisualSettings(String key, int index) async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setInt(key, index);
   }
 }

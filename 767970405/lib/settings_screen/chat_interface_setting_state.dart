@@ -12,7 +12,7 @@ class ChatInterfaceSettingState extends Equatable {
     this.isDateTimeModification = false,
     this.isLeftBubbleAlign = false,
     this.isCenterDateBubble = false,
-    this.isAuthentication = false,
+    this.isAuthentication = true,
     this.pathBackgroundImage = '',
   });
 
