@@ -78,14 +78,14 @@ class TextMessage extends PropertyMessage {
     bool isBookmark,
     bool isVisible,
   }) : super(
-          id: id,
-          isSelected: isSelected,
-          icon: icon,
-          data: data,
-          time: time,
-          idMessagePage: idMessagePage,
-          isBookmark: isBookmark,
-          isVisible: isVisible,
+    id: id,
+    isSelected: isSelected,
+    icon: icon,
+    data: data,
+    time: time,
+    idMessagePage: idMessagePage,
+    isBookmark: isBookmark,
+    isVisible: isVisible,
   );
 
   @override
@@ -126,14 +126,14 @@ class ImageMessage extends PropertyMessage {
     bool isBookmark,
     bool isVisible,
   }) : super(
-          id: id,
-          isSelected: isSelected,
-          icon: icon,
-          data: data,
-          time: time,
-          idMessagePage: idMessagePage,
-          isBookmark: isBookmark,
-          isVisible: isVisible,
+    id: id,
+    isSelected: isSelected,
+    icon: icon,
+    data: data,
+    time: time,
+    idMessagePage: idMessagePage,
+    isBookmark: isBookmark,
+    isVisible: isVisible,
   );
 
   @override

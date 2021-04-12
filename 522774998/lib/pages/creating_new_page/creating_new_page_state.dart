@@ -28,8 +28,8 @@ class CreatingNewPageStateInitial extends CreatingNewPageState {
     List<ListItemIcon> list,
     int selectionIconIndex,
   }) : super(
-          list: list,
-          selectionIconIndex: selectionIconIndex,
+    list: list,
+    selectionIconIndex: selectionIconIndex,
   );
 
   @override
@@ -49,8 +49,8 @@ class CreatingNewPageStateWork extends CreatingNewPageState {
     List<ListItemIcon> list,
     int selectionIconIndex,
   }) : super(
-          list: list,
-          selectionIconIndex: selectionIconIndex,
+    list: list,
+    selectionIconIndex: selectionIconIndex,
   );
 
   @override

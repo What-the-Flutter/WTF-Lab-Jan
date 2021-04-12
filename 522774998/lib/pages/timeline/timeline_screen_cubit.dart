@@ -13,15 +13,17 @@ import 'timeline_screen_state.dart';
 
 class TimelineScreenCubit extends Cubit<TimelineScreenState> {
   final MessagesRepository repository;
+  bool isPressed = false;
 
   TimelineScreenCubit({
     this.repository,
+    bool isPressed,
   }) : super(
-          TimelineScreenAwait(
-            appBar: TimelineMainAppBar(),
-            counter: 0,
-            list: <PropertyMessage>[],
-          ),
+    TimelineScreenAwait(
+      appBar: TimelineMainAppBar(),
+      counter: 0,
+      list: <PropertyMessage>[],
+    ),
   );
 
   void downloadDataFromAllPages(
@@ -119,7 +121,7 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
   }
 
   void selection(int index) async {
-    var isSelected = state.list[index].isSelected;
+    final isSelected = state.list[index].isSelected;
     repository.editMessage(state.list[index].copyWith(isSelected: !isSelected));
     if (isSelected) {
       emit(
@@ -158,17 +160,6 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
 
   void sortMessagesByDate() {
     state.list.sort((a, b) => a.time.compareTo(b.time));
-  }
-
-  int checkDate(DateTime time) {
-    var timeOfSending = DateFormat('yyyy-MM-dd').format(time);
-    for (var i = 0; i < state.list.length; i++) {
-      if (DateFormat('yyyy-MM-dd').format(state.list[i].time) ==
-          timeOfSending) {
-        return state.list[i].id;
-      }
-    }
-    return 0;
   }
 
   String calculateDate(DateTime dateOfSending) {
@@ -234,7 +225,7 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
   }
 
   void makeBookmark(int index) async {
-    var isBookmark = state.list[index].isBookmark;
+    final isBookmark = state.list[index].isBookmark;
     repository.editMessage(
       state.list[index].copyWith(
         isBookmark: !isBookmark,
@@ -269,5 +260,60 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
       }
     }
     return 'title';
+  }
+
+  int checkDate(DateTime time) {
+    final timeOfSending = DateFormat('yyyy-MM-dd').format(time);
+    for (var i = 0; i < state.list.length; i++) {
+      if (DateFormat('yyyy-MM-dd').format(state.list[i].time) ==
+          timeOfSending) {
+        return state.list[i].id;
+      }
+    }
+    return 0;
+  }
+
+  int checkDateBookmarks(DateTime time) {
+    final timeOfSending = DateFormat('yyyy-MM-dd').format(time);
+    for (var i = 0; i < state.list.length; i++) {
+      if (DateFormat('yyyy-MM-dd').format(state.list[i].time) ==
+              timeOfSending &&
+          state.list[i].isBookmark) {
+        return state.list[i].id;
+      }
+    }
+    return 0;
+  }
+
+  bool isVisibleLabel(PropertyMessage message) {
+    if (message.id == checkDate(message.time)) {
+      if (message.isVisible) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  bool isVisibleLabelForBookmarks(PropertyMessage message) {
+    if (message.id == checkDateBookmarks(message.time)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool isBookmarksShown(bool isPressed, PropertyMessage message) {
+    if (isPressed) {
+      return isVisibleLabelForBookmarks(message);
+    } else {
+      return isVisibleLabel(message);
+    }
+  }
+
+  void selectBookmarks() {
+    isPressed = !isPressed;
   }
 }

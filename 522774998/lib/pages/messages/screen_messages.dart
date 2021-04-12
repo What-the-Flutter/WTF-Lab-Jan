@@ -43,10 +43,12 @@ class _ScreenMessagesState extends State<ScreenMessages>
     _slideMessages = Tween(
       begin: Offset(0.0, 1.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.ease,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.ease,
+      ),
+    );
     _slideDates = Tween(
       begin: const Offset(-0.5, 0.0),
       end: Offset.zero,
@@ -92,34 +94,28 @@ class _ScreenMessagesState extends State<ScreenMessages>
                               reverse: true,
                               itemCount: state.list.length,
                               itemBuilder: (context, i) {
+                                final isVisibleLabel = context
+                                        .read<ScreenMessagesCubit>()
+                                        .isPressed
+                                    ? context
+                                        .read<ScreenMessagesCubit>()
+                                        .isVisibleLabelForBookmarks(state
+                                            .list[state.list.length - i - 1])
+                                    : context
+                                        .read<ScreenMessagesCubit>()
+                                        .isVisibleLabel(state
+                                            .list[state.list.length - i - 1]);
                                 return Column(
                                   children: [
-                                    if (state.list[state.list.length - i - 1]
-                                        .isVisible)
-                                      if (state.list[state.list.length - i - 1]
-                                              .id ==
-                                          context
-                                              .read<ScreenMessagesCubit>()
-                                              .checkDate(
-                                                state
-                                                    .list[state.list.length -
-                                                        i -
-                                                        1]
-                                                    .time,
-                                                state
-                                                    .list[state.list.length -
-                                                        i -
-                                                        1]
-                                                    .idMessagePage,
-                                              ))
-                                        SlideTransition(
-                                          position: _slideDates,
-                                          child: DateMessage(
-                                            index: state.list.length - i - 1,
-                                            idMessagePage:
-                                                state.list.first.idMessagePage,
-                                          ),
+                                    if (isVisibleLabel)
+                                      SlideTransition(
+                                        position: _slideDates,
+                                        child: DateMessage(
+                                          index: state.list.length - i - 1,
+                                          idMessagePage:
+                                              state.list.first.idMessagePage,
                                         ),
+                                      ),
                                     if (state.list[state.list.length - i - 1]
                                         .isVisible)
                                       Dismissible(
@@ -241,9 +237,9 @@ class _ScreenMessagesState extends State<ScreenMessages>
                                             return res;
                                           }
                                         },
-                                        background: slideRightBackground(),
+                                        background: _slideRightBackground(),
                                         secondaryBackground:
-                                            slideLeftBackground(),
+                                            _slideLeftBackground(),
                                         key: UniqueKey(),
                                         child: SlideTransition(
                                           position: _slideMessages,
@@ -288,7 +284,7 @@ class _ScreenMessagesState extends State<ScreenMessages>
     );
   }
 
-  Widget slideRightBackground() {
+  Widget _slideRightBackground() {
     return Align(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -310,7 +306,7 @@ class _ScreenMessagesState extends State<ScreenMessages>
     );
   }
 
-  Widget slideLeftBackground() {
+  Widget _slideLeftBackground() {
     return Align(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -476,13 +472,16 @@ class _ScreenMessagesState extends State<ScreenMessages>
               child: IconButton(
                 icon: Icon(Icons.send),
                 onPressed: () {
-                  stateInput is ScreenMessageInput
-                      ? context
-                          .read<ScreenMessagesCubit>()
-                          .addTextMessage(controller.text)
-                      : context
-                          .read<ScreenMessagesCubit>()
-                          .editMessage(controller.text);
+                  if (controller.text.isNotEmpty) {
+                    debugPrint('Add message');
+                    stateInput is ScreenMessageInput
+                        ? context
+                            .read<ScreenMessagesCubit>()
+                            .addTextMessage(controller.text)
+                        : context
+                            .read<ScreenMessagesCubit>()
+                            .editMessage(controller.text);
+                  }
                   controller.text = '';
                 },
               ),
@@ -524,19 +523,20 @@ class InputAppBar extends StatefulWidget {
 }
 
 class _InputAppBarState extends State<InputAppBar> {
-  bool _pressAttention = true;
-
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ScreenMessagesCubit, ScreenMessagesState>(
+    return BlocConsumer<ScreenMessagesCubit, ScreenMessagesState>(
       listener: (context, state) =>
           context.read<ScreenMessagesCubit>().toSelectionAppBar(),
       listenWhen: (prevState, curState) =>
           prevState.counter == 0 && curState.counter == 1 ? true : false,
-      child: AppBar(
+      builder: (context, state) => AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            context.read<ScreenMessagesCubit>().showAll();
+            Navigator.pop(context);
+          },
         ),
         title: Center(
           child: Text(
@@ -564,19 +564,17 @@ class _InputAppBarState extends State<InputAppBar> {
               left: 10,
             ),
             child: IconButton(
-              icon: _pressAttention
-                  ? Icon(Icons.bookmark_border)
-                  : Icon(
+              icon: context.read<ScreenMessagesCubit>().isPressed
+                  ? Icon(
                       Icons.bookmark,
                       color: Colors.yellow,
-                    ),
+                    )
+                  : Icon(Icons.bookmark_border),
               onPressed: () {
-                setState(() {
-                  _pressAttention = !_pressAttention;
-                });
-                _pressAttention
-                    ? context.read<ScreenMessagesCubit>().showAll()
-                    : context.read<ScreenMessagesCubit>().showBookmarks();
+                context.read<ScreenMessagesCubit>().selectBookmarks();
+                context.read<ScreenMessagesCubit>().isPressed
+                    ? context.read<ScreenMessagesCubit>().showBookmarks()
+                    : context.read<ScreenMessagesCubit>().showAll();
               },
             ),
           ),
@@ -850,8 +848,6 @@ class Message extends StatelessWidget {
                             context,
                             SearchingPage.routeName,
                           );
-                          // cubit.setOnSearch(true);
-                          // controller.text = text;
                         },
                       ),
                 Wrap(
@@ -947,7 +943,7 @@ class DateMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.read<ScreenMessagesCubit>().state;
-    var date = state.dateOfSending ??
+    final date = state.dateOfSending ??
         context.read<ScreenMessagesCubit>().calculateDate(DateTime.now());
     return GestureDetector(
       onTap: () async {
@@ -972,7 +968,7 @@ class DateMark extends StatelessWidget {
           },
         );
         if (date != null) {
-          var time = await showTimePicker(
+          final time = await showTimePicker(
             context: context,
             initialTime: TimeOfDay.fromDateTime(date),
             builder: (context, child) {

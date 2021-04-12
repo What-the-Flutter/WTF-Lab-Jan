@@ -6,6 +6,7 @@ import '../pages/home/home_screen.dart';
 import '../pages/messages/screen_messages.dart';
 import '../pages/search/searching_message.dart';
 import '../pages/settings/settings_page.dart';
+import '../pages/statistics/statistics_screen.dart';
 import '../pages/widgets/tabs.dart';
 
 class AppRouter {
@@ -43,6 +44,12 @@ class AppRouter {
       case SettingsPage.routeName:
         return PageTransition(
           child: SettingsPage(),
+          type: PageTransitionType.bottomToTop,
+          settings: settings,
+        );
+      case StatisticsScreen.routeName:
+        return PageTransition(
+          child: StatisticsScreen(),
           type: PageTransitionType.bottomToTop,
           settings: settings,
         );

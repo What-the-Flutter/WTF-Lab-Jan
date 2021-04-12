@@ -16,7 +16,7 @@ class SearchMessageCubit extends Cubit<SearchMessageState> {
     this.isAll,
     this.repository,
   }) : super(
-          SearchMessageScreenWait(),
+    SearchMessageScreenWait(),
   ) {
     controller.addListener(
       () {
@@ -30,9 +30,9 @@ class SearchMessageCubit extends Cubit<SearchMessageState> {
   }
 
   void searchMessages(bool isAll) async {
-    var substring = controller.text;
-    var list = <PropertyMessage>[];
-    var repList = isAll
+    final substring = controller.text;
+    final list = <PropertyMessage>[];
+    final repList = isAll
         ? await repository.messagesFromAllPages()
         : await repository.messages(state.page.id);
     for (var i = 0; i < repList.length; i++) {

@@ -39,11 +39,17 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
   local_auth: ^1.1.0
+  charts_flutter: ^0.10.0
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.9.0
   flutter_test:
     sdk: flutter
 
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "icons/chat_journal.webp"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -69,6 +75,7 @@ flutter:
     - images/planets.jpg
     - images/blue.jpg
     - images/start.jpg
+    - icons/chat_journal.webp
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

@@ -11,7 +11,7 @@ class SettingPageCubit extends Cubit<SettingsPageState> {
   SettingPageCubit(SettingsPageState state) : super(state);
 
   void initialize() async {
-    var prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     emit(
       state.copyWith(
         isDateModificationSwitched:

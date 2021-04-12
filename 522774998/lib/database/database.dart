@@ -29,7 +29,7 @@ class DBHelper {
   DBHelper({this.database});
 
   static Future<Database> initializeDatabase() async {
-    var database = openDatabase(
+    final database = openDatabase(
       join(await getDatabasesPath(), 'chat_journal.db'),
       version: 1,
       onCreate: (db, version) {
@@ -89,14 +89,14 @@ class DBHelper {
   }
 
   Future<List<PropertyPage>> dbPagesList() async {
-    var _pagesList = <PropertyPage>[];
+    final pagesList = <PropertyPage>[];
     final db = await database;
     final dbPageList = await db.query(tablePage);
     for (final element in dbPageList) {
       final page = PropertyPage.fromMap(element);
-      _pagesList.add(page);
+      pagesList.add(page);
     }
-    return _pagesList;
+    return pagesList;
   }
 
   Future<void> insertMessage(PropertyMessage message) async {
@@ -136,25 +136,25 @@ class DBHelper {
   }
 
   Future<List<PropertyMessage>> dbMessagesList(int idMessagePage) async {
-    var _messagesList = <PropertyMessage>[];
+    final messagesList = <PropertyMessage>[];
     final db = await database;
     final dbMessagesList = await db.query(tableMessage,
         where: '$columnIdMessagePage = ?', whereArgs: [idMessagePage]);
     for (final element in dbMessagesList) {
       final message = PropertyMessage.fromMap(element);
-      _messagesList.add(message);
+      messagesList.add(message);
     }
-    return _messagesList;
+    return messagesList;
   }
 
   Future<List<PropertyMessage>> dbMessagesListFromAllPages() async {
-    var _messagesList = <PropertyMessage>[];
+    final messagesList = <PropertyMessage>[];
     final db = await database;
     final dbMessagesList = await db.query(tableMessage);
     for (final element in dbMessagesList) {
       final message = PropertyMessage.fromMap(element);
-      _messagesList.add(message);
+      messagesList.add(message);
     }
-    return _messagesList;
+    return messagesList;
   }
 }

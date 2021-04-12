@@ -24,14 +24,9 @@ class AnimatedDialogState extends State<AnimatedDialog>
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
-    _animation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.ease,
-      ),
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.ease,
     );
 
     _controller.forward();
