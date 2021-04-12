@@ -50,7 +50,6 @@ class RecordWidget extends StatelessWidget {
             }
           },
           child: RecordWidgetContent(
-            isSelected: record.isSelected,
             isFavorite: record.isFavorite,
             bubbleAlignment: bubbleAlignment,
             image: record.image,
@@ -62,6 +61,9 @@ class RecordWidget extends StatelessWidget {
             categoryName: category?.name,
             categoryId: category?.id,
             isOnSearchPage: isOnSearchPage,
+            color: record.isSelected
+                ? Theme.of(context).scaffoldBackgroundColor
+                : Theme.of(context).backgroundColor,
           ),
         );
       },
