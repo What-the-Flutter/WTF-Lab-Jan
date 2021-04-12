@@ -106,7 +106,6 @@ class LocalDatabaseRecordsRepository extends LocalDatabaseProvider
     final value = Sqflite.firstIntValue(
       await (await database).rawQuery(
         queryStringBuffer.toString(),
-        [categoryId],
       ),
     );
     return value;
