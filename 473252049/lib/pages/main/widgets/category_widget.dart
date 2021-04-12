@@ -1,8 +1,8 @@
-import 'package:chat_journal/repositories/local_database/local_database_categories_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../repositories/local_database/local_database_categories_repository.dart';
 import '../../../repositories/local_database/local_database_records_repository.dart';
 import '../../category/category_page.dart';
 import '../../category/cubit/records_cubit.dart';
@@ -18,7 +18,7 @@ class CategoryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) {
-        return GestureDetector(
+        return InkWell(
           onLongPress: () {
             showModalBottomSheet(
               context: context,
@@ -30,7 +30,6 @@ class CategoryWidget extends StatelessWidget {
               },
             );
           },
-          behavior: HitTestBehavior.translucent,
           onTap: () {
             Navigator.push(
               context,
@@ -56,6 +55,7 @@ class CategoryWidget extends StatelessWidget {
             );
           },
           child: Container(
+            padding: EdgeInsets.symmetric(vertical: 8),
             constraints: BoxConstraints(
               minHeight: 80,
             ),

@@ -26,7 +26,9 @@ class _HomeTabState extends State<HomeTab> {
           );
         }
         return ListView.separated(
-          separatorBuilder: (context, index) => Divider(),
+          separatorBuilder: (context, index) => Divider(
+            height: 1,
+          ),
           itemBuilder: (context, index) =>
               CategoryWidget(state.categories[index]),
           itemCount: state.categories.length,
