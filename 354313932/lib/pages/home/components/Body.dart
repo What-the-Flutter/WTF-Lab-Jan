@@ -1,6 +1,7 @@
 import 'package:chat_journal/constants.dart';
 import 'package:chat_journal/models/Page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Body extends StatelessWidget {
   @override
@@ -8,7 +9,41 @@ class Body extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       child: Column(
-        children: <Widget>[
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget> [
+          Opacity(
+            opacity: .4,
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: kDefaultPadding * 3),
+              height: 50.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                color: Colors.white,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                    Container(
+                      height: 24,
+                      width: 24,
+                      child: SvgPicture.asset("assets/icons/robot.svg"),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        'Questionnaire Bot',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           SizedBox(
             height: size.height,
             child: Stack(
