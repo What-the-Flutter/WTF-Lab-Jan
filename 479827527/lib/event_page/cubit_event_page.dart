@@ -19,12 +19,12 @@ class CubitEventPage extends Cubit<StatesEventPage> {
     setCurrentNote(note);
     setCurrentEventsList(<Event>[]);
     setSelectedIconIndex(-1);
-    setSelectedEventState(false);
     setTextEditState(false);
     setTextSearchState(false);
     setAddingPhotoState(false);
     setSendPhotoButtonState(true);
-    setSelectedItemIndex(0);
+    setSortedByBookmarksState(false);
+    setSelectedItemIndex(-1);
     setSelectedPageReplyIndex(0);
     setSelectedDate('');
     setSelectedTime('');
@@ -32,6 +32,9 @@ class CubitEventPage extends Cubit<StatesEventPage> {
     setCurrentEventsList(
         await _databaseProvider.fetchEventsList(state.note.noteId));
   }
+
+  void setSortedByBookmarksState(bool isSorted) =>
+      emit(state.copyWith(isSortedByBookmarks: isSorted));
 
   void setCurrentNote(Note note) => emit(state.copyWith(note: note));
 
@@ -46,9 +49,6 @@ class CubitEventPage extends Cubit<StatesEventPage> {
 
   void setTextSearchState(bool isSearch) =>
       emit(state.copyWith(isSearch: isSearch));
-
-  void setSelectedEventState(bool isEventSelected) =>
-      emit(state.copyWith(isEventSelected: isEventSelected));
 
   void setSelectedItemIndex(int selectedItemIndex) =>
       emit(state.copyWith(selectedItemIndex: selectedItemIndex));
@@ -68,17 +68,13 @@ class CubitEventPage extends Cubit<StatesEventPage> {
   void setSelectedTime(String selectedTime) =>
       emit(state.copyWith(selectedTime: selectedTime));
 
-  void changeAppBar() => setSelectedEventState(!state.isEventSelected);
-
   void initSharedPreferences() {
     emit(state.copyWith(
-        isDateTimeModification:
-            SharedPreferencesProvider().fetchDateTimeModification()));
-    emit(state.copyWith(
-        isBubbleAlignment: SharedPreferencesProvider().fetchBubbleAlignment()));
-    emit(state.copyWith(
-        isCenterDateBubble:
-            SharedPreferencesProvider().fetchCenterDateBubble()));
+      isDateTimeModification:
+          SharedPreferencesProvider().fetchDateTimeModification(),
+      isBubbleAlignment: SharedPreferencesProvider().fetchBubbleAlignment(),
+      isCenterDateBubble: SharedPreferencesProvider().fetchCenterDateBubble(),
+    ));
   }
 
   void resetDateTimeModifications() =>
@@ -87,30 +83,29 @@ class CubitEventPage extends Cubit<StatesEventPage> {
   void editText(int index, String text) {
     state.currentEventsList[index].text = text;
     state.currentEventsList[index].circleAvatarIndex = state.selectedIconIndex;
+    setSelectedItemIndex(-1);
     setTextEditState(false);
   }
 
   void sortEventsByDate() {
-    if (state.currentEventsList != null) {
-      state.currentEventsList
-        ..sort(
-          (a, b) {
-            final aDate = DateFormat().add_yMMMd().parse(a.date);
-            final bDate = DateFormat().add_yMMMd().parse(b.date);
-            return bDate.compareTo(aDate);
-          },
-        );
-      emit(state.copyWith(currentEventsList: state.currentEventsList));
-    }
+    state.currentEventsList
+      ..sort(
+        (a, b) {
+          final aDate = DateFormat().add_yMMMd().parse(a.date);
+          final bDate = DateFormat().add_yMMMd().parse(b.date);
+          return bDate.compareTo(aDate);
+        },
+      );
+    setCurrentEventsList(state.currentEventsList);
   }
 
   void deleteEvent(int index) {
     _databaseProvider.deleteEvent(state.currentEventsList[index]);
     state.currentEventsList.removeAt(index);
-    emit(state.copyWith(currentEventsList: state.currentEventsList));
+    setCurrentEventsList(state.currentEventsList);
   }
 
-  void removeSelectedIcon() => emit(state.copyWith(selectedIconIndex: -1));
+  void removeSelectedIcon() => setSelectedIconIndex(-1);
 
   void updateNote() => _databaseProvider.updateNote(state.note);
 
@@ -124,6 +119,7 @@ class CubitEventPage extends Cubit<StatesEventPage> {
       imagePath: null,
       circleAvatarIndex: state.selectedIconIndex,
       text: text,
+      bookmarkIndex: 0,
       currentNoteId: state.note.noteId,
       time: state.selectedTime != ''
           ? state.selectedTime
@@ -132,8 +128,16 @@ class CubitEventPage extends Cubit<StatesEventPage> {
             ),
     );
     state.currentEventsList.insert(0, event);
-    emit(state.copyWith(currentEventsList: state.currentEventsList));
+    setCurrentEventsList(state.currentEventsList);
     event.eventId = await _databaseProvider.insertEvent(event);
+  }
+
+  void updateBookmark(int index) {
+    state.currentEventsList[index].bookmarkIndex == 0
+        ? state.currentEventsList[index].bookmarkIndex = 1
+        : state.currentEventsList[index].bookmarkIndex = 0;
+    setCurrentEventsList(state.currentEventsList);
+    _databaseProvider.updateEvent(state.currentEventsList[index]);
   }
 
   Future<void> addImageEvent(File image) async {
@@ -152,6 +156,7 @@ class CubitEventPage extends Cubit<StatesEventPage> {
               DateTime.now(),
             ),
       text: '',
+      bookmarkIndex: 0,
       imagePath: savedImage.path,
       currentNoteId: state.note.noteId,
     );
@@ -169,6 +174,7 @@ class CubitEventPage extends Cubit<StatesEventPage> {
       date: state.currentEventsList[index].date,
       text: state.currentEventsList[index].text,
       time: state.currentEventsList[index].time,
+      bookmarkIndex: state.currentEventsList[index].bookmarkIndex,
       imagePath: state.currentEventsList[index].imagePath,
       currentNoteId: noteList[state.selectedPageReplyIndex].noteId,
       circleAvatarIndex: state.currentEventsList[index].circleAvatarIndex,

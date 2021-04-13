@@ -17,6 +17,7 @@ const String columnCurrentNoteId = 'current_note_id';
 const String columnText = 'text';
 const String columnTime = 'time';
 const String columnEventCircleAvatarIndex = 'event_circle_avatar_index';
+const String columnEventBookmarkIndex = 'bookmark_index';
 const String columnImagePath = 'image_path';
 const String columnDate = 'date';
 
@@ -50,6 +51,7 @@ class DatabaseProvider {
       $columnText text not null,
       $columnTime text not null,
       $columnEventCircleAvatarIndex integer,
+      $columnEventBookmarkIndex integer,
       $columnImagePath text, 
       $columnDate text not null
       )
@@ -112,6 +114,15 @@ class DatabaseProvider {
     );
   }
 
+  Future<int> deleteEventsFromNote(int noteId) async {
+    final db = await database;
+    return await db.delete(
+      eventsTable,
+      where: '$columnCurrentNoteId = ?',
+      whereArgs: [noteId],
+    );
+  }
+
   Future<int> updateEvent(Event event) async {
     final db = await database;
     return await db.update(
@@ -134,5 +145,16 @@ class DatabaseProvider {
       eventsList.insert(0, event);
     }
     return eventsList;
+  }
+
+  Future<List<Event>> fetchFullEventsList() async {
+    final db = await database;
+    final eventList = <Event>[];
+    final dbNotesList = await db.query(eventsTable);
+    for (final element in dbNotesList) {
+      final event = Event.fromMap(element);
+      await eventList.insert(0, event);
+    }
+    return eventList;
   }
 }

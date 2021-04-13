@@ -31,12 +31,14 @@ dependencies:
   clipboard_manager: ^0.0.4
   flutter_bloc: ^6.1.2
   intl: ^0.16.0
-  shared_preferences:
+  shared_preferences: ^2.0.5
   path: ^1.7.0
   share: ^2.0.1
-  path_provider:
-  image_picker:
-  hashtagable:
+  path_provider: ^2.0.1
+  image_picker: ^0.7.4
+  hashtagable: ^2.0.0
+  auto_animated: ^3.0.0
+  page_transition: ^1.1.7+6
 
 dev_dependencies:
   flutter_test:

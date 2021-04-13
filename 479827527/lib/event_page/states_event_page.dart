@@ -5,7 +5,6 @@ class StatesEventPage {
   final List<Event> currentEventsList;
   final Note note;
   final int selectedIconIndex;
-  final bool isEventSelected;
   final bool isEditing;
   final bool isSearch;
   final bool isAddingPhoto;
@@ -13,6 +12,7 @@ class StatesEventPage {
   final bool isDateTimeModification;
   final bool isBubbleAlignment;
   final bool isCenterDateBubble;
+  final bool isSortedByBookmarks;
   final int selectedItemIndex;
   final int selectedPageReplyIndex;
   final String selectedDate;
@@ -22,7 +22,7 @@ class StatesEventPage {
     this.note,
     this.currentEventsList,
     this.selectedIconIndex,
-    this.isEventSelected,
+    this.isSortedByBookmarks,
     this.isEditing,
     this.isSearch,
     this.isAddingPhoto,
@@ -45,11 +45,11 @@ class StatesEventPage {
     final bool isDateTimeModification,
     final bool isBubbleAlignment,
     final bool isCenterDateBubble,
-    final bool isEventSelected,
     final bool isEditing,
     final bool isAddingPhoto,
     final bool isSendPhotoButton,
     final bool isSearch,
+    final bool isSortedByBookmarks,
     final int selectedItemIndex,
     final int selectedPageReplyIndex,
   }) {
@@ -57,7 +57,6 @@ class StatesEventPage {
       note: note ?? this.note,
       currentEventsList: currentEventsList ?? this.currentEventsList,
       selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
-      isEventSelected: isEventSelected ?? this.isEventSelected,
       selectedDate: selectedDate ?? this.selectedDate,
       selectedTime: selectedTime ?? this.selectedTime,
       isDateTimeModification:
@@ -68,6 +67,7 @@ class StatesEventPage {
       isAddingPhoto: isAddingPhoto ?? this.isAddingPhoto,
       isSendPhotoButton: isSendPhotoButton ?? this.isSendPhotoButton,
       isSearch: isSearch ?? this.isSearch,
+      isSortedByBookmarks: isSortedByBookmarks ?? this.isSortedByBookmarks,
       selectedItemIndex: selectedItemIndex ?? this.selectedItemIndex,
       selectedPageReplyIndex:
           selectedPageReplyIndex ?? this.selectedPageReplyIndex,

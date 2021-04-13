@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lesson_1/timeline_page/timeline_page.dart';
 import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
 
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
-import '../settings/settings.dart';
+import '../settings/settings_page.dart';
 import '../themes/cubit_theme.dart';
 import '../utils/icons.dart';
 import 'cubit_home_page.dart';
@@ -159,8 +161,9 @@ class _State extends State<HomePage> {
   void _openEventPage(StatesHomePage state, var index) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => EventPage(
+      PageTransition(
+        type: PageTransitionType.bottomToTop,
+        child: EventPage(
           note: state.noteList[index],
           noteList: state.noteList,
         ),
@@ -171,6 +174,15 @@ class _State extends State<HomePage> {
 
   BottomNavigationBar get _bottomNavigationBar {
     return BottomNavigationBar(
+      onTap: (value) {
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.rightToLeft,
+            child: TimelinePage(),
+          ),
+        );
+      },
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -239,7 +251,7 @@ class _State extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Settings(),
+                  builder: (context) => SettingsPage(),
                 ),
               );
             },

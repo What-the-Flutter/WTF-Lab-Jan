@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'create_page/cubit_create_page.dart';
 
+import 'create_page/cubit_create_page.dart';
 import 'event_page/cubit_event_page.dart';
 import 'home_page/cubit_home_page.dart';
 import 'home_page/home_page.dart';
-import 'settings/cubit_general_settings.dart';
+import 'settings/cubit_general_settings_page.dart';
 import 'themes/cubit_theme.dart';
 import 'themes/states_theme.dart';
+import 'timeline_page/cubit_timeline_page.dart';
 import 'utils/shared_preferences_provider.dart';
 
 void main() async {
@@ -30,6 +31,9 @@ void main() async {
         ),
         BlocProvider<CubitGeneralSettings>(
           create: (context) => CubitGeneralSettings(),
+        ),
+        BlocProvider<CubitTimelinePage>(
+          create: (context) => CubitTimelinePage(),
         ),
       ],
       child: ChatJournal(),
