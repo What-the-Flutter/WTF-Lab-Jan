@@ -16,6 +16,8 @@ const String columnNoteId = 'note_id';
 const String columnTime = 'time';
 const String columnText = 'text';
 const String indexOfEventCircleAvatar = 'event_circle_avatar';
+const String columnDate = 'date_format';
+const String columnImagePath = 'image_path';
 
 class DatabaseProvider {
   static Database _database;
@@ -24,12 +26,11 @@ class DatabaseProvider {
   DatabaseProvider._createInstance();
 
   factory DatabaseProvider() {
-   return _dbProvider ?? DatabaseProvider._createInstance();
+    return _dbProvider ?? DatabaseProvider._createInstance();
   }
 
   Future<Database> get database async {
     return _database ?? await initDatabase();
-
   }
 
   Future<Database> initDatabase() async {
@@ -48,7 +49,9 @@ class DatabaseProvider {
         $columnNoteId integer,
         $columnTime text not null,
         $columnText text not null,
-        $indexOfEventCircleAvatar integer)
+        $indexOfEventCircleAvatar integer,
+        $columnImagePath text,
+        $columnDate text not null)
        ''');
     });
   }

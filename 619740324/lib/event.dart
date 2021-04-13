@@ -1,6 +1,8 @@
 class Event {
   String text;
   String time;
+  String date = '';
+  String imagePath = '';
   int id;
   int noteId;
   int indexOfCircleAvatar;
@@ -12,6 +14,8 @@ class Event {
       'time': time,
       'text': text,
       'event_circle_avatar': indexOfCircleAvatar,
+      'date_format': date,
+      'image_path': imagePath,
     };
   }
 
@@ -22,6 +26,8 @@ class Event {
       'time': time,
       'text': text,
       'event_circle_avatar': indexOfCircleAvatar,
+      'date_format': date,
+      'image_path': imagePath,
     };
   }
 
@@ -32,6 +38,8 @@ class Event {
       time: map['time'],
       text: map['text'],
       indexOfCircleAvatar: map['event_circle_avatar'],
+      date: map['date_format'],
+      imagePath: map['image_path'],
     );
   }
 
@@ -41,5 +49,8 @@ class Event {
     this.text,
     this.time,
     this.indexOfCircleAvatar,
+    this.isSelected,
+    this.date,
+    this.imagePath,
   });
 }
