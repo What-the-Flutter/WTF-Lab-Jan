@@ -80,7 +80,9 @@ class _CreatePageState extends State<CreatePage> {
     return Column(
       children: <Widget>[
         _inputText,
-        _iconGrid,
+        Expanded(
+          child: _iconGrid,
+        ),
       ],
     );
   }

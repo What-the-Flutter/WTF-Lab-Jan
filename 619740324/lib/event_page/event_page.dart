@@ -1,12 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../create_page/icons.dart';
-import '../data/database_provider.dart';
+import '../data/shared_preferences_provider.dart';
 import '../event.dart';
 import '../note.dart';
-import '../theme/theme.dart';
 import 'cubit_event_page.dart';
 import 'states_event_page.dart';
 
@@ -29,22 +32,21 @@ class _EventPageState extends State<EventPage> {
   final FocusNode _focusNode = FocusNode();
   final FocusNode _searchFocusNode = FocusNode();
   CubitEventPage _cubit;
-  DatabaseProvider databaseProvider = DatabaseProvider();
+
+  _EventPageState(this._note, this.noteList) {
+    _cubit = CubitEventPage(StatesEventPage(note: _note));
+  }
 
   @override
   void initState() {
     _focusNode.requestFocus();
-    _cubit.initEventList();
+    _cubit.init();
     super.initState();
-  }
-
-  _EventPageState(this._note, this.noteList) {
-    _cubit = CubitEventPage(StatesEventPage(_note));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocBuilder<CubitEventPage, StatesEventPage>(
       cubit: _cubit,
       builder: (context, state) {
         return Scaffold(
@@ -114,21 +116,173 @@ class _EventPageState extends State<EventPage> {
   }
 
   Widget _eventPageBody(StatesEventPage state) {
-    return Column(
+    return Stack(
       children: <Widget>[
-        Expanded(
-          child: _listView(state),
+        Column(
+          children: [
+            Expanded(
+              child: _listView(state),
+            ),
+            if (state.isEditingPhoto)
+              Padding(
+                padding: EdgeInsets.only(
+                  top: 10,
+                  bottom: 10,
+                ),
+                child: _choiceImageSourceWrap,
+              ),
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.black26,
+                  ),
+                ),
+              ),
+              child: _textFieldArea,
+            ),
+          ],
         ),
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: Colors.black26,
+        if (state.isDateTimeModification)
+          Align(
+            alignment: state.isBubbleAlignment
+                ? Alignment.topLeft
+                : Alignment.topRight,
+            child: GestureDetector(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 10,
+                  right: 10,
+                  left: 10,
+                ),
+                child: Container(
+                  padding: EdgeInsets.all(
+                    5.0,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(
+                        70.0,
+                      ),
+                    ),
+                    color: Theme.of(context)
+                        .floatingActionButtonTheme
+                        .backgroundColor,
+                  ),
+                  child: _calendarRow(state),
+                ),
+              ),
+              onTap: () async {
+                final date = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2050),
+                );
+                if (date != null) {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(date),
+                  );
+                  _cubit.setData(
+                    DateFormat.yMMMd().format(date),
+                  );
+                  if (time != null) {
+                    _cubit.setTime(
+                      time.format(context),
+                    );
+                  }
+                }
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Wrap get _choiceImageSourceWrap {
+    return Wrap(
+      spacing: 25,
+      alignment: WrapAlignment.spaceAround,
+      children: [
+        _widgetForImagePick(
+          ListTile(
+            leading: Icon(
+              Icons.add_a_photo_outlined,
+              color: Colors.white,
+            ),
+            title: Text(
+              'Open Camera',
+              style: TextStyle(
+                color: Colors.white,
               ),
             ),
           ),
-          child: _textFieldArea,
+          ImageSource.camera,
         ),
+        _widgetForImagePick(
+          ListTile(
+            leading: Icon(
+              Icons.photo,
+              color: Colors.white,
+            ),
+            title: Text(
+              'Open Gallery',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+          ImageSource.gallery,
+        ),
+      ],
+    );
+  }
+
+  Widget _widgetForImagePick(ListTile listTile, ImageSource imageSource) {
+    return GestureDetector(
+      child: Container(
+        width: 160,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(80)),
+          color: Theme.of(context).primaryColor,
+        ),
+        child: listTile,
+      ),
+      onTap: () async {
+        final image = await ImagePicker().getImage(source: imageSource);
+        if (image != null) {
+          _cubit.addImageEventFromResource(File(image.path));
+        }
+      },
+    );
+  }
+
+  Row _calendarRow(StatesEventPage state) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.calendar_today_outlined,
+          color: Colors.white,
+          size: 18,
+        ),
+        Text(
+          state.date == null ? 'Calendar' : '${state.date},' '${state.time}',
+        ),
+        if (state.date != null)
+          GestureDetector(
+            child: Icon(
+              Icons.clear,
+              color: Colors.white,
+              size: 18,
+            ),
+            onTap: () {
+              _cubit.setData(DateFormat.yMMMd().format(DateTime.now()));
+              _cubit.setTime(DateFormat.jm().format(DateTime.now()));
+            },
+          ),
       ],
     );
   }
@@ -151,6 +305,11 @@ class _EventPageState extends State<EventPage> {
           child: TextField(
             controller: textController,
             focusNode: _focusNode,
+            onChanged: (value) {
+              value.isNotEmpty
+                  ? _cubit.setWriting(true)
+                  : _cubit.setWriting(false);
+            },
             decoration: InputDecoration(
               hintText: 'Enter event',
               border: InputBorder.none,
@@ -158,20 +317,28 @@ class _EventPageState extends State<EventPage> {
             ),
           ),
         ),
-        IconButton(
-          icon: Icon(Icons.send),
-          iconSize: 32,
-          color: Colors.blueGrey,
-          onPressed: () {
-            if (_cubit.state.isEditing) {
-              _cubit.editText(_cubit.state.selectedElement, textController,
-                  _cubit.state.indexOfSelectedCircleAvatar);
-            } else {
-              _cubit.sendEvent(textController);
-              _cubit.removeSelectedCircleAvatar();
-            }
-          },
-        ),
+        _cubit.state.isWriting
+            ? IconButton(
+                icon: Icon(Icons.send),
+                iconSize: 32,
+                color: Colors.blueGrey,
+                onPressed: () {
+                  if (_cubit.state.isEditing) {
+                    _cubit.editText(
+                        _cubit.state.selectedElement,
+                        textController,
+                        _cubit.state.indexOfSelectedCircleAvatar);
+                  } else {
+                    _cubit.sendEvent(textController);
+                    _cubit.removeSelectedCircleAvatar();
+                  }
+                },
+              )
+            : IconButton(
+                icon: Icon(Icons.photo),
+                onPressed: () =>
+                    _cubit.setEditingPhotoState(!_cubit.state.isEditingPhoto),
+              ),
       ],
     );
   }
@@ -188,36 +355,62 @@ class _EventPageState extends State<EventPage> {
       reverse: true,
       itemCount: _myEventList.length,
       itemBuilder: (context, index) {
-        return _showEventList(_myEventList[index], index);
+        return _showEventList(_myEventList[index], index, state);
       },
     );
   }
 
-  Widget _showEventList(Event event, int index) {
+  Widget _showEventList(Event event, int index, StatesEventPage state) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Card(
-          elevation: 5,
-          color: ThemeSwitcher.of(context).color,
-          child: ListTile(
-            leading: event.indexOfCircleAvatar != null
-                ? CircleAvatar(
-                    child: listIcons[event.indexOfCircleAvatar],
+      child: Column(
+        children: [
+          ListTile(
+            title: SharedPreferencesProvider().fetchCenterDateBubble()
+                ? Center(
+                    child: Text(_cubit.state.eventList[index].date),
                   )
-                : null,
-            title: Text(event.text),
-            subtitle: Align(
-              alignment: Alignment.bottomRight,
-              child: Text(event.time),
-            ),
-            onLongPress: () {
-              _cubit.setIndexOfSelectedElement(event);
-              _showBottomSheet(context, event, index);
-            },
+                : Text(
+                    _cubit.state.eventList[index].date,
+                  ),
           ),
-        ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Align(
+              alignment: state.isBubbleAlignment
+                  ? Alignment.topRight
+                  : Alignment.topLeft,
+              child: Container(
+                width: 230,
+                child: Card(
+                  elevation: 5,
+                  child: ListTile(
+                    leading: event.indexOfCircleAvatar != null
+                        ? CircleAvatar(
+                            child: listIcons[event.indexOfCircleAvatar],
+                          )
+                        : null,
+                    title: _cubit.state.eventList[index].imagePath != null
+                        ? Image.file(
+                            File(_cubit.state.eventList[index].imagePath),
+                          )
+                        : Text(
+                            event.text,
+                          ),
+                    subtitle: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Text(event.time),
+                    ),
+                    onLongPress: () {
+                      _cubit.setIndexOfSelectedElement(event);
+                      _showBottomSheet(context, event, index);
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -227,7 +420,7 @@ class _EventPageState extends State<EventPage> {
       context: context,
       builder: (context) {
         return Container(
-          height: 280,
+          height: event.imagePath == null ? 280 : 120,
           child: _buildBottomNavigationMenu(index, event),
         );
       },
@@ -281,17 +474,18 @@ class _EventPageState extends State<EventPage> {
   Column _buildBottomNavigationMenu(int index, Event event) {
     return Column(
       children: <Widget>[
-        ListTile(
-          leading: Icon(
-            Icons.edit,
-            color: Colors.blue,
+        if (event.imagePath == null)
+          ListTile(
+            leading: Icon(
+              Icons.edit,
+              color: Colors.blue,
+            ),
+            title: Text('Edit'),
+            onTap: () {
+              _cubit.editEvent(event, textController);
+              Navigator.pop(context);
+            },
           ),
-          title: Text('Edit'),
-          onTap: () {
-            _cubit.editEvent(event, textController);
-            Navigator.pop(context);
-          },
-        ),
         ListTile(
           leading: Icon(
             Icons.reply,
@@ -303,28 +497,30 @@ class _EventPageState extends State<EventPage> {
             _showRadioList(index, event);
           },
         ),
-        ListTile(
-          leading: Icon(
-            Icons.copy,
-            color: Colors.orange,
+        if (event.imagePath == null)
+          ListTile(
+            leading: Icon(
+              Icons.copy,
+              color: Colors.orange,
+            ),
+            title: Text('Copy'),
+            onTap: () {
+              _copyEvent(index);
+              Navigator.pop(context);
+            },
           ),
-          title: Text('Copy'),
-          onTap: () {
-            _copyEvent(index);
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          leading: Icon(
-            Icons.check_circle_outline_outlined,
-            color: Colors.green,
+        if (event.imagePath == null)
+          ListTile(
+            leading: Icon(
+              Icons.check_circle_outline_outlined,
+              color: Colors.green,
+            ),
+            title: Text('Important'),
+            onTap: () {
+              _importantEvent(index);
+              Navigator.pop(context);
+            },
           ),
-          title: Text('Important'),
-          onTap: () {
-            _importantEvent(index);
-            Navigator.pop(context);
-          },
-        ),
         ListTile(
           leading: Icon(
             Icons.delete,

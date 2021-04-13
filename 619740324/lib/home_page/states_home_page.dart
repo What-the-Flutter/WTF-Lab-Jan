@@ -7,8 +7,12 @@ class StatesHomePage {
 
   StatesHomePage({this.noteList, this.note, this.isLightTheme});
 
-  StatesHomePage copyWith(
-      {bool themeSwitcher, List<Note> noteList, bool isLightTheme, Note note}) {
+  StatesHomePage copyWith({
+    bool themeSwitcher,
+    List<Note> noteList,
+    bool isLightTheme,
+    Note note,
+  }) {
     return StatesHomePage(
       noteList: noteList ?? this.noteList,
       note: note ?? this.note,

@@ -3,13 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../create_page/create_page.dart';
 import '../create_page/icons.dart';
-import '../data/database_provider.dart';
 import '../data/shared_preferences_provider.dart';
 import '../event_page/event_page.dart';
 import '../note.dart';
-import '../theme/dark_theme.dart';
-import '../theme/light_theme.dart';
-import '../theme/theme.dart';
+import '../settings/settings_page.dart';
+import '../theme/cubit_theme.dart';
 import 'cubit_home_page.dart';
 import 'states_home_page.dart';
 
@@ -19,7 +17,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final DatabaseProvider _databaseProvider = DatabaseProvider();
   static final List<Note> _noteList = <Note>[];
   final CubitHomePage _cubit = CubitHomePage(
     StatesHomePage(
@@ -119,14 +116,26 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.account_circle),
-            title: Text('Profile'),
+          GestureDetector(
+            child: ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Profile'),
+            ),
           ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text(
-              'Settings',
+          GestureDetector(
+            child: ListTile(
+              leading: Icon(Icons.settings),
+              title: Text(
+                'Settings',
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsPage(),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -143,12 +152,7 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: Icon(Icons.invert_colors),
           onPressed: () {
-            if (_cubit.state.isLightTheme) {
-              ThemeSwitcher.of(context).switchTheme(darkThemeData);
-            } else {
-              ThemeSwitcher.of(context).switchTheme(lightThemeData);
-            }
-            _cubit.changeTheme();
+            BlocProvider.of<CubitTheme>(context).changeTheme();
           },
         ),
       ],
