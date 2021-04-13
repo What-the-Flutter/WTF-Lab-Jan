@@ -22,7 +22,7 @@ class CategoriesStatisticsTabView extends StatelessWidget {
               CategoriesstatisticsState>(
             builder: (context, state) {
               if (state.dataList == null) {
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               }
               if (state.dataList.isEmpty) {
                 return Center(

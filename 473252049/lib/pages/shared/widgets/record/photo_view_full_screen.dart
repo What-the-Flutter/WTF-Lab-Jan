@@ -21,16 +21,22 @@ class PhotoViewFullScreen extends StatelessWidget {
           return PhotoViewGalleryPageOptions(
             heroAttributes:
                 PhotoViewHeroAttributes(tag: images[index].uri.toString()),
-            imageProvider: Image.file(images[index]).image,
+            imageProvider: Image.file(
+              images[index],
+              cacheHeight: 400,
+            ).image,
             maxScale: PhotoViewComputedScale.covered * 2,
             minScale: PhotoViewComputedScale.contained,
           );
         },
         loadingBuilder: (context, progress) {
-          return CircularProgressIndicator(
-            value: progress == null
-                ? null
-                : progress.cumulativeBytesLoaded / progress.expectedTotalBytes,
+          return Center(
+            child: CircularProgressIndicator(
+              value: progress == null
+                  ? null
+                  : progress.cumulativeBytesLoaded /
+                      progress.expectedTotalBytes,
+            ),
           );
         },
       ),
