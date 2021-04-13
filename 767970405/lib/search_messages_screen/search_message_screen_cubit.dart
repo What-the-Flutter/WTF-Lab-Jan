@@ -15,11 +15,11 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
 
   SearchMessageScreenCubit({
     this.repository,
-  }) : super(SearchMessageScreenState(type: ModeScreen.wait)) {
+  }) : super(SearchMessageScreenState(type: ResultSearch.wait)) {
     controller.addListener(() {
       if (isReset()) {
         emit(state.copyWith(
-          type: ModeScreen.wait,
+          type: ResultSearch.wait,
         ));
       } else {
         search();
@@ -38,7 +38,9 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
   }
 
   void search() async {
-    var list = await repository.messages(state.page.id);
+    var list = state.modeScreen == ModeScreen.onePage
+        ? await repository.messages(state.page.id)
+        : await repository.messages();
     var selectedTags =
         state.tags.where((element) => element.isSelected).toList();
     var substring = controller.text;
@@ -60,7 +62,7 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
     }).toList();
 
     emit(state.copyWith(
-      type: list.isEmpty ? ModeScreen.notFound : ModeScreen.found,
+      type: list.isEmpty ? ResultSearch.notFound : ResultSearch.found,
       list: list,
     ));
   }
@@ -93,7 +95,7 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
   void configureTagSearch(int index, bool isSelected) async {
     state.tags[index] = state.tags[index].copyWith(isSelected: isSelected);
     emit(state.copyWith(
-      type: isReset() ? ModeScreen.wait : state.type,
+      type: isReset() ? ResultSearch.wait : state.type,
       tags: List.from(state.tags),
     ));
     if (!isReset()) {
@@ -113,8 +115,9 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
     ));
   }
 
-  void setting({ModelPage page}) async {
+  void setting(ModeScreen mode, [ModelPage page]) async {
     emit(state.copyWith(
+      modeScreen: mode,
       page: page,
       tags: await repository.tags(),
     ));

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_journal/filter_screen/filter_screen_cubit.dart';
+import 'package:my_chat_journal/timeline_screen/timeline_screen_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
 
@@ -72,12 +74,17 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<IconsRepository>(
           create: (context) => IconsRepository(),
         ),
+        RepositoryProvider<PagesRepository>(
+          create: (context) => PagesRepository(
+            pagesAPI: getIt<PagesAPI>(),
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (homeScreenContext) => HomeScreenCubit(
-              repository: PagesRepository(pagesAPI: getIt<PagesAPI>()),
+            create: (context) => HomeScreenCubit(
+              repository: RepositoryProvider.of<PagesRepository>(context),
             ),
           ),
           BlocProvider(
@@ -101,6 +108,20 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => VisualSettingCubit(),
+          ),
+          BlocProvider(
+            create: (context) => TimelineScreenCubit(
+              repository: RepositoryProvider.of<MessagesRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => FilterScreenCubit(
+              pagesRepository: RepositoryProvider.of<PagesRepository>(context),
+              messagesRepository:
+                  RepositoryProvider.of<MessagesRepository>(context),
+              categoryRepository:
+                  RepositoryProvider.of<CategoryRepository>(context),
+            ),
           ),
         ],
         child: BlocBuilder<VisualSettingCubit, VisualSettingState>(

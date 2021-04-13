@@ -8,7 +8,7 @@ import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
 import '../settings_screen/chat_interface_setting_cubit.dart';
 import '../settings_screen/visual_setting_cubit.dart';
-import '../widgets/tag.dart';
+import '../widgets/search_item.dart';
 import 'search_message_screen_cubit.dart';
 
 class SearchMessageScreen extends StatelessWidget {
@@ -28,13 +28,20 @@ class SearchMessageScreen extends StatelessWidget {
           autofocus: true,
           controller: context.read<SearchMessageScreenCubit>().controller,
           decoration: InputDecoration(
-            hintText:
-                'Search in ${context.read<ScreenMessageCubit>().state.page.title}',
+            hintText: context
+                        .read<SearchMessageScreenCubit>()
+                        .state
+                        .modeScreen ==
+                    ModeScreen.onePage
+                ? 'Search in ${context.read<ScreenMessageCubit>().state.page.title}'
+                : 'Search in all pages',
           ),
         ),
         actions: <Widget>[
           BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
-            builder: (context, state) => !context.read<SearchMessageScreenCubit>().isTextEmpty()
+            builder: (context, state) => !context
+                    .read<SearchMessageScreenCubit>()
+                    .isTextEmpty()
                 ? IconButton(
                     icon: Icon(Icons.close),
                     onPressed: context.read<SearchMessageScreenCubit>().reset,
@@ -66,7 +73,7 @@ class SearchMessageScreen extends StatelessWidget {
                         itemCount: state.tags.length,
                         itemBuilder: (context, index) => Padding(
                           padding: EdgeInsets.symmetric(horizontal: 5.0),
-                          child: Tag(
+                          child: SearchItem(
                             key: ValueKey(index),
                             name: state.tags[index].name,
                             isSelected: state.tags[index].isSelected,
@@ -107,13 +114,13 @@ class SearchMessageScreen extends StatelessWidget {
               color: visualSettingState.titleColor,
             ),
           );
-          if (state.type == ModeScreen.wait) {
+          if (state.type == ResultSearch.wait) {
             return HelpWindow(
               iconData: Icons.search,
               content: 'Please enter a search query to begin searching',
               theme: curTheme,
             );
-          } else if (state.type == ModeScreen.notFound) {
+          } else if (state.type == ResultSearch.notFound) {
             return HelpWindow(
               title: 'No search results available',
               content: 'No entries math the given'
@@ -139,7 +146,9 @@ class SearchMessageScreen extends StatelessWidget {
                   ),
                   index: index,
                   isSelected: state.list[index].isSelected,
-                  title: state.page.title,
+                  title: state.modeScreen == ModeScreen.onePage
+                      ? state.page.title
+                      : 'TODO',
                   photoPath: state.list[index].photo,
                   isFavor: state.list[index].isFavor,
                   eventIndex: state.list[index].indexCategory,
@@ -182,6 +191,7 @@ class HelpWindow extends StatelessWidget {
       width: size.width * (9 / 10),
       height: size.height * (2 / 10),
       padding: EdgeInsets.all(10),
+      margin: EdgeInsets.symmetric(horizontal: 5.0),
       color: theme.backgroundColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

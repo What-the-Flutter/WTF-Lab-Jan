@@ -6,7 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:my_chat_journal/search_messages_screen/search_message_screen_cubit.dart';
-import 'package:my_chat_journal/widgets/tag.dart';
+import 'package:my_chat_journal/widgets/search_item.dart';
 import 'package:provider/provider.dart';
 
 import '../data/repository/category_repository.dart';
@@ -153,7 +153,7 @@ class TagList extends StatelessWidget {
         itemCount: state.tags.length,
         itemBuilder: (context, index) => Padding(
           padding: EdgeInsets.symmetric(horizontal: 5.0),
-          child: Tag(
+          child: SearchItem(
             key: ValueKey(index),
             name: state.tags[index].name,
             isSelected: false,
@@ -429,7 +429,7 @@ class InputPanel extends StatelessWidget {
                   state.indexCategory == -1
                       ? Icons.bubble_chart
                       : RepositoryProvider.of<CategoryRepository>(context)
-                          .events[state.indexCategory]
+                          .categories[state.indexCategory]
                           .iconData,
                 ),
                 onPressed:
@@ -713,7 +713,7 @@ class CategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categories =
-        RepositoryProvider.of<CategoryRepository>(context).events;
+        RepositoryProvider.of<CategoryRepository>(context).categories;
     return Container(
       constraints: BoxConstraints(maxHeight: 70),
       child: ListView.builder(
@@ -978,10 +978,10 @@ class Message extends StatelessWidget {
                           padding: EdgeInsets.symmetric(vertical: 5.0),
                           child: CategoryMessage(
                             iconData: Provider.of<CategoryRepository>(context)
-                                .events[eventIndex]
+                                .categories[eventIndex]
                                 .iconData,
                             label: Provider.of<CategoryRepository>(context)
-                                .events[eventIndex]
+                                .categories[eventIndex]
                                 .label,
                             color: Colors.teal,
                             direction: Axis.horizontal,

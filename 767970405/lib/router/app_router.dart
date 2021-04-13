@@ -1,5 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:my_chat_journal/auth_screen/auth_screen.dart';
+import 'package:my_chat_journal/filter_screen/filter_screen.dart';
+import 'package:my_chat_journal/timeline_screen/timeline_screen.dart';
 
 import '../home_screen/home_screen.dart';
 import '../messages_screen/screen_message.dart';
@@ -45,6 +49,14 @@ class AppRouter {
       case AuthScreen.routeName:
         return MaterialPageRoute(
           builder: (context) => AuthScreen(),
+        );
+      case FilterScreen.routeName:
+        return MaterialPageRoute(
+          builder: (context) => FilterScreen(),
+        );
+      case TimelineScreen.routeName:
+        return MaterialPageRoute(
+          builder: (context) => TimelineScreen(),
         );
       default:
         assert(false, 'Need to implement ${settings.name}');

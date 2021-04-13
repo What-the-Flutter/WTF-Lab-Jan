@@ -8,7 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:my_chat_journal/auth_screen/auth_screen.dart';
+import 'package:my_chat_journal/filter_screen/filter_screen_cubit.dart';
 import 'package:my_chat_journal/settings_screen/chat_interface_setting_cubit.dart';
+import 'package:my_chat_journal/timeline_screen/timeline_screen.dart';
+import 'package:my_chat_journal/timeline_screen/timeline_screen_cubit.dart';
+import 'package:my_chat_journal/widgets/my_bottom_navigation_bar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
@@ -27,9 +31,8 @@ import '../settings_screen/visual_setting_cubit.dart';
 import '../widgets/custom_list_tile.dart';
 import 'home_screen_cubit.dart';
 
-
 class HomeWindow extends StatelessWidget {
-  static final GlobalKey _globalKey = GlobalKey();
+  final GlobalKey _globalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +96,9 @@ class HomeWindow extends StatelessWidget {
         ),
         floatingActionButton: AddChatButton(),
         bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-          builder: _bottomNavigationBar,
+          builder: (context, state) => MyBottomNavigationBar(
+            currentIndex: state.currentIndex,
+          ),
         ),
       ),
     );
@@ -222,7 +227,25 @@ class HomeWindow extends StatelessWidget {
           ),
         )
       ],
-      onTap: (index) => context.read<HomeScreenCubit>().changeScreen(index),
+      onTap: (index) async {
+        context.read<HomeScreenCubit>().changeScreen(index);
+        if (index == 2) {
+          final state = context.read<FilterScreenCubit>().state;
+          context.read<TimelineScreenCubit>().configureList(
+                selectedPages:
+                    state.pages.where((element) => element.isSelected).toList(),
+                selectedTags:
+                    state.tags.where((element) => element.isSelected).toList(),
+                selectedLabel: state.labels
+                    .where((element) => element.isSelected)
+                    .toList(),
+              );
+          Navigator.pushNamed(
+            context,
+            TimelineScreen.routeName,
+          );
+        }
+      },
     );
   }
 }
@@ -349,7 +372,8 @@ class ChatPreview extends StatelessWidget {
               context.read<HomeScreenCubit>().state.list[index],
             );
         context.read<SearchMessageScreenCubit>().setting(
-              page: context.read<HomeScreenCubit>().state.list[index],
+              ModeScreen.onePage,
+              context.read<HomeScreenCubit>().state.list[index],
             );
         await Navigator.pushNamed(
           context,
