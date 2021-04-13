@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../settings/settings_page.dart';
+import '../statistics/statistics_page.dart';
 import '../theme/theme_cubit.dart';
 import 'home_page/home_page.dart';
 import 'tab_page_cubit.dart';
@@ -21,8 +22,8 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    BlocProvider.of<TimelinePageCubit>(context).init();
     super.initState();
+    BlocProvider.of<TimelinePageCubit>(context).init();
   }
 
   @override
@@ -42,7 +43,8 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
   Widget _appBar(TimelinePageStates state) {
     return AppBar(
       centerTitle: true,
-      title: state.isIconButtonSearchPressed
+      title: state.isIconButtonSearchPressed &&
+              BlocProvider.of<TabPageCubit>(context).state != 0
           ? TextField(
               focusNode: _searchTextFieldFocusNode,
               controller: _searchTextController,
@@ -166,6 +168,12 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
           ListTile(
             title: Text('Statistics'),
             leading: Icon(Icons.timeline),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StatisticsPage(),
+              ),
+            ),
           ),
           ListTile(
             title: Text('Settings'),

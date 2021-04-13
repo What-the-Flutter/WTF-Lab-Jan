@@ -10,21 +10,17 @@ class SharedPreferencesProvider {
     return _sharedPreferencesProvider;
   }
 
-  static void initialize() async {
-    _prefs = await SharedPreferences.getInstance();
-  }
+  static void initialize() async =>
+      _prefs = await SharedPreferences.getInstance();
 
-  void changeTheme(bool isLightTheme) {
-    _prefs.setBool('isLightTheme', isLightTheme);
-  }
+  void changeTheme(bool isLightTheme) =>
+      _prefs.setBool('isLightTheme', isLightTheme);
 
-  void changeFontSizeIndex(int fontSizeIndex) {
-    _prefs.setInt('fontSizeIndex', fontSizeIndex);
-  }
+  void changeFontSizeIndex(int fontSizeIndex) =>
+      _prefs.setInt('fontSizeIndex', fontSizeIndex);
 
-  void changeBackGroundImagePath(String backGroundImagePath) {
-    _prefs.setString('backGroundImagePath', backGroundImagePath);
-  }
+  void changeBackGroundImagePath(String backGroundImagePath) =>
+      _prefs.setString('backGroundImagePath', backGroundImagePath);
 
   String fetchBackGroundImagePath() {
     return _prefs.getString('backGroundImagePath') ?? '';
@@ -34,25 +30,22 @@ class SharedPreferencesProvider {
     return _prefs.getInt('fontSizeIndex') ?? 1;
   }
 
-  void changeBubbleAlignmentState(bool isBubbleAlignment) {
-    _prefs.setBool('isBubbleAlignment', isBubbleAlignment);
-  }
+  void changeBubbleAlignmentState(bool isBubbleAlignment) =>
+      _prefs.setBool('isBubbleAlignment', isBubbleAlignment);
 
   bool fetchBubbleAlignmentState() {
     return _prefs.getBool('isBubbleAlignment') ?? false;
   }
 
-  void changeDateTimeModificationState(bool isDateTimeModification) {
-    _prefs.setBool('isDateTimeModification', isDateTimeModification);
-  }
+  void changeDateTimeModificationState(bool isDateTimeModification) =>
+      _prefs.setBool('isDateTimeModification', isDateTimeModification);
 
   bool fetchDateTimeModificationState() {
     return _prefs.getBool('isDateTimeModification') ?? false;
   }
 
-  void changeCenterDateBubbleState(bool isCenterDateBubble) {
-    _prefs.setBool('isCenterDateBubble', isCenterDateBubble);
-  }
+  void changeCenterDateBubbleState(bool isCenterDateBubble) =>
+      _prefs.setBool('isCenterDateBubble', isCenterDateBubble);
 
   bool fetchCenterDateBubbleState() {
     return _prefs.getBool('isCenterDateBubble') ?? false;

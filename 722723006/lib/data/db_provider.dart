@@ -10,6 +10,8 @@ const String columnId = 'id';
 const String columnNameOfNote = 'name';
 const String indexOfCircleAvatar = 'circle_avatar_index';
 const String columnNameOfSubTittle = 'sub_tittle_name';
+const String columnNoteDate = 'date';
+const String columnSelected = 'is_selected';
 
 const String tableEvents = 'events';
 const String columnEventId = 'event_id';
@@ -20,6 +22,7 @@ const String indexOfEventCircleAvatar = 'event_circle_avatar';
 const String columnImagePath = 'image_path';
 const String columnDate = 'date_format';
 const String columnIsBookmarked = 'bookmark';
+const String columnBookmarkCreateTime = 'bookmark_create_time';
 
 class DBProvider {
   static Database _database;
@@ -47,7 +50,9 @@ class DBProvider {
       $columnId integer primary key autoincrement,
       $columnNameOfNote text not null,
       $indexOfCircleAvatar integer,
-      $columnNameOfSubTittle text not null) 
+      $columnNameOfSubTittle text not null,
+      $columnNoteDate text not null,
+      $columnSelected integer) 
        ''');
         db.execute('''
          create table $tableEvents(
@@ -58,7 +63,8 @@ class DBProvider {
         $indexOfEventCircleAvatar integer,
         $columnImagePath text,
         $columnDate text not null,
-        $columnIsBookmarked integer)
+        $columnIsBookmarked integer,
+        $columnBookmarkCreateTime text not null)
        ''');
       },
     );
@@ -119,6 +125,19 @@ class DBProvider {
       await noteList.insert(0, note);
     }
     return noteList;
+  }
+
+  Future<List<bool>> dbAllBookmarks() async {
+    final db = await database;
+    final bookmarksList = <bool>[];
+    final dbNotesList = await db.query(tableEvents);
+    for (final element in dbNotesList) {
+      final event = Event.fromMap(element);
+      if (event.isBookmarked) {
+        await bookmarksList.insert(0, event.isBookmarked);
+      }
+    }
+    return bookmarksList;
   }
 
   Future<int> insertEvent(Event event) async {

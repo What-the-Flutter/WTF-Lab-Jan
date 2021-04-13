@@ -1,4 +1,4 @@
-import 'package:home_page/event_page/event.dart';
+import '../../event_page/event.dart';
 
 class TimelinePageStates {
   final bool isIconButtonSearchPressed;
@@ -17,12 +17,14 @@ class TimelinePageStates {
     final bool isAllBookmarked,
     final bool isCenterDateBubble,
     final bool isEditing,
+    final String isSearchText,
   }) {
     return TimelinePageStates(
       isIconButtonSearchPressed:
           isIconButtonSearchPressed ?? this.isIconButtonSearchPressed,
       isWriting: isWriting ?? this.isWriting,
       isEditing: isEditing ?? this.isEditing,
+      searchText: searchText ?? this.searchText,
       isCenterDateBubble: isCenterDateBubble ?? this.isCenterDateBubble,
       isAllBookmarked: isAllBookmarked ?? this.isAllBookmarked,
       eventList: eventList ?? this.eventList,
