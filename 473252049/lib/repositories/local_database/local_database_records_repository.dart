@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 
-import '../../model/category.dart';
 import '../../model/record.dart';
 import '../records_repository.dart';
 import 'provider/local_database_provider.dart';
@@ -70,25 +70,44 @@ class LocalDatabaseRecordsRepository extends LocalDatabaseProvider
 
   @override
   Future<Record> getById(int id) async {
-    return Record.fromMap(
-      (await (await database).query(
-        'records',
-        where: 'id = ?',
-        whereArgs: [id],
-      ))
-          .first,
+    List<Map> recordInList = await (await database).query(
+      'records',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
     );
+    return recordInList.isNotEmpty ? Record.fromMap(recordInList.first) : null;
   }
 
   @override
-  Future<Category> getCategory({int categoryId}) async {
-    return Category.fromMap(
-      (await (await database).query(
-        'categories',
-        where: 'id = ?',
-        whereArgs: [categoryId],
-      ))
-          .first,
+  Future<Record> getLastFromCategory({int categoryId}) async {
+    List<Map> records = await (await database).query(
+      'records',
+      where: 'categoryId = ?',
+      whereArgs: [categoryId],
+      orderBy: 'createDateTime DESC',
+      limit: 1,
     );
+    return records.isNotEmpty ? Record.fromMap(records.first) : null;
+  }
+
+  @override
+  Future<int> getRecordsCount({int categoryId, bool onlyFavorites}) async {
+    final queryStringBuffer = StringBuffer('SELECT COUNT(*) FROM records ');
+    if (categoryId != null) {
+      queryStringBuffer.write('WHERE categoryId = $categoryId ');
+      if (onlyFavorites ?? false) {
+        queryStringBuffer.write('AND isFavorite = 1 ');
+      }
+    } else if (onlyFavorites ?? false) {
+      queryStringBuffer.write('WHERE isFavorite = 1 ');
+    }
+
+    final value = Sqflite.firstIntValue(
+      await (await database).rawQuery(
+        queryStringBuffer.toString(),
+      ),
+    );
+    return value;
   }
 }

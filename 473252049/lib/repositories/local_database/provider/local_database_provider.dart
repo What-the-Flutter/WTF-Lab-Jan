@@ -32,7 +32,6 @@ abstract class LocalDatabaseProvider {
             'imageUri STRING,'
             'createDateTime INTEGER,'
             'categoryId INTEGER,'
-            'isSelected INTEGER,'
             'isFavorite INTEGER'
             ');');
       },

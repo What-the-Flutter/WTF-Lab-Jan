@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import '../../../category/cubit/records_cubit.dart';
 import '../message_text.dart';
 import 'record_category_name.dart';
+import 'record_image.dart';
 import 'record_info_row.dart';
 
 class RecordWidgetContent extends StatelessWidget {
-  final bool isSelected;
   final bool isFavorite;
   final Alignment bubbleAlignment;
   final File image;
@@ -21,10 +21,10 @@ class RecordWidgetContent extends StatelessWidget {
   final String categoryName;
   final int categoryId;
   final bool isOnSearchPage;
+  final Color color;
 
   const RecordWidgetContent({
     Key key,
-    @required this.isSelected,
     @required this.isFavorite,
     @required this.bubbleAlignment,
     @required this.image,
@@ -36,6 +36,7 @@ class RecordWidgetContent extends StatelessWidget {
     @required this.categoryName,
     @required this.categoryId,
     this.isOnSearchPage,
+    this.color,
   }) : super(key: key);
 
   @override
@@ -45,9 +46,7 @@ class RecordWidgetContent extends StatelessWidget {
       child: Bubble(
         padding: BubbleEdges.zero,
         radius: Radius.circular(8),
-        color: isSelected
-            ? Theme.of(context).scaffoldBackgroundColor
-            : Theme.of(context).backgroundColor,
+        color: color,
         alignment: bubbleAlignment,
         child: Padding(
           padding: const EdgeInsets.all(4),
@@ -60,23 +59,7 @@ class RecordWidgetContent extends StatelessWidget {
                   ? CrossAxisAlignment.end
                   : CrossAxisAlignment.start,
               children: [
-                if (image != null)
-                  Container(
-                    constraints: BoxConstraints(
-                      maxHeight: 400,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(4),
-                        topRight: Radius.circular(4),
-                        bottomLeft: Radius.circular(2),
-                        bottomRight: Radius.circular(2),
-                      ),
-                      child: Image.file(
-                        image,
-                      ),
-                    ),
-                  ),
+                if (image != null) RecordImage(image: image),
                 Padding(
                   padding: EdgeInsets.only(
                     top: image == null ? 0 : 2,

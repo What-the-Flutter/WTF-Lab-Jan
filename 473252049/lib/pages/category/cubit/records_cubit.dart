@@ -4,29 +4,32 @@ import 'package:flutter/material.dart';
 
 import '../../../model/category.dart';
 import '../../../model/record.dart';
+import '../../../repositories/categories_repository.dart';
 import '../../../repositories/records_repository.dart';
 import '../../../utils/utils.dart' as utils;
 
 part 'records_state.dart';
 
 class RecordsCubit extends Cubit<RecordsState> {
-  final RecordsRepository repository;
+  final RecordsRepository recordsRepository;
+  final CategoriesRepository categoriesRepository;
 
-  RecordsCubit(this.repository)
+  RecordsCubit({this.recordsRepository, this.categoriesRepository})
       : super(
           RecordsLoadInProcess(null),
         );
 
   Future<List<RecordWithCategory>> getRecordsWithCategory(
       {int categoryId}) async {
-    final records = await repository.getAllRecords(categoryId: categoryId);
+    final records =
+        await recordsRepository.getAllRecords(categoryId: categoryId);
     final recordsWithCategory = <RecordWithCategory>[];
     for (var record in records) {
       recordsWithCategory.add(
         RecordWithCategory(
           record: record,
-          category: await repository.getCategory(
-            categoryId: categoryId ?? record.categoryId,
+          category: await categoriesRepository.getById(
+            categoryId ?? record.categoryId,
           ),
         ),
       );
@@ -35,7 +38,6 @@ class RecordsCubit extends Cubit<RecordsState> {
   }
 
   void loadRecords({int categoryId}) async {
-    emit(RecordsLoadInProcess(null));
     emit(
       RecordsLoadSuccess(
         await getRecordsWithCategory(categoryId: categoryId),
@@ -44,7 +46,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   }
 
   void add(Record record, {int categoryId}) async {
-    await repository.insert(record);
+    await recordsRepository.insert(record);
     emit(
       RecordAddSuccess(
         await getRecordsWithCategory(categoryId: categoryId),
@@ -54,7 +56,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   }
 
   void update(Record record, {int categoryId}) async {
-    await repository.update(record);
+    await recordsRepository.update(record);
     emit(
       RecordUpdateSuccess(
         await getRecordsWithCategory(categoryId: categoryId),
@@ -64,7 +66,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   }
 
   void delete({@required int recordId, int categoryId}) async {
-    final deletedRecord = await repository.delete(recordId);
+    final deletedRecord = await recordsRepository.delete(recordId);
     emit(
       RecordDeleteSuccess(
         await getRecordsWithCategory(categoryId: categoryId),
@@ -81,24 +83,30 @@ class RecordsCubit extends Cubit<RecordsState> {
   }
 
   void select(Record record, {int categoryId}) async {
-    await repository.update(
-      record.copyWith(isSelected: true),
-    );
+    state.records
+        .where((element) => element.record.id == record.id)
+        .first
+        .record
+        .isSelected = true;
+    ;
     emit(
       RecordSelectSuccess(
-        await getRecordsWithCategory(categoryId: categoryId),
+        state.records,
         record..select(),
       ),
     );
   }
 
   void unselect(Record record, {int categoryId}) async {
-    await repository.update(
-      record.copyWith(isSelected: false),
-    );
+    state.records
+        .where((element) => element.record.id == record.id)
+        .first
+        .record
+        .isSelected = true;
+    ;
     emit(
       RecordUnselectSuccess(
-        await getRecordsWithCategory(categoryId: categoryId),
+        state.records,
         record..unselect(),
       ),
     );
@@ -112,14 +120,16 @@ class RecordsCubit extends Cubit<RecordsState> {
             .toList();
 
     for (var record in recordsForUnselect) {
-      await repository.update(
-        record.copyWith(isSelected: false),
-      );
+      state.records
+          .where((element) => element.record.id == record.id)
+          .first
+          .record
+          .isSelected = false;
       record.unselect();
     }
     emit(
       RecordsUnselectSuccess(
-        await getRecordsWithCategory(categoryId: categoryId),
+        state.records,
         recordsForUnselect,
       ),
     );
@@ -134,7 +144,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   void changeFavorite(List<Record> recordsForChange, {int categoryId}) async {
     for (var record in recordsForChange) {
       record.isFavorite = !record.isFavorite;
-      await repository.update(record);
+      await recordsRepository.update(record);
     }
     emit(
       RecordsChangeFavoriteSuccess(
@@ -148,7 +158,7 @@ class RecordsCubit extends Cubit<RecordsState> {
 
   void deleteAll(List<Record> recordsForDelete, {int categoryId}) async {
     for (var record in recordsForDelete) {
-      await repository.delete(record.id);
+      await recordsRepository.delete(record.id);
     }
     emit(
       RecordsDeleteSuccess(
@@ -162,7 +172,7 @@ class RecordsCubit extends Cubit<RecordsState> {
 
   void addAll(List<Record> recordsForAdd, {int categoryId}) async {
     for (var record in recordsForAdd) {
-      await repository.insert(record);
+      await recordsRepository.insert(record);
     }
     emit(
       RecordsAddSuccess(
@@ -179,7 +189,7 @@ class RecordsCubit extends Cubit<RecordsState> {
   }) async {
     for (var record in recordsForSend) {
       record.categoryId = categoryToId;
-      await repository.update(record);
+      await recordsRepository.update(record);
     }
     emit(
       RecordsSendSuccess(

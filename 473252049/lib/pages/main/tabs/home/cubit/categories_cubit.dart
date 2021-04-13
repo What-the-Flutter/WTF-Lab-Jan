@@ -5,22 +5,25 @@ import 'package:flutter/material.dart';
 import '../../../../../model/category.dart';
 import '../../../../../model/record.dart';
 import '../../../../../repositories/categories_repository.dart';
+import '../../../../../repositories/records_repository.dart';
 
 part 'categories_state.dart';
 
 class CategoriesCubit extends Cubit<CategoriesState> {
-  final CategoriesRepository repository;
+  final CategoriesRepository categoriesRepository;
+  final RecordsRepository recordsRepository;
 
-  CategoriesCubit(this.repository) : super(CategoriesLoadInProcess(null));
+  CategoriesCubit({this.categoriesRepository, this.recordsRepository})
+      : super(CategoriesLoadInProcess(null));
 
   Future<List<CategoryWithLastRecord>> get categoriesWithLastRecords async {
-    final categories = await repository.getAll();
+    final categories = await categoriesRepository.getAll();
     final categoriesWithLastRecord = <CategoryWithLastRecord>[];
     for (var category in categories) {
       categoriesWithLastRecord.add(
         CategoryWithLastRecord(
           category: category,
-          lastRecord: await repository.getLastRecord(
+          lastRecord: await recordsRepository.getLastFromCategory(
             categoryId: category.id,
           ),
         ),
@@ -30,7 +33,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   }
 
   Future<Category> getById(int categoryId) async {
-    return await repository.getById(categoryId);
+    return await categoriesRepository.getById(categoryId);
   }
 
   void loadCategories() async {
@@ -42,7 +45,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   }
 
   void add({@required Category category}) async {
-    await repository.insert(category);
+    await categoriesRepository.insert(category);
     emit(
       CategoryAddSuccess(
         await categoriesWithLastRecords,
@@ -53,13 +56,13 @@ class CategoriesCubit extends Cubit<CategoriesState> {
 
   void addAll({@required List<Category> categories}) async {
     for (var category in categories) {
-      await repository.insert(category);
+      await categoriesRepository.insert(category);
     }
     emit(AllAddSuccess(await categoriesWithLastRecords, categories));
   }
 
   void update(Category category) async {
-    await repository.update(category);
+    await categoriesRepository.update(category);
     emit(
       CategoryUpdateSuccess(
         await categoriesWithLastRecords,
@@ -69,7 +72,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   }
 
   void delete({@required int id}) async {
-    final deletedCategory = await repository.delete(id);
+    final deletedCategory = await categoriesRepository.delete(id);
     emit(
       CategoryDeleteSuccess(
         await categoriesWithLastRecords,
@@ -79,16 +82,16 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   }
 
   void deleteAll() async {
-    final categoriesId = (await repository.getAll()).map((e) => e.id);
+    final categoriesId = (await categoriesRepository.getAll()).map((e) => e.id);
     for (var id in categoriesId) {
-      await repository.delete(id);
+      await categoriesRepository.delete(id);
     }
     emit(AllDeleteSuccess([]));
   }
 
   void changePin({@required Category category}) async {
     category.isPinned = !category.isPinned;
-    await repository.update(
+    await categoriesRepository.update(
       category,
     );
     emit(
@@ -103,7 +106,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     for (var categoryWithLastRecord in state.categories) {
       if (categoryWithLastRecord.category.isPinned) {
         categoryWithLastRecord.category.isPinned = false;
-        await repository.update(categoryWithLastRecord.category);
+        await categoriesRepository.update(categoryWithLastRecord.category);
       }
     }
     emit(

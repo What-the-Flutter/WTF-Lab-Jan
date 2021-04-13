@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../model/category.dart';
 import '../model/record.dart';
 import 'repository.dart';
 
@@ -9,5 +8,7 @@ abstract class RecordsRepository implements Repository<Record> {
 
   Future<List<Record>> getAllRecords({int categoryId});
 
-  Future<Category> getCategory({int categoryId});
+  Future<Record> getLastFromCategory({int categoryId});
+
+  Future<int> getRecordsCount({int categoryId, bool onlyFavorites});
 }

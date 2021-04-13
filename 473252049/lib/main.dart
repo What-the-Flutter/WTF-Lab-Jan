@@ -67,14 +67,18 @@ class MyApp extends StatelessWidget {
                 return MultiBlocProvider(
                   providers: [
                     BlocProvider(
-                      create: (context) =>
-                          CategoriesCubit(LocalDatabaseCategoriesRepository())
-                            ..loadCategories(),
+                      create: (context) => CategoriesCubit(
+                        categoriesRepository:
+                            LocalDatabaseCategoriesRepository(),
+                        recordsRepository: LocalDatabaseRecordsRepository(),
+                      )..loadCategories(),
                     ),
                     BlocProvider(
-                      create: (context) =>
-                          RecordsCubit(LocalDatabaseRecordsRepository())
-                            ..loadRecords(),
+                      create: (context) => RecordsCubit(
+                        recordsRepository: LocalDatabaseRecordsRepository(),
+                        categoriesRepository:
+                            LocalDatabaseCategoriesRepository(),
+                      )..loadRecords(),
                     ),
                   ],
                   child: MainPage(),

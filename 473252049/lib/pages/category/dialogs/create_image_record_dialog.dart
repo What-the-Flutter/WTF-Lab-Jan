@@ -27,7 +27,10 @@ Future showCreateImageRecordDialog({
               bottomLeft: Radius.circular(2),
               bottomRight: Radius.circular(2),
             ),
-            child: Image.file(image),
+            child: Image.file(
+              image,
+              cacheHeight: 400,
+            ),
           ),
           Row(
             children: [
