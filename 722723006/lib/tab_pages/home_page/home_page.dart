@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../event_page/event_page.dart';
 import '../../icon_list.dart';
 import '../../note_page/note_page.dart';
+import '../timeline_page/filter_page/filter_page_cubit.dart';
 import 'home_page_cubit.dart';
 
 class HomePageBody extends StatefulWidget {
@@ -60,12 +62,12 @@ class _HomePageBodyState extends State<HomePageBody> {
           BlocProvider.of<HomePageCubit>(context)
               .updateNote(state.noteList[index]);
         },
-        onLongPress: () => _showBottomSheet(context, index, state),
+        onLongPress: () => _showBottomSheet(index, state),
       ),
     );
   }
 
-  void _showBottomSheet(BuildContext context, int index, HomePageStates state) {
+  void _showBottomSheet(int index, HomePageStates state) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -114,6 +116,7 @@ class _HomePageBodyState extends State<HomePageBody> {
           ),
           title: Text('Delete'),
           onTap: () {
+            BlocProvider.of<FilterPageCubit>(context).deleteNote(state.noteList[index]);
             BlocProvider.of<HomePageCubit>(context)
                 .deleteNote(state.noteList, index);
             Navigator.pop(context);

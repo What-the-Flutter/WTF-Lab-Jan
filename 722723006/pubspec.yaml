@@ -36,6 +36,7 @@ dependencies:
   path: ^1.7.0
   cupertino_icons: ^1.0.0
   auto_animated: ^2.0.2
+  charts_flutter: ^0.10.0
 
 dev_dependencies:
   flutter_test:

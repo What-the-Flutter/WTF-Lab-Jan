@@ -76,6 +76,7 @@ class EventCubit extends Cubit<EventsState> {
         DateTime.now(),
       ),
       date: currentEvent.date,
+      bookmarkCreateTime: currentEvent.bookmarkCreateTime,
       isBookmarked: currentEvent.isBookmarked,
       noteId: noteList[state.selectedTile].id,
       indexOfCircleAvatar: currentEvent.indexOfCircleAvatar,
@@ -128,6 +129,7 @@ class EventCubit extends Cubit<EventsState> {
 
   void setBookmarkState(Event event) {
     event.isBookmarked = !event.isBookmarked;
+    event.bookmarkCreateTime = DateFormat.yMMMd().format(DateTime.now());
     emit(state.copyWith(event: event));
     _dbProvider.updateEvent(event);
   }
@@ -151,6 +153,7 @@ class EventCubit extends Cubit<EventsState> {
       date: DateFormat.yMMMd('en_US').format(
         DateTime.now(),
       ),
+      bookmarkCreateTime: '',
       isBookmarked: false,
       noteId: state.note.id,
       isSelected: false,
@@ -173,6 +176,7 @@ class EventCubit extends Cubit<EventsState> {
             DateTime.now(),
           ),
       isBookmarked: false,
+      bookmarkCreateTime: '',
       date: state.dateTime ?? DateFormat.yMMMd().format(DateTime.now()),
       indexOfCircleAvatar:
           state.indexOfCircleAvatar ?? state.indexOfCircleAvatar,

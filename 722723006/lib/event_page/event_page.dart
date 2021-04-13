@@ -47,15 +47,6 @@ class _EventPageState extends State<EventPage>
   }
 
   @override
-  void didUpdateWidget(EventPage oldWidget) {
-    if (oldWidget != widget) {
-      _controller.reset();
-      _controller.forward();
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -67,10 +58,7 @@ class _EventPageState extends State<EventPage>
       builder: (context, state) {
         return Scaffold(
           appBar: state.eventSelected
-              ? _appBarMenu(
-                  state.selectedElement,
-                  state,
-                )
+              ? _appBarMenu(state.selectedElement, state)
               : _defaultAppBar(state),
           body: state.backgroundImagePath.isNotEmpty
               ? Container(
@@ -111,29 +99,21 @@ class _EventPageState extends State<EventPage>
               decoration: InputDecoration(
                 hintText: 'Search',
                 border: InputBorder.none,
-                hintStyle: TextStyle(
-                  color: Colors.white70,
-                ),
+                hintStyle: TextStyle(color: Colors.white70),
               ),
             )
-          : Text(
-              widget.title,
-            ),
+          : Text(widget.title),
       actions: [
         state.isWriting
             ? IconButton(
-                icon: Icon(
-                  Icons.clear,
-                ),
+                icon: Icon(Icons.clear),
                 onPressed: () {
                   BlocProvider.of<EventCubit>(context).setWritingState(false);
                   _searchTextController.clear();
                 },
               )
             : IconButton(
-                icon: Icon(
-                  Icons.search,
-                ),
+                icon: Icon(Icons.search),
                 onPressed: () {
                   _searchTextFieldFocusNode.requestFocus();
                   BlocProvider.of<EventCubit>(context)
@@ -143,9 +123,7 @@ class _EventPageState extends State<EventPage>
                 },
               ),
         IconButton(
-          icon: Icon(
-            Icons.bookmark_border,
-          ),
+          icon: Icon(Icons.bookmark_border),
           onPressed: () => BlocProvider.of<EventCubit>(context)
               .setAllBookmarkState(!state.isAllBookmarked),
         ),
@@ -155,9 +133,7 @@ class _EventPageState extends State<EventPage>
 
   IconButton _iconButtonBack(EventsState state) {
     return IconButton(
-      icon: Icon(
-        Icons.arrow_back,
-      ),
+      icon: Icon(Icons.arrow_back),
       onPressed: () {
         if (state.isIconButtonSearchPressed) {
           BlocProvider.of<EventCubit>(context)
@@ -172,90 +148,85 @@ class _EventPageState extends State<EventPage>
   }
 
   Widget _eventPageBody(EventsState state) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return FadeTransition(
-          opacity: _animation,
-          child: Stack(
-            children: [
-              Column(
-                children: <Widget>[
-                  Expanded(
-                    child: _directionality(state),
-                  ),
-                  if (state.isEditingPhoto)
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: 10,
-                        bottom: 10,
-                      ),
-                      child: _choiceImageSourceWrap,
-                    ),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.black12,
-                        ),
-                      ),
-                    ),
-                    child: _textFieldArea(state),
-                  ),
-                ],
+    return FadeTransition(
+      opacity: _animation,
+      child: Stack(
+        children: [
+          Column(
+            children: <Widget>[
+              Expanded(
+                child: _directionality(state),
               ),
-              if (state.isDateTimeModification)
-                Align(
-                  alignment: state.isBubbleAlignment
-                      ? Alignment.topLeft
-                      : Alignment.topRight,
-                  child: GestureDetector(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8, right: 8, left: 8),
-                      child: Container(
-                        padding: EdgeInsets.only(
-                            top: 5, left: 5, right: 3, bottom: 5),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(70)),
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        child: _calendarRow(state),
-                      ),
+              if (state.isEditingPhoto)
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
+                  ),
+                  child: _choiceImageSourceWrap,
+                ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.black12,
                     ),
-                    onTap: () async {
-                      var date = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2025),
-                      );
-                      if (date != null) {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.fromDateTime(date),
-                        );
-                        if (time != null) {
-                          date = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            time.hour,
-                            time.minute,
-                          );
-                          BlocProvider.of<EventCubit>(context).setDateTime(
-                              '${DateFormat.yMMMd().format(date)}');
-                          BlocProvider.of<EventCubit>(context).setHourTime(
-                            '${DateFormat.jm().format(date)}',
-                          );
-                        }
-                      }
-                    },
                   ),
                 ),
+                child: _textFieldArea(state),
+              ),
             ],
           ),
-        );
-      },
+          if (state.isDateTimeModification)
+            Align(
+              alignment: state.isBubbleAlignment
+                  ? Alignment.topLeft
+                  : Alignment.topRight,
+              child: GestureDetector(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8, right: 8, left: 8),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(top: 5, left: 5, right: 3, bottom: 5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(70)),
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    child: _calendarRow(state),
+                  ),
+                ),
+                onTap: () async {
+                  var date = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2025),
+                  );
+                  if (date != null) {
+                    final time = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.fromDateTime(date),
+                    );
+                    if (time != null) {
+                      date = DateTime(
+                        date.year,
+                        date.month,
+                        date.day,
+                        time.hour,
+                        time.minute,
+                      );
+                      BlocProvider.of<EventCubit>(context)
+                          .setDateTime('${DateFormat.yMMMd().format(date)}');
+                      BlocProvider.of<EventCubit>(context).setHourTime(
+                        '${DateFormat.jm().format(date)}',
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -354,14 +325,10 @@ class _EventPageState extends State<EventPage>
             ),
             onTap: () {
               BlocProvider.of<EventCubit>(context).setDateTime(
-                DateFormat.yMMMd().format(
-                  DateTime.now(),
-                ),
+                DateFormat.yMMMd().format(DateTime.now()),
               );
               BlocProvider.of<EventCubit>(context).setHourTime(
-                DateFormat.jm().format(
-                  DateTime.now(),
-                ),
+                DateFormat.jm().format(DateTime.now()),
               );
             },
           ),
@@ -535,10 +502,8 @@ class _EventPageState extends State<EventPage>
           );
   }
 
-  void _appBarChange(EventsState state) {
-    BlocProvider.of<EventCubit>(context)
-        .setEventSelectedState(!state.eventSelected);
-  }
+  void _appBarChange(EventsState state) => BlocProvider.of<EventCubit>(context)
+      .setEventSelectedState(!state.eventSelected);
 
   AppBar _appBarMenu(Event event, EventsState state) {
     return AppBar(
@@ -685,7 +650,6 @@ class _EventPageState extends State<EventPage>
     );
   }
 
-  void _copyEvent(Event event) {
-    Clipboard.setData(ClipboardData(text: event.text));
-  }
+  void _copyEvent(Event event) =>
+      Clipboard.setData(ClipboardData(text: event.text));
 }

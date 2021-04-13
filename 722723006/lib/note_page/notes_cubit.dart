@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../data/db_provider.dart';
 import 'note.dart';
 part 'notes_state.dart';
@@ -23,6 +24,10 @@ class NotesCubit extends Cubit<NotesState> {
       noteName: text,
       subTittleEvent: 'Add event',
       indexOfCircleAvatar: state.indexOfSelectIcon,
+      date:  DateFormat.yMMMd('en_US').format(
+        DateTime.now(),
+      ),
+      isSelected: false,
     );
     state.noteList.insert(0, note);
     note.id = await _dbHelper.insertNote(note);

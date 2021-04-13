@@ -11,13 +11,15 @@ class TimelinePageCubit extends Cubit<TimelinePageStates> {
   final SharedPreferencesProvider _prefs = SharedPreferencesProvider();
 
   void init() {
-    emit(state.copyWith(
-      isEditing: false,
-      isWriting: false,
-      isAllBookmarked: false,
-      isIconButtonSearchPressed: false,
-      eventList: <Event>[],
-    ));
+    emit(
+      state.copyWith(
+        isEditing: false,
+        isWriting: false,
+        isAllBookmarked: false,
+        isIconButtonSearchPressed: false,
+      ),
+    );
+    initEventList();
   }
 
   void initEventList() async {
@@ -26,14 +28,10 @@ class TimelinePageCubit extends Cubit<TimelinePageStates> {
     emit(state.copyWith(eventList: await _dbProvider.dbAllEventList()));
   }
 
-  void setEditingState() {
-    emit(state.copyWith(isEditing: !state.isEditing));
-  }
+  void setEditingState() => emit(state.copyWith(isEditing: !state.isEditing));
 
-  void setIconButtonSearchState() {
-    emit(state.copyWith(
-        isIconButtonSearchPressed: !state.isIconButtonSearchPressed));
-  }
+  void setIconButtonSearchState() => emit(state.copyWith(
+      isIconButtonSearchPressed: !state.isIconButtonSearchPressed));
 
   void deleteEvent(Event event) {
     _dbProvider.deleteEvent(event);
@@ -41,15 +39,12 @@ class TimelinePageCubit extends Cubit<TimelinePageStates> {
     emit(state.copyWith(eventList: state.eventList));
   }
 
-  void setAllBookmarkedState() {
-    emit(state.copyWith(isAllBookmarked: !state.isAllBookmarked));
-  }
+  void setAllBookmarkedState() =>
+      emit(state.copyWith(isAllBookmarked: !state.isAllBookmarked));
 
-  void setWritingState(bool isWriting) {
-    emit(state.copyWith(isWriting: isWriting));
-  }
+  void setWritingState(bool isWriting) =>
+      emit(state.copyWith(isWriting: isWriting));
 
-  void setSearchText(String searchText) {
-    emit(state.copyWith(searchText: searchText));
-  }
+  void setSearchText(String searchText) =>
+      emit(state.copyWith(searchText: searchText));
 }

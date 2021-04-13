@@ -12,7 +12,7 @@ class ThemeCubit extends Cubit<ThemeStates> {
     emit(updatedState);
   }
 
-  void initialize() async {
+  void init() async {
     await emit(state.copyWith(isLightTheme: _prefs.fetchTheme()));
     initTextTheme(_prefs.fetchFontSizeIndex());
     emit(state.copyWith(textTheme: state.textTheme));

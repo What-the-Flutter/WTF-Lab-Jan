@@ -5,6 +5,7 @@ class Event {
   int noteId;
   int indexOfCircleAvatar;
   bool isBookmarked;
+  String bookmarkCreateTime = '';
   String imagePath = '';
   String date = '';
   bool isSelected;
@@ -18,6 +19,7 @@ class Event {
     this.imagePath,
     this.date,
     this.isSelected,
+    this.bookmarkCreateTime,
   });
 
   Map<String, dynamic> insertToMap() {
@@ -29,6 +31,7 @@ class Event {
       'bookmark': isBookmarked ? 1 : 0,
       'image_path': imagePath,
       'date_format': date,
+      'bookmark_create_time': bookmarkCreateTime,
     };
   }
 
@@ -42,6 +45,7 @@ class Event {
       'bookmark': isBookmarked ? 1 : 0,
       'image_path': imagePath,
       'date_format': date,
+      'bookmark_create_time': bookmarkCreateTime,
     };
   }
 
@@ -56,6 +60,7 @@ class Event {
       date: map['date_format'],
       isBookmarked: map['bookmark'] == 0 ? false : true,
       isSelected: false,
+      bookmarkCreateTime: map['bookmark_create_time'],
     );
   }
 }
