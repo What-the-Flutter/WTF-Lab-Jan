@@ -25,6 +25,7 @@ class ScreenMessageState extends Equatable {
   final String curTag;
   final List<ModelTag> tags;
   final String attachedPhotoPath;
+  final List<bool> isStartAnim;
 
   const ScreenMessageState({
     this.fromDate,
@@ -45,6 +46,7 @@ class ScreenMessageState extends Equatable {
     this.curTag,
     this.tags,
     this.attachedPhotoPath = '',
+    this.isStartAnim,
   });
 
   @override
@@ -74,6 +76,7 @@ class ScreenMessageState extends Equatable {
     final String curTag,
     final List<ModelTag> tags,
     final String attachedPhotoPath,
+    final List<bool> isStartAnim,
   }) {
     return ScreenMessageState(
       fromDate: fromDate ?? this.fromDate,
@@ -94,6 +97,7 @@ class ScreenMessageState extends Equatable {
       curTag: curTag ?? this.curTag,
       tags: tags ?? this.tags,
       attachedPhotoPath: attachedPhotoPath ?? this.attachedPhotoPath,
+      isStartAnim: isStartAnim ?? this.isStartAnim,
     );
   }
 
@@ -116,5 +120,6 @@ class ScreenMessageState extends Equatable {
         curTag,
         tags,
         attachedPhotoPath,
+        isStartAnim,
       ];
 }

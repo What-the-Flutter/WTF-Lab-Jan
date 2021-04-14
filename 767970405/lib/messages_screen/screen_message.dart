@@ -92,34 +92,32 @@ class _ScreenMessageState extends State<ScreenMessage> {
                         .isDateTimeModification,
                   ),
                 ),
-                Builder(
-                  builder: (context) {
-                    switch (state.floatingBar) {
-                      case FloatingBar.nothing:
-                        return Container();
-                      case FloatingBar.category:
-                        return CategoryList();
-                      case FloatingBar.photosOption:
-                        return AttachPhotoOption();
-                      case FloatingBar.tag:
-                        return state.listTag == ModeListTag.listTags
-                            ? TagList()
-                            : Container(
-                                padding: EdgeInsets.all(10.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  color: Colors.red,
-                                ),
-                                child: Text('Add new Tag: ${state.curTag}'),
-                              );
-                      case FloatingBar.attach:
-                        return AttachedPhoto(
-                          photoPath: state.attachedPhotoPath,
-                        );
-                      default:
-                        return Container();
-                    }
-                  },
+                FloatingBarWindow(
+                  index: 0,
+                  child: CategoryList(),
+                ),
+                FloatingBarWindow(
+                  index: 1,
+                  child: AttachPhotoOption(),
+                ),
+                FloatingBarWindow(
+                  index: 2,
+                  child: state.listTag == ModeListTag.listTags
+                      ? TagList()
+                      : Container(
+                          padding: EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15.0),
+                            color: Colors.red,
+                          ),
+                          child: Text('Add new Tag: ${state.curTag}'),
+                        ),
+                ),
+                FloatingBarWindow(
+                  index: 3,
+                  child: AttachedPhoto(
+                    photoPath: state.attachedPhotoPath,
+                  ),
                 ),
                 InputPanel(),
               ],
@@ -131,12 +129,39 @@ class _ScreenMessageState extends State<ScreenMessage> {
   }
 }
 
+class FloatingBarWindow extends StatelessWidget {
+  final Widget child;
+  final int index;
+
+  FloatingBarWindow({
+    Key key,
+    this.index,
+    this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+      builder: (context, state) => AnimatedContainer(
+        duration: Duration(seconds: 2),
+        padding: EdgeInsets.all(2.0),
+        onEnd: state.floatingBar == FloatingBar.values[index + 1]
+            ? null
+            : () => context.read<ScreenMessageCubit>().changeDisplay(index),
+        height: state.floatingBar == FloatingBar.values[index + 1] ? 70 : 0,
+        child: Center(
+          child: state.isStartAnim[index] ? child : null,
+        ),
+      ),
+    );
+  }
+}
+
 class TagList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.read<ScreenMessageCubit>().state;
-    final visualSettingState =
-        context.read<VisualSettingCubit>().state;
+    final visualSettingState = context.read<VisualSettingCubit>().state;
     final theme = TagTheme(
       nameStyle: TextStyle(
         fontSize: visualSettingState.bodyFontSize,
@@ -145,21 +170,17 @@ class TagList extends StatelessWidget {
       backgroundColor: Colors.red,
       radius: 15,
     );
-    return Container(
-      constraints: BoxConstraints(maxHeight: 60),
-      padding: EdgeInsets.all(5.0),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: state.tags.length,
-        itemBuilder: (context, index) => Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.0),
-          child: SearchItem(
-            key: ValueKey(index),
-            name: state.tags[index].name,
-            isSelected: false,
-            onTap: () => context.read<ScreenMessageCubit>().addTagToText(index),
-            theme: theme,
-          ),
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: state.tags.length,
+      itemBuilder: (context, index) => Padding(
+        padding: EdgeInsets.symmetric(horizontal: 5.0),
+        child: SearchItem(
+          key: ValueKey(index),
+          name: state.tags[index].name,
+          isSelected: false,
+          onTap: () => context.read<ScreenMessageCubit>().addTagToText(index),
+          theme: theme,
         ),
       ),
     );
@@ -700,8 +721,8 @@ class AttachedPhoto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxHeight: 70),
+    return SizedBox(
+      height: 70,
       child: Image.file(
         File(photoPath),
       ),
@@ -714,43 +735,42 @@ class CategoryList extends StatelessWidget {
   Widget build(BuildContext context) {
     final categories =
         RepositoryProvider.of<CategoryRepository>(context).categories;
-    return Container(
-      constraints: BoxConstraints(maxHeight: 70),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return GestureDetector(
-              onTap: context.read<ScreenMessageCubit>().cancelSelected,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    Container(
-                      child: Icon(Icons.close),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.red,
-                      ),
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: categories.length,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return GestureDetector(
+            onTap: context.read<ScreenMessageCubit>().cancelSelected,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child: Wrap(
+                direction: Axis.vertical,
+                alignment: WrapAlignment.spaceEvenly,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  Container(
+                    child: Icon(Icons.close),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.red,
                     ),
-                    Text('Cancel'),
-                  ],
-                ),
+                  ),
+                  Text('Cancel'),
+                ],
               ),
-            );
-          }
-          return CategoryMessage(
-            index: index - 1,
-            iconData: categories[index - 1].iconData,
-            label: categories[index - 1].label,
-            color: Colors.teal,
-            direction: Axis.vertical,
-            onTap: context.read<ScreenMessageCubit>().selectedCategory,
+            ),
           );
-        },
-      ),
+        }
+        return CategoryMessage(
+          index: index - 1,
+          iconData: categories[index - 1].iconData,
+          label: categories[index - 1].label,
+          color: Colors.teal,
+          direction: Axis.vertical,
+          onTap: context.read<ScreenMessageCubit>().selectedCategory,
+        );
+      },
     );
   }
 }
@@ -821,24 +841,27 @@ class AttachPhotoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.read<ScreenMessageCubit>().attachedPhoto(source),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          color: Colors.red,
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(
-                iconData,
-                color: Colors.white,
+    return FittedBox(
+      fit: BoxFit.fitWidth,
+      child: GestureDetector(
+        onTap: () => context.read<ScreenMessageCubit>().attachedPhoto(source),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+            color: Colors.red,
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  iconData,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            Text(text),
-          ],
+              Text(text),
+            ],
+          ),
         ),
       ),
     );

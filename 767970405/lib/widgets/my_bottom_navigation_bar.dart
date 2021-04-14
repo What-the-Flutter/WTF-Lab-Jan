@@ -51,13 +51,9 @@ class MyBottomNavigationBar extends StatelessWidget {
           );
         }
         if (index == 2) {
-          Navigator.pushNamed(
-            context,
-            TimelineScreen.routeName,
-          );
-          context.read<FilterScreenCubit>().loadListsItem();
+          await context.read<FilterScreenCubit>().loadListsItem();
           final state = context.read<FilterScreenCubit>().state;
-          context.read<TimelineScreenCubit>().configureList(
+          await context.read<TimelineScreenCubit>().configureList(
                 selectedPages:
                     state.pages.where((element) => element.isSelected).toList(),
                 selectedTags:
@@ -66,6 +62,10 @@ class MyBottomNavigationBar extends StatelessWidget {
                     .where((element) => element.isSelected)
                     .toList(),
               );
+          Navigator.pushNamed(
+            context,
+            TimelineScreen.routeName,
+          );
         }
 
         context.read<HomeScreenCubit>().changeScreen(index);

@@ -368,10 +368,10 @@ class ChatPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        context.read<ScreenMessageCubit>().downloadData(
+        await context.read<ScreenMessageCubit>().downloadData(
               context.read<HomeScreenCubit>().state.list[index],
             );
-        context.read<SearchMessageScreenCubit>().setting(
+        await context.read<SearchMessageScreenCubit>().setting(
               ModeScreen.onePage,
               context.read<HomeScreenCubit>().state.list[index],
             );
