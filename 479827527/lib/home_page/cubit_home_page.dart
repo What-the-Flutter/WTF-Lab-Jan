@@ -15,8 +15,7 @@ class CubitHomePage extends Cubit<StatesHomePage> {
     await _databaseProvider.initDB();
     setNoteList(await _databaseProvider.fetchNotesList());
   }
-
-
+  
   void initSharedPreferences() => emit(
       state.copyWith(isLightTheme: SharedPreferencesProvider().fetchTheme()));
 
@@ -30,6 +29,7 @@ class CubitHomePage extends Cubit<StatesHomePage> {
 
   void removeNote(int index) {
     _databaseProvider.deleteNote(state.noteList[index]);
+    _databaseProvider.deleteEventsFromNote(state.noteList[index].noteId);
     state.noteList.removeAt(index);
     noteListRedrawing();
   }

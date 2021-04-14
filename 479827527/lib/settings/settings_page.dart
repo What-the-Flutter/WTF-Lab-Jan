@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'application_info.dart';
-import 'general_settings.dart';
+import 'application_info_page.dart';
+import 'general_settings_page.dart';
 
-class Settings extends StatefulWidget {
+class SettingsPage extends StatefulWidget {
   @override
-  _SettingsState createState() => _SettingsState();
+  _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

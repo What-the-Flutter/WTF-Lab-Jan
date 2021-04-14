@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../themes/cubit_theme.dart';
-import 'cubit_general_settings.dart';
-import 'states_general_settings.dart';
+import 'cubit_general_settings_page.dart';
+import 'states_general_settings_page.dart';
 
 class GeneralSettings extends StatefulWidget {
   @override

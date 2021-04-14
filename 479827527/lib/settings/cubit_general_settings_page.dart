@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../utils/shared_preferences_provider.dart';
-import 'states_general_settings.dart';
+import 'states_general_settings_page.dart';
 
 class CubitGeneralSettings extends Cubit<StatesGeneralSettings> {
   CubitGeneralSettings() : super(StatesGeneralSettings());

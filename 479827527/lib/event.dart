@@ -1,18 +1,20 @@
 class Event {
   int eventId;
   int currentNoteId;
+  int circleAvatarIndex;
+  int bookmarkIndex;
   String text;
   String time;
-  int circleAvatarIndex;
   String imagePath;
   String date;
 
   Event({
     this.eventId,
     this.currentNoteId,
+    this.circleAvatarIndex,
+    this.bookmarkIndex,
     this.text,
     this.time,
-    this.circleAvatarIndex,
     this.imagePath,
     this.date,
   });
@@ -23,6 +25,7 @@ class Event {
       'text': text,
       'time': time,
       'event_circle_avatar_index': circleAvatarIndex,
+      'bookmark_index': bookmarkIndex,
       'image_path': imagePath,
       'date': date,
     };
@@ -35,6 +38,7 @@ class Event {
       'text': text,
       'time': time,
       'event_circle_avatar_index': circleAvatarIndex,
+      'bookmark_index': bookmarkIndex,
       'image_path': imagePath,
       'date': date,
     };
@@ -47,6 +51,7 @@ class Event {
       text: map['text'],
       time: map['time'],
       circleAvatarIndex: map['event_circle_avatar_index'],
+      bookmarkIndex: map['bookmark_index'],
       imagePath: map['image_path'],
       date: map['date'],
     );

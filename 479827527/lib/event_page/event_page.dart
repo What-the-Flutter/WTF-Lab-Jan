@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:auto_animated/auto_animated.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,7 +50,7 @@ class _EventPageState extends State<EventPage> {
     return BlocBuilder<CubitEventPage, StatesEventPage>(
       builder: (context, state) {
         return Scaffold(
-          appBar: state.isEventSelected
+          appBar: state.selectedItemIndex != -1
               ? _editingTextAppBar(state, state.selectedItemIndex)
               : _defaultAppBar(state),
           body: _eventPageBody(state),
@@ -65,7 +66,7 @@ class _EventPageState extends State<EventPage> {
           Icons.clear,
         ),
         onPressed: () =>
-            BlocProvider.of<CubitEventPage>(context).changeAppBar(),
+            BlocProvider.of<CubitEventPage>(context).setSelectedItemIndex(-1),
       ),
       actions: <Widget>[
         IconButton(
@@ -73,8 +74,8 @@ class _EventPageState extends State<EventPage> {
             Icons.reply,
           ),
           onPressed: () {
-            BlocProvider.of<CubitEventPage>(context).changeAppBar();
             _showReplyDialog(index);
+            BlocProvider.of<CubitEventPage>(context).setSelectedItemIndex(-1);
           },
         ),
         if (state.currentEventsList[index].imagePath == null)
@@ -83,7 +84,6 @@ class _EventPageState extends State<EventPage> {
               Icons.edit,
             ),
             onPressed: () {
-              BlocProvider.of<CubitEventPage>(context).changeAppBar();
               BlocProvider.of<CubitEventPage>(context).setTextEditState(true);
               _textController.text = state.currentEventsList[index].text;
               _textController.selection = TextSelection(
@@ -98,28 +98,29 @@ class _EventPageState extends State<EventPage> {
               Icons.copy,
             ),
             onPressed: () {
-              BlocProvider.of<CubitEventPage>(context).changeAppBar();
               _copyEvent(state, index);
+              BlocProvider.of<CubitEventPage>(context).setSelectedItemIndex(-1);
             },
           ),
-        IconButton(
-          icon: Icon(
-            Icons.bookmark_border,
+        if (state.currentEventsList[index].imagePath == null)
+          IconButton(
+            icon: Icon(
+              Icons.bookmark_border,
+            ),
+            onPressed: () {
+              BlocProvider.of<CubitEventPage>(context).updateBookmark(index);
+              BlocProvider.of<CubitEventPage>(context).setSelectedItemIndex(-1);
+            },
           ),
-          onPressed: () {
-            BlocProvider.of<CubitEventPage>(context).changeAppBar();
-            //TODO
-          },
-        ),
         IconButton(
           icon: Icon(
             Icons.delete,
           ),
           onPressed: () {
-            BlocProvider.of<CubitEventPage>(context).changeAppBar();
             BlocProvider.of<CubitEventPage>(context).deleteEvent(index);
             updateNoteSubtitle();
             BlocProvider.of<CubitEventPage>(context).updateNote();
+            BlocProvider.of<CubitEventPage>(context).setSelectedItemIndex(-1);
           },
         ),
       ],
@@ -138,21 +139,27 @@ class _EventPageState extends State<EventPage> {
           padding: EdgeInsets.only(
             right: 10.0,
           ),
-          child: IconButton(
-            icon: Icon(
-              state.isSearch ? Icons.clear : Icons.search,
-            ),
-            onPressed: () {
-              BlocProvider.of<CubitEventPage>(context)
-                  .setTextSearchState(!state.isSearch);
-              _textSearchController.addListener(
-                () {
+          child: Row(
+            children: [
+              if (!state.isSearch)
+                IconButton(
+                  icon: Icon(
+                    Icons.bookmark_border,
+                  ),
+                  onPressed: () => BlocProvider.of<CubitEventPage>(context)
+                      .setSortedByBookmarksState(!state.isSortedByBookmarks),
+                ),
+              IconButton(
+                icon: Icon(
+                  state.isSearch ? Icons.clear : Icons.search,
+                ),
+                onPressed: () {
                   BlocProvider.of<CubitEventPage>(context)
-                      .setCurrentEventsList(state.currentEventsList);
+                      .setTextSearchState(!state.isSearch);
+                  _focusSearchNode.requestFocus();
                 },
-              );
-              _focusSearchNode.requestFocus();
-            },
+              ),
+            ],
           ),
         ),
       ],
@@ -388,7 +395,7 @@ class _EventPageState extends State<EventPage> {
             ),
           ),
         ),
-        if (state.selectedDate != null)
+        if (state.selectedDate != '')
           GestureDetector(
             child: Icon(
               Icons.clear,
@@ -476,8 +483,13 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  void updateList(StatesEventPage state) {
-    if (state.isSearch) {
+  void _updateList(StatesEventPage state) {
+    BlocProvider.of<CubitEventPage>(context).sortEventsByDate();
+    if (state.isSortedByBookmarks) {
+      _eventList = state.currentEventsList
+          .where((element) => element.bookmarkIndex == 1)
+          .toList();
+    } else if (state.isSearch) {
       _eventList = state.currentEventsList
           .where(
             (element) => element.text.contains(_textSearchController.text),
@@ -488,16 +500,21 @@ class _EventPageState extends State<EventPage> {
     }
   }
 
-  ListView _listView(StatesEventPage state) {
-    BlocProvider.of<CubitEventPage>(context).sortEventsByDate();
-    updateList(state);
-    return ListView.builder(
+  LiveList _listView(StatesEventPage state) {
+    _updateList(state);
+    return LiveList.options(
+      options: LiveOptions(
+        visibleFraction: 0.025,
+      ),
       reverse: true,
       scrollDirection: Axis.vertical,
       itemCount: _eventList.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (context, index, animation) {
         final _event = _eventList[index];
-        return _showEventList(state, _event, index);
+        return FadeTransition(
+          opacity: animation,
+          child: _showEventList(state, _event, index),
+        );
       },
     );
   }
@@ -548,48 +565,61 @@ class _EventPageState extends State<EventPage> {
             ),
             child: Card(
               elevation: 3,
-              child: ListTile(
-                leading: event.circleAvatarIndex != -1
-                    ? _circleAvatar(
-                        icons[event.circleAvatarIndex],
-                      )
-                    : null,
-                tileColor: Theme.of(context).appBarTheme.color,
-                title: event.imagePath != null
-                    ? Image.file(
-                        File(event.imagePath),
-                      )
-                    : HashTagText(
-                        text: event.text,
-                        basicStyle: TextStyle(
-                          color: Colors.white,
-                          fontSize:
-                              Theme.of(context).textTheme.bodyText1.fontSize,
-                        ),
-                        decoratedStyle: TextStyle(
-                          color: Colors.yellow,
-                          fontSize:
-                              Theme.of(context).textTheme.bodyText1.fontSize,
-                        ),
-                        onTap: (text) {
-                          BlocProvider.of<CubitEventPage>(context)
-                              .setTextSearchState(!state.isSearch);
-                          _textSearchController.text = text;
-                        },
-                      ),
-                subtitle: Text(
-                  event.time,
-                  style: TextStyle(
-                    color: Theme.of(context)
-                        .floatingActionButtonTheme
-                        .foregroundColor,
-                  ),
+              child: AnimatedContainer(
+                duration: Duration(
+                  milliseconds: 200,
                 ),
-                onLongPress: () {
-                  BlocProvider.of<CubitEventPage>(context)
-                      .setSelectedItemIndex(index);
-                  BlocProvider.of<CubitEventPage>(context).changeAppBar();
-                },
+                color: state.selectedItemIndex == index
+                    ? Colors.orangeAccent
+                    : Theme.of(context).primaryColor,
+                child: ListTile(
+                  leading: event.circleAvatarIndex != -1
+                      ? _circleAvatar(
+                          icons[event.circleAvatarIndex],
+                        )
+                      : null,
+                  title: event.imagePath != null
+                      ? Image.file(
+                          File(event.imagePath),
+                        )
+                      : HashTagText(
+                          text: event.text,
+                          basicStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize:
+                                Theme.of(context).textTheme.bodyText1.fontSize,
+                          ),
+                          decoratedStyle: TextStyle(
+                            color: Colors.yellow,
+                            fontSize:
+                                Theme.of(context).textTheme.bodyText1.fontSize,
+                          ),
+                          onTap: (text) {
+                            BlocProvider.of<CubitEventPage>(context)
+                                .setTextSearchState(!state.isSearch);
+                            _textSearchController.text = text;
+                          },
+                        ),
+                  subtitle: Text(
+                    event.time,
+                    style: TextStyle(
+                      color: Theme.of(context)
+                          .floatingActionButtonTheme
+                          .foregroundColor,
+                    ),
+                  ),
+                  trailing: event.bookmarkIndex == 1
+                      ? Icon(
+                          Icons.bookmark_border,
+                          size: 30,
+                          color: Colors.white,
+                        )
+                      : null,
+                  onLongPress: () {
+                    BlocProvider.of<CubitEventPage>(context)
+                        .setSelectedItemIndex(index);
+                  },
+                ),
               ),
             ),
           ),
