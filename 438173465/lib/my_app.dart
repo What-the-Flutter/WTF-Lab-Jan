@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
-import 'pages/event_screen.dart';
-import 'pages/home_page.dart';
-import 'theme_changer.dart';
+
+import 'config/custom_theme.dart';
+import 'ui/views/home_page/home_page.dart';
+import 'ui/views/home_page/screens/event_screen.dart';
+import 'ui/views/home_page/screens/events_type_add_screen.dart';
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ThemeBuilder(
-      defaultBrightness: Brightness.light,
-      builder: (context, _brightness) {
-        return MaterialApp(
-          routes: {
-            EventScreen.routeName: (context) => EventScreen(),
-          },
-          title: 'Flutter Demo',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            primarySwatch: Colors.orange,
-            brightness: _brightness,
-          ),
-          home: MyHomePage(),
-        );
+    return MaterialApp(
+      routes: {
+        EventScreen.routeName: (context) => EventScreen(),
+        EventTypeAdd.routeName: (context) => EventTypeAdd(),
       },
+      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      theme: CustomTheme.of(context),
+      home: MyHomePage(),
     );
   }
 }
