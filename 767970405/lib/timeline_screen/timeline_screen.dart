@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:my_chat_journal/data/theme/custom_theme.dart';
-import 'package:my_chat_journal/filter_screen/filter_screen.dart';
-import 'package:my_chat_journal/filter_screen/filter_screen_cubit.dart';
-import 'package:my_chat_journal/home_screen/home_screen_cubit.dart';
-import 'package:my_chat_journal/messages_screen/screen_message.dart';
-import 'package:my_chat_journal/search_messages_screen/search_message_screen_cubit.dart';
-import 'package:my_chat_journal/settings_screen/chat_interface_setting_cubit.dart';
-import 'package:my_chat_journal/settings_screen/visual_setting_cubit.dart';
-import 'package:my_chat_journal/timeline_screen/timeline_screen_cubit.dart';
-import 'package:my_chat_journal/widgets/my_bottom_navigation_bar.dart';
+
+import '../data/constants/constants.dart';
+import '../data/theme/custom_theme.dart';
+import '../filter_screen/filter_screen.dart';
+import '../filter_screen/filter_screen_cubit.dart';
+import '../home_screen/home_screen_cubit.dart';
+import '../messages_screen/screen_message.dart';
 import '../search_messages_screen/search_message_screen.dart';
+import '../search_messages_screen/search_message_screen_cubit.dart';
+import '../settings_screen/chat_interface_setting_cubit.dart';
+import '../settings_screen/visual_setting_cubit.dart';
+import '../widgets/my_bottom_navigation_bar.dart';
+import 'timeline_screen_cubit.dart';
 
 class TimelineScreen extends StatelessWidget {
   static const routeName = '/TimelineScreen';
@@ -24,7 +26,9 @@ class TimelineScreen extends StatelessWidget {
         actions: <Widget>[
           IconButton(
             onPressed: () async {
-              await context.read<SearchMessageScreenCubit>().setting(ModeScreen.allPages);
+              await context
+                  .read<SearchMessageScreenCubit>()
+                  .setting(ModeScreen.allPages);
               Navigator.pushNamed(
                 context,
                 SearchMessageScreen.routeName,

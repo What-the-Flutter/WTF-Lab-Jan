@@ -2,14 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/settings_screen/visual_setting_cubit.dart';
 
 import '../data/constants/constants.dart';
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/theme/custom_theme.dart' as my;
-import '../main.dart';
 import '../widgets/custom_list_tile.dart';
 import 'chat_interface_setting_cubit.dart';
+import 'visual_setting_cubit.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const routeName = 'SettingsPage';
@@ -325,8 +324,7 @@ class GeneralOption extends StatelessWidget {
                 title: Text('Bubble Alignment'),
                 subtitle: Text('Force right-to-left bubble alignment'),
                 value: state.isLeftBubbleAlign,
-                onChanged:
-                    (value) {
+                onChanged: (value) {
                   final cubit = context.read<ChatInterfaceSettingCubit>();
                   cubit.changeBubbleAlign(value);
                   cubit.saveChatInterfaceSettings('bubbleAlign', value);
@@ -342,7 +340,7 @@ class GeneralOption extends StatelessWidget {
                 ),
                 title: Text('Center Date Bubble'),
                 value: state.isCenterDateBubble,
-                onChanged:(value) {
+                onChanged: (value) {
                   final cubit = context.read<ChatInterfaceSettingCubit>();
                   cubit.changeCenterDateBubble(value);
                   cubit.saveChatInterfaceSettings('dateBubble', value);
@@ -483,94 +481,110 @@ class GeneralOption extends StatelessWidget {
   }
 
   Future<TypeAccentColor> _showAccentColorDialog(BuildContext context) async {
-    return await showDialog<TypeAccentColor>(
+    return await showGeneralDialog<TypeAccentColor>(
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionBuilder: (context, a1, a2, widget) {
+        final curvedValue = Curves.easeInOutBack.transform(a1.value) - 1.0;
+        return Transform(
+          transform: Matrix4.translationValues(0.0, curvedValue * 200, 0.0),
+          child: Opacity(
+            opacity: a1.value,
+            child: AlertDialog(
+              title: ListTile(
+                title: Text(
+                  'Accent Color',
+                  style: Theme.of(context).textTheme.subtitle1,
+                ),
+              ),
+              content: Container(
+                height: MediaQuery.of(context).size.height * (2 / 5),
+                width: MediaQuery.of(context).size.height * (4 / 5),
+                child: ListView(
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.amberAccent,
+                      ),
+                      title: Text(
+                        'Gold',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.gold),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.cyan,
+                      ),
+                      title: Text(
+                        'Cyan',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.cyan),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.greenAccent,
+                      ),
+                      title: Text(
+                        'Mint',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.mint),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.lime,
+                      ),
+                      title: Text(
+                        'Lime',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.lime),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.pink,
+                      ),
+                      title: Text(
+                        'Pink',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.pink),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.green,
+                      ),
+                      title: Text(
+                        'Green',
+                      ),
+                      onTap: () =>
+                          Navigator.pop(context, TypeAccentColor.green),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.orange,
+                      ),
+                      title: Text(
+                        'Orange',
+                      ),
+                      onTap: () =>
+                          Navigator.pop(context, TypeAccentColor.orange),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      transitionDuration: Duration(milliseconds: 400),
+      barrierDismissible: true,
+      barrierLabel: '',
       context: context,
-      builder: (context) => AlertDialog(
-        title: ListTile(
-          title: Text(
-            'Accent Color',
-            style: Theme.of(context).textTheme.subtitle1,
-          ),
-        ),
-        content: Container(
-          height: MediaQuery.of(context).size.height * (2 / 5),
-          width: MediaQuery.of(context).size.height * (4 / 5),
-          child: ListView(
-            children: <Widget>[
-              ListTile(
-                leading: Icon(
-                  Icons.circle,
-                  color: Colors.amberAccent,
-                ),
-                title: Text(
-                  'Gold',
-                ),
-                onTap: () => Navigator.pop(context, TypeAccentColor.gold),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.circle,
-                  color: Colors.cyan,
-                ),
-                title: Text(
-                  'Cyan',
-                ),
-                onTap: () => Navigator.pop(context, TypeAccentColor.cyan),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.circle,
-                  color: Colors.greenAccent,
-                ),
-                title: Text(
-                  'Mint',
-                ),
-                onTap: () => Navigator.pop(context, TypeAccentColor.mint),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.circle,
-                  color: Colors.lime,
-                ),
-                title: Text(
-                  'Lime',
-                ),
-                onTap: () => Navigator.pop(context, TypeAccentColor.lime),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.circle,
-                  color: Colors.pink,
-                ),
-                title: Text(
-                  'Pink',
-                ),
-                onTap: () => Navigator.pop(context, TypeAccentColor.pink),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.circle,
-                  color: Colors.green,
-                ),
-                title: Text(
-                  'Green',
-                ),
-                onTap: () => Navigator.pop(context, TypeAccentColor.green),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.circle,
-                  color: Colors.orange,
-                ),
-                title: Text(
-                  'Orange',
-                ),
-                onTap: () => Navigator.pop(context, TypeAccentColor.orange),
-              ),
-            ],
-          ),
-        ),
-      ),
+      pageBuilder: (context, animation, secAnimation) {},
     );
   }
 }
@@ -642,10 +656,12 @@ class BackgroundImageScreen extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
                       child: OutlinedButton(
-                        onPressed:() async {
-                          final cubit = context.read<ChatInterfaceSettingCubit>();
+                        onPressed: () async {
+                          final cubit =
+                              context.read<ChatInterfaceSettingCubit>();
                           await cubit.pickImage();
-                          cubit.saveBackgroundImage(cubit.state.pathBackgroundImage);
+                          cubit.saveBackgroundImage(
+                              cubit.state.pathBackgroundImage);
                         },
                         child: Text('Pick an Image'),
                       ),
@@ -680,9 +696,11 @@ class BackgroundImageScreen extends StatelessWidget {
                         leading: Icon(Icons.wallpaper),
                         title: Text('Pick a new Image'),
                         onTap: () async {
-                          final cubit = context.read<ChatInterfaceSettingCubit>();
+                          final cubit =
+                              context.read<ChatInterfaceSettingCubit>();
                           await cubit.pickImage();
-                          cubit.saveBackgroundImage(cubit.state.pathBackgroundImage);
+                          cubit.saveBackgroundImage(
+                              cubit.state.pathBackgroundImage);
                         },
                       ),
                     ),

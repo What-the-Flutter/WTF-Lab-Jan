@@ -6,21 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:local_auth/local_auth.dart';
-import 'package:my_chat_journal/auth_screen/auth_screen.dart';
-import 'package:my_chat_journal/filter_screen/filter_screen_cubit.dart';
-import 'package:my_chat_journal/settings_screen/chat_interface_setting_cubit.dart';
-import 'package:my_chat_journal/timeline_screen/timeline_screen.dart';
-import 'package:my_chat_journal/timeline_screen/timeline_screen_cubit.dart';
-import 'package:my_chat_journal/widgets/my_bottom_navigation_bar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 
+import '../data/constants/constants.dart';
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
 import '../data/theme/custom_theme.dart' as my;
-import '../main.dart';
+import '../filter_screen/filter_screen_cubit.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
 import '../screen_creating_page/create_new_page.dart';
@@ -28,7 +22,10 @@ import '../screen_creating_page/screen_creating_page_cubit.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
 import '../settings_screen/setting_screen.dart';
 import '../settings_screen/visual_setting_cubit.dart';
+import '../timeline_screen/timeline_screen.dart';
+import '../timeline_screen/timeline_screen_cubit.dart';
 import '../widgets/custom_list_tile.dart';
+import '../widgets/my_bottom_navigation_bar.dart';
 import 'home_screen_cubit.dart';
 
 class HomeWindow extends StatelessWidget {
@@ -91,7 +88,7 @@ class HomeWindow extends StatelessWidget {
                   ],
                 )
               : Center(
-                  child: Text('Await'),
+                  child: CircularProgressIndicator(),
                 ),
         ),
         floatingActionButton: AddChatButton(),
@@ -368,17 +365,15 @@ class ChatPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        await context.read<ScreenMessageCubit>().downloadData(
+        context.read<ScreenMessageCubit>().downloadData(
               context.read<HomeScreenCubit>().state.list[index],
             );
-        await context.read<SearchMessageScreenCubit>().setting(
+        context.read<SearchMessageScreenCubit>().setting(
               ModeScreen.onePage,
               context.read<HomeScreenCubit>().state.list[index],
             );
-        await Navigator.pushNamed(
-          context,
-          ScreenMessage.routeName,
-        );
+        await Navigator.pushNamed(context, ScreenMessage.routeName,
+            arguments: context);
       },
       onLongPress: () => _showActionMenu(context),
       child: Stack(

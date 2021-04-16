@@ -8,7 +8,7 @@ part 'visual_setting_state.dart';
 
 class VisualSettingCubit extends Cubit<VisualSettingState> {
   VisualSettingCubit() : super(VisualSettingState()) {
-   loadAllSettings();
+    loadAllSettings();
   }
 
   VisualSettingState get lightTheme {
@@ -99,7 +99,7 @@ class VisualSettingCubit extends Cubit<VisualSettingState> {
   }
 
   void changeFontFamily(TypeFontFamily typeFontFamily) {
-    switch(typeFontFamily) {
+    switch (typeFontFamily) {
       case TypeFontFamily.roboto:
         emit(state.copyWith(appFontFamily: 'Roboto'));
         break;
@@ -121,7 +121,7 @@ class VisualSettingCubit extends Cubit<VisualSettingState> {
   }
 
   void changeAccentColor(TypeAccentColor typeAccentColor) {
-    switch(typeAccentColor) {
+    switch (typeAccentColor) {
       case TypeAccentColor.gold:
         emit(state.copyWith(appAccentColor: Colors.amberAccent));
         break;
@@ -162,8 +162,6 @@ class VisualSettingCubit extends Cubit<VisualSettingState> {
     saveVisualSettings('typeFace', 0);
     saveVisualSettings('theme', 1);
   }
-
-
 
   Future<int> loadVisualSettings(String key) async {
     var prefs = await SharedPreferences.getInstance();

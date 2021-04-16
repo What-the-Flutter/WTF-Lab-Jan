@@ -38,7 +38,8 @@ class ChatInterfaceSettingCubit extends Cubit<ChatInterfaceSettingState> {
 
   void loadAllSettings() async {
     emit(state.copyWith(
-      isDateTimeModification: await loadChatInterfaceSettings('timeModification'),
+      isDateTimeModification:
+          await loadChatInterfaceSettings('timeModification'),
       isLeftBubbleAlign: await loadChatInterfaceSettings('bubbleAlign'),
       isCenterDateBubble: await loadChatInterfaceSettings('dateBubble'),
       isAuthentication: await loadChatInterfaceSettings('auth'),

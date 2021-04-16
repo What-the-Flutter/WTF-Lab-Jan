@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../data/constants/constants.dart';
 import '../data/model/model_message.dart';
 import '../data/model/model_page.dart';
 import '../data/model/model_tag.dart';
@@ -20,23 +21,23 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     this.repository,
     DateTime time,
   }) : super(
-          ScreenMessageState(
-            fromDate: time,
-            fromTime: TimeOfDay.fromDateTime(time),
-            isReset: false,
-            mode: Mode.await,
-            counter: 0,
-            isBookmark: false,
-            list: <ModelMessage>[],
-            enabledController: true,
-            floatingBar: FloatingBar.nothing,
-            indexCategory: -1,
-            iconDataPhoto: Icons.photo_camera,
-            curTag: '',
-            listTag: ModeListTag.nothing,
-            isStartAnim: <bool>[false, false, false, false],
-          ),
-        ) {
+    ScreenMessageState(
+      fromDate: time,
+      fromTime: TimeOfDay.fromDateTime(time),
+      isReset: false,
+      mode: Mode.await,
+      counter: 0,
+      isBookmark: false,
+      list: <ModelMessage>[],
+      enabledController: true,
+      floatingBar: FloatingBar.nothing,
+      indexCategory: -1,
+      iconDataPhoto: Icons.photo_camera,
+      curTag: '',
+      listTag: ModeListTag.nothing,
+      isStartAnim: <bool>[false, false, false, false],
+    ),
+  ) {
     controller.addListener(
       () => controller.text.isEmpty
           ? emit(

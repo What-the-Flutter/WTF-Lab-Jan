@@ -1,11 +1,5 @@
 part of 'screen_message_cubit.dart';
 
-enum Mode { await, input, selection, edit }
-
-enum FloatingBar { nothing, category, photosOption, tag, attach }
-
-enum ModeListTag { listTags, newTag, nothing }
-
 class ScreenMessageState extends Equatable {
   final ModelPage page;
   final Mode mode;

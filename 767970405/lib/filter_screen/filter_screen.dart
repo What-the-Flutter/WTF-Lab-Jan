@@ -1,11 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/search_messages_screen/search_message_screen.dart';
 
-import '../data/repository/category_repository.dart';
+import '../data/constants/constants.dart';
+import '../data/model/search_item_data.dart';
 import '../data/repository/icons_repository.dart';
 import '../data/theme/custom_theme.dart';
+import '../search_messages_screen/search_message_screen.dart';
 import '../settings_screen/visual_setting_cubit.dart';
 import '../widgets/search_item.dart';
 import 'filter_screen_cubit.dart';
@@ -44,7 +44,6 @@ class FilterScreen extends StatelessWidget {
                 children: <Widget>[
                   BlocBuilder<FilterScreenCubit, FilterScreenState>(
                     builder: (context, state) => TabItem(
-                      key: ValueKey(0),
                       list: state.pages,
                       typeTab: TypeTab.pages,
                       word: 'page',
@@ -52,7 +51,6 @@ class FilterScreen extends StatelessWidget {
                   ),
                   BlocBuilder<FilterScreenCubit, FilterScreenState>(
                     builder: (context, state) => TabItem(
-                      key: ValueKey(1),
                       list: state.tags,
                       typeTab: TypeTab.tags,
                       word: 'tag',
@@ -60,7 +58,6 @@ class FilterScreen extends StatelessWidget {
                   ),
                   BlocBuilder<FilterScreenCubit, FilterScreenState>(
                     builder: (context, state) => TabItem(
-                      key: ValueKey(2),
                       list: state.labels,
                       typeTab: TypeTab.labels,
                       word: 'label',
@@ -110,7 +107,7 @@ class TabItem extends StatelessWidget {
         color: visualSettingState.titleColor,
       ),
     );
-    final searchItemTheme = TagTheme(
+    final searchItemTheme = SearchItemTheme(
       nameStyle: TextStyle(
         fontSize: visualSettingState.bodyFontSize,
         color: visualSettingState.titleColor,
@@ -142,9 +139,14 @@ class TabItem extends StatelessWidget {
                     key: ValueKey(list[i].id),
                     isSelected: list[i].isSelected,
                     name: list[i].name,
-                    iconData: typeTab != TypeTab.tags ? RepositoryProvider.of<IconsRepository>(context).listIcon[list[i].indexIcon].icon : null,
-                    onTap: () =>
-                        context.read<FilterScreenCubit>().selectedItem(typeTab, i),
+                    iconData: typeTab != TypeTab.tags
+                        ? RepositoryProvider.of<IconsRepository>(context)
+                            .listIcon[list[i].indexIcon]
+                            .icon
+                        : null,
+                    onTap: () => context
+                        .read<FilterScreenCubit>()
+                        .selectedItem(typeTab, i),
                     theme: searchItemTheme,
                   ),
                 ),

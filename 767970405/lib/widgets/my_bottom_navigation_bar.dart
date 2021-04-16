@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/filter_screen/filter_screen_cubit.dart';
-import 'package:my_chat_journal/home_screen/home_screen_cubit.dart';
-import 'package:my_chat_journal/timeline_screen/timeline_screen.dart';
-import 'package:my_chat_journal/timeline_screen/timeline_screen_cubit.dart';
+
+import '../filter_screen/filter_screen_cubit.dart';
+import '../home_screen/home_screen_cubit.dart';
+import '../timeline_screen/timeline_screen_cubit.dart';
 
 class MyBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
 
-  const MyBottomNavigationBar({Key key, this.currentIndex}) : super(key: key);
+  const MyBottomNavigationBar({
+    Key key,
+    this.currentIndex,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +47,6 @@ class MyBottomNavigationBar extends StatelessWidget {
         if (context.read<HomeScreenCubit>().state.currentIndex == index) {
           return;
         }
-        if (index == 0) {
-          Navigator.pushNamed(
-            context,
-            '/',
-          );
-        }
         if (index == 2) {
           await context.read<FilterScreenCubit>().loadListsItem();
           final state = context.read<FilterScreenCubit>().state;
@@ -62,12 +59,7 @@ class MyBottomNavigationBar extends StatelessWidget {
                     .where((element) => element.isSelected)
                     .toList(),
               );
-          Navigator.pushNamed(
-            context,
-            TimelineScreen.routeName,
-          );
         }
-
         context.read<HomeScreenCubit>().changeScreen(index);
       },
     );

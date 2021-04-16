@@ -1,9 +1,5 @@
 part of 'search_message_screen_cubit.dart';
 
-enum ResultSearch { found, notFound, wait }
-
-enum ModeScreen { allPages, onePage }
-
 class SearchMessageScreenState extends Equatable {
   final ResultSearch type;
   final ModeScreen modeScreen;

@@ -6,7 +6,7 @@ import '../data/theme/custom_theme.dart';
 class SearchItem extends StatelessWidget {
   final String name;
   final IconData iconData;
-  final TagTheme theme;
+  final SearchItemTheme theme;
   final Function onTap;
   final bool isSelected;
 
@@ -25,7 +25,10 @@ class SearchItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        constraints: BoxConstraints(minWidth: size.width * (3 / 10), minHeight: size.height * (5/100)  ),
+        constraints: BoxConstraints(
+          minWidth: size.width * (3 / 10),
+          minHeight: size.height * (5 / 100),
+        ),
         padding: EdgeInsets.symmetric(horizontal: 5.0),
         alignment: AlignmentDirectional.center,
         decoration: BoxDecoration(

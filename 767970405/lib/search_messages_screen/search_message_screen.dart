@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../data/constants/constants.dart';
 import '../data/theme/custom_theme.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
@@ -60,7 +60,7 @@ class SearchMessageScreen extends StatelessWidget {
                     builder: (context, state) {
                       final visualSettingState =
                           context.read<VisualSettingCubit>().state;
-                      final theme = TagTheme(
+                      final theme = SearchItemTheme(
                         nameStyle: TextStyle(
                           fontSize: visualSettingState.bodyFontSize,
                           color: visualSettingState.titleColor,

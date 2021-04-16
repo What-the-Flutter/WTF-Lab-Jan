@@ -1,7 +1,5 @@
 part of 'filter_screen_cubit.dart';
 
-enum ModeFilter { wait, complete }
-
 class FilterScreenState extends Equatable {
   final ModeFilter modeFilter;
   final List<SearchItemData> pages;

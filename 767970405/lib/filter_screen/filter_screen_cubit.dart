@@ -1,8 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_chat_journal/data/repository/category_repository.dart';
-import 'package:my_chat_journal/data/repository/messages_repository.dart';
-import 'package:my_chat_journal/data/repository/pages_repository.dart';
+
+import '../data/constants/constants.dart';
+import '../data/model/search_item_data.dart';
+import '../data/repository/category_repository.dart';
+import '../data/repository/messages_repository.dart';
+import '../data/repository/pages_repository.dart';
 
 part 'filter_screen_state.dart';
 
@@ -16,13 +19,13 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
     this.messagesRepository,
     this.categoryRepository,
   }) : super(
-          FilterScreenState(
-            modeFilter: ModeFilter.wait,
-            pages: <SearchItemData>[],
-            tags: <SearchItemData>[],
-            labels: <SearchItemData>[],
-          ),
-        );
+    FilterScreenState(
+      modeFilter: ModeFilter.wait,
+      pages: <SearchItemData>[],
+      tags: <SearchItemData>[],
+      labels: <SearchItemData>[],
+    ),
+  );
 
   void loadListsItem() async {
     final pages = await pagesRepository.pages();
@@ -82,6 +85,9 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
             .isNotEmpty;
       case TypeTab.other:
         break;
+      default:
+        assert(false, 'Need to implement $typeTab');
+        return false;
     }
   }
 
@@ -142,42 +148,4 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
         break;
     }
   }
-}
-
-enum TypeTab {
-  pages,
-  tags,
-  labels,
-  other,
-}
-
-class SearchItemData extends Equatable {
-  final int id;
-  final int indexIcon;
-  final String name;
-  final bool isSelected;
-
-  SearchItemData({
-    this.id,
-    this.isSelected,
-    this.indexIcon,
-    this.name,
-  });
-
-  SearchItemData copyWith({
-    final int id,
-    final int indexIcon,
-    final String name,
-    final bool isSelected,
-  }) {
-    return SearchItemData(
-      id: id ?? this.id,
-      indexIcon: indexIcon ?? this.indexIcon,
-      name: name ?? this.name,
-      isSelected: isSelected ?? this.isSelected,
-    );
-  }
-
-  @override
-  List<Object> get props => [id, indexIcon, name, isSelected];
 }

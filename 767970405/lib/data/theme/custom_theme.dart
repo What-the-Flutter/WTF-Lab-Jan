@@ -104,12 +104,12 @@ class ListTileTheme {
   }
 }
 
-class TagTheme {
+class SearchItemTheme {
   final TextStyle nameStyle;
   final Color backgroundColor;
   final double radius;
 
-  TagTheme({
+  SearchItemTheme({
     this.nameStyle,
     this.backgroundColor,
     this.radius,

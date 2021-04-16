@@ -84,53 +84,54 @@ class VisualSettingState extends Equatable {
       botIconColor: botIconColor ?? this.botIconColor,
       botBackgroundColor: botBackgroundColor ?? this.botBackgroundColor,
       categoryBackgroundColor:
-      categoryBackgroundColor ?? this.categoryBackgroundColor,
+          categoryBackgroundColor ?? this.categoryBackgroundColor,
       categoryIconColor: categoryIconColor ?? this.categoryIconColor,
       iconColor: iconColor ?? this.iconColor,
       messageUnselectedColor:
-      messageUnselectedColor ?? this.messageUnselectedColor,
+          messageUnselectedColor ?? this.messageUnselectedColor,
       messageSelectedColor: messageSelectedColor ?? this.messageSelectedColor,
       dateTimeModeButtonBackgroundColor: dateTimeModeButtonBackgroundColor ??
           this.dateTimeModeButtonBackgroundColor,
       dateTimeModeButtonIconColor:
-      dateTimeModeButtonIconColor ?? this.dateTimeModeButtonIconColor,
+          dateTimeModeButtonIconColor ?? this.dateTimeModeButtonIconColor,
       labelDateBackgroundColor:
-      labelDateBackgroundColor ?? this.labelDateBackgroundColor,
+          labelDateBackgroundColor ?? this.labelDateBackgroundColor,
       helpWindowBackgroundColor:
-      helpWindowBackgroundColor ?? this.helpWindowBackgroundColor,
+          helpWindowBackgroundColor ?? this.helpWindowBackgroundColor,
       textFieldColor: textFieldColor ?? this.textFieldColor,
-      disabledTextFieldColor: disabledTextFieldColor ?? this.disabledTextFieldColor,
+      disabledTextFieldColor:
+          disabledTextFieldColor ?? this.disabledTextFieldColor,
       appBrightness: appBrightness ?? this.appBrightness,
       appPrimaryColor: appPrimaryColor ?? this.appPrimaryColor,
       appAccentColor: appAccentColor ?? this.appAccentColor,
       appFontFamily: appFontFamily ?? this.appFontFamily,
       appBarTitleFontSize: appBarTitleFontSize ?? this.appBarTitleFontSize,
       floatingWindowFontSize:
-      floatingWindowFontSize ?? this.floatingWindowFontSize,
+          floatingWindowFontSize ?? this.floatingWindowFontSize,
     );
   }
 
   @override
   List<Object> get props => [
-    titleFontSize,
-    titleColor,
-    bodyFontSize,
-    bodyColor,
-    botIconColor,
-    botBackgroundColor,
-    categoryBackgroundColor,
-    categoryIconColor,
-    messageUnselectedColor,
-    messageSelectedColor,
-    dateTimeModeButtonBackgroundColor,
-    dateTimeModeButtonIconColor,
-    labelDateBackgroundColor,
-    helpWindowBackgroundColor,
-    appBrightness,
-    appAccentColor,
-    appFontFamily,
-    floatingWindowFontSize,
-    textFieldColor,
-    disabledTextFieldColor,
-  ];
+        titleFontSize,
+        titleColor,
+        bodyFontSize,
+        bodyColor,
+        botIconColor,
+        botBackgroundColor,
+        categoryBackgroundColor,
+        categoryIconColor,
+        messageUnselectedColor,
+        messageSelectedColor,
+        dateTimeModeButtonBackgroundColor,
+        dateTimeModeButtonIconColor,
+        labelDateBackgroundColor,
+        helpWindowBackgroundColor,
+        appBrightness,
+        appAccentColor,
+        appFontFamily,
+        floatingWindowFontSize,
+        textFieldColor,
+        disabledTextFieldColor,
+      ];
 }

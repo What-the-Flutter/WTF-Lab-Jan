@@ -5,16 +5,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:my_chat_journal/search_messages_screen/search_message_screen_cubit.dart';
-import 'package:my_chat_journal/widgets/search_item.dart';
 import 'package:provider/provider.dart';
 
+import '../data/constants/constants.dart';
 import '../data/repository/category_repository.dart';
 import '../data/theme/custom_theme.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
+import '../search_messages_screen/search_message_screen_cubit.dart';
 import '../settings_screen/chat_interface_setting_cubit.dart';
 import '../settings_screen/visual_setting_cubit.dart';
+import '../widgets/search_item.dart';
 import 'screen_message_cubit.dart';
 
 class ScreenMessage extends StatefulWidget {
@@ -162,7 +163,7 @@ class TagList extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.read<ScreenMessageCubit>().state;
     final visualSettingState = context.read<VisualSettingCubit>().state;
-    final theme = TagTheme(
+    final theme = SearchItemTheme(
       nameStyle: TextStyle(
         fontSize: visualSettingState.bodyFontSize,
         color: visualSettingState.titleColor,
@@ -471,7 +472,6 @@ class InputPanel extends StatelessWidget {
                           .state
                           .disabledTextFieldColor,
                 ),
-                autofocus: true,
                 controller: context.read<ScreenMessageCubit>().controller,
                 decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
@@ -969,12 +969,12 @@ class Message extends StatelessWidget {
                 Container(
                   constraints: BoxConstraints(maxWidth: 150),
                   decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blue,
-                        offset: Offset(6, 6), // changes position of shadow
-                      ),
-                    ],
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.blue,
+                    //     offset: Offset(6, 6),
+                    //   ),
+                    // ],
                     borderRadius: BorderRadius.circular(15.0),
                     color: isSelected
                         ? theme.selectedColor

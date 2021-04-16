@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:my_chat_journal/filter_screen/filter_screen_cubit.dart';
-import 'package:my_chat_journal/timeline_screen/timeline_screen_cubit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:splashscreen/splashscreen.dart';
 
 import 'data/data_provider.dart';
 import 'data/repository/category_repository.dart';
 import 'data/repository/icons_repository.dart';
 import 'data/repository/messages_repository.dart';
 import 'data/repository/pages_repository.dart';
+import 'filter_screen/filter_screen_cubit.dart';
 import 'home_screen/home_screen_cubit.dart';
 import 'messages_screen/screen_message_cubit.dart';
 import 'router/app_router.dart';
@@ -18,6 +15,7 @@ import 'screen_creating_page/screen_creating_page_cubit.dart';
 import 'search_messages_screen/search_message_screen_cubit.dart';
 import 'settings_screen/chat_interface_setting_cubit.dart';
 import 'settings_screen/visual_setting_cubit.dart';
+import 'timeline_screen/timeline_screen_cubit.dart';
 
 GetIt getIt = GetIt.instance;
 

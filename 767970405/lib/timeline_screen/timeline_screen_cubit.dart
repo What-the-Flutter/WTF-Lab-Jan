@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_chat_journal/data/model/model_message.dart';
-import 'package:my_chat_journal/data/repository/messages_repository.dart';
-import 'package:my_chat_journal/filter_screen/filter_screen_cubit.dart';
+
+import '../data/constants/constants.dart';
+import '../data/model/model_message.dart';
+import '../data/model/search_item_data.dart';
+import '../data/repository/messages_repository.dart';
 
 part 'timeline_screen_state.dart';
 
@@ -11,11 +13,13 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
 
   TimelineScreenCubit({
     this.repository,
-  }) : super(TimelineScreenState(
-    list: <ModelMessage>[],
-    modeFilter: ModeFilter.wait,
-    isBookmark: false,
-  ));
+  }) : super(
+    TimelineScreenState(
+      list: <ModelMessage>[],
+      modeFilter: ModeFilter.wait,
+      isBookmark: false,
+    ),
+  );
 
   void configureList({
     List<SearchItemData> selectedPages,
@@ -34,11 +38,11 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
       }).toList();
     }
 
-    if(selectedTags.isNotEmpty) {
+    if (selectedTags.isNotEmpty) {
       listMsg = listMsg.where((element) {
         var words = element.text.split(' ');
-        for(var i = 0; i < selectedTags.length; i++) {
-          if(words.contains(selectedTags[i].name)) {
+        for (var i = 0; i < selectedTags.length; i++) {
+          if (words.contains(selectedTags[i].name)) {
             return true;
           }
         }
@@ -48,8 +52,8 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
 
     if (selectedLabel.isNotEmpty) {
       listMsg = listMsg.where((element) {
-        for(var i = 0; i < selectedLabel.length; i++) {
-          if(element.indexCategory == selectedLabel[i].id) {
+        for (var i = 0; i < selectedLabel.length; i++) {
+          if (element.indexCategory == selectedLabel[i].id) {
             return true;
           }
         }

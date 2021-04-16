@@ -1,10 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:my_chat_journal/data/model/model_tag.dart';
 
+import '../data/constants/constants.dart';
 import '../data/model/model_message.dart';
 import '../data/model/model_page.dart';
+import '../data/model/model_tag.dart';
 import '../data/repository/messages_repository.dart';
 
 part 'search_message_screen_state.dart';
@@ -61,10 +62,12 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
       }
     }).toList();
 
-    emit(state.copyWith(
-      type: list.isEmpty ? ResultSearch.notFound : ResultSearch.found,
-      list: list,
-    ));
+    emit(
+      state.copyWith(
+        type: list.isEmpty ? ResultSearch.notFound : ResultSearch.found,
+        list: list,
+      ),
+    );
   }
 
   bool _searchForTag(List<String> words, List<ModelTag> selectedTags) {
@@ -94,10 +97,12 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
 
   void configureTagSearch(int index, bool isSelected) async {
     state.tags[index] = state.tags[index].copyWith(isSelected: isSelected);
-    emit(state.copyWith(
-      type: isReset() ? ResultSearch.wait : state.type,
-      tags: List.from(state.tags),
-    ));
+    emit(
+      state.copyWith(
+        type: isReset() ? ResultSearch.wait : state.type,
+        tags: List.from(state.tags),
+      ),
+    );
     if (!isReset()) {
       search();
     }
@@ -110,16 +115,20 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
   bool isTextEmpty() => controller.text.isEmpty;
 
   void updateTag() async {
-    emit(state.copyWith(
-      tags: await repository.tags(),
-    ));
+    emit(
+      state.copyWith(
+        tags: await repository.tags(),
+      ),
+    );
   }
 
   void setting(ModeScreen mode, [ModelPage page]) async {
-    emit(state.copyWith(
-      modeScreen: mode,
-      page: page,
-      tags: await repository.tags(),
-    ));
+    emit(
+      state.copyWith(
+        modeScreen: mode,
+        page: page,
+        tags: await repository.tags(),
+      ),
+    );
   }
 }
