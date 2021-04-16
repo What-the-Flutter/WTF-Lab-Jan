@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'components/body.dart';
 
-class HomePage extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
