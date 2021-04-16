@@ -1,35 +1,33 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:share/share.dart';
 
 import '../data/constants/constants.dart';
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/model/model_page.dart';
 import '../data/theme/custom_theme.dart' as my;
-import '../filter_screen/filter_screen_cubit.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
 import '../screen_creating_page/create_new_page.dart';
 import '../screen_creating_page/screen_creating_page_cubit.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
-import '../settings_screen/setting_screen.dart';
 import '../settings_screen/visual_setting_cubit.dart';
-import '../timeline_screen/timeline_screen.dart';
-import '../timeline_screen/timeline_screen_cubit.dart';
 import '../widgets/custom_list_tile.dart';
+import '../widgets/drawer.dart';
 import '../widgets/my_bottom_navigation_bar.dart';
 import 'home_screen_cubit.dart';
 
 class HomeWindow extends StatelessWidget {
   final GlobalKey _globalKey = GlobalKey();
+  final MyBottomNavigationBar bottomNavigationBar;
+  final MyDrawer drawer;
+
+  HomeWindow({
+    Key key,
+    this.drawer,
+    this.bottomNavigationBar,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +50,7 @@ class HomeWindow extends StatelessWidget {
             ),
           ],
         ),
-        drawer: _drawer(context),
+        drawer: drawer,
         body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
           builder: (context, state) => state is HomeScreenShow
               ? Stack(
@@ -92,157 +90,8 @@ class HomeWindow extends StatelessWidget {
                 ),
         ),
         floatingActionButton: AddChatButton(),
-        bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-          builder: (context, state) => MyBottomNavigationBar(
-            currentIndex: state.currentIndex,
-          ),
-        ),
+        bottomNavigationBar: bottomNavigationBar,
       ),
-    );
-  }
-
-  Widget _drawer(BuildContext context) {
-    final listTileTheme = my.ListTileTheme(
-      titleStyle: TextStyle(
-        fontSize:
-            context.read<VisualSettingCubit>().state.floatingWindowFontSize,
-      ),
-    );
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            child: Text('Drawer Header'),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.card_giftcard,
-            title: 'Help spread the word',
-            onTap: () => shareScreenshot(context),
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.yellow),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.search,
-            title: 'Search',
-            onTap: () {
-              Navigator.pop(context);
-            },
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.cyan),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.notifications,
-            title: 'Notifications',
-            onTap: () {
-              Navigator.pop(context);
-            },
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.stacked_line_chart,
-            title: 'Statistics',
-            onTap: () {
-              Navigator.pop(context);
-            },
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.settings,
-            title: 'Settings',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(
-                context,
-                SettingsScreen.routeName,
-              );
-            },
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.brown),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.feedback,
-            title: 'Feedback',
-            onTap: () {
-              Navigator.pop(context);
-            },
-            theme: listTileTheme.copyWith(leadingIconColor: Colors.orange),
-          )
-        ],
-      ),
-    );
-  }
-
-  Future<Null> shareScreenshot(BuildContext context) async {
-    Navigator.pop(context);
-    try {
-      RenderRepaintBoundary boundary =
-          _globalKey.currentContext.findRenderObject();
-      if (boundary.debugNeedsPaint) {
-        Timer(Duration(seconds: 1), () => shareScreenshot(context));
-        return null;
-      }
-      var image = await boundary.toImage();
-      final directory = (await getExternalStorageDirectory()).path;
-      var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      var pngBytes = byteData.buffer.asUint8List();
-      var imgFile = File('$directory/screenshot.png');
-      imgFile.writeAsBytes(pngBytes);
-      final RenderBox box = context.findRenderObject();
-      Share.shareFiles(['$directory/screenshot.png'],
-          subject: 'Share ScreenShot',
-          text: 'Hello, check your share files!',
-          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
-    } on PlatformException catch (e) {
-      print('Exception while taking screenshot:$e');
-    }
-  }
-
-  Widget _bottomNavigationBar(BuildContext context, HomeScreenState state) {
-    return BottomNavigationBar(
-      currentIndex: state.currentIndex,
-      items: [
-        BottomNavigationBarItem(
-          label: 'Home',
-          icon: Icon(
-            Icons.home,
-          ),
-        ),
-        BottomNavigationBarItem(
-          label: 'Daily',
-          icon: Icon(
-            Icons.event_note_sharp,
-          ),
-        ),
-        BottomNavigationBarItem(
-          label: 'Timeline',
-          icon: Icon(
-            Icons.timeline,
-          ),
-        ),
-        BottomNavigationBarItem(
-          label: 'Explore',
-          icon: Icon(
-            Icons.explore,
-          ),
-        )
-      ],
-      onTap: (index) async {
-        context.read<HomeScreenCubit>().changeScreen(index);
-        if (index == 2) {
-          final state = context.read<FilterScreenCubit>().state;
-          context.read<TimelineScreenCubit>().configureList(
-                selectedPages:
-                    state.pages.where((element) => element.isSelected).toList(),
-                selectedTags:
-                    state.tags.where((element) => element.isSelected).toList(),
-                selectedLabel: state.labels
-                    .where((element) => element.isSelected)
-                    .toList(),
-              );
-          Navigator.pushNamed(
-            context,
-            TimelineScreen.routeName,
-          );
-        }
-      },
     );
   }
 }
@@ -316,6 +165,7 @@ class AddChatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      heroTag: 'HomeTag',
       elevation: 10.0,
       child: Icon(
         Icons.add,
@@ -365,15 +215,18 @@ class ChatPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        context.read<ScreenMessageCubit>().downloadData(
+        await context.read<ScreenMessageCubit>().downloadData(
               context.read<HomeScreenCubit>().state.list[index],
             );
-        context.read<SearchMessageScreenCubit>().setting(
+        await context.read<SearchMessageScreenCubit>().setting(
               ModeScreen.onePage,
               context.read<HomeScreenCubit>().state.list[index],
             );
-        await Navigator.pushNamed(context, ScreenMessage.routeName,
-            arguments: context);
+        await Navigator.pushNamed(
+          context,
+          ScreenMessage.routeName,
+          arguments: context,
+        );
       },
       onLongPress: () => _showActionMenu(context),
       child: Stack(

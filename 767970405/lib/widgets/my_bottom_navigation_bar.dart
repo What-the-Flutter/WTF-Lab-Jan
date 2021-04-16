@@ -15,53 +15,55 @@ class MyBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      items: [
-        BottomNavigationBarItem(
-          label: 'Home',
-          icon: Icon(
-            Icons.home,
+    return BlocBuilder<HomeScreenCubit, HomeScreenState>(
+      builder: (context, state) => BottomNavigationBar(
+        currentIndex: state.currentIndex,
+        items: [
+          BottomNavigationBarItem(
+            label: 'Home',
+            icon: Icon(
+              Icons.home,
+            ),
           ),
-        ),
-        BottomNavigationBarItem(
-          label: 'Daily',
-          icon: Icon(
-            Icons.event_note_sharp,
+          BottomNavigationBarItem(
+            label: 'Daily',
+            icon: Icon(
+              Icons.event_note_sharp,
+            ),
           ),
-        ),
-        BottomNavigationBarItem(
-          label: 'Timeline',
-          icon: Icon(
-            Icons.timeline,
+          BottomNavigationBarItem(
+            label: 'Timeline',
+            icon: Icon(
+              Icons.timeline,
+            ),
           ),
-        ),
-        BottomNavigationBarItem(
-          label: 'Explore',
-          icon: Icon(
-            Icons.explore,
-          ),
-        )
-      ],
-      onTap: (index) async {
-        if (context.read<HomeScreenCubit>().state.currentIndex == index) {
-          return;
-        }
-        if (index == 2) {
-          await context.read<FilterScreenCubit>().loadListsItem();
-          final state = context.read<FilterScreenCubit>().state;
-          await context.read<TimelineScreenCubit>().configureList(
-                selectedPages:
-                    state.pages.where((element) => element.isSelected).toList(),
-                selectedTags:
-                    state.tags.where((element) => element.isSelected).toList(),
-                selectedLabel: state.labels
-                    .where((element) => element.isSelected)
-                    .toList(),
-              );
-        }
-        context.read<HomeScreenCubit>().changeScreen(index);
-      },
+          BottomNavigationBarItem(
+            label: 'Explore',
+            icon: Icon(
+              Icons.explore,
+            ),
+          )
+        ],
+        onTap: (index) async {
+          if (state.currentIndex == index) {
+            return;
+          }
+          if (index == 2) {
+            await context.read<FilterScreenCubit>().loadListsItem();
+            final state = context.read<FilterScreenCubit>().state;
+            await context.read<TimelineScreenCubit>().configureList(
+                  selectedPages:
+                      state.pages.where((element) => element.isSelected).toList(),
+                  selectedTags:
+                      state.tags.where((element) => element.isSelected).toList(),
+                  selectedLabel: state.labels
+                      .where((element) => element.isSelected)
+                      .toList(),
+                );
+          }
+          context.read<HomeScreenCubit>().changeScreen(index);
+        },
+      ),
     );
   }
 }

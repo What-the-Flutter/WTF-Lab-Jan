@@ -97,6 +97,7 @@ class ScreenMessageState extends Equatable {
 
   @override
   List<Object> get props => [
+        page,
         mode,
         counter,
         list,

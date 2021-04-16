@@ -27,6 +27,13 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     );
   }
 
+  String receiveTitlePage(int pageId) {
+    return state.list
+        .where((element) => element.id == pageId)
+        .toList()[0]
+        .title;
+  }
+
   void removePage(int index) async {
     repository.removeMessages(state.list[index].id);
     repository.removePage(state.list[index].id);
@@ -83,7 +90,6 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       ),
     );
   }
-
 
   void changeScreen(int index) {
     emit(state.copyWith(currentIndex: index));

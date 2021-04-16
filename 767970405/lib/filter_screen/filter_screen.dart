@@ -117,6 +117,9 @@ class TabItem extends StatelessWidget {
     );
     return Column(
       children: <Widget>[
+        SizedBox(
+          height: 20,
+        ),
         HelpWindow(
           content: context.read<FilterScreenCubit>().isSelectedItem(typeTab)
               ? '${list.where((element) => element.isSelected).toList().length} $word(s) included'
@@ -125,33 +128,33 @@ class TabItem extends StatelessWidget {
                   ' All ${word}s are included by default.',
           theme: curTheme,
         ),
-        Padding(
-          padding: EdgeInsets.only(bottom: 10.0),
-          child: Wrap(
-            spacing: 5.0,
-            runSpacing: 5.0,
-            direction: Axis.horizontal,
-            children: <Widget>[
-              for (var i = 0; i < list.length; i++)
-                FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: SearchItem(
-                    key: ValueKey(list[i].id),
-                    isSelected: list[i].isSelected,
-                    name: list[i].name,
-                    iconData: typeTab != TypeTab.tags
-                        ? RepositoryProvider.of<IconsRepository>(context)
-                            .listIcon[list[i].indexIcon]
-                            .icon
-                        : null,
-                    onTap: () => context
-                        .read<FilterScreenCubit>()
-                        .selectedItem(typeTab, i),
-                    theme: searchItemTheme,
-                  ),
+        SizedBox(
+          height: 50,
+        ),
+        Wrap(
+          spacing: 5.0,
+          runSpacing: 5.0,
+          direction: Axis.horizontal,
+          children: <Widget>[
+            for (var i = 0; i < list.length; i++)
+              FittedBox(
+                fit: BoxFit.fitWidth,
+                child: SearchItem(
+                  key: ValueKey(list[i].id),
+                  isSelected: list[i].isSelected,
+                  name: list[i].name,
+                  iconData: typeTab != TypeTab.tags
+                      ? RepositoryProvider.of<IconsRepository>(context)
+                          .listIcon[list[i].indexIcon]
+                          .icon
+                      : null,
+                  onTap: () => context
+                      .read<FilterScreenCubit>()
+                      .selectedItem(typeTab, i),
+                  theme: searchItemTheme,
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ],
     );

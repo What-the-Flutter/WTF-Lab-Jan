@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../data/constants/constants.dart';
 import '../data/theme/custom_theme.dart';
+import '../home_screen/home_screen_cubit.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
 import '../settings_screen/chat_interface_setting_cubit.dart';
@@ -148,7 +149,9 @@ class SearchMessageScreen extends StatelessWidget {
                   isSelected: state.list[index].isSelected,
                   title: state.modeScreen == ModeScreen.onePage
                       ? state.page.title
-                      : 'TODO',
+                      : context
+                          .read<HomeScreenCubit>()
+                          .receiveTitlePage(state.list[index].pageId),
                   photoPath: state.list[index].photo,
                   isFavor: state.list[index].isFavor,
                   eventIndex: state.list[index].indexCategory,

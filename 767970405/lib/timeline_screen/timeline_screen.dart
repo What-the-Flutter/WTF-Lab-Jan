@@ -12,11 +12,21 @@ import '../search_messages_screen/search_message_screen.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
 import '../settings_screen/chat_interface_setting_cubit.dart';
 import '../settings_screen/visual_setting_cubit.dart';
+import '../widgets/drawer.dart';
 import '../widgets/my_bottom_navigation_bar.dart';
 import 'timeline_screen_cubit.dart';
 
 class TimelineScreen extends StatelessWidget {
   static const routeName = '/TimelineScreen';
+
+  final MyDrawer drawer;
+  final MyBottomNavigationBar bottomNavigationBar;
+
+  TimelineScreen({
+    Key key,
+    this.bottomNavigationBar,
+    this.drawer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +54,7 @@ class TimelineScreen extends StatelessWidget {
           ),
         ],
       ),
+      drawer: drawer,
       body: BlocBuilder<TimelineScreenCubit, TimelineScreenState>(
         builder: (context, state) => state.modeFilter == ModeFilter.complete
             ? ListView(
@@ -53,6 +64,7 @@ class TimelineScreen extends StatelessWidget {
             : CircularProgressIndicator(),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'TimelineTag',
         child: Icon(Icons.filter_list),
         onPressed: () async {
           await Navigator.pushNamed(
@@ -71,11 +83,7 @@ class TimelineScreen extends StatelessWidget {
               );
         },
       ),
-      bottomNavigationBar: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-        builder: (context, state) => MyBottomNavigationBar(
-          currentIndex: state.currentIndex,
-        ),
-      ),
+      bottomNavigationBar: bottomNavigationBar,
     );
   }
 
@@ -117,6 +125,9 @@ class TimelineScreen extends StatelessWidget {
         flag = true;
         list.add(
           Message(
+            title: context
+                .read<HomeScreenCubit>()
+                .receiveTitlePage(state.list[index].pageId),
             index: index,
             isSelected: state.list[index].isSelected,
             photoPath: state.list[index].photo,
@@ -137,7 +148,6 @@ class TimelineScreen extends StatelessWidget {
       }
       if (state.isBookmark && !flag) {
         list.add(Container());
-        index--;
         continue;
       }
       list.add(

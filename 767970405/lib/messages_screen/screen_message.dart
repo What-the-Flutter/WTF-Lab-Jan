@@ -296,7 +296,6 @@ class ChatElementList extends StatelessWidget {
       }
       if (state.isBookmark && !flag) {
         list.add(Container());
-        index--;
         continue;
       }
       list.add(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/widgets/drawer.dart';
 
 import '../home_screen/home_screen.dart';
 import '../home_screen/home_screen_cubit.dart';
@@ -10,10 +11,18 @@ class StartWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
-      builder: (context, state) => IndexedStack(
+        builder: (context, state) {
+      final bottomNavigationBar = MyBottomNavigationBar(
+        currentIndex: state.currentIndex,
+      );
+      final drawer = MyDrawer();
+      return IndexedStack(
         index: state.currentIndex,
         children: <Widget>[
-          HomeWindow(),
+          HomeWindow(
+            drawer: drawer,
+            bottomNavigationBar: bottomNavigationBar,
+          ),
           Scaffold(
             appBar: AppBar(
               title: Text('Statistic'),
@@ -21,11 +30,13 @@ class StartWindow extends StatelessWidget {
             body: Center(
               child: Text('In future'),
             ),
-            bottomNavigationBar: MyBottomNavigationBar(
-              currentIndex: state.currentIndex,
-            ),
+            drawer: drawer,
+            bottomNavigationBar: bottomNavigationBar,
           ),
-          TimelineScreen(),
+          TimelineScreen(
+            drawer: drawer,
+            bottomNavigationBar: bottomNavigationBar,
+          ),
           Scaffold(
             appBar: AppBar(
               title: Text('Explore'),
@@ -33,12 +44,11 @@ class StartWindow extends StatelessWidget {
             body: Center(
               child: Text('In future'),
             ),
-            bottomNavigationBar: MyBottomNavigationBar(
-              currentIndex: state.currentIndex,
-            ),
+            drawer: drawer,
+            bottomNavigationBar: bottomNavigationBar,
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 }

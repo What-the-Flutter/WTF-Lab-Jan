@@ -16,7 +16,7 @@ class SearchMessageScreenState extends Equatable {
   });
 
   @override
-  List<Object> get props => [list, page, tags, type];
+  List<Object> get props => [list, page, tags, type, modeScreen];
 
   SearchMessageScreenState copyWith({
     ModeScreen modeScreen,
