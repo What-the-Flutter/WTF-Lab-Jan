@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part'event.g.dart';
+part 'event.g.dart';
 
 @JsonSerializable()
 class Event {
@@ -8,8 +8,15 @@ class Event {
   int typeId;
   String message;
   DateTime date;
+  int favorite;
 
-  Event({this.id, this.typeId, this.message, this.date});
+  Event({
+    this.id,
+    this.typeId,
+    this.message,
+    this.date,
+    this.favorite,
+  });
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 

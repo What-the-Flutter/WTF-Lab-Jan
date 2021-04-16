@@ -2,7 +2,6 @@ import '../models/event.dart';
 import '../models/event_type.dart';
 
 abstract class IEventsRepository {
-
   Future<List<EventType>> fetchEventTypeList();
 
   Future<List<Event>> fetchEventsList(EventType eventType);
