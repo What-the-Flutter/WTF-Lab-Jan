@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../data/constants/constants.dart';
 import '../data/model/model_message.dart';
 import '../data/model/model_page.dart';
 import '../data/model/model_tag.dart';
@@ -34,6 +35,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
       iconDataPhoto: Icons.photo_camera,
       curTag: '',
       listTag: ModeListTag.nothing,
+      isStartAnim: <bool>[false, false, false, false],
     ),
   ) {
     controller.addListener(
@@ -49,7 +51,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
               state.copyWith(
                 iconDataPhoto: Icons.add,
                 onAddMessage:
-                    state.mode == Mode.input ? addTextMessage : ediTextMessage,
+                    state.mode == Mode.input ? addMessage : ediTextMessage,
               ),
             ),
     );
@@ -80,6 +82,10 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
           floatingBar: FloatingBar.tag,
           listTag: ModeListTag.listTags,
           curTag: '#',
+          isStartAnim: List<bool>.generate(state.isStartAnim.length, (index) {
+            if (index == 2) return true;
+            return state.isStartAnim[index];
+          }),
         ),
       );
     }
@@ -113,8 +119,14 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         (state.curTag.isNotEmpty && controller.text.endsWith(' '))) {
       emit(
         state.copyWith(
-          floatingBar: FloatingBar.nothing,
           listTag: ModeListTag.nothing,
+          floatingBar: state.attachedPhotoPath.isEmpty
+              ? FloatingBar.nothing
+              : FloatingBar.attach,
+          isStartAnim: List<bool>.generate(state.isStartAnim.length, (index) {
+            if (index == 3 && state.attachedPhotoPath.isNotEmpty) return true;
+            return state.isStartAnim[index];
+          }),
         ),
       );
     }
@@ -124,7 +136,17 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     emit(state.copyWith(isBookmark: !state.isBookmark));
   }
 
-  void addTextMessage() async {
+  void addTagToText(int index) {
+    final text = '${controller.text}${state.tags[index].name.substring(1)} ';
+    controller.value = controller.value.copyWith(
+      text: text,
+      selection:
+          TextSelection(baseOffset: text.length, extentOffset: text.length),
+      composing: TextRange.empty,
+    );
+  }
+
+  void addMessage() async {
     final listTags = controller.text
         .split(' ')
         .where((element) => element.startsWith('#'))
@@ -145,7 +167,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         isFavor: state.isBookmark,
         isSelected: false,
         indexCategory: state.indexCategory,
-        photo: null,
+        photo: state.attachedPhotoPath,
         pubTime: state.isReset
             ? state.fromDate.applied(state.fromTime)
             : DateTime.now(),
@@ -188,6 +210,8 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         onAddCategory: showCategoryList,
         iconDataPhoto: Icons.photo_camera,
         onAddMessage: showPhotoOption,
+        floatingBar: FloatingBar.nothing,
+        attachedPhotoPath: '',
       ),
     );
   }
@@ -214,23 +238,17 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
     return list;
   }
 
-  Future<void> addPhotoMessage(ImageSource source) async {
+  Future<void> attachedPhoto(ImageSource source) async {
     final pickedFile = await ImagePicker().getImage(source: source);
-    repository.addMessage(
-      ModelMessage(
-        pageId: state.page.id,
-        photo: pickedFile.path,
-        isFavor: state.isBookmark,
-        isSelected: false,
-        indexCategory: -1,
-        pubTime: state.isReset
-            ? state.fromDate.applied(state.fromTime)
-            : DateTime.now(),
-      ),
-    );
     emit(
       state.copyWith(
-        list: await repository.messages(state.page.id),
+        attachedPhotoPath: pickedFile.path,
+        floatingBar: FloatingBar.attach,
+        isStartAnim: List<bool>.generate(state.isStartAnim.length, (index) {
+          if (index == 3) return true;
+          return state.isStartAnim[index];
+        }),
+        onAddMessage: showPhotoOption,
       ),
     );
   }
@@ -284,6 +302,7 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
         mode: Mode.edit,
         onAddMessage: ediTextMessage,
         indexCategory: state.list[index].indexCategory,
+        attachedPhotoPath: state.list[index].photo,
       ),
     );
   }
@@ -378,6 +397,11 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
       state.copyWith(
         floatingBar: FloatingBar.category,
         onAddCategory: closeFloatingBar,
+        onAddMessage: controller.text.isEmpty ? showPhotoOption : addMessage,
+        isStartAnim: List<bool>.generate(state.isStartAnim.length, (index) {
+          if (index == 0) return true;
+          return state.isStartAnim[index];
+        }),
       ),
     );
   }
@@ -385,9 +409,29 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   void closeFloatingBar() {
     emit(
       state.copyWith(
-        floatingBar: FloatingBar.nothing,
         onAddCategory: showCategoryList,
-        onAddMessage: showPhotoOption,
+        onAddMessage: controller.text.isEmpty ? showPhotoOption : addMessage,
+        floatingBar: state.attachedPhotoPath.isEmpty
+            ? FloatingBar.nothing
+            : FloatingBar.attach,
+        isStartAnim: List<bool>.generate(state.isStartAnim.length, (index) {
+          if (index == 3 && state.attachedPhotoPath.isNotEmpty) return true;
+          return state.isStartAnim[index];
+        }),
+      ),
+    );
+  }
+
+  void changeDisplay(int index) {
+    emit(
+      state.copyWith(
+        isStartAnim: List<bool>.generate(state.isStartAnim.length, (i) {
+          if (i == index) return false;
+          return state.isStartAnim[i];
+        }),
+        attachedPhotoPath: state.floatingBar == FloatingBar.nothing
+            ? ''
+            : state.attachedPhotoPath,
       ),
     );
   }
@@ -395,11 +439,15 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   void cancelSelected() {
     emit(
       state.copyWith(
-        floatingBar: FloatingBar.nothing,
+        floatingBar: state.attachedPhotoPath.isEmpty
+            ? FloatingBar.nothing
+            : FloatingBar.attach,
         onAddCategory: showCategoryList,
         indexCategory: -1,
-        onAddMessage: state.mode == Mode.input ? showPhotoOption : null,
-        iconDataPhoto: state.mode == Mode.input ? Icons.photo_camera : null,
+        isStartAnim: List<bool>.generate(state.isStartAnim.length, (index) {
+          if (index == 3 && state.attachedPhotoPath.isNotEmpty) return true;
+          return state.isStartAnim[index];
+        }),
       ),
     );
   }
@@ -407,21 +455,30 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   void showPhotoOption() {
     emit(
       state.copyWith(
-        floatingBar: FloatingBar.photosOption,
-        onAddMessage: closeFloatingBar,
-      ),
+          floatingBar: FloatingBar.photosOption,
+          onAddMessage: closeFloatingBar,
+          onAddCategory: showCategoryList,
+          isStartAnim: List<bool>.generate(state.isStartAnim.length, (index) {
+            if (index == 1) return true;
+            return state.isStartAnim[index];
+          })),
     );
   }
 
   void selectedCategory(int index) {
     emit(
       state.copyWith(
-        floatingBar: FloatingBar.nothing,
+        floatingBar: state.attachedPhotoPath.isEmpty
+            ? FloatingBar.nothing
+            : FloatingBar.attach,
         onAddCategory: showCategoryList,
         indexCategory: index,
         iconDataPhoto: Icons.add,
-        onAddMessage:
-            state.mode == Mode.input ? addTextMessage : ediTextMessage,
+        onAddMessage: state.mode == Mode.input ? addMessage : ediTextMessage,
+        isStartAnim: List<bool>.generate(state.isStartAnim.length, (index) {
+          if (index == 3 && state.attachedPhotoPath.isNotEmpty) return true;
+          return state.isStartAnim[index];
+        }),
       ),
     );
   }
@@ -455,6 +512,6 @@ class ScreenMessageCubit extends Cubit<ScreenMessageState> {
   @override
   Future<Function> close() {
     controller.dispose();
-    super.close();
+    return super.close();
   }
 }

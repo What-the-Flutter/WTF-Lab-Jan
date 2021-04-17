@@ -3,11 +3,15 @@ import '../model/label_model.dart';
 
 class IconsRepository {
   final List<LabelModel> listIcon = <LabelModel>[
+    LabelModel(icon: Icons.directions_run),
+    LabelModel(icon: Icons.sports_basketball),
+    LabelModel(icon: Icons.local_movies),
+    LabelModel(icon: Icons.fastfood),
+    LabelModel(icon: Icons.fitness_center),
+    LabelModel(icon: Icons.local_laundry_service),
     LabelModel(icon: Icons.title),
     LabelModel(icon: Icons.account_balance_wallet),
-    LabelModel(icon: Icons.fitness_center),
     LabelModel(icon: Icons.account_balance),
-    LabelModel(icon: Icons.fastfood),
     LabelModel(icon: Icons.wine_bar),
     LabelModel(icon: Icons.monetization_on),
     LabelModel(icon: Icons.home),
@@ -15,7 +19,6 @@ class IconsRepository {
     LabelModel(icon: Icons.shopping_cart),
     LabelModel(icon: Icons.radio),
     LabelModel(icon: Icons.videogame_asset_sharp),
-    LabelModel(icon: Icons.local_laundry_service),
     LabelModel(icon: Icons.flag),
     LabelModel(icon: Icons.music_note),
     LabelModel(icon: Icons.event_seat),

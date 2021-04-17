@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CategoryRepository {
-  final List<Category> events = <Category>[
+  final List<Category> categories = <Category>[
     Category(
       iconData: Icons.directions_run,
       label: 'Running',

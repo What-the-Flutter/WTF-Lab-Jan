@@ -1,12 +1,15 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../data/theme/custom_theme.dart';
 
+import '../data/constants/constants.dart';
+import '../data/theme/custom_theme.dart';
+import '../home_screen/home_screen_cubit.dart';
 import '../messages_screen/screen_message.dart';
 import '../messages_screen/screen_message_cubit.dart';
-import '../settings_screen/setting_screen_cubit.dart';
+import '../settings_screen/chat_interface_setting_cubit.dart';
+import '../settings_screen/visual_setting_cubit.dart';
+import '../widgets/search_item.dart';
 import 'search_message_screen_cubit.dart';
 
 class SearchMessageScreen extends StatelessWidget {
@@ -26,13 +29,20 @@ class SearchMessageScreen extends StatelessWidget {
           autofocus: true,
           controller: context.read<SearchMessageScreenCubit>().controller,
           decoration: InputDecoration(
-            labelText:
-                'Search in ${context.read<ScreenMessageCubit>().state.page.title}',
+            hintText: context
+                        .read<SearchMessageScreenCubit>()
+                        .state
+                        .modeScreen ==
+                    ModeScreen.onePage
+                ? 'Search in ${context.read<ScreenMessageCubit>().state.page.title}'
+                : 'Search in all pages',
           ),
         ),
         actions: <Widget>[
           BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
-            builder: (context, state) => state is! SearchMessageScreenWait
+            builder: (context, state) => !context
+                    .read<SearchMessageScreenCubit>()
+                    .isTextEmpty()
                 ? IconButton(
                     icon: Icon(Icons.close),
                     onPressed: context.read<SearchMessageScreenCubit>().reset,
@@ -40,6 +50,49 @@ class SearchMessageScreen extends StatelessWidget {
                 : Container(),
           ),
         ],
+        bottom: context.read<SearchMessageScreenCubit>().isNotEmptyTag()
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(42),
+                child: Container(
+                  constraints: BoxConstraints(maxHeight: 42),
+                  padding: EdgeInsets.all(5.0),
+                  child: BlocBuilder<SearchMessageScreenCubit,
+                      SearchMessageScreenState>(
+                    builder: (context, state) {
+                      final visualSettingState =
+                          context.read<VisualSettingCubit>().state;
+                      final theme = SearchItemTheme(
+                        nameStyle: TextStyle(
+                          fontSize: visualSettingState.bodyFontSize,
+                          color: visualSettingState.titleColor,
+                        ),
+                        backgroundColor: Colors.red[200],
+                        radius: 30,
+                      );
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: state.tags.length,
+                        itemBuilder: (context, index) => Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 5.0),
+                          child: SearchItem(
+                            key: ValueKey(index),
+                            name: state.tags[index].name,
+                            isSelected: state.tags[index].isSelected,
+                            onTap: () async {
+                              await context
+                                  .read<SearchMessageScreenCubit>()
+                                  .configureTagSearch(
+                                      index, !state.tags[index].isSelected);
+                            },
+                            theme: theme,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              )
+            : null,
       ),
       body: _searchResult(),
     );
@@ -49,26 +102,26 @@ class SearchMessageScreen extends StatelessWidget {
     return Center(
       child: BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
         builder: (context, state) {
-          final generalOptionState = context.read<SettingScreenCubit>().state;
+          final visualSettingState = context.read<VisualSettingCubit>().state;
           final curTheme = HelpWindowTheme(
-            backgroundColor: generalOptionState.helpWindowBackgroundColor,
+            backgroundColor: visualSettingState.helpWindowBackgroundColor,
             titleStyle: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: generalOptionState.titleFontSize,
-              color: generalOptionState.titleColor,
+              fontSize: visualSettingState.titleFontSize,
+              color: visualSettingState.titleColor,
             ),
             contentStyle: TextStyle(
-              fontSize: generalOptionState.bodyFontSize,
-              color: generalOptionState.titleColor,
+              fontSize: visualSettingState.bodyFontSize,
+              color: visualSettingState.titleColor,
             ),
           );
-          if (state is SearchMessageScreenWait) {
+          if (state.type == ResultSearch.wait) {
             return HelpWindow(
               iconData: Icons.search,
               content: 'Please enter a search query to begin searching',
               theme: curTheme,
             );
-          } else if (state is SearchMessageScreenNotFound) {
+          } else if (state.type == ResultSearch.notFound) {
             return HelpWindow(
               title: 'No search results available',
               content: 'No entries math the given'
@@ -82,25 +135,32 @@ class SearchMessageScreen extends StatelessWidget {
                 return Message(
                   theme: MessageTheme(
                     contentStyle: TextStyle(
-                      fontSize: generalOptionState.bodyFontSize,
-                      color: generalOptionState.titleColor,
+                      fontSize: visualSettingState.bodyFontSize,
+                      color: visualSettingState.titleColor,
                     ),
                     timeStyle: TextStyle(
-                      fontSize: generalOptionState.bodyFontSize,
-                      color: generalOptionState.bodyColor,
+                      fontSize: visualSettingState.bodyFontSize,
+                      color: visualSettingState.bodyColor,
                     ),
-                    unselectedColor: generalOptionState.messageUnselectedColor,
-                    selectedColor: generalOptionState.messageSelectedColor,
+                    unselectedColor: visualSettingState.messageUnselectedColor,
+                    selectedColor: visualSettingState.messageSelectedColor,
                   ),
                   index: index,
                   isSelected: state.list[index].isSelected,
-                  title: state.page.title,
+                  title: state.modeScreen == ModeScreen.onePage
+                      ? state.page.title
+                      : context
+                          .read<HomeScreenCubit>()
+                          .receiveTitlePage(state.list[index].pageId),
                   photoPath: state.list[index].photo,
                   isFavor: state.list[index].isFavor,
                   eventIndex: state.list[index].indexCategory,
                   text: state.list[index].text,
                   date: DateFormat.Hm().format(state.list[index].pubTime),
-                  align: generalOptionState.isLeftBubbleAlign
+                  align: context
+                          .read<ChatInterfaceSettingCubit>()
+                          .state
+                          .isLeftBubbleAlign
                       ? Alignment.topLeft
                       : Alignment.topRight,
                 );
@@ -134,6 +194,7 @@ class HelpWindow extends StatelessWidget {
       width: size.width * (9 / 10),
       height: size.height * (2 / 10),
       padding: EdgeInsets.all(10),
+      margin: EdgeInsets.symmetric(horizontal: 5.0),
       color: theme.backgroundColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

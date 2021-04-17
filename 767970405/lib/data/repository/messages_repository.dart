@@ -9,8 +9,9 @@ class MessagesRepository {
     this.api,
   });
 
-  Future<List<ModelMessage>> messages(int pageId) async {
-    var list = await api.messages(pageId);
+  Future<List<ModelMessage>> messages([int pageId]) async {
+    var list =
+        pageId != null ? await api.messages(pageId) : await api.messages();
     list.sort();
     return list;
   }

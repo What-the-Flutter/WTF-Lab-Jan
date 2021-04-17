@@ -103,3 +103,15 @@ class ListTileTheme {
     );
   }
 }
+
+class SearchItemTheme {
+  final TextStyle nameStyle;
+  final Color backgroundColor;
+  final double radius;
+
+  SearchItemTheme({
+    this.nameStyle,
+    this.backgroundColor,
+    this.radius,
+  });
+}

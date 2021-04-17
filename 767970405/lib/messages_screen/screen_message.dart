@@ -2,16 +2,20 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
+import '../data/constants/constants.dart';
 import '../data/repository/category_repository.dart';
 import '../data/theme/custom_theme.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
-import '../settings_screen/setting_screen_cubit.dart';
+import '../search_messages_screen/search_message_screen_cubit.dart';
+import '../settings_screen/chat_interface_setting_cubit.dart';
+import '../settings_screen/visual_setting_cubit.dart';
+import '../widgets/search_item.dart';
 import 'screen_message_cubit.dart';
 
 class ScreenMessage extends StatefulWidget {
@@ -26,6 +30,7 @@ class _ScreenMessageState extends State<ScreenMessage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
+        preferredSize: Size.fromHeight(56),
         child: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
           builder: (context, state) {
             switch (state.mode) {
@@ -42,7 +47,6 @@ class _ScreenMessageState extends State<ScreenMessage> {
             }
           },
         ),
-        preferredSize: Size.fromHeight(56),
       ),
       body: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
         builder: (context, state) {
@@ -58,92 +62,126 @@ class _ScreenMessageState extends State<ScreenMessage> {
     );
   }
 
-  Widget get body => BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-        builder: (context, state) {
-          final backImage =
-              context.read<SettingScreenCubit>().state.pathBackgroundImage;
-          return Stack(
-            children: <Widget>[
-              backImage.isNotEmpty
-                  ? Image.file(
-                      File(backImage),
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(),
-              Column(
-                children: <Widget>[
-                  Expanded(
-                    child: ChatElementList(
-                      alignment: context
-                              .read<SettingScreenCubit>()
-                              .state
-                              .isLeftBubbleAlign
-                          ? Alignment.topLeft
-                          : Alignment.topRight,
-                      isDateTimeModEnabled: context
-                          .read<SettingScreenCubit>()
-                          .state
-                          .isDateTimeModification,
-                    ),
+  Widget get body {
+    return BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+      builder: (context, state) {
+        final backImage =
+            context.read<ChatInterfaceSettingCubit>().state.pathBackgroundImage;
+        return Stack(
+          children: <Widget>[
+            backImage.isNotEmpty
+                ? Image.file(
+                    File(backImage),
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.cover,
+                  )
+                : Container(),
+            Column(
+              children: <Widget>[
+                Expanded(
+                  child: ChatElementList(
+                    alignment: context
+                            .read<ChatInterfaceSettingCubit>()
+                            .state
+                            .isLeftBubbleAlign
+                        ? Alignment.topLeft
+                        : Alignment.topRight,
+                    isDateTimeModEnabled: context
+                        .read<ChatInterfaceSettingCubit>()
+                        .state
+                        .isDateTimeModification,
                   ),
-                  Builder(
-                    builder: (context) {
-                      switch (state.floatingBar) {
-                        case FloatingBar.nothing:
-                          return Container();
-                        case FloatingBar.category:
-                          return CategoryList();
-                        case FloatingBar.photosOption:
-                          return AttachPhotoOption();
-                        case FloatingBar.tag:
-                          return state.listTag == ModeListTag.listTags
-                              ? TagList()
-                              : Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    color: Colors.red,
-                                  ),
-                                  child: Text('Add new Tag: ${state.curTag}'),
-                                );
-                        default:
-                          return Container();
-                      }
-                    },
+                ),
+                FloatingBarWindow(
+                  index: 0,
+                  child: CategoryList(),
+                ),
+                FloatingBarWindow(
+                  index: 1,
+                  child: AttachPhotoOption(),
+                ),
+                FloatingBarWindow(
+                  index: 2,
+                  child: state.listTag == ModeListTag.listTags
+                      ? TagList()
+                      : Container(
+                          padding: EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15.0),
+                            color: Colors.red,
+                          ),
+                          child: Text('Add new Tag: ${state.curTag}'),
+                        ),
+                ),
+                FloatingBarWindow(
+                  index: 3,
+                  child: AttachedPhoto(
+                    photoPath: state.attachedPhotoPath,
                   ),
-                  InputPanel(),
-                ],
-              ),
-            ],
-          );
-        },
-      );
+                ),
+                InputPanel(),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class FloatingBarWindow extends StatelessWidget {
+  final Widget child;
+  final int index;
+
+  FloatingBarWindow({
+    Key key,
+    this.index,
+    this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
+      builder: (context, state) => AnimatedContainer(
+        duration: Duration(seconds: 2),
+        padding: EdgeInsets.all(2.0),
+        onEnd: state.floatingBar == FloatingBar.values[index + 1]
+            ? null
+            : () => context.read<ScreenMessageCubit>().changeDisplay(index),
+        height: state.floatingBar == FloatingBar.values[index + 1] ? 70 : 0,
+        child: Center(
+          child: state.isStartAnim[index] ? child : null,
+        ),
+      ),
+    );
+  }
 }
 
 class TagList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.read<ScreenMessageCubit>().state;
-    return Container(
-      constraints: BoxConstraints(maxHeight: 60),
-      padding: EdgeInsets.all(5.0),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: state.tags.length,
-        itemBuilder: (context, index) => Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.0),
-          child: GestureDetector(
-            child: Container(
-              padding: EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                color: Colors.red,
-              ),
-              child: Text(state.tags[index].name),
-            ),
-          ),
+    final visualSettingState = context.read<VisualSettingCubit>().state;
+    final theme = SearchItemTheme(
+      nameStyle: TextStyle(
+        fontSize: visualSettingState.bodyFontSize,
+        color: visualSettingState.titleColor,
+      ),
+      backgroundColor: Colors.red,
+      radius: 15,
+    );
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: state.tags.length,
+      itemBuilder: (context, index) => Padding(
+        padding: EdgeInsets.symmetric(horizontal: 5.0),
+        child: SearchItem(
+          key: ValueKey(index),
+          name: state.tags[index].name,
+          isSelected: false,
+          onTap: () => context.read<ScreenMessageCubit>().addTagToText(index),
+          theme: theme,
         ),
       ),
     );
@@ -162,7 +200,7 @@ class ChatElementList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final generalOptionState = context.read<SettingScreenCubit>().state;
+    final visualSettingState = context.read<VisualSettingCubit>().state;
     return Stack(
       alignment: alignment,
       children: <Widget>[
@@ -179,11 +217,11 @@ class ChatElementList extends StatelessWidget {
               date: DateFormat.yMMMEd().format(state.fromDate),
               theme: DateTimeModButtonTheme(
                 backgroundColor:
-                    generalOptionState.dateTimeModeButtonBackgroundColor,
-                iconColor: generalOptionState.dateTimeModeButtonIconColor,
+                    visualSettingState.dateTimeModeButtonBackgroundColor,
+                iconColor: visualSettingState.dateTimeModeButtonIconColor,
                 dateStyle: TextStyle(
-                  fontSize: generalOptionState.bodyFontSize,
-                  color: generalOptionState.titleColor,
+                  fontSize: visualSettingState.bodyFontSize,
+                  color: visualSettingState.titleColor,
                 ),
               ),
             ),
@@ -199,24 +237,24 @@ class ChatElementList extends StatelessWidget {
     var list = <Widget>[];
     var index = state.list.length - 1;
     var filterList = context.read<ScreenMessageCubit>().groupMsgByDate;
-    final generalOptionState = context.read<SettingScreenCubit>().state;
+    final visualSettingState = context.read<VisualSettingCubit>().state;
     final messageTheme = MessageTheme(
       contentStyle: TextStyle(
-        fontSize: generalOptionState.bodyFontSize,
-        color: generalOptionState.titleColor,
+        fontSize: visualSettingState.bodyFontSize,
+        color: visualSettingState.titleColor,
       ),
       timeStyle: TextStyle(
-        fontSize: generalOptionState.bodyFontSize,
-        color: generalOptionState.bodyColor,
+        fontSize: visualSettingState.bodyFontSize,
+        color: visualSettingState.bodyColor,
       ),
-      unselectedColor: generalOptionState.messageUnselectedColor,
-      selectedColor: generalOptionState.messageSelectedColor,
+      unselectedColor: visualSettingState.messageUnselectedColor,
+      selectedColor: visualSettingState.messageSelectedColor,
     );
     final dateLabelTheme = LabelDateTheme(
-      backgroundColor: generalOptionState.labelDateBackgroundColor,
+      backgroundColor: visualSettingState.labelDateBackgroundColor,
       dateStyle: TextStyle(
-        fontSize: generalOptionState.bodyFontSize,
-        color: generalOptionState.bodyColor,
+        fontSize: visualSettingState.bodyFontSize,
+        color: visualSettingState.bodyColor,
       ),
     );
     for (var i = filterList.length - 1; i > -1; i--) {
@@ -237,7 +275,10 @@ class ChatElementList extends StatelessWidget {
             isFavor: state.list[index].isFavor,
             text: state.list[index].text,
             date: DateFormat.Hm().format(state.list[index].pubTime),
-            align: context.read<SettingScreenCubit>().state.isLeftBubbleAlign
+            align: context
+                    .read<ChatInterfaceSettingCubit>()
+                    .state
+                    .isLeftBubbleAlign
                 ? Alignment.topRight
                 : Alignment.topLeft,
             onTap: state.mode == Mode.selection
@@ -255,7 +296,6 @@ class ChatElementList extends StatelessWidget {
       }
       if (state.isBookmark && !flag) {
         list.add(Container());
-        index--;
         continue;
       }
       list.add(
@@ -265,7 +305,7 @@ class ChatElementList extends StatelessWidget {
             filterList[i][0].pubTime,
           ),
           alignment:
-              context.read<SettingScreenCubit>().state.isCenterDateBubble
+              context.read<ChatInterfaceSettingCubit>().state.isCenterDateBubble
                   ? Alignment.center
                   : Alignment.topLeft,
         ),
@@ -410,7 +450,7 @@ class InputPanel extends StatelessWidget {
                   state.indexCategory == -1
                       ? Icons.bubble_chart
                       : RepositoryProvider.of<CategoryRepository>(context)
-                          .events[state.indexCategory]
+                          .categories[state.indexCategory]
                           .iconData,
                 ),
                 onPressed:
@@ -420,11 +460,31 @@ class InputPanel extends StatelessWidget {
             Expanded(
               flex: 5,
               child: TextField(
-                autofocus: true,
-                enabled: state.enabledController,
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize:
+                      context.read<VisualSettingCubit>().state.bodyFontSize,
+                  color: state.enabledController
+                      ? context.read<VisualSettingCubit>().state.textFieldColor
+                      : context
+                          .read<VisualSettingCubit>()
+                          .state
+                          .disabledTextFieldColor,
+                ),
                 controller: context.read<ScreenMessageCubit>().controller,
                 decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color:
+                          state.enabledController ? Colors.orange : Colors.grey,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color:
+                          state.enabledController ? Colors.orange : Colors.grey,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -465,12 +525,14 @@ class InputAppBar extends StatelessWidget {
             left: 10,
           ),
           child: IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () => Navigator.pushNamed(
-              context,
-              SearchMessageScreen.routeName,
-            ),
-          ),
+              icon: Icon(Icons.search),
+              onPressed: () {
+                context.read<SearchMessageScreenCubit>().updateTag();
+                Navigator.pushNamed(
+                  context,
+                  SearchMessageScreen.routeName,
+                );
+              }),
         ),
         Padding(
           padding: EdgeInsets.only(
@@ -648,48 +710,66 @@ class AttachPhotoOption extends StatelessWidget {
   }
 }
 
+class AttachedPhoto extends StatelessWidget {
+  final String photoPath;
+
+  const AttachedPhoto({
+    Key key,
+    this.photoPath,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 70,
+      child: Image.file(
+        File(photoPath),
+      ),
+    );
+  }
+}
+
 class CategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categories =
-        RepositoryProvider.of<CategoryRepository>(context).events;
-    return Container(
-      constraints: BoxConstraints(maxHeight: 70),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return GestureDetector(
-              onTap: context.read<ScreenMessageCubit>().cancelSelected,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    Container(
-                      child: Icon(Icons.close),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.red,
-                      ),
+        RepositoryProvider.of<CategoryRepository>(context).categories;
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: categories.length,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return GestureDetector(
+            onTap: context.read<ScreenMessageCubit>().cancelSelected,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child: Wrap(
+                direction: Axis.vertical,
+                alignment: WrapAlignment.spaceEvenly,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  Container(
+                    child: Icon(Icons.close),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.red,
                     ),
-                    Text('Cancel'),
-                  ],
-                ),
+                  ),
+                  Text('Cancel'),
+                ],
               ),
-            );
-          }
-          return CategoryMessage(
-            index: index - 1,
-            iconData: categories[index - 1].iconData,
-            label: categories[index - 1].label,
-            color: Colors.teal,
-            direction: Axis.vertical,
-            onTap: context.read<ScreenMessageCubit>().selectedCategory,
+            ),
           );
-        },
-      ),
+        }
+        return CategoryMessage(
+          index: index - 1,
+          iconData: categories[index - 1].iconData,
+          label: categories[index - 1].label,
+          color: Colors.teal,
+          direction: Axis.vertical,
+          onTap: context.read<ScreenMessageCubit>().selectedCategory,
+        );
+      },
     );
   }
 }
@@ -760,24 +840,27 @@ class AttachPhotoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.read<ScreenMessageCubit>().addPhotoMessage(source),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          color: Colors.red,
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(
-                iconData,
-                color: Colors.white,
+    return FittedBox(
+      fit: BoxFit.fitWidth,
+      child: GestureDetector(
+        onTap: () => context.read<ScreenMessageCubit>().attachedPhoto(source),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+            color: Colors.red,
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  iconData,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            Text(text),
-          ],
+              Text(text),
+            ],
+          ),
         ),
       ),
     );
@@ -885,6 +968,12 @@ class Message extends StatelessWidget {
                 Container(
                   constraints: BoxConstraints(maxWidth: 150),
                   decoration: BoxDecoration(
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.blue,
+                    //     offset: Offset(6, 6),
+                    //   ),
+                    // ],
                     borderRadius: BorderRadius.circular(15.0),
                     color: isSelected
                         ? theme.selectedColor
@@ -899,7 +988,7 @@ class Message extends StatelessWidget {
                           padding: EdgeInsets.symmetric(vertical: 5.0),
                           child: Text(title),
                         ),
-                      if (photoPath != null)
+                      if (photoPath != null && photoPath.isNotEmpty)
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 5.0),
                           child: Image.file(
@@ -911,10 +1000,10 @@ class Message extends StatelessWidget {
                           padding: EdgeInsets.symmetric(vertical: 5.0),
                           child: CategoryMessage(
                             iconData: Provider.of<CategoryRepository>(context)
-                                .events[eventIndex]
+                                .categories[eventIndex]
                                 .iconData,
                             label: Provider.of<CategoryRepository>(context)
-                                .events[eventIndex]
+                                .categories[eventIndex]
                                 .label,
                             color: Colors.teal,
                             direction: Axis.horizontal,

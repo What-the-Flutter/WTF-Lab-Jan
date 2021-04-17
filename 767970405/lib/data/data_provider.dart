@@ -64,6 +64,7 @@ class PagesAPI {
       (i) => ModelTag(
         id: maps[i]['id'],
         name: maps[i]['name'],
+        isSelected: false,
       ),
     );
   }
@@ -118,14 +119,16 @@ class PagesAPI {
     );
   }
 
-  Future<List<ModelMessage>> messages(int pageId) async {
+  Future<List<ModelMessage>> messages([int pageId]) async {
     final db = await _database;
 
-    final List<Map<String, dynamic>> maps = await db.query(
-      'msg',
-      where: 'pageId = ?',
-      whereArgs: [pageId],
-    );
+    final List<Map<String, dynamic>> maps = pageId != null
+        ? await db.query(
+            'msg',
+            where: 'pageId = ?',
+            whereArgs: [pageId],
+          )
+        : await db.query('msg');
     return List.generate(
       maps.length,
       (i) => ModelMessage(

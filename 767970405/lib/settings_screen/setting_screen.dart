@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../data/constans/constans.dart';
+import '../data/constants/constants.dart';
 import '../data/custom_icon/my_flutter_app_icons.dart';
 import '../data/theme/custom_theme.dart' as my;
-import '../main.dart';
 import '../widgets/custom_list_tile.dart';
-import 'setting_screen_cubit.dart';
+import 'chat_interface_setting_cubit.dart';
+import 'visual_setting_cubit.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const routeName = 'SettingsPage';
@@ -33,10 +33,10 @@ class SettingsScreen extends StatelessWidget {
     final listTileTheme = my.ListTileTheme(
       titleStyle: TextStyle(
         fontWeight: FontWeight.normal,
-        fontSize: context.read<SettingScreenCubit>().state.titleFontSize,
+        fontSize: context.read<VisualSettingCubit>().state.titleFontSize,
       ),
       contentStyle: TextStyle(
-        fontSize: context.read<SettingScreenCubit>().state.bodyFontSize,
+        fontSize: context.read<VisualSettingCubit>().state.bodyFontSize,
       ),
     );
     return ListView(
@@ -58,7 +58,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -74,7 +74,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -90,7 +90,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -109,7 +109,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -125,7 +125,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -141,7 +141,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -156,7 +156,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: context.read<SettingScreenCubit>().state.appAccentColor,
+            color: context.read<VisualSettingCubit>().state.appAccentColor,
           ),
         ),
         padding,
@@ -175,7 +175,7 @@ class GeneralOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.read<SettingScreenCubit>().state;
+    final state = context.read<VisualSettingCubit>().state;
     final listTileTheme = my.ListTileTheme(
       titleStyle: TextStyle(
         fontWeight: FontWeight.normal,
@@ -187,6 +187,7 @@ class GeneralOption extends StatelessWidget {
     );
     return Theme(
       data: Theme.of(context).copyWith(
+        accentColor: state.appAccentColor,
         textTheme: TextTheme(
           subtitle1: TextStyle(
             fontWeight: FontWeight.normal,
@@ -223,9 +224,11 @@ class GeneralOption extends StatelessWidget {
               leadingIcon: Icons.invert_colors,
               subtitle: 'Light / Dark',
               onTap: () {
-                context.read<SettingScreenCubit>().toggleTheme();
-                saveTheme(
-                  context.read<SettingScreenCubit>().state.appBrightness.index,
+                final cubit = context.read<VisualSettingCubit>();
+                cubit.toggleTheme();
+                cubit.saveVisualSettings(
+                  'theme',
+                  cubit.state.appBrightness.index,
                 );
               },
               theme: listTileTheme.copyWith(
@@ -240,15 +243,27 @@ class GeneralOption extends StatelessWidget {
               theme: listTileTheme.copyWith(
                 leadingIconColor: Theme.of(context).accentColor,
               ),
+              onTap: () async {
+                final cubit = context.read<VisualSettingCubit>();
+                var type = await _showAccentColorDialog(context);
+                cubit.changeAccentColor(type);
+                cubit.saveVisualSettings('accentColor', type.index);
+              },
             ),
             padding,
             CustomListTile(
               leadingIcon: Icons.title,
               title: 'Typeface',
-              subtitle: 'OpenSans / RobotoMono',
+              subtitle: 'Roboto / RobotoMono',
               theme: listTileTheme.copyWith(
                 leadingIconColor: Colors.orangeAccent,
               ),
+              onTap: () async {
+                final cubit = context.read<VisualSettingCubit>();
+                var type = await _showFontFamilyDialog(context);
+                cubit.changeFontFamily(type);
+                cubit.saveVisualSettings('typeFace', type.index);
+              },
             ),
             padding,
             CustomListTile(
@@ -256,9 +271,10 @@ class GeneralOption extends StatelessWidget {
               title: 'Font size',
               subtitle: 'Small / Default / Large',
               onTap: () async {
-                context
-                    .read<SettingScreenCubit>()
-                    .changeFontSize(await _showDialog(context));
+                final cubit = context.read<VisualSettingCubit>();
+                var type = await _showFontSizeDialog(context);
+                cubit.changeFontSize(type);
+                cubit.saveVisualSettings('fontSize', type.index);
               },
               theme: listTileTheme.copyWith(
                 leadingIconColor: Colors.indigo,
@@ -269,7 +285,7 @@ class GeneralOption extends StatelessWidget {
               leadingIcon: Icons.settings_backup_restore,
               title: 'Reset all Preference',
               subtitle: 'Reset all visual Customizations',
-              onTap: context.read<SettingScreenCubit>().resetSettings,
+              onTap: context.read<VisualSettingCubit>().resetVisualSetting,
               theme: listTileTheme.copyWith(
                 leadingIconColor: Colors.orangeAccent,
               ),
@@ -282,7 +298,7 @@ class GeneralOption extends StatelessWidget {
                 style: Theme.of(context).textTheme.subtitle1,
               ),
             ),
-            BlocBuilder<SettingScreenCubit, SettingScreenState>(
+            BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
               builder: (context, state) => SwitchListTile(
                 secondary: Icon(
                   Icons.date_range,
@@ -291,13 +307,15 @@ class GeneralOption extends StatelessWidget {
                 title: Text('Date-Time Modification'),
                 subtitle: Text('Allows manual date & time for an entry'),
                 value: state.isDateTimeModification,
-                onChanged: context
-                    .read<SettingScreenCubit>()
-                    .changeDateTimeModification,
+                onChanged: (value) {
+                  final cubit = context.read<ChatInterfaceSettingCubit>();
+                  cubit.changeDateTimeModification(value);
+                  cubit.saveChatInterfaceSettings('timeModification', value);
+                },
               ),
             ),
             padding,
-            BlocBuilder<SettingScreenCubit, SettingScreenState>(
+            BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
               builder: (context, state) => SwitchListTile(
                 secondary: Icon(
                   Icons.format_align_right,
@@ -306,12 +324,15 @@ class GeneralOption extends StatelessWidget {
                 title: Text('Bubble Alignment'),
                 subtitle: Text('Force right-to-left bubble alignment'),
                 value: state.isLeftBubbleAlign,
-                onChanged:
-                    context.read<SettingScreenCubit>().changeBubbleAlign,
+                onChanged: (value) {
+                  final cubit = context.read<ChatInterfaceSettingCubit>();
+                  cubit.changeBubbleAlign(value);
+                  cubit.saveChatInterfaceSettings('bubbleAlign', value);
+                },
               ),
             ),
             padding,
-            BlocBuilder<SettingScreenCubit, SettingScreenState>(
+            BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
               builder: (context, state) => SwitchListTile(
                 secondary: Icon(
                   Icons.wb_iridescent,
@@ -319,8 +340,11 @@ class GeneralOption extends StatelessWidget {
                 ),
                 title: Text('Center Date Bubble'),
                 value: state.isCenterDateBubble,
-                onChanged:
-                    context.read<SettingScreenCubit>().changeCenterDateBubble,
+                onChanged: (value) {
+                  final cubit = context.read<ChatInterfaceSettingCubit>();
+                  cubit.changeCenterDateBubble(value);
+                  cubit.saveChatInterfaceSettings('dateBubble', value);
+                },
               ),
             ),
             padding,
@@ -388,7 +412,7 @@ class GeneralOption extends StatelessWidget {
         child: Divider(),
       );
 
-  Future<TypeFontSize> _showDialog(BuildContext context) async {
+  Future<TypeFontSize> _showFontSizeDialog(BuildContext context) async {
     return await showDialog<TypeFontSize>(
       context: context,
       builder: (context) => AlertDialog(
@@ -404,36 +428,163 @@ class GeneralOption extends StatelessWidget {
             ListTile(
               title: Text(
                 'Small',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText2
-                    .copyWith(color: Colors.black),
               ),
               onTap: () => Navigator.pop(context, TypeFontSize.small),
             ),
             ListTile(
               title: Text(
                 'Default',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText2
-                    .copyWith(color: Colors.black),
               ),
               onTap: () => Navigator.pop(context, TypeFontSize.def),
             ),
             ListTile(
               title: Text(
                 'Large',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText2
-                    .copyWith(color: Colors.black),
               ),
               onTap: () => Navigator.pop(context, TypeFontSize.large),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<TypeFontFamily> _showFontFamilyDialog(BuildContext context) async {
+    return await showDialog<TypeFontFamily>(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              title: Text(
+                'Font family',
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+            ),
+            ListTile(
+              title: Text(
+                'Roboto',
+              ),
+              onTap: () => Navigator.pop(context, TypeFontFamily.roboto),
+            ),
+            ListTile(
+              title: Text(
+                'RobotoMono',
+              ),
+              onTap: () => Navigator.pop(context, TypeFontFamily.robotoMono),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<TypeAccentColor> _showAccentColorDialog(BuildContext context) async {
+    return await showGeneralDialog<TypeAccentColor>(
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionBuilder: (context, a1, a2, widget) {
+        final curvedValue = Curves.easeInOutBack.transform(a1.value) - 1.0;
+        return Transform(
+          transform: Matrix4.translationValues(0.0, curvedValue * 200, 0.0),
+          child: Opacity(
+            opacity: a1.value,
+            child: AlertDialog(
+              title: ListTile(
+                title: Text(
+                  'Accent Color',
+                  style: Theme.of(context).textTheme.subtitle1,
+                ),
+              ),
+              content: Container(
+                height: MediaQuery.of(context).size.height * (2 / 5),
+                width: MediaQuery.of(context).size.height * (4 / 5),
+                child: ListView(
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.amberAccent,
+                      ),
+                      title: Text(
+                        'Gold',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.gold),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.cyan,
+                      ),
+                      title: Text(
+                        'Cyan',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.cyan),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.greenAccent,
+                      ),
+                      title: Text(
+                        'Mint',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.mint),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.lime,
+                      ),
+                      title: Text(
+                        'Lime',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.lime),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.pink,
+                      ),
+                      title: Text(
+                        'Pink',
+                      ),
+                      onTap: () => Navigator.pop(context, TypeAccentColor.pink),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.green,
+                      ),
+                      title: Text(
+                        'Green',
+                      ),
+                      onTap: () =>
+                          Navigator.pop(context, TypeAccentColor.green),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.orange,
+                      ),
+                      title: Text(
+                        'Orange',
+                      ),
+                      onTap: () =>
+                          Navigator.pop(context, TypeAccentColor.orange),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      transitionDuration: Duration(milliseconds: 400),
+      barrierDismissible: true,
+      barrierLabel: '',
+      context: context,
+      pageBuilder: (context, animation, secAnimation) {},
     );
   }
 }
@@ -459,7 +610,7 @@ class SecurityOption extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Divider(),
           ),
-          BlocBuilder<SettingScreenCubit, SettingScreenState>(
+          BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
             builder: (context, state) => SwitchListTile(
               secondary: Icon(
                 Icons.mms,
@@ -468,8 +619,9 @@ class SecurityOption extends StatelessWidget {
               title: Text('Fingerprint'),
               subtitle: Text('Enable Fingerprint unlock'),
               value: state.isAuthentication,
-              onChanged:
-                  context.read<SettingScreenCubit>().changeAuthentication,
+              onChanged: context
+                  .read<ChatInterfaceSettingCubit>()
+                  .changeAuthentication,
             ),
           ),
         ],
@@ -489,7 +641,7 @@ class BackgroundImageScreen extends StatelessWidget {
         title: Text('BackgroundImage'),
         centerTitle: true,
       ),
-      body: BlocBuilder<SettingScreenCubit, SettingScreenState>(
+      body: BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
         builder: (context, state) => Container(
           alignment: Alignment.center,
           child: state.pathBackgroundImage.isEmpty
@@ -504,8 +656,13 @@ class BackgroundImageScreen extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
                       child: OutlinedButton(
-                        onPressed:
-                            context.read<SettingScreenCubit>().pickImage,
+                        onPressed: () async {
+                          final cubit =
+                              context.read<ChatInterfaceSettingCubit>();
+                          await cubit.pickImage();
+                          cubit.saveBackgroundImage(
+                              cubit.state.pathBackgroundImage);
+                        },
                         child: Text('Pick an Image'),
                       ),
                     ),
@@ -527,14 +684,24 @@ class BackgroundImageScreen extends StatelessWidget {
                     ListTile(
                       leading: Icon(Icons.delete),
                       title: Text('Unset Image'),
-                      onTap: context.read<SettingScreenCubit>().unsetImage,
+                      onTap: () {
+                        final cubit = context.read<ChatInterfaceSettingCubit>();
+                        cubit.unsetImage();
+                        cubit.saveBackgroundImage('');
+                      },
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 10.0),
                       child: ListTile(
                         leading: Icon(Icons.wallpaper),
                         title: Text('Pick a new Image'),
-                        onTap: context.read<SettingScreenCubit>().pickImage,
+                        onTap: () async {
+                          final cubit =
+                              context.read<ChatInterfaceSettingCubit>();
+                          await cubit.pickImage();
+                          cubit.saveBackgroundImage(
+                              cubit.state.pathBackgroundImage);
+                        },
                       ),
                     ),
                   ],
