@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../data/constants/constants.dart';
+import '../data/extension.dart';
 import '../data/model/model_message.dart';
 import '../data/model/search_item_data.dart';
 import '../data/repository/messages_repository.dart';
@@ -78,7 +79,7 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
     }
     for (var i = 0; i < state.list.length - 1; i++) {
       temp.add(state.list[i]);
-      if (!state.list[i].pubTime.isSameDate(state.list[i + 1].pubTime)) {
+      if (!state.list[i].pubTime.isSameDateByDay(state.list[i + 1].pubTime)) {
         list.add(List.from(temp));
         temp = <ModelMessage>[];
       }

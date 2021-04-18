@@ -16,23 +16,23 @@ class MessagesRepository {
     return list;
   }
 
-  void addMessage(ModelMessage message) async {
+  void addMessage(ModelMessage message) {
     api.insertMessage(message);
   }
 
-  void editMessage(ModelMessage message) async {
+  void editMessage(ModelMessage message) {
     api.updateMessage(message);
   }
 
-  void removeMessage(int index) async {
+  void removeMessage(int index) {
     api.deleteMessage(index);
   }
 
-  Future<List<ModelTag>> tags() async {
-    return await api.tags();
+  Future<List<ModelTag>> tags() {
+    return api.tags();
   }
 
-  void addTag(ModelTag tag) async {
+  void addTag(ModelTag tag) {
     api.insertTag(tag);
   }
 }

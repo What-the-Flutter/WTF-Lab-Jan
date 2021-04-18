@@ -8,23 +8,23 @@ class PagesRepository {
     this.pagesAPI,
   });
 
-  Future<List<ModelPage>> pages() async {
-    return await pagesAPI.pages();
+  Future<List<ModelPage>> pages() {
+    return pagesAPI.pages();
   }
 
-  void addPage(ModelPage page) async {
+  void addPage(ModelPage page) {
     pagesAPI.insertPage(page);
   }
 
-  void editPage(ModelPage page) async {
+  void editPage(ModelPage page)  {
     pagesAPI.updatePage(page);
   }
 
-  void removePage(int index) async {
+  void removePage(int index) {
     pagesAPI.deletePage(index);
   }
 
-  void removeMessages(int pageId) async {
+  void removeMessages(int pageId) {
     pagesAPI.deleteMessages(pageId);
   }
 }

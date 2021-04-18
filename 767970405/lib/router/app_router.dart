@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../auth_screen/auth_screen.dart';
+import '../statistic_screen/statistic_screen.dart';
 
 import '../filter_screen/filter_screen.dart';
 import '../messages_screen/screen_message.dart';
@@ -36,6 +38,10 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (context) => SecurityOption(),
         );
+      case AuthScreen.routeName:
+        return MaterialPageRoute(
+          builder: (context) => AuthScreen(),
+        );
       case BackgroundImageScreen.routeName:
         return MaterialPageRoute(
           builder: (context) => BackgroundImageScreen(),
@@ -43,6 +49,10 @@ class AppRouter {
       case FilterScreen.routeName:
         return MaterialPageRoute(
           builder: (context) => FilterScreen(),
+        );
+      case StatisticScreen.routeName:
+        return MaterialPageRoute(
+          builder: (context) => StatisticScreen(),
         );
       default:
         assert(false, 'Need to implement ${settings.name}');
@@ -53,12 +63,13 @@ class AppRouter {
   Route _customAnimation(Widget child) {
     return PageRouteBuilder(
       transitionDuration: Duration(seconds: 1),
-      transitionsBuilder: (context, animation, secAnimation, child) =>
-          ScaleTransition(
-            alignment: Alignment.center,
-            scale: animation,
-            child: child,
-          ),
+      transitionsBuilder: (context, animation, secAnimation, child) {
+        return ScaleTransition(
+          alignment: Alignment.center,
+          scale: animation,
+          child: child,
+        );
+      },
       pageBuilder: (context, animation, secAnimation) => child,
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/auth_screen/auth_screen.dart';
+import 'package:my_chat_journal/settings_screen/chat_interface_setting_cubit.dart';
 import 'package:provider/provider.dart';
 
 import '../data/constants/constants.dart';
@@ -18,16 +20,37 @@ import '../widgets/drawer.dart';
 import '../widgets/my_bottom_navigation_bar.dart';
 import 'home_screen_cubit.dart';
 
-class HomeWindow extends StatelessWidget {
+class HomeWindow extends StatefulWidget {
+  final MyBottomNavigationBar bottomNavigationBar;
+  final MyDrawer drawer;
+
+  const HomeWindow({
+    Key key,
+    this.bottomNavigationBar,
+    this.drawer,
+  }) : super(key: key);
+
+  @override
+  _HomeWindowState createState() => _HomeWindowState(
+        drawer: drawer,
+        bottomNavigationBar: bottomNavigationBar,
+      );
+}
+
+class _HomeWindowState extends State<HomeWindow> {
   final GlobalKey _globalKey = GlobalKey();
   final MyBottomNavigationBar bottomNavigationBar;
   final MyDrawer drawer;
 
-  HomeWindow({
-    Key key,
+  _HomeWindowState({
     this.drawer,
     this.bottomNavigationBar,
-  }) : super(key: key);
+  });
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

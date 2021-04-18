@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -149,7 +150,7 @@ class FloatingBarWindow extends StatelessWidget {
         onEnd: state.floatingBar == FloatingBar.values[index + 1]
             ? null
             : () => context.read<ScreenMessageCubit>().changeDisplay(index),
-        height: state.floatingBar == FloatingBar.values[index + 1] ? 70 : 0,
+        height: state.floatingBar == FloatingBar.values[index + 1] ? 75 : 0,
         child: Center(
           child: state.isStartAnim[index] ? child : null,
         ),
@@ -845,6 +846,7 @@ class AttachPhotoButton extends StatelessWidget {
       child: GestureDetector(
         onTap: () => context.read<ScreenMessageCubit>().attachedPhoto(source),
         child: Container(
+          padding: EdgeInsets.all(5.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
             color: Colors.red,

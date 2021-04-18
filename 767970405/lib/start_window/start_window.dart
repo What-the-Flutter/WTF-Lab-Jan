@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/auth_screen/auth_cubit.dart';
+import 'package:my_chat_journal/auth_screen/auth_screen.dart';
+import 'package:my_chat_journal/settings_screen/chat_interface_setting_cubit.dart';
 import 'package:my_chat_journal/widgets/drawer.dart';
 
 import '../home_screen/home_screen.dart';
@@ -25,7 +28,7 @@ class StartWindow extends StatelessWidget {
           ),
           Scaffold(
             appBar: AppBar(
-              title: Text('Statistic'),
+              title: Text('Daily'),
             ),
             body: Center(
               child: Text('In future'),

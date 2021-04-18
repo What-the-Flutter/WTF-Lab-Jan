@@ -92,7 +92,7 @@ class PagesAPI {
   Future<void> insertTag(ModelTag tag) async {
     final db = await _database;
 
-    await db.insert(
+    return await db.insert(
       'tags',
       tag.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,

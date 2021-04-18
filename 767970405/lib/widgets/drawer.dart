@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/statistic_screen/statistic_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
 
@@ -55,9 +56,8 @@ class MyDrawer extends StatelessWidget {
           CustomListTile(
             leadingIcon: Icons.stacked_line_chart,
             title: 'Statistics',
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () =>
+                Navigator.pushNamed(context, StatisticScreen.routeName),
             theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
           ),
           CustomListTile(

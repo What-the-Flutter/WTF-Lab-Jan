@@ -18,6 +18,10 @@ enum ResultSearch { found, notFound, wait }
 
 enum ModeScreen { allPages, onePage }
 
+enum TypeStatistic { labels, mood, charts, times, summary }
+
+enum TypeTimeDiagram { today, pastSevenDays, pastThirtyDays, thisYear }
+
 const double kSmall = 0.8;
 const double kLarge = 1.2;
 

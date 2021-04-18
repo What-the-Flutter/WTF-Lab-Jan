@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_journal/auth_screen/auth_cubit.dart';
+import 'package:my_chat_journal/statistic_screen/statistic_cubit.dart';
 
 import 'data/data_provider.dart';
 import 'data/repository/category_repository.dart';
@@ -83,6 +85,14 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) => HomeScreenCubit(
               repository: RepositoryProvider.of<PagesRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => AuthCubit(),
+          ),
+          BlocProvider(
+            create: (context) => StatisticCubit(
+              repository: RepositoryProvider.of<MessagesRepository>(context),
             ),
           ),
           BlocProvider(
