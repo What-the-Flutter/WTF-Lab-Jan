@@ -8,13 +8,6 @@ class EventPage extends StatefulWidget {
   _EventPageState createState() => _EventPageState();
 }
 
-//  class CreateNewEvent {
-//  List<EventPageMessages> events = [];
-
-//    List<EventPageMessages> get getEvents {
-//      return events;
-//    }
-//}
 class EventPageMessages {
   String eventsDescription;
 
@@ -24,12 +17,11 @@ class EventPageMessages {
 class _EventPageState extends State<EventPage> {
   List<EventPageMessages> events = [];
   TextEditingController inputtextcontroller = TextEditingController();
-  EventPageMessages addnewevent;
+  //EventPageMessages addnewevent;
   bool onPressed = false;
   int pressIndex = 0;
 
   void _addToEventList() {
-    //addnewevent.eventsDescription = inputtextcontroller.text;
     setState(() {
       events
           .add(EventPageMessages(eventsDescription: inputtextcontroller.text));
@@ -37,7 +29,7 @@ class _EventPageState extends State<EventPage> {
     });
   }
 
-//for input images from galery or camera
+  ///for input images from galery or camera
   File _imageFile;
   final picker = ImagePicker();
 
@@ -107,7 +99,7 @@ class _EventPageState extends State<EventPage> {
                 scrollDirection: Axis.vertical,
                 physics: BouncingScrollPhysics(),
                 itemCount: events.length,
-                itemBuilder: (context, index) {
+                itemBuilder: (_, index) {
                   // return Text('I want to be free');
                   return _newListTile(index);
                   //{  if (index == 0) {
@@ -146,10 +138,6 @@ class _EventPageState extends State<EventPage> {
             ),
             onPressed: () {
               _addToEventList();
-
-              // EventPageMessages addnewevent;
-              // addnewevent.eventsDescription = inputtextcontroller.text;
-              // events.add(addnewevent);
             },
           ),
           IconButton(
@@ -265,7 +253,7 @@ class _EventPageState extends State<EventPage> {
           ]);
     } else {
       return AppBar(
-        title: Text('Something'),
+        title: Text('Someting'),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.search), onPressed: () {}),
           IconButton(icon: Icon(Icons.bookmark_border), onPressed: () {}),

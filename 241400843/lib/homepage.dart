@@ -1,18 +1,29 @@
 import 'package:flutter/material.dart';
+import 'createnewpage.dart';
 import 'eventpage.dart';
+import 'theme.dart';
 
 class Notes {
   IconData notesIcon;
   String notesTitle;
   String notesSubtitle;
 
-  Notes(this.notesIcon, this.notesTitle, this.notesSubtitle);
+  Notes({this.notesIcon, this.notesTitle, this.notesSubtitle});
 }
 
 List<Notes> notes = [
-  Notes(Icons.airport_shuttle, 'First ', 'Something about fisrt'),
-  Notes(Icons.airplanemode_active, 'Second ', 'Something about second'),
-  Notes(Icons.bike_scooter, 'Third', 'Something about third'),
+  Notes(
+      notesIcon: Icons.airport_shuttle,
+      notesTitle: 'First ',
+      notesSubtitle: 'Something about fisrt'),
+  Notes(
+      notesIcon: Icons.airplanemode_active,
+      notesTitle: 'Second ',
+      notesSubtitle: 'Something about second'),
+  Notes(
+      notesIcon: Icons.bike_scooter,
+      notesTitle: 'Third',
+      notesSubtitle: 'Something about third'),
 ];
 
 class HomePage extends StatefulWidget {
@@ -25,10 +36,47 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool selected = true;
+
+  Future<void> _showEditingDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: [
+                  GestureDetector(
+                    child: Text('Edit Page'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CreateNewPage(
+                              // isEditing: true,
+
+                              ),
+                        ),
+                      );
+                    },
+                  ),
+                  Padding(padding: EdgeInsets.all(5.0)),
+                  GestureDetector(
+                    child: Text('Delete Page'),
+                    onTap: () {
+                      notes.remove(Notes());
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red[50],
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
@@ -44,38 +92,36 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Text('Home'),
         centerTitle: true,
         actions: <Widget>[
           IconButton(
             tooltip: 'Settings',
-            icon: Icon(
-              Icons.settings,
-              color: Colors.white,
-            ),
+            icon: (selected)
+                ? Icon(
+                    Icons.brightness_1_outlined,
+                  )
+                : Icon(
+                    Icons.bedtime,
+                  ),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (context) {
-                  return Scaffold(
-                    appBar: AppBar(
-                      title: const Text('Settings'),
-                    ),
-                    body: const Center(
-                      child: Text(
-                        'This is settings page',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                    ),
-                  );
-                },
-              ));
+              AppTheme.of(context).changeTheme();
+              setState(() {
+                selected = !selected;
+              });
             },
           ),
         ],
       ),
       body: _homePageBody(notes),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => CreateNewPage(
+                // isEditing: false,
+                ),
+          ));
+        },
         tooltip: 'Add 1 more event',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
@@ -110,6 +156,7 @@ class _HomePageState extends State<HomePage> {
       scrollDirection: Axis.vertical,
       itemCount: notes.length,
       itemBuilder: (context, index) => ListTile(
+        key: Key(notes[index].toString()),
         title: Text(
           notes[index].notesTitle,
           style: TextStyle(
@@ -139,7 +186,7 @@ class _HomePageState extends State<HomePage> {
           );
         },
         onLongPress: () {
-          // showDialog(context: context, builder: builder);
+          _showEditingDialog(context);
         },
       ),
     );
