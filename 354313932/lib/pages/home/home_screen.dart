@@ -9,6 +9,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -17,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF1E81F5),
+            Color(0xFF5e1ef5),
             Color(0xFF00D4FF),
           ],
         ),
@@ -30,53 +31,11 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
           child: const Icon(Icons.add),
-          backgroundColor: Color(0xFFFFA00B),
-      ),
+          backgroundColor: Color(0xFFFFB305),
+        ),
         bottomNavigationBar: buildBottomNavigationBar(),
       ),
     );
-  }
-
-  BottomNavigationBar buildBottomNavigationBar() {
-    return BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Color(0xFF1E81F5),
-        unselectedItemColor: Colors.blueGrey,
-        elevation: 1.0,
-        type: BottomNavigationBarType.fixed,
-        showSelectedLabels: true,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home_outlined,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.assignment_outlined,
-            ),
-            label: 'Daily',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.timeline_outlined,
-            ),
-            label: 'Timeline',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.explore_outlined,
-            ),
-            label: 'Explore',
-          ),
-        ],
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      );
   }
 
   Drawer buildDrawer(BuildContext context) {
@@ -87,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
           DrawerHeader(
             child: Text('Drawer Header'),
             decoration: BoxDecoration(
-              color: Color(0xFF1E81F5),
+              color: Color(0xFF5e1ef5),
             ),
           ),
           ListTile(
@@ -133,6 +92,48 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {},
         ),
       ],
+    );
+  }
+
+  BottomNavigationBar buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      currentIndex: _currentIndex,
+      selectedItemColor: Color(0xFF5e1ef5),
+      unselectedItemColor: Colors.blueGrey,
+      elevation: 1.0,
+      type: BottomNavigationBarType.fixed,
+      showSelectedLabels: true,
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.home_outlined,
+          ),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.assignment_outlined,
+          ),
+          label: 'Daily',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.timeline_outlined,
+          ),
+          label: 'Timeline',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.explore_outlined,
+          ),
+          label: 'Explore',
+        ),
+      ],
+      onTap: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
     );
   }
 }

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
-class EventPage {
+import 'event.dart';
+
+class Note {
   int id;
   Icon icon;
   String title;
   String subtitle;
+  final List<Event> events = <Event>[];
 
-  EventPage({this.id, this.icon, this.title, this.subtitle});
+  Note({this.id, this.icon, this.title, this.subtitle});
 }
 
-List eventPages = [
-  EventPage(
+List notes = [
+  Note(
     id: 1,
     icon: Icon(
       Icons.flight_takeoff,
@@ -19,7 +22,7 @@ List eventPages = [
     title: 'Travel',
     subtitle: 'No Events. Click to create one.',
   ),
-  EventPage(
+  Note(
     id: 2,
     icon: Icon(
       Icons.weekend,
@@ -28,7 +31,7 @@ List eventPages = [
     title: 'Family',
     subtitle: 'No Events. Click to create one.',
   ),
-  EventPage(
+  Note(
     id: 3,
     icon: Icon(
       Icons.fitness_center,
