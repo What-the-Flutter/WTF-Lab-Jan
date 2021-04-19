@@ -109,12 +109,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-            child: Text(
-              'Information',
-              style: TextStyle(
-                fontSize: 30,
-              ),
-            ),
+            child: Text('Information'),
           ),
           GestureDetector(
             child: ListTile(

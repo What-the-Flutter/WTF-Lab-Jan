@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/widgets/hashtag_text.dart';
+import 'package:hashtagable/widgets/hashtag_text_field.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -10,6 +12,7 @@ import '../create_page/icons.dart';
 import '../data/shared_preferences_provider.dart';
 import '../event.dart';
 import '../note.dart';
+import '../theme/cubit_theme.dart';
 import 'cubit_event_page.dart';
 import 'states_event_page.dart';
 
@@ -57,8 +60,11 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  TextField get _textFieldSearch {
-    return TextField(
+  HashTagTextField get _textFieldSearch {
+    return HashTagTextField(
+      decoratedStyle: TextStyle(
+        color: Colors.red,
+      ),
       controller: textSearchController,
       focusNode: _searchFocusNode,
       decoration: InputDecoration(
@@ -302,7 +308,10 @@ class _EventPageState extends State<EventPage> {
           onPressed: () => _showBottomSheetIcons(context),
         ),
         Expanded(
-          child: TextField(
+          child: HashTagTextField(
+            decoratedStyle: TextStyle(
+              color: Colors.red,
+            ),
             controller: textController,
             focusNode: _focusNode,
             onChanged: (value) {
@@ -370,8 +379,13 @@ class _EventPageState extends State<EventPage> {
                 ? Center(
                     child: Text(_cubit.state.eventList[index].date),
                   )
-                : Text(
-                    _cubit.state.eventList[index].date,
+                : Align(
+                    alignment: state.isBubbleAlignment
+                        ? Alignment.topRight
+                        : Alignment.topLeft,
+                    child: Text(
+                      _cubit.state.eventList[index].date,
+                    ),
                   ),
           ),
           ClipRRect(
@@ -394,8 +408,18 @@ class _EventPageState extends State<EventPage> {
                         ? Image.file(
                             File(_cubit.state.eventList[index].imagePath),
                           )
-                        : Text(
-                            event.text,
+                        : HashTagText(
+                            decoratedStyle: TextStyle(
+                              color: Colors.red,
+                            ),
+                            text: event.text,
+                            basicStyle: TextStyle(
+                              color: BlocProvider.of<CubitTheme>(context)
+                                      .state
+                                      .isLightTheme
+                                  ? Colors.black
+                                  : Colors.white,
+                            ),
                           ),
                     subtitle: Align(
                       alignment: Alignment.bottomRight,

@@ -13,6 +13,10 @@ class SharedPreferencesProvider {
     _prefs = await SharedPreferences.getInstance();
   }
 
+  void changeFontSize(int fontSize) => _prefs.setInt('fontSize', fontSize);
+
+  int fetchFontSize() => _prefs.getInt('fontSize') ?? 2;
+
   void changeTheme(bool isLightTheme) =>
       _prefs.setBool('isLightTheme', isLightTheme);
 
