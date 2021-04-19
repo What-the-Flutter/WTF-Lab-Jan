@@ -40,9 +40,13 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
           leading: Icon(Icons.invert_colors),
           title: Text('Theme'),
           subtitle: Text('Light/Dark'),
-          onTap: () {
-            BlocProvider.of<CubitTheme>(context).changeTheme();
-          },
+          onTap: () => BlocProvider.of<CubitTheme>(context).changeTheme(),
+        ),
+        ListTile(
+          leading: Icon(Icons.format_size),
+          title: Text('Front Size'),
+          subtitle: Text('Small / Default / Large'),
+          onTap: _showDialog,
         ),
         ListTile(
           leading: Icon(Icons.calendar_today_outlined),
@@ -77,8 +81,81 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
               _cubitGeneralSettings.changeCenterDateBubble();
             },
           ),
-        )
+        ),
+        ListTile(
+          leading: Icon(Icons.replay),
+          title: Text('Reset All Preferences'),
+          subtitle: Text('Reset all Visual Customization'),
+          onTap: () {
+            if (state.isBubbleAlignment) {
+              _cubitGeneralSettings.changeBubbleAlignment();
+            }
+            if (state.isDateTimeModification) {
+              _cubitGeneralSettings.changeDateTimeModification();
+            }
+            if (state.isCenterDateBubble) {
+              _cubitGeneralSettings.changeCenterDateBubble();
+            }
+            if (!BlocProvider.of<CubitTheme>(context).state.isLightTheme) {
+              BlocProvider.of<CubitTheme>(context).changeTheme();
+            }
+            BlocProvider.of<CubitTheme>(context).setTextTheme(2);
+          },
+        ),
       ],
+    );
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Choose the page'),
+          content: _dialogListView(),
+          actions: [
+            FlatButton(
+                onPressed: () => Navigator.pop(context), child: Text('OK')),
+          ],
+        );
+      },
+    );
+  }
+
+  Container _dialogListView() {
+    return Container(
+      height: 150,
+      child: ListView(
+        children: [
+          ListTile(
+            title: Text(
+              'Small',
+            ),
+            onTap: () {
+              BlocProvider.of<CubitTheme>(context).setTextTheme(1);
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: Text(
+              'Default',
+            ),
+            onTap: () {
+              BlocProvider.of<CubitTheme>(context).setTextTheme(2);
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: Text(
+              'Large',
+            ),
+            onTap: () {
+              BlocProvider.of<CubitTheme>(context).setTextTheme(3);
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 
