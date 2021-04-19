@@ -1,7 +1,6 @@
+import 'package:chat_journal_wtf/event_page/event_page.dart';
+import 'package:chat_journal_wtf/note_page/note.dart';
 import 'package:flutter/material.dart';
-
-import 'file:///D:/FlutterProjects/chat_journal_wtf/lib/event_page/event_page.dart';
-import 'file:///D:/FlutterProjects/chat_journal_wtf/lib/note_page/note.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
