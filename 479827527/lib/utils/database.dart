@@ -10,6 +10,7 @@ const String columnNoteId = 'note_id';
 const String columnTitle = 'title';
 const String columnSubtitle = 'sub_title';
 const String columnNoteCircleAvatarIndex = 'note_circle_avatar_index';
+const String columnNoteDate = 'date';
 
 const String eventsTable = 'events';
 const String columnEventId = 'event_id';
@@ -41,7 +42,8 @@ class DatabaseProvider {
       $columnNoteId integer primary key autoincrement,
       $columnTitle text not null,
       $columnSubtitle text not null,
-      $columnNoteCircleAvatarIndex integer
+      $columnNoteCircleAvatarIndex integer,
+      $columnNoteDate text not null
       ) 
       ''');
       db.execute('''
@@ -90,7 +92,7 @@ class DatabaseProvider {
     final db = await database;
     final dbNotesList = await db.query(notesTable);
     final notesList = <Note>[];
-    for (final item in dbNotesList) {
+    for (var item in dbNotesList) {
       final note = Note.fromMap(item);
       notesList.insert(0, note);
     }
@@ -140,7 +142,7 @@ class DatabaseProvider {
       'SELECT * FROM $eventsTable WHERE $columnCurrentNoteId = ?',
       [noteId],
     );
-    for (final item in dbEventsList) {
+    for (var item in dbEventsList) {
       final event = Event.fromMap(item);
       eventsList.insert(0, event);
     }
@@ -151,9 +153,9 @@ class DatabaseProvider {
     final db = await database;
     final eventList = <Event>[];
     final dbNotesList = await db.query(eventsTable);
-    for (final element in dbNotesList) {
+    for (var element in dbNotesList) {
       final event = Event.fromMap(element);
-      await eventList.insert(0, event);
+      eventList.insert(0, event);
     }
     return eventList;
   }

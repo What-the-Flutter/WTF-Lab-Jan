@@ -395,7 +395,7 @@ class _EventPageState extends State<EventPage> {
             ),
           ),
         ),
-        if (state.selectedDate != '')
+        if (state.selectedDate.isEmpty)
           GestureDetector(
             child: Icon(
               Icons.clear,

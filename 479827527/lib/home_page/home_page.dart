@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_lesson_1/timeline_page/timeline_page.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
 import '../settings/settings_page.dart';
+import '../statistics_page/statistics_page.dart';
 import '../themes/cubit_theme.dart';
+import '../timeline_page/timeline_page.dart';
 import '../utils/icons.dart';
 import 'cubit_home_page.dart';
 import 'states_home_page.dart';
@@ -236,7 +237,13 @@ class _State extends State<HomePage> {
           GestureDetector(
             child: _listTile(Icons.insert_chart, 'Statistics'),
             onTap: () {
-              //TODO
+              Navigator.push(
+                context,
+                PageTransition(
+                  type: PageTransitionType.bottomToTop,
+                  child: StatisticsPage(),
+                ),
+              );
             },
           ),
           GestureDetector(

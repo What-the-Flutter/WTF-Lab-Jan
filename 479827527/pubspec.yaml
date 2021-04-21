@@ -39,6 +39,7 @@ dependencies:
   hashtagable: ^2.0.0
   auto_animated: ^3.0.0
   page_transition: ^1.1.7+6
+  charts_flutter: ^0.10.0
 
 dev_dependencies:
   flutter_test:

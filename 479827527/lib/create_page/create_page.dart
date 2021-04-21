@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../home_page/home_page.dart';
 import '../note.dart';
@@ -89,6 +90,9 @@ class _CreatePageState extends State<CreatePage> {
       title: _textEditingController.text,
       subtitle: 'No events. Click to create one.',
       circleAvatarIndex: state.selectedIconIndex,
+      date: DateFormat.yMMMd().format(
+        DateTime.now(),
+      ),
     );
     _noteList.insert(0, note);
     await BlocProvider.of<CubitCreatePage>(context).addPage(note);
