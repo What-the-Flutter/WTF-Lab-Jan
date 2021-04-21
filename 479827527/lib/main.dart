@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lesson_1/statistics_page/cubit_statistics_page.dart';
 
 import 'create_page/cubit_create_page.dart';
 import 'event_page/cubit_event_page.dart';
@@ -34,6 +35,9 @@ void main() async {
         ),
         BlocProvider<CubitTimelinePage>(
           create: (context) => CubitTimelinePage(),
+        ),
+        BlocProvider<CubitStatisticsPage>(
+          create: (context) => CubitStatisticsPage(),
         ),
       ],
       child: ChatJournal(),
