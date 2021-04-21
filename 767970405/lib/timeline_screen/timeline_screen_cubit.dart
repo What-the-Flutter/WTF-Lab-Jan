@@ -65,6 +65,10 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
     emit(state.copyWith(list: listMsg, modeFilter: ModeFilter.complete));
   }
 
+  void changeMode() {
+    emit(state.copyWith(modeFilter: ModeFilter.wait));
+  }
+
   void changeDisplayList() {
     emit(state.copyWith(isBookmark: !state.isBookmark));
   }

@@ -112,9 +112,11 @@ class MyApp extends StatelessWidget {
             ),
           ),
           BlocProvider(
+            lazy: false,
             create: (context) => ChatInterfaceSettingCubit(),
           ),
           BlocProvider(
+            lazy: false,
             create: (context) => VisualSettingCubit(),
           ),
           BlocProvider(
@@ -124,9 +126,6 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => FilterScreenCubit(
-              pagesRepository: RepositoryProvider.of<PagesRepository>(context),
-              messagesRepository:
-                  RepositoryProvider.of<MessagesRepository>(context),
               categoryRepository:
                   RepositoryProvider.of<CategoryRepository>(context),
             ),

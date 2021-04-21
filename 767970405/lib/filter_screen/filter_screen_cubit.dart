@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_chat_journal/data/model/model_page.dart';
+import 'package:my_chat_journal/data/model/model_tag.dart';
 
 import '../data/constants/constants.dart';
 import '../data/model/search_item_data.dart';
@@ -10,13 +12,9 @@ import '../data/repository/pages_repository.dart';
 part 'filter_screen_state.dart';
 
 class FilterScreenCubit extends Cubit<FilterScreenState> {
-  final PagesRepository pagesRepository;
-  final MessagesRepository messagesRepository;
   final CategoryRepository categoryRepository;
 
   FilterScreenCubit({
-    this.pagesRepository,
-    this.messagesRepository,
     this.categoryRepository,
   }) : super(
     FilterScreenState(
@@ -27,9 +25,7 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
     ),
   );
 
-  void loadListsItem() async {
-    final pages = await pagesRepository.pages();
-    final tags = await messagesRepository.tags();
+  void loadListsItem(List<ModelPage> pages, List<ModelTag> tags) {
     final labels = categoryRepository.categories;
 
     emit(

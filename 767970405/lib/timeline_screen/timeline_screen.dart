@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:my_chat_journal/messages_screen/screen_message_cubit.dart';
 
 import '../data/constants/constants.dart';
 import '../data/theme/custom_theme.dart';
@@ -35,10 +36,11 @@ class TimelineScreen extends StatelessWidget {
         title: Text('Timeline'),
         actions: <Widget>[
           IconButton(
-            onPressed: () async {
-              await context
-                  .read<SearchMessageScreenCubit>()
-                  .setting(ModeScreen.allPages);
+            onPressed: () {
+              context.read<SearchMessageScreenCubit>().setting(
+                    mode: ModeScreen.allPages,
+                    tags: context.read<ScreenMessageCubit>().state.tags,
+                  );
               Navigator.pushNamed(
                 context,
                 SearchMessageScreen.routeName,

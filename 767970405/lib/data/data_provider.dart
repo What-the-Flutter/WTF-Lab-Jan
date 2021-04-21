@@ -44,10 +44,10 @@ class PagesAPI {
     );
   }
 
-  Future<void> insertPage(ModelPage page) async {
+  Future<int> insertPage(ModelPage page) async {
     final db = await _database;
 
-    await db.insert(
+    return await db.insert(
       'pages',
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -65,6 +65,7 @@ class PagesAPI {
         id: maps[i]['id'],
         name: maps[i]['name'],
         isSelected: false,
+        isShow: true,
       ),
     );
   }
@@ -89,7 +90,7 @@ class PagesAPI {
     );
   }
 
-  Future<void> insertTag(ModelTag tag) async {
+  Future<int> insertTag(ModelTag tag) async {
     final db = await _database;
 
     return await db.insert(
@@ -146,10 +147,10 @@ class PagesAPI {
     );
   }
 
-  Future<void> insertMessage(ModelMessage msg) async {
+  Future<int> insertMessage(ModelMessage msg) async {
     final db = await _database;
 
-    await db.insert(
+    return await db.insert(
       'msg',
       msg.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,

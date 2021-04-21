@@ -78,11 +78,13 @@ class SearchMessageScreen extends StatelessWidget {
                             key: ValueKey(index),
                             name: state.tags[index].name,
                             isSelected: state.tags[index].isSelected,
-                            onTap: () async {
-                              await context
+                            onTap: () {
+                              context
                                   .read<SearchMessageScreenCubit>()
                                   .configureTagSearch(
-                                      index, !state.tags[index].isSelected);
+                                    index,
+                                    !state.tags[index].isSelected,
+                                  );
                             },
                             theme: theme,
                           ),

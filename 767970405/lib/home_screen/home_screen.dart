@@ -75,8 +75,11 @@ class _HomeWindowState extends State<HomeWindow> {
         ),
         drawer: drawer,
         body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-          builder: (context, state) => state is HomeScreenShow
-              ? Stack(
+          builder: (context, state) => state.isLoad
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Stack(
                   alignment: AlignmentDirectional.topEnd,
                   children: <Widget>[
                     ChatPreviewList(),
@@ -107,9 +110,6 @@ class _HomeWindowState extends State<HomeWindow> {
                       ),
                     ),
                   ],
-                )
-              : Center(
-                  child: CircularProgressIndicator(),
                 ),
         ),
         floatingActionButton: AddChatButton(),
@@ -140,15 +140,15 @@ class ChatPreviewList extends StatelessWidget {
     );
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
       builder: (context, state) => ListView.builder(
-        itemCount: state.list.length,
+        itemCount: state.pages.length,
         itemBuilder: (context, i) {
           return ChatPreview(
             index: i,
-            title: state.list[i].title,
+            title: state.pages[i].title,
             subtitle: 'No events click create to one',
-            isPinned: state.list[i].isPinned,
+            isPinned: state.pages[i].isPinned,
             iconData: context.read<ScreenCreatingPageCubit>().getIcon(
-                  state.list[i].iconIndex,
+                  state.pages[i].iconIndex,
                 ),
             previewTheme: previewTheme,
             categoryTheme: categoryTheme,
@@ -237,15 +237,16 @@ class ChatPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {
-        await context.read<ScreenMessageCubit>().downloadData(
-              context.read<HomeScreenCubit>().state.list[index],
+      onTap: () {
+        context.read<ScreenMessageCubit>().downloadMsg(
+              context.read<HomeScreenCubit>().state.pages[index],
             );
-        await context.read<SearchMessageScreenCubit>().setting(
-              ModeScreen.onePage,
-              context.read<HomeScreenCubit>().state.list[index],
+        context.read<SearchMessageScreenCubit>().setting(
+              mode: ModeScreen.onePage,
+              tags: context.read<ScreenMessageCubit>().state.tags,
+              page: context.read<HomeScreenCubit>().state.pages[index],
             );
-        await Navigator.pushNamed(
+        Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
           arguments: context,
@@ -340,8 +341,8 @@ class ChatPreview extends StatelessWidget {
             onTap: () async {
               Navigator.pop(context);
               screenCreatingCubit.setting(
-                homeCubit.state.list[index].title,
-                homeCubit.state.list[index].iconIndex,
+                homeCubit.state.pages[index].title,
+                homeCubit.state.pages[index].iconIndex,
               );
               await Navigator.pushNamed(
                 context,
@@ -349,7 +350,7 @@ class ChatPreview extends StatelessWidget {
               );
               if (screenCreatingCubit.state.iconButton != Icons.close) {
                 homeCubit.editPage(
-                  homeCubit.state.list[index].copyWith(
+                  homeCubit.state.pages[index].copyWith(
                     iconIndex: screenCreatingCubit.state.selectionIconIndex,
                     title: screenCreatingCubit.controller.text,
                   ),
@@ -386,13 +387,13 @@ class ChatPreview extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
-              title: Text(cubit.state.list[index].title),
+              title: Text(cubit.state.pages[index].title),
               leading: Container(
                 width: 75,
                 height: 75,
                 child: Icon(
                   context.read<ScreenCreatingPageCubit>().getIcon(
-                        cubit.state.list[index].iconIndex,
+                        cubit.state.pages[index].iconIndex,
                       ),
                 ),
                 decoration: BoxDecoration(
@@ -403,13 +404,13 @@ class ChatPreview extends StatelessWidget {
             ListTile(
               title: Text('Created'),
               subtitle: Text(
-                cubit.state.list[index].creationTime.toString(),
+                cubit.state.pages[index].creationTime.toString(),
               ),
             ),
             ListTile(
               title: Text('Latest Event'),
               subtitle: Text(
-                cubit.state.list[index].lastModifiedTime.toString(),
+                cubit.state.pages[index].lastModifiedTime.toString(),
               ),
             ),
           ],

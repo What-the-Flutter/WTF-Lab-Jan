@@ -12,8 +12,8 @@ class PagesRepository {
     return pagesAPI.pages();
   }
 
-  void addPage(ModelPage page) {
-    pagesAPI.insertPage(page);
+  Future<int> addPage(ModelPage page) {
+    return pagesAPI.insertPage(page);
   }
 
   void editPage(ModelPage page)  {

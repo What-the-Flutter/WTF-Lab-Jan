@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:my_chat_journal/data/model/label_model.dart';
+import 'package:my_chat_journal/data/model/model_message.dart';
 
 import '../data/constants/constants.dart';
 import '../data/extension.dart';
@@ -109,8 +111,8 @@ class StatisticScreen extends StatelessWidget {
                               DateTime.now(),
                             ),
                           ),
-                          onTap: () async {
-                            await context
+                          onTap: () {
+                            context
                                 .read<StatisticCubit>()
                                 .groupMessageByToday();
                             context.read<StatisticCubit>().changeTime(0);
@@ -122,8 +124,8 @@ class StatisticScreen extends StatelessWidget {
                             '${DateFormat.yMMMd().format(DateTime.now().subtract(Duration(days: 7)))} -'
                             ' ${DateFormat.yMMMd().format(DateTime.now())}',
                           ),
-                          onTap: () async {
-                            await context
+                          onTap: () {
+                            context
                                 .read<StatisticCubit>()
                                 .groupMessageByWeek();
                             context.read<StatisticCubit>().changeTime(1);
@@ -135,8 +137,8 @@ class StatisticScreen extends StatelessWidget {
                               '${DateFormat.yMMMd().format(DateTime.now().subtract(Duration(days: 30)))} -'
                               ' ${DateFormat.yMMMd().format(DateTime.now())}',
                             ),
-                            onTap: () async {
-                              await context
+                            onTap: ()  {
+                              context
                                   .read<StatisticCubit>()
                                   .groupMessageByMonth();
                               context.read<StatisticCubit>().changeTime(2);
@@ -186,51 +188,129 @@ class StatisticScreen extends StatelessWidget {
 
   Widget _summaryStatistic(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return BlocBuilder<StatisticCubit, StatisticState>(
-      builder: (context, state) {
-        return Container(
-          margin: EdgeInsets.all(5.0),
-          constraints: BoxConstraints(
-            maxHeight: size.height * (4 / 10),
-            maxWidth: size.width * (9 / 10),
-          ),
-          child: charts.BarChart(
-            [
-              charts.Series<OrdinalSales, String>(
-                id: 'Bookmark',
-                colorFn: (sales, _) => sales.color,
-                domainFn: (sales, _) => sales.date,
-                measureFn: (sales, _) => sales.count,
-                data: context.read<StatisticCubit>().filterMsg(
-                      (element) => element.isFavor,
-                      charts.Color.fromHex(code: 'FFFFEB3B'),
-                    ),
+    return Column(
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Panel(
+              color: Colors.blue,
+              filter: (element) => true,
+              label: 'Total',
+            ),
+            Panel(
+              color: Colors.green,
+              filter: (element) => element.isFavor,
+              label: 'Bookmark',
+            ),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Panel(
+              color: Colors.red,
+              filter: (element) => element.indexCategory != -1,
+              label: 'Label',
+            ),
+            Panel(
+              color: Colors.yellow,
+              filter: (element) => false,
+              label: 'Mood',
+            ),
+            Panel(
+              color: Colors.orange,
+              filter: (element) => false,
+              label: 'Todo',
+            ),
+          ],
+        ),
+        BlocBuilder<StatisticCubit, StatisticState>(
+          builder: (context, state) {
+            return Container(
+              margin: EdgeInsets.all(5.0),
+              constraints: BoxConstraints(
+                maxHeight: size.height * (4 / 10),
+                maxWidth: size.width * (9 / 10),
               ),
-              charts.Series<OrdinalSales, String>(
-                id: 'Labels',
-                colorFn: (sales, _) => sales.color,
-                domainFn: (sales, _) => sales.date,
-                measureFn: (sales, _) => sales.count,
-                data: context.read<StatisticCubit>().filterMsg(
-                      (element) => element.indexCategory != -1,
-                      charts.Color.fromHex(code: 'FFF44336'),
-                    ),
+              child: charts.BarChart(
+                [
+                  charts.Series<OrdinalSales, String>(
+                    id: 'Bookmark',
+                    colorFn: (sales, _) => sales.color,
+                    domainFn: (sales, _) => sales.date,
+                    measureFn: (sales, _) => sales.count,
+                    data: context.read<StatisticCubit>().filterMsg(
+                          (element) => element.isFavor,
+                          charts.Color.fromHex(code: 'FFFFEB3B'),
+                        ),
+                  ),
+                  charts.Series<OrdinalSales, String>(
+                    id: 'Labels',
+                    colorFn: (sales, _) => sales.color,
+                    domainFn: (sales, _) => sales.date,
+                    measureFn: (sales, _) => sales.count,
+                    data: context.read<StatisticCubit>().filterMsg(
+                          (element) => element.indexCategory != -1,
+                          charts.Color.fromHex(code: 'FFF44336'),
+                        ),
+                  ),
+                  charts.Series<OrdinalSales, String>(
+                    id: 'Total',
+                    domainFn: (sales, _) => sales.date,
+                    measureFn: (sales, _) => sales.count,
+                    data: context.read<StatisticCubit>().filterMsg(
+                          (element) => true,
+                          charts.Color.fromHex(code: 'FF2196F3'),
+                        ),
+                  ),
+                ],
+                animate: true,
+                barGroupingType: charts.BarGroupingType.stacked,
               ),
-              charts.Series<OrdinalSales, String>(
-                id: 'Total',
-                domainFn: (sales, _) => sales.date,
-                measureFn: (sales, _) => sales.count,
-                data: context.read<StatisticCubit>().filterMsg(
-                      (element) => true,
-                      charts.Color.fromHex(code: 'FF2196F3'),
-                    ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class Panel extends StatelessWidget {
+  final Color color;
+  final bool Function(ModelMessage) filter;
+  final String label;
+
+  const Panel({
+    Key key,
+    this.color,
+    this.filter,
+    this.label,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.all(5.0),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * (10 / 100),
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15.0),
+          color: color,
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              BlocBuilder<StatisticCubit, StatisticState>(
+                builder: (context, state) => Text(
+                    '${context.read<StatisticCubit>().countFilterMsg(filter)}'),
               ),
+              Text(label),
             ],
-            animate: true,
-            barGroupingType: charts.BarGroupingType.stacked,
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

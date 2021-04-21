@@ -1,6 +1,6 @@
 part of 'screen_message_cubit.dart';
 
-class ScreenMessageState extends Equatable {
+class ScreenMessageState {
   final ModelPage page;
   final Mode mode;
   final List<ModelMessage> list;
@@ -94,27 +94,4 @@ class ScreenMessageState extends Equatable {
       isStartAnim: isStartAnim ?? this.isStartAnim,
     );
   }
-
-  @override
-  List<Object> get props => [
-        page,
-        mode,
-        counter,
-        list,
-        isBookmark,
-        enabledController,
-        floatingBar,
-        indexCategory,
-        onAddCategory,
-        iconDataPhoto,
-        onAddMessage,
-        fromTime,
-        fromDate,
-        isReset,
-        listTag,
-        curTag,
-        tags,
-        attachedPhotoPath,
-        isStartAnim,
-      ];
 }

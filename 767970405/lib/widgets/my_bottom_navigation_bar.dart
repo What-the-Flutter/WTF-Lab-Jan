@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/messages_screen/screen_message_cubit.dart';
 
 import '../filter_screen/filter_screen_cubit.dart';
 import '../home_screen/home_screen_cubit.dart';
@@ -44,24 +45,30 @@ class MyBottomNavigationBar extends StatelessWidget {
             ),
           )
         ],
-        onTap: (index) async {
+        onTap: (index) {
           if (state.currentIndex == index) {
             return;
           }
+          context.read<HomeScreenCubit>().changeScreen(index);
           if (index == 2) {
-            await context.read<FilterScreenCubit>().loadListsItem();
+            context.read<FilterScreenCubit>().loadListsItem(
+                  context.read<HomeScreenCubit>().state.pages,
+                  context.read<ScreenMessageCubit>().state.tags,
+                );
             final state = context.read<FilterScreenCubit>().state;
-            await context.read<TimelineScreenCubit>().configureList(
-                  selectedPages:
-                      state.pages.where((element) => element.isSelected).toList(),
-                  selectedTags:
-                      state.tags.where((element) => element.isSelected).toList(),
+            context.read<TimelineScreenCubit>().configureList(
+                  selectedPages: state.pages
+                      .where((element) => element.isSelected)
+                      .toList(),
+                  selectedTags: state.tags
+                      .where((element) => element.isSelected)
+                      .toList(),
                   selectedLabel: state.labels
                       .where((element) => element.isSelected)
                       .toList(),
                 );
           }
-          context.read<HomeScreenCubit>().changeScreen(index);
+          context.read<TimelineScreenCubit>().changeMode();
         },
       ),
     );

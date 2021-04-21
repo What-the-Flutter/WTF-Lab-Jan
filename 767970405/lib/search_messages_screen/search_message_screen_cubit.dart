@@ -95,12 +95,12 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
         controller.text.isEmpty;
   }
 
-  void configureTagSearch(int index, bool isSelected) async {
+  void configureTagSearch(int index, bool isSelected) {
     state.tags[index] = state.tags[index].copyWith(isSelected: isSelected);
     emit(
       state.copyWith(
         type: isReset() ? ResultSearch.wait : state.type,
-        tags: List.from(state.tags),
+        tags: state.tags,
       ),
     );
     if (!isReset()) {
@@ -114,20 +114,24 @@ class SearchMessageScreenCubit extends Cubit<SearchMessageScreenState> {
 
   bool isTextEmpty() => controller.text.isEmpty;
 
-  void updateTag() async {
+  void updateTag(List<ModelTag> tags) {
     emit(
       state.copyWith(
-        tags: await repository.tags(),
+        tags: tags,
       ),
     );
   }
 
-  void setting(ModeScreen mode, [ModelPage page]) async {
+  void setting({
+    ModeScreen mode,
+    List<ModelTag> tags,
+    ModelPage page,
+  }) {
     emit(
       state.copyWith(
         modeScreen: mode,
         page: page,
-        tags: await repository.tags(),
+        tags: tags,
       ),
     );
   }

@@ -73,6 +73,10 @@ class StatisticCubit extends Cubit<StatisticState> {
     emit(state.copyWith(list: message));
   }
 
+  int countFilterMsg(bool Function(ModelMessage) filter) {
+    return state.list.where(filter).toList().length;
+  }
+
   List<OrdinalSales> filterMsg(
     bool Function(ModelMessage) filter,
     charts.Color color,

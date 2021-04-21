@@ -16,7 +16,7 @@ class MessagesRepository {
     return list;
   }
 
-  void addMessage(ModelMessage message) {
+  Future<int> addMessage(ModelMessage message) {
     api.insertMessage(message);
   }
 
@@ -32,7 +32,7 @@ class MessagesRepository {
     return api.tags();
   }
 
-  void addTag(ModelTag tag) {
+  Future<int> addTag(ModelTag tag) {
     api.insertTag(tag);
   }
 }

@@ -175,16 +175,23 @@ class TagList extends StatelessWidget {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: state.tags.length,
-      itemBuilder: (context, index) => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5.0),
-        child: SearchItem(
-          key: ValueKey(index),
-          name: state.tags[index].name,
-          isSelected: false,
-          onTap: () => context.read<ScreenMessageCubit>().addTagToText(index),
-          theme: theme,
-        ),
-      ),
+      itemBuilder: (context, index) {
+        if (state.tags[index].isShow) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5.0),
+            child: SearchItem(
+              key: ValueKey(index),
+              name: state.tags[index].name,
+              isSelected: false,
+              onTap: () =>
+                  context.read<ScreenMessageCubit>().addTagToText(index),
+              theme: theme,
+            ),
+          );
+        } else {
+          return Container();
+        }
+      }
     );
   }
 }
@@ -528,7 +535,9 @@ class InputAppBar extends StatelessWidget {
           child: IconButton(
               icon: Icon(Icons.search),
               onPressed: () {
-                context.read<SearchMessageScreenCubit>().updateTag();
+                context.read<SearchMessageScreenCubit>().updateTag(
+                      context.read<ScreenMessageCubit>().state.tags,
+                    );
                 Navigator.pushNamed(
                   context,
                   SearchMessageScreen.routeName,
@@ -623,9 +632,9 @@ class SelectionAppBar extends StatelessWidget {
     );
   }
 
-  void createDialog(BuildContext context) async {
+  void createDialog(BuildContext context) {
     var index = 0;
-    var list = await context.read<HomeScreenCubit>().repository.pages();
+    var list = context.read<HomeScreenCubit>().state.pages;
     list = list
         .where((element) =>
             element.id != context.read<ScreenMessageCubit>().state.page.id)
@@ -940,8 +949,8 @@ class Message extends StatelessWidget {
           caption: 'Edit',
           color: Colors.indigo,
           icon: Icons.edit,
-          onTap: () async {
-            await context.read<ScreenMessageCubit>().selection(index);
+          onTap: () {
+            context.read<ScreenMessageCubit>().selection(index);
             context.read<ScreenMessageCubit>().toEditAppBar();
           },
         ),
@@ -951,8 +960,8 @@ class Message extends StatelessWidget {
           caption: 'Delete',
           color: Colors.red,
           icon: Icons.delete,
-          onTap: () async {
-            await context.read<ScreenMessageCubit>().toSelectionAppBar(index);
+          onTap: () {
+            context.read<ScreenMessageCubit>().toSelectionAppBar(index);
             context.read<ScreenMessageCubit>().deleteSelected();
           },
         ),
