@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'components/body.dart';
+import 'components/notes_list.dart';
+import 'components/questionnaire_bot.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -25,20 +27,32 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        drawer: buildDrawer(context),
-        appBar: buildAppBar(),
-        body: Body(),
+        drawer: drawer(context),
+        appBar: appBar(),
+        body: body(size),
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
           child: const Icon(Icons.add),
           backgroundColor: Color(0xFFFFB305),
         ),
-        bottomNavigationBar: buildBottomNavigationBar(),
+        bottomNavigationBar: bottomNavigationBar(),
       ),
     );
   }
 
-  Drawer buildDrawer(BuildContext context) {
+  SingleChildScrollView body(Size size) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          QuestionnaireBot(),
+          NotesList(size: size),
+        ],
+      ),
+    );
+  }
+
+  Drawer drawer(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -51,28 +65,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ListTile(
             title: Text('Item 1'),
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
           ),
           ListTile(
             title: Text('Item 2'),
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
           ),
           ListTile(
             title: Text('Item 3'),
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
           ),
         ],
       ),
     );
   }
 
-  AppBar buildAppBar() {
+  AppBar appBar() {
     return AppBar(
       centerTitle: true,
       title: Text(
@@ -95,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  BottomNavigationBar buildBottomNavigationBar() {
+  BottomNavigationBar bottomNavigationBar() {
     return BottomNavigationBar(
       currentIndex: _currentIndex,
       selectedItemColor: Color(0xFF5e1ef5),
@@ -105,35 +113,23 @@ class _HomeScreenState extends State<HomeScreen> {
       showSelectedLabels: true,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.home_outlined,
-          ),
+          icon: Icon(Icons.home_outlined),
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.assignment_outlined,
-          ),
+          icon: Icon(Icons.assignment_outlined),
           label: 'Daily',
         ),
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.timeline_outlined,
-          ),
+          icon: Icon(Icons.timeline_outlined),
           label: 'Timeline',
         ),
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.explore_outlined,
-          ),
+          icon: Icon(Icons.explore_outlined),
           label: 'Explore',
         ),
       ],
-      onTap: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
+      onTap: (index) => setState(() => _currentIndex = index),
     );
   }
 }

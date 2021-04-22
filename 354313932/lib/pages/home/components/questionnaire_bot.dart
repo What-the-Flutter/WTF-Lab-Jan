@@ -16,7 +16,9 @@ class QuestionnaireBot extends StatelessWidget {
         margin: EdgeInsets.symmetric(horizontal: kDefaultPadding * 3),
         height: 50.0,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          borderRadius: BorderRadius.all(
+            Radius.circular(16.0),
+          ),
           color: Colors.white,
         ),
         child: Row(
