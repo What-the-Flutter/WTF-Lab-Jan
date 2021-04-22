@@ -229,6 +229,9 @@ class _EventScreenState extends State<EventScreen> {
     setState(() {
       _isEditing = true;
       eventController.text = note.events[index].text;
+      eventController.selection = TextSelection.fromPosition(
+        TextPosition(offset: eventController.text.length),
+      );
       focusNode.requestFocus();
     });
   }
