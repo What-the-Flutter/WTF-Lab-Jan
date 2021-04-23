@@ -22,6 +22,11 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
           ),
         );
 
+  void updateDate() async {
+    emit(state.copyWith(
+        list: await repository.messages(), modeFilter: ModeFilter.complete));
+  }
+
   void configureList({
     List<SearchItemData> selectedPages,
     List<SearchItemData> selectedTags,

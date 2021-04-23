@@ -33,6 +33,6 @@ class MessagesRepository {
   }
 
   Future<int> addTag(ModelTag tag) {
-    api.insertTag(tag);
+    return api.insertTag(tag);
   }
 }

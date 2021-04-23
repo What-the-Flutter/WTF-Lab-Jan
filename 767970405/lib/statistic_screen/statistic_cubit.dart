@@ -1,11 +1,12 @@
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
 
 import '../data/constants/constants.dart';
 import '../data/extension.dart';
 import '../data/model/model_message.dart';
+import '../data/model/search_item_data.dart';
 import '../data/repository/messages_repository.dart';
 
 part 'statistic_state.dart';
@@ -17,12 +18,29 @@ class StatisticCubit extends Cubit<StatisticState> {
     this.repository,
   }) : super(
           StatisticState(
-            typeStatistic: TypeStatistic.labels,
+            typeStatistic: TypeStatistic.summary,
             selectedTime: TypeTimeDiagram.today,
             list: <ModelMessage>[],
           ),
         ) {
-    groupMessageByToday();
+    groupMessageByToday(<SearchItemData>[]);
+  }
+
+  void updateStatistic(List<SearchItemData> selectedPages) {
+    switch (state.selectedTime) {
+      case TypeTimeDiagram.today:
+        groupMessageByToday(selectedPages);
+        break;
+      case TypeTimeDiagram.pastSevenDays:
+        groupMessageByWeek(selectedPages);
+        break;
+      case TypeTimeDiagram.pastThirtyDays:
+        groupMessageByMonth(selectedPages);
+        break;
+      case TypeTimeDiagram.thisYear:
+        groupMessageByYear(selectedPages);
+        break;
+    }
   }
 
   void changeStatistic(int index) {
@@ -33,8 +51,24 @@ class StatisticCubit extends Cubit<StatisticState> {
     emit(state.copyWith(selectedTime: TypeTimeDiagram.values[index]));
   }
 
-  void groupMessageByToday() async {
+  Future<List<ModelMessage>> filterMsgByPage(
+      List<SearchItemData> selectedPages) async {
     var message = await repository.messages();
+    if (selectedPages.isNotEmpty) {
+      return message.where((element) {
+        for (var i = 0; i < selectedPages.length; i++) {
+          if (selectedPages[i].id == element.pageId) {
+            return true;
+          }
+        }
+        return false;
+      }).toList();
+    }
+    return message;
+  }
+
+  void groupMessageByToday(List<SearchItemData> selectedPages) async {
+    var message = await filterMsgByPage(selectedPages);
     var today = DateTime.now();
     message = message
         .where((element) => element.pubTime.isSameDateByDay(today))
@@ -42,8 +76,8 @@ class StatisticCubit extends Cubit<StatisticState> {
     emit(state.copyWith(list: message));
   }
 
-  void groupMessageByWeek() async {
-    var message = await repository.messages();
+  void groupMessageByWeek(List<SearchItemData> selectedPages) async {
+    var message = await filterMsgByPage(selectedPages);
     var today = DateTime.now();
     var weekAgo = today.subtract(Duration(days: 7));
     message = message
@@ -53,8 +87,8 @@ class StatisticCubit extends Cubit<StatisticState> {
     emit(state.copyWith(list: message));
   }
 
-  void groupMessageByMonth() async {
-    var message = await repository.messages();
+  void groupMessageByMonth(List<SearchItemData> selectedPages) async {
+    var message = await filterMsgByPage(selectedPages);
     var today = DateTime.now();
     var weekAgo = today.subtract(Duration(days: 30));
     message = message
@@ -64,8 +98,8 @@ class StatisticCubit extends Cubit<StatisticState> {
     emit(state.copyWith(list: message));
   }
 
-  void groupMessageByYear() async {
-    var message = await repository.messages();
+  void groupMessageByYear(List<SearchItemData> selectedPages) async {
+    var message = await filterMsgByPage(selectedPages);
     var today = DateTime.now();
     message =
         message.where((element) => element.pubTime.year == today.year).toList();
@@ -76,7 +110,7 @@ class StatisticCubit extends Cubit<StatisticState> {
     return state.list.where(filter).toList().length;
   }
 
-  List<OrdinalSales> filterMsg(
+  List<OrdinalSales> filterMsgByDate(
     bool Function(ModelMessage) filter,
     charts.Color color,
   ) {

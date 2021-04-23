@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../data/constants/constants.dart';
 import '../data/extension.dart';
 import '../data/model/model_message.dart';
+import '../filter_screen/filter_screen.dart';
+import '../filter_screen/filter_screen_cubit.dart';
 import 'statistic_cubit.dart';
 
 class StatisticScreen extends StatelessWidget {
@@ -110,9 +112,15 @@ class StatisticScreen extends StatelessWidget {
                             ),
                           ),
                           onTap: () {
+                            var selectedPage = context
+                                .read<FilterScreenCubit>()
+                                .state
+                                .pages
+                                .where((element) => element.isSelected)
+                                .toList();
                             context
                                 .read<StatisticCubit>()
-                                .groupMessageByToday();
+                                .groupMessageByToday(selectedPage);
                             context.read<StatisticCubit>().changeTime(0);
                           },
                         ),
@@ -123,7 +131,15 @@ class StatisticScreen extends StatelessWidget {
                             ' ${DateFormat.yMMMd().format(DateTime.now())}',
                           ),
                           onTap: () {
-                            context.read<StatisticCubit>().groupMessageByWeek();
+                            var selectedPage = context
+                                .read<FilterScreenCubit>()
+                                .state
+                                .pages
+                                .where((element) => element.isSelected)
+                                .toList();
+                            context
+                                .read<StatisticCubit>()
+                                .groupMessageByWeek(selectedPage);
                             context.read<StatisticCubit>().changeTime(1);
                           },
                         ),
@@ -134,9 +150,15 @@ class StatisticScreen extends StatelessWidget {
                               ' ${DateFormat.yMMMd().format(DateTime.now())}',
                             ),
                             onTap: () {
+                              var selectedPage = context
+                                  .read<FilterScreenCubit>()
+                                  .state
+                                  .pages
+                                  .where((element) => element.isSelected)
+                                  .toList();
                               context
                                   .read<StatisticCubit>()
-                                  .groupMessageByMonth();
+                                  .groupMessageByMonth(selectedPage);
                               context.read<StatisticCubit>().changeTime(2);
                             }),
                         ListTile(
@@ -145,7 +167,15 @@ class StatisticScreen extends StatelessWidget {
                             '${DateTime.now().year}',
                           ),
                           onTap: () {
-                            context.read<StatisticCubit>().groupMessageByYear();
+                            var selectedPage = context
+                                .read<FilterScreenCubit>()
+                                .state
+                                .pages
+                                .where((element) => element.isSelected)
+                                .toList();
+                            context
+                                .read<StatisticCubit>()
+                                .groupMessageByYear(selectedPage);
                             context.read<StatisticCubit>().changeTime(3);
                           },
                         ),
@@ -156,9 +186,25 @@ class StatisticScreen extends StatelessWidget {
               ],
             ),
           ),
-          Icon(
-            Icons.filter_list,
-            size: 30,
+          BlocBuilder<StatisticCubit, StatisticState>(
+            builder: (context, state) {
+              return IconButton(
+                onPressed: () async {
+                  await Navigator.pushNamed(context, FilterScreen.routeName);
+                  var selectedPage = context
+                      .read<FilterScreenCubit>()
+                      .state
+                      .pages
+                      .where((element) => element.isSelected)
+                      .toList();
+                  context.read<StatisticCubit>().updateStatistic(selectedPage);
+                },
+                icon: Icon(
+                  Icons.filter_list,
+                  size: 30,
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -233,7 +279,7 @@ class StatisticScreen extends StatelessWidget {
                     colorFn: (sales, _) => sales.color,
                     domainFn: (sales, _) => sales.date,
                     measureFn: (sales, _) => sales.count,
-                    data: context.read<StatisticCubit>().filterMsg(
+                    data: context.read<StatisticCubit>().filterMsgByDate(
                           (element) => element.isFavor,
                           charts.Color.fromHex(code: 'FFFFEB3B'),
                         ),
@@ -243,7 +289,7 @@ class StatisticScreen extends StatelessWidget {
                     colorFn: (sales, _) => sales.color,
                     domainFn: (sales, _) => sales.date,
                     measureFn: (sales, _) => sales.count,
-                    data: context.read<StatisticCubit>().filterMsg(
+                    data: context.read<StatisticCubit>().filterMsgByDate(
                           (element) => element.indexCategory != -1,
                           charts.Color.fromHex(code: 'FFF44336'),
                         ),
@@ -252,7 +298,7 @@ class StatisticScreen extends StatelessWidget {
                     id: 'Total',
                     domainFn: (sales, _) => sales.date,
                     measureFn: (sales, _) => sales.count,
-                    data: context.read<StatisticCubit>().filterMsg(
+                    data: context.read<StatisticCubit>().filterMsgByDate(
                           (element) => true,
                           charts.Color.fromHex(code: 'FF2196F3'),
                         ),

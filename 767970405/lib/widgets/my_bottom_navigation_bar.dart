@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../filter_screen/filter_screen_cubit.dart';
 import '../home_screen/home_screen_cubit.dart';
-import '../messages_screen/screen_message_cubit.dart';
 import '../timeline_screen/timeline_screen_cubit.dart';
 
 class MyBottomNavigationBar extends StatelessWidget {
@@ -51,22 +50,9 @@ class MyBottomNavigationBar extends StatelessWidget {
           }
           context.read<HomeScreenCubit>().changeScreen(index);
           if (index == 2) {
-            context.read<FilterScreenCubit>().loadListsItem(
-                  context.read<HomeScreenCubit>().state.pages,
-                  context.read<ScreenMessageCubit>().state.tags,
-                );
-            final state = context.read<FilterScreenCubit>().state;
-            context.read<TimelineScreenCubit>().configureList(
-                  selectedPages: state.pages
-                      .where((element) => element.isSelected)
-                      .toList(),
-                  selectedTags: state.tags
-                      .where((element) => element.isSelected)
-                      .toList(),
-                  selectedLabel: state.labels
-                      .where((element) => element.isSelected)
-                      .toList(),
-                );
+            context.read<TimelineScreenCubit>().updateDate();
+            context.read<FilterScreenCubit>().updateDate();
+            return;
           }
           context.read<TimelineScreenCubit>().changeMode();
         },

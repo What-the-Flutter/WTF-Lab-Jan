@@ -130,6 +130,9 @@ class MyApp extends StatelessWidget {
             create: (context) => FilterScreenCubit(
               categoryRepository:
                   RepositoryProvider.of<CategoryRepository>(context),
+              pagesRepository: RepositoryProvider.of<PagesRepository>(context),
+              messagesRepository:
+                  RepositoryProvider.of<MessagesRepository>(context),
             ),
           ),
         ],

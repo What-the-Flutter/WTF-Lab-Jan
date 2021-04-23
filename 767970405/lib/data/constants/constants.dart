@@ -6,6 +6,8 @@ enum TypeTab { pages, tags, labels, other }
 
 enum ModeFilter { wait, complete }
 
+enum ModeFilterScreen { statisticFilter, timelineFilter }
+
 enum TypeAccentColor { gold, cyan, mint, lime, pink, green, orange }
 
 enum Mode { await, input, selection, edit }

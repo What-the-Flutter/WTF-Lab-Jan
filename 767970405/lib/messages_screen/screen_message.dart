@@ -541,16 +541,17 @@ class InputAppBar extends StatelessWidget {
             left: 10,
           ),
           child: IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                context.read<SearchMessageScreenCubit>().updateTag(
-                      context.read<ScreenMessageCubit>().state.tags,
-                    );
-                Navigator.pushNamed(
-                  context,
-                  SearchMessageScreen.routeName,
-                );
-              }),
+            icon: Icon(Icons.search),
+            onPressed: () {
+              context.read<SearchMessageScreenCubit>().updateTag(
+                    context.read<ScreenMessageCubit>().state.tags,
+                  );
+              Navigator.pushNamed(
+                context,
+                SearchMessageScreen.routeName,
+              );
+            },
+          ),
         ),
         Padding(
           padding: EdgeInsets.only(
@@ -559,12 +560,16 @@ class InputAppBar extends StatelessWidget {
           child: IconButton(
             icon: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
               builder: (context, state) {
-                return Icon(
-                  Icons.bookmark,
-                  color: context.read<ScreenMessageCubit>().state.isBookmark
-                      ? Colors.amberAccent
-                      : null,
-                );
+                if (context.read<ScreenMessageCubit>().state.isBookmark) {
+                  return Icon(
+                    Icons.bookmark,
+                    color: Colors.amberAccent,
+                  );
+                } else {
+                  return Icon(
+                    Icons.bookmark_border,
+                  );
+                }
               },
             ),
             onPressed: context.read<ScreenMessageCubit>().showBookmarkMessage,

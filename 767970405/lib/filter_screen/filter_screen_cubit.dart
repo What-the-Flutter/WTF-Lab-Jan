@@ -2,33 +2,57 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../data/constants/constants.dart';
-import '../data/model/model_page.dart';
-import '../data/model/model_tag.dart';
 import '../data/model/search_item_data.dart';
 import '../data/repository/category_repository.dart';
+import '../data/repository/messages_repository.dart';
+import '../data/repository/pages_repository.dart';
 
 part 'filter_screen_state.dart';
 
 class FilterScreenCubit extends Cubit<FilterScreenState> {
   final CategoryRepository categoryRepository;
+  final MessagesRepository messagesRepository;
+  final PagesRepository pagesRepository;
 
   FilterScreenCubit({
+    this.pagesRepository,
+    this.messagesRepository,
     this.categoryRepository,
   }) : super(
           FilterScreenState(
             modeFilter: ModeFilter.wait,
+            modeFilterScreen: ModeFilterScreen.timelineFilter,
             pages: <SearchItemData>[],
             tags: <SearchItemData>[],
             labels: <SearchItemData>[],
           ),
         );
 
-  void loadListsItem(List<ModelPage> pages, List<ModelTag> tags) {
-    final labels = categoryRepository.categories;
-
+  void updatePages() async {
+    final pages = await pagesRepository.pages();
     emit(
       state.copyWith(
+        pages: List.generate(
+          pages.length,
+          (index) => SearchItemData(
+            id: pages[index].id,
+            indexIcon: pages[index].iconIndex,
+            name: pages[index].title,
+            isSelected: false,
+          ),
+        ),
         modeFilter: ModeFilter.complete,
+        modeFilterScreen: ModeFilterScreen.statisticFilter,
+      ),
+    );
+  }
+
+  void updateDate() async {
+    final pages = await pagesRepository.pages();
+    final tags = await messagesRepository.tags();
+    final labels = categoryRepository.categories;
+    emit(
+      state.copyWith(
         pages: List.generate(
           pages.length,
           (index) => SearchItemData(
@@ -56,6 +80,8 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
             isSelected: false,
           ),
         ),
+        modeFilter: ModeFilter.complete,
+        modeFilterScreen: ModeFilterScreen.timelineFilter,
       ),
     );
   }

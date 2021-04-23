@@ -21,67 +21,88 @@ class FilterScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('Filter'),
-          bottom: TabBar(
-            tabs: <Widget>[
-              Tab(
-                text: 'Pages',
-              ),
-              Tab(
-                text: 'Tags',
-              ),
-              Tab(
-                text: 'Labels',
-              ),
-              Tab(
-                text: 'Other',
-              ),
-            ],
-          ),
+          bottom: context.read<FilterScreenCubit>().state.modeFilterScreen ==
+                  ModeFilterScreen.timelineFilter
+              ? TabBar(
+                  tabs: <Widget>[
+                    Tab(text: 'Pages'),
+                    Tab(text: 'Tags'),
+                    Tab(text: 'Labels'),
+                    Tab(text: 'Other'),
+                  ],
+                )
+              : null,
         ),
-        body: context.read<FilterScreenCubit>().state.modeFilter ==
-                ModeFilter.complete
-            ? TabBarView(
-                children: <Widget>[
-                  BlocBuilder<FilterScreenCubit, FilterScreenState>(
-                    builder: (context, state) {
-                      return TabItem(
-                        list: state.pages,
-                        typeTab: TypeTab.pages,
-                        word: 'page',
-                      );
-                    },
-                  ),
-                  BlocBuilder<FilterScreenCubit, FilterScreenState>(
-                    builder: (context, state) {
-                      return TabItem(
-                        list: state.tags,
-                        typeTab: TypeTab.tags,
-                        word: 'tag',
-                      );
-                    },
-                  ),
-                  BlocBuilder<FilterScreenCubit, FilterScreenState>(
-                    builder: (context, state) {
-                      return TabItem(
-                        list: state.labels,
-                        typeTab: TypeTab.labels,
-                        word: 'label',
-                      );
-                    },
-                  ),
-                  Center(
-                    child: Text('In Future'),
-                  ),
-                ],
-              )
-            : Center(
+        body: BlocBuilder<FilterScreenCubit, FilterScreenState>(
+          builder: (context, state) {
+            if (state.modeFilter == ModeFilter.wait) {
+              return Center(
                 child: CircularProgressIndicator(),
-              ),
+              );
+            }
+            if (state.modeFilterScreen == ModeFilterScreen.timelineFilter) {
+              return timelineFilterBody;
+            } else {
+              return statisticFilterBody;
+            }
+          },
+          buildWhen: (prevState, curState) =>
+              prevState.modeFilterScreen != curState.modeFilterScreen,
+        ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.done),
           onPressed: () => Navigator.pop(context),
         ),
       ),
+    );
+  }
+
+  Widget get timelineFilterBody {
+    return TabBarView(
+      children: <Widget>[
+        BlocBuilder<FilterScreenCubit, FilterScreenState>(
+          builder: (context, state) {
+            return TabItem(
+              list: state.pages,
+              typeTab: TypeTab.pages,
+              word: 'page',
+            );
+          },
+        ),
+        BlocBuilder<FilterScreenCubit, FilterScreenState>(
+          builder: (context, state) {
+            return TabItem(
+              list: state.tags,
+              typeTab: TypeTab.tags,
+              word: 'tag',
+            );
+          },
+        ),
+        BlocBuilder<FilterScreenCubit, FilterScreenState>(
+          builder: (context, state) {
+            return TabItem(
+              list: state.labels,
+              typeTab: TypeTab.labels,
+              word: 'label',
+            );
+          },
+        ),
+        Center(
+          child: Text('In Future'),
+        ),
+      ],
+    );
+  }
+
+  Widget get statisticFilterBody {
+    return BlocBuilder<FilterScreenCubit, FilterScreenState>(
+      builder: (context, state) {
+        return TabItem(
+          list: state.pages,
+          typeTab: TypeTab.pages,
+          word: 'page',
+        );
+      },
     );
   }
 }
