@@ -1,6 +1,5 @@
 part of 'home_screen_cubit.dart';
 
-
 class HomeScreenState {
   final bool isLoad;
   final int currentIndex;
@@ -23,7 +22,4 @@ class HomeScreenState {
       currentIndex: currentIndex ?? this.currentIndex,
     );
   }
-
-  // @override
-  // List<Object> get props => [pages, currentIndex, isLoad];
 }

@@ -16,7 +16,7 @@ class PagesRepository {
     return pagesAPI.insertPage(page);
   }
 
-  void editPage(ModelPage page)  {
+  void editPage(ModelPage page) {
     pagesAPI.updatePage(page);
   }
 

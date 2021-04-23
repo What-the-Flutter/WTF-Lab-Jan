@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/auth_screen/auth_screen.dart';
-import 'package:my_chat_journal/settings_screen/chat_interface_setting_cubit.dart';
 import 'package:provider/provider.dart';
 
 import '../data/constants/constants.dart';
@@ -20,37 +18,15 @@ import '../widgets/drawer.dart';
 import '../widgets/my_bottom_navigation_bar.dart';
 import 'home_screen_cubit.dart';
 
-class HomeWindow extends StatefulWidget {
-  final MyBottomNavigationBar bottomNavigationBar;
-  final MyDrawer drawer;
-
-  const HomeWindow({
-    Key key,
-    this.bottomNavigationBar,
-    this.drawer,
-  }) : super(key: key);
-
-  @override
-  _HomeWindowState createState() => _HomeWindowState(
-        drawer: drawer,
-        bottomNavigationBar: bottomNavigationBar,
-      );
-}
-
-class _HomeWindowState extends State<HomeWindow> {
+class HomeWindow extends StatelessWidget {
   final GlobalKey _globalKey = GlobalKey();
   final MyBottomNavigationBar bottomNavigationBar;
   final MyDrawer drawer;
 
-  _HomeWindowState({
+  HomeWindow({
     this.drawer,
     this.bottomNavigationBar,
   });
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,42 +51,46 @@ class _HomeWindowState extends State<HomeWindow> {
         ),
         drawer: drawer,
         body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-          builder: (context, state) => state.isLoad
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Stack(
-                  alignment: AlignmentDirectional.topEnd,
-                  children: <Widget>[
-                    ChatPreviewList(),
-                    Positioned(
-                      top: MediaQuery.of(context).size.height * (1 / 10),
-                      right: MediaQuery.of(context).size.height * (1 / 100),
-                      child: Bot(
-                        theme: my.BotTheme(
-                          contentStyle: TextStyle(
-                            fontSize: context
-                                .read<VisualSettingCubit>()
-                                .state
-                                .bodyFontSize,
-                            color: context
-                                .read<VisualSettingCubit>()
-                                .state
-                                .titleColor,
-                          ),
-                          iconColor: context
+          builder: (context, state) {
+            if (state.isLoad) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Stack(
+                alignment: AlignmentDirectional.topEnd,
+                children: <Widget>[
+                  ChatPreviewList(),
+                  Positioned(
+                    top: MediaQuery.of(context).size.height * (1 / 10),
+                    right: MediaQuery.of(context).size.height * (1 / 100),
+                    child: Bot(
+                      theme: my.BotTheme(
+                        contentStyle: TextStyle(
+                          fontSize: context
                               .read<VisualSettingCubit>()
                               .state
-                              .botIconColor,
-                          backgroundColor: context
+                              .bodyFontSize,
+                          color: context
                               .read<VisualSettingCubit>()
                               .state
-                              .botBackgroundColor,
+                              .titleColor,
                         ),
+                        iconColor: context
+                            .read<VisualSettingCubit>()
+                            .state
+                            .botIconColor,
+                        backgroundColor: context
+                            .read<VisualSettingCubit>()
+                            .state
+                            .botBackgroundColor,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              );
+            }
+          },
         ),
         floatingActionButton: AddChatButton(),
         bottomNavigationBar: bottomNavigationBar,
@@ -139,22 +119,24 @@ class ChatPreviewList extends StatelessWidget {
       iconColor: visualSettingState.categoryIconColor,
     );
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
-      builder: (context, state) => ListView.builder(
-        itemCount: state.pages.length,
-        itemBuilder: (context, i) {
-          return ChatPreview(
-            index: i,
-            title: state.pages[i].title,
-            subtitle: 'No events click create to one',
-            isPinned: state.pages[i].isPinned,
-            iconData: context.read<ScreenCreatingPageCubit>().getIcon(
-                  state.pages[i].iconIndex,
-                ),
-            previewTheme: previewTheme,
-            categoryTheme: categoryTheme,
-          );
-        },
-      ),
+      builder: (context, state) {
+        return ListView.builder(
+          itemCount: state.pages.length,
+          itemBuilder: (context, i) {
+            return ChatPreview(
+              index: i,
+              title: state.pages[i].title,
+              subtitle: 'No events click create to one',
+              isPinned: state.pages[i].isPinned,
+              iconData: context.read<ScreenCreatingPageCubit>().getIcon(
+                    state.pages[i].iconIndex,
+                  ),
+              previewTheme: previewTheme,
+              categoryTheme: categoryTheme,
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -302,79 +284,79 @@ class ChatPreview extends StatelessWidget {
     );
     showModalBottomSheet<void>(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          CustomListTile(
-            leadingIcon: Icons.info,
-            title: 'info',
-            onTap: () => _showPreviewInfo(homeCubit, context),
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.teal,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            CustomListTile(
+              leadingIcon: Icons.info,
+              title: 'info',
+              onTap: () => _showPreviewInfo(homeCubit, context),
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.teal,
+              ),
             ),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.attach_file,
-            title: 'Pin/Unpin Page',
-            onTap: () {
-              Navigator.pop(context);
-              homeCubit.pinPage(index);
-            },
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.green,
+            CustomListTile(
+              leadingIcon: Icons.attach_file,
+              title: 'Pin/Unpin Page',
+              onTap: () {
+                Navigator.pop(context);
+                homeCubit.pinPage(index);
+              },
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.green,
+              ),
             ),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.archive,
-            title: 'Archive Page',
-            onTap: () {
-              Navigator.pop(context);
-            },
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.orange,
+            CustomListTile(
+              leadingIcon: Icons.archive,
+              title: 'Archive Page',
+              onTap: () => Navigator.pop(context),
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.orange,
+              ),
             ),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.edit,
-            title: 'Edit page',
-            onTap: () async {
-              Navigator.pop(context);
-              screenCreatingCubit.setting(
-                homeCubit.state.pages[index].title,
-                homeCubit.state.pages[index].iconIndex,
-              );
-              await Navigator.pushNamed(
-                context,
-                CreateNewPage.routName,
-              );
-              if (screenCreatingCubit.state.iconButton != Icons.close) {
-                homeCubit.editPage(
-                  homeCubit.state.pages[index].copyWith(
-                    iconIndex: screenCreatingCubit.state.selectionIconIndex,
-                    title: screenCreatingCubit.controller.text,
-                  ),
+            CustomListTile(
+              leadingIcon: Icons.edit,
+              title: 'Edit page',
+              onTap: () async {
+                Navigator.pop(context);
+                screenCreatingCubit.setting(
+                  homeCubit.state.pages[index].title,
+                  homeCubit.state.pages[index].iconIndex,
                 );
-              }
-              screenCreatingCubit.resetIcon();
-            },
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.blue,
+                await Navigator.pushNamed(
+                  context,
+                  CreateNewPage.routName,
+                );
+                if (screenCreatingCubit.state.iconButton != Icons.close) {
+                  homeCubit.editPage(
+                    homeCubit.state.pages[index].copyWith(
+                      iconIndex: screenCreatingCubit.state.selectionIconIndex,
+                      title: screenCreatingCubit.controller.text,
+                    ),
+                  );
+                }
+                screenCreatingCubit.resetIcon();
+              },
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.blue,
+              ),
             ),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.delete,
-            title: 'Delete Page',
-            onTap: () {
-              Navigator.pop(context);
-              context.read<HomeScreenCubit>().removePage(index);
-            },
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.red,
+            CustomListTile(
+              leadingIcon: Icons.delete,
+              title: 'Delete Page',
+              onTap: () {
+                Navigator.pop(context);
+                context.read<HomeScreenCubit>().removePage(index);
+              },
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.red,
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
@@ -382,48 +364,50 @@ class ChatPreview extends StatelessWidget {
     Navigator.pop(context);
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              title: Text(cubit.state.pages[index].title),
-              leading: Container(
-                width: 75,
-                height: 75,
-                child: Icon(
-                  context.read<ScreenCreatingPageCubit>().getIcon(
-                        cubit.state.pages[index].iconIndex,
-                      ),
-                ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: Text(cubit.state.pages[index].title),
+                leading: Container(
+                  width: 75,
+                  height: 75,
+                  child: Icon(
+                    context.read<ScreenCreatingPageCubit>().getIcon(
+                          cubit.state.pages[index].iconIndex,
+                        ),
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
-            ),
-            ListTile(
-              title: Text('Created'),
-              subtitle: Text(
-                cubit.state.pages[index].creationTime.toString(),
+              ListTile(
+                title: Text('Created'),
+                subtitle: Text(
+                  cubit.state.pages[index].creationTime.toString(),
+                ),
               ),
-            ),
-            ListTile(
-              title: Text('Latest Event'),
-              subtitle: Text(
-                cubit.state.pages[index].lastModifiedTime.toString(),
+              ListTile(
+                title: Text('Latest Event'),
+                subtitle: Text(
+                  cubit.state.pages[index].lastModifiedTime.toString(),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Center(
+                child: Text('OK'),
               ),
             ),
           ],
-        ),
-        actions: <Widget>[
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Center(
-              child: Text('OK'),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

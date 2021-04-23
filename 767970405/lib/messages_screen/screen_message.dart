@@ -144,17 +144,19 @@ class FloatingBarWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-      builder: (context, state) => AnimatedContainer(
-        duration: Duration(seconds: 2),
-        padding: EdgeInsets.all(2.0),
-        onEnd: state.floatingBar == FloatingBar.values[index + 1]
-            ? null
-            : () => context.read<ScreenMessageCubit>().changeDisplay(index),
-        height: state.floatingBar == FloatingBar.values[index + 1] ? 75 : 0,
-        child: Center(
-          child: state.isStartAnim[index] ? child : null,
-        ),
-      ),
+      builder: (context, state) {
+        return AnimatedContainer(
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.all(2.0),
+          onEnd: state.floatingBar == FloatingBar.values[index + 1]
+              ? null
+              : () => context.read<ScreenMessageCubit>().changeDisplay(index),
+          height: state.floatingBar == FloatingBar.values[index + 1] ? 75 : 0,
+          child: Center(
+            child: state.isStartAnim[index] ? child : null,
+          ),
+        );
+      },
     );
   }
 }
@@ -173,26 +175,25 @@ class TagList extends StatelessWidget {
       radius: 15,
     );
     return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: state.tags.length,
-      itemBuilder: (context, index) {
-        if (state.tags[index].isShow) {
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.0),
-            child: SearchItem(
-              key: ValueKey(index),
-              name: state.tags[index].name,
-              isSelected: false,
-              onTap: () =>
-                  context.read<ScreenMessageCubit>().addTagToText(index),
-              theme: theme,
-            ),
-          );
-        } else {
-          return Container();
-        }
-      }
-    );
+        scrollDirection: Axis.horizontal,
+        itemCount: state.tags.length,
+        itemBuilder: (context, index) {
+          if (state.tags[index].isShow) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
+              child: SearchItem(
+                key: ValueKey(index),
+                name: state.tags[index].name,
+                isSelected: false,
+                onTap: () =>
+                    context.read<ScreenMessageCubit>().addTagToText(index),
+                theme: theme,
+              ),
+            );
+          } else {
+            return Container();
+          }
+        });
   }
 }
 
@@ -447,66 +448,73 @@ class InputPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-      builder: (context, state) => Padding(
-        padding: EdgeInsets.symmetric(vertical: 5.0),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: IconButton(
-                icon: Icon(
-                  state.indexCategory == -1
-                      ? Icons.bubble_chart
-                      : RepositoryProvider.of<CategoryRepository>(context)
-                          .categories[state.indexCategory]
-                          .iconData,
+      builder: (context, state) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 5.0),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  icon: Icon(
+                    state.indexCategory == -1
+                        ? Icons.bubble_chart
+                        : RepositoryProvider.of<CategoryRepository>(context)
+                            .categories[state.indexCategory]
+                            .iconData,
+                  ),
+                  onPressed:
+                      state.mode == Mode.selection ? null : state.onAddCategory,
                 ),
-                onPressed:
-                    state.mode == Mode.selection ? null : state.onAddCategory,
               ),
-            ),
-            Expanded(
-              flex: 5,
-              child: TextField(
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize:
-                      context.read<VisualSettingCubit>().state.bodyFontSize,
-                  color: state.enabledController
-                      ? context.read<VisualSettingCubit>().state.textFieldColor
-                      : context
-                          .read<VisualSettingCubit>()
-                          .state
-                          .disabledTextFieldColor,
-                ),
-                controller: context.read<ScreenMessageCubit>().controller,
-                decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color:
-                          state.enabledController ? Colors.orange : Colors.grey,
+              Expanded(
+                flex: 5,
+                child: TextField(
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize:
+                        context.read<VisualSettingCubit>().state.bodyFontSize,
+                    color: state.enabledController
+                        ? context
+                            .read<VisualSettingCubit>()
+                            .state
+                            .textFieldColor
+                        : context
+                            .read<VisualSettingCubit>()
+                            .state
+                            .disabledTextFieldColor,
+                  ),
+                  controller: context.read<ScreenMessageCubit>().controller,
+                  decoration: InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: state.enabledController
+                            ? Colors.orange
+                            : Colors.grey,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: state.enabledController
+                            ? Colors.orange
+                            : Colors.grey,
+                      ),
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color:
-                          state.enabledController ? Colors.orange : Colors.grey,
-                    ),
-                  ),
                 ),
               ),
-            ),
-            Expanded(
-              flex: 1,
-              child: IconButton(
-                icon: Icon(state.iconDataPhoto),
-                onPressed:
-                    state.mode == Mode.selection ? null : state.onAddMessage,
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  icon: Icon(state.iconDataPhoto),
+                  onPressed:
+                      state.mode == Mode.selection ? null : state.onAddMessage,
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -550,15 +558,14 @@ class InputAppBar extends StatelessWidget {
           ),
           child: IconButton(
             icon: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-              builder: (context, state) =>
-                  context.read<ScreenMessageCubit>().state.isBookmark
-                      ? Icon(
-                          Icons.bookmark,
-                          color: Colors.amberAccent,
-                        )
-                      : Icon(
-                          Icons.bookmark_border,
-                        ),
+              builder: (context, state) {
+                return Icon(
+                  Icons.bookmark,
+                  color: context.read<ScreenMessageCubit>().state.isBookmark
+                      ? Colors.amberAccent
+                      : null,
+                );
+              },
             ),
             onPressed: context.read<ScreenMessageCubit>().showBookmarkMessage,
           ),
@@ -582,9 +589,7 @@ class SelectionAppBar extends StatelessWidget {
           onPressed: context.read<ScreenMessageCubit>().backToInputAppBar,
         ),
         title: BlocBuilder<ScreenMessageCubit, ScreenMessageState>(
-          builder: (context, state) => Text(
-            state.counter.toString(),
-          ),
+          builder: (context, state) => Text(state.counter.toString()),
         ),
         actions: [
           Padding(
@@ -636,65 +641,71 @@ class SelectionAppBar extends StatelessWidget {
     var index = 0;
     var list = context.read<HomeScreenCubit>().state.pages;
     list = list
-        .where((element) =>
-            element.id != context.read<ScreenMessageCubit>().state.page.id)
+        .where(
+          (element) =>
+              element.id != context.read<ScreenMessageCubit>().state.page.id,
+        )
         .toList();
     showDialog(
       context: context,
-      builder: (alertContext) => AlertDialog(
-        content: StatefulBuilder(
-          builder: (context, setState) => Container(
-            height: 200,
-            width: 100,
-            child: ListView(
+      builder: (alertContext) {
+        return AlertDialog(
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return Container(
+                height: 200,
+                width: 100,
+                child: ListView(
+                  children: <Widget>[
+                    for (var i = 0; i < list.length; i++)
+                      RadioListTile<int>(
+                        title: Text(
+                          list[i].title,
+                          style: Theme.of(context).textTheme.subtitle1.copyWith(
+                                fontWeight: FontWeight.normal,
+                              ),
+                        ),
+                        value: i,
+                        groupValue: index,
+                        onChanged: (value) => setState(() => index = value),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                for (var i = 0; i < list.length; i++)
-                  RadioListTile<int>(
-                    title: Text(
-                      list[i].title,
-                      style: Theme.of(context).textTheme.subtitle1.copyWith(
-                            fontWeight: FontWeight.normal,
-                          ),
+                Padding(
+                  padding: EdgeInsets.only(right: 5),
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Center(
+                      child: Text('Cancel'),
                     ),
-                    value: i,
-                    groupValue: index,
-                    onChanged: (value) => setState(() => index = value),
                   ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: OutlinedButton(
+                    onPressed: () {
+                      context.read<ScreenMessageCubit>().listSelected(
+                            list[index].id,
+                          );
+                      Navigator.pop(context);
+                    },
+                    child: Center(
+                      child: Text('Move'),
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
-        ),
-        actions: <Widget>[
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Center(
-                    child: Text('Cancel'),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 5),
-                child: OutlinedButton(
-                  onPressed: () {
-                    context.read<ScreenMessageCubit>().listSelected(
-                          list[index].id,
-                        );
-                    Navigator.pop(context);
-                  },
-                  child: Center(
-                    child: Text('Move'),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
@@ -862,12 +873,9 @@ class AttachPhotoButton extends StatelessWidget {
           ),
           child: Row(
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  iconData,
-                  color: Colors.white,
-                ),
+              Icon(
+                iconData,
+                color: Colors.white,
               ),
               Text(text),
             ],
@@ -979,12 +987,6 @@ class Message extends StatelessWidget {
                 Container(
                   constraints: BoxConstraints(maxWidth: 150),
                   decoration: BoxDecoration(
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Colors.blue,
-                    //     offset: Offset(6, 6),
-                    //   ),
-                    // ],
                     borderRadius: BorderRadius.circular(15.0),
                     color: isSelected
                         ? theme.selectedColor

@@ -61,14 +61,10 @@ class CreateNewPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         elevation: 10.0,
         child: BlocBuilder<ScreenCreatingPageCubit, ScreenCreatingPageState>(
-          builder: (context, state) => Icon(
-            state.iconButton,
-          ),
+          builder: (context, state) => Icon(state.iconButton),
           buildWhen: (prev, cur) => prev.iconButton != cur.iconButton,
         ),
-        onPressed: () {
-          Navigator.pop(context);
-        },
+        onPressed: () => Navigator.pop(context),
       ),
     );
   }
@@ -127,9 +123,8 @@ class CategoryPreviewChat extends StatelessWidget {
               context.read<ScreenCreatingPageCubit>().state.list[index].icon,
               color: theme.iconColor,
             ),
-            onPressed: () {
-              context.read<ScreenCreatingPageCubit>().selectionIcon(index);
-            },
+            onPressed: () =>
+                context.read<ScreenCreatingPageCubit>().selectionIcon(index),
           ),
           if (isSelected)
             Container(

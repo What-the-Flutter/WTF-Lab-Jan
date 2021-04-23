@@ -43,38 +43,43 @@ class FilterScreen extends StatelessWidget {
             ? TabBarView(
                 children: <Widget>[
                   BlocBuilder<FilterScreenCubit, FilterScreenState>(
-                    builder: (context, state) => TabItem(
-                      list: state.pages,
-                      typeTab: TypeTab.pages,
-                      word: 'page',
-                    ),
+                    builder: (context, state) {
+                      return TabItem(
+                        list: state.pages,
+                        typeTab: TypeTab.pages,
+                        word: 'page',
+                      );
+                    },
                   ),
                   BlocBuilder<FilterScreenCubit, FilterScreenState>(
-                    builder: (context, state) => TabItem(
-                      list: state.tags,
-                      typeTab: TypeTab.tags,
-                      word: 'tag',
-                    ),
+                    builder: (context, state) {
+                      return TabItem(
+                        list: state.tags,
+                        typeTab: TypeTab.tags,
+                        word: 'tag',
+                      );
+                    },
                   ),
                   BlocBuilder<FilterScreenCubit, FilterScreenState>(
-                    builder: (context, state) => TabItem(
-                      list: state.labels,
-                      typeTab: TypeTab.labels,
-                      word: 'label',
-                    ),
+                    builder: (context, state) {
+                      return TabItem(
+                        list: state.labels,
+                        typeTab: TypeTab.labels,
+                        word: 'label',
+                      );
+                    },
                   ),
                   Center(
                     child: Text('In Future'),
                   ),
                 ],
               )
-            : CircularProgressIndicator(),
+            : Center(
+                child: CircularProgressIndicator(),
+              ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.done),
-          onPressed: () {
-            // =>
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
     );

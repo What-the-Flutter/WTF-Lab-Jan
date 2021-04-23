@@ -15,12 +15,12 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
   TimelineScreenCubit({
     this.repository,
   }) : super(
-    TimelineScreenState(
-      list: <ModelMessage>[],
-      modeFilter: ModeFilter.wait,
-      isBookmark: false,
-    ),
-  );
+          TimelineScreenState(
+            list: <ModelMessage>[],
+            modeFilter: ModeFilter.wait,
+            isBookmark: false,
+          ),
+        );
 
   void configureList({
     List<SearchItemData> selectedPages,

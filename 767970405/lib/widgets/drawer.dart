@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/statistic_screen/statistic_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
 
 import '../data/theme/custom_theme.dart' as my;
 import '../settings_screen/setting_screen.dart';
 import '../settings_screen/visual_setting_cubit.dart';
+import '../statistic_screen/statistic_screen.dart';
 import 'custom_list_tile.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -40,17 +40,13 @@ class MyDrawer extends StatelessWidget {
           CustomListTile(
             leadingIcon: Icons.search,
             title: 'Search',
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
             theme: listTileTheme.copyWith(leadingIconColor: Colors.cyan),
           ),
           CustomListTile(
             leadingIcon: Icons.notifications,
             title: 'Notifications',
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
             theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
           ),
           CustomListTile(
@@ -75,9 +71,7 @@ class MyDrawer extends StatelessWidget {
           CustomListTile(
             leadingIcon: Icons.feedback,
             title: 'Feedback',
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
             theme: listTileTheme.copyWith(leadingIconColor: Colors.orange),
           )
         ],

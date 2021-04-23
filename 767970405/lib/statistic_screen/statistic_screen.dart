@@ -1,13 +1,11 @@
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:my_chat_journal/data/model/label_model.dart';
-import 'package:my_chat_journal/data/model/model_message.dart';
 
 import '../data/constants/constants.dart';
 import '../data/extension.dart';
+import '../data/model/model_message.dart';
 import 'statistic_cubit.dart';
 
 class StatisticScreen extends StatelessWidget {
@@ -125,9 +123,7 @@ class StatisticScreen extends StatelessWidget {
                             ' ${DateFormat.yMMMd().format(DateTime.now())}',
                           ),
                           onTap: () {
-                            context
-                                .read<StatisticCubit>()
-                                .groupMessageByWeek();
+                            context.read<StatisticCubit>().groupMessageByWeek();
                             context.read<StatisticCubit>().changeTime(1);
                           },
                         ),
@@ -137,23 +133,22 @@ class StatisticScreen extends StatelessWidget {
                               '${DateFormat.yMMMd().format(DateTime.now().subtract(Duration(days: 30)))} -'
                               ' ${DateFormat.yMMMd().format(DateTime.now())}',
                             ),
-                            onTap: ()  {
+                            onTap: () {
                               context
                                   .read<StatisticCubit>()
                                   .groupMessageByMonth();
                               context.read<StatisticCubit>().changeTime(2);
                             }),
                         ListTile(
-                            title: Text('This Year'),
-                            subtitle: Text(
-                              '${DateTime.now().year}',
-                            ),
-                            onTap: () async {
-                              await context
-                                  .read<StatisticCubit>()
-                                  .groupMessageByYear();
-                              context.read<StatisticCubit>().changeTime(3);
-                            }),
+                          title: Text('This Year'),
+                          subtitle: Text(
+                            '${DateTime.now().year}',
+                          ),
+                          onTap: () {
+                            context.read<StatisticCubit>().groupMessageByYear();
+                            context.read<StatisticCubit>().changeTime(3);
+                          },
+                        ),
                       ],
                     );
                   },
@@ -304,7 +299,8 @@ class Panel extends StatelessWidget {
             children: <Widget>[
               BlocBuilder<StatisticCubit, StatisticState>(
                 builder: (context, state) => Text(
-                    '${context.read<StatisticCubit>().countFilterMsg(filter)}'),
+                  '${context.read<StatisticCubit>().countFilterMsg(filter)}',
+                ),
               ),
               Text(label),
             ],

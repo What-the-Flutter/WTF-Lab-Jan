@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
-import '../auth_screen/auth_screen.dart';
-import '../statistic_screen/statistic_screen.dart';
 
+import '../auth_screen/auth_screen.dart';
 import '../filter_screen/filter_screen.dart';
 import '../messages_screen/screen_message.dart';
 import '../screen_creating_page/create_new_page.dart';
 import '../search_messages_screen/search_message_screen.dart';
 import '../settings_screen/setting_screen.dart';
-import '../start_window/start_window.dart';
+import '../statistic_screen/statistic_screen.dart';
 
 class AppRouter {
   Route onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case '/':
-        return MaterialPageRoute(
-          builder: (context) => StartWindow(),
-        );
       case ScreenMessage.routeName:
         return _customAnimation(ScreenMessage());
       case CreateNewPage.routName:

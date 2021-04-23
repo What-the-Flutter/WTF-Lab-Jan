@@ -1,13 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_chat_journal/data/model/model_page.dart';
-import 'package:my_chat_journal/data/model/model_tag.dart';
 
 import '../data/constants/constants.dart';
+import '../data/model/model_page.dart';
+import '../data/model/model_tag.dart';
 import '../data/model/search_item_data.dart';
 import '../data/repository/category_repository.dart';
-import '../data/repository/messages_repository.dart';
-import '../data/repository/pages_repository.dart';
 
 part 'filter_screen_state.dart';
 
@@ -17,13 +15,13 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
   FilterScreenCubit({
     this.categoryRepository,
   }) : super(
-    FilterScreenState(
-      modeFilter: ModeFilter.wait,
-      pages: <SearchItemData>[],
-      tags: <SearchItemData>[],
-      labels: <SearchItemData>[],
-    ),
-  );
+          FilterScreenState(
+            modeFilter: ModeFilter.wait,
+            pages: <SearchItemData>[],
+            tags: <SearchItemData>[],
+            labels: <SearchItemData>[],
+          ),
+        );
 
   void loadListsItem(List<ModelPage> pages, List<ModelTag> tags) {
     final labels = categoryRepository.categories;
@@ -80,7 +78,7 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
             .toList()
             .isNotEmpty;
       case TypeTab.other:
-        break;
+        return false;
       default:
         assert(false, 'Need to implement $typeTab');
         return false;

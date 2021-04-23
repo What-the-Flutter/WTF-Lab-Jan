@@ -17,7 +17,7 @@ class MessagesRepository {
   }
 
   Future<int> addMessage(ModelMessage message) {
-    api.insertMessage(message);
+    return api.insertMessage(message);
   }
 
   void editMessage(ModelMessage message) {

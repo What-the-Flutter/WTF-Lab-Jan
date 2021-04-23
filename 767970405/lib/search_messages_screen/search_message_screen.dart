@@ -20,11 +20,12 @@ class SearchMessageScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              context.read<SearchMessageScreenCubit>().reset();
-              Navigator.pop(context);
-            }),
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            context.read<SearchMessageScreenCubit>().reset();
+            Navigator.pop(context);
+          },
+        ),
         title: TextField(
           autofocus: true,
           controller: context.read<SearchMessageScreenCubit>().controller,
@@ -40,14 +41,16 @@ class SearchMessageScreen extends StatelessWidget {
         ),
         actions: <Widget>[
           BlocBuilder<SearchMessageScreenCubit, SearchMessageScreenState>(
-            builder: (context, state) => !context
-                    .read<SearchMessageScreenCubit>()
-                    .isTextEmpty()
-                ? IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: context.read<SearchMessageScreenCubit>().reset,
-                  )
-                : Container(),
+            builder: (context, state) {
+              if (!context.read<SearchMessageScreenCubit>().isTextEmpty()) {
+                return IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: context.read<SearchMessageScreenCubit>().reset,
+                );
+              } else {
+                return Container();
+              }
+            },
           ),
         ],
         bottom: context.read<SearchMessageScreenCubit>().isNotEmptyTag()
