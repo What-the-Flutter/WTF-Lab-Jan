@@ -66,7 +66,9 @@ class _EventScreenState extends State<EventScreen> {
                   ),
                   child: Card(
                     elevation: 2,
-                    color: Color(0xFF05ffb4),
+                    color: note.events[index].isFavorite
+                        ? Color(0xFFFFB305)
+                        : Color(0xFF05ffb4),
                     child: ListTile(
                       title: Text(event.text),
                       subtitle: Text(event.time),
@@ -146,7 +148,7 @@ class _EventScreenState extends State<EventScreen> {
 
   AppBar editingAppBar(int index, {int count}) {
     return AppBar(
-      backgroundColor: Colors.deepPurple,
+      backgroundColor: Color(0xFF5e1ef5),
       leading: IconButton(
         icon: Icon(Icons.clear),
         onPressed: () {
@@ -172,6 +174,7 @@ class _EventScreenState extends State<EventScreen> {
           icon: Icon(Icons.bookmark_border),
           onPressed: () {
             changeAppBar();
+            addFavorite(index);
           },
         ),
         IconButton(
@@ -203,7 +206,7 @@ class _EventScreenState extends State<EventScreen> {
             Icons.bookmark_border_outlined,
             color: Colors.white,
           ),
-          onPressed: () {},
+          onPressed: () => print(note.favoriteEvents.length),
         ),
       ],
     );
@@ -216,6 +219,7 @@ class _EventScreenState extends State<EventScreen> {
         text: eventController.text,
         time: DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
         isSelected: false,
+        isFavorite: false,
       ),
     );
     eventController.clear();
@@ -242,8 +246,19 @@ class _EventScreenState extends State<EventScreen> {
     _isEditing = false;
   }
 
-  void copyEvent(int index) {
-    Clipboard.setData(ClipboardData(text: note.events[index].text));
+  void copyEvent(int index) =>
+      Clipboard.setData(ClipboardData(text: note.events[index].text));
+
+  void addFavorite(int index) {
+    setState(() {
+      if (!note.events[index].isFavorite) {
+        note.favoriteEvents.add(note.events[index]);
+        note.events[index].isFavorite = true;
+      } else {
+        note.favoriteEvents.remove(note.events[index]);
+        note.events[index].isFavorite = false;
+      }
+    });
   }
 
   void deleteEvent(BuildContext context, int index) {
