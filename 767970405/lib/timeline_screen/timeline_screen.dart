@@ -8,6 +8,7 @@ import '../filter_screen/filter_screen.dart';
 import '../filter_screen/filter_screen_cubit.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../messages_screen/screen_message.dart';
+import '../messages_screen/screen_message_cubit.dart';
 import '../search_messages_screen/search_message_screen.dart';
 import '../search_messages_screen/search_message_screen_cubit.dart';
 import '../settings_screen/chat_interface_setting_cubit.dart';
@@ -35,10 +36,11 @@ class TimelineScreen extends StatelessWidget {
         title: Text('Timeline'),
         actions: <Widget>[
           IconButton(
-            onPressed: () async {
-              await context
-                  .read<SearchMessageScreenCubit>()
-                  .setting(ModeScreen.allPages);
+            onPressed: () {
+              context.read<SearchMessageScreenCubit>().setting(
+                    mode: ModeScreen.allPages,
+                    tags: context.read<ScreenMessageCubit>().state.tags,
+                  );
               Navigator.pushNamed(
                 context,
                 SearchMessageScreen.routeName,
@@ -47,9 +49,7 @@ class TimelineScreen extends StatelessWidget {
             icon: Icon(Icons.search),
           ),
           IconButton(
-            onPressed: () {
-              context.read<TimelineScreenCubit>().changeDisplayList();
-            },
+            onPressed: context.read<TimelineScreenCubit>().changeDisplayList,
             icon: Icon(Icons.bookmark_border),
           ),
         ],
@@ -61,7 +61,9 @@ class TimelineScreen extends StatelessWidget {
                 reverse: true,
                 children: _generateChatElementsList(context, state),
               )
-            : CircularProgressIndicator(),
+            : Center(
+                child: CircularProgressIndicator(),
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'TimelineTag',

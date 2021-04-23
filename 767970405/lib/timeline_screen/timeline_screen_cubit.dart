@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../data/constants/constants.dart';
+import '../data/extension.dart';
 import '../data/model/model_message.dart';
 import '../data/model/search_item_data.dart';
 import '../data/repository/messages_repository.dart';
@@ -14,12 +15,17 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
   TimelineScreenCubit({
     this.repository,
   }) : super(
-    TimelineScreenState(
-      list: <ModelMessage>[],
-      modeFilter: ModeFilter.wait,
-      isBookmark: false,
-    ),
-  );
+          TimelineScreenState(
+            list: <ModelMessage>[],
+            modeFilter: ModeFilter.wait,
+            isBookmark: false,
+          ),
+        );
+
+  void updateDate() async {
+    emit(state.copyWith(
+        list: await repository.messages(), modeFilter: ModeFilter.complete));
+  }
 
   void configureList({
     List<SearchItemData> selectedPages,
@@ -64,6 +70,10 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
     emit(state.copyWith(list: listMsg, modeFilter: ModeFilter.complete));
   }
 
+  void changeMode() {
+    emit(state.copyWith(modeFilter: ModeFilter.wait));
+  }
+
   void changeDisplayList() {
     emit(state.copyWith(isBookmark: !state.isBookmark));
   }
@@ -78,7 +88,7 @@ class TimelineScreenCubit extends Cubit<TimelineScreenState> {
     }
     for (var i = 0; i < state.list.length - 1; i++) {
       temp.add(state.list[i]);
-      if (!state.list[i].pubTime.isSameDate(state.list[i + 1].pubTime)) {
+      if (!state.list[i].pubTime.isSameDateByDay(state.list[i + 1].pubTime)) {
         list.add(List.from(temp));
         temp = <ModelMessage>[];
       }

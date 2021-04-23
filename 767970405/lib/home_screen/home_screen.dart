@@ -24,10 +24,9 @@ class HomeWindow extends StatelessWidget {
   final MyDrawer drawer;
 
   HomeWindow({
-    Key key,
     this.drawer,
     this.bottomNavigationBar,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,42 +51,46 @@ class HomeWindow extends StatelessWidget {
         ),
         drawer: drawer,
         body: BlocBuilder<HomeScreenCubit, HomeScreenState>(
-          builder: (context, state) => state is HomeScreenShow
-              ? Stack(
-                  alignment: AlignmentDirectional.topEnd,
-                  children: <Widget>[
-                    ChatPreviewList(),
-                    Positioned(
-                      top: MediaQuery.of(context).size.height * (1 / 10),
-                      right: MediaQuery.of(context).size.height * (1 / 100),
-                      child: Bot(
-                        theme: my.BotTheme(
-                          contentStyle: TextStyle(
-                            fontSize: context
-                                .read<VisualSettingCubit>()
-                                .state
-                                .bodyFontSize,
-                            color: context
-                                .read<VisualSettingCubit>()
-                                .state
-                                .titleColor,
-                          ),
-                          iconColor: context
+          builder: (context, state) {
+            if (state.isLoad) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Stack(
+                alignment: AlignmentDirectional.topEnd,
+                children: <Widget>[
+                  ChatPreviewList(),
+                  Positioned(
+                    top: MediaQuery.of(context).size.height * (1 / 10),
+                    right: MediaQuery.of(context).size.height * (1 / 100),
+                    child: Bot(
+                      theme: my.BotTheme(
+                        contentStyle: TextStyle(
+                          fontSize: context
                               .read<VisualSettingCubit>()
                               .state
-                              .botIconColor,
-                          backgroundColor: context
+                              .bodyFontSize,
+                          color: context
                               .read<VisualSettingCubit>()
                               .state
-                              .botBackgroundColor,
+                              .titleColor,
                         ),
+                        iconColor: context
+                            .read<VisualSettingCubit>()
+                            .state
+                            .botIconColor,
+                        backgroundColor: context
+                            .read<VisualSettingCubit>()
+                            .state
+                            .botBackgroundColor,
                       ),
                     ),
-                  ],
-                )
-              : Center(
-                  child: CircularProgressIndicator(),
-                ),
+                  ),
+                ],
+              );
+            }
+          },
         ),
         floatingActionButton: AddChatButton(),
         bottomNavigationBar: bottomNavigationBar,
@@ -116,22 +119,24 @@ class ChatPreviewList extends StatelessWidget {
       iconColor: visualSettingState.categoryIconColor,
     );
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
-      builder: (context, state) => ListView.builder(
-        itemCount: state.list.length,
-        itemBuilder: (context, i) {
-          return ChatPreview(
-            index: i,
-            title: state.list[i].title,
-            subtitle: 'No events click create to one',
-            isPinned: state.list[i].isPinned,
-            iconData: context.read<ScreenCreatingPageCubit>().getIcon(
-                  state.list[i].iconIndex,
-                ),
-            previewTheme: previewTheme,
-            categoryTheme: categoryTheme,
-          );
-        },
-      ),
+      builder: (context, state) {
+        return ListView.builder(
+          itemCount: state.pages.length,
+          itemBuilder: (context, i) {
+            return ChatPreview(
+              index: i,
+              title: state.pages[i].title,
+              subtitle: 'No events click create to one',
+              isPinned: state.pages[i].isPinned,
+              iconData: context.read<ScreenCreatingPageCubit>().getIcon(
+                    state.pages[i].iconIndex,
+                  ),
+              previewTheme: previewTheme,
+              categoryTheme: categoryTheme,
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -214,15 +219,16 @@ class ChatPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {
-        await context.read<ScreenMessageCubit>().downloadData(
-              context.read<HomeScreenCubit>().state.list[index],
+      onTap: () {
+        context.read<ScreenMessageCubit>().downloadMsg(
+              context.read<HomeScreenCubit>().state.pages[index],
             );
-        await context.read<SearchMessageScreenCubit>().setting(
-              ModeScreen.onePage,
-              context.read<HomeScreenCubit>().state.list[index],
+        context.read<SearchMessageScreenCubit>().setting(
+              mode: ModeScreen.onePage,
+              tags: context.read<ScreenMessageCubit>().state.tags,
+              page: context.read<HomeScreenCubit>().state.pages[index],
             );
-        await Navigator.pushNamed(
+        Navigator.pushNamed(
           context,
           ScreenMessage.routeName,
           arguments: context,
@@ -278,79 +284,79 @@ class ChatPreview extends StatelessWidget {
     );
     showModalBottomSheet<void>(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          CustomListTile(
-            leadingIcon: Icons.info,
-            title: 'info',
-            onTap: () => _showPreviewInfo(homeCubit, context),
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.teal,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            CustomListTile(
+              leadingIcon: Icons.info,
+              title: 'info',
+              onTap: () => _showPreviewInfo(homeCubit, context),
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.teal,
+              ),
             ),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.attach_file,
-            title: 'Pin/Unpin Page',
-            onTap: () {
-              Navigator.pop(context);
-              homeCubit.pinPage(index);
-            },
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.green,
+            CustomListTile(
+              leadingIcon: Icons.attach_file,
+              title: 'Pin/Unpin Page',
+              onTap: () {
+                Navigator.pop(context);
+                homeCubit.pinPage(index);
+              },
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.green,
+              ),
             ),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.archive,
-            title: 'Archive Page',
-            onTap: () {
-              Navigator.pop(context);
-            },
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.orange,
+            CustomListTile(
+              leadingIcon: Icons.archive,
+              title: 'Archive Page',
+              onTap: () => Navigator.pop(context),
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.orange,
+              ),
             ),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.edit,
-            title: 'Edit page',
-            onTap: () async {
-              Navigator.pop(context);
-              screenCreatingCubit.setting(
-                homeCubit.state.list[index].title,
-                homeCubit.state.list[index].iconIndex,
-              );
-              await Navigator.pushNamed(
-                context,
-                CreateNewPage.routName,
-              );
-              if (screenCreatingCubit.state.iconButton != Icons.close) {
-                homeCubit.editPage(
-                  homeCubit.state.list[index].copyWith(
-                    iconIndex: screenCreatingCubit.state.selectionIconIndex,
-                    title: screenCreatingCubit.controller.text,
-                  ),
+            CustomListTile(
+              leadingIcon: Icons.edit,
+              title: 'Edit page',
+              onTap: () async {
+                Navigator.pop(context);
+                screenCreatingCubit.setting(
+                  homeCubit.state.pages[index].title,
+                  homeCubit.state.pages[index].iconIndex,
                 );
-              }
-              screenCreatingCubit.resetIcon();
-            },
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.blue,
+                await Navigator.pushNamed(
+                  context,
+                  CreateNewPage.routName,
+                );
+                if (screenCreatingCubit.state.iconButton != Icons.close) {
+                  homeCubit.editPage(
+                    homeCubit.state.pages[index].copyWith(
+                      iconIndex: screenCreatingCubit.state.selectionIconIndex,
+                      title: screenCreatingCubit.controller.text,
+                    ),
+                  );
+                }
+                screenCreatingCubit.resetIcon();
+              },
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.blue,
+              ),
             ),
-          ),
-          CustomListTile(
-            leadingIcon: Icons.delete,
-            title: 'Delete Page',
-            onTap: () {
-              Navigator.pop(context);
-              context.read<HomeScreenCubit>().removePage(index);
-            },
-            theme: listTileTheme.copyWith(
-              leadingIconColor: Colors.red,
+            CustomListTile(
+              leadingIcon: Icons.delete,
+              title: 'Delete Page',
+              onTap: () {
+                Navigator.pop(context);
+                context.read<HomeScreenCubit>().removePage(index);
+              },
+              theme: listTileTheme.copyWith(
+                leadingIconColor: Colors.red,
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
@@ -358,48 +364,50 @@ class ChatPreview extends StatelessWidget {
     Navigator.pop(context);
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              title: Text(cubit.state.list[index].title),
-              leading: Container(
-                width: 75,
-                height: 75,
-                child: Icon(
-                  context.read<ScreenCreatingPageCubit>().getIcon(
-                        cubit.state.list[index].iconIndex,
-                      ),
-                ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: Text(cubit.state.pages[index].title),
+                leading: Container(
+                  width: 75,
+                  height: 75,
+                  child: Icon(
+                    context.read<ScreenCreatingPageCubit>().getIcon(
+                          cubit.state.pages[index].iconIndex,
+                        ),
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
-            ),
-            ListTile(
-              title: Text('Created'),
-              subtitle: Text(
-                cubit.state.list[index].creationTime.toString(),
+              ListTile(
+                title: Text('Created'),
+                subtitle: Text(
+                  cubit.state.pages[index].creationTime.toString(),
+                ),
               ),
-            ),
-            ListTile(
-              title: Text('Latest Event'),
-              subtitle: Text(
-                cubit.state.list[index].lastModifiedTime.toString(),
+              ListTile(
+                title: Text('Latest Event'),
+                subtitle: Text(
+                  cubit.state.pages[index].lastModifiedTime.toString(),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Center(
+                child: Text('OK'),
               ),
             ),
           ],
-        ),
-        actions: <Widget>[
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Center(
-              child: Text('OK'),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

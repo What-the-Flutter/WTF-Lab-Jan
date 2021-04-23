@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/widgets/drawer.dart';
 
 import '../home_screen/home_screen.dart';
 import '../home_screen/home_screen_cubit.dart';
 import '../timeline_screen/timeline_screen.dart';
+import '../widgets/drawer.dart';
 import '../widgets/my_bottom_navigation_bar.dart';
 
 class StartWindow extends StatelessWidget {
@@ -25,7 +25,7 @@ class StartWindow extends StatelessWidget {
           ),
           Scaffold(
             appBar: AppBar(
-              title: Text('Statistic'),
+              title: Text('Daily'),
             ),
             body: Center(
               child: Text('In future'),

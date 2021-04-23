@@ -47,12 +47,7 @@ class SettingsScreen extends StatelessWidget {
           leadingIcon: Icons.nature_people,
           title: 'General',
           subtitle: 'Themes & Interface settings',
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              GeneralOption.routeName,
-            );
-          },
+          onTap: () => Navigator.pushNamed(context, GeneralOption.routeName),
           theme: listTileTheme.copyWith(
             leadingIconColor: Colors.green,
           ),
@@ -66,9 +61,7 @@ class SettingsScreen extends StatelessWidget {
           leadingIcon: Icons.cloud,
           title: 'Backup & Sync',
           subtitle: 'Local & Drive backup & sync',
-          onTap: () {
-            //TODO
-          },
+          onTap: () => Navigator.pop(context),
           theme: listTileTheme.copyWith(
             leadingIconColor: Colors.blue,
           ),
@@ -82,9 +75,7 @@ class SettingsScreen extends StatelessWidget {
           leadingIcon: Icons.archive,
           title: 'Exports',
           subtitle: 'Textual backup of all your entries',
-          onTap: () {
-            //TODO
-          },
+          onTap: () => Navigator.pop(context),
           theme: listTileTheme.copyWith(
             leadingIconColor: Colors.orangeAccent,
           ),
@@ -98,12 +89,7 @@ class SettingsScreen extends StatelessWidget {
           leadingIcon: Icons.lock,
           title: 'Security',
           subtitle: 'Pin & Fingerprint protection',
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              SecurityOption.routeName,
-            );
-          },
+          onTap: () => Navigator.pushNamed(context, SecurityOption.routeName),
           theme: listTileTheme.copyWith(
             leadingIconColor: Colors.grey,
           ),
@@ -117,9 +103,7 @@ class SettingsScreen extends StatelessWidget {
           leadingIcon: Icons.offline_bolt_outlined,
           title: 'Quick Setup',
           subtitle: 'Create pre-defined pages quickly',
-          onTap: () {
-            //TODO
-          },
+          onTap: () => Navigator.pop(context),
           theme: listTileTheme.copyWith(
             leadingIconColor: Colors.yellow,
           ),
@@ -133,9 +117,7 @@ class SettingsScreen extends StatelessWidget {
           leadingIcon: Icons.help_outline,
           title: 'Help',
           subtitle: 'Basic usage guide',
-          onTap: () {
-            Navigator.pop(context);
-          },
+          onTap: () => Navigator.pop(context),
           theme: listTileTheme.copyWith(
             leadingIconColor: Colors.blue,
           ),
@@ -148,9 +130,7 @@ class SettingsScreen extends StatelessWidget {
         CustomListTile(
           leadingIcon: Icons.info_outline,
           title: 'App Info',
-          onTap: () {
-            Navigator.pop(context);
-          },
+          onTap: () => Navigator.pop(context),
           theme: listTileTheme.copyWith(
             leadingIconColor: Colors.red,
           ),
@@ -316,36 +296,40 @@ class GeneralOption extends StatelessWidget {
             ),
             padding,
             BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
-              builder: (context, state) => SwitchListTile(
-                secondary: Icon(
-                  Icons.format_align_right,
-                  color: Colors.lightBlue,
-                ),
-                title: Text('Bubble Alignment'),
-                subtitle: Text('Force right-to-left bubble alignment'),
-                value: state.isLeftBubbleAlign,
-                onChanged: (value) {
-                  final cubit = context.read<ChatInterfaceSettingCubit>();
-                  cubit.changeBubbleAlign(value);
-                  cubit.saveChatInterfaceSettings('bubbleAlign', value);
-                },
-              ),
+              builder: (context, state) {
+                return SwitchListTile(
+                  secondary: Icon(
+                    Icons.format_align_right,
+                    color: Colors.lightBlue,
+                  ),
+                  title: Text('Bubble Alignment'),
+                  subtitle: Text('Force right-to-left bubble alignment'),
+                  value: state.isLeftBubbleAlign,
+                  onChanged: (value) {
+                    final cubit = context.read<ChatInterfaceSettingCubit>();
+                    cubit.changeBubbleAlign(value);
+                    cubit.saveChatInterfaceSettings('bubbleAlign', value);
+                  },
+                );
+              },
             ),
             padding,
             BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
-              builder: (context, state) => SwitchListTile(
-                secondary: Icon(
-                  Icons.wb_iridescent,
-                  color: Colors.orange,
-                ),
-                title: Text('Center Date Bubble'),
-                value: state.isCenterDateBubble,
-                onChanged: (value) {
-                  final cubit = context.read<ChatInterfaceSettingCubit>();
-                  cubit.changeCenterDateBubble(value);
-                  cubit.saveChatInterfaceSettings('dateBubble', value);
-                },
-              ),
+              builder: (context, state) {
+                return SwitchListTile(
+                  secondary: Icon(
+                    Icons.wb_iridescent,
+                    color: Colors.orange,
+                  ),
+                  title: Text('Center Date Bubble'),
+                  value: state.isCenterDateBubble,
+                  onChanged: (value) {
+                    final cubit = context.read<ChatInterfaceSettingCubit>();
+                    cubit.changeCenterDateBubble(value);
+                    cubit.saveChatInterfaceSettings('dateBubble', value);
+                  },
+                );
+              },
             ),
             padding,
             SwitchListTile(
@@ -363,10 +347,8 @@ class GeneralOption extends StatelessWidget {
               leadingIcon: Icons.wallpaper,
               title: 'Background Image',
               subtitle: 'Chat background image',
-              onTap: () => Navigator.pushNamed(
-                context,
-                BackgroundImageScreen.routeName,
-              ),
+              onTap: () =>
+                  Navigator.pushNamed(context, BackgroundImageScreen.routeName),
               theme: listTileTheme.copyWith(
                 leadingIconColor: Colors.deepOrange,
               ),
@@ -407,76 +389,82 @@ class GeneralOption extends StatelessWidget {
     );
   }
 
-  Widget get padding => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Divider(),
-      );
+  Widget get padding {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      child: Divider(),
+    );
+  }
 
   Future<TypeFontSize> _showFontSizeDialog(BuildContext context) async {
     return await showDialog<TypeFontSize>(
       context: context,
-      builder: (context) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              title: Text(
-                'Font Size',
-                style: Theme.of(context).textTheme.subtitle1,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: Text(
+                  'Font Size',
+                  style: Theme.of(context).textTheme.subtitle1,
+                ),
               ),
-            ),
-            ListTile(
-              title: Text(
-                'Small',
+              ListTile(
+                title: Text(
+                  'Small',
+                ),
+                onTap: () => Navigator.pop(context, TypeFontSize.small),
               ),
-              onTap: () => Navigator.pop(context, TypeFontSize.small),
-            ),
-            ListTile(
-              title: Text(
-                'Default',
+              ListTile(
+                title: Text(
+                  'Default',
+                ),
+                onTap: () => Navigator.pop(context, TypeFontSize.def),
               ),
-              onTap: () => Navigator.pop(context, TypeFontSize.def),
-            ),
-            ListTile(
-              title: Text(
-                'Large',
+              ListTile(
+                title: Text(
+                  'Large',
+                ),
+                onTap: () => Navigator.pop(context, TypeFontSize.large),
               ),
-              onTap: () => Navigator.pop(context, TypeFontSize.large),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 
   Future<TypeFontFamily> _showFontFamilyDialog(BuildContext context) async {
     return await showDialog<TypeFontFamily>(
       context: context,
-      builder: (context) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              title: Text(
-                'Font family',
-                style: Theme.of(context).textTheme.subtitle1,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: Text(
+                  'Font family',
+                  style: Theme.of(context).textTheme.subtitle1,
+                ),
               ),
-            ),
-            ListTile(
-              title: Text(
-                'Roboto',
+              ListTile(
+                title: Text(
+                  'Roboto',
+                ),
+                onTap: () => Navigator.pop(context, TypeFontFamily.roboto),
               ),
-              onTap: () => Navigator.pop(context, TypeFontFamily.roboto),
-            ),
-            ListTile(
-              title: Text(
-                'RobotoMono',
+              ListTile(
+                title: Text(
+                  'RobotoMono',
+                ),
+                onTap: () => Navigator.pop(context, TypeFontFamily.robotoMono),
               ),
-              onTap: () => Navigator.pop(context, TypeFontFamily.robotoMono),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -611,18 +599,22 @@ class SecurityOption extends StatelessWidget {
             child: Divider(),
           ),
           BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
-            builder: (context, state) => SwitchListTile(
-              secondary: Icon(
-                Icons.mms,
-                color: Colors.blue,
-              ),
-              title: Text('Fingerprint'),
-              subtitle: Text('Enable Fingerprint unlock'),
-              value: state.isAuthentication,
-              onChanged: context
-                  .read<ChatInterfaceSettingCubit>()
-                  .changeAuthentication,
-            ),
+            builder: (context, state) {
+              return SwitchListTile(
+                secondary: Icon(
+                  Icons.mms,
+                  color: Colors.blue,
+                ),
+                title: Text('Fingerprint'),
+                subtitle: Text('Enable Fingerprint unlock'),
+                value: state.isAuthentication,
+                onChanged: (value) {
+                  final cubit = context.read<ChatInterfaceSettingCubit>();
+                  cubit.changeAuthentication(value);
+                  cubit.saveChatInterfaceSettings('auth', value);
+                },
+              );
+            },
           ),
         ],
       ),
@@ -642,71 +634,74 @@ class BackgroundImageScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: BlocBuilder<ChatInterfaceSettingCubit, ChatInterfaceSettingState>(
-        builder: (context, state) => Container(
-          alignment: Alignment.center,
-          child: state.pathBackgroundImage.isEmpty
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(
-                      height: size.height * (2 / 5),
-                    ),
-                    Text('Click the button below to set the'),
-                    Text('Background Image'),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: OutlinedButton(
-                        onPressed: () async {
-                          final cubit =
-                              context.read<ChatInterfaceSettingCubit>();
-                          await cubit.pickImage();
-                          cubit.saveBackgroundImage(
-                              cubit.state.pathBackgroundImage);
-                        },
-                        child: Text('Pick an Image'),
+        builder: (context, state) {
+          return Container(
+            alignment: Alignment.center,
+            child: state.pathBackgroundImage.isEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        height: size.height * (2 / 5),
                       ),
-                    ),
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(top: 5.0, bottom: 10.0),
-                      child: SizedBox(
-                        width: size.width * (4 / 5),
-                        height: size.height * (3 / 5),
-                        child: Image.file(
-                          File(state.pathBackgroundImage),
+                      Text('Click the button below to set the'),
+                      Text('Background Image'),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            final cubit =
+                                context.read<ChatInterfaceSettingCubit>();
+                            cubit.pickImage();
+                            cubit.saveBackgroundImage(
+                                cubit.state.pathBackgroundImage);
+                          },
+                          child: Text('Pick an Image'),
                         ),
                       ),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.delete),
-                      title: Text('Unset Image'),
-                      onTap: () {
-                        final cubit = context.read<ChatInterfaceSettingCubit>();
-                        cubit.unsetImage();
-                        cubit.saveBackgroundImage('');
-                      },
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10.0),
-                      child: ListTile(
-                        leading: Icon(Icons.wallpaper),
-                        title: Text('Pick a new Image'),
-                        onTap: () async {
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(top: 5.0, bottom: 10.0),
+                        child: SizedBox(
+                          width: size.width * (4 / 5),
+                          height: size.height * (3 / 5),
+                          child: Image.file(
+                            File(state.pathBackgroundImage),
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.delete),
+                        title: Text('Unset Image'),
+                        onTap: () {
                           final cubit =
                               context.read<ChatInterfaceSettingCubit>();
-                          await cubit.pickImage();
-                          cubit.saveBackgroundImage(
-                              cubit.state.pathBackgroundImage);
+                          cubit.unsetImage();
+                          cubit.saveBackgroundImage('');
                         },
                       ),
-                    ),
-                  ],
-                ),
-        ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: ListTile(
+                          leading: Icon(Icons.wallpaper),
+                          title: Text('Pick a new Image'),
+                          onTap: () {
+                            final cubit =
+                                context.read<ChatInterfaceSettingCubit>();
+                            cubit.pickImage();
+                            cubit.saveBackgroundImage(
+                                cubit.state.pathBackgroundImage);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+          );
+        },
       ),
     );
   }

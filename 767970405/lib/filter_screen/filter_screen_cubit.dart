@@ -10,31 +10,49 @@ import '../data/repository/pages_repository.dart';
 part 'filter_screen_state.dart';
 
 class FilterScreenCubit extends Cubit<FilterScreenState> {
-  final PagesRepository pagesRepository;
-  final MessagesRepository messagesRepository;
   final CategoryRepository categoryRepository;
+  final MessagesRepository messagesRepository;
+  final PagesRepository pagesRepository;
 
   FilterScreenCubit({
     this.pagesRepository,
     this.messagesRepository,
     this.categoryRepository,
   }) : super(
-    FilterScreenState(
-      modeFilter: ModeFilter.wait,
-      pages: <SearchItemData>[],
-      tags: <SearchItemData>[],
-      labels: <SearchItemData>[],
-    ),
-  );
+          FilterScreenState(
+            modeFilter: ModeFilter.wait,
+            modeFilterScreen: ModeFilterScreen.timelineFilter,
+            pages: <SearchItemData>[],
+            tags: <SearchItemData>[],
+            labels: <SearchItemData>[],
+          ),
+        );
 
-  void loadListsItem() async {
+  void updatePages() async {
+    final pages = await pagesRepository.pages();
+    emit(
+      state.copyWith(
+        pages: List.generate(
+          pages.length,
+          (index) => SearchItemData(
+            id: pages[index].id,
+            indexIcon: pages[index].iconIndex,
+            name: pages[index].title,
+            isSelected: false,
+          ),
+        ),
+        modeFilter: ModeFilter.complete,
+        modeFilterScreen: ModeFilterScreen.statisticFilter,
+      ),
+    );
+  }
+
+  void updateDate() async {
     final pages = await pagesRepository.pages();
     final tags = await messagesRepository.tags();
     final labels = categoryRepository.categories;
-
     emit(
       state.copyWith(
-        modeFilter: ModeFilter.complete,
         pages: List.generate(
           pages.length,
           (index) => SearchItemData(
@@ -62,6 +80,8 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
             isSelected: false,
           ),
         ),
+        modeFilter: ModeFilter.complete,
+        modeFilterScreen: ModeFilterScreen.timelineFilter,
       ),
     );
   }
@@ -84,7 +104,7 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
             .toList()
             .isNotEmpty;
       case TypeTab.other:
-        break;
+        return false;
       default:
         assert(false, 'Need to implement $typeTab');
         return false;

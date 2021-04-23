@@ -9,9 +9,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
 
+import '../data/model/search_item_data.dart';
 import '../data/theme/custom_theme.dart' as my;
+import '../filter_screen/filter_screen_cubit.dart';
 import '../settings_screen/setting_screen.dart';
 import '../settings_screen/visual_setting_cubit.dart';
+import '../statistic_screen/statistic_cubit.dart';
+import '../statistic_screen/statistic_screen.dart';
 import 'custom_list_tile.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -39,24 +43,25 @@ class MyDrawer extends StatelessWidget {
           CustomListTile(
             leadingIcon: Icons.search,
             title: 'Search',
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
             theme: listTileTheme.copyWith(leadingIconColor: Colors.cyan),
           ),
           CustomListTile(
             leadingIcon: Icons.notifications,
             title: 'Notifications',
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
             theme: listTileTheme.copyWith(leadingIconColor: Colors.blue),
           ),
           CustomListTile(
             leadingIcon: Icons.stacked_line_chart,
             title: 'Statistics',
             onTap: () {
+              context.read<FilterScreenCubit>().updatePages();
+              context
+                  .read<StatisticCubit>()
+                  .updateStatistic(<SearchItemData>[]);
               Navigator.pop(context);
+              Navigator.pushNamed(context, StatisticScreen.routeName);
             },
             theme: listTileTheme.copyWith(leadingIconColor: Colors.red),
           ),
@@ -75,9 +80,7 @@ class MyDrawer extends StatelessWidget {
           CustomListTile(
             leadingIcon: Icons.feedback,
             title: 'Feedback',
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
             theme: listTileTheme.copyWith(leadingIconColor: Colors.orange),
           )
         ],

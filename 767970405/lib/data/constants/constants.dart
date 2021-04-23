@@ -6,6 +6,8 @@ enum TypeTab { pages, tags, labels, other }
 
 enum ModeFilter { wait, complete }
 
+enum ModeFilterScreen { statisticFilter, timelineFilter }
+
 enum TypeAccentColor { gold, cyan, mint, lime, pink, green, orange }
 
 enum Mode { await, input, selection, edit }
@@ -17,6 +19,10 @@ enum ModeListTag { listTags, newTag, nothing }
 enum ResultSearch { found, notFound, wait }
 
 enum ModeScreen { allPages, onePage }
+
+enum TypeStatistic { labels, mood, charts, times, summary }
+
+enum TypeTimeDiagram { today, pastSevenDays, pastThirtyDays, thisYear }
 
 const double kSmall = 0.8;
 const double kLarge = 1.2;

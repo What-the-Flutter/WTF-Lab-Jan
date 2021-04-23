@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 
 class ModelMessage extends Equatable implements Comparable<ModelMessage> {
   final int id;
@@ -80,21 +79,5 @@ class ModelMessage extends Equatable implements Comparable<ModelMessage> {
     } else {
       return 1;
     }
-  }
-}
-
-extension DateOnlyCompare on DateTime {
-  bool isSameDate(DateTime other) {
-    return year == other.year && month == other.month && day == other.day;
-  }
-
-  DateTime applied(TimeOfDay time) {
-    return DateTime(
-      year,
-      month,
-      day,
-      time.hour,
-      time.minute,
-    );
   }
 }

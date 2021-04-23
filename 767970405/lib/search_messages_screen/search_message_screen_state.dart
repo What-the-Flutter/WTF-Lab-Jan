@@ -1,6 +1,6 @@
 part of 'search_message_screen_cubit.dart';
 
-class SearchMessageScreenState extends Equatable {
+class SearchMessageScreenState {
   final ResultSearch type;
   final ModeScreen modeScreen;
   final List<ModelMessage> list;
@@ -14,9 +14,6 @@ class SearchMessageScreenState extends Equatable {
     this.tags,
     this.modeScreen,
   });
-
-  @override
-  List<Object> get props => [list, page, tags, type, modeScreen];
 
   SearchMessageScreenState copyWith({
     ModeScreen modeScreen,

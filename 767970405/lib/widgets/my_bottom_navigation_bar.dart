@@ -44,24 +44,17 @@ class MyBottomNavigationBar extends StatelessWidget {
             ),
           )
         ],
-        onTap: (index) async {
+        onTap: (index) {
           if (state.currentIndex == index) {
             return;
           }
-          if (index == 2) {
-            await context.read<FilterScreenCubit>().loadListsItem();
-            final state = context.read<FilterScreenCubit>().state;
-            await context.read<TimelineScreenCubit>().configureList(
-                  selectedPages:
-                      state.pages.where((element) => element.isSelected).toList(),
-                  selectedTags:
-                      state.tags.where((element) => element.isSelected).toList(),
-                  selectedLabel: state.labels
-                      .where((element) => element.isSelected)
-                      .toList(),
-                );
-          }
           context.read<HomeScreenCubit>().changeScreen(index);
+          if (index == 2) {
+            context.read<TimelineScreenCubit>().updateDate();
+            context.read<FilterScreenCubit>().updateDate();
+            return;
+          }
+          context.read<TimelineScreenCubit>().changeMode();
         },
       ),
     );
