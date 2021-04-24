@@ -8,7 +8,6 @@ class Note {
   String title;
   String subtitle;
   final List<Event> events = <Event>[];
-  final List<Event> favoriteEvents = <Event>[];
 
   Note({this.id, this.icon, this.title, this.subtitle});
 }

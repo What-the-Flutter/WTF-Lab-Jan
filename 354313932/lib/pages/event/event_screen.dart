@@ -25,6 +25,7 @@ class _EventScreenState extends State<EventScreen> {
   final TextEditingController eventController = TextEditingController();
   final FocusNode focusNode = FocusNode();
   final bool isEditingText = false;
+  bool _isFavoriteEvents = false;
   bool _isEventSelected = true;
   bool _isEditing = false;
   int _selectedEventIndex = 0;
@@ -46,10 +47,17 @@ class _EventScreenState extends State<EventScreen> {
           child: ListView.builder(
             scrollDirection: Axis.vertical,
             reverse: true,
-            itemCount: note.events.length,
+            itemCount: _isFavoriteEvents
+                ? note.events.where((element) => element.isFavorite).length
+                : note.events.length,
             itemBuilder: (context, index) {
               _selectedEventIndex = index;
-              final event = note.events[index];
+              var event;
+              _isFavoriteEvents
+                  ? event = note.events
+                      .where((element) => element.isFavorite)
+                      .toList()[index]
+                  : event = note.events[index];
               return Container(
                 margin: EdgeInsets.only(left: kDefaultPadding * 2),
                 padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
@@ -132,7 +140,7 @@ class _EventScreenState extends State<EventScreen> {
                   ),
                   onPressed: () {
                     if (_isEditing) {
-                      setState(() => editText(_selectedEventIndex));
+                      setState(() => editEventText(_selectedEventIndex));
                     } else {
                       setState(sendEvent);
                     }
@@ -174,7 +182,7 @@ class _EventScreenState extends State<EventScreen> {
           icon: Icon(Icons.bookmark_border),
           onPressed: () {
             changeAppBar();
-            addFavorite(index);
+            markFavoriteEvent(index);
           },
         ),
         IconButton(
@@ -202,11 +210,16 @@ class _EventScreenState extends State<EventScreen> {
           onPressed: () {},
         ),
         IconButton(
-          icon: Icon(
-            Icons.bookmark_border_outlined,
-            color: Colors.white,
-          ),
-          onPressed: () => print(note.favoriteEvents.length),
+          icon: _isFavoriteEvents
+              ? Icon(
+                  Icons.bookmark,
+                  color: Colors.white,
+                )
+              : Icon(
+                  Icons.bookmark_border_outlined,
+                  color: Colors.white,
+                ),
+          onPressed: showFavoriteEvents,
         ),
       ],
     );
@@ -229,6 +242,10 @@ class _EventScreenState extends State<EventScreen> {
     setState(() => _isEventSelected = !_isEventSelected);
   }
 
+  void showFavoriteEvents() {
+    setState(() => _isFavoriteEvents = !_isFavoriteEvents);
+  }
+
   void editEvent(int index) {
     setState(() {
       _isEditing = true;
@@ -240,7 +257,7 @@ class _EventScreenState extends State<EventScreen> {
     });
   }
 
-  void editText(int index) {
+  void editEventText(int index) {
     note.events[index].text = eventController.text;
     eventController.clear();
     _isEditing = false;
@@ -249,24 +266,22 @@ class _EventScreenState extends State<EventScreen> {
   void copyEvent(int index) =>
       Clipboard.setData(ClipboardData(text: note.events[index].text));
 
-  void addFavorite(int index) {
+  void markFavoriteEvent(int index) {
     setState(() {
       if (!note.events[index].isFavorite) {
-        note.favoriteEvents.add(note.events[index]);
         note.events[index].isFavorite = true;
       } else {
-        note.favoriteEvents.remove(note.events[index]);
         note.events[index].isFavorite = false;
       }
     });
   }
 
   void deleteEvent(BuildContext context, int index) {
-    Widget cancelButton = FlatButton(
+    Widget cancelButton = MaterialButton(
       child: Text('Cancel'),
       onPressed: () => Navigator.of(context).pop(),
     );
-    Widget submitButton = FlatButton(
+    Widget submitButton = MaterialButton(
         child: Text('Submit'),
         onPressed: () {
           setState(() {
