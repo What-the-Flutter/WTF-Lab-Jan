@@ -35,7 +35,7 @@ class _EventScreenState extends State<EventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _isEventSelected ? appBar() : editingAppBar(_selectedEventIndex),
+      appBar: _isEventSelected ? editingAppBar(_selectedEventIndex) : appBar(),
       body: body(),
     );
   }
@@ -47,17 +47,10 @@ class _EventScreenState extends State<EventScreen> {
           child: ListView.builder(
             scrollDirection: Axis.vertical,
             reverse: true,
-            itemCount: _isFavoriteEvents
-                ? note.events.where((element) => element.isFavorite).length
-                : note.events.length,
+            itemCount: note.events.length,
             itemBuilder: (context, index) {
               _selectedEventIndex = index;
-              var event;
-              _isFavoriteEvents
-                  ? event = note.events
-                      .where((element) => element.isFavorite)
-                      .toList()[index]
-                  : event = note.events[index];
+              final event = note.events[index];
               return Container(
                 margin: EdgeInsets.only(left: kDefaultPadding * 2),
                 padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
@@ -226,15 +219,17 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void sendEvent() {
-    note.events.insert(
-      0,
-      Event(
-        text: eventController.text,
-        time: DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
-        isSelected: false,
-        isFavorite: false,
-      ),
-    );
+    if (eventController.text != null) {
+      note.events.insert(
+        0,
+        Event(
+          text: eventController.text,
+          time: DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
+          isSelected: false,
+          isFavorite: false,
+        ),
+      );
+    }
     eventController.clear();
   }
 
