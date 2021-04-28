@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'constants.dart';
-import 'pages/home/home_screen.dart';
+import 'config/custom_theme.dart';
+import 'constants/themes.dart';
+import 'my_app.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  final MaterialColor customBlueColor = MaterialColor(0xFF1E81F5, color);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Chat Journal',
-      theme: ThemeData(
-        primarySwatch: customBlueColor,
-      ),
-      home: HomeScreen(),
-    );
-  }
+void main() async {
+  runApp(
+    CustomTheme(
+      initialThemeKey: MyThemeKeys.light,
+      child: MyApp(),
+    ),
+  );
 }

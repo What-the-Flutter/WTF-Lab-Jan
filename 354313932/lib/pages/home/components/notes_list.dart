@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../constants.dart';
+import '../../../constants/constants.dart';
 import '../../../models/note.dart';
 import '../../event/event_screen.dart';
 
@@ -26,7 +26,7 @@ class NotesList extends StatelessWidget {
               right: kDefaultPadding,
             ),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).primaryColorLight,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -44,7 +44,7 @@ class NotesList extends StatelessWidget {
                     width: 50,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color(0xFF5e1ef5),
+                      color: Theme.of(context).primaryColor,
                     ),
                     child: notes[index].icon,
                   ),

@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
-import '../../constants.dart';
+import '../../constants/constants.dart';
 import '../../models/event.dart';
 import '../../models/note.dart';
 
@@ -26,7 +26,7 @@ class _EventScreenState extends State<EventScreen> {
   final FocusNode focusNode = FocusNode();
   final bool isEditingText = false;
   bool _isFavoriteEvents = false;
-  bool _isEventSelected = true;
+  bool _isEventSelected = false;
   bool _isEditing = false;
   int _selectedEventIndex = 0;
 
@@ -35,6 +35,7 @@ class _EventScreenState extends State<EventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).primaryColorLight,
       appBar: _isEventSelected ? editingAppBar(_selectedEventIndex) : appBar(),
       body: body(),
     );
@@ -68,11 +69,17 @@ class _EventScreenState extends State<EventScreen> {
                   child: Card(
                     elevation: 2,
                     color: note.events[index].isFavorite
-                        ? Color(0xFFFFB305)
-                        : Color(0xFF05ffb4),
+                        ? Theme.of(context).accentColor
+                        : Theme.of(context).primaryColor,
                     child: ListTile(
-                      title: Text(event.text),
-                      subtitle: Text(event.time),
+                      title: Text(
+                        event.text,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      subtitle: Text(
+                        event.time,
+                        style: TextStyle(color: Colors.white),
+                      ),
                       onLongPress: () {
                         _selectedEventIndex = index;
                         changeAppBar();
@@ -85,62 +92,50 @@ class _EventScreenState extends State<EventScreen> {
           ),
         ),
         SizedBox(height: kDefaultPadding),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            margin: EdgeInsets.all(15.0),
-            height: 50.0,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.0),
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(0, 3),
-                  blurRadius: 5,
-                  color: Colors.grey,
+        Container(
+          height: 60.0,
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColorDark,
+          ),
+          child: Row(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.widgets_outlined),
+                color: Colors.blueGrey,
+                onPressed: () {},
+              ),
+              Expanded(
+                child: TextField(
+                  controller: eventController,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    hintText: 'Type Something...',
+                    border: InputBorder.none,
+                  ),
                 ),
-              ],
-            ),
-            child: Row(
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.widgets_outlined),
+              ),
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/icons/attach_photo.svg',
+                  width: 24,
                   color: Colors.blueGrey,
-                  onPressed: () {},
                 ),
-                Expanded(
-                  child: TextField(
-                    controller: eventController,
-                    focusNode: focusNode,
-                    decoration: InputDecoration(
-                      hintText: 'Type Something...',
-                      border: InputBorder.none,
-                    ),
-                  ),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.send,
+                  color: Colors.blueGrey,
                 ),
-                IconButton(
-                  icon: SvgPicture.asset(
-                    'assets/icons/attach_photo.svg',
-                    width: 24,
-                    color: Colors.blueGrey,
-                  ),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.send,
-                    color: Colors.blueGrey,
-                  ),
-                  onPressed: () {
-                    if (_isEditing) {
-                      setState(() => editEventText(_selectedEventIndex));
-                    } else {
-                      setState(sendEvent);
-                    }
-                  },
-                ),
-              ],
-            ),
+                onPressed: () {
+                  if (_isEditing) {
+                    setState(() => editEventText(_selectedEventIndex));
+                  } else {
+                    setState(sendEvent);
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ],
@@ -149,7 +144,7 @@ class _EventScreenState extends State<EventScreen> {
 
   AppBar editingAppBar(int index, {int count}) {
     return AppBar(
-      backgroundColor: Color(0xFF5e1ef5),
+      backgroundColor: Theme.of(context).primaryColor,
       leading: IconButton(
         icon: Icon(Icons.clear),
         onPressed: () {
@@ -192,13 +187,12 @@ class _EventScreenState extends State<EventScreen> {
   AppBar appBar() {
     return AppBar(
       centerTitle: true,
-      backgroundColor: Color(0xFF5e1ef5),
+      backgroundColor: Theme.of(context).primaryColor,
       title: Text(widget.title),
       actions: [
         IconButton(
           icon: Icon(
             Icons.search,
-            color: Colors.white,
           ),
           onPressed: () {},
         ),
@@ -206,11 +200,9 @@ class _EventScreenState extends State<EventScreen> {
           icon: _isFavoriteEvents
               ? Icon(
                   Icons.bookmark,
-                  color: Colors.white,
                 )
               : Icon(
                   Icons.bookmark_border_outlined,
-                  color: Colors.white,
                 ),
           onPressed: showFavoriteEvents,
         ),
@@ -219,7 +211,7 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void sendEvent() {
-    if (eventController.text != null) {
+    if (eventController.text != '') {
       note.events.insert(
         0,
         Event(
@@ -277,13 +269,14 @@ class _EventScreenState extends State<EventScreen> {
       onPressed: () => Navigator.of(context).pop(),
     );
     Widget submitButton = MaterialButton(
-        child: Text('Submit'),
-        onPressed: () {
-          setState(() {
-            note.events.removeAt(index);
-            Navigator.of(context).pop();
-          });
-        });
+      child: Text('Submit'),
+      onPressed: () => setState(
+        () {
+          note.events.removeAt(index);
+          Navigator.of(context).pop();
+        },
+      ),
+    );
 
     var alert = AlertDialog(
       title: const Text('Are you sure?'),

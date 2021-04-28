@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../config/custom_theme.dart';
+import '../../constants/themes.dart';
 import 'components/notes_list.dart';
 import 'components/questionnaire_bot.dart';
 
@@ -10,33 +12,29 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  MyThemeKeys themeKey;
+  bool themeChanged = false;
+
+  void _changeTheme(BuildContext buildContext, MyThemeKeys key) {
+    CustomTheme.instanceOf(buildContext).changeTheme(key);
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF5e1ef5),
-            Color(0xFF00D4FF),
-          ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).primaryColor,
+      drawer: drawer(context),
+      appBar: appBar(),
+      body: body(size),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
         ),
       ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        drawer: drawer(context),
-        appBar: appBar(),
-        body: body(size),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: const Icon(Icons.add),
-          backgroundColor: Color(0xFFFFB305),
-        ),
-        bottomNavigationBar: bottomNavigationBar(),
-      ),
+      bottomNavigationBar: bottomNavigationBar(),
     );
   }
 
@@ -60,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
           DrawerHeader(
             child: Text('Drawer Header'),
             decoration: BoxDecoration(
-              color: Color(0xFF5e1ef5),
+              color: Theme.of(context).primaryColor,
             ),
           ),
           ListTile(
@@ -83,21 +81,23 @@ class _HomeScreenState extends State<HomeScreen> {
   AppBar appBar() {
     return AppBar(
       centerTitle: true,
-      title: Text(
-        'Home',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ),
-      backgroundColor: Colors.transparent,
+      title: Text('Home'),
+      backgroundColor: Theme.of(context).primaryColor,
       elevation: 0.0,
       actions: [
         IconButton(
           icon: Icon(
             Icons.invert_colors,
-            color: Colors.white,
           ),
-          onPressed: () {},
+          onPressed: () {
+            themeChanged = !themeChanged;
+            if (themeChanged == true) {
+              themeKey = MyThemeKeys.dark;
+            } else {
+              themeKey = MyThemeKeys.light;
+            }
+            _changeTheme(context, themeKey);
+          },
         ),
       ],
     );
@@ -106,7 +106,8 @@ class _HomeScreenState extends State<HomeScreen> {
   BottomNavigationBar bottomNavigationBar() {
     return BottomNavigationBar(
       currentIndex: _currentIndex,
-      selectedItemColor: Color(0xFF5e1ef5),
+      backgroundColor: Theme.of(context).primaryColorLight,
+      selectedItemColor: Theme.of(context).buttonColor,
       unselectedItemColor: Colors.blueGrey,
       elevation: 1.0,
       type: BottomNavigationBarType.fixed,
