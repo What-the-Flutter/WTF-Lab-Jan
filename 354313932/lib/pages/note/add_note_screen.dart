@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../constants/constants.dart';
 import '../../models/note.dart';
@@ -116,8 +115,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     var iconColor = Colors.white;
     return Center(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
+        onTap: () => setState(
+          () {
             for (var i = 0; i < icons.length; i++) {
               if (icons[i].isSelected == true) {
                 icons[i].isSelected = false;
@@ -128,8 +127,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
             } else {
               icon.isSelected = true;
             }
-          });
-        },
+          },
+        ),
         child: Icon(
           icon.icon,
           size: 35,
