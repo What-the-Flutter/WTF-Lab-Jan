@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../constants/constants.dart';
 import '../../models/note.dart';
 
 class AddNoteScreen extends StatefulWidget {
+  final String controller;
+
+  const AddNoteScreen({Key key, this.controller}) : super(key: key);
+
   @override
   _AddNoteScreenState createState() => _AddNoteScreenState();
 }
 
 class _AddNoteScreenState extends State<AddNoteScreen> {
+  final controller = TextEditingController();
+  bool isFieldEmpty = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,45 +27,81 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         centerTitle: true,
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(
-          Icons.check,
-          color: Colors.white,
-        ),
+      floatingActionButton: floatingActionButton,
+      body: body(context),
+    );
+  }
+
+
+  FloatingActionButton get floatingActionButton {
+    return FloatingActionButton(
+      onPressed: () {
+          if (controller.text != '') {
+            for (var i = 0; i < iconsList.length; i++) {
+              if (icons[i].isSelected == true) {
+                notes.add(
+                  Note(
+                      notes.length,
+                      icons[i].icon,
+                      controller.text,
+                      DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
+                      false),
+                );
+              }
+            }
+            Navigator.of(context).pop();
+          } else {
+            Fluttertoast.showToast(
+                msg: 'Enter note title!',
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0
+            );
+          }
+      },
+      child: const Icon(
+        Icons.check,
+        color: Colors.white,
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(kDefaultPadding),
-            child: TextFormField(
-              keyboardType: TextInputType.name,
-              autofocus: false,
-              decoration: InputDecoration(
-                hintText: 'Enter note title',
-                contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
+    );
+  }
+
+  Column body(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(kDefaultPadding),
+          child: TextFormField(
+            controller: controller,
+            keyboardType: TextInputType.name,
+            autofocus: false,
+            decoration: InputDecoration(
+              hintText: 'Enter note title',
+              contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16.0),
               ),
             ),
           ),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 4,
-              children: List.generate(iconsList.length, (index) {
-                return Center(
-                  child: CircleAvatar(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    radius: 30.0,
-                    child: iconItem(icons[index]),
-                  ),
-                );
-              }),
-            ),
+        ),
+        Expanded(
+          child: GridView.count(
+            crossAxisCount: 4,
+            children: List.generate(iconsList.length, (index) {
+              return Center(
+                child: CircleAvatar(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  radius: 30.0,
+                  child: iconItem(icons[index]),
+                ),
+              );
+            }),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

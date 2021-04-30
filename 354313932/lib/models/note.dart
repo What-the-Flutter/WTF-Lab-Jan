@@ -45,28 +45,6 @@ Icons.book_sharp
 
 List<ListItemIcon<IconData>> icons = [];
 
-List notes = [
-  Note(
-    1,
-    Icons.flight_takeoff,
-    'Travel',
-    'No Events. Click to create one.',
-    false,
-  ),
-  Note(
-    2,
-    Icons.weekend,
-    'Family',
-    'No Events. Click to create one.',
-    false,
-  ),
-  Note(
-    3,
-    Icons.fitness_center,
-    'Sports',
-    'No Events. Click to create one.',
-    false,
-  )
-];
+List notes = [];
 
 
