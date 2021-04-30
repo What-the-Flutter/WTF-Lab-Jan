@@ -18,6 +18,10 @@ class _HomeScreenState extends State<HomeScreen> {
   MyThemeKeys themeKey;
   bool themeChanged = false;
 
+  void _changeTheme(BuildContext buildContext, MyThemeKeys key) {
+    CustomTheme.instanceOf(buildContext).changeTheme(key);
+  }
+
   void addIcons() {
     setState(() {
       for (var i = 0; i < iconsList.length; i++) {
@@ -28,8 +32,51 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _changeTheme(BuildContext buildContext, MyThemeKeys key) {
-    CustomTheme.instanceOf(buildContext).changeTheme(key);
+  int editingNote(Note note) {
+    for (var i = 0; i < notes.length; i++) {
+      if (notes[i].id == note.id) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  int editingIcon(Note note) {
+    for (var i = 0; i < iconsList.length; i++) {
+      if (iconsList[i] == note.icon) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  void unpinNote(dynamic context, Note note) {
+    setState(() {
+      note.isPinned = false;
+      for (var i = 0; i < notes.length; i++) {
+        if (notes[i].id == note.id) {
+          notes.removeAt(i);
+        }
+      }
+      notes.insert(note.id, note);
+    });
+    Navigator.pop(context);
+  }
+
+  void pinNote(dynamic context, Note dialog) {
+    setState(() {
+      for (var i = 0; i < notes.length; i++) {
+        notes[i].isPinned = false;
+      }
+      dialog.isPinned = true;
+      for (var i = 0; i < notes.length; i++) {
+        if (notes[i].id == dialog.id) {
+          notes.removeAt(i);
+        }
+      }
+      notes.insert(0, dialog);
+    });
+    Navigator.pop(context);
   }
 
   @override
@@ -73,178 +120,177 @@ class _HomeScreenState extends State<HomeScreen> {
 
   SizedBox notesList(Size size) {
     return SizedBox(
-          height: size.height,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(top: 16.0),
-                padding: EdgeInsets.only(
-                  top: size.height * 0.12,
-                  left: kDefaultPadding,
-                  right: kDefaultPadding,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).backgroundColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                ),
+      height: size.height,
+      child: Stack(
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(top: 16.0),
+            padding: EdgeInsets.only(
+              top: size.height * 0.12,
+              left: kDefaultPadding,
+              right: kDefaultPadding,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).backgroundColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: ListView.builder(
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) {
-                    Note note;
-                    note = notes[index];
-                    return Builder(
-                      builder: (context) => GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  EventScreen(note: note, title: note.title),
-                            ),
-                          );
-                        },
-                        onLongPress: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (bc) {
-                              return Wrap(
-                                children: <Widget>[
-                                  ListTile(
-                                      leading: Icon(
-                                        Icons.edit,
-                                        color: Theme.of(context).accentColor,
-                                      ),
-                                      title: Text(
-                                        'Edit',
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      onTap: () async {
-                                        // for (var i = 0; i < icons.length; i++) {
-                                        //   icons[i].isSelected = false;
-                                        // }
-                                        // icons[editingIcon(dialog)].isSelected = true;
-                                        // await Navigator.push(
-                                        //   context,
-                                        //   MaterialPageRoute(
-                                        //     builder: (context) => AddDialogPage(
-                                        //       controller: dialog.name,
-                                        //       operation: 'edit',
-                                        //       editingDialog: editingDialog(dialog),
-                                        //       editingIcon: editingIcon(dialog),
-                                        //     ),
-                                        //   ),
-                                        // );
-                                        // setState(() {});
-                                        // Navigator.of(context).pop();
-                                      }),
-                                  ListTile(
-                                      leading: Icon(
-                                        Icons.delete,
-                                        color: Theme.of(context).accentColor,
-                                      ),
-                                      title: Text(
-                                        'Delete',
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      onTap: () {
-                                        setState(() {
-                                          for (var i = 0; i < notes.length; i++) {
-                                            if (notes[i].id == note.id) {
-                                              notes.removeAt(i);
-                                            }
-                                          }
-                                          Navigator.pop(context);
-                                        });
-                                      }),
-                                  ListTile(
-                                    leading: Icon(
-                                      Icons.info,
-                                      color: Theme.of(context).accentColor,
-                                    ),
-                                    title: Text(
-                                      'Info',
-                                      style: TextStyle(fontSize: 20),
-                                    ),
-                                    onTap: () {
-                                      Widget okButton = TextButton(
-                                        child: Text('OK'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          Navigator.of(context,
-                                                  rootNavigator: true)
-                                              .pop();
-                                        },
-                                      );
-                                      var alert = AlertDialog(
-                                        title: Text(note.title),
-                                        content: Text(
-                                            'Creation date:\n${note.subtitle}'),
-                                        actions: [
-                                          okButton,
-                                        ],
-                                      );
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return alert;
-                                        },
-                                      );
-                                    },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: ListView.builder(
+              itemCount: notes.length,
+              itemBuilder: (context, index) {
+                Note note;
+                note = notes[index];
+                return Builder(
+                  builder: (context) => GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EventScreen(note: note, title: note.title),
+                        ),
+                      );
+                    },
+                    onLongPress: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (bc) {
+                          return Wrap(
+                            children: <Widget>[
+                              ListTile(
+                                  leading: Icon(
+                                    Icons.edit,
+                                    color: Theme.of(context).accentColor,
                                   ),
-                                  ListTile(
-                                    leading: Icon(
-                                      Icons.push_pin,
-                                      color: Theme.of(context).accentColor,
-                                    ),
-                                    title: Text(
-                                      'Pin/Unpin',
-                                      style: TextStyle(fontSize: 20),
-                                    ),
-                                    onTap: () {
-                                      // if (dialog.isPinned == false) {
-                                      //   pinDialog(context, dialog);
-                                      // } else {
-                                      //   unpinDialog(context, dialog);
-                                      // }
-                                    },
+                                  title: Text(
+                                    'Edit',
+                                    style: TextStyle(fontSize: 20),
                                   ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: ListTile(
-                            tileColor: Theme.of(context).backgroundColor,
-                            leading: CircleAvatar(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              radius: 30.0,
-                              child: Icon(
-                                note.isPinned ? Icons.push_pin : note.icon,
-                                size: 35.0,
-                                color: Colors.white,
+                                  onTap: () async {
+                                    for (var i = 0; i < icons.length; i++) {
+                                      icons[i].isSelected = false;
+                                    }
+                                    icons[editingIcon(note)].isSelected = true;
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AddNoteScreen(
+                                          controller: note.title,
+                                          operation: 'edit',
+                                          editingNote: editingNote(note),
+                                          editingIcon: editingIcon(note),
+                                        ),
+                                      ),
+                                    );
+                                    setState(() {});
+                                    Navigator.of(context).pop();
+                                  }),
+                              ListTile(
+                                  leading: Icon(
+                                    Icons.delete,
+                                    color: Theme.of(context).accentColor,
+                                  ),
+                                  title: Text(
+                                    'Delete',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      for (var i = 0; i < notes.length; i++) {
+                                        if (notes[i].id == note.id) {
+                                          notes.removeAt(i);
+                                        }
+                                      }
+                                      Navigator.pop(context);
+                                    });
+                                  }),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.push_pin,
+                                  color: Theme.of(context).accentColor,
+                                ),
+                                title: Text(
+                                  'Pin/Unpin',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                onTap: () {
+                                  if (note.isPinned == false) {
+                                    pinNote(context, note);
+                                  } else {
+                                    unpinNote(context, note);
+                                  }
+                                },
                               ),
-                            ),
-                            title: Text(
-                              note.title,
-                            ),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.info,
+                                  color: Theme.of(context).accentColor,
+                                ),
+                                title: Text(
+                                  'Info',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                onTap: () {
+                                  Widget okButton = TextButton(
+                                    child: Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop();
+                                    },
+                                  );
+                                  var alert = AlertDialog(
+                                    title: Text(note.title),
+                                    content: Text(
+                                        'Creation date:\n${note.subtitle}'),
+                                    actions: [
+                                      okButton,
+                                    ],
+                                  );
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return alert;
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: ListTile(
+                        tileColor: Theme.of(context).backgroundColor,
+                        leading: CircleAvatar(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          radius: 30.0,
+                          child: Icon(
+                            note.isPinned ? Icons.push_pin : note.icon,
+                            size: 35.0,
+                            color: Colors.white,
                           ),
                         ),
+                        title: Text(
+                          note.title,
+                        ),
                       ),
-                    );
-                  },
-                ),
-              ),
-            ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        );
+        ],
+      ),
+    );
   }
 
   Drawer drawer(BuildContext context) {
