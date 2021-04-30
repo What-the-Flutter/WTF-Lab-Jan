@@ -26,7 +26,7 @@ class NotesList extends StatelessWidget {
               right: kDefaultPadding,
             ),
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColorLight,
+              color: Theme.of(context).backgroundColor,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -38,24 +38,37 @@ class NotesList extends StatelessWidget {
             child: ListView.builder(
               itemCount: notes.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    child: notes[index].icon,
-                  ),
-                  title: Text(notes[index].title),
-                  subtitle: Text(notes[index].subtitle),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EventScreen(
-                        title: notes[index].title,
-                        note: notes[index],
+                Note note;
+                note = notes[index];
+                return Builder(
+                  builder: (context) => GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EventScreen(note: note, title: note.title),
+                        ),
+                      );
+                    },
+                    onLongPress: () {
+                      //settingModalBottomSheet(context, dialog);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: ListTile(
+                        tileColor: Theme.of(context).backgroundColor,
+                        leading: CircleAvatar(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          radius: 30.0,
+                          child: Icon(
+                            note.isPinned ? Icons.push_pin : note.icon,
+                            size: 35.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                        title: Text(
+                          note.title,
+                        ),
                       ),
                     ),
                   ),

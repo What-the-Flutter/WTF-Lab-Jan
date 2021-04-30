@@ -35,7 +35,7 @@ class _EventScreenState extends State<EventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColorLight,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: _isEventSelected ? editingAppBar(_selectedEventIndex) : appBar(),
       body: body(),
     );
@@ -95,7 +95,7 @@ class _EventScreenState extends State<EventScreen> {
         Container(
           height: 60.0,
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColorDark,
+            color: Theme.of(context).primaryColorLight,
           ),
           child: Row(
             children: <Widget>[

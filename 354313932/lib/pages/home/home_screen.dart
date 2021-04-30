@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../config/custom_theme.dart';
 import '../../constants/themes.dart';
+import '../../models/note.dart';
+import '../note/add_note_screen.dart';
 import 'components/notes_list.dart';
 import 'components/questionnaire_bot.dart';
 
@@ -14,6 +16,16 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   MyThemeKeys themeKey;
   bool themeChanged = false;
+
+  void addIcons() {
+    setState(() {
+      for (var i = 0; i < iconsList.length; i++) {
+        icons.add(ListItemIcon<IconData>(iconsList[i]));
+        icons[i].isSelected = false;
+      }
+      icons[0].isSelected = true;
+    });
+  }
 
   void _changeTheme(BuildContext buildContext, MyThemeKeys key) {
     CustomTheme.instanceOf(buildContext).changeTheme(key);
@@ -28,7 +40,16 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: appBar(),
       body: body(size),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async {
+          addIcons();
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddNoteScreen(),
+            ),
+          );
+          //setState(() {});
+        },
         child: const Icon(
           Icons.add,
           color: Colors.white,
@@ -106,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   BottomNavigationBar bottomNavigationBar() {
     return BottomNavigationBar(
       currentIndex: _currentIndex,
-      backgroundColor: Theme.of(context).primaryColorLight,
+      backgroundColor: Theme.of(context).backgroundColor,
       selectedItemColor: Theme.of(context).buttonColor,
       unselectedItemColor: Colors.blueGrey,
       elevation: 1.0,

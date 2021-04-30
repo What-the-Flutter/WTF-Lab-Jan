@@ -9,8 +9,8 @@ enum MyThemeKeys {
 class MyThemes {
   static final ThemeData lightTheme = ThemeData(
     primaryColor: Color(0xFF2929DB),
-    primaryColorLight: Color(0xFFFFFFFF),
-    primaryColorDark: Color(0xFFF0F8FF),
+    backgroundColor: Color(0xFFFFFFFF),
+    primaryColorLight: Color(0xFFF0F8FF),
     accentColor: Color(0xFFFFC20C),
     buttonColor: Color(0xFF2929DB),
     brightness: Brightness.light,
@@ -18,8 +18,8 @@ class MyThemes {
 
   static final ThemeData darkTheme = ThemeData(
     primaryColor: Color(0xFF213244),
-    primaryColorLight: Color(0xFF1E2832),
-    primaryColorDark: Color(0xFF213244),
+    backgroundColor: Color(0xFF1E2832),
+    primaryColorLight: Color(0xFF213244),
     accentColor: Color(0xFFFFC20C),
     buttonColor: Color(0xFFFFC20C),
     brightness: Brightness.dark,
