@@ -2,20 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:wtf/UI/app_bar.dart';
 import 'package:wtf/UI/bot_button.dart';
 import 'package:wtf/UI/bottom_bar.dart';
+
 class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Widget listItem(IconData icon, String title, { String substitle = "No events. Click Here to create one."} ){
+    Widget listItem(IconData icon, String title,
+        {String substitle = "No events. Click Here to create one."}) {
       return ListTile(
-          leading:Container(
-            height: 50,
-            width: 50,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(context).unselectedWidgetColor,
-            ),
-            child: Icon(icon),
+        leading: Container(
+          height: 50,
+          width: 50,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).unselectedWidgetColor,
           ),
+          child: Icon(icon),
+        ),
         title: Text(title),
         subtitle: Text(substitle),
       );
@@ -25,15 +27,14 @@ class MainPage extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          unselectedIconTheme: IconThemeData(
-            color:Colors.cyan[600],
-          ),
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            unselectedIconTheme: IconThemeData(
+              color: Colors.cyan[600],
+            ),
             selectedIconTheme: IconThemeData(
-              color:Colors.lightBlue[800],
-            )
-        ),
+              color: Colors.lightBlue[800],
+            )),
         brightness: Brightness.dark,
         primaryColor: Colors.lightBlue[800],
         accentColor: Colors.cyan[600],
@@ -46,6 +47,10 @@ class MainPage extends StatelessWidget {
         ),
       ),
       home: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          child:Icon(Icons.note_add_outlined),
+          onPressed: () => {},
+        ),
         appBar: AppBar(
           centerTitle: true,
           leading: Icon(Icons.menu_outlined),
