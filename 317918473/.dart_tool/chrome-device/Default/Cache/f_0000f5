@@ -1,0 +1,189 @@
+define(['dart_sdk', 'packages/petitparser/src/parser/misc/eof.dart', 'packages/petitparser/src/parser/combinator/optional.dart', 'packages/petitparser/src/parser/predicate/string.dart', 'packages/xml/src/xml/utils/character_data_parser.dart', 'packages/petitparser/src/parser/action/pick.dart', 'packages/petitparser/src/parser/action/flatten.dart', 'packages/petitparser/src/parser/repeater/lazy.dart', 'packages/petitparser/src/parser/repeater/separated_by.dart', 'packages/petitparser/src/parser/character/whitespace.dart', 'packages/petitparser/src/parser/character/pattern.dart', 'packages/petitparser/src/definition/grammar.dart', 'packages/xml/src/xml/entities/entity_mapping.dart'], (function load__packages__xml__src__xml__production_dart(dart_sdk, packages__petitparser__src__parser__misc__eof$46dart, packages__petitparser__src__parser__combinator__optional$46dart, packages__petitparser__src__parser__predicate__string$46dart, packages__xml__src__xml__utils__character_data_parser$46dart, packages__petitparser__src__parser__action__pick$46dart, packages__petitparser__src__parser__action__flatten$46dart, packages__petitparser__src__parser__repeater__lazy$46dart, packages__petitparser__src__parser__repeater__separated_by$46dart, packages__petitparser__src__parser__character__whitespace$46dart, packages__petitparser__src__parser__character__pattern$46dart, packages__petitparser__src__definition__grammar$46dart, packages__xml__src__xml__entities__entity_mapping$46dart) {
+  'use strict';
+  const core = dart_sdk.core;
+  const dart = dart_sdk.dart;
+  const dartx = dart_sdk.dartx;
+  const eof = packages__petitparser__src__parser__misc__eof$46dart.src__parser__misc__eof;
+  const sequence = packages__petitparser__src__parser__combinator__optional$46dart.src__parser__combinator__sequence;
+  const choice = packages__petitparser__src__parser__combinator__optional$46dart.src__parser__combinator__choice;
+  const possessive = packages__petitparser__src__parser__combinator__optional$46dart.src__parser__repeater__possessive;
+  const any = packages__petitparser__src__parser__combinator__optional$46dart.src__parser__predicate__any;
+  const optional = packages__petitparser__src__parser__combinator__optional$46dart.src__parser__combinator__optional;
+  const token = packages__petitparser__src__parser__combinator__optional$46dart.src__parser__action__token;
+  const parser = packages__petitparser__src__parser__combinator__optional$46dart.src__core__parser;
+  const string = packages__petitparser__src__parser__predicate__string$46dart.src__parser__predicate__string;
+  const character_data_parser = packages__xml__src__xml__utils__character_data_parser$46dart.src__xml__utils__character_data_parser;
+  const pick = packages__petitparser__src__parser__action__pick$46dart.src__parser__action__pick;
+  const flatten = packages__petitparser__src__parser__action__flatten$46dart.src__parser__action__flatten;
+  const lazy = packages__petitparser__src__parser__repeater__lazy$46dart.src__parser__repeater__lazy;
+  const separated_by = packages__petitparser__src__parser__repeater__separated_by$46dart.src__parser__repeater__separated_by;
+  const whitespace = packages__petitparser__src__parser__character__whitespace$46dart.src__parser__character__whitespace;
+  const pattern = packages__petitparser__src__parser__character__pattern$46dart.src__parser__character__pattern;
+  const grammar = packages__petitparser__src__definition__grammar$46dart.src__definition__grammar;
+  const entity_mapping = packages__xml__src__xml__entities__entity_mapping$46dart.src__xml__entities__entity_mapping;
+  var production = Object.create(dart.library);
+  dart._checkModuleNullSafetyMode(false);
+  var T = {
+    ListOfString: () => (T.ListOfString = dart.constFn(core.List$(core.String)))()
+  };
+  var T$Eval = Object.assign({
+    _: () => T$Eval
+  }, T);
+  var S = {
+    _: () => S
+  };
+  var S$Eval = Object.assign({
+    _: () => S$Eval
+  }, S);
+  const CT = Object.create({
+    _: () => (C, CT)
+  });
+  var C = [];
+  var I = [
+    "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/xml-5.1.0/lib/src/xml/production.dart",
+    "package:xml/src/xml/production.dart"
+  ];
+  var entityMapping$ = dart.privateName(production, "XmlProductionDefinition.entityMapping");
+  production.XmlProductionDefinition = class XmlProductionDefinition extends grammar.GrammarDefinition {
+    get entityMapping() {
+      return this[entityMapping$];
+    }
+    set entityMapping(value) {
+      super.entityMapping = value;
+    }
+    start() {
+      return eof['EndOfInputParserExtension|end'](dart.dynamic, this.ref0(dart.dynamic, dart.bind(this, 'document')), "Expected end of input");
+    }
+    attribute() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](this.ref0(dart.dynamic, dart.bind(this, 'qualified')), this.ref0(dart.dynamic, dart.bind(this, 'spaceOptional'))), string['PredicateStringExtension|toParser']("=")), this.ref0(dart.dynamic, dart.bind(this, 'spaceOptional'))), this.ref0(dart.dynamic, dart.bind(this, 'attributeValue')));
+    }
+    attributeValue() {
+      return choice['ChoiceParserExtension|or'](this.ref0(dart.dynamic, dart.bind(this, 'attributeValueDouble')), this.ref0(dart.dynamic, dart.bind(this, 'attributeValueSingle')));
+    }
+    attributeValueDouble() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser']("\""), new character_data_parser.XmlCharacterDataParser.new(this.entityMapping, "\"", 0)), string['PredicateStringExtension|toParser']("\""));
+    }
+    attributeValueSingle() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser']("'"), new character_data_parser.XmlCharacterDataParser.new(this.entityMapping, "'", 0)), string['PredicateStringExtension|toParser']("'"));
+    }
+    attributes() {
+      return possessive['PossessiveRepeatingParserExtension|star'](dart.dynamic, pick['PickParserExtension|pick'](dart.dynamic, sequence['SequenceParserExtension|seq'](this.ref0(dart.dynamic, dart.bind(this, 'space')), this.ref0(dart.dynamic, dart.bind(this, 'attribute'))), 1));
+    }
+    comment() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser']("<!--"), flatten['FlattenParserExtension|flatten'](T.ListOfString(), lazy['LazyRepeatingParserExtension|starLazy'](core.String, any.any(), string['PredicateStringExtension|toParser']("-->")), "Expected comment content")), string['PredicateStringExtension|toParser']("-->"));
+    }
+    cdata() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser']("<![CDATA["), flatten['FlattenParserExtension|flatten'](T.ListOfString(), lazy['LazyRepeatingParserExtension|starLazy'](core.String, any.any(), string['PredicateStringExtension|toParser']("]]>")), "Expected CDATA content")), string['PredicateStringExtension|toParser']("]]>"));
+    }
+    content() {
+      return possessive['PossessiveRepeatingParserExtension|star'](dart.dynamic, choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](this.ref0(dart.dynamic, dart.bind(this, 'characterData')), this.ref0(dart.dynamic, dart.bind(this, 'element'))), this.ref0(dart.dynamic, dart.bind(this, 'processing'))), this.ref0(dart.dynamic, dart.bind(this, 'comment'))), this.ref0(dart.dynamic, dart.bind(this, 'cdata'))));
+    }
+    declaration() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser']("<?xml"), this.ref0(dart.dynamic, dart.bind(this, 'attributes'))), this.ref0(dart.dynamic, dart.bind(this, 'spaceOptional'))), string['PredicateStringExtension|toParser']("?>"));
+    }
+    doctype() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser']("<!DOCTYPE"), this.ref0(dart.dynamic, dart.bind(this, 'space'))), flatten['FlattenParserExtension|flatten'](core.List, separated_by['SeparatedBy|separatedBy'](dart.dynamic, dart.dynamic, choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](this.ref0(dart.dynamic, dart.bind(this, 'nameToken')), this.ref0(dart.dynamic, dart.bind(this, 'attributeValue'))), sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](lazy['LazyRepeatingParserExtension|starLazy'](core.String, any.any(), string['PredicateStringExtension|toParser']("[")), string['PredicateStringExtension|toParser']("[")), lazy['LazyRepeatingParserExtension|starLazy'](core.String, any.any(), string['PredicateStringExtension|toParser']("]"))), string['PredicateStringExtension|toParser']("]"))), this.ref0(dart.dynamic, dart.bind(this, 'space'))), "Expected doctype content")), this.ref0(dart.dynamic, dart.bind(this, 'spaceOptional'))), string['PredicateStringExtension|toParser'](">"));
+    }
+    document() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](optional['OptionalParserExtension|optional'](dart.dynamic, this.ref0(dart.dynamic, dart.bind(this, 'declaration'))), this.ref0(dart.dynamic, dart.bind(this, 'misc'))), optional['OptionalParserExtension|optional'](dart.dynamic, this.ref0(dart.dynamic, dart.bind(this, 'doctype')))), this.ref0(dart.dynamic, dart.bind(this, 'misc'))), this.ref0(dart.dynamic, dart.bind(this, 'element'))), this.ref0(dart.dynamic, dart.bind(this, 'misc')));
+    }
+    documentFragment() {
+      return pick['PickParserExtension|pick'](dart.dynamic, sequence['SequenceParserExtension|seq'](possessive['PossessiveRepeatingParserExtension|star'](dart.dynamic, this.ref0(dart.dynamic, dart.bind(this, 'documentFragmentContent'))), choice['ChoiceParserExtension||'](eof.endOfInput("Expected end of input"), this.ref0(dart.dynamic, dart.bind(this, 'element')))), 0);
+    }
+    documentFragmentContent() {
+      return choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](this.ref0(dart.dynamic, dart.bind(this, 'characterData')), this.ref0(dart.dynamic, dart.bind(this, 'element'))), this.ref0(dart.dynamic, dart.bind(this, 'comment'))), this.ref0(dart.dynamic, dart.bind(this, 'cdata'))), this.ref0(dart.dynamic, dart.bind(this, 'declaration'))), this.ref0(dart.dynamic, dart.bind(this, 'processing'))), this.ref0(dart.dynamic, dart.bind(this, 'doctype')));
+    }
+    element() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser']("<"), this.ref0(dart.dynamic, dart.bind(this, 'qualified'))), this.ref0(dart.dynamic, dart.bind(this, 'attributes'))), this.ref0(dart.dynamic, dart.bind(this, 'spaceOptional'))), choice['ChoiceParserExtension|or'](string['PredicateStringExtension|toParser']("/>"), sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser'](">"), this.ref0(dart.dynamic, dart.bind(this, 'content'))), token['TokenParserExtension|token'](core.String, string['PredicateStringExtension|toParser']("</"))), this.ref0(dart.dynamic, dart.bind(this, 'qualified'))), this.ref0(dart.dynamic, dart.bind(this, 'spaceOptional'))), string['PredicateStringExtension|toParser'](">"))));
+    }
+    processing() {
+      return sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](sequence['SequenceParserExtension|seq'](string['PredicateStringExtension|toParser']("<?"), this.ref0(dart.dynamic, dart.bind(this, 'nameToken'))), optional['OptionalParserExtension|optionalWith'](dart.dynamic, pick['PickParserExtension|pick'](dart.dynamic, sequence['SequenceParserExtension|seq'](this.ref0(dart.dynamic, dart.bind(this, 'space')), flatten['FlattenParserExtension|flatten'](T.ListOfString(), lazy['LazyRepeatingParserExtension|starLazy'](core.String, any.any(), string['PredicateStringExtension|toParser']("?>")), "Expected processing instruction content")), 1), "")), string['PredicateStringExtension|toParser']("?>"));
+    }
+    qualified() {
+      return this.ref0(dart.dynamic, dart.bind(this, 'nameToken'));
+    }
+    characterData() {
+      return new character_data_parser.XmlCharacterDataParser.new(this.entityMapping, "<", 1);
+    }
+    misc() {
+      return possessive['PossessiveRepeatingParserExtension|star'](dart.dynamic, choice['ChoiceParserExtension|or'](choice['ChoiceParserExtension|or'](this.ref0(dart.dynamic, dart.bind(this, 'spaceText')), this.ref0(dart.dynamic, dart.bind(this, 'comment'))), this.ref0(dart.dynamic, dart.bind(this, 'processing'))));
+    }
+    space() {
+      return possessive['PossessiveRepeatingParserExtension|plus'](core.String, whitespace.whitespace());
+    }
+    spaceText() {
+      return flatten['FlattenParserExtension|flatten'](dart.dynamic, this.ref0(dart.dynamic, dart.bind(this, 'space')), "Expected whitespace");
+    }
+    spaceOptional() {
+      return possessive['PossessiveRepeatingParserExtension|star'](core.String, whitespace.whitespace());
+    }
+    nameToken() {
+      return flatten['FlattenParserExtension|flatten'](core.List, sequence['SequenceParserExtension|seq'](this.ref0(dart.dynamic, dart.bind(this, 'nameStartChar')), possessive['PossessiveRepeatingParserExtension|star'](dart.dynamic, this.ref0(dart.dynamic, dart.bind(this, 'nameChar')))), "Expected name");
+    }
+    nameStartChar() {
+      return pattern.pattern(production.XmlProductionDefinition._nameStartChars);
+    }
+    nameChar() {
+      return pattern.pattern(production.XmlProductionDefinition._nameChars);
+    }
+  };
+  (production.XmlProductionDefinition.new = function(entityMapping) {
+    if (entityMapping == null) dart.nullFailed(I[0], 30, 32, "entityMapping");
+    this[entityMapping$] = entityMapping;
+    production.XmlProductionDefinition.__proto__.new.call(this);
+    ;
+  }).prototype = production.XmlProductionDefinition.prototype;
+  dart.addTypeTests(production.XmlProductionDefinition);
+  dart.addTypeCaches(production.XmlProductionDefinition);
+  dart.setMethodSignature(production.XmlProductionDefinition, () => ({
+    __proto__: dart.getMethods(production.XmlProductionDefinition.__proto__),
+    start: dart.fnType(parser.Parser, []),
+    attribute: dart.fnType(parser.Parser, []),
+    attributeValue: dart.fnType(parser.Parser, []),
+    attributeValueDouble: dart.fnType(parser.Parser, []),
+    attributeValueSingle: dart.fnType(parser.Parser, []),
+    attributes: dart.fnType(parser.Parser, []),
+    comment: dart.fnType(parser.Parser, []),
+    cdata: dart.fnType(parser.Parser, []),
+    content: dart.fnType(parser.Parser, []),
+    declaration: dart.fnType(parser.Parser, []),
+    doctype: dart.fnType(parser.Parser, []),
+    document: dart.fnType(parser.Parser, []),
+    documentFragment: dart.fnType(parser.Parser, []),
+    documentFragmentContent: dart.fnType(parser.Parser, []),
+    element: dart.fnType(parser.Parser, []),
+    processing: dart.fnType(parser.Parser, []),
+    qualified: dart.fnType(parser.Parser, []),
+    characterData: dart.fnType(parser.Parser, []),
+    misc: dart.fnType(parser.Parser, []),
+    space: dart.fnType(parser.Parser, []),
+    spaceText: dart.fnType(parser.Parser, []),
+    spaceOptional: dart.fnType(parser.Parser, []),
+    nameToken: dart.fnType(parser.Parser, []),
+    nameStartChar: dart.fnType(parser.Parser, []),
+    nameChar: dart.fnType(parser.Parser, [])
+  }));
+  dart.setLibraryUri(production.XmlProductionDefinition, I[1]);
+  dart.setFieldSignature(production.XmlProductionDefinition, () => ({
+    __proto__: dart.getFields(production.XmlProductionDefinition.__proto__),
+    entityMapping: dart.finalFieldType(entity_mapping.XmlEntityMapping)
+  }));
+  dart.defineLazy(production.XmlProductionDefinition, {
+    /*production.XmlProductionDefinition._nameStartChars*/get _nameStartChars() {
+      return ":A-Z_a-zÀ-ÖØ-öø-˿Ͱ-ͽͿ-῿‌-‍⁰-↏Ⰰ-⿯、-퟿豈-﷏ﷰ-�";
+    },
+    /*production.XmlProductionDefinition._nameChars*/get _nameChars() {
+      return ":A-Z_a-zÀ-ÖØ-öø-˿Ͱ-ͽͿ-῿‌-‍⁰-↏Ⰰ-⿯、-퟿豈-﷏ﷰ-�-.0-9·̀-ͯ‿-⁀";
+    }
+  }, false);
+  dart.trackLibraries("packages/xml/src/xml/production.dart", {
+    "package:xml/src/xml/production.dart": production
+  }, {
+  }, '{"version":3,"sourceRoot":"","sources":["production.dart"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IA2ByB;;;;;;;AAKL,YAAe,oDAAf,kCAAK,oBAAc;IAAwB;;AAEvC,YAIjB,yCADA,wCADA,wCADA,wCADiB,kCAAK,qBAClB,kCAAK,0BACW,mDAChB,kCAAK,0BACL,kCAAK;IAAgB;;AAG1B,YAA2B,oCAA3B,kCAAK,gCAAyB,kCAAK;IAAsB;;AAE5B,YAG5B,yCADA,wCADA,mDACI,qDAAuB,0BAAqC,KACvC;IAAW;;AAER,YAG5B,yCADA,wCADA,kDACI,qDAAuB,yBAAqC,KACvC;IAAW;;AAElB,YAAyC,qEAAR,+CAArB,wCAAZ,kCAAK,iBAAW,kCAAK,sBAAiB;IAAS;;AAElD,YAKf,yCAHA,wCADA,qDAGI,4DADA,2DADA,WAC+B,qDACvB,8BACc;IAAW;;AAExB,YAKb,yCAHA,wCADA,0DAGI,4DADA,2DADA,WAC6B,qDACrB,4BACY;IAAW;;AAEpB,YAKf,qEADA,mCADA,mCADA,mCADA,mCADe,kCAAK,yBACjB,kCAAK,oBACL,kCAAK,uBACL,kCAAK,oBACL,kCAAK;IACF;;AAEa,YAInB,yCADA,wCADA,wCADA,sDACI,kCAAK,uBACL,kCAAK,0BACqB;IAAW;;AAE1B,YAaf,yCADA,wCATA,wCADA,wCADA,0DACI,kCAAK,kBASL,qDADA,oEALA,mCADA,mCADA,kCAAK,qBACF,kCAAK,2BAKJ,wCADA,wCADA,wCADA,2DADD,WACoC,mDACL,mDACpB,2DAAN,WAA0C,oDACf,oDACvB,kCAAK,kBACT,8BACR,kCAAK,0BACiB;IAAW;;AAErB,YAMhB,yCADA,wCADA,wCADA,wCADA,wCADA,2DADgB,kCAAK,wBAEjB,kCAAK,iBACS,2DAAd,kCAAK,qBACL,kCAAK,iBACL,kCAAK,oBACL,kCAAK;IAAM;;AAES,YAGxB,gDADA,wCADA,oEADwB,kCAAK,oCAEW,kCAApC,eAAW,0BAA2B,kCAAK,qBAC1C;IAAE;;AAEwB,YAM/B,oCADA,mCADA,mCADA,mCADA,mCADA,mCAD+B,kCAAK,yBACjC,kCAAK,oBACL,kCAAK,oBACL,kCAAK,kBACL,kCAAK,wBACL,kCAAK,uBACL,kCAAK;IAAS;;AAEF,YAKf,yCADA,wCADA,wCADA,wCADA,kDACI,kCAAK,sBACL,kCAAK,uBACL,kCAAK,0BAC+B,mCAAX,mDAMzB,wCADA,wCADA,wCADA,wCADA,wCADA,kDACI,kCAAK,oBAC8B,iDAAX,qDACxB,kCAAK,sBACL,kCAAK,0BACiB;IAAa;;AAEzB,YASlB,yCANA,wCADA,wCADA,mDACI,kCAAK,sBAML,+DADA,+CAHA,wCADA,kCAAK,iBAGD,4DADA,2DADA,WACkC,oDAC1B,6CACP,IACQ,MACY;IAAW;;AAEvB,+CAAK;IAAU;;AAGjC,kEAAuB,yBAAqC;IAAE;;AAG9D,YAAuD,qEAArB,mCAAlB,mCAAhB,kCAAK,qBAAc,kCAAK,oBAAa,kCAAK;IAAmB;;AAE/C,YAAa,oEAAb;IAAmB;;AAEf,YAAY,yDAAZ,kCAAK,iBAAe;IAAsB;;AAEtC,YAAa,oEAAb;IAAmB;;AAGzC,YAA+C,sDAA3B,wCAApB,kCAAK,yBAAkC,oEAAf,kCAAK,sBAA0B;IAAgB;;AAEjD,6BAAQ;IAAgB;;AAE7B,6BAAQ;IAAW;;;QApIX;;AAA7B;;EAA2C;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;MApBvB,kDAAe;;;MAYf,6CAAU","file":"../../../../../../../../../../../E:/packages/xml/src/xml/production.dart.lib.js"}');
+  // Exports:
+  return {
+    src__xml__production: production
+  };
+}));
+
+//# sourceMappingURL=production.dart.lib.js.map

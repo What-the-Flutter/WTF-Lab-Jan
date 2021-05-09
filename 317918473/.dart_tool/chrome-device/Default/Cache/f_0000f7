@@ -1,0 +1,329 @@
+define(['dart_sdk', 'packages/petitparser/src/parser/repeater/limited.dart', 'packages/petitparser/src/parser/combinator/optional.dart'], (function load__packages__petitparser__src__parser__repeater__lazy_dart(dart_sdk, packages__petitparser__src__parser__repeater__limited$46dart, packages__petitparser__src__parser__combinator__optional$46dart) {
+  'use strict';
+  const core = dart_sdk.core;
+  const _interceptors = dart_sdk._interceptors;
+  const dart = dart_sdk.dart;
+  const dartx = dart_sdk.dartx;
+  const limited = packages__petitparser__src__parser__repeater__limited$46dart.src__parser__repeater__limited;
+  const result = packages__petitparser__src__parser__combinator__optional$46dart.src__context__result;
+  const context = packages__petitparser__src__parser__combinator__optional$46dart.src__context__context;
+  const parser = packages__petitparser__src__parser__combinator__optional$46dart.src__core__parser;
+  var lazy = Object.create(dart.library);
+  var greedy = Object.create(dart.library);
+  var $length = dartx.length;
+  var $add = dartx.add;
+  var $last = dartx.last;
+  var $isEmpty = dartx.isEmpty;
+  var $removeLast = dartx.removeLast;
+  dart._checkModuleNullSafetyMode(false);
+  var T$ = {
+    ParserOfvoid: () => (T$.ParserOfvoid = dart.constFn(parser.Parser$(dart.void)))(),
+    JSArrayOfContext: () => (T$.JSArrayOfContext = dart.constFn(_interceptors.JSArray$(context.Context)))(),
+    JSArrayOfint: () => (T$.JSArrayOfint = dart.constFn(_interceptors.JSArray$(core.int)))()
+  };
+  var T$Eval = Object.assign({
+    _: () => T$Eval
+  }, T$);
+  var S = {
+    _: () => S
+  };
+  var S$Eval = Object.assign({
+    _: () => S$Eval
+  }, S);
+  const CT = Object.create({
+    _: () => (C, CT)
+  });
+  var C = [];
+  var I = [
+    "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/petitparser-4.1.0/lib/src/parser/repeater/lazy.dart",
+    "package:petitparser/src/parser/repeater/lazy.dart",
+    "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/petitparser-4.1.0/lib/src/parser/repeater/greedy.dart",
+    "package:petitparser/src/parser/repeater/greedy.dart"
+  ];
+  const _is_LazyRepeatingParser_default = Symbol('_is_LazyRepeatingParser_default');
+  lazy.LazyRepeatingParser$ = dart.generic(R => {
+    var JSArrayOfR = () => (JSArrayOfR = dart.constFn(_interceptors.JSArray$(R)))();
+    var ListOfR = () => (ListOfR = dart.constFn(core.List$(R)))();
+    var LazyRepeatingParserOfR = () => (LazyRepeatingParserOfR = dart.constFn(lazy.LazyRepeatingParser$(R)))();
+    class LazyRepeatingParser extends limited.LimitedRepeatingParser$(R) {
+      parseOn(context) {
+        if (context == null) dart.nullFailed(I[0], 52, 35, "context");
+        let current = context;
+        let elements = JSArrayOfR().of([]);
+        while (dart.notNull(elements[$length]) < dart.notNull(this.min)) {
+          let result = this.delegate.parseOn(current);
+          if (dart.test(result.isFailure)) {
+            return result.failure(ListOfR(), result.message);
+          }
+          elements[$add](result.value);
+          current = result;
+        }
+        for (;;) {
+          let limiter = this.limit.parseOn(current);
+          if (dart.test(limiter.isSuccess)) {
+            return current.success(ListOfR(), elements);
+          } else {
+            if (this.max !== -1 && dart.notNull(elements[$length]) >= dart.notNull(this.max)) {
+              return limiter.failure(ListOfR(), limiter.message);
+            }
+            let result = this.delegate.parseOn(current);
+            if (dart.test(result.isFailure)) {
+              return limiter.failure(ListOfR(), limiter.message);
+            }
+            elements[$add](result.value);
+            current = result;
+          }
+        }
+      }
+      fastParseOn(buffer, position) {
+        if (buffer == null) dart.nullFailed(I[0], 82, 26, "buffer");
+        if (position == null) dart.nullFailed(I[0], 82, 38, "position");
+        let count = 0;
+        let current = position;
+        while (count < dart.notNull(this.min)) {
+          let result = this.delegate.fastParseOn(buffer, current);
+          if (dart.notNull(result) < 0) {
+            return -1;
+          }
+          current = result;
+          count = count + 1;
+        }
+        for (;;) {
+          let limiter = this.limit.fastParseOn(buffer, current);
+          if (dart.notNull(limiter) >= 0) {
+            return current;
+          } else {
+            if (this.max !== -1 && count >= dart.notNull(this.max)) {
+              return -1;
+            }
+            let result = this.delegate.fastParseOn(buffer, current);
+            if (dart.notNull(result) < 0) {
+              return -1;
+            }
+            current = result;
+            count = count + 1;
+          }
+        }
+      }
+      copy() {
+        return new (LazyRepeatingParserOfR()).new(this.delegate, this.limit, this.min, this.max);
+      }
+    }
+    (LazyRepeatingParser.new = function(parser, limit, min, max) {
+      if (parser == null) dart.nullFailed(I[0], 48, 33, "parser");
+      if (limit == null) dart.nullFailed(I[0], 48, 54, "limit");
+      if (min == null) dart.nullFailed(I[0], 48, 65, "min");
+      if (max == null) dart.nullFailed(I[0], 48, 74, "max");
+      LazyRepeatingParser.__proto__.new.call(this, parser, limit, min, max);
+      ;
+    }).prototype = LazyRepeatingParser.prototype;
+    dart.addTypeTests(LazyRepeatingParser);
+    LazyRepeatingParser.prototype[_is_LazyRepeatingParser_default] = true;
+    dart.addTypeCaches(LazyRepeatingParser);
+    dart.setMethodSignature(LazyRepeatingParser, () => ({
+      __proto__: dart.getMethods(LazyRepeatingParser.__proto__),
+      parseOn: dart.fnType(result.Result$(core.List$(R)), [context.Context]),
+      copy: dart.fnType(lazy.LazyRepeatingParser$(R), [])
+    }));
+    dart.setLibraryUri(LazyRepeatingParser, I[1]);
+    return LazyRepeatingParser;
+  });
+  lazy.LazyRepeatingParser = lazy.LazyRepeatingParser$();
+  dart.addTypeTests(lazy.LazyRepeatingParser, _is_LazyRepeatingParser_default);
+  lazy['LazyRepeatingParserExtension|starLazy'] = function LazyRepeatingParserExtension$124starLazy(T, $this, limit) {
+    if ($this == null) dart.nullFailed(I[0], 19, 19, "#this");
+    if (limit == null) dart.nullFailed(I[0], 19, 41, "limit");
+    return lazy['LazyRepeatingParserExtension|repeatLazy'](T, $this, limit, 0, -1);
+  };
+  lazy['LazyRepeatingParserExtension|get#starLazy'] = function LazyRepeatingParserExtension$124get$35starLazy(T, $this) {
+    if ($this == null) dart.nullFailed(I[0], 19, 19, "#this");
+    return dart.fn(limit => {
+      if (limit == null) dart.nullFailed(I[0], 19, 41, "limit");
+      return lazy['LazyRepeatingParserExtension|starLazy'](T, $this, limit);
+    }, dart.fnType(parser.Parser$(core.List$(T)), [T$.ParserOfvoid()]));
+  };
+  lazy['LazyRepeatingParserExtension|plusLazy'] = function LazyRepeatingParserExtension$124plusLazy(T, $this, limit) {
+    if ($this == null) dart.nullFailed(I[0], 31, 19, "#this");
+    if (limit == null) dart.nullFailed(I[0], 31, 41, "limit");
+    return lazy['LazyRepeatingParserExtension|repeatLazy'](T, $this, limit, 1, -1);
+  };
+  lazy['LazyRepeatingParserExtension|get#plusLazy'] = function LazyRepeatingParserExtension$124get$35plusLazy(T, $this) {
+    if ($this == null) dart.nullFailed(I[0], 31, 19, "#this");
+    return dart.fn(limit => {
+      if (limit == null) dart.nullFailed(I[0], 31, 41, "limit");
+      return lazy['LazyRepeatingParserExtension|plusLazy'](T, $this, limit);
+    }, dart.fnType(parser.Parser$(core.List$(T)), [T$.ParserOfvoid()]));
+  };
+  lazy['LazyRepeatingParserExtension|repeatLazy'] = function LazyRepeatingParserExtension$124repeatLazy(T, $this, limit, min, max) {
+    if ($this == null) dart.nullFailed(I[0], 40, 19, "#this");
+    if (limit == null) dart.nullFailed(I[0], 40, 43, "limit");
+    if (min == null) dart.nullFailed(I[0], 40, 54, "min");
+    if (max == null) dart.nullFailed(I[0], 40, 63, "max");
+    return new (lazy.LazyRepeatingParser$(T)).new($this, limit, min, max);
+  };
+  lazy['LazyRepeatingParserExtension|get#repeatLazy'] = function LazyRepeatingParserExtension$124get$35repeatLazy(T, $this) {
+    if ($this == null) dart.nullFailed(I[0], 40, 19, "#this");
+    return dart.fn((limit, min, max) => {
+      if (limit == null) dart.nullFailed(I[0], 40, 43, "limit");
+      if (min == null) dart.nullFailed(I[0], 40, 54, "min");
+      if (max == null) dart.nullFailed(I[0], 40, 63, "max");
+      return lazy['LazyRepeatingParserExtension|repeatLazy'](T, $this, limit, min, max);
+    }, dart.fnType(parser.Parser$(core.List$(T)), [T$.ParserOfvoid(), core.int, core.int]));
+  };
+  const _is_GreedyRepeatingParser_default = Symbol('_is_GreedyRepeatingParser_default');
+  greedy.GreedyRepeatingParser$ = dart.generic(R => {
+    var JSArrayOfR = () => (JSArrayOfR = dart.constFn(_interceptors.JSArray$(R)))();
+    var ListOfR = () => (ListOfR = dart.constFn(core.List$(R)))();
+    var GreedyRepeatingParserOfR = () => (GreedyRepeatingParserOfR = dart.constFn(greedy.GreedyRepeatingParser$(R)))();
+    class GreedyRepeatingParser extends limited.LimitedRepeatingParser$(R) {
+      parseOn(context) {
+        if (context == null) dart.nullFailed(I[2], 52, 35, "context");
+        let current = context;
+        let elements = JSArrayOfR().of([]);
+        while (dart.notNull(elements[$length]) < dart.notNull(this.min)) {
+          let result = this.delegate.parseOn(current);
+          if (dart.test(result.isFailure)) {
+            return result.failure(ListOfR(), result.message);
+          }
+          elements[$add](result.value);
+          current = result;
+        }
+        let contexts = T$.JSArrayOfContext().of([current]);
+        while (this.max === -1 || dart.notNull(elements[$length]) < dart.notNull(this.max)) {
+          let result = this.delegate.parseOn(current);
+          if (dart.test(result.isFailure)) {
+            break;
+          }
+          elements[$add](result.value);
+          contexts[$add](current = result);
+        }
+        for (;;) {
+          let limiter = this.limit.parseOn(contexts[$last]);
+          if (dart.test(limiter.isSuccess)) {
+            return contexts[$last].success(ListOfR(), elements);
+          }
+          if (dart.test(elements[$isEmpty])) {
+            return limiter.failure(ListOfR(), limiter.message);
+          }
+          contexts[$removeLast]();
+          elements[$removeLast]();
+          if (dart.test(contexts[$isEmpty])) {
+            return limiter.failure(ListOfR(), limiter.message);
+          }
+        }
+      }
+      fastParseOn(buffer, position) {
+        if (buffer == null) dart.nullFailed(I[2], 89, 26, "buffer");
+        if (position == null) dart.nullFailed(I[2], 89, 38, "position");
+        let count = 0;
+        let current = position;
+        while (count < dart.notNull(this.min)) {
+          let result = this.delegate.fastParseOn(buffer, current);
+          if (dart.notNull(result) < 0) {
+            return -1;
+          }
+          current = result;
+          count = count + 1;
+        }
+        let positions = T$.JSArrayOfint().of([current]);
+        while (this.max === -1 || count < dart.notNull(this.max)) {
+          let result = this.delegate.fastParseOn(buffer, current);
+          if (dart.notNull(result) < 0) {
+            break;
+          }
+          positions[$add](current = result);
+          count = count + 1;
+        }
+        for (;;) {
+          let limiter = this.limit.fastParseOn(buffer, positions[$last]);
+          if (dart.notNull(limiter) >= 0) {
+            return positions[$last];
+          }
+          if (count === 0) {
+            return -1;
+          }
+          positions[$removeLast]();
+          count = count - 1;
+          if (dart.test(positions[$isEmpty])) {
+            return -1;
+          }
+        }
+      }
+      copy() {
+        return new (GreedyRepeatingParserOfR()).new(this.delegate, this.limit, this.min, this.max);
+      }
+    }
+    (GreedyRepeatingParser.new = function(parser, limit, min, max) {
+      if (parser == null) dart.nullFailed(I[2], 48, 35, "parser");
+      if (limit == null) dart.nullFailed(I[2], 48, 56, "limit");
+      if (min == null) dart.nullFailed(I[2], 48, 67, "min");
+      if (max == null) dart.nullFailed(I[2], 48, 76, "max");
+      GreedyRepeatingParser.__proto__.new.call(this, parser, limit, min, max);
+      ;
+    }).prototype = GreedyRepeatingParser.prototype;
+    dart.addTypeTests(GreedyRepeatingParser);
+    GreedyRepeatingParser.prototype[_is_GreedyRepeatingParser_default] = true;
+    dart.addTypeCaches(GreedyRepeatingParser);
+    dart.setMethodSignature(GreedyRepeatingParser, () => ({
+      __proto__: dart.getMethods(GreedyRepeatingParser.__proto__),
+      parseOn: dart.fnType(result.Result$(core.List$(R)), [context.Context]),
+      copy: dart.fnType(greedy.GreedyRepeatingParser$(R), [])
+    }));
+    dart.setLibraryUri(GreedyRepeatingParser, I[3]);
+    return GreedyRepeatingParser;
+  });
+  greedy.GreedyRepeatingParser = greedy.GreedyRepeatingParser$();
+  dart.addTypeTests(greedy.GreedyRepeatingParser, _is_GreedyRepeatingParser_default);
+  greedy['GreedyRepeatingParserExtension|starGreedy'] = function GreedyRepeatingParserExtension$124starGreedy(T, $this, limit) {
+    if ($this == null) dart.nullFailed(I[2], 19, 19, "#this");
+    if (limit == null) dart.nullFailed(I[2], 19, 43, "limit");
+    return greedy['GreedyRepeatingParserExtension|repeatGreedy'](T, $this, limit, 0, -1);
+  };
+  greedy['GreedyRepeatingParserExtension|get#starGreedy'] = function GreedyRepeatingParserExtension$124get$35starGreedy(T, $this) {
+    if ($this == null) dart.nullFailed(I[2], 19, 19, "#this");
+    return dart.fn(limit => {
+      if (limit == null) dart.nullFailed(I[2], 19, 43, "limit");
+      return greedy['GreedyRepeatingParserExtension|starGreedy'](T, $this, limit);
+    }, dart.fnType(parser.Parser$(core.List$(T)), [T$.ParserOfvoid()]));
+  };
+  greedy['GreedyRepeatingParserExtension|plusGreedy'] = function GreedyRepeatingParserExtension$124plusGreedy(T, $this, limit) {
+    if ($this == null) dart.nullFailed(I[2], 31, 19, "#this");
+    if (limit == null) dart.nullFailed(I[2], 31, 43, "limit");
+    return greedy['GreedyRepeatingParserExtension|repeatGreedy'](T, $this, limit, 1, -1);
+  };
+  greedy['GreedyRepeatingParserExtension|get#plusGreedy'] = function GreedyRepeatingParserExtension$124get$35plusGreedy(T, $this) {
+    if ($this == null) dart.nullFailed(I[2], 31, 19, "#this");
+    return dart.fn(limit => {
+      if (limit == null) dart.nullFailed(I[2], 31, 43, "limit");
+      return greedy['GreedyRepeatingParserExtension|plusGreedy'](T, $this, limit);
+    }, dart.fnType(parser.Parser$(core.List$(T)), [T$.ParserOfvoid()]));
+  };
+  greedy['GreedyRepeatingParserExtension|repeatGreedy'] = function GreedyRepeatingParserExtension$124repeatGreedy(T, $this, limit, min, max) {
+    if ($this == null) dart.nullFailed(I[2], 40, 19, "#this");
+    if (limit == null) dart.nullFailed(I[2], 40, 45, "limit");
+    if (min == null) dart.nullFailed(I[2], 40, 56, "min");
+    if (max == null) dart.nullFailed(I[2], 40, 65, "max");
+    return new (greedy.GreedyRepeatingParser$(T)).new($this, limit, min, max);
+  };
+  greedy['GreedyRepeatingParserExtension|get#repeatGreedy'] = function GreedyRepeatingParserExtension$124get$35repeatGreedy(T, $this) {
+    if ($this == null) dart.nullFailed(I[2], 40, 19, "#this");
+    return dart.fn((limit, min, max) => {
+      if (limit == null) dart.nullFailed(I[2], 40, 45, "limit");
+      if (min == null) dart.nullFailed(I[2], 40, 56, "min");
+      if (max == null) dart.nullFailed(I[2], 40, 65, "max");
+      return greedy['GreedyRepeatingParserExtension|repeatGreedy'](T, $this, limit, min, max);
+    }, dart.fnType(parser.Parser$(core.List$(T)), [T$.ParserOfvoid(), core.int, core.int]));
+  };
+  dart.trackLibraries("packages/petitparser/src/parser/repeater/lazy.dart", {
+    "package:petitparser/src/parser/repeater/lazy.dart": lazy,
+    "package:petitparser/src/parser/repeater/greedy.dart": greedy
+  }, {
+  }, '{"version":3,"sourceRoot":"","sources":["lazy.dart","greedy.dart"],"names":[],"mappings":"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","file":"../../../../../../../../../../../../E:/packages/petitparser/src/parser/repeater/lazy.dart.lib.js"}');
+  // Exports:
+  return {
+    src__parser__repeater__lazy: lazy,
+    src__parser__repeater__greedy: greedy
+  };
+}));
+
+//# sourceMappingURL=lazy.dart.lib.js.map
