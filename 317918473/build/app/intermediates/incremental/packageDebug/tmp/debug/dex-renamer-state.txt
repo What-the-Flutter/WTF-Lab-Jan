@@ -1,4 +1,4 @@
-#Fri May 07 22:16:40 EEST 2021
-base.0=E\:\\_Projects\\wtf_project\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+#Wed May 12 16:00:50 EEST 2021
+base.0=E\:\\_Projects\\WTF-Lab-Jan\\WTF-Lab-Jan\\317918473\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
