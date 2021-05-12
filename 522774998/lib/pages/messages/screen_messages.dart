@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hashtagable/widgets/hashtag_text.dart';
 import 'package:intl/intl.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../enums/enums.dart';
@@ -367,44 +368,42 @@ class _ScreenMessagesState extends State<ScreenMessages>
               flex: 5,
               child: Container(
                 height: 60,
-                child: ListView(
+                child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  children: List.generate(
-                    6,
-                    (index) {
-                      return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 15),
-                        child: Column(
-                          children: <Widget>[
-                            CircleAvatar(
-                              backgroundColor:
-                                  BlocProvider.of<ThemeCubit>(context)
-                                      .state
-                                      .theme
-                                      .accentColor,
-                              child: IconButton(
-                                icon: Icon(
-                                  listIconCategory[index].icon,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  context
-                                      .read<ScreenMessagesCubit>()
-                                      .changeCategory(
-                                          listIconCategory[index].icon);
-                                  setState(() {});
-                                },
+                  itemCount: 6,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: Column(
+                        children: <Widget>[
+                          CircleAvatar(
+                            backgroundColor:
+                                BlocProvider.of<ThemeCubit>(context)
+                                    .state
+                                    .theme
+                                    .accentColor,
+                            child: IconButton(
+                              icon: Icon(
+                                listIconCategory[index].icon,
+                                color: Colors.white,
                               ),
+                              onPressed: () {
+                                context
+                                    .read<ScreenMessagesCubit>()
+                                    .changeCategory(
+                                        listIconCategory[index].icon);
+                                setState(() {});
+                              },
                             ),
-                            Text(
-                              listIconCategory[index].title,
-                              style: TextStyle(color: Colors.black),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                          ),
+                          Text(
+                            listIconCategory[index].title,
+                            style: TextStyle(color: Colors.black),
+                          )
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -667,16 +666,16 @@ class SelectionAppBar extends StatelessWidget {
           builder: (context, setState) => Container(
             height: 200,
             width: 100,
-            child: ListView(
-              children: <Widget>[
-                for (var i = 0; i < list.length; i++)
-                  RadioListTile<int>(
-                    title: Text(list[i].title),
-                    value: i,
-                    groupValue: index,
-                    onChanged: (value) => setState(() => index = value),
-                  ),
-              ],
+            child: ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (context, i) {
+                return RadioListTile<int>(
+                  title: Text(list[i].title),
+                  value: i,
+                  groupValue: index,
+                  onChanged: (value) => setState(() => index = value),
+                );
+              },
             ),
           ),
         ),
@@ -765,6 +764,7 @@ class Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.read<ScreenMessagesCubit>().state;
+    final image = File(state.list[index].data);
     return Container(
       padding: EdgeInsets.all(10.0),
       child: Align(
@@ -817,11 +817,55 @@ class Message extends StatelessWidget {
                 if (state.list[index].icon != null)
                   Icon(state.list[index].icon),
                 File(state.list[index].data).existsSync() == true
-                    ? Container(
-                        width: 150,
-                        height: 250,
-                        child: Image.file(
-                          File(state.list[index].data),
+                    ? LayoutBuilder(
+                        builder: (context, constraints) => Container(
+                          constraints: BoxConstraints(
+                            minWidth: 150,
+                            minHeight: 250,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                              bottomLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(10),
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return PhotoView(
+                                        imageProvider: Image.file(image).image,
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                              child: Image(
+                                image: Image.file(
+                                  image,
+                                  cacheHeight: 250,
+                                  fit: BoxFit.fill,
+                                ).image,
+                                frameBuilder: (context, child, frame,
+                                    wasSynchronouslyLoaded) {
+                                  if (wasSynchronouslyLoaded) {
+                                    return child;
+                                  } else {
+                                    return AnimatedSwitcher(
+                                      duration:
+                                          const Duration(milliseconds: 500),
+                                      child: frame != null
+                                          ? child
+                                          : CircularProgressIndicator(),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
                         ),
                       )
                     : HashTagText(

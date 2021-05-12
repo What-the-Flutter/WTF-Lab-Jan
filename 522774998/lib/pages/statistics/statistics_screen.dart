@@ -2,7 +2,6 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import '../../theme/theme_cubit.dart';
 import 'statistics_screen_cubit.dart';
@@ -82,91 +81,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       );
     }
 
-    int _countPagesDay() {
-      final today = DateTime.now();
-      final i = BlocProvider.of<StatisticsCubit>(context)
-          .state
-          .pages
-          .where((element) => element.creationTime
-              .isAfter(DateTime(today.year, today.month, today.day)))
-          .length;
-      return i;
-    }
-
-    int _countMessagesDay() {
-      final today = DateTime.now();
-      return BlocProvider.of<StatisticsCubit>(context)
-          .state
-          .messages
-          .where((element) => element.time
-              .isAfter(DateTime(today.year, today.month, today.day)))
-          .length;
-    }
-
-    int _countBookmarksDay() {
-      final today = DateTime.now();
-      return BlocProvider.of<StatisticsCubit>(context)
-          .state
-          .messages
-          .where((element) => (element.time
-                  .isAfter(DateTime(today.year, today.month, today.day)) &&
-              element.isBookmark))
-          .length;
-    }
-
-    int _countTotalDay() {
-      return _countMessagesDay() + _countPagesDay() + _countBookmarksDay();
-    }
-
-    int _countPages(int daysAgo, int monthsAgo) {
-      final today = DateTime.now();
-      print(DateTime(today.year, today.month - monthsAgo, today.day - daysAgo));
-      print(DateTime(today.year, today.month, today.day));
-      return BlocProvider.of<StatisticsCubit>(context)
-          .state
-          .pages
-          .where(
-            (element) => (element.creationTime.isAfter(DateTime(today.year,
-                    today.month - monthsAgo, today.day - daysAgo)) &&
-                element.creationTime
-                    .isBefore(DateTime(today.year, today.month, today.day))),
-          )
-          .length;
-    }
-
-    int _countMessages(int daysAgo, int monthsAgo) {
-      final today = DateTime.now();
-      return BlocProvider.of<StatisticsCubit>(context)
-          .state
-          .messages
-          .where(
-            (element) => (element.time.isAfter(DateTime(today.year,
-                    today.month - monthsAgo, today.day - daysAgo)) &&
-                element.time
-                    .isBefore(DateTime(today.year, today.month, today.day))),
-          )
-          .length;
-    }
-
-    int _countBookmarks(int daysAgo, int monthsAgo) {
-      final today = DateTime.now();
-      return BlocProvider.of<StatisticsCubit>(context)
-          .state
-          .messages
-          .where((element) => (element.time.isAfter(DateTime(
-                  today.year, today.month - monthsAgo, today.day - daysAgo)) &&
-              element.isBookmark &&
-              element.time
-                  .isBefore(DateTime(today.year, today.month, today.day))))
-          .length;
-    }
-
-    int _countTotal(int daysAgo, int monthsAgo) {
-      return _countMessages(daysAgo, monthsAgo) +
-          _countPages(daysAgo, monthsAgo) +
-          _countBookmarks(daysAgo, monthsAgo);
-    }
-
     Widget _grid() {
       Widget _infoTile(int value, String text, Color color) {
         return Container(
@@ -199,13 +113,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         switch (BlocProvider.of<StatisticsCubit>(context).state.timeline) {
           case 'Today':
             return [
-              _infoTile(_countTotalDay(), 'Total', Colors.lightBlueAccent[100]),
               _infoTile(
-                  _countPagesDay(), 'Pages', Colors.lightGreenAccent[100]),
+                  BlocProvider.of<StatisticsCubit>(context).countTotalDay(),
+                  'Total',
+                  Colors.lightBlueAccent[100]),
               _infoTile(
-                  _countMessagesDay(), 'Messages', Colors.orangeAccent[100]),
+                  BlocProvider.of<StatisticsCubit>(context).countPagesDay(),
+                  'Pages',
+                  Colors.lightGreenAccent[100]),
               _infoTile(
-                  _countBookmarksDay(), 'Bookmarks', Colors.purpleAccent[100]),
+                  BlocProvider.of<StatisticsCubit>(context).countMessagesDay(),
+                  'Messages',
+                  Colors.orangeAccent[100]),
+              _infoTile(
+                  BlocProvider.of<StatisticsCubit>(context).countBookmarksDay(),
+                  'Bookmarks',
+                  Colors.purpleAccent[100]),
             ];
           case 'Past 7 days':
             daysAgo = 7;
@@ -217,13 +140,25 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             monthsAgo = DateTime.now().month - DateTime.january;
         }
         return [
-          _infoTile(_countTotal(daysAgo, monthsAgo), 'Total',
+          _infoTile(
+              BlocProvider.of<StatisticsCubit>(context)
+                  .countTotal(daysAgo, monthsAgo),
+              'Total',
               Colors.lightBlueAccent[100]),
-          _infoTile(_countPages(daysAgo, monthsAgo), 'Pages',
+          _infoTile(
+              BlocProvider.of<StatisticsCubit>(context)
+                  .countPages(daysAgo, monthsAgo),
+              'Pages',
               Colors.lightGreenAccent[100]),
-          _infoTile(_countMessages(daysAgo, monthsAgo), 'Messages',
+          _infoTile(
+              BlocProvider.of<StatisticsCubit>(context)
+                  .countMessages(daysAgo, monthsAgo),
+              'Messages',
               Colors.orangeAccent[100]),
-          _infoTile(_countBookmarks(daysAgo, monthsAgo), 'Bookmarks',
+          _infoTile(
+              BlocProvider.of<StatisticsCubit>(context)
+                  .countBookmarks(daysAgo, monthsAgo),
+              'Bookmarks',
               Colors.purpleAccent[100]),
         ];
       }
@@ -239,194 +174,101 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       );
     }
 
-    List<Statistics> generateHoursStatistics(
-        int start, int end, Function(int) func) {
-      final list = <Statistics>[];
-      for (var i = start; i <= end; i++) {
-        list.add(Statistics('$i', func(i)));
-      }
-      return list;
-    }
-
-    List<Statistics> generateDaysStatistics(
-        int start, int end, Function(int) func) {
-      final list = <Statistics>[];
-      for (var i = end; i >= start; i--) {
-        list.add(Statistics(
-            DateFormat('EEEE')
-                .format(DateTime.now().subtract(Duration(days: i)))
-                .substring(0, 3),
-            func(i)));
-      }
-      return list;
-    }
-
-    List<Statistics> generateMonthStatistics(
-        int start, int end, Function(int) func) {
-      final list = <Statistics>[];
-      for (var i = end; i >= start; i--) {
-        list.add(Statistics(
-            DateFormat('d').format(DateTime.now().subtract(Duration(days: i))),
-            func(i)));
-      }
-      return list;
-    }
-
-    List<Statistics> generateYearStatistics(
-        int start, int end, Function(int) func) {
-      final list = <Statistics>[];
-      final today = DateTime.now();
-      DateTime date;
-      for (var i = start; i >= end - 1; i--) {
-        date = today;
-        date = DateTime(date.year, date.month - i, date.day, 0, 0);
-        list.add(Statistics(
-            DateFormat('MMM').format(date).substring(0, 3), func(i + 1)));
-        print('DATE $date');
-      }
-      return list;
-    }
-
     Widget _chart() {
-      final today = DateTime.now();
       List<charts.Series<Statistics, String>> createTodayData() {
-        var today = DateTime.now();
-        today = DateTime(today.year, today.month, today.day, 0, 0);
-
-        int countPages(int start) => BlocProvider.of<StatisticsCubit>(context)
-            .state
-            .pages
-            .where((element) =>
-                (element.creationTime.isAfter(
-                    DateTime(today.year, today.month, today.day, start, 0))) &&
-                element.creationTime.isBefore(
-                    DateTime(today.year, today.month, today.day, start + 1, 0)))
-            .length;
-
-        int countMessages(int start) => BlocProvider.of<StatisticsCubit>(
-                context)
-            .state
-            .messages
-            .where((element) =>
-                (element.time.isAfter(
-                    DateTime(today.year, today.month, today.day, start, 0))) &&
-                element.time.isBefore(
-                    DateTime(today.year, today.month, today.day, start + 1, 0)))
-            .length;
-
-        int countBookmarks(int start) => BlocProvider.of<StatisticsCubit>(
-                context)
-            .state
-            .messages
-            .where((element) =>
-                (element.isBookmark &&
-                    element.time.isAfter(DateTime(
-                        today.year, today.month, today.day, start, 0))) &&
-                element.time.isBefore(
-                    DateTime(today.year, today.month, today.day, start + 1, 0)))
-            .length;
-
-        int countTotal(int start) =>
-            countBookmarks(start) + countMessages(start) + countPages(start);
-
         return [
           charts.Series<Statistics, String>(
             id: 'total',
             measureFn: (sales, _) => sales.value,
-            data: generateHoursStatistics(0, 24, countTotal),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateHoursStatistics(0, 24,
+                    BlocProvider.of<StatisticsCubit>(context).countTotalHours),
             colorFn: (_, __) => charts.Color.fromHex(code: '#A4EAF1'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'pages',
             measureFn: (sales, _) => sales.value,
-            data: generateHoursStatistics(0, 24, countPages),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateHoursStatistics(0, 24,
+                    BlocProvider.of<StatisticsCubit>(context).countPagesHours),
             colorFn: (_, __) => charts.Color.fromHex(code: '#BAF67F'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'messages',
             measureFn: (sales, _) => sales.value,
-            data: generateHoursStatistics(0, 24, countMessages),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateHoursStatistics(
+                    0,
+                    24,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countMessagesHours),
             colorFn: (_, __) => charts.Color.fromHex(code: '#FFC966'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'bookmarks',
             measureFn: (sales, _) => sales.value,
-            data: generateHoursStatistics(0, 24, countBookmarks),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateHoursStatistics(
+                    0,
+                    24,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countBookmarksHours),
             colorFn: (_, __) => charts.Color.fromHex(code: '#EE82EE'),
             domainFn: (sales, _) => sales.text,
           ),
         ];
       }
 
-      int countPagesForDays(int daysAgo) =>
-          BlocProvider.of<StatisticsCubit>(context)
-              .state
-              .pages
-              .where((element) =>
-                  (element.creationTime.isAfter(DateTime(
-                      today.year, today.month, today.day - daysAgo, 0, 0))) &&
-                  element.creationTime.isBefore(DateTime(
-                      today.year, today.month, today.day - daysAgo + 1, 0, 0)))
-              .length;
-
-      int countMessagesForDays(int daysAgo) =>
-          BlocProvider.of<StatisticsCubit>(context)
-              .state
-              .messages
-              .where((element) =>
-                  (element.time.isAfter(DateTime(
-                      today.year, today.month, today.day - daysAgo, 0, 0))) &&
-                  element.time.isBefore(DateTime(
-                      today.year, today.month, today.day - daysAgo + 1, 0, 0)))
-              .length;
-
-      int countBookmarksForDays(int daysAgo) =>
-          BlocProvider.of<StatisticsCubit>(context)
-              .state
-              .messages
-              .where((element) =>
-                  (element.isBookmark &&
-                      element.time.isAfter(DateTime(today.year, today.month,
-                          today.day - daysAgo, 0, 0))) &&
-                  element.time.isBefore(DateTime(
-                      today.year, today.month, today.day - daysAgo + 1, 0, 0)))
-              .length;
-
-      int countTotalForDays(int daysAgo) =>
-          countBookmarksForDays(daysAgo) +
-          countMessagesForDays(daysAgo) +
-          countPagesForDays(daysAgo);
-
       List<charts.Series<Statistics, String>> createWeekData() {
         return [
           charts.Series<Statistics, String>(
             id: 'total',
             measureFn: (sales, _) => sales.value,
-            data: generateDaysStatistics(1, 7, countTotalForDays),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateDaysStatistics(
+                    1,
+                    7,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countTotalForDays),
             colorFn: (_, __) => charts.Color.fromHex(code: '#A4EAF1'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'pages',
             measureFn: (sales, _) => sales.value,
-            data: generateDaysStatistics(1, 7, countPagesForDays),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateDaysStatistics(
+                    1,
+                    7,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countPagesForDays),
             colorFn: (_, __) => charts.Color.fromHex(code: '#BAF67F'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'messages',
             measureFn: (sales, _) => sales.value,
-            data: generateDaysStatistics(1, 7, countMessagesForDays),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateDaysStatistics(
+                    1,
+                    7,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countMessagesForDays),
             colorFn: (_, __) => charts.Color.fromHex(code: '#FFC966'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'bookmarks',
             measureFn: (sales, _) => sales.value,
-            data: generateDaysStatistics(1, 7, countBookmarksForDays),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateDaysStatistics(
+                    1,
+                    7,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countBookmarksForDays),
             colorFn: (_, __) => charts.Color.fromHex(code: '#EE82EE'),
             domainFn: (sales, _) => sales.text,
           ),
@@ -438,28 +280,48 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           charts.Series<Statistics, String>(
             id: 'total',
             measureFn: (sales, _) => sales.value,
-            data: generateMonthStatistics(1, 20, countTotalForDays),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateMonthStatistics(
+                    1,
+                    20,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countTotalForDays),
             colorFn: (_, __) => charts.Color.fromHex(code: '#A4EAF1'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'pages',
             measureFn: (sales, _) => sales.value,
-            data: generateMonthStatistics(1, 20, countPagesForDays),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateMonthStatistics(
+                    1,
+                    20,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countPagesForDays),
             colorFn: (_, __) => charts.Color.fromHex(code: '#BAF67F'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'messages',
             measureFn: (sales, _) => sales.value,
-            data: generateMonthStatistics(1, 20, countMessagesForDays),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateMonthStatistics(
+                    1,
+                    20,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countMessagesForDays),
             colorFn: (_, __) => charts.Color.fromHex(code: '#FFC966'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'bookmarks',
             measureFn: (sales, _) => sales.value,
-            data: generateMonthStatistics(1, 20, countBookmarksForDays),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateMonthStatistics(
+                    1,
+                    20,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countBookmarksForDays),
             colorFn: (_, __) => charts.Color.fromHex(code: '#EE82EE'),
             domainFn: (sales, _) => sales.text,
           ),
@@ -467,77 +329,52 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       }
 
       List<charts.Series<Statistics, String>> createYearData() {
-        final today = DateTime.now();
-
-        int countPages(int monthsAgo) => BlocProvider.of<StatisticsCubit>(
-                context)
-            .state
-            .pages
-            .where((element) =>
-                (element.creationTime.isAfter(DateTime(
-                    today.year, today.month - monthsAgo, today.day, 0, 0))) &&
-                element.creationTime.isBefore(DateTime(
-                    today.year, today.month - monthsAgo + 1, today.day, 0, 0)))
-            .length;
-
-        int countMessages(int monthsAgo) => BlocProvider.of<StatisticsCubit>(
-                context)
-            .state
-            .messages
-            .where((element) =>
-                (element.time.isAfter(DateTime(
-                    today.year, today.month - monthsAgo, today.day, 0, 0))) &&
-                element.time.isBefore(DateTime(
-                    today.year, today.month - monthsAgo + 1, today.day, 0, 0)))
-            .length;
-
-        int countBookmarks(int monthsAgo) =>
-            BlocProvider.of<StatisticsCubit>(context)
-                .state
-                .messages
-                .where((element) =>
-                    (element.isBookmark &&
-                        element.time.isAfter(DateTime(today.year,
-                            today.month - monthsAgo, today.day, 0, 0))) &&
-                    element.time.isBefore(DateTime(today.year,
-                        today.month - monthsAgo + 1, today.day, 0, 0)))
-                .length;
-
-        int countTotal(int monthsAgo) =>
-            countBookmarks(monthsAgo) +
-            countMessages(monthsAgo) +
-            countPages(monthsAgo);
-
         return [
           charts.Series<Statistics, String>(
             id: 'total',
             measureFn: (sales, _) => sales.value,
-            data: generateYearStatistics(
-                DateTime.now().month, DateTime.january, countTotal),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateYearStatistics(
+                    DateTime.now().month,
+                    DateTime.january,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countTotalForMonths),
             colorFn: (_, __) => charts.Color.fromHex(code: '#A4EAF1'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'pages',
             measureFn: (sales, _) => sales.value,
-            data:
-                generateYearStatistics(DateTime.now().month, DateTime.january, countPages),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateYearStatistics(
+                    DateTime.now().month,
+                    DateTime.january,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countPagesForMonths),
             colorFn: (_, __) => charts.Color.fromHex(code: '#BAF67F'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'messages',
             measureFn: (sales, _) => sales.value,
-            data: generateYearStatistics(
-                DateTime.now().month, DateTime.january, countMessages),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateYearStatistics(
+                    DateTime.now().month,
+                    DateTime.january,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countMessagesForMonths),
             colorFn: (_, __) => charts.Color.fromHex(code: '#FFC966'),
             domainFn: (sales, _) => sales.text,
           ),
           charts.Series<Statistics, String>(
             id: 'bookmarks',
             measureFn: (sales, _) => sales.value,
-            data: generateYearStatistics(
-                DateTime.now().month, DateTime.january, countBookmarks),
+            data: BlocProvider.of<StatisticsCubit>(context)
+                .generateYearStatistics(
+                    DateTime.now().month,
+                    DateTime.january,
+                    BlocProvider.of<StatisticsCubit>(context)
+                        .countBookmarksForMonths),
             colorFn: (_, __) => charts.Color.fromHex(code: '#EE82EE'),
             domainFn: (sales, _) => sales.text,
           ),
@@ -581,14 +418,4 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ],
     );
   }
-}
-
-class Statistics {
-  final String text;
-  final int value;
-
-  Statistics(
-    this.text,
-    this.value,
-  );
 }
