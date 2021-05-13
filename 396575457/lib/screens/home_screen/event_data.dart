@@ -1,17 +1,21 @@
-import 'package:diary_in_chat_format_app/screens/home_screen/event.dart';
+import 'event.dart';
 
 class EventData {
-  List<Event> _data = <Event> [
+  final List<Event> _data = <Event>[
     Event('FirstEvent'),
     Event('SecondEvent'),
     Event('ThirdEvent'),
   ];
 
-  get receiveEventsList {
+  List<Event> get eventsList {
     return _data;
   }
 
-  int size() {
+  int get size {
     return _data.length;
+  }
+
+  String getTitleByIndex(int i) {
+    return _data.elementAt(i).title;
   }
 }
