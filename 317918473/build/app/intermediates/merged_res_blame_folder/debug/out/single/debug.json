@@ -20,10 +20,6 @@
         "source": "E:\\_Projects\\WTF-Lab-Jan\\WTF-Lab-Jan\\317918473\\android\\app\\src\\main\\res\\mipmap-hdpi\\ic_launcher.png"
     },
     {
-        "merged": "E:\\_Projects\\WTF-Lab-Jan\\WTF-Lab-Jan\\317918473\\build\\app\\intermediates\\res\\merged\\debug\\drawable_launch_background.xml.flat",
-        "source": "E:\\_Projects\\WTF-Lab-Jan\\WTF-Lab-Jan\\317918473\\android\\app\\src\\main\\res\\drawable\\launch_background.xml"
-    },
-    {
         "merged": "E:\\_Projects\\WTF-Lab-Jan\\WTF-Lab-Jan\\317918473\\build\\app\\intermediates\\res\\merged\\debug\\mipmap-xxhdpi_ic_launcher.png.flat",
         "source": "E:\\_Projects\\WTF-Lab-Jan\\WTF-Lab-Jan\\317918473\\android\\app\\src\\main\\res\\mipmap-xxhdpi\\ic_launcher.png"
     }

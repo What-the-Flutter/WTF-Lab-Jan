@@ -18,13 +18,15 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
   flutter_svg: ^0.22.0
+  image_picker: ^0.7.5
+  provider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +61,5 @@ flutter:
     - family: AlegreyaSans
       fonts:
         - asset: assets/fonts/AlegreyaSans-Medium.ttf
-  #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
