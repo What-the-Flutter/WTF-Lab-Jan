@@ -1,0 +1,1096 @@
+define(['dart_sdk', 'packages/flutter_svg/src/picture_stream.dart', 'packages/flutter_svg/src/svg/xml_parsers.dart', 'packages/flutter_svg/parser.dart', 'packages/flutter/src/painting/box_fit.dart', 'packages/flutter/src/painting/alignment.dart', 'packages/flutter_svg/src/picture_provider.dart', 'packages/flutter/src/widgets/widget_span.dart', 'packages/flutter_svg/src/render_picture.dart', 'packages/flutter_svg/src/unbounded_color_filtered.dart', 'packages/flutter/src/foundation/debug.dart'], (function load__packages__flutter_svg__svg_dart(dart_sdk, packages__flutter_svg__src__picture_stream$46dart, packages__flutter_svg__src__svg__xml_parsers$46dart, packages__flutter_svg__parser$46dart, packages__flutter__src__painting__box_fit$46dart, packages__flutter__src__painting__alignment$46dart, packages__flutter_svg__src__picture_provider$46dart, packages__flutter__src__widgets__widget_span$46dart, packages__flutter_svg__src__render_picture$46dart, packages__flutter_svg__src__unbounded_color_filtered$46dart, packages__flutter__src__foundation__debug$46dart) {
+  'use strict';
+  const core = dart_sdk.core;
+  const async = dart_sdk.async;
+  const convert = dart_sdk.convert;
+  const typed_data = dart_sdk.typed_data;
+  const ui = dart_sdk.ui;
+  const _engine = dart_sdk._engine;
+  const _internal = dart_sdk._internal;
+  const dart = dart_sdk.dart;
+  const dartx = dart_sdk.dartx;
+  const picture_stream = packages__flutter_svg__src__picture_stream$46dart.src__picture_stream;
+  const vector_drawable = packages__flutter_svg__src__svg__xml_parsers$46dart.src__vector_drawable;
+  const parser$ = packages__flutter_svg__parser$46dart.parser;
+  const box_fit = packages__flutter__src__painting__box_fit$46dart.src__painting__box_fit;
+  const alignment = packages__flutter__src__painting__alignment$46dart.src__painting__alignment;
+  const picture_provider = packages__flutter_svg__src__picture_provider$46dart.src__picture_provider;
+  const framework = packages__flutter__src__widgets__widget_span$46dart.src__widgets__framework;
+  const basic = packages__flutter__src__widgets__widget_span$46dart.src__widgets__basic;
+  const widget_inspector = packages__flutter__src__widgets__widget_span$46dart.src__widgets__widget_inspector;
+  const ticker_provider = packages__flutter__src__widgets__widget_span$46dart.src__widgets__ticker_provider;
+  const render_picture = packages__flutter_svg__src__render_picture$46dart.src__render_picture;
+  const unbounded_color_filtered = packages__flutter_svg__src__unbounded_color_filtered$46dart.src__unbounded_color_filtered;
+  const diagnostics = packages__flutter__src__foundation__debug$46dart.src__foundation__diagnostics;
+  const assertions = packages__flutter__src__foundation__debug$46dart.src__foundation__assertions;
+  var svg = Object.create(dart.library);
+  dart._checkModuleNullSafetyMode(false);
+  var T = {
+    _LocationL: () => (T._LocationL = dart.constFn(dart.legacy(widget_inspector._Location)))(),
+    BuildContextToLimitedBox: () => (T.BuildContextToLimitedBox = dart.constFn(dart.fnType(basic.LimitedBox, [framework.BuildContext])))(),
+    FutureOfPictureInfo: () => (T.FutureOfPictureInfo = dart.constFn(async.Future$(picture_stream.PictureInfo)))(),
+    ColorFilterN: () => (T.ColorFilterN = dart.constFn(dart.nullable(ui.ColorFilter)))(),
+    Uint8ListAndColorFilterNAndStringToFutureOfPictureInfo: () => (T.Uint8ListAndColorFilterNAndStringToFutureOfPictureInfo = dart.constFn(dart.fnType(T.FutureOfPictureInfo(), [typed_data.Uint8List, T.ColorFilterN(), core.String])))(),
+    StringAndColorFilterNAndStringToFutureOfPictureInfo: () => (T.StringAndColorFilterNAndStringToFutureOfPictureInfo = dart.constFn(dart.fnType(T.FutureOfPictureInfo(), [core.String, T.ColorFilterN(), core.String])))(),
+    VoidTovoid: () => (T.VoidTovoid = dart.constFn(dart.fnType(dart.void, [])))(),
+    VoidToWidget: () => (T.VoidToWidget = dart.constFn(dart.fnType(framework.Widget, [])))(),
+    WidgetTodynamic: () => (T.WidgetTodynamic = dart.constFn(dart.fnType(dart.dynamic, [framework.Widget])))(),
+    DiagnosticsPropertyOfPictureStream: () => (T.DiagnosticsPropertyOfPictureStream = dart.constFn(diagnostics.DiagnosticsProperty$(picture_stream.PictureStream)))(),
+    CompleterOfvoid: () => (T.CompleterOfvoid = dart.constFn(async.Completer$(dart.void)))(),
+    PictureInfoN: () => (T.PictureInfoN = dart.constFn(dart.nullable(picture_stream.PictureInfo)))(),
+    PictureInfoNAndboolTovoid: () => (T.PictureInfoNAndboolTovoid = dart.constFn(dart.fnType(dart.void, [T.PictureInfoN(), core.bool])))(),
+    ObjectAndStackTraceTovoid: () => (T.ObjectAndStackTraceTovoid = dart.constFn(dart.fnType(dart.void, [core.Object, core.StackTrace])))()
+  };
+  var T$Eval = Object.assign({
+    _: () => T$Eval
+  }, T);
+  var S = {
+    _: () => S
+  };
+  var S$Eval = Object.assign({
+    _: () => S$Eval
+  }, S);
+  const CT = Object.create({
+    _: () => (C, CT)
+  });
+  dart.defineLazy(CT, {
+    get C0() {
+      return C[0] = dart.const({
+        __proto__: box_fit.BoxFit.prototype,
+        [_name]: "BoxFit.contain",
+        index: 1
+      });
+    },
+    get C1() {
+      return C[1] = dart.const({
+        __proto__: alignment.Alignment.prototype,
+        [Alignment_y]: 0,
+        [Alignment_x]: 0
+      });
+    },
+    get C2() {
+      return C[2] = dart.const({
+        __proto__: ui.Clip.prototype,
+        [_name$]: "Clip.hardEdge",
+        index: 1
+      });
+    },
+    get C3() {
+      return C[3] = dart.const({
+        __proto__: ui.BlendMode.prototype,
+        [_name$]: "BlendMode.srcIn",
+        index: 5
+      });
+    },
+    get C6() {
+      return C[6] = dart.constList([], T._LocationL());
+    },
+    get C5() {
+      return C[5] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: C[6] || CT.C6,
+        [_Location_name]: null,
+        [_Location_column]: 35,
+        [_Location_line]: 558,
+        [_Location_file]: "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart"
+      });
+    },
+    get C4() {
+      return C[4] = dart.const({
+        __proto__: basic.LimitedBox.prototype,
+        [Widget__location]: C[5] || CT.C5,
+        [Widget_key]: null,
+        [SingleChildRenderObjectWidget_child]: null,
+        [LimitedBox_maxHeight]: 1 / 0,
+        [LimitedBox_maxWidth]: 1 / 0
+      });
+    },
+    get C9() {
+      return C[9] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "picture",
+        [_Location_column]: 15,
+        [_Location_line]: 782,
+        [_Location_file]: null
+      });
+    },
+    get C10() {
+      return C[10] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "matchTextDirection",
+        [_Location_column]: 15,
+        [_Location_line]: 783,
+        [_Location_file]: null
+      });
+    },
+    get C11() {
+      return C[11] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "allowDrawingOutsideViewBox",
+        [_Location_column]: 15,
+        [_Location_line]: 784,
+        [_Location_file]: null
+      });
+    },
+    get C8() {
+      return C[8] = dart.constList([C[9] || CT.C9, C[10] || CT.C10, C[11] || CT.C11], T._LocationL());
+    },
+    get C7() {
+      return C[7] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: C[8] || CT.C8,
+        [_Location_name]: null,
+        [_Location_column]: 20,
+        [_Location_line]: 781,
+        [_Location_file]: "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart"
+      });
+    },
+    get C14() {
+      return C[14] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "size",
+        [_Location_column]: 13,
+        [_Location_line]: 780,
+        [_Location_file]: null
+      });
+    },
+    get C15() {
+      return C[15] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "child",
+        [_Location_column]: 13,
+        [_Location_line]: 781,
+        [_Location_file]: null
+      });
+    },
+    get C13() {
+      return C[13] = dart.constList([C[14] || CT.C14, C[15] || CT.C15], T._LocationL());
+    },
+    get C12() {
+      return C[12] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: C[13] || CT.C13,
+        [_Location_name]: null,
+        [_Location_column]: 27,
+        [_Location_line]: 779,
+        [_Location_file]: "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart"
+      });
+    },
+    get C18() {
+      return C[18] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "fit",
+        [_Location_column]: 11,
+        [_Location_line]: 776,
+        [_Location_file]: null
+      });
+    },
+    get C19() {
+      return C[19] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "alignment",
+        [_Location_column]: 11,
+        [_Location_line]: 777,
+        [_Location_file]: null
+      });
+    },
+    get C20() {
+      return C[20] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "clipBehavior",
+        [_Location_column]: 11,
+        [_Location_line]: 778,
+        [_Location_file]: null
+      });
+    },
+    get C21() {
+      return C[21] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "child",
+        [_Location_column]: 11,
+        [_Location_line]: 779,
+        [_Location_file]: null
+      });
+    },
+    get C17() {
+      return C[17] = dart.constList([C[18] || CT.C18, C[19] || CT.C19, C[20] || CT.C20, C[21] || CT.C21], T._LocationL());
+    },
+    get C16() {
+      return C[16] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: C[17] || CT.C17,
+        [_Location_name]: null,
+        [_Location_column]: 16,
+        [_Location_line]: 775,
+        [_Location_file]: "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart"
+      });
+    },
+    get C24() {
+      return C[24] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "width",
+        [_Location_column]: 9,
+        [_Location_line]: 773,
+        [_Location_file]: null
+      });
+    },
+    get C25() {
+      return C[25] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "height",
+        [_Location_column]: 9,
+        [_Location_line]: 774,
+        [_Location_file]: null
+      });
+    },
+    get C26() {
+      return C[26] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "child",
+        [_Location_column]: 9,
+        [_Location_line]: 775,
+        [_Location_file]: null
+      });
+    },
+    get C23() {
+      return C[23] = dart.constList([C[24] || CT.C24, C[25] || CT.C25, C[26] || CT.C26], T._LocationL());
+    },
+    get C22() {
+      return C[22] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: C[23] || CT.C23,
+        [_Location_name]: null,
+        [_Location_column]: 15,
+        [_Location_line]: 772,
+        [_Location_file]: "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart"
+      });
+    },
+    get C29() {
+      return C[29] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "colorFilter",
+        [_Location_column]: 11,
+        [_Location_line]: 793,
+        [_Location_file]: null
+      });
+    },
+    get C30() {
+      return C[30] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "child",
+        [_Location_column]: 11,
+        [_Location_line]: 794,
+        [_Location_file]: null
+      });
+    },
+    get C28() {
+      return C[28] = dart.constList([C[29] || CT.C29, C[30] || CT.C30], T._LocationL());
+    },
+    get C27() {
+      return C[27] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: C[28] || CT.C28,
+        [_Location_name]: null,
+        [_Location_column]: 17,
+        [_Location_line]: 792,
+        [_Location_file]: "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart"
+      });
+    },
+    get C33() {
+      return C[33] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "container",
+        [_Location_column]: 9,
+        [_Location_line]: 804,
+        [_Location_file]: null
+      });
+    },
+    get C34() {
+      return C[34] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "image",
+        [_Location_column]: 9,
+        [_Location_line]: 805,
+        [_Location_file]: null
+      });
+    },
+    get C35() {
+      return C[35] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "label",
+        [_Location_column]: 9,
+        [_Location_line]: 806,
+        [_Location_file]: null
+      });
+    },
+    get C36() {
+      return C[36] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "child",
+        [_Location_column]: 9,
+        [_Location_line]: 807,
+        [_Location_file]: null
+      });
+    },
+    get C32() {
+      return C[32] = dart.constList([C[33] || CT.C33, C[34] || CT.C34, C[35] || CT.C35, C[36] || CT.C36], T._LocationL());
+    },
+    get C31() {
+      return C[31] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: C[32] || CT.C32,
+        [_Location_name]: null,
+        [_Location_column]: 15,
+        [_Location_line]: 803,
+        [_Location_file]: "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart"
+      });
+    },
+    get C39() {
+      return C[39] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "width",
+        [_Location_column]: 23,
+        [_Location_line]: 816,
+        [_Location_file]: null
+      });
+    },
+    get C40() {
+      return C[40] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: null,
+        [_Location_name]: "height",
+        [_Location_column]: 37,
+        [_Location_line]: 816,
+        [_Location_file]: null
+      });
+    },
+    get C38() {
+      return C[38] = dart.constList([C[39] || CT.C39, C[40] || CT.C40], T._LocationL());
+    },
+    get C37() {
+      return C[37] = dart.const({
+        __proto__: widget_inspector._Location.prototype,
+        [_Location_parameterLocations]: C[38] || CT.C38,
+        [_Location_name]: null,
+        [_Location_column]: 14,
+        [_Location_line]: 816,
+        [_Location_file]: "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart"
+      });
+    }
+  }, false);
+  var C = Array(41).fill(void 0);
+  var I = [
+    "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/svg.dart",
+    "package:flutter_svg/svg.dart"
+  ];
+  var cacheColorFilterOverride = dart.privateName(svg, "Svg.cacheColorFilterOverride");
+  svg.Svg = class Svg extends core.Object {
+    get cacheColorFilterOverride() {
+      return this[cacheColorFilterOverride];
+    }
+    set cacheColorFilterOverride(value) {
+      this[cacheColorFilterOverride] = value;
+    }
+    svgPictureDecoder(raw, allowDrawingOutsideOfViewBox, colorFilter, key) {
+      if (raw == null) dart.nullFailed(I[0], 48, 15, "raw");
+      if (allowDrawingOutsideOfViewBox == null) dart.nullFailed(I[0], 49, 10, "allowDrawingOutsideOfViewBox");
+      if (key == null) dart.nullFailed(I[0], 51, 12, "key");
+      return async.async(picture_stream.PictureInfo, (function* svgPictureDecoder() {
+        let svgRoot = (yield this.fromSvgBytes(raw, key));
+        let pic = svgRoot.toPicture({clipToViewBox: allowDrawingOutsideOfViewBox === true ? false : true, colorFilter: colorFilter});
+        return new picture_stream.PictureInfo.new({picture: pic, viewport: svgRoot.viewport.viewBoxRect, size: svgRoot.viewport.size});
+      }).bind(this));
+    }
+    svgPictureStringDecoder(raw, allowDrawingOutsideOfViewBox, colorFilter, key) {
+      if (raw == null) dart.nullFailed(I[0], 76, 14, "raw");
+      if (allowDrawingOutsideOfViewBox == null) dart.nullFailed(I[0], 77, 12, "allowDrawingOutsideOfViewBox");
+      if (key == null) dart.nullFailed(I[0], 79, 14, "key");
+      return async.async(picture_stream.PictureInfo, (function* svgPictureStringDecoder() {
+        let svg = (yield this.fromSvgString(raw, key));
+        return new picture_stream.PictureInfo.new({picture: svg.toPicture({clipToViewBox: allowDrawingOutsideOfViewBox === true ? false : true, colorFilter: colorFilter, size: svg.viewport.viewBox}), viewport: svg.viewport.viewBoxRect, size: svg.viewport.size});
+      }).bind(this));
+    }
+    fromSvgBytes(raw, key) {
+      if (raw == null) dart.nullFailed(I[0], 96, 47, "raw");
+      if (key == null) dart.nullFailed(I[0], 96, 59, "key");
+      return async.async(vector_drawable.DrawableRoot, (function* fromSvgBytes() {
+        return this.fromSvgString(convert.utf8.decode(raw), key);
+      }).bind(this));
+    }
+    fromSvgString(rawSvg, key) {
+      if (rawSvg == null) dart.nullFailed(I[0], 117, 45, "rawSvg");
+      if (key == null) dart.nullFailed(I[0], 117, 60, "key");
+      return async.async(vector_drawable.DrawableRoot, function* fromSvgString() {
+        let parser = new parser$.SvgParser.new();
+        return yield parser.parse(rawSvg, {key: key});
+      });
+    }
+  };
+  (svg.Svg.__ = function() {
+    this[cacheColorFilterOverride] = null;
+    ;
+  }).prototype = svg.Svg.prototype;
+  dart.addTypeTests(svg.Svg);
+  dart.addTypeCaches(svg.Svg);
+  dart.setMethodSignature(svg.Svg, () => ({
+    __proto__: dart.getMethods(svg.Svg.__proto__),
+    svgPictureDecoder: dart.fnType(async.Future$(picture_stream.PictureInfo), [typed_data.Uint8List, core.bool, dart.nullable(ui.ColorFilter), core.String]),
+    svgPictureStringDecoder: dart.fnType(async.Future$(picture_stream.PictureInfo), [core.String, core.bool, dart.nullable(ui.ColorFilter), core.String]),
+    fromSvgBytes: dart.fnType(async.Future$(vector_drawable.DrawableRoot), [typed_data.Uint8List, core.String]),
+    fromSvgString: dart.fnType(async.Future$(vector_drawable.DrawableRoot), [core.String, core.String])
+  }));
+  dart.setLibraryUri(svg.Svg, I[1]);
+  dart.setFieldSignature(svg.Svg, () => ({
+    __proto__: dart.getFields(svg.Svg.__proto__),
+    cacheColorFilterOverride: dart.fieldType(dart.nullable(core.bool))
+  }));
+  var width$ = dart.privateName(svg, "SvgPicture.width");
+  var height$ = dart.privateName(svg, "SvgPicture.height");
+  var fit$ = dart.privateName(svg, "SvgPicture.fit");
+  var alignment$ = dart.privateName(svg, "SvgPicture.alignment");
+  var pictureProvider$ = dart.privateName(svg, "SvgPicture.pictureProvider");
+  var placeholderBuilder$ = dart.privateName(svg, "SvgPicture.placeholderBuilder");
+  var matchTextDirection$ = dart.privateName(svg, "SvgPicture.matchTextDirection");
+  var allowDrawingOutsideViewBox$ = dart.privateName(svg, "SvgPicture.allowDrawingOutsideViewBox");
+  var semanticsLabel$ = dart.privateName(svg, "SvgPicture.semanticsLabel");
+  var excludeFromSemantics$ = dart.privateName(svg, "SvgPicture.excludeFromSemantics");
+  var clipBehavior$ = dart.privateName(svg, "SvgPicture.clipBehavior");
+  var colorFilter$ = dart.privateName(svg, "SvgPicture.colorFilter");
+  var cacheColorFilter$ = dart.privateName(svg, "SvgPicture.cacheColorFilter");
+  var _name = dart.privateName(box_fit, "_name");
+  var Alignment_y = dart.privateName(alignment, "Alignment.y");
+  var Alignment_x = dart.privateName(alignment, "Alignment.x");
+  var _name$ = dart.privateName(ui, "_name");
+  var _Location_parameterLocations = dart.privateName(widget_inspector, "_Location.parameterLocations");
+  var _Location_name = dart.privateName(widget_inspector, "_Location.name");
+  var _Location_column = dart.privateName(widget_inspector, "_Location.column");
+  var _Location_line = dart.privateName(widget_inspector, "_Location.line");
+  var _Location_file = dart.privateName(widget_inspector, "_Location.file");
+  var Widget__location = dart.privateName(framework, "Widget._location");
+  var Widget_key = dart.privateName(framework, "Widget.key");
+  var SingleChildRenderObjectWidget_child = dart.privateName(framework, "SingleChildRenderObjectWidget.child");
+  var LimitedBox_maxHeight = dart.privateName(basic, "LimitedBox.maxHeight");
+  var LimitedBox_maxWidth = dart.privateName(basic, "LimitedBox.maxWidth");
+  svg.SvgPicture = class SvgPicture extends framework.StatefulWidget {
+    get width() {
+      return this[width$];
+    }
+    set width(value) {
+      super.width = value;
+    }
+    get height() {
+      return this[height$];
+    }
+    set height(value) {
+      super.height = value;
+    }
+    get fit() {
+      return this[fit$];
+    }
+    set fit(value) {
+      super.fit = value;
+    }
+    get alignment() {
+      return this[alignment$];
+    }
+    set alignment(value) {
+      super.alignment = value;
+    }
+    get pictureProvider() {
+      return this[pictureProvider$];
+    }
+    set pictureProvider(value) {
+      super.pictureProvider = value;
+    }
+    get placeholderBuilder() {
+      return this[placeholderBuilder$];
+    }
+    set placeholderBuilder(value) {
+      super.placeholderBuilder = value;
+    }
+    get matchTextDirection() {
+      return this[matchTextDirection$];
+    }
+    set matchTextDirection(value) {
+      super.matchTextDirection = value;
+    }
+    get allowDrawingOutsideViewBox() {
+      return this[allowDrawingOutsideViewBox$];
+    }
+    set allowDrawingOutsideViewBox(value) {
+      super.allowDrawingOutsideViewBox = value;
+    }
+    get semanticsLabel() {
+      return this[semanticsLabel$];
+    }
+    set semanticsLabel(value) {
+      super.semanticsLabel = value;
+    }
+    get excludeFromSemantics() {
+      return this[excludeFromSemantics$];
+    }
+    set excludeFromSemantics(value) {
+      super.excludeFromSemantics = value;
+    }
+    get clipBehavior() {
+      return this[clipBehavior$];
+    }
+    set clipBehavior(value) {
+      super.clipBehavior = value;
+    }
+    get colorFilter() {
+      return this[colorFilter$];
+    }
+    set colorFilter(value) {
+      super.colorFilter = value;
+    }
+    get cacheColorFilter() {
+      return this[cacheColorFilter$];
+    }
+    set cacheColorFilter(value) {
+      super.cacheColorFilter = value;
+    }
+    static _getColorFilter(color, colorBlendMode) {
+      if (colorBlendMode == null) dart.nullFailed(I[0], 560, 63, "colorBlendMode");
+      return color == null ? null : new _engine._CkBlendModeColorFilter.new(color, colorBlendMode);
+    }
+    createState() {
+      return new svg._SvgPictureState.new();
+    }
+  };
+  (svg.SvgPicture.new = function(pictureProvider, opts) {
+    if (pictureProvider == null) dart.nullFailed(I[0], 212, 10, "pictureProvider");
+    let key = opts && 'key' in opts ? opts.key : null;
+    let width = opts && 'width' in opts ? opts.width : null;
+    let height = opts && 'height' in opts ? opts.height : null;
+    let fit = opts && 'fit' in opts ? opts.fit : C[0] || CT.C0;
+    if (fit == null) dart.nullFailed(I[0], 216, 10, "fit");
+    let alignment = opts && 'alignment' in opts ? opts.alignment : C[1] || CT.C1;
+    if (alignment == null) dart.nullFailed(I[0], 217, 10, "alignment");
+    let matchTextDirection = opts && 'matchTextDirection' in opts ? opts.matchTextDirection : false;
+    if (matchTextDirection == null) dart.nullFailed(I[0], 218, 10, "matchTextDirection");
+    let allowDrawingOutsideViewBox = opts && 'allowDrawingOutsideViewBox' in opts ? opts.allowDrawingOutsideViewBox : false;
+    if (allowDrawingOutsideViewBox == null) dart.nullFailed(I[0], 219, 10, "allowDrawingOutsideViewBox");
+    let placeholderBuilder = opts && 'placeholderBuilder' in opts ? opts.placeholderBuilder : null;
+    let semanticsLabel = opts && 'semanticsLabel' in opts ? opts.semanticsLabel : null;
+    let excludeFromSemantics = opts && 'excludeFromSemantics' in opts ? opts.excludeFromSemantics : false;
+    if (excludeFromSemantics == null) dart.nullFailed(I[0], 222, 10, "excludeFromSemantics");
+    let clipBehavior = opts && 'clipBehavior' in opts ? opts.clipBehavior : C[2] || CT.C2;
+    if (clipBehavior == null) dart.nullFailed(I[0], 223, 10, "clipBehavior");
+    let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+    let cacheColorFilter = opts && 'cacheColorFilter' in opts ? opts.cacheColorFilter : false;
+    if (cacheColorFilter == null) dart.nullFailed(I[0], 225, 10, "cacheColorFilter");
+    let $36creationLocationd_0dea112b090073317d4 = opts && '$creationLocationd_0dea112b090073317d4' in opts ? opts.$creationLocationd_0dea112b090073317d4 : null;
+    this[pictureProvider$] = pictureProvider;
+    this[width$] = width;
+    this[height$] = height;
+    this[fit$] = fit;
+    this[alignment$] = alignment;
+    this[matchTextDirection$] = matchTextDirection;
+    this[allowDrawingOutsideViewBox$] = allowDrawingOutsideViewBox;
+    this[placeholderBuilder$] = placeholderBuilder;
+    this[semanticsLabel$] = semanticsLabel;
+    this[excludeFromSemantics$] = excludeFromSemantics;
+    this[clipBehavior$] = clipBehavior;
+    this[colorFilter$] = colorFilter;
+    this[cacheColorFilter$] = cacheColorFilter;
+    svg.SvgPicture.__proto__.new.call(this, {key: key, $creationLocationd_0dea112b090073317d4: $36creationLocationd_0dea112b090073317d4});
+    ;
+  }).prototype = svg.SvgPicture.prototype;
+  (svg.SvgPicture.asset = function(assetName, opts) {
+    let t0;
+    if (assetName == null) dart.nullFailed(I[0], 306, 12, "assetName");
+    let key = opts && 'key' in opts ? opts.key : null;
+    let matchTextDirection = opts && 'matchTextDirection' in opts ? opts.matchTextDirection : false;
+    if (matchTextDirection == null) dart.nullFailed(I[0], 308, 10, "matchTextDirection");
+    let bundle = opts && 'bundle' in opts ? opts.bundle : null;
+    let $package = opts && 'package' in opts ? opts.package : null;
+    let width = opts && 'width' in opts ? opts.width : null;
+    let height = opts && 'height' in opts ? opts.height : null;
+    let fit = opts && 'fit' in opts ? opts.fit : C[0] || CT.C0;
+    if (fit == null) dart.nullFailed(I[0], 313, 10, "fit");
+    let alignment = opts && 'alignment' in opts ? opts.alignment : C[1] || CT.C1;
+    if (alignment == null) dart.nullFailed(I[0], 314, 10, "alignment");
+    let allowDrawingOutsideViewBox = opts && 'allowDrawingOutsideViewBox' in opts ? opts.allowDrawingOutsideViewBox : false;
+    if (allowDrawingOutsideViewBox == null) dart.nullFailed(I[0], 315, 10, "allowDrawingOutsideViewBox");
+    let placeholderBuilder = opts && 'placeholderBuilder' in opts ? opts.placeholderBuilder : null;
+    let color = opts && 'color' in opts ? opts.color : null;
+    let colorBlendMode = opts && 'colorBlendMode' in opts ? opts.colorBlendMode : C[3] || CT.C3;
+    if (colorBlendMode == null) dart.nullFailed(I[0], 318, 15, "colorBlendMode");
+    let semanticsLabel = opts && 'semanticsLabel' in opts ? opts.semanticsLabel : null;
+    let excludeFromSemantics = opts && 'excludeFromSemantics' in opts ? opts.excludeFromSemantics : false;
+    if (excludeFromSemantics == null) dart.nullFailed(I[0], 320, 10, "excludeFromSemantics");
+    let clipBehavior = opts && 'clipBehavior' in opts ? opts.clipBehavior : C[2] || CT.C2;
+    if (clipBehavior == null) dart.nullFailed(I[0], 321, 10, "clipBehavior");
+    let cacheColorFilter = opts && 'cacheColorFilter' in opts ? opts.cacheColorFilter : false;
+    if (cacheColorFilter == null) dart.nullFailed(I[0], 322, 10, "cacheColorFilter");
+    let $36creationLocationd_0dea112b090073317d4 = opts && '$creationLocationd_0dea112b090073317d4' in opts ? opts.$creationLocationd_0dea112b090073317d4 : null;
+    this[matchTextDirection$] = matchTextDirection;
+    this[width$] = width;
+    this[height$] = height;
+    this[fit$] = fit;
+    this[alignment$] = alignment;
+    this[allowDrawingOutsideViewBox$] = allowDrawingOutsideViewBox;
+    this[placeholderBuilder$] = placeholderBuilder;
+    this[semanticsLabel$] = semanticsLabel;
+    this[excludeFromSemantics$] = excludeFromSemantics;
+    this[clipBehavior$] = clipBehavior;
+    this[cacheColorFilter$] = cacheColorFilter;
+    this[pictureProvider$] = new picture_provider.ExactAssetPicture.new(allowDrawingOutsideViewBox === true ? svg.SvgPicture.svgStringDecoderOutsideViewBox : svg.SvgPicture.svgStringDecoder, assetName, {bundle: bundle, package: $package, colorFilter: dart.test((t0 = svg.svg.cacheColorFilterOverride, t0 == null ? cacheColorFilter : t0)) ? svg.SvgPicture._getColorFilter(color, colorBlendMode) : null});
+    this[colorFilter$] = svg.SvgPicture._getColorFilter(color, colorBlendMode);
+    svg.SvgPicture.__proto__.new.call(this, {key: key, $creationLocationd_0dea112b090073317d4: $36creationLocationd_0dea112b090073317d4});
+    ;
+  }).prototype = svg.SvgPicture.prototype;
+  (svg.SvgPicture.network = function(url, opts) {
+    let t0;
+    if (url == null) dart.nullFailed(I[0], 367, 12, "url");
+    let key = opts && 'key' in opts ? opts.key : null;
+    let headers = opts && 'headers' in opts ? opts.headers : null;
+    let width = opts && 'width' in opts ? opts.width : null;
+    let height = opts && 'height' in opts ? opts.height : null;
+    let fit = opts && 'fit' in opts ? opts.fit : C[0] || CT.C0;
+    if (fit == null) dart.nullFailed(I[0], 372, 10, "fit");
+    let alignment = opts && 'alignment' in opts ? opts.alignment : C[1] || CT.C1;
+    if (alignment == null) dart.nullFailed(I[0], 373, 10, "alignment");
+    let matchTextDirection = opts && 'matchTextDirection' in opts ? opts.matchTextDirection : false;
+    if (matchTextDirection == null) dart.nullFailed(I[0], 374, 10, "matchTextDirection");
+    let allowDrawingOutsideViewBox = opts && 'allowDrawingOutsideViewBox' in opts ? opts.allowDrawingOutsideViewBox : false;
+    if (allowDrawingOutsideViewBox == null) dart.nullFailed(I[0], 375, 10, "allowDrawingOutsideViewBox");
+    let placeholderBuilder = opts && 'placeholderBuilder' in opts ? opts.placeholderBuilder : null;
+    let color = opts && 'color' in opts ? opts.color : null;
+    let colorBlendMode = opts && 'colorBlendMode' in opts ? opts.colorBlendMode : C[3] || CT.C3;
+    if (colorBlendMode == null) dart.nullFailed(I[0], 378, 15, "colorBlendMode");
+    let semanticsLabel = opts && 'semanticsLabel' in opts ? opts.semanticsLabel : null;
+    let excludeFromSemantics = opts && 'excludeFromSemantics' in opts ? opts.excludeFromSemantics : false;
+    if (excludeFromSemantics == null) dart.nullFailed(I[0], 380, 10, "excludeFromSemantics");
+    let clipBehavior = opts && 'clipBehavior' in opts ? opts.clipBehavior : C[2] || CT.C2;
+    if (clipBehavior == null) dart.nullFailed(I[0], 381, 10, "clipBehavior");
+    let cacheColorFilter = opts && 'cacheColorFilter' in opts ? opts.cacheColorFilter : false;
+    if (cacheColorFilter == null) dart.nullFailed(I[0], 382, 10, "cacheColorFilter");
+    let $36creationLocationd_0dea112b090073317d4 = opts && '$creationLocationd_0dea112b090073317d4' in opts ? opts.$creationLocationd_0dea112b090073317d4 : null;
+    this[width$] = width;
+    this[height$] = height;
+    this[fit$] = fit;
+    this[alignment$] = alignment;
+    this[matchTextDirection$] = matchTextDirection;
+    this[allowDrawingOutsideViewBox$] = allowDrawingOutsideViewBox;
+    this[placeholderBuilder$] = placeholderBuilder;
+    this[semanticsLabel$] = semanticsLabel;
+    this[excludeFromSemantics$] = excludeFromSemantics;
+    this[clipBehavior$] = clipBehavior;
+    this[cacheColorFilter$] = cacheColorFilter;
+    this[pictureProvider$] = new picture_provider.NetworkPicture.new(allowDrawingOutsideViewBox === true ? svg.SvgPicture.svgByteDecoderOutsideViewBox : svg.SvgPicture.svgByteDecoder, url, {headers: headers, colorFilter: dart.test((t0 = svg.svg.cacheColorFilterOverride, t0 == null ? cacheColorFilter : t0)) ? svg.SvgPicture._getColorFilter(color, colorBlendMode) : null});
+    this[colorFilter$] = svg.SvgPicture._getColorFilter(color, colorBlendMode);
+    svg.SvgPicture.__proto__.new.call(this, {key: key, $creationLocationd_0dea112b090073317d4: $36creationLocationd_0dea112b090073317d4});
+    ;
+  }).prototype = svg.SvgPicture.prototype;
+  (svg.SvgPicture.file = function(file, opts) {
+    let t0;
+    if (file == null) dart.nullFailed(I[0], 424, 10, "file");
+    let key = opts && 'key' in opts ? opts.key : null;
+    let width = opts && 'width' in opts ? opts.width : null;
+    let height = opts && 'height' in opts ? opts.height : null;
+    let fit = opts && 'fit' in opts ? opts.fit : C[0] || CT.C0;
+    if (fit == null) dart.nullFailed(I[0], 428, 10, "fit");
+    let alignment = opts && 'alignment' in opts ? opts.alignment : C[1] || CT.C1;
+    if (alignment == null) dart.nullFailed(I[0], 429, 10, "alignment");
+    let matchTextDirection = opts && 'matchTextDirection' in opts ? opts.matchTextDirection : false;
+    if (matchTextDirection == null) dart.nullFailed(I[0], 430, 10, "matchTextDirection");
+    let allowDrawingOutsideViewBox = opts && 'allowDrawingOutsideViewBox' in opts ? opts.allowDrawingOutsideViewBox : false;
+    if (allowDrawingOutsideViewBox == null) dart.nullFailed(I[0], 431, 10, "allowDrawingOutsideViewBox");
+    let placeholderBuilder = opts && 'placeholderBuilder' in opts ? opts.placeholderBuilder : null;
+    let color = opts && 'color' in opts ? opts.color : null;
+    let colorBlendMode = opts && 'colorBlendMode' in opts ? opts.colorBlendMode : C[3] || CT.C3;
+    if (colorBlendMode == null) dart.nullFailed(I[0], 434, 15, "colorBlendMode");
+    let semanticsLabel = opts && 'semanticsLabel' in opts ? opts.semanticsLabel : null;
+    let excludeFromSemantics = opts && 'excludeFromSemantics' in opts ? opts.excludeFromSemantics : false;
+    if (excludeFromSemantics == null) dart.nullFailed(I[0], 436, 10, "excludeFromSemantics");
+    let clipBehavior = opts && 'clipBehavior' in opts ? opts.clipBehavior : C[2] || CT.C2;
+    if (clipBehavior == null) dart.nullFailed(I[0], 437, 10, "clipBehavior");
+    let cacheColorFilter = opts && 'cacheColorFilter' in opts ? opts.cacheColorFilter : false;
+    if (cacheColorFilter == null) dart.nullFailed(I[0], 438, 10, "cacheColorFilter");
+    let $36creationLocationd_0dea112b090073317d4 = opts && '$creationLocationd_0dea112b090073317d4' in opts ? opts.$creationLocationd_0dea112b090073317d4 : null;
+    this[width$] = width;
+    this[height$] = height;
+    this[fit$] = fit;
+    this[alignment$] = alignment;
+    this[matchTextDirection$] = matchTextDirection;
+    this[allowDrawingOutsideViewBox$] = allowDrawingOutsideViewBox;
+    this[placeholderBuilder$] = placeholderBuilder;
+    this[semanticsLabel$] = semanticsLabel;
+    this[excludeFromSemantics$] = excludeFromSemantics;
+    this[clipBehavior$] = clipBehavior;
+    this[cacheColorFilter$] = cacheColorFilter;
+    this[pictureProvider$] = new picture_provider.FilePicture.new(allowDrawingOutsideViewBox === true ? svg.SvgPicture.svgByteDecoderOutsideViewBox : svg.SvgPicture.svgByteDecoder, file, {colorFilter: dart.test((t0 = svg.svg.cacheColorFilterOverride, t0 == null ? cacheColorFilter : t0)) ? svg.SvgPicture._getColorFilter(color, colorBlendMode) : null});
+    this[colorFilter$] = svg.SvgPicture._getColorFilter(color, colorBlendMode);
+    svg.SvgPicture.__proto__.new.call(this, {key: key, $creationLocationd_0dea112b090073317d4: $36creationLocationd_0dea112b090073317d4});
+    ;
+  }).prototype = svg.SvgPicture.prototype;
+  (svg.SvgPicture.memory = function(bytes, opts) {
+    let t0;
+    if (bytes == null) dart.nullFailed(I[0], 476, 15, "bytes");
+    let key = opts && 'key' in opts ? opts.key : null;
+    let width = opts && 'width' in opts ? opts.width : null;
+    let height = opts && 'height' in opts ? opts.height : null;
+    let fit = opts && 'fit' in opts ? opts.fit : C[0] || CT.C0;
+    if (fit == null) dart.nullFailed(I[0], 480, 10, "fit");
+    let alignment = opts && 'alignment' in opts ? opts.alignment : C[1] || CT.C1;
+    if (alignment == null) dart.nullFailed(I[0], 481, 10, "alignment");
+    let matchTextDirection = opts && 'matchTextDirection' in opts ? opts.matchTextDirection : false;
+    if (matchTextDirection == null) dart.nullFailed(I[0], 482, 10, "matchTextDirection");
+    let allowDrawingOutsideViewBox = opts && 'allowDrawingOutsideViewBox' in opts ? opts.allowDrawingOutsideViewBox : false;
+    if (allowDrawingOutsideViewBox == null) dart.nullFailed(I[0], 483, 10, "allowDrawingOutsideViewBox");
+    let placeholderBuilder = opts && 'placeholderBuilder' in opts ? opts.placeholderBuilder : null;
+    let color = opts && 'color' in opts ? opts.color : null;
+    let colorBlendMode = opts && 'colorBlendMode' in opts ? opts.colorBlendMode : C[3] || CT.C3;
+    if (colorBlendMode == null) dart.nullFailed(I[0], 486, 15, "colorBlendMode");
+    let semanticsLabel = opts && 'semanticsLabel' in opts ? opts.semanticsLabel : null;
+    let excludeFromSemantics = opts && 'excludeFromSemantics' in opts ? opts.excludeFromSemantics : false;
+    if (excludeFromSemantics == null) dart.nullFailed(I[0], 488, 10, "excludeFromSemantics");
+    let clipBehavior = opts && 'clipBehavior' in opts ? opts.clipBehavior : C[2] || CT.C2;
+    if (clipBehavior == null) dart.nullFailed(I[0], 489, 10, "clipBehavior");
+    let cacheColorFilter = opts && 'cacheColorFilter' in opts ? opts.cacheColorFilter : false;
+    if (cacheColorFilter == null) dart.nullFailed(I[0], 490, 10, "cacheColorFilter");
+    let $36creationLocationd_0dea112b090073317d4 = opts && '$creationLocationd_0dea112b090073317d4' in opts ? opts.$creationLocationd_0dea112b090073317d4 : null;
+    this[width$] = width;
+    this[height$] = height;
+    this[fit$] = fit;
+    this[alignment$] = alignment;
+    this[matchTextDirection$] = matchTextDirection;
+    this[allowDrawingOutsideViewBox$] = allowDrawingOutsideViewBox;
+    this[placeholderBuilder$] = placeholderBuilder;
+    this[semanticsLabel$] = semanticsLabel;
+    this[excludeFromSemantics$] = excludeFromSemantics;
+    this[clipBehavior$] = clipBehavior;
+    this[cacheColorFilter$] = cacheColorFilter;
+    this[pictureProvider$] = new picture_provider.MemoryPicture.new(allowDrawingOutsideViewBox === true ? svg.SvgPicture.svgByteDecoderOutsideViewBox : svg.SvgPicture.svgByteDecoder, bytes, {colorFilter: dart.test((t0 = svg.svg.cacheColorFilterOverride, t0 == null ? cacheColorFilter : t0)) ? svg.SvgPicture._getColorFilter(color, colorBlendMode) : null});
+    this[colorFilter$] = svg.SvgPicture._getColorFilter(color, colorBlendMode);
+    svg.SvgPicture.__proto__.new.call(this, {key: key, $creationLocationd_0dea112b090073317d4: $36creationLocationd_0dea112b090073317d4});
+    ;
+  }).prototype = svg.SvgPicture.prototype;
+  (svg.SvgPicture.string = function(bytes, opts) {
+    let t0;
+    if (bytes == null) dart.nullFailed(I[0], 528, 12, "bytes");
+    let key = opts && 'key' in opts ? opts.key : null;
+    let width = opts && 'width' in opts ? opts.width : null;
+    let height = opts && 'height' in opts ? opts.height : null;
+    let fit = opts && 'fit' in opts ? opts.fit : C[0] || CT.C0;
+    if (fit == null) dart.nullFailed(I[0], 532, 10, "fit");
+    let alignment = opts && 'alignment' in opts ? opts.alignment : C[1] || CT.C1;
+    if (alignment == null) dart.nullFailed(I[0], 533, 10, "alignment");
+    let matchTextDirection = opts && 'matchTextDirection' in opts ? opts.matchTextDirection : false;
+    if (matchTextDirection == null) dart.nullFailed(I[0], 534, 10, "matchTextDirection");
+    let allowDrawingOutsideViewBox = opts && 'allowDrawingOutsideViewBox' in opts ? opts.allowDrawingOutsideViewBox : false;
+    if (allowDrawingOutsideViewBox == null) dart.nullFailed(I[0], 535, 10, "allowDrawingOutsideViewBox");
+    let placeholderBuilder = opts && 'placeholderBuilder' in opts ? opts.placeholderBuilder : null;
+    let color = opts && 'color' in opts ? opts.color : null;
+    let colorBlendMode = opts && 'colorBlendMode' in opts ? opts.colorBlendMode : C[3] || CT.C3;
+    if (colorBlendMode == null) dart.nullFailed(I[0], 538, 15, "colorBlendMode");
+    let semanticsLabel = opts && 'semanticsLabel' in opts ? opts.semanticsLabel : null;
+    let excludeFromSemantics = opts && 'excludeFromSemantics' in opts ? opts.excludeFromSemantics : false;
+    if (excludeFromSemantics == null) dart.nullFailed(I[0], 540, 10, "excludeFromSemantics");
+    let clipBehavior = opts && 'clipBehavior' in opts ? opts.clipBehavior : C[2] || CT.C2;
+    if (clipBehavior == null) dart.nullFailed(I[0], 541, 10, "clipBehavior");
+    let cacheColorFilter = opts && 'cacheColorFilter' in opts ? opts.cacheColorFilter : false;
+    if (cacheColorFilter == null) dart.nullFailed(I[0], 542, 10, "cacheColorFilter");
+    let $36creationLocationd_0dea112b090073317d4 = opts && '$creationLocationd_0dea112b090073317d4' in opts ? opts.$creationLocationd_0dea112b090073317d4 : null;
+    this[width$] = width;
+    this[height$] = height;
+    this[fit$] = fit;
+    this[alignment$] = alignment;
+    this[matchTextDirection$] = matchTextDirection;
+    this[allowDrawingOutsideViewBox$] = allowDrawingOutsideViewBox;
+    this[placeholderBuilder$] = placeholderBuilder;
+    this[semanticsLabel$] = semanticsLabel;
+    this[excludeFromSemantics$] = excludeFromSemantics;
+    this[clipBehavior$] = clipBehavior;
+    this[cacheColorFilter$] = cacheColorFilter;
+    this[pictureProvider$] = new picture_provider.StringPicture.new(allowDrawingOutsideViewBox === true ? svg.SvgPicture.svgStringDecoderOutsideViewBox : svg.SvgPicture.svgStringDecoder, bytes, {colorFilter: dart.test((t0 = svg.svg.cacheColorFilterOverride, t0 == null ? cacheColorFilter : t0)) ? svg.SvgPicture._getColorFilter(color, colorBlendMode) : null});
+    this[colorFilter$] = svg.SvgPicture._getColorFilter(color, colorBlendMode);
+    svg.SvgPicture.__proto__.new.call(this, {key: key, $creationLocationd_0dea112b090073317d4: $36creationLocationd_0dea112b090073317d4});
+    ;
+  }).prototype = svg.SvgPicture.prototype;
+  dart.addTypeTests(svg.SvgPicture);
+  dart.addTypeCaches(svg.SvgPicture);
+  dart.setMethodSignature(svg.SvgPicture, () => ({
+    __proto__: dart.getMethods(svg.SvgPicture.__proto__),
+    createState: dart.fnType(framework.State$(svg.SvgPicture), [])
+  }));
+  dart.setLibraryUri(svg.SvgPicture, I[1]);
+  dart.setFieldSignature(svg.SvgPicture, () => ({
+    __proto__: dart.getFields(svg.SvgPicture.__proto__),
+    width: dart.finalFieldType(dart.nullable(core.double)),
+    height: dart.finalFieldType(dart.nullable(core.double)),
+    fit: dart.finalFieldType(box_fit.BoxFit),
+    alignment: dart.finalFieldType(alignment.AlignmentGeometry),
+    pictureProvider: dart.finalFieldType(picture_provider.PictureProvider),
+    placeholderBuilder: dart.finalFieldType(dart.nullable(dart.fnType(framework.Widget, [framework.BuildContext]))),
+    matchTextDirection: dart.finalFieldType(core.bool),
+    allowDrawingOutsideViewBox: dart.finalFieldType(core.bool),
+    semanticsLabel: dart.finalFieldType(dart.nullable(core.String)),
+    excludeFromSemantics: dart.finalFieldType(core.bool),
+    clipBehavior: dart.finalFieldType(ui.Clip),
+    colorFilter: dart.finalFieldType(dart.nullable(ui.ColorFilter)),
+    cacheColorFilter: dart.finalFieldType(core.bool)
+  }));
+  dart.defineLazy(svg.SvgPicture, {
+    /*svg.SvgPicture.defaultPlaceholderBuilder*/get defaultPlaceholderBuilder() {
+      return dart.fn(ctx => {
+        if (ctx == null) dart.nullFailed(I[0], 558, 21, "ctx");
+        return C[4] || CT.C4;
+      }, T.BuildContextToLimitedBox());
+    },
+    set defaultPlaceholderBuilder(_) {},
+    /*svg.SvgPicture.svgByteDecoder*/get svgByteDecoder() {
+      return dart.fn((bytes, colorFilter, key) => {
+        if (bytes == null) dart.nullFailed(I[0], 565, 18, "bytes");
+        if (key == null) dart.nullFailed(I[0], 565, 58, "key");
+        return svg.svg.svgPictureDecoder(bytes, false, colorFilter, key);
+      }, T.Uint8ListAndColorFilterNAndStringToFutureOfPictureInfo());
+    },
+    /*svg.SvgPicture.svgStringDecoder*/get svgStringDecoder() {
+      return dart.fn((data, colorFilter, key) => {
+        if (data == null) dart.nullFailed(I[0], 570, 15, "data");
+        if (key == null) dart.nullFailed(I[0], 570, 54, "key");
+        return svg.svg.svgPictureStringDecoder(data, false, colorFilter, key);
+      }, T.StringAndColorFilterNAndStringToFutureOfPictureInfo());
+    },
+    /*svg.SvgPicture.svgByteDecoderOutsideViewBox*/get svgByteDecoderOutsideViewBox() {
+      return dart.fn((bytes, colorFilter, key) => {
+        if (bytes == null) dart.nullFailed(I[0], 575, 18, "bytes");
+        if (key == null) dart.nullFailed(I[0], 575, 58, "key");
+        return svg.svg.svgPictureDecoder(bytes, true, colorFilter, key);
+      }, T.Uint8ListAndColorFilterNAndStringToFutureOfPictureInfo());
+    },
+    /*svg.SvgPicture.svgStringDecoderOutsideViewBox*/get svgStringDecoderOutsideViewBox() {
+      return dart.fn((data, colorFilter, key) => {
+        if (data == null) dart.nullFailed(I[0], 580, 15, "data");
+        if (key == null) dart.nullFailed(I[0], 580, 54, "key");
+        return svg.svg.svgPictureStringDecoder(data, true, colorFilter, key);
+      }, T.StringAndColorFilterNAndStringToFutureOfPictureInfo());
+    }
+  }, false);
+  var _picture = dart.privateName(svg, "_picture");
+  var _pictureStream = dart.privateName(svg, "_pictureStream");
+  var _isListeningToStream = dart.privateName(svg, "_isListeningToStream");
+  var _resolveImage = dart.privateName(svg, "_resolveImage");
+  var _listenToStream = dart.privateName(svg, "_listenToStream");
+  var _stopListeningToStream = dart.privateName(svg, "_stopListeningToStream");
+  var _updateSourceStream = dart.privateName(svg, "_updateSourceStream");
+  var _handleImageChanged = dart.privateName(svg, "_handleImageChanged");
+  var _getDefaultPlaceholder = dart.privateName(svg, "_getDefaultPlaceholder");
+  svg._SvgPictureState = class _SvgPictureState extends framework.State$(svg.SvgPicture) {
+    didChangeDependencies() {
+      this[_resolveImage]();
+      if (dart.test(ticker_provider.TickerMode.of(this.context))) {
+        this[_listenToStream]();
+      } else {
+        this[_stopListeningToStream]();
+      }
+      super.didChangeDependencies();
+    }
+    didUpdateWidget(oldWidget) {
+      svg.SvgPicture.as(oldWidget);
+      if (oldWidget == null) dart.nullFailed(I[0], 689, 35, "oldWidget");
+      super.didUpdateWidget(oldWidget);
+      if (!dart.equals(this.widget.pictureProvider, oldWidget.pictureProvider)) {
+        this[_resolveImage]();
+      }
+    }
+    reassemble() {
+      this[_resolveImage]();
+      super.reassemble();
+    }
+    [_resolveImage]() {
+      let newStream = this.widget.pictureProvider.resolve(picture_provider.createLocalPictureConfiguration(this.context));
+      if (!(newStream != null)) dart.assertFailed(null, I[0], 705, 12, "newStream != null");
+      this[_updateSourceStream](newStream);
+    }
+    [_handleImageChanged](imageInfo, synchronousCall) {
+      if (synchronousCall == null) dart.nullFailed(I[0], 709, 57, "synchronousCall");
+      this.setState(dart.fn(() => {
+        this[_picture] = imageInfo;
+      }, T.VoidTovoid()));
+    }
+    [_updateSourceStream](newStream) {
+      let t0;
+      if (newStream == null) dart.nullFailed(I[0], 718, 42, "newStream");
+      if (dart.equals((t0 = this[_pictureStream], t0 == null ? null : t0.key), newStream.key)) {
+        return;
+      }
+      if (dart.test(this[_isListeningToStream])) dart.nullCheck(this[_pictureStream]).removeListener(dart.bind(this, _handleImageChanged));
+      this[_pictureStream] = newStream;
+      if (dart.test(this[_isListeningToStream])) {
+        dart.nullCheck(this[_pictureStream]).addListener(dart.bind(this, _handleImageChanged));
+      }
+    }
+    [_listenToStream]() {
+      if (dart.test(this[_isListeningToStream])) {
+        return;
+      }
+      dart.nullCheck(this[_pictureStream]).addListener(dart.bind(this, _handleImageChanged));
+      this[_isListeningToStream] = true;
+    }
+    [_stopListeningToStream]() {
+      if (!dart.test(this[_isListeningToStream])) {
+        return;
+      }
+      dart.nullCheck(this[_pictureStream]).removeListener(dart.bind(this, _handleImageChanged));
+      this[_isListeningToStream] = false;
+    }
+    dispose() {
+      if (!(this[_pictureStream] != null)) dart.assertFailed(null, I[0], 750, 12, "_pictureStream != null");
+      this[_stopListeningToStream]();
+      super.dispose();
+    }
+    build(context) {
+      if (context == null) dart.nullFailed(I[0], 756, 29, "context");
+      let child = null;
+      let child$35isSet = false;
+      function child$35get() {
+        return child$35isSet ? child : dart.throw(new _internal.LateError.localNI("child"));
+      }
+      dart.fn(child$35get, T.VoidToWidget());
+      function child$35set(t3) {
+        if (t3 == null) dart.nullFailed(I[0], 757, 17, "null");
+        child$35isSet = true;
+        return child = t3;
+      }
+      dart.fn(child$35set, T.WidgetTodynamic());
+      if (this[_picture] != null) {
+        let viewport = ui.Offset.zero['&'](dart.nullCheck(this[_picture]).viewport.size);
+        let width = this.widget.width;
+        let height = this.widget.height;
+        if (width == null && height == null) {
+          width = viewport.width;
+          height = viewport.height;
+        } else if (height != null) {
+          width = dart.notNull(height) / dart.notNull(viewport.height) * dart.notNull(viewport.width);
+        } else if (width != null) {
+          height = dart.notNull(width) / dart.notNull(viewport.width) * dart.notNull(viewport.height);
+        }
+        child$35set(new basic.SizedBox.new({width: width, height: height, child: new basic.FittedBox.new({fit: this.widget.fit, alignment: this.widget.alignment, clipBehavior: this.widget.clipBehavior, child: new basic.SizedBox.fromSize({size: viewport.size, child: new render_picture.RawPicture.new(this[_picture], {matchTextDirection: this.widget.matchTextDirection, allowDrawingOutsideViewBox: this.widget.allowDrawingOutsideViewBox, $creationLocationd_0dea112b090073317d4: C[7] || CT.C7}), $creationLocationd_0dea112b090073317d4: C[12] || CT.C12}), $creationLocationd_0dea112b090073317d4: C[16] || CT.C16}), $creationLocationd_0dea112b090073317d4: C[22] || CT.C22}));
+        if (this.widget.pictureProvider.colorFilter == null && this.widget.colorFilter != null) {
+          child$35set(new unbounded_color_filtered.UnboundedColorFiltered.new({colorFilter: this.widget.colorFilter, child: child$35get(), $creationLocationd_0dea112b090073317d4: C[27] || CT.C27}));
+        }
+      } else {
+        child$35set(this.widget.placeholderBuilder == null ? this[_getDefaultPlaceholder](context, this.widget.width, this.widget.height) : dart.nullCheck(this.widget.placeholderBuilder)(context));
+      }
+      if (!dart.test(this.widget.excludeFromSemantics)) {
+        child$35set(new basic.Semantics.new({container: this.widget.semanticsLabel != null, image: true, label: this.widget.semanticsLabel == null ? "" : this.widget.semanticsLabel, child: child$35get(), $creationLocationd_0dea112b090073317d4: C[31] || CT.C31}));
+      }
+      return child$35get();
+    }
+    [_getDefaultPlaceholder](context, width, height) {
+      if (context == null) dart.nullFailed(I[0], 814, 20, "context");
+      if (width != null || height != null) {
+        return new basic.SizedBox.new({width: width, height: height, $creationLocationd_0dea112b090073317d4: C[37] || CT.C37});
+      }
+      return svg.SvgPicture.defaultPlaceholderBuilder(context);
+    }
+    debugFillProperties(description) {
+      if (description == null) dart.nullFailed(I[0], 823, 56, "description");
+      super.debugFillProperties(description);
+      description.add(new (T.DiagnosticsPropertyOfPictureStream()).new("stream", this[_pictureStream]));
+    }
+  };
+  (svg._SvgPictureState.new = function() {
+    this[_picture] = null;
+    this[_pictureStream] = null;
+    this[_isListeningToStream] = false;
+    svg._SvgPictureState.__proto__.new.call(this);
+    ;
+  }).prototype = svg._SvgPictureState.prototype;
+  dart.addTypeTests(svg._SvgPictureState);
+  dart.addTypeCaches(svg._SvgPictureState);
+  dart.setMethodSignature(svg._SvgPictureState, () => ({
+    __proto__: dart.getMethods(svg._SvgPictureState.__proto__),
+    [_resolveImage]: dart.fnType(dart.void, []),
+    [_handleImageChanged]: dart.fnType(dart.void, [dart.nullable(picture_stream.PictureInfo), core.bool]),
+    [_updateSourceStream]: dart.fnType(dart.void, [picture_stream.PictureStream]),
+    [_listenToStream]: dart.fnType(dart.void, []),
+    [_stopListeningToStream]: dart.fnType(dart.void, []),
+    build: dart.fnType(framework.Widget, [framework.BuildContext]),
+    [_getDefaultPlaceholder]: dart.fnType(framework.Widget, [framework.BuildContext, dart.nullable(core.double), dart.nullable(core.double)])
+  }));
+  dart.setLibraryUri(svg._SvgPictureState, I[1]);
+  dart.setFieldSignature(svg._SvgPictureState, () => ({
+    __proto__: dart.getFields(svg._SvgPictureState.__proto__),
+    [_picture]: dart.fieldType(dart.nullable(picture_stream.PictureInfo)),
+    [_pictureStream]: dart.fieldType(dart.nullable(picture_stream.PictureStream)),
+    [_isListeningToStream]: dart.fieldType(core.bool)
+  }));
+  svg.precachePicture = function precachePicture(provider, context, opts) {
+    let t5;
+    if (provider == null) dart.nullFailed(I[0], 139, 19, "provider");
+    let viewBox = opts && 'viewBox' in opts ? opts.viewBox : null;
+    let colorFilterOverride = opts && 'colorFilterOverride' in opts ? opts.colorFilterOverride : null;
+    let color = opts && 'color' in opts ? opts.color : null;
+    let colorBlendMode = opts && 'colorBlendMode' in opts ? opts.colorBlendMode : null;
+    let onError = opts && 'onError' in opts ? opts.onError : null;
+    let config = picture_provider.createLocalPictureConfiguration(context, {viewBox: viewBox, colorFilterOverride: colorFilterOverride, color: color, colorBlendMode: colorBlendMode});
+    let completer = T.CompleterOfvoid().new();
+    let stream = null;
+    function listener(picture, synchronous) {
+      let t5;
+      if (synchronous == null) dart.nullFailed(I[0], 157, 44, "synchronous");
+      completer.complete();
+      t5 = stream;
+      t5 == null ? null : t5.removeListener(listener);
+    }
+    dart.fn(listener, T.PictureInfoNAndboolTovoid());
+    function errorListener(exception, stackTrace) {
+      let t5;
+      if (exception == null) dart.nullFailed(I[0], 162, 29, "exception");
+      if (stackTrace == null) dart.nullFailed(I[0], 162, 51, "stackTrace");
+      if (onError != null) {
+        onError(exception, stackTrace);
+      } else {
+        assertions.FlutterError.reportError(new assertions.FlutterErrorDetails.new({context: new assertions.ErrorDescription.new("picture failed to precache"), library: "SVG", exception: exception, stack: stackTrace, silent: true}));
+      }
+      completer.complete();
+      t5 = stream;
+      t5 == null ? null : t5.removeListener(listener);
+    }
+    dart.fn(errorListener, T.ObjectAndStackTraceTovoid());
+    stream = (t5 = provider.resolve(config, {onError: errorListener}), (() => {
+      t5.addListener(listener, {onError: errorListener});
+      return t5;
+    })());
+    return completer.future;
+  };
+  dart.defineLazy(svg, {
+    /*svg.svg*/get svg() {
+      return new svg.Svg.__();
+    }
+  }, false);
+  dart.trackLibraries("packages/flutter_svg/svg.dart", {
+    "package:flutter_svg/svg.dart": svg
+  }, {
+  }, '{"version":3,"sourceRoot":"","sources":["svg.dart"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAkCQ;;;;;;sBAaM,KACL,8BACQ,aACN;UAHG;UACL;UAEE;AAJ4B;AAMhB,uBAAU,MAAM,kBAAa,GAAG,EAAE,GAAG;AAC1C,kBAAM,AAAQ,OAAD,2BACV,AAA6B,4BAAD,KAAI,OAAO,QAAQ,mBACjD,WAAW;AAE1B,cAAO,8CACI,GAAG,YACF,AAAQ,AAAS,OAAV,6BACX,AAAQ,AAAS,OAAV;MAEjB;;4BAaW,KACF,8BACQ,aACN;UAHA;UACF;UAEE;AAJgC;AAKtB,mBAAM,MAAM,mBAAc,GAAG,EAAE,GAAG;AACrD,cAAO,8CACI,AAAI,GAAD,2BACK,AAA6B,4BAAD,KAAI,OAAO,QAAQ,mBACjD,WAAW,QAClB,AAAI,AAAS,GAAV,+BAED,AAAI,AAAS,GAAV,6BACP,AAAI,AAAS,GAAV;MAEb;;iBAM4C,KAAY;UAAZ;UAAY;AAAvB;AAM/B,cAAO,oBAAc,AAAK,oBAAO,GAAG,GAAG,GAAG;MAM5C;;kBAS0C,QAAe;UAAf;UAAe;AAAvB;AAChB,qBAAS;AACzB,cAAO,OAAM,AAAO,MAAD,OAAO,MAAM,QAAO,GAAG;MAC5C;;;;IArFM;;EANC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IA4iBO;;;;;;IAIA;;;;;;IAID;;;;;;IAwBW;;;;;;IAGF;;;;;;IAGD;;;;;;IAGV;;;;;;IAIA;;;;;;IAMG;;;;;;IAMH;;;;;;IAQA;;;;;;IAGQ;;;;;;IAYR;;;;;;2BAzGgC;UAAiB;AACxD,YAAA,AAAM,MAAD,WAAW,OAAmB,wCAAK,KAAK,EAAE,cAAc;IAAC;;AA2G/B;IAAkB;;;QAxc9C;QACA;QACA;QACA;QACA;;QACA;;QACA;;QACA;;QACA;QACA;QACA;;QACA;;QACA;QACA;;;IAbA;IAEA;IACA;IACA;IACA;IACA;IACA;IACA;IACA;IACA;IACA;IACA;IACA;AACF,kDAAW,GAAG;;EAAC;mCAgFX;;;QACF;QACA;;QACQ;QACL;QACH;QACA;QACA;;QACA;;QACA;;QACA;QACE;QACG;;QACL;QACA;;QACA;;QACA;;;IAdA;IAGA;IACA;IACA;IACA;IACA;IACA;IAGA;IACA;IACA;IACA;IACe,yBAAE,2CAChB,AAA2B,0BAAD,KAAI,OACxB,gDACA,iCACN,SAAS,WACD,MAAM,WACL,kCACiC,KAA7B,AAAI,kCAAA,aAA4B,gBAAgB,UACvD,+BAAgB,KAAK,EAAE,cAAc,IACrC;IAEI,qBAAE,+BAAgB,KAAK,EAAE,cAAc;AACnD,kDAAW,GAAG;;EAAC;qCAgCZ;;;QACF;QACgB;QAChB;QACA;QACA;;QACA;;QACA;;QACA;;QACA;QACE;QACG;;QACL;QACA;;QACA;;QACA;;;IAZA;IACA;IACA;IACA;IACA;IACA;IACA;IAGA;IACA;IACA;IACA;IACe,yBAAE,wCAChB,AAA2B,0BAAD,KAAI,OACxB,8CACA,+BACN,GAAG,YACM,OAAO,0BAC0B,KAA7B,AAAI,kCAAA,aAA4B,gBAAgB,UACvD,+BAAgB,KAAK,EAAE,cAAc,IACrC;IAEI,qBAAE,+BAAgB,KAAK,EAAE,cAAc;AACnD,kDAAW,GAAG;;EAAC;kCA8Bd;;;QACA;QACA;QACA;QACA;;QACA;;QACA;;QACA;;QACA;QACE;QACG;;QACL;QACA;;QACA;;QACA;;;IAZA;IACA;IACA;IACA;IACA;IACA;IACA;IAGA;IACA;IACA;IACA;IACe,yBAAE,qCAChB,AAA2B,0BAAD,KAAI,OACxB,8CACA,+BACN,IAAI,2BACsC,KAA7B,AAAI,kCAAA,aAA4B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","file":"../../../../../../../../../E:/packages/flutter_svg/svg.dart.lib.js"}');
+  // Exports:
+  return {
+    svg: svg
+  };
+}));
+
+//# sourceMappingURL=svg.dart.lib.js.map

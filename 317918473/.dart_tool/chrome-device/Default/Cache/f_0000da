@@ -1,0 +1,896 @@
+define(['dart_sdk', 'packages/flutter/src/foundation/debug.dart', 'packages/flutter/src/services/system_channels.dart', 'packages/flutter/src/foundation/_platform_web.dart', 'packages/flutter_svg/src/picture_stream.dart', 'packages/flutter_svg/src/picture_cache.dart', 'packages/flutter/src/foundation/synchronous_future.dart', 'packages/flutter_svg/src/utilities/_http_web.dart', 'packages/flutter/src/widgets/widget_span.dart'], (function load__packages__flutter_svg__src__picture_provider_dart(dart_sdk, packages__flutter__src__foundation__debug$46dart, packages__flutter__src__services__system_channels$46dart, packages__flutter__src__foundation___platform_web$46dart, packages__flutter_svg__src__picture_stream$46dart, packages__flutter_svg__src__picture_cache$46dart, packages__flutter__src__foundation__synchronous_future$46dart, packages__flutter_svg__src__utilities___http_web$46dart, packages__flutter__src__widgets__widget_span$46dart) {
+  'use strict';
+  const core = dart_sdk.core;
+  const ui = dart_sdk.ui;
+  const _js_helper = dart_sdk._js_helper;
+  const async = dart_sdk.async;
+  const typed_data = dart_sdk.typed_data;
+  const io = dart_sdk.io;
+  const _engine = dart_sdk._engine;
+  const dart = dart_sdk.dart;
+  const dartx = dart_sdk.dartx;
+  const diagnostics = packages__flutter__src__foundation__debug$46dart.src__foundation__diagnostics;
+  const assertions = packages__flutter__src__foundation__debug$46dart.src__foundation__assertions;
+  const asset_bundle = packages__flutter__src__services__system_channels$46dart.src__services__asset_bundle;
+  const platform = packages__flutter__src__foundation___platform_web$46dart.src__foundation__platform;
+  const picture_stream = packages__flutter_svg__src__picture_stream$46dart.src__picture_stream;
+  const picture_cache = packages__flutter_svg__src__picture_cache$46dart.src__picture_cache;
+  const synchronous_future = packages__flutter__src__foundation__synchronous_future$46dart.src__foundation__synchronous_future;
+  const _http_web = packages__flutter_svg__src__utilities___http_web$46dart.src__utilities___http_web;
+  const basic = packages__flutter__src__widgets__widget_span$46dart.src__widgets__basic;
+  const localizations = packages__flutter__src__widgets__widget_span$46dart.src__widgets__localizations;
+  var picture_provider = Object.create(dart.library);
+  var $runtimeType = dartx.runtimeType;
+  var $_equals = dartx._equals;
+  var $hashCode = dartx.hashCode;
+  var $isEmpty = dartx.isEmpty;
+  dart._checkModuleNullSafetyMode(false);
+  var T$ = {
+    VoidToPictureStreamCompleter: () => (T$.VoidToPictureStreamCompleter = dart.constFn(dart.fnType(picture_stream.PictureStreamCompleter, [])))(),
+    DiagnosticsPropertyOfPictureProvider: () => (T$.DiagnosticsPropertyOfPictureProvider = dart.constFn(diagnostics.DiagnosticsProperty$(picture_provider.PictureProvider)))(),
+    SyncIterableOfDiagnosticsNode: () => (T$.SyncIterableOfDiagnosticsNode = dart.constFn(_js_helper.SyncIterable$(diagnostics.DiagnosticsNode)))(),
+    IterableOfDiagnosticsNode: () => (T$.IterableOfDiagnosticsNode = dart.constFn(core.Iterable$(diagnostics.DiagnosticsNode)))(),
+    VoidToIterableOfDiagnosticsNode: () => (T$.VoidToIterableOfDiagnosticsNode = dart.constFn(dart.fnType(T$.IterableOfDiagnosticsNode(), [])))(),
+    FutureOfNull: () => (T$.FutureOfNull = dart.constFn(async.Future$(core.Null)))(),
+    ObjectAndStackTraceToFutureOfNull: () => (T$.ObjectAndStackTraceToFutureOfNull = dart.constFn(dart.fnType(T$.FutureOfNull(), [core.Object, core.StackTrace])))(),
+    DiagnosticsPropertyOfAssetBundlePictureKey: () => (T$.DiagnosticsPropertyOfAssetBundlePictureKey = dart.constFn(diagnostics.DiagnosticsProperty$(picture_provider.AssetBundlePictureKey)))(),
+    FutureOfPictureInfo: () => (T$.FutureOfPictureInfo = dart.constFn(async.Future$(picture_stream.PictureInfo)))(),
+    ObjectAndStackTraceToFutureOfPictureInfo: () => (T$.ObjectAndStackTraceToFutureOfPictureInfo = dart.constFn(dart.fnType(T$.FutureOfPictureInfo(), [core.Object, core.StackTrace])))(),
+    SynchronousFutureOfNetworkPicture: () => (T$.SynchronousFutureOfNetworkPicture = dart.constFn(synchronous_future.SynchronousFuture$(picture_provider.NetworkPicture)))(),
+    DiagnosticsPropertyOfNetworkPicture: () => (T$.DiagnosticsPropertyOfNetworkPicture = dart.constFn(diagnostics.DiagnosticsProperty$(picture_provider.NetworkPicture)))(),
+    SynchronousFutureOfFilePicture: () => (T$.SynchronousFutureOfFilePicture = dart.constFn(synchronous_future.SynchronousFuture$(picture_provider.FilePicture)))(),
+    DiagnosticsPropertyOfString: () => (T$.DiagnosticsPropertyOfString = dart.constFn(diagnostics.DiagnosticsProperty$(core.String)))(),
+    PictureInfoN: () => (T$.PictureInfoN = dart.constFn(dart.nullable(picture_stream.PictureInfo)))(),
+    SynchronousFutureOfMemoryPicture: () => (T$.SynchronousFutureOfMemoryPicture = dart.constFn(synchronous_future.SynchronousFuture$(picture_provider.MemoryPicture)))(),
+    SynchronousFutureOfStringPicture: () => (T$.SynchronousFutureOfStringPicture = dart.constFn(synchronous_future.SynchronousFuture$(picture_provider.StringPicture)))(),
+    SynchronousFutureOfAssetBundlePictureKey: () => (T$.SynchronousFutureOfAssetBundlePictureKey = dart.constFn(synchronous_future.SynchronousFuture$(picture_provider.AssetBundlePictureKey)))()
+  };
+  var T$Eval = Object.assign({
+    _: () => T$Eval
+  }, T$);
+  var S = {
+    _: () => S
+  };
+  var S$Eval = Object.assign({
+    _: () => S$Eval
+  }, S);
+  const CT = Object.create({
+    _: () => (C, CT)
+  });
+  dart.defineLazy(CT, {
+    get C0() {
+      return C[0] = dart.const({
+        __proto__: picture_provider.PictureConfiguration.prototype,
+        [colorFilter$]: null,
+        [platform$]: null,
+        [viewBox$]: null,
+        [textDirection$]: null,
+        [locale$]: null,
+        [bundle$]: null
+      });
+    }
+  }, false);
+  var C = [void 0];
+  var I = [
+    "package:flutter_svg/src/picture_provider.dart",
+    "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/src/picture_provider.dart"
+  ];
+  var bundle$ = dart.privateName(picture_provider, "PictureConfiguration.bundle");
+  var locale$ = dart.privateName(picture_provider, "PictureConfiguration.locale");
+  var textDirection$ = dart.privateName(picture_provider, "PictureConfiguration.textDirection");
+  var viewBox$ = dart.privateName(picture_provider, "PictureConfiguration.viewBox");
+  var platform$ = dart.privateName(picture_provider, "PictureConfiguration.platform");
+  var colorFilter$ = dart.privateName(picture_provider, "PictureConfiguration.colorFilter");
+  picture_provider.PictureConfiguration = class PictureConfiguration extends core.Object {
+    get bundle() {
+      return this[bundle$];
+    }
+    set bundle(value) {
+      super.bundle = value;
+    }
+    get locale() {
+      return this[locale$];
+    }
+    set locale(value) {
+      super.locale = value;
+    }
+    get textDirection() {
+      return this[textDirection$];
+    }
+    set textDirection(value) {
+      super.textDirection = value;
+    }
+    get viewBox() {
+      return this[viewBox$];
+    }
+    set viewBox(value) {
+      super.viewBox = value;
+    }
+    get platform() {
+      return this[platform$];
+    }
+    set platform(value) {
+      super.platform = value;
+    }
+    get colorFilter() {
+      return this[colorFilter$];
+    }
+    set colorFilter(value) {
+      super.colorFilter = value;
+    }
+    copyWith(opts) {
+      let t0, t0$, t0$0, t0$1, t0$2, t0$3;
+      let bundle = opts && 'bundle' in opts ? opts.bundle : null;
+      let locale = opts && 'locale' in opts ? opts.locale : null;
+      let textDirection = opts && 'textDirection' in opts ? opts.textDirection : null;
+      let viewBox = opts && 'viewBox' in opts ? opts.viewBox : null;
+      let platform = opts && 'platform' in opts ? opts.platform : null;
+      let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+      return new picture_provider.PictureConfiguration.new({bundle: (t0 = bundle, t0 == null ? this.bundle : t0), locale: (t0$ = locale, t0$ == null ? this.locale : t0$), textDirection: (t0$0 = textDirection, t0$0 == null ? this.textDirection : t0$0), viewBox: (t0$1 = viewBox, t0$1 == null ? this.viewBox : t0$1), platform: (t0$2 = platform, t0$2 == null ? this.platform : t0$2), colorFilter: (t0$3 = colorFilter, t0$3 == null ? this.colorFilter : t0$3)});
+    }
+    _equals(other) {
+      if (other == null) return false;
+      if (!dart.equals(dart.runtimeType(other), this[$runtimeType])) {
+        return false;
+      }
+      return picture_provider.PictureConfiguration.is(other) && dart.equals(other.bundle, this.bundle) && dart.equals(other.locale, this.locale) && other.textDirection == this.textDirection && dart.equals(other.viewBox, this.viewBox) && other.platform == this.platform && dart.equals(other.colorFilter, this.colorFilter);
+    }
+    get hashCode() {
+      return ui.hashValues(this.bundle, this.locale, this.viewBox, this.platform, this.colorFilter);
+    }
+    toString() {
+      let result = new core.StringBuffer.new();
+      result.write("PictureConfiguration(");
+      let hasArguments = false;
+      if (this.bundle != null) {
+        result.write("bundle: " + dart.str(this.bundle));
+        hasArguments = true;
+      }
+      if (this.locale != null) {
+        if (hasArguments) {
+          result.write(", ");
+        }
+        result.write("locale: " + dart.str(this.locale));
+        hasArguments = true;
+      }
+      if (this.textDirection != null) {
+        if (hasArguments) {
+          result.write(", ");
+        }
+        result.write("textDirection: " + dart.str(this.textDirection));
+        hasArguments = true;
+      }
+      if (this.viewBox != null) {
+        if (hasArguments) {
+          result.write(", ");
+        }
+        result.write("viewBox: " + dart.str(this.viewBox));
+        hasArguments = true;
+      }
+      if (this.platform != null) {
+        if (hasArguments) {
+          result.write(", ");
+        }
+        result.write("platform: " + dart.str(diagnostics.describeEnum(dart.nullCheck(this.platform))));
+        hasArguments = true;
+      }
+      if (this.colorFilter != null) {
+        if (hasArguments) {
+          result.write(", ");
+        }
+        result.write("colorFilter: " + dart.str(this.colorFilter));
+        hasArguments = true;
+      }
+      result.write(")");
+      return result.toString();
+    }
+  };
+  (picture_provider.PictureConfiguration.new = function(opts) {
+    let bundle = opts && 'bundle' in opts ? opts.bundle : null;
+    let locale = opts && 'locale' in opts ? opts.locale : null;
+    let textDirection = opts && 'textDirection' in opts ? opts.textDirection : null;
+    let viewBox = opts && 'viewBox' in opts ? opts.viewBox : null;
+    let platform = opts && 'platform' in opts ? opts.platform : null;
+    let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+    this[bundle$] = bundle;
+    this[locale$] = locale;
+    this[textDirection$] = textDirection;
+    this[viewBox$] = viewBox;
+    this[platform$] = platform;
+    this[colorFilter$] = colorFilter;
+    ;
+  }).prototype = picture_provider.PictureConfiguration.prototype;
+  dart.addTypeTests(picture_provider.PictureConfiguration);
+  dart.addTypeCaches(picture_provider.PictureConfiguration);
+  dart.setMethodSignature(picture_provider.PictureConfiguration, () => ({
+    __proto__: dart.getMethods(picture_provider.PictureConfiguration.__proto__),
+    copyWith: dart.fnType(picture_provider.PictureConfiguration, [], {bundle: dart.nullable(asset_bundle.AssetBundle), colorFilter: dart.nullable(ui.ColorFilter), locale: dart.nullable(ui.Locale), platform: dart.nullable(platform.TargetPlatform), textDirection: dart.nullable(ui.TextDirection), viewBox: dart.nullable(ui.Rect)}, {}),
+    _equals: dart.fnType(core.bool, [dart.dynamic]),
+    [$_equals]: dart.fnType(core.bool, [dart.dynamic])
+  }));
+  dart.setLibraryUri(picture_provider.PictureConfiguration, I[0]);
+  dart.setFieldSignature(picture_provider.PictureConfiguration, () => ({
+    __proto__: dart.getFields(picture_provider.PictureConfiguration.__proto__),
+    bundle: dart.finalFieldType(dart.nullable(asset_bundle.AssetBundle)),
+    locale: dart.finalFieldType(dart.nullable(ui.Locale)),
+    textDirection: dart.finalFieldType(dart.nullable(ui.TextDirection)),
+    viewBox: dart.finalFieldType(dart.nullable(ui.Rect)),
+    platform: dart.finalFieldType(dart.nullable(platform.TargetPlatform)),
+    colorFilter: dart.finalFieldType(dart.nullable(ui.ColorFilter))
+  }));
+  dart.defineExtensionMethods(picture_provider.PictureConfiguration, ['_equals', 'toString']);
+  dart.defineExtensionAccessors(picture_provider.PictureConfiguration, ['hashCode']);
+  dart.defineLazy(picture_provider.PictureConfiguration, {
+    /*picture_provider.PictureConfiguration.empty*/get empty() {
+      return C[0] || CT.C0;
+    }
+  }, false);
+  var colorFilter$0 = dart.privateName(picture_provider, "PictureProvider.colorFilter");
+  const _is_PictureProvider_default = Symbol('_is_PictureProvider_default');
+  picture_provider.PictureProvider$ = dart.generic(T => {
+    var TToNull = () => (TToNull = dart.constFn(dart.fnType(core.Null, [T])))();
+    var DiagnosticsPropertyOfT = () => (DiagnosticsPropertyOfT = dart.constFn(diagnostics.DiagnosticsProperty$(T)))();
+    class PictureProvider extends core.Object {
+      get colorFilter() {
+        return this[colorFilter$0];
+      }
+      set colorFilter(value) {
+        super.colorFilter = value;
+      }
+      static get cacheCount() {
+        return picture_provider.PictureProvider.cache.count;
+      }
+      static clearCache() {
+        return picture_provider.PictureProvider.cache.clear();
+      }
+      resolve(picture, opts) {
+        if (picture == null) dart.nullFailed(I[1], 326, 46, "picture");
+        let onError = opts && 'onError' in opts ? opts.onError : null;
+        if (!(picture != null)) dart.assertFailed(null, I[1], 329, 12, "picture != null");
+        let stream = new picture_stream.PictureStream.new();
+        let obtainedKey = null;
+        this.obtainKey(picture).then(dart.void, dart.fn(key => {
+          obtainedKey = key;
+          stream.setCompleter(picture_provider.PictureProvider.cache.putIfAbsent(dart.nullCheck(key), dart.fn(() => this.load(key, {onError: onError}), T$.VoidToPictureStreamCompleter())));
+        }, TToNull())).catchError(dart.fn((exception, stack) => {
+          if (exception == null) dart.nullFailed(I[1], 342, 26, "exception");
+          if (stack == null) dart.nullFailed(I[1], 342, 48, "stack");
+          return async.async(core.Null, (function*() {
+            if (onError != null) {
+              onError(exception, stack);
+              return;
+            }
+            assertions.FlutterError.reportError(new assertions.FlutterErrorDetails.new({exception: exception, stack: stack, library: "SVG", context: new assertions.ErrorDescription.new("while resolving a picture"), silent: true, informationCollector: dart.fn(() => new (T$.SyncIterableOfDiagnosticsNode()).new((function*() {
+                yield new (T$.DiagnosticsPropertyOfPictureProvider()).new("Picture provider", this);
+                yield new (DiagnosticsPropertyOfT()).new("Picture key", obtainedKey, {defaultValue: null});
+              }).bind(this)), T$.VoidToIterableOfDiagnosticsNode())}));
+          }).bind(this));
+        }, T$.ObjectAndStackTraceToFutureOfNull()));
+        return stream;
+      }
+      toString() {
+        return dart.str(this[$runtimeType]) + "()";
+      }
+    }
+    (PictureProvider.new = function(colorFilter) {
+      this[colorFilter$0] = colorFilter;
+      ;
+    }).prototype = PictureProvider.prototype;
+    dart.addTypeTests(PictureProvider);
+    PictureProvider.prototype[_is_PictureProvider_default] = true;
+    dart.addTypeCaches(PictureProvider);
+    dart.setMethodSignature(PictureProvider, () => ({
+      __proto__: dart.getMethods(PictureProvider.__proto__),
+      resolve: dart.fnType(picture_stream.PictureStream, [picture_provider.PictureConfiguration], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {})
+    }));
+    dart.setLibraryUri(PictureProvider, I[0]);
+    dart.setFieldSignature(PictureProvider, () => ({
+      __proto__: dart.getFields(PictureProvider.__proto__),
+      colorFilter: dart.finalFieldType(dart.nullable(ui.ColorFilter))
+    }));
+    dart.defineExtensionMethods(PictureProvider, ['toString']);
+    return PictureProvider;
+  });
+  picture_provider.PictureProvider = picture_provider.PictureProvider$();
+  dart.defineLazy(picture_provider.PictureProvider, {
+    /*picture_provider.PictureProvider.cache*/get cache() {
+      return new picture_cache.PictureCache.new();
+    }
+  }, false);
+  dart.addTypeTests(picture_provider.PictureProvider, _is_PictureProvider_default);
+  var bundle$0 = dart.privateName(picture_provider, "AssetBundlePictureKey.bundle");
+  var name$ = dart.privateName(picture_provider, "AssetBundlePictureKey.name");
+  var colorFilter$1 = dart.privateName(picture_provider, "AssetBundlePictureKey.colorFilter");
+  picture_provider.AssetBundlePictureKey = class AssetBundlePictureKey extends core.Object {
+    get bundle() {
+      return this[bundle$0];
+    }
+    set bundle(value) {
+      super.bundle = value;
+    }
+    get name() {
+      return this[name$];
+    }
+    set name(value) {
+      super.name = value;
+    }
+    get colorFilter() {
+      return this[colorFilter$1];
+    }
+    set colorFilter(value) {
+      super.colorFilter = value;
+    }
+    _equals(other) {
+      if (other == null) return false;
+      if (!dart.equals(dart.runtimeType(other), this[$runtimeType])) {
+        return false;
+      }
+      return picture_provider.AssetBundlePictureKey.is(other) && dart.equals(this.bundle, other.bundle) && this.name == other.name && dart.equals(this.colorFilter, other.colorFilter);
+    }
+    get hashCode() {
+      return ui.hashValues(this.bundle, this.name, this.colorFilter);
+    }
+    toString() {
+      return dart.str(this[$runtimeType]) + "(bundle: " + dart.str(this.bundle) + ", name: \"" + dart.str(this.name) + "\", colorFilter: " + dart.str(this.colorFilter) + ")";
+    }
+  };
+  (picture_provider.AssetBundlePictureKey.new = function(opts) {
+    let bundle = opts && 'bundle' in opts ? opts.bundle : null;
+    if (bundle == null) dart.nullFailed(I[1], 392, 22, "bundle");
+    let name = opts && 'name' in opts ? opts.name : null;
+    if (name == null) dart.nullFailed(I[1], 392, 44, "name");
+    let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+    this[bundle$0] = bundle;
+    this[name$] = name;
+    this[colorFilter$1] = colorFilter;
+    if (!(bundle != null)) dart.assertFailed(null, I[1], 393, 16, "bundle != null");
+    if (!(name != null)) dart.assertFailed(null, I[1], 394, 16, "name != null");
+    ;
+  }).prototype = picture_provider.AssetBundlePictureKey.prototype;
+  dart.addTypeTests(picture_provider.AssetBundlePictureKey);
+  dart.addTypeCaches(picture_provider.AssetBundlePictureKey);
+  dart.setMethodSignature(picture_provider.AssetBundlePictureKey, () => ({
+    __proto__: dart.getMethods(picture_provider.AssetBundlePictureKey.__proto__),
+    _equals: dart.fnType(core.bool, [dart.dynamic]),
+    [$_equals]: dart.fnType(core.bool, [dart.dynamic])
+  }));
+  dart.setLibraryUri(picture_provider.AssetBundlePictureKey, I[0]);
+  dart.setFieldSignature(picture_provider.AssetBundlePictureKey, () => ({
+    __proto__: dart.getFields(picture_provider.AssetBundlePictureKey.__proto__),
+    bundle: dart.finalFieldType(asset_bundle.AssetBundle),
+    name: dart.finalFieldType(core.String),
+    colorFilter: dart.finalFieldType(dart.nullable(ui.ColorFilter))
+  }));
+  dart.defineExtensionMethods(picture_provider.AssetBundlePictureKey, ['_equals', 'toString']);
+  dart.defineExtensionAccessors(picture_provider.AssetBundlePictureKey, ['hashCode']);
+  var decoder$ = dart.privateName(picture_provider, "AssetBundlePictureProvider.decoder");
+  var _loadAsync = dart.privateName(picture_provider, "_loadAsync");
+  picture_provider.AssetBundlePictureProvider = class AssetBundlePictureProvider extends picture_provider.PictureProvider$(picture_provider.AssetBundlePictureKey) {
+    get decoder() {
+      return this[decoder$];
+    }
+    set decoder(value) {
+      super.decoder = value;
+    }
+    load(key, opts) {
+      picture_provider.AssetBundlePictureKey.as(key);
+      if (key == null) dart.nullFailed(I[1], 446, 53, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      return new picture_stream.OneFramePictureStreamCompleter.new(this[_loadAsync](key, onError), {informationCollector: dart.fn(() => new (T$.SyncIterableOfDiagnosticsNode()).new((function*() {
+          yield new (T$.DiagnosticsPropertyOfPictureProvider()).new("Picture provider", this);
+          yield new (T$.DiagnosticsPropertyOfAssetBundlePictureKey()).new("Picture key", key);
+        }).bind(this)), T$.VoidToIterableOfDiagnosticsNode())});
+    }
+    [_loadAsync](key, onError) {
+      if (key == null) dart.nullFailed(I[1], 461, 29, "key");
+      return async.async(picture_stream.PictureInfo, (function* _loadAsync() {
+        let t2, t1, t0, t2$, t1$, t0$;
+        let data = (yield key.bundle.loadString(key.name));
+        if (onError != null) {
+          return (t0 = data, t1 = key.colorFilter, t2 = dart.toString(key), this.decoder(t0, t1, t2)).catchError(dart.fn((error, stack) => {
+            if (error == null) dart.nullFailed(I[1], 468, 28, "error");
+            if (stack == null) dart.nullFailed(I[1], 468, 46, "stack");
+            onError(error, stack);
+            return T$.FutureOfPictureInfo().error(error, stack);
+          }, T$.ObjectAndStackTraceToFutureOfPictureInfo()));
+        }
+        t0$ = data;
+        t1$ = key.colorFilter;
+        t2$ = dart.toString(key);
+        return this.decoder(t0$, t1$, t2$);
+      }).bind(this));
+    }
+  };
+  (picture_provider.AssetBundlePictureProvider.new = function(decoder, colorFilter) {
+    if (decoder == null) dart.nullFailed(I[1], 436, 41, "decoder");
+    this[decoder$] = decoder;
+    if (!(decoder != null)) dart.assertFailed(null, I[1], 437, 16, "decoder != null");
+    picture_provider.AssetBundlePictureProvider.__proto__.new.call(this, colorFilter);
+    ;
+  }).prototype = picture_provider.AssetBundlePictureProvider.prototype;
+  dart.addTypeTests(picture_provider.AssetBundlePictureProvider);
+  dart.addTypeCaches(picture_provider.AssetBundlePictureProvider);
+  dart.setMethodSignature(picture_provider.AssetBundlePictureProvider, () => ({
+    __proto__: dart.getMethods(picture_provider.AssetBundlePictureProvider.__proto__),
+    load: dart.fnType(picture_stream.PictureStreamCompleter, [dart.nullable(core.Object)], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    [_loadAsync]: dart.fnType(async.Future$(picture_stream.PictureInfo), [picture_provider.AssetBundlePictureKey, dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))])
+  }));
+  dart.setLibraryUri(picture_provider.AssetBundlePictureProvider, I[0]);
+  dart.setFieldSignature(picture_provider.AssetBundlePictureProvider, () => ({
+    __proto__: dart.getFields(picture_provider.AssetBundlePictureProvider.__proto__),
+    decoder: dart.finalFieldType(dart.fnType(async.Future$(picture_stream.PictureInfo), [core.String, dart.nullable(ui.ColorFilter), core.String]))
+  }));
+  var decoder$0 = dart.privateName(picture_provider, "NetworkPicture.decoder");
+  var url$ = dart.privateName(picture_provider, "NetworkPicture.url");
+  var headers$ = dart.privateName(picture_provider, "NetworkPicture.headers");
+  picture_provider.NetworkPicture = class NetworkPicture extends picture_provider.PictureProvider {
+    get decoder() {
+      return this[decoder$0];
+    }
+    set decoder(value) {
+      super.decoder = value;
+    }
+    get url() {
+      return this[url$];
+    }
+    set url(value) {
+      super.url = value;
+    }
+    get headers() {
+      return this[headers$];
+    }
+    set headers(value) {
+      super.headers = value;
+    }
+    obtainKey(picture) {
+      if (picture == null) dart.nullFailed(I[1], 506, 57, "picture");
+      return new (T$.SynchronousFutureOfNetworkPicture()).new(this);
+    }
+    load(key, opts) {
+      picture_provider.NetworkPicture.as(key);
+      if (key == null) dart.nullFailed(I[1], 511, 46, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      return new picture_stream.OneFramePictureStreamCompleter.new(this[_loadAsync](key, {onError: onError}), {informationCollector: dart.fn(() => new (T$.SyncIterableOfDiagnosticsNode()).new((function*() {
+          yield new (T$.DiagnosticsPropertyOfPictureProvider()).new("Picture provider", this);
+          yield new (T$.DiagnosticsPropertyOfNetworkPicture()).new("Picture key", key);
+        }).bind(this)), T$.VoidToIterableOfDiagnosticsNode())});
+    }
+    [_loadAsync](key, opts) {
+      if (key == null) dart.nullFailed(I[1], 520, 49, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      return async.async(picture_stream.PictureInfo, (function* _loadAsync() {
+        let t2, t1, t0, t2$, t1$, t0$;
+        if (!dart.equals(key, this)) dart.assertFailed(null, I[1], 522, 12, "key == this");
+        let bytes = (yield _http_web.httpGet(this.url, {headers: this.headers}));
+        if (onError != null) {
+          return (t0 = bytes, t1 = this.colorFilter, t2 = dart.toString(key), this.decoder(t0, t1, t2)).catchError(dart.fn((error, stack) => {
+            if (error == null) dart.nullFailed(I[1], 529, 28, "error");
+            if (stack == null) dart.nullFailed(I[1], 529, 46, "stack");
+            onError(error, stack);
+            return T$.FutureOfPictureInfo().error(error, stack);
+          }, T$.ObjectAndStackTraceToFutureOfPictureInfo()));
+        }
+        t0$ = bytes;
+        t1$ = this.colorFilter;
+        t2$ = dart.toString(key);
+        return this.decoder(t0$, t1$, t2$);
+      }).bind(this));
+    }
+    _equals(other) {
+      if (other == null) return false;
+      if (!dart.equals(dart.runtimeType(other), this[$runtimeType])) {
+        return false;
+      }
+      return picture_provider.NetworkPicture.is(other) && this.url == other.url && dart.equals(this.colorFilter, other.colorFilter);
+    }
+    get hashCode() {
+      return ui.hashValues(dart.hashCode(this.url), this.colorFilter);
+    }
+    toString() {
+      return dart.str(this[$runtimeType]) + "(\"" + dart.str(this.url) + "\", headers: " + dart.str(this.headers) + ", colorFilter: " + dart.str(this.colorFilter) + ")";
+    }
+  };
+  (picture_provider.NetworkPicture.new = function(decoder, url, opts) {
+    if (decoder == null) dart.nullFailed(I[1], 491, 29, "decoder");
+    if (url == null) dart.nullFailed(I[1], 491, 43, "url");
+    let headers = opts && 'headers' in opts ? opts.headers : null;
+    let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+    this[decoder$0] = decoder;
+    this[url$] = url;
+    this[headers$] = headers;
+    if (!(url != null)) dart.assertFailed(null, I[1], 493, 16, "url != null");
+    picture_provider.NetworkPicture.__proto__.new.call(this, colorFilter);
+    ;
+  }).prototype = picture_provider.NetworkPicture.prototype;
+  dart.addTypeTests(picture_provider.NetworkPicture);
+  dart.addTypeCaches(picture_provider.NetworkPicture);
+  dart.setMethodSignature(picture_provider.NetworkPicture, () => ({
+    __proto__: dart.getMethods(picture_provider.NetworkPicture.__proto__),
+    obtainKey: dart.fnType(async.Future$(picture_provider.NetworkPicture), [picture_provider.PictureConfiguration]),
+    load: dart.fnType(picture_stream.PictureStreamCompleter, [dart.nullable(core.Object)], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    [_loadAsync]: dart.fnType(async.Future$(picture_stream.PictureInfo), [picture_provider.NetworkPicture], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    _equals: dart.fnType(core.bool, [dart.dynamic]),
+    [$_equals]: dart.fnType(core.bool, [dart.dynamic])
+  }));
+  dart.setLibraryUri(picture_provider.NetworkPicture, I[0]);
+  dart.setFieldSignature(picture_provider.NetworkPicture, () => ({
+    __proto__: dart.getFields(picture_provider.NetworkPicture.__proto__),
+    decoder: dart.finalFieldType(dart.fnType(async.Future$(picture_stream.PictureInfo), [typed_data.Uint8List, dart.nullable(ui.ColorFilter), core.String])),
+    url: dart.finalFieldType(core.String),
+    headers: dart.finalFieldType(dart.nullable(core.Map$(core.String, core.String)))
+  }));
+  dart.defineExtensionMethods(picture_provider.NetworkPicture, ['_equals', 'toString']);
+  dart.defineExtensionAccessors(picture_provider.NetworkPicture, ['hashCode']);
+  var file$ = dart.privateName(picture_provider, "FilePicture.file");
+  var decoder$1 = dart.privateName(picture_provider, "FilePicture.decoder");
+  picture_provider.FilePicture = class FilePicture extends picture_provider.PictureProvider {
+    get file() {
+      return this[file$];
+    }
+    set file(value) {
+      super.file = value;
+    }
+    get decoder() {
+      return this[decoder$1];
+    }
+    set decoder(value) {
+      super.decoder = value;
+    }
+    obtainKey(picture) {
+      if (picture == null) dart.nullFailed(I[1], 577, 54, "picture");
+      return new (T$.SynchronousFutureOfFilePicture()).new(this);
+    }
+    load(key, opts) {
+      picture_provider.FilePicture.as(key);
+      if (key == null) dart.nullFailed(I[1], 582, 43, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      return new picture_stream.OneFramePictureStreamCompleter.new(this[_loadAsync](key, {onError: onError}), {informationCollector: dart.fn(() => new (T$.SyncIterableOfDiagnosticsNode()).new((function*() {
+          yield new (T$.DiagnosticsPropertyOfString()).new("Path", this.file.path);
+        }).bind(this)), T$.VoidToIterableOfDiagnosticsNode())});
+    }
+    [_loadAsync](key, opts) {
+      if (key == null) dart.nullFailed(I[1], 590, 47, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      return async.async(T$.PictureInfoN(), (function* _loadAsync() {
+        let t2, t1, t0, t2$, t1$, t0$;
+        if (!dart.equals(key, this)) dart.assertFailed(null, I[1], 592, 12, "key == this");
+        let data = (yield this.file.readAsBytes());
+        if (dart.test(data[$isEmpty])) {
+          return null;
+        }
+        if (onError != null) {
+          return (t0 = data, t1 = this.colorFilter, t2 = dart.toString(key), this.decoder(t0, t1, t2)).catchError(dart.fn((error, stack) => {
+            if (error == null) dart.nullFailed(I[1], 603, 28, "error");
+            if (stack == null) dart.nullFailed(I[1], 603, 46, "stack");
+            return async.async(picture_stream.PictureInfo, function*() {
+              onError(error, stack);
+              return T$.FutureOfPictureInfo().error(error, stack);
+            });
+          }, T$.ObjectAndStackTraceToFutureOfPictureInfo()));
+        }
+        t0$ = data;
+        t1$ = this.colorFilter;
+        t2$ = dart.toString(key);
+        return this.decoder(t0$, t1$, t2$);
+      }).bind(this));
+    }
+    _equals(other) {
+      if (other == null) return false;
+      if (!dart.equals(dart.runtimeType(other), this[$runtimeType])) {
+        return false;
+      }
+      return picture_provider.FilePicture.is(other) && this.file.path == other.file.path && dart.equals(other.colorFilter, this.colorFilter);
+    }
+    get hashCode() {
+      return ui.hashValues(dart.hashCode(this.file.path), this.colorFilter);
+    }
+    toString() {
+      return dart.str(this[$runtimeType]) + "(\"" + dart.str(this.file.path) + "\", colorFilter: " + dart.str(this.colorFilter) + ")";
+    }
+  };
+  (picture_provider.FilePicture.new = function(decoder, file, opts) {
+    if (decoder == null) dart.nullFailed(I[1], 565, 26, "decoder");
+    if (file == null) dart.nullFailed(I[1], 565, 40, "file");
+    let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+    this[decoder$1] = decoder;
+    this[file$] = file;
+    if (!(decoder != null)) dart.assertFailed(null, I[1], 566, 16, "decoder != null");
+    if (!(file != null)) dart.assertFailed(null, I[1], 567, 16, "file != null");
+    picture_provider.FilePicture.__proto__.new.call(this, colorFilter);
+    ;
+  }).prototype = picture_provider.FilePicture.prototype;
+  dart.addTypeTests(picture_provider.FilePicture);
+  dart.addTypeCaches(picture_provider.FilePicture);
+  dart.setMethodSignature(picture_provider.FilePicture, () => ({
+    __proto__: dart.getMethods(picture_provider.FilePicture.__proto__),
+    obtainKey: dart.fnType(async.Future$(picture_provider.FilePicture), [picture_provider.PictureConfiguration]),
+    load: dart.fnType(picture_stream.PictureStreamCompleter, [dart.nullable(core.Object)], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    [_loadAsync]: dart.fnType(async.Future$(dart.nullable(picture_stream.PictureInfo)), [picture_provider.FilePicture], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    _equals: dart.fnType(core.bool, [dart.dynamic]),
+    [$_equals]: dart.fnType(core.bool, [dart.dynamic])
+  }));
+  dart.setLibraryUri(picture_provider.FilePicture, I[0]);
+  dart.setFieldSignature(picture_provider.FilePicture, () => ({
+    __proto__: dart.getFields(picture_provider.FilePicture.__proto__),
+    file: dart.finalFieldType(io.File),
+    decoder: dart.finalFieldType(dart.fnType(async.Future$(picture_stream.PictureInfo), [typed_data.Uint8List, dart.nullable(ui.ColorFilter), core.String]))
+  }));
+  dart.defineExtensionMethods(picture_provider.FilePicture, ['_equals', 'toString']);
+  dart.defineExtensionAccessors(picture_provider.FilePicture, ['hashCode']);
+  var decoder$2 = dart.privateName(picture_provider, "MemoryPicture.decoder");
+  var bytes$ = dart.privateName(picture_provider, "MemoryPicture.bytes");
+  picture_provider.MemoryPicture = class MemoryPicture extends picture_provider.PictureProvider {
+    get decoder() {
+      return this[decoder$2];
+    }
+    set decoder(value) {
+      super.decoder = value;
+    }
+    get bytes() {
+      return this[bytes$];
+    }
+    set bytes(value) {
+      super.bytes = value;
+    }
+    obtainKey(picture) {
+      if (picture == null) dart.nullFailed(I[1], 656, 56, "picture");
+      return new (T$.SynchronousFutureOfMemoryPicture()).new(this);
+    }
+    load(key, opts) {
+      picture_provider.MemoryPicture.as(key);
+      if (key == null) dart.nullFailed(I[1], 661, 45, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      return new picture_stream.OneFramePictureStreamCompleter.new(this[_loadAsync](key, {onError: onError}));
+    }
+    [_loadAsync](key, opts) {
+      if (key == null) dart.nullFailed(I[1], 666, 48, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      return async.async(picture_stream.PictureInfo, (function* _loadAsync() {
+        let t2, t1, t0, t2$, t1$, t0$;
+        if (!dart.equals(key, this)) dart.assertFailed(null, I[1], 668, 12, "key == this");
+        if (onError != null) {
+          return (t0 = this.bytes, t1 = this.colorFilter, t2 = dart.toString(key), this.decoder(t0, t1, t2)).catchError(dart.fn((error, stack) => {
+            if (error == null) dart.nullFailed(I[1], 674, 28, "error");
+            if (stack == null) dart.nullFailed(I[1], 674, 46, "stack");
+            onError(error, stack);
+            return T$.FutureOfPictureInfo().error(error, stack);
+          }, T$.ObjectAndStackTraceToFutureOfPictureInfo()));
+        }
+        t0$ = this.bytes;
+        t1$ = this.colorFilter;
+        t2$ = dart.toString(key);
+        return this.decoder(t0$, t1$, t2$);
+      }).bind(this));
+    }
+    _equals(other) {
+      if (other == null) return false;
+      if (!dart.equals(dart.runtimeType(other), this[$runtimeType])) {
+        return false;
+      }
+      return picture_provider.MemoryPicture.is(other) && dart.equals(this.bytes, other.bytes) && dart.equals(this.colorFilter, other.colorFilter);
+    }
+    get hashCode() {
+      return ui.hashValues(dart.hashCode(this.bytes), this.colorFilter);
+    }
+    toString() {
+      return dart.str(this[$runtimeType]) + "(" + dart.str(diagnostics.describeIdentity(this.bytes)) + ")";
+    }
+  };
+  (picture_provider.MemoryPicture.new = function(decoder, bytes, opts) {
+    if (decoder == null) dart.nullFailed(I[1], 645, 28, "decoder");
+    if (bytes == null) dart.nullFailed(I[1], 645, 42, "bytes");
+    let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+    this[decoder$2] = decoder;
+    this[bytes$] = bytes;
+    if (!(bytes != null)) dart.assertFailed(null, I[1], 646, 16, "bytes != null");
+    picture_provider.MemoryPicture.__proto__.new.call(this, colorFilter);
+    ;
+  }).prototype = picture_provider.MemoryPicture.prototype;
+  dart.addTypeTests(picture_provider.MemoryPicture);
+  dart.addTypeCaches(picture_provider.MemoryPicture);
+  dart.setMethodSignature(picture_provider.MemoryPicture, () => ({
+    __proto__: dart.getMethods(picture_provider.MemoryPicture.__proto__),
+    obtainKey: dart.fnType(async.Future$(picture_provider.MemoryPicture), [picture_provider.PictureConfiguration]),
+    load: dart.fnType(picture_stream.PictureStreamCompleter, [dart.nullable(core.Object)], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    [_loadAsync]: dart.fnType(async.Future$(picture_stream.PictureInfo), [picture_provider.MemoryPicture], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    _equals: dart.fnType(core.bool, [dart.dynamic]),
+    [$_equals]: dart.fnType(core.bool, [dart.dynamic])
+  }));
+  dart.setLibraryUri(picture_provider.MemoryPicture, I[0]);
+  dart.setFieldSignature(picture_provider.MemoryPicture, () => ({
+    __proto__: dart.getFields(picture_provider.MemoryPicture.__proto__),
+    decoder: dart.finalFieldType(dart.fnType(async.Future$(picture_stream.PictureInfo), [typed_data.Uint8List, dart.nullable(ui.ColorFilter), core.String])),
+    bytes: dart.finalFieldType(typed_data.Uint8List)
+  }));
+  dart.defineExtensionMethods(picture_provider.MemoryPicture, ['_equals', 'toString']);
+  dart.defineExtensionAccessors(picture_provider.MemoryPicture, ['hashCode']);
+  var decoder$3 = dart.privateName(picture_provider, "StringPicture.decoder");
+  var string$ = dart.privateName(picture_provider, "StringPicture.string");
+  picture_provider.StringPicture = class StringPicture extends picture_provider.PictureProvider {
+    get decoder() {
+      return this[decoder$3];
+    }
+    set decoder(value) {
+      super.decoder = value;
+    }
+    get string() {
+      return this[string$];
+    }
+    set string(value) {
+      super.string = value;
+    }
+    obtainKey(picture) {
+      if (picture == null) dart.nullFailed(I[1], 726, 56, "picture");
+      return new (T$.SynchronousFutureOfStringPicture()).new(this);
+    }
+    load(key, opts) {
+      picture_provider.StringPicture.as(key);
+      if (key == null) dart.nullFailed(I[1], 731, 45, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      return new picture_stream.OneFramePictureStreamCompleter.new(this[_loadAsync](key, {onError: onError}));
+    }
+    [_loadAsync](key, opts) {
+      let t2, t1, t0, t2$, t1$, t0$;
+      if (key == null) dart.nullFailed(I[1], 737, 19, "key");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      if (!dart.equals(key, this)) dart.assertFailed(null, I[1], 740, 12, "key == this");
+      if (onError != null) {
+        return (t0 = this.string, t1 = this.colorFilter, t2 = dart.toString(key), this.decoder(t0, t1, t2)).catchError(dart.fn((error, stack) => {
+          if (error == null) dart.nullFailed(I[1], 746, 28, "error");
+          if (stack == null) dart.nullFailed(I[1], 746, 46, "stack");
+          onError(error, stack);
+          return T$.FutureOfPictureInfo().error(error, stack);
+        }, T$.ObjectAndStackTraceToFutureOfPictureInfo()));
+      }
+      t0$ = this.string;
+      t1$ = this.colorFilter;
+      t2$ = dart.toString(key);
+      return this.decoder(t0$, t1$, t2$);
+    }
+    _equals(other) {
+      if (other == null) return false;
+      if (!dart.equals(dart.runtimeType(other), this[$runtimeType])) {
+        return false;
+      }
+      return picture_provider.StringPicture.is(other) && this.string == other.string && dart.equals(this.colorFilter, other.colorFilter);
+    }
+    get hashCode() {
+      return ui.hashValues(dart.hashCode(this.string), this.colorFilter);
+    }
+    toString() {
+      return dart.str(this[$runtimeType]) + "(" + dart.str(diagnostics.describeIdentity(this.string)) + ", colorFilter: " + dart.str(this.colorFilter) + ")";
+    }
+  };
+  (picture_provider.StringPicture.new = function(decoder, string, opts) {
+    if (decoder == null) dart.nullFailed(I[1], 715, 28, "decoder");
+    if (string == null) dart.nullFailed(I[1], 715, 42, "string");
+    let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+    this[decoder$3] = decoder;
+    this[string$] = string;
+    if (!(string != null)) dart.assertFailed(null, I[1], 716, 16, "string != null");
+    picture_provider.StringPicture.__proto__.new.call(this, colorFilter);
+    ;
+  }).prototype = picture_provider.StringPicture.prototype;
+  dart.addTypeTests(picture_provider.StringPicture);
+  dart.addTypeCaches(picture_provider.StringPicture);
+  dart.setMethodSignature(picture_provider.StringPicture, () => ({
+    __proto__: dart.getMethods(picture_provider.StringPicture.__proto__),
+    obtainKey: dart.fnType(async.Future$(picture_provider.StringPicture), [picture_provider.PictureConfiguration]),
+    load: dart.fnType(picture_stream.PictureStreamCompleter, [dart.nullable(core.Object)], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    [_loadAsync]: dart.fnType(async.Future$(picture_stream.PictureInfo), [picture_provider.StringPicture], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    _equals: dart.fnType(core.bool, [dart.dynamic]),
+    [$_equals]: dart.fnType(core.bool, [dart.dynamic])
+  }));
+  dart.setLibraryUri(picture_provider.StringPicture, I[0]);
+  dart.setFieldSignature(picture_provider.StringPicture, () => ({
+    __proto__: dart.getFields(picture_provider.StringPicture.__proto__),
+    decoder: dart.finalFieldType(dart.fnType(async.Future$(picture_stream.PictureInfo), [core.String, dart.nullable(ui.ColorFilter), core.String])),
+    string: dart.finalFieldType(core.String)
+  }));
+  dart.defineExtensionMethods(picture_provider.StringPicture, ['_equals', 'toString']);
+  dart.defineExtensionAccessors(picture_provider.StringPicture, ['hashCode']);
+  var assetName$ = dart.privateName(picture_provider, "ExactAssetPicture.assetName");
+  var bundle$1 = dart.privateName(picture_provider, "ExactAssetPicture.bundle");
+  var $package$ = dart.privateName(picture_provider, "ExactAssetPicture.package");
+  picture_provider.ExactAssetPicture = class ExactAssetPicture extends picture_provider.AssetBundlePictureProvider {
+    get assetName() {
+      return this[assetName$];
+    }
+    set assetName(value) {
+      super.assetName = value;
+    }
+    get bundle() {
+      return this[bundle$1];
+    }
+    set bundle(value) {
+      super.bundle = value;
+    }
+    get package() {
+      return this[$package$];
+    }
+    set package(value) {
+      super.package = value;
+    }
+    get keyName() {
+      return this.package == null ? this.assetName : "packages/" + dart.str(this.package) + "/" + dart.str(this.assetName);
+    }
+    obtainKey(picture) {
+      let t0, t0$;
+      if (picture == null) dart.nullFailed(I[1], 885, 64, "picture");
+      return new (T$.SynchronousFutureOfAssetBundlePictureKey()).new(new picture_provider.AssetBundlePictureKey.new({bundle: (t0$ = (t0 = this.bundle, t0 == null ? picture.bundle : t0), t0$ == null ? asset_bundle.rootBundle : t0$), name: this.keyName, colorFilter: this.colorFilter}));
+    }
+    _equals(other) {
+      if (other == null) return false;
+      if (!dart.equals(dart.runtimeType(other), this[$runtimeType])) {
+        return false;
+      }
+      return picture_provider.ExactAssetPicture.is(other) && this.keyName == other.keyName && dart.equals(this.bundle, other.bundle) && dart.equals(this.colorFilter, other.colorFilter);
+    }
+    get hashCode() {
+      return ui.hashValues(this.keyName, this.bundle, this.colorFilter);
+    }
+    toString() {
+      return dart.str(this[$runtimeType]) + "(name: \"" + dart.str(this.keyName) + "\", bundle: " + dart.str(this.bundle) + ", colorFilter: " + dart.str(this.colorFilter) + ")";
+    }
+  };
+  (picture_provider.ExactAssetPicture.new = function(decoder, assetName, opts) {
+    if (decoder == null) dart.nullFailed(I[1], 854, 32, "decoder");
+    if (assetName == null) dart.nullFailed(I[1], 855, 10, "assetName");
+    let bundle = opts && 'bundle' in opts ? opts.bundle : null;
+    let $package = opts && 'package' in opts ? opts.package : null;
+    let colorFilter = opts && 'colorFilter' in opts ? opts.colorFilter : null;
+    this[assetName$] = assetName;
+    this[bundle$1] = bundle;
+    this[$package$] = $package;
+    if (!(assetName != null)) dart.assertFailed(null, I[1], 859, 16, "assetName != null");
+    picture_provider.ExactAssetPicture.__proto__.new.call(this, decoder, colorFilter);
+    ;
+  }).prototype = picture_provider.ExactAssetPicture.prototype;
+  dart.addTypeTests(picture_provider.ExactAssetPicture);
+  dart.addTypeCaches(picture_provider.ExactAssetPicture);
+  dart.setMethodSignature(picture_provider.ExactAssetPicture, () => ({
+    __proto__: dart.getMethods(picture_provider.ExactAssetPicture.__proto__),
+    obtainKey: dart.fnType(async.Future$(picture_provider.AssetBundlePictureKey), [picture_provider.PictureConfiguration]),
+    _equals: dart.fnType(core.bool, [dart.dynamic]),
+    [$_equals]: dart.fnType(core.bool, [dart.dynamic])
+  }));
+  dart.setGetterSignature(picture_provider.ExactAssetPicture, () => ({
+    __proto__: dart.getGetters(picture_provider.ExactAssetPicture.__proto__),
+    keyName: core.String
+  }));
+  dart.setLibraryUri(picture_provider.ExactAssetPicture, I[0]);
+  dart.setFieldSignature(picture_provider.ExactAssetPicture, () => ({
+    __proto__: dart.getFields(picture_provider.ExactAssetPicture.__proto__),
+    assetName: dart.finalFieldType(core.String),
+    bundle: dart.finalFieldType(dart.nullable(asset_bundle.AssetBundle)),
+    package: dart.finalFieldType(dart.nullable(core.String))
+  }));
+  dart.defineExtensionMethods(picture_provider.ExactAssetPicture, ['_equals', 'toString']);
+  dart.defineExtensionAccessors(picture_provider.ExactAssetPicture, ['hashCode']);
+  picture_provider.createLocalPictureConfiguration = function createLocalPictureConfiguration(context, opts) {
+    let t0;
+    let viewBox = opts && 'viewBox' in opts ? opts.viewBox : null;
+    let colorFilterOverride = opts && 'colorFilterOverride' in opts ? opts.colorFilterOverride : null;
+    let color = opts && 'color' in opts ? opts.color : null;
+    let colorBlendMode = opts && 'colorBlendMode' in opts ? opts.colorBlendMode : null;
+    let filter = colorFilterOverride;
+    if (filter == null && color != null) {
+      filter = new _engine._CkBlendModeColorFilter.new(color, (t0 = colorBlendMode, t0 == null ? ui.BlendMode.srcIn : t0));
+    }
+    return new picture_provider.PictureConfiguration.new({bundle: context != null ? basic.DefaultAssetBundle.of(context) : asset_bundle.rootBundle, locale: context != null ? localizations.Localizations.maybeLocaleOf(context) : null, textDirection: context != null ? basic.Directionality.maybeOf(context) : null, viewBox: viewBox, platform: platform.defaultTargetPlatform, colorFilter: filter});
+  };
+  dart.setBaseClass(picture_provider.NetworkPicture, picture_provider.PictureProvider$(picture_provider.NetworkPicture));
+  dart.setBaseClass(picture_provider.FilePicture, picture_provider.PictureProvider$(picture_provider.FilePicture));
+  dart.setBaseClass(picture_provider.MemoryPicture, picture_provider.PictureProvider$(picture_provider.MemoryPicture));
+  dart.setBaseClass(picture_provider.StringPicture, picture_provider.PictureProvider$(picture_provider.StringPicture));
+  dart.trackLibraries("packages/flutter_svg/src/picture_provider.dart", {
+    "package:flutter_svg/src/picture_provider.dart": picture_provider
+  }, {
+  }, '{"version":3,"sourceRoot":"","sources":["picture_provider.dart"],"names":[],"mappings":"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","file":"../../../../../../../../../../E:/packages/flutter_svg/src/picture_provider.dart.lib.js"}');
+  // Exports:
+  return {
+    src__picture_provider: picture_provider
+  };
+}));
+
+//# sourceMappingURL=picture_provider.dart.lib.js.map

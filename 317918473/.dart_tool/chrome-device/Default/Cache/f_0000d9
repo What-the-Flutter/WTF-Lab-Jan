@@ -1,0 +1,337 @@
+define(['dart_sdk', 'packages/flutter/src/foundation/debug.dart'], (function load__packages__flutter_svg__src__picture_stream_dart(dart_sdk, packages__flutter__src__foundation__debug$46dart) {
+  'use strict';
+  const core = dart_sdk.core;
+  const ui = dart_sdk.ui;
+  const _interceptors = dart_sdk._interceptors;
+  const dart = dart_sdk.dart;
+  const dartx = dart_sdk.dartx;
+  const diagnostics = packages__flutter__src__foundation__debug$46dart.src__foundation__diagnostics;
+  const assertions = packages__flutter__src__foundation__debug$46dart.src__foundation__assertions;
+  var picture_stream = Object.create(dart.library);
+  var $runtimeType = dartx.runtimeType;
+  var $add = dartx.add;
+  var $removeWhere = dartx.removeWhere;
+  var $length = dartx.length;
+  var $isEmpty = dartx.isEmpty;
+  dart._checkModuleNullSafetyMode(false);
+  var T = {
+    JSArrayOf_PictureListenerPair: () => (T.JSArrayOf_PictureListenerPair = dart.constFn(_interceptors.JSArray$(picture_stream._PictureListenerPair)))(),
+    _PictureListenerPairTobool: () => (T._PictureListenerPairTobool = dart.constFn(dart.fnType(core.bool, [picture_stream._PictureListenerPair])))(),
+    ObjectFlagPropertyOfPictureStreamCompleter: () => (T.ObjectFlagPropertyOfPictureStreamCompleter = dart.constFn(diagnostics.ObjectFlagProperty$(picture_stream.PictureStreamCompleter)))(),
+    ListOf_PictureListenerPair: () => (T.ListOf_PictureListenerPair = dart.constFn(core.List$(picture_stream._PictureListenerPair)))(),
+    ObjectFlagPropertyOfListOf_PictureListenerPair: () => (T.ObjectFlagPropertyOfListOf_PictureListenerPair = dart.constFn(diagnostics.ObjectFlagProperty$(T.ListOf_PictureListenerPair())))(),
+    DiagnosticsPropertyOfPictureInfo: () => (T.DiagnosticsPropertyOfPictureInfo = dart.constFn(diagnostics.DiagnosticsProperty$(picture_stream.PictureInfo)))(),
+    ObjectAndStackTraceToNull: () => (T.ObjectAndStackTraceToNull = dart.constFn(dart.fnType(core.Null, [core.Object, core.StackTrace])))()
+  };
+  var T$Eval = Object.assign({
+    _: () => T$Eval
+  }, T);
+  var S = {
+    _: () => S
+  };
+  var S$Eval = Object.assign({
+    _: () => S$Eval
+  }, S);
+  const CT = Object.create({
+    _: () => (C, CT)
+  });
+  dart.defineLazy(CT, {
+    get C0() {
+      return C[0] = dart.const({
+        __proto__: ui.Size.prototype,
+        [OffsetBase__dy]: 1 / 0,
+        [OffsetBase__dx]: 1 / 0
+      });
+    }
+  }, false);
+  var C = [void 0];
+  var I = [
+    "file:///C:/src/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib/src/picture_stream.dart",
+    "package:flutter_svg/src/picture_stream.dart"
+  ];
+  var listener$ = dart.privateName(picture_stream, "_PictureListenerPair.listener");
+  var errorListener$ = dart.privateName(picture_stream, "_PictureListenerPair.errorListener");
+  picture_stream._PictureListenerPair = class _PictureListenerPair extends core.Object {
+    get listener() {
+      return this[listener$];
+    }
+    set listener(value) {
+      super.listener = value;
+    }
+    get errorListener() {
+      return this[errorListener$];
+    }
+    set errorListener(value) {
+      super.errorListener = value;
+    }
+  };
+  (picture_stream._PictureListenerPair.new = function(listener, errorListener) {
+    if (listener == null) dart.nullFailed(I[0], 18, 35, "listener");
+    this[listener$] = listener;
+    this[errorListener$] = errorListener;
+    ;
+  }).prototype = picture_stream._PictureListenerPair.prototype;
+  dart.addTypeTests(picture_stream._PictureListenerPair);
+  dart.addTypeCaches(picture_stream._PictureListenerPair);
+  dart.setLibraryUri(picture_stream._PictureListenerPair, I[1]);
+  dart.setFieldSignature(picture_stream._PictureListenerPair, () => ({
+    __proto__: dart.getFields(picture_stream._PictureListenerPair.__proto__),
+    listener: dart.finalFieldType(dart.fnType(dart.dynamic, [dart.nullable(picture_stream.PictureInfo), core.bool])),
+    errorListener: dart.finalFieldType(dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace])))
+  }));
+  var picture$ = dart.privateName(picture_stream, "PictureInfo.picture");
+  var viewport$ = dart.privateName(picture_stream, "PictureInfo.viewport");
+  var size$ = dart.privateName(picture_stream, "PictureInfo.size");
+  var OffsetBase__dy = dart.privateName(ui, "OffsetBase._dy");
+  var OffsetBase__dx = dart.privateName(ui, "OffsetBase._dx");
+  picture_stream.PictureInfo = class PictureInfo extends core.Object {
+    get picture() {
+      return this[picture$];
+    }
+    set picture(value) {
+      super.picture = value;
+    }
+    get viewport() {
+      return this[viewport$];
+    }
+    set viewport(value) {
+      super.viewport = value;
+    }
+    get size() {
+      return this[size$];
+    }
+    set size(value) {
+      super.size = value;
+    }
+    get hashCode() {
+      return ui.hashValues(this.picture, this.viewport, this.size);
+    }
+    _equals(other) {
+      if (other == null) return false;
+      if (!dart.equals(dart.runtimeType(other), this[$runtimeType])) {
+        return false;
+      }
+      return picture_stream.PictureInfo.is(other) && dart.equals(other.picture, this.picture) && dart.equals(other.viewport, this.viewport) && dart.equals(other.size, this.size);
+    }
+  };
+  (picture_stream.PictureInfo.new = function(opts) {
+    let picture = opts && 'picture' in opts ? opts.picture : null;
+    if (picture == null) dart.nullFailed(I[0], 28, 19, "picture");
+    let viewport = opts && 'viewport' in opts ? opts.viewport : null;
+    if (viewport == null) dart.nullFailed(I[0], 29, 19, "viewport");
+    let size = opts && 'size' in opts ? opts.size : C[0] || CT.C0;
+    if (size == null) dart.nullFailed(I[0], 30, 10, "size");
+    this[picture$] = picture;
+    this[viewport$] = viewport;
+    this[size$] = size;
+    if (!(picture != null)) dart.assertFailed(null, I[0], 31, 16, "picture != null");
+    if (!(viewport != null)) dart.assertFailed(null, I[0], 32, 16, "viewport != null");
+    if (!(size != null)) dart.assertFailed(null, I[0], 33, 16, "size != null");
+    ;
+  }).prototype = picture_stream.PictureInfo.prototype;
+  dart.addTypeTests(picture_stream.PictureInfo);
+  dart.addTypeCaches(picture_stream.PictureInfo);
+  dart.setLibraryUri(picture_stream.PictureInfo, I[1]);
+  dart.setFieldSignature(picture_stream.PictureInfo, () => ({
+    __proto__: dart.getFields(picture_stream.PictureInfo.__proto__),
+    picture: dart.finalFieldType(ui.Picture),
+    viewport: dart.finalFieldType(ui.Rect),
+    size: dart.finalFieldType(ui.Size)
+  }));
+  dart.defineExtensionMethods(picture_stream.PictureInfo, ['_equals']);
+  dart.defineExtensionAccessors(picture_stream.PictureInfo, ['hashCode']);
+  var _completer = dart.privateName(picture_stream, "_completer");
+  var _listeners = dart.privateName(picture_stream, "_listeners");
+  const Object_Diagnosticable$36 = class Object_Diagnosticable extends core.Object {};
+  (Object_Diagnosticable$36.new = function() {
+  }).prototype = Object_Diagnosticable$36.prototype;
+  dart.applyMixin(Object_Diagnosticable$36, diagnostics.Diagnosticable);
+  picture_stream.PictureStream = class PictureStream extends Object_Diagnosticable$36 {
+    get completer() {
+      return this[_completer];
+    }
+    setCompleter(value) {
+      if (value == null) dart.nullFailed(I[0], 112, 44, "value");
+      if (!(this[_completer] == null)) dart.assertFailed(null, I[0], 113, 12, "_completer == null");
+      this[_completer] = value;
+      if (this[_listeners] != null) {
+        let initialListeners = dart.nullCheck(this[_listeners]);
+        this[_listeners] = null;
+        for (let pair of initialListeners) {
+          dart.nullCheck(this[_completer]).addListener(pair.listener, {onError: pair.errorListener});
+        }
+      }
+    }
+    addListener(listener, opts) {
+      if (listener == null) dart.nullFailed(I[0], 135, 36, "listener");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      if (this[_completer] != null) {
+        return dart.nullCheck(this[_completer]).addListener(listener, {onError: onError});
+      }
+      this[_listeners] == null ? this[_listeners] = T.JSArrayOf_PictureListenerPair().of([]) : null;
+      dart.nullCheck(this[_listeners])[$add](new picture_stream._PictureListenerPair.new(listener, onError));
+    }
+    removeListener(listener) {
+      if (listener == null) dart.nullFailed(I[0], 144, 39, "listener");
+      if (this[_completer] != null) {
+        return dart.nullCheck(this[_completer]).removeListener(listener);
+      }
+      if (!(this[_listeners] != null)) dart.assertFailed(null, I[0], 148, 12, "_listeners != null");
+      dart.nullCheck(this[_listeners])[$removeWhere](dart.fn(pair => {
+        if (pair == null) dart.nullFailed(I[0], 150, 29, "pair");
+        return dart.equals(pair.listener, listener);
+      }, T._PictureListenerPairTobool()));
+    }
+    get key() {
+      return this[_completer] != null ? this[_completer] : this;
+    }
+    debugFillProperties(properties) {
+      let t0, t0$, t0$0, t0$1;
+      if (properties == null) dart.nullFailed(I[0], 168, 56, "properties");
+      super.debugFillProperties(properties);
+      properties.add(new (T.ObjectFlagPropertyOfPictureStreamCompleter()).new("completer", this[_completer], {ifPresent: (t0 = this[_completer], t0 == null ? null : t0.toStringShort()), ifNull: "unresolved"}));
+      properties.add(new (T.ObjectFlagPropertyOfListOf_PictureListenerPair()).new("listeners", this[_listeners], {ifPresent: dart.str((t0$ = this[_listeners], t0$ == null ? null : t0$[$length])) + " listener" + ((t0$0 = this[_listeners], t0$0 == null ? null : t0$0[$length]) === 1 ? "" : "s"), ifNull: "no listeners", level: this[_completer] != null ? diagnostics.DiagnosticLevel.hidden : diagnostics.DiagnosticLevel.info}));
+      t0$1 = this[_completer];
+      t0$1 == null ? null : t0$1.debugFillProperties(properties);
+    }
+  };
+  (picture_stream.PictureStream.new = function() {
+    this[_completer] = null;
+    this[_listeners] = null;
+    ;
+  }).prototype = picture_stream.PictureStream.prototype;
+  dart.addTypeTests(picture_stream.PictureStream);
+  dart.addTypeCaches(picture_stream.PictureStream);
+  dart.setMethodSignature(picture_stream.PictureStream, () => ({
+    __proto__: dart.getMethods(picture_stream.PictureStream.__proto__),
+    setCompleter: dart.fnType(dart.void, [picture_stream.PictureStreamCompleter]),
+    addListener: dart.fnType(dart.void, [dart.fnType(dart.dynamic, [dart.nullable(picture_stream.PictureInfo), core.bool])], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    removeListener: dart.fnType(dart.void, [dart.fnType(dart.dynamic, [dart.nullable(picture_stream.PictureInfo), core.bool])])
+  }));
+  dart.setGetterSignature(picture_stream.PictureStream, () => ({
+    __proto__: dart.getGetters(picture_stream.PictureStream.__proto__),
+    completer: dart.nullable(picture_stream.PictureStreamCompleter),
+    key: dart.nullable(core.Object)
+  }));
+  dart.setLibraryUri(picture_stream.PictureStream, I[1]);
+  dart.setFieldSignature(picture_stream.PictureStream, () => ({
+    __proto__: dart.getFields(picture_stream.PictureStream.__proto__),
+    [_completer]: dart.fieldType(dart.nullable(picture_stream.PictureStreamCompleter)),
+    [_listeners]: dart.fieldType(dart.nullable(core.List$(picture_stream._PictureListenerPair)))
+  }));
+  var _current = dart.privateName(picture_stream, "_current");
+  var _handleImageError = dart.privateName(picture_stream, "_handleImageError");
+  const Object_Diagnosticable$36$ = class Object_Diagnosticable extends core.Object {};
+  (Object_Diagnosticable$36$.new = function() {
+  }).prototype = Object_Diagnosticable$36$.prototype;
+  dart.applyMixin(Object_Diagnosticable$36$, diagnostics.Diagnosticable);
+  picture_stream.PictureStreamCompleter = class PictureStreamCompleter extends Object_Diagnosticable$36$ {
+    addListener(listener, opts) {
+      if (listener == null) dart.nullFailed(I[0], 209, 36, "listener");
+      let onError = opts && 'onError' in opts ? opts.onError : null;
+      this[_listeners][$add](new picture_stream._PictureListenerPair.new(listener, onError));
+      if (this[_current] != null) {
+        try {
+          listener(this[_current], true);
+        } catch (e) {
+          let exception = dart.getThrown(e);
+          let stack = dart.stackTrace(e);
+          if (core.Object.is(exception)) {
+            this[_handleImageError](new assertions.ErrorDescription.new("by a synchronously-called image listener"), exception, stack);
+          } else
+            throw e;
+        }
+      }
+    }
+    removeListener(listener) {
+      if (listener == null) dart.nullFailed(I[0], 225, 39, "listener");
+      this[_listeners][$removeWhere](dart.fn(pair => {
+        if (pair == null) dart.nullFailed(I[0], 227, 29, "pair");
+        return dart.equals(pair.listener, listener);
+      }, T._PictureListenerPairTobool()));
+    }
+    setPicture(picture) {
+      let t3, t2, t1;
+      this[_current] = picture;
+      if (dart.test(this[_listeners][$isEmpty])) {
+        return;
+      }
+      let localListeners = T.ListOf_PictureListenerPair().from(this[_listeners]);
+      for (let listenerPair of localListeners) {
+        try {
+          t1 = listenerPair;
+          t2 = picture;
+          t3 = false;
+          t1.listener(t2, t3);
+        } catch (e) {
+          let exception = dart.getThrown(e);
+          let stack = dart.stackTrace(e);
+          if (core.Object.is(exception)) {
+            if (listenerPair.errorListener != null) {
+              dart.nullCheck(listenerPair.errorListener)(exception, stack);
+            } else {
+              this[_handleImageError](new assertions.ErrorDescription.new("by a picture listener"), exception, stack);
+            }
+          } else
+            throw e;
+        }
+      }
+    }
+    [_handleImageError](context, exception, stack) {
+      if (context == null) dart.nullFailed(I[0], 255, 21, "context");
+      if (exception == null) dart.nullFailed(I[0], 256, 12, "exception");
+      assertions.FlutterError.reportError(new assertions.FlutterErrorDetails.new({exception: exception, stack: core.StackTrace.as(stack), library: "SVG", context: context}));
+    }
+    debugFillProperties(description) {
+      if (description == null) dart.nullFailed(I[0], 270, 56, "description");
+      super.debugFillProperties(description);
+      description.add(new (T.DiagnosticsPropertyOfPictureInfo()).new("current", this[_current], {ifNull: "unresolved", showName: false}));
+      description.add(new (T.ObjectFlagPropertyOfListOf_PictureListenerPair()).new("listeners", this[_listeners], {ifPresent: dart.str(this[_listeners][$length]) + " listener" + (this[_listeners][$length] === 1 ? "" : "s")}));
+    }
+  };
+  (picture_stream.PictureStreamCompleter.new = function() {
+    this[_listeners] = T.JSArrayOf_PictureListenerPair().of([]);
+    this[_current] = null;
+    ;
+  }).prototype = picture_stream.PictureStreamCompleter.prototype;
+  dart.addTypeTests(picture_stream.PictureStreamCompleter);
+  dart.addTypeCaches(picture_stream.PictureStreamCompleter);
+  dart.setMethodSignature(picture_stream.PictureStreamCompleter, () => ({
+    __proto__: dart.getMethods(picture_stream.PictureStreamCompleter.__proto__),
+    addListener: dart.fnType(dart.void, [dart.fnType(dart.dynamic, [dart.nullable(picture_stream.PictureInfo), core.bool])], {onError: dart.nullable(dart.fnType(dart.void, [core.Object, core.StackTrace]))}, {}),
+    removeListener: dart.fnType(dart.void, [dart.fnType(dart.dynamic, [dart.nullable(picture_stream.PictureInfo), core.bool])]),
+    setPicture: dart.fnType(dart.void, [dart.nullable(picture_stream.PictureInfo)]),
+    [_handleImageError]: dart.fnType(dart.void, [diagnostics.DiagnosticsNode, core.Object, dart.dynamic])
+  }));
+  dart.setLibraryUri(picture_stream.PictureStreamCompleter, I[1]);
+  dart.setFieldSignature(picture_stream.PictureStreamCompleter, () => ({
+    __proto__: dart.getFields(picture_stream.PictureStreamCompleter.__proto__),
+    [_listeners]: dart.finalFieldType(core.List$(picture_stream._PictureListenerPair)),
+    [_current]: dart.fieldType(dart.nullable(picture_stream.PictureInfo))
+  }));
+  picture_stream.OneFramePictureStreamCompleter = class OneFramePictureStreamCompleter extends picture_stream.PictureStreamCompleter {};
+  (picture_stream.OneFramePictureStreamCompleter.new = function(picture, opts) {
+    if (picture == null) dart.nullFailed(I[0], 301, 26, "picture");
+    let informationCollector = opts && 'informationCollector' in opts ? opts.informationCollector : null;
+    if (!(picture != null)) dart.assertFailed(null, I[0], 304, 15, "picture != null");
+    picture_stream.OneFramePictureStreamCompleter.__proto__.new.call(this);
+    picture.then(dart.void, dart.bind(this, 'setPicture'), {onError: dart.fn((error, stack) => {
+        if (error == null) dart.nullFailed(I[0], 305, 53, "error");
+        if (stack == null) dart.nullFailed(I[0], 305, 71, "stack");
+        assertions.FlutterError.reportError(new assertions.FlutterErrorDetails.new({exception: error, stack: stack, library: "SVG", context: new assertions.ErrorDescription.new("resolving a single-frame picture stream"), informationCollector: informationCollector, silent: true}));
+      }, T.ObjectAndStackTraceToNull())});
+  }).prototype = picture_stream.OneFramePictureStreamCompleter.prototype;
+  dart.addTypeTests(picture_stream.OneFramePictureStreamCompleter);
+  dart.addTypeCaches(picture_stream.OneFramePictureStreamCompleter);
+  dart.setLibraryUri(picture_stream.OneFramePictureStreamCompleter, I[1]);
+  dart.trackLibraries("packages/flutter_svg/src/picture_stream.dart", {
+    "package:flutter_svg/src/picture_stream.dart": picture_stream
+  }, {
+  }, '{"version":3,"sourceRoot":"","sources":["picture_stream.dart"],"names":[],"mappings":"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","file":"../../../../../../../../../../E:/packages/flutter_svg/src/picture_stream.dart.lib.js"}');
+  // Exports:
+  return {
+    src__picture_stream: picture_stream
+  };
+}));
+
+//# sourceMappingURL=picture_stream.dart.lib.js.map
