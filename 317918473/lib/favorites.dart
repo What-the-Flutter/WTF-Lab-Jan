@@ -13,11 +13,19 @@ class Favorites extends StatefulWidget {
 }
 
 class _FavoritesState extends State<Favorites> {
+  late ChatMessages _chatMessages;
+  late List<Messages> _favorites;
+
+  @override
+  void initState() {
+    super.initState();
+    _chatMessages = context.read<ChatMessages>();
+    _favorites =
+        _chatMessages.messages.where((element) => element.isFavorite).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _chatMessages = context.read<ChatMessages>();
-    final favorites =
-        _chatMessages.messages.where((element) => element.isFavorite).toList();
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -26,25 +34,28 @@ class _FavoritesState extends State<Favorites> {
         title: Text('Favorites'),
       ),
       body: ListView(
-        children: favorites
-            .map((message) => Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Message(
-                        message: message,
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.close,
-                          color: Colors.white,
-                        ),
-                        onPressed: () => setState(() =>
-                            _chatMessages.removeFavorite(
-                                _chatMessages.messages.indexOf(message))),
-                      ),
-                    ]))
-            .toList(),
+        children: _favorites.map((message) {
+          return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Message(
+                  message: message,
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                  onPressed: () => _removeFromFavorite(message),
+                ),
+              ]);
+        }).toList(),
       ),
     );
+  }
+
+  void _removeFromFavorite(Messages message) {
+    setState(() =>
+        _chatMessages.removeFavorite(_chatMessages.messages.indexOf(message)));
   }
 }
