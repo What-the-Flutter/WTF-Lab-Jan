@@ -21,10 +21,15 @@ class Message {
     return true;
   }
 
-  // todo: Ask about setters
-  // set selectMessage(bool select) {
-  //   _isSelected = select;
-  // }
+  bool inverseChosen() {
+    _isFavorite = !_isFavorite;
+    return true;
+  }
+
+  bool inverseSelected() {
+    _isSelected = !_isSelected;
+    return true;
+  }
 
   bool selectMessage(bool select) {
     _isSelected = select;
