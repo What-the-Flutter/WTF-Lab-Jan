@@ -3,52 +3,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../home_screen/home_page.dart';
-import 'favorite_messages_list.dart';
+import '../home_screen/event.dart';
 import 'message.dart';
-import 'messages_list.dart';
 import 'messages_store.dart';
 
 class EventPage extends StatefulWidget {
   final String eventTitle;
   final bool isEventSelected;
   final Message selectedMessage;
-  final EventsStore data;
+  final Event dataEvent;
 
   EventPage({
     Key key,
     @required this.eventTitle,
     @required this.isEventSelected,
     @required this.selectedMessage,
-    @required this.data,
+    @required this.dataEvent,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _EventPageState(
-        eventTitle,
-        isEventSelected,
-        selectedMessage,
-        data,
-      );
+  State<StatefulWidget> createState() => _EventPageState();
 }
 
 class _EventPageState extends State<EventPage> {
-  final bool _isEventSelected;
-  final String _eventTitle;
-  EventsStore _data = EventsStore();
-  Message selectedMessage;
+  bool _isEventSelected;
+  String _eventTitle;
+  Event _dataEvent;
+  EventsStore _data;
+  Message _selectedMessage;
   bool _isEventEdit = false;
   bool _isFavoriteMessagesButtonEnable = false;
+  final _textController = TextEditingController();
 
-  _EventPageState(
-    this._eventTitle,
-    this._isEventSelected,
-    this.selectedMessage,
-    data,
-  ) {
-    if (data != null) {
-      _data = data;
+  @override
+  void initState() {
+    _dataEvent = widget.dataEvent;
+    _data = _dataEvent.messagesData;
+    _isEventSelected = false;
+    for (var i = 0; i < _data.size; i++) {
+      if (_data.elementAt(i).isMessageSelected) {
+        _isEventSelected = true;
+      }
     }
+    _eventTitle = widget.eventTitle;
+    _selectedMessage = widget.selectedMessage;
+
+    super.initState();
   }
 
   @override
@@ -61,77 +61,142 @@ class _EventPageState extends State<EventPage> {
       }
     }
 
-    final textController = TextEditingController();
     @override
     void dispose() {
-      textController.dispose();
+      _textController.dispose();
       super.dispose();
     }
 
-    var _bottomNavigationBar = BottomAppBar(
-      color: Theme.of(context).primaryColor,
-      child: Row(
-        children: [
-          IconButton(
+    var _bottomWidget = Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        color: Theme.of(context).primaryColor,
+        child: Row(
+          children: [
+            IconButton(
               icon: Icon(
                 Icons.scatter_plot,
                 color: Colors.white,
               ),
-              onPressed: null),
-          SizedBox(
-            // todo: Ask about max width widget
-            width: 263,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                color: Colors.white70,
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: TextFormField(
-                  style: TextStyle(color: Colors.white),
-                  controller: textController,
-                  decoration: InputDecoration(
+              onPressed: null,
+            ),
+            SizedBox(
+              width: 263,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                  color: Colors.white70,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: TextFormField(
+                    style: TextStyle(color: Colors.white),
+                    controller: _textController,
+                    decoration: InputDecoration(
                       hintText: 'Enter event',
-                      hintStyle: TextStyle(color: Colors.black26)),
+                      hintStyle: TextStyle(color: Colors.black26),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          IconButton(
+            IconButton(
               icon: Icon(
                 Icons.send,
                 color: Colors.white,
               ),
               onPressed: () {
-                setState(() {
-                  var check = false;
-                  for (var i = 0; i < _data.size; i++) {
-                    if (_data.elementAt(i).isMessageEdit) {
-                      _data.elementAt(i).sendNewMessage(textController.text);
-                      _data.elementAt(i).editMessage(false);
-                      check = true;
+                setState(
+                  () {
+                    var check = false;
+                    for (var i = 0; i < _data.size; i++) {
+                      if (_data.elementAt(i).isMessageEdit) {
+                        _data.elementAt(i).sendNewMessage(_textController.text);
+                        _data.elementAt(i).editMessage(false);
+                        check = true;
+                      }
                     }
-                  }
-                  if (!check) {
-                    _data.addMessage(textController.text);
-                  }
-                  textController.clear();
-                });
-              })
-        ],
+                    if (!check) {
+                      _data.addMessage(_textController.text);
+                    }
+                    _textController.clear();
+                  },
+                );
+              },
+            )
+          ],
+        ),
       ),
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).primaryColor,
       appBar: _isEventSelected
-          ? _drawAppBarForSelectedEvent(textController, _isEventEdit)
-          : _drawDefaultAppBar(),
-      body: _isFavoriteMessagesButtonEnable
-          ? FavoriteMessagesList(_fetchFavoriteMessagesData(), _eventTitle)
-          : MessagesList(_data, _eventTitle),
-      bottomNavigationBar: _bottomNavigationBar,
+          ? _appBarForSelectedEvent(_textController, _isEventEdit)
+          : _defaultAppBar(),
+      body: Stack(
+        children: [
+          _isFavoriteMessagesButtonEnable
+              ? _messagesList(_fetchFavoriteMessagesData())
+              : _messagesList(_data),
+          _bottomWidget,
+        ],
+      ),
+    );
+  }
+
+  Container _messagesList(_listData) {
+    return Container(
+      color: Colors.white,
+      child: ListView.builder(
+        itemCount: _listData.size,
+        itemBuilder: (context, i) {
+          return Container(
+            margin: EdgeInsets.only(
+              left: 7,
+              right: 7,
+            ),
+            child: RaisedButton(
+              color: _listData.elementAt(i).isMessageSelected
+                  ? Theme.of(context).primaryColor
+                  : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              onPressed: () => setState(
+                () => _listData.elementAt(i).inverseChosen(),
+              ),
+              onLongPress: () => setState(
+                () {
+                  _listData.elementAt(i).inverseSelected();
+                  _isEventSelected = _listData.elementAt(i).isMessageSelected;
+                },
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    _listData.eventsList[i].message,
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  _listData.eventsList[i].isMessageFavorite
+                      ? Icon(
+                          Icons.bookmark,
+                          size: 15,
+                          color: Colors.orange,
+                        )
+                      : SizedBox(),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -146,30 +211,26 @@ class _EventPageState extends State<EventPage> {
     return _favoriteMessageData;
   }
 
-  AppBar _drawAppBarForSelectedEvent(
+  AppBar _appBarForSelectedEvent(
       TextEditingController textController, bool isEventEdit) {
     return AppBar(
       leading: IconButton(
-          icon: Icon(
-            Icons.cancel,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            clearUserActions();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EventPage(
-                  eventTitle: _eventTitle,
-                  isEventSelected: false,
-                  selectedMessage: null,
-                  data: _data,
-                ),
-              ),
-            );
-          }),
+        icon: Icon(
+          Icons.cancel,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          _clearUserActions();
+          setState(
+            () {
+              _isEventSelected = false;
+              _selectedMessage = null;
+            },
+          );
+        },
+      ),
       actions: <Widget>[
-        _drawCounter(),
+        _counter(),
         Padding(padding: EdgeInsets.only(right: 20)),
         IconButton(
             icon: Icon(
@@ -179,63 +240,76 @@ class _EventPageState extends State<EventPage> {
             onPressed: null),
         if (!isEventEdit)
           IconButton(
-              icon: Icon(
-                Icons.edit,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                for (var i = 0; i < _data.size; i++) {
-                  if (_data.elementAt(i).isMessageSelected) {
-                    textController.text = _data.elementAt(i).message;
-                    _data.elementAt(i).editMessage(true);
-                  }
-                }
-              }),
-        IconButton(
             icon: Icon(
-              Icons.content_copy,
+              Icons.edit,
               color: Colors.white,
             ),
             onPressed: () {
-              Clipboard.setData(ClipboardData(text: selectedMessage.message));
-            }),
-        IconButton(
-            icon: Icon(
-              Icons.bookmark_border,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              // todo: make message favorite
               for (var i = 0; i < _data.size; i++) {
                 if (_data.elementAt(i).isMessageSelected) {
-                  _data.elementAt(i).favoriteMessage(true);
-                  print(_data.elementAt(i).message);
+                  textController.text = _data.elementAt(i).message;
+                  _data.elementAt(i).editMessage(true);
                 }
               }
-            }),
+            },
+          ),
         IconButton(
-            icon: Icon(
-              Icons.delete,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              setState(() {
-                var indexes = <int>[];
+          icon: Icon(
+            Icons.content_copy,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: _selectedMessage.message));
+          },
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.bookmark_border,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            setState(
+              () {
                 for (var i = 0; i < _data.size; i++) {
                   if (_data.elementAt(i).isMessageSelected) {
+                    _data.elementAt(i).inverseChosen();
+                  }
+                }
+              },
+            );
+          },
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            setState(
+              () {
+                var indexes = <int>[];
+                for (var i = 0; i < _data.size; i++) {
+                  _isEventSelected = false;
+                  if (_data.elementAt(i).isMessageSelected) {
                     indexes.add(i);
+                    _isEventSelected = true;
                   }
                 }
                 for (var i = 0; i < indexes.length; i++) {
                   _data.removeElementAt(indexes[i] - i);
                 }
-              });
-            }),
+                if (_data.size == 0) {
+                  _isEventSelected = false;
+                }
+              },
+            );
+          },
+        ),
       ],
     );
   }
 
-  bool clearUserActions() {
+  bool _clearUserActions() {
     for (var i = 0; i < _data.size; i++) {
       if (_data.elementAt(i).isMessageSelected) {
         _data.elementAt(i).selectMessage(false);
@@ -245,12 +319,19 @@ class _EventPageState extends State<EventPage> {
     return true;
   }
 
-  Center _drawCounter() {
+  Center _counter() {
     var counter = 0;
     for (var i = 0; i < _data.size; i++) {
       if (_data.elementAt(i).isMessageSelected) {
         counter++;
       }
+    }
+    if (counter == 0 && !_isEventSelected) {
+      setState(
+        () {
+          _isEventSelected = false;
+        },
+      );
     }
     return Center(
       child: Text(
@@ -260,38 +341,44 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  AppBar _drawDefaultAppBar() {
+  AppBar _defaultAppBar() {
     return AppBar(
       title: Center(
         child: Text(_eventTitle),
       ),
       leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      actions: <Widget>[
+        IconButton(
           icon: Icon(
-            Icons.arrow_back,
+            Icons.search,
+            color: Colors.white,
+          ),
+          onPressed: null,
+        ),
+        IconButton(
+          icon: Icon(
+            _isFavoriteMessagesButtonEnable
+                ? Icons.bookmark
+                : Icons.bookmark_border,
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => HomePage()));
-          }),
-      actions: <Widget>[
-        IconButton(
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: null),
-        IconButton(
-            icon: Icon(
-              Icons.bookmark_border,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              setState(() {
+            setState(
+              () {
                 _isFavoriteMessagesButtonEnable =
                     !_isFavoriteMessagesButtonEnable;
-              });
-            })
+              },
+            );
+          },
+        )
       ],
     );
   }
