@@ -6,7 +6,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'category.dart';
-import 'main.dart';
 
 class Chat extends StatefulWidget {
   Chat({Key? key, required this.category}) : super(key: key);
@@ -37,6 +36,19 @@ class _ChatState extends State<Chat> {
   }
 
   @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _onChoose != null ? _appBarOnChoose(context) : _defaultAppBar(),
+      body: !_focus.hasFocus
+          ? _body(context)
+          : GestureDetector(
+              child: _body(context),
+              onTap: _focus.unfocus,
+            ),
+    );
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     _focus.dispose();
@@ -56,62 +68,49 @@ class _ChatState extends State<Chat> {
 
   Future<void> _showDialog() async {
     return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: backgroundColor,
-            title: Text(
-              'Source',
-              style: TextStyle(fontSize: 24, color: Colors.white),
-            ),
-            content: Wrap(
-              children: [
-                ListTile(
-                    leading: Icon(
-                      Icons.photo,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                    title: Text(
-                      'Gallery',
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ),
-                    onTap: () => _chooseImageSource(ImageSource.gallery)),
-                ListTile(
-                  leading: Icon(
-                    Icons.camera,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  title: Text(
-                    'Camera',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
-                  onTap: () => _chooseImageSource(ImageSource.camera),
-                )
-              ],
-            ),
-          );
-        });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _onChoose != null ? _appBarOnChoose(context) : _defaultAppBar(),
-      body: !_focus.hasFocus
-          ? _body(context)
-          : GestureDetector(
-              child: _body(context),
-              onTap: _focus.unfocus,
-            ),
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Source',
+            style: TextStyle(fontSize: 24, color: Colors.white),
+          ),
+          content: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.photo,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                title: Text(
+                  'Gallery',
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+                onTap: () => _chooseImageSource(ImageSource.gallery),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.camera,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                title: Text(
+                  'Camera',
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+                onTap: () => _chooseImageSource(ImageSource.camera),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 
   AppBar _appBarOnChoose(BuildContext context) {
     return AppBar(
       elevation: 0,
-      backgroundColor: backgroundColor,
       leading: IconButton(
         icon: Icon(Icons.close),
         onPressed: () => setState(() => _onChoose = null),
@@ -126,13 +125,14 @@ class _ChatState extends State<Chat> {
         IconButton(icon: Icon(Icons.edit), onPressed: _editMessage),
         IconButton(icon: Icon(Icons.copy), onPressed: _clipBoardSetData),
         IconButton(
-            icon: _chatMessages.messages[_onChoose!].isFavorite
-                ? Icon(
-                    Icons.star,
-                    color: Colors.yellow,
-                  )
-                : Icon(Icons.star_border),
-            onPressed: _addOrRemoveFromFavorite)
+          icon: _chatMessages.messages[_onChoose!].isFavorite
+              ? Icon(
+                  Icons.star,
+                  color: Colors.yellow,
+                )
+              : Icon(Icons.star_border),
+          onPressed: _addOrRemoveFromFavorite,
+        )
       ],
     );
   }
@@ -149,20 +149,24 @@ class _ChatState extends State<Chat> {
               builder: (context, value, child) {
                 return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: value.messages.map((message) {
-                      return GestureDetector(
-                        child: Message(
-                          message: message,
-                          isChoosed:
-                              _onChoose == value.messages.indexOf(message),
-                        ),
-                        onLongPress: () {
-                          setState(() {
-                            _onChoose = value.messages.indexOf(message);
-                          });
-                        },
-                      );
-                    }).toList());
+                    children: value.messages.map(
+                      (message) {
+                        return GestureDetector(
+                          child: Message(
+                            message: message,
+                            isChoosed:
+                                _onChoose == value.messages.indexOf(message),
+                          ),
+                          onLongPress: () {
+                            setState(
+                              () {
+                                _onChoose = value.messages.indexOf(message);
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ).toList());
               },
             ),
           ),
@@ -187,38 +191,41 @@ class _ChatState extends State<Chat> {
               width: 10,
             ),
             Flexible(
-                child: TextFormField(
-              focusNode: _focus,
-              maxLines: null,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                height: 1.5,
+              child: TextFormField(
+                focusNode: _focus,
+                maxLines: null,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  height: 1.5,
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter some text';
+                  }
+                  return null;
+                },
+                onTap: () => setState(_focus.requestFocus),
+                controller: _controller,
+                decoration: InputDecoration(
+                    hintText: 'Write a message...',
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                    border: InputBorder.none),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Enter some text';
-                }
-                return null;
-              },
-              onTap: () => setState(_focus.requestFocus),
-              controller: _controller,
-              decoration: InputDecoration(
-                  hintText: 'Write a message...',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                  border: InputBorder.none),
-            )),
+            ),
             _focus.hasFocus
                 ? IconButton(
                     icon: Icon(Icons.send),
                     color: Colors.white,
-                    onPressed: _sendMessage)
+                    onPressed: _sendMessage,
+                  )
                 : IconButton(
                     icon: Icon(
                       Icons.image,
                       color: Colors.white,
                     ),
-                    onPressed: _showDialog)
+                    onPressed: _showDialog,
+                  )
           ],
         ),
       ),
@@ -228,7 +235,6 @@ class _ChatState extends State<Chat> {
   AppBar _defaultAppBar() {
     return AppBar(
       elevation: 0,
-      backgroundColor: backgroundColor,
       title: Text(widget.category.title),
       centerTitle: true,
       actions: [
@@ -252,21 +258,25 @@ class _ChatState extends State<Chat> {
   }
 
   void _editMessage() {
-    setState(() {
-      _onEdit = true;
-      _controller.text = _chatMessages.messages[_onChoose!].message;
-      _focus.requestFocus();
-    });
+    setState(
+      () {
+        _onEdit = true;
+        _controller.text = _chatMessages.messages[_onChoose!].message;
+        _focus.requestFocus();
+      },
+    );
   }
 
   void _addOrRemoveFromFavorite() {
-    setState(() {
-      if (_chatMessages.messages[_onChoose!].isFavorite) {
-        _chatMessages.removeFavorite(_onChoose!);
-      } else {
-        _chatMessages.addFavorite(_onChoose!);
-      }
-    });
+    setState(
+      () {
+        if (_chatMessages.messages[_onChoose!].isFavorite) {
+          _chatMessages.removeFavorite(_onChoose!);
+        } else {
+          _chatMessages.addFavorite(_onChoose!);
+        }
+      },
+    );
   }
 
   void _sendMessage() {

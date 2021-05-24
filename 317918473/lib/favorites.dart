@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import 'category.dart';
 import 'chat.dart';
-import 'main.dart';
 
 class Favorites extends StatefulWidget {
   const Favorites({Key? key}) : super(key: key);
@@ -29,13 +28,13 @@ class _FavoritesState extends State<Favorites> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: backgroundColor,
         centerTitle: true,
         title: Text('Favorites'),
       ),
       body: ListView(
-        children: _favorites.map((message) {
-          return Row(
+        children: _favorites.map(
+          (message) {
+            return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Message(
@@ -48,8 +47,10 @@ class _FavoritesState extends State<Favorites> {
                   ),
                   onPressed: () => _removeFromFavorite(message),
                 ),
-              ]);
-        }).toList(),
+              ],
+            );
+          },
+        ).toList(),
       ),
     );
   }
