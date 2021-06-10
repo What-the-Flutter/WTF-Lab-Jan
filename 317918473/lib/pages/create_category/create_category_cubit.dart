@@ -2,11 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
-import 'package:provider/provider.dart';
 import '../../models/category.dart';
 import '../../repository/icons_repository.dart';
 
-import '../home/home_cubit.dart';
 
 part 'create_category_state.dart';
 
@@ -16,11 +14,10 @@ class CreateCategoryCubit extends Cubit<CreateCategoryState> {
   CreateCategoryCubit(this.iconsRepository)
       : super(CreateCategoryInitial(isSelected: false));
 
-  Category? init(BuildContext context, int? index) {
-    if (index == null) {
+  Category? init(BuildContext context, Category? category) {
+    if (category == null) {
       emit(CreateCategoryInitial(isSelected: false));
     } else {
-      final category = context.read<HomeCubit>().state.categoryList[index];
       emit(CreateCategoryUpdateChoose(
           index: category.categories, category: category, isSelected: true));
       return category;

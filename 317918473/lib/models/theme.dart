@@ -26,6 +26,13 @@ extension Theming on Themes {
     }
   }
 }
+  Themes theme(bool isDark) {
+    if (isDark) {
+      return Themes.dark;
+    } else {
+      return Themes.light;
+    }
+  }
 
 class MyTheme {
   MyTheme();

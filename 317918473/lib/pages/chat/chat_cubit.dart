@@ -14,70 +14,79 @@ part 'chat_state.dart';
 class ChatCubit extends Cubit<ChatState> {
   final ChatRepository repository;
   final TagRepository tagRepository;
+  final String categoryId;
   final List<int> _index = [];
 
-  ChatCubit(this.repository, this.tagRepository)
-      : super(ChatInitial(
-          repository.messages,
-        ));
+  ChatCubit(
+    this.repository,
+    this.tagRepository,
+    this.categoryId,
+  ) : super(ChatInitial()) {
+    loadData(categoryId);
+  }
+  Future<void> loadData(String categoryId) async {
+    emit(ChatInWork(
+      await repository.getAll(categoryId),
+      ChatMethod.work,
+      state.tag,
+    ));
+  }
 
   void addMessage(String value) {
-    repository.add(value);
-    emit(ChatInWork(repository.messages, state.tag));
+    repository.add(value, categoryId, state.tag);
+    emit(state.copyWith(message: filteringByTag(state.tag), method: ChatMethod.addMessage));
   }
 
-  void delete(int index) {
-    repository.delete(index);
-    emit(ChatInWork(repository.messages, state.tag));
+  void delete(Messages messages) {
+    repository.delete(messages);
+    emit(ChatInWork(filteringByTag(state.tag),ChatMethod.delete,state.tag));
   }
 
-  void favorite(int index) {
-    repository.favorite(index);
+  void favorite() {
+    repository.favorite();
     repository.unselectAll();
-    emit(ChatInWork(newList(repository.messages), state.tag, true));
+    emit(ChatInWork(filteringByTag(state.tag),ChatMethod.favorite,state.tag));
   }
 
-  void update(int index, String message) {
-    repository.update(index, message);
+  void update(Messages messages, String message) {
+    repository.update(messages, message);
     repository.unselectAll();
-    emit(ChatInWork(repository.messages, state.tag));
+    emit(ChatInWork(filteringByTag(state.tag),ChatMethod.edit,state.tag));
   }
 
   Future<void> sendImage(ImageSource source) async {
     final pickedFile = await ImagePicker().getImage(source: source);
     if (pickedFile != null) {
-      repository.sendImage(pickedFile.path);
-      emit(state.copyWith(message: newList(repository.messages)));
+      repository.sendImage(pickedFile.path, categoryId, state.tag);
+      emit(state.copyWith(
+          message: filteringByTag(state.tag), method: ChatMethod.addImage));
     }
-    emit(state.copyWith(message: newList(repository.messages)));
+    emit(state.copyWith(
+        message: filteringByTag(state.tag), method: ChatMethod.work));
   }
 
-  void choose(int index) {
-    repository.select(index);
-    emit(ChatOnChoose(repository.messages, index, state.tag));
+  void choose(Messages messages) {
+    repository.select(messages);
+    emit(ChatOnChoose(filteringByTag(state.tag), ChatMethod.choosed, state.tag, messages));
   }
 
-  void select(int index) {
-    repository.select(index);
-    if ((state as ChatOnChoose).isSelecteble) {
-      emit(ChatOnChoose(newList(repository.messages),
-          (state as ChatOnChoose).onChoose, state.tag, false));
-    } else {
-      emit(ChatOnChoose(newList(repository.messages),
-          (state as ChatOnChoose).onChoose, state.tag, true));
-    }
+  void select(Messages messages) {
+    repository.select(messages);
+    emit(ChatOnChoose(filteringByTag(state.tag), ChatMethod.select, state.tag,
+        (state as ChatOnChoose).currentMessage));
   }
 
   void closePage() {
     repository.unselectAll();
-    emit(ChatInWork(repository.messages, state.tag));
+    emit(ChatInWork(filteringByTag(state.tag), ChatMethod.close, state.tag));
   }
 
-  void clipBoard(int index) {
-    Clipboard.setData(ClipboardData(text: repository.messages[index].message));
+  void clipBoard(Messages messages) {
+    Clipboard.setData(ClipboardData(text: messages.message));
     repository.unselectAll();
-    emit(ChatClipBoardSuccess('Save to clipBoard', state.tag));
-    emit(ChatInWork(repository.messages, state.tag));
+    emit(ChatNotifierOnSuccess(
+        'Save to clipBoard', ChatMethod.clipboard, state.tag));
+    emit(state.copyWith(method: ChatMethod.work));
   }
 
   void search(String data) {
@@ -91,8 +100,8 @@ class ChatCubit extends Cubit<ChatState> {
           .where((element) => element.message?.contains(data) ?? false)
           .toList();
     }
-    emit(
-        ChatSearchProgress(data == '' ? repository.messages : list, state.tag));
+    emit(ChatSearchProgress(
+        data == '' ? filteringByTag(state.tag) : list, ChatMethod.search, state.tag));
   }
 
   void sharingDone(Set<Category> list) {
@@ -103,19 +112,24 @@ class ChatCubit extends Cubit<ChatState> {
       item.repository.unselectAll();
     }
     repository.messages.removeWhere((element) => element.isSelect);
-    emit(ChatSharingComplete(
-        repository.messages, 'Sharing complete', state.tag));
-    emit(state.copyWith(message: newList(repository.messages)));
+    emit(ChatNotifierOnSuccess(
+        'Sharing complete', ChatMethod.sharingComplete, state.tag));
+    emit(state.copyWith(message: filteringByTag(state.tag)));
   }
 
-  void selectTag() =>
-      emit(ChatChooseTagProcess(repository.messages, state.tag));
+  void selectTag() => emit(
+      ChatChooseTagProcess(state.message, ChatMethod.selectByTag, state.tag));
 
-  void chooseTag(IconData icon) => emit(ChatInWork(repository.messages, icon));
+  void closeTag() =>
+      emit(ChatInWork(state.message, ChatMethod.work, state.tag));
 
-  void closeTag() => emit(ChatInWork(repository.messages, state.tag));
-
-  void onEdit(int index) => emit(ChatOnEdit(state.message, index, state.tag));
+  void changeTag(IconData data) {
+    emit(ChatInWork(filteringByTag(data),
+        ChatMethod.searchByTag, data));
+  }
 
   List<Messages> newList(List<Messages> list) => List.from(list);
+
+  List<Messages> filteringByTag(IconData data) => data != Icons.home ?
+      repository.messages.where((element) => element.tag == data).toList() : List.from(repository.messages);
 }

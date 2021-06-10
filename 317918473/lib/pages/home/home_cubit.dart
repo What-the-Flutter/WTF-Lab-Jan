@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:uuid/uuid.dart';
 import '../../models/category.dart';
 import '../../repository/home_repositore.dart';
 
@@ -8,37 +9,44 @@ part 'home_state.dart';
 class HomeCubit extends Cubit<HomeState> {
   final HomeRepository repository;
 
-  HomeCubit(this.repository) : super(HomeInitial(repository.list));
+  HomeCubit(this.repository) : super(HomeAwaitInitial()) {
+    loadData();
+  }
 
-  void add(Categories categories, String descripton, String title) {
-    var id = 0;
-    if (repository.list.isNotEmpty) {
-      id = repository.list.indexOf(repository.list.last) + 1;
-    }
-    final category =
-        Category(id, categories.img, descripton, title, categories);
-    repository.add(category);
+  Future<void> loadData() async {
+    emit(HomeShow(
+      await repository.getAll(),
+      HomeMethod.show,
+    ));
+  }
+
+  Future<void> add(
+      Categories categories, String description, String title) async {
+    final category = Category(
+      id: Uuid().v1(),
+      assetImage: categories.img,
+      description: description,
+      title: title,
+      categories: categories,
+    );
+    await repository.add(category);
     emit(HomeShow(repository.list, HomeMethod.add));
   }
 
-  void remove(int index) {
-    repository.delete(index);
-    if (repository.list.isEmpty) {
-      emit(HomeInitial([]));
-    } else {
-      print('delete');
-      emit(HomeShow(repository.list, HomeMethod.delete));
-    }
+  Future<void> remove(String index) async {
+    await repository.delete(index);
+    emit(HomeShow(updateList(repository.list), HomeMethod.delete));
   }
 
-  void update(int index, String desc, String title, Categories categories) {
-    repository.update(index, desc, title, categories);
+  Future<void> update(Category category, String desc, String title,
+      Categories categories) async {
+    await repository.update(category, desc, title, categories);
     emit(HomeShow(repository.list, HomeMethod.edit));
   }
 
-  void pin(int index) {
-    repository.pin(index);
-    emit(HomeShow(updateList(repository.list), HomeMethod.unPin));
+  Future<void> pin(int index) async {
+    await repository.pin(repository.list[index]);
+    emit(HomeShow(repository.list, homeMethod(state.method)));
   }
 
   List<Category> repositoryForSharing(Category category) {
@@ -47,4 +55,12 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   List<Category> updateList(List<Category> list) => List.from(list);
+
+  HomeMethod homeMethod(HomeMethod method) {
+    if (method == HomeMethod.pin) {
+      return HomeMethod.unPin;
+    } else {
+      return HomeMethod.pin;
+    }
+  }
 }

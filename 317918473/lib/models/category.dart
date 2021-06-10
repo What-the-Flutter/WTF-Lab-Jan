@@ -19,35 +19,75 @@ extension CategoriesExtension on Categories {
 }
 
 class Category extends Equatable {
-  final int id;
+  final String id;
   final String assetImage;
-  final String descripton;
+  final String description;
   final String title;
   final Categories categories;
   final bool isPin;
   final repository = ChatRepository();
 
-  Category(
-      this.id, this.assetImage, this.descripton, this.title, this.categories,
-      {this.isPin = false});
+  Category({
+    required this.id,
+    required this.assetImage,
+    required this.description,
+    required this.title,
+    required this.categories,
+    this.isPin = false,
+  });
 
   @override
-  List<Object> get props => [id, descripton, title, categories, isPin];
+  List<Object> get props => [id, description, title, categories, isPin];
 
   Category copyWith({
+    String? id,
     String? assetImage,
-    String? descripton,
+    String? description,
     String? title,
     Categories? categories,
     bool? isPin,
   }) {
     return Category(
-      id,
-      assetImage ?? this.assetImage,
-      descripton ?? this.descripton,
-      title ?? this.title,
-      categories ?? this.categories,
+      id: id ?? this.id,
+      assetImage: assetImage ?? this.assetImage,
+      description: description ?? this.description,
+      title:title ?? this.title,
+      categories:categories ?? this.categories,
       isPin: isPin ?? this.isPin,
     );
+  }
+
+  factory Category.fromMap(Map<String, dynamic> map) {
+    return Category(
+      id:map['id'],
+      assetImage:map['assert_image'],
+      description:map['description'],
+      title:map['title'],
+      categories:categoriesFromString(map['categories']),
+      isPin: map['pinned'] == 0 ? false : true,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'assert_image': assetImage,
+      'description': description,
+      'title': title,
+      'categories': categories.toString(),
+      'pinned': isPin == false ? 0 : 1,
+    };
+  }
+
+  static Categories categoriesFromString(String categories) {
+    if (categories == Categories.forest.toString()) {
+      return Categories.forest;
+    } else if (categories == Categories.taiga.toString()) {
+      return Categories.taiga;
+    } else if (categories == Categories.tundra.toString()) {
+      return Categories.tundra;
+    } else {
+      return Categories.grasslands;
+    }
   }
 }

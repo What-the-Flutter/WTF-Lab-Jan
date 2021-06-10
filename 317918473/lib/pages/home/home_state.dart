@@ -1,6 +1,6 @@
 part of 'home_cubit.dart';
 
-enum HomeMethod { initial, pin, edit, add, delete, unPin }
+enum HomeMethod { initial,show, pin, edit, add, delete, unPin }
 
 abstract class HomeState extends Equatable {
   final List<Category> categoryList;
@@ -12,13 +12,8 @@ abstract class HomeState extends Equatable {
   List<Object> get props => [categoryList, method];
 }
 
-class HomeInitial extends HomeState {
-  HomeInitial(
-    List<Category> categoryList,
-  ) : super(
-          categoryList,
-          HomeMethod.initial,
-        );
+class HomeAwaitInitial extends HomeState {
+  HomeAwaitInitial() : super([], HomeMethod.initial);
 }
 
 class HomeShow extends HomeState {
