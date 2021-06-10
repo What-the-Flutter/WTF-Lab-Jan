@@ -8,13 +8,13 @@
             "name": "317918473",
             "request": "launch",
             "type": "dart",
-            "env":"emulator"
         },
         {
             "name": "317918473 (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile",
+            
         }
     ]
 }
