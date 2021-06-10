@@ -1,95 +1,118 @@
 part of 'chat_cubit.dart';
 
+enum ChatMethod {
+  initial,
+  work,
+  selectByTag,
+  close,
+  addMessage,
+  addImage,
+  choosed,
+  delete,
+  clipboard,
+  search,
+  sharingProgress,
+  sharingComplete,
+  searchByTag,
+  favorite,
+  select,
+  edit
+}
+
 abstract class ChatState extends Equatable {
   final List<Messages> message;
   final IconData tag;
-  const ChatState(this.message, [this.tag = Icons.home]);
+  final ChatMethod method;
+  const ChatState(this.message, this.method, [this.tag = Icons.home]);
 
   ChatState copyWith({
     final List<Messages> message,
+    final ChatMethod method,
     final IconData tag,
   });
 
   @override
-  List<Object> get props => [message, tag];
+  List<Object> get props => [message,method, tag];
 }
 
 class ChatInitial extends ChatState {
-  ChatInitial(List<Messages> message) : super(message, Icons.home);
+  ChatInitial() : super([],ChatMethod.initial, Icons.home);
 
   @override
   ChatState copyWith({
     List<Messages>? message,
+    ChatMethod? method,
     IconData? tag,
   }) {
-    return ChatInitial(message ?? this.message);
+    return ChatInitial();
   }
 }
 
 class ChatInWork extends ChatState {
-  final bool isFavorite;
 
-  ChatInWork(List<Messages> message, IconData tag, [this.isFavorite = false])
-      : super(message, tag);
+  ChatInWork(List<Messages> message,ChatMethod method,
+      IconData tag)
+      : super(message,method, tag);
 
   @override
   ChatState copyWith({
     List<Messages>? message,
-    bool? isFavorite,
+    ChatMethod? method,
     IconData? tag,
   }) {
     return ChatInWork(
       message ?? this.message,
+      method ?? this.method,
       tag ?? this.tag,
-      isFavorite ?? this.isFavorite,
     );
   }
-
-  @override
-  List<Object> get props => [message, isFavorite];
 }
 
 class ChatOnChoose extends ChatState {
-  final int onChoose;
-  final bool isSelecteble;
+  final Messages currentMessage;
 
-  ChatOnChoose(List<Messages> message, this.onChoose, IconData tag,
-      [this.isSelecteble = false])
-      : super(message, tag);
+  ChatOnChoose(List<Messages> message,ChatMethod method,IconData tag, this.currentMessage,)
+      : super(message,method,tag);
 
   @override
   ChatState copyWith({
     List<Messages>? message,
-    int? onChoose,
+    ChatMethod? method,
+    Messages? currentMessage,
     IconData? tag,
   }) {
     return ChatOnChoose(
       message ?? this.message,
-      onChoose ?? this.onChoose,
+      method ?? this.method,
       tag ?? this.tag,
+      currentMessage ?? this.currentMessage,
+      
     );
   }
 
   @override
-  List<Object> get props => [message, onChoose, isSelecteble];
+  List<Object> get props => [message, currentMessage,method,tag];
 }
 
-class ChatClipBoardSuccess extends ChatState {
-  final String clipBoardMessage;
+class ChatNotifierOnSuccess extends ChatState {
+  final String notifyMessage;
 
-  ChatClipBoardSuccess(
-    this.clipBoardMessage,
+  ChatNotifierOnSuccess(
+    this.notifyMessage,
+    ChatMethod method,
     IconData tag,
-  ) : super([], tag);
+  ) : super([],method, tag);
 
   @override
   ChatState copyWith({
     List<Messages>? message,
-    String? clipBoardMessage,
+    ChatMethod? method,
+    String? notifyMessage,
     IconData? tag,
   }) {
-    return ChatClipBoardSuccess(
-      clipBoardMessage ?? this.clipBoardMessage,
+    return ChatNotifierOnSuccess(
+      notifyMessage ?? this.notifyMessage,
+      method ?? this.method,
       tag ?? this.tag,
     );
   }
@@ -98,62 +121,19 @@ class ChatClipBoardSuccess extends ChatState {
 class ChatSearchProgress extends ChatState {
   ChatSearchProgress(
     List<Messages> message,
+    ChatMethod method,
     IconData tag,
-  ) : super(message, tag);
+  ) : super(message,method, tag);
 
   @override
   ChatState copyWith({
     List<Messages>? message,
+    ChatMethod? method,
     IconData? tag,
   }) {
     return ChatSearchProgress(
       message ?? this.message,
-      tag ?? this.tag,
-    );
-  }
-}
-
-class ChatSharingProgress extends ChatState {
-  final List<int> indexOfCategoryToShare;
-
-  ChatSharingProgress(
-    List<Messages> message,
-    this.indexOfCategoryToShare,
-    IconData tag,
-  ) : super(message, tag);
-
-  @override
-  ChatState copyWith({
-    List<Messages>? message,
-    List<int>? index,
-    IconData? tag,
-  }) {
-    return ChatSharingProgress(
-      message ?? this.message,
-      index ?? indexOfCategoryToShare,
-      tag ?? this.tag,
-    );
-  }
-
-  @override
-  List<Object> get props => [message, indexOfCategoryToShare];
-}
-
-class ChatSharingComplete extends ChatState {
-  final String messageAboutSharing;
-  ChatSharingComplete(
-      List<Messages> message, this.messageAboutSharing, IconData tag)
-      : super(message, tag);
-
-  @override
-  ChatState copyWith({
-    List<Messages>? message,
-    String? messageAboutSharing,
-    IconData? tag,
-  }) {
-    return ChatSharingComplete(
-      message ?? this.message,
-      messageAboutSharing ?? this.messageAboutSharing,
+      method ?? this.method,
       tag ?? this.tag,
     );
   }
@@ -162,38 +142,16 @@ class ChatSharingComplete extends ChatState {
 class ChatChooseTagProcess extends ChatState {
   ChatChooseTagProcess(
     List<Messages> message,
+    ChatMethod method,
     IconData tag,
-  ) : super(message, tag);
+  ) : super(message,method, tag);
 
   @override
   ChatState copyWith({
     List<Messages>? message,
+    ChatMethod? method,
     IconData? tag,
   }) {
-    return ChatChooseTagProcess(message ?? this.message, tag ?? this.tag);
+    return ChatChooseTagProcess(message ?? this.message,method ?? this.method, tag ?? this.tag,);
   }
-}
-
-class ChatOnEdit extends ChatState {
-  final int onChoose;
-
-  ChatOnEdit(List<Messages> message, this.onChoose, IconData tag,
-      )
-      : super(message, tag);
-
-  @override
-  ChatState copyWith({
-    List<Messages>? message,
-    int? onChoose,
-    IconData? tag,
-  }) {
-    return ChatOnEdit(
-      message ?? this.message,
-      onChoose ?? this.onChoose,
-      tag ?? this.tag,
-    );
-  }
-
-  @override
-  List<Object> get props => [message, onChoose];
 }

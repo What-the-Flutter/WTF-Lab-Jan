@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -28,18 +27,12 @@ class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ChatCubit, ChatState>(
-      buildWhen: (state, oldState) => state is! ChatClipBoardSuccess,
+      buildWhen: (state, oldState) => state is! ChatNotifierOnSuccess,
       listener: (context, state) {
-        if (state is ChatClipBoardSuccess) {
+        if (state is ChatNotifierOnSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.clipBoardMessage),
-            ),
-          );
-        } else if (state is ChatSharingComplete) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.messageAboutSharing),
+              content: Text(state.notifyMessage),
             ),
           );
         }
@@ -47,7 +40,7 @@ class _ChatState extends State<Chat> {
       builder: (context, state) {
         return Scaffold(
           appBar: state is ChatOnChoose
-              ? _appBarOnChoose(context, state)
+              ? _appBarcurrentMessage(context, state)
               : _defaultAppBar(state),
           body: !_focus.hasFocus
               ? _body(context, state)
@@ -125,14 +118,14 @@ class _ChatState extends State<Chat> {
     Navigator.pop(context);
   }
 
-  AppBar _appBarOnChoose(BuildContext context, ChatOnChoose state) {
+  AppBar _appBarcurrentMessage(BuildContext context, ChatOnChoose state) {
     final list = [
       IconButton(
           onPressed: () => _showDialogForSharing(context),
           icon: Icon(Icons.share)),
       IconButton(
         icon: Icon(Icons.delete),
-        onPressed: () => context.read<ChatCubit>().delete(state.onChoose),
+        onPressed: () => context.read<ChatCubit>().delete(state.currentMessage),
       ),
       IconButton(
         icon: Icon(Icons.edit),
@@ -143,13 +136,13 @@ class _ChatState extends State<Chat> {
         onPressed: () => _clipBoardSetData(state),
       ),
       IconButton(
-        icon: state.message[state.onChoose].isFavorite
+        icon: state.currentMessage.isFavorite
             ? Icon(
                 Icons.star,
                 color: Colors.yellow,
               )
             : Icon(Icons.star_border),
-        onPressed: () => _addOrRemoveFromFavorite(state),
+        onPressed: () => context.read<ChatCubit>().favorite(),
       )
     ];
 
@@ -224,20 +217,17 @@ class _ChatState extends State<Chat> {
         ),
       ),
       onDismissed: (direction) {
-        final index = state.message.indexOf(message);
         if (direction == DismissDirection.endToStart) {
-          context.read<ChatCubit>().delete(index);
+          context.read<ChatCubit>().delete(message);
         } else if (direction == DismissDirection.startToEnd) {
-          _editOnDismissMessage(state, index);
+          _editOnDismissMessage(state, message);
         }
       },
       child: GestureDetector(
         child: Message(message),
-        onLongPress: () =>
-            context.read<ChatCubit>().choose(state.message.indexOf(message)),
+        onLongPress: () => context.read<ChatCubit>().choose(message),
         onTap: (state is ChatOnChoose)
-            ? () =>
-                context.read<ChatCubit>().select(state.message.indexOf(message))
+            ? () => context.read<ChatCubit>().select(message)
             : null,
       ),
     );
@@ -258,18 +248,18 @@ class _ChatState extends State<Chat> {
                       (icon) {
                         return IconButton(
                           onPressed: () =>
-                              context.read<ChatCubit>().chooseTag(icon.icon!),
-                          icon: icon,
+                              context.read<ChatCubit>().changeTag(icon),
+                          icon: Icon(icon),
                         );
                       },
                     ).toList()
                       ..insert(
-                          0,
-                          IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: () =>
-                                context.read<ChatCubit>().closeTag(),
-                          )),
+                        0,
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () => context.read<ChatCubit>().closeTag(),
+                        ),
+                      ),
                   ),
                 ),
                 _textField(context, state),
@@ -371,33 +361,25 @@ class _ChatState extends State<Chat> {
   }
 
   void _clipBoardSetData(ChatOnChoose state) =>
-      context.read<ChatCubit>().clipBoard(state.onChoose);
+      context.read<ChatCubit>().clipBoard(state.currentMessage);
 
   void _editMessage(ChatOnChoose state) {
-    _controller.text = state.message[state.onChoose].message ?? '';
-    _focus.requestFocus();
+    _controller.text = state.currentMessage.message ?? '';
+    _focus.nextFocus();
   }
 
-  void _editOnDismissMessage(ChatState state, int index) {
-    context.read<ChatCubit>().onEdit(index);
-    _controller.text = state.message[index].message ?? '';
+  void _editOnDismissMessage(ChatState state, Messages messages) {
+    _controller.text = messages.message ?? '';
     _focus.requestFocus();
   }
-
-  void _addOrRemoveFromFavorite(ChatOnChoose state) =>
-      context.read<ChatCubit>().favorite(state.onChoose);
 
   void _sendMessage(ChatState state) {
     if (_formKey.currentState!.validate()) {
       final currentFocus = FocusScope.of(context);
-      if (state is ChatOnChoose || state is ChatOnEdit) {
-        if (state is ChatOnEdit) {
-          context.read<ChatCubit>().update(state.onChoose, _controller.text);
-        } else {
-          context
-              .read<ChatCubit>()
-              .update((state as ChatOnChoose).onChoose, _controller.text);
-        }
+      if (state is ChatOnChoose) {
+        context
+            .read<ChatCubit>()
+            .update(state.currentMessage, _controller.text);
       } else {
         context.read<ChatCubit>().addMessage(_controller.text);
       }
@@ -411,14 +393,13 @@ class _ChatState extends State<Chat> {
   Future<void> _showDialogForSharing(BuildContext parentContext) async {
     final list = context.read<HomeCubit>().repository.list;
     var choosedList = <Category>{};
-    print(list.length);
     await showDialog(
       context: parentContext,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return list.length != 1
-                ? _categoryDIalog(
+                ? _categoryDialog(
                     list, setState, choosedList, parentContext, context)
                 : Dialog(
                     child: SizedBox(
@@ -438,7 +419,7 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  AlertDialog _categoryDIalog(
+  AlertDialog _categoryDialog(
       List<Category> list,
       StateSetter setState,
       Set<Category> choosedList,
@@ -462,7 +443,7 @@ class _ChatState extends State<Chat> {
                   return ListTile(
                     leading: Image.asset(category.assetImage),
                     title: Text(category.title),
-                    subtitle: Text(category.descripton),
+                    subtitle: Text(category.description),
                     onTap: () {
                       setState(() {
                         if (choosedList.contains(category)) {
@@ -592,8 +573,8 @@ class Message extends StatelessWidget {
   Text _time() {
     return Text(
       message.isEdit
-          ? 'edited \t ${_correctTime(message.date)}'
-          : _correctTime(message.date),
+          ? 'edited \t ${_correctTime(message.createAt)}'
+          : _correctTime(message.createAt),
       style: TextStyle(
         color: Colors.white,
         fontSize: 14,

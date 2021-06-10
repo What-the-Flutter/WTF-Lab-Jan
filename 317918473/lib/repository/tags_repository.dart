@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 
 class TagRepository {
   final _list = [
-    Icon(Icons.home),
-    Icon(Icons.sports_basketball),
-    Icon(Icons.ac_unit),
-    Icon(Icons.access_alarm),
-    Icon(Icons.account_balance),
-    Icon(Icons.book),
-    Icon(Icons.phone),
-    Icon(Icons.photo),
+    Icons.home,
+    Icons.sports_basketball,
+    Icons.ac_unit,
+    Icons.access_alarm,
+    Icons.account_balance,
+    Icons.book,
+    Icons.phone,
+    Icons.photo,
   ];
 
-  List<Icon> get list => _list;
+  List<IconData> get list => _list;
 }

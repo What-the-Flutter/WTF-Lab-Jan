@@ -9,11 +9,18 @@ import 'pages/home/home.dart';
 import 'pages/home/home_cubit.dart';
 import 'repository/home_repositore.dart';
 import 'repository/icons_repository.dart';
+import 'services/databases/db_category.dart';
+import 'services/databases/db_chat.dart';
+import 'services/shared_prefs.dart';
 import 'settings.dart';
 import 'theme/theme_cubit.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = SimpleBlocObserver();
+  await DBCategory.init();
+  await DBChat.init();
+  await MySharedPreferences.sharedPrefs.init();
   runApp(
     MultiBlocProvider(
       providers: [
