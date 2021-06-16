@@ -8,7 +8,7 @@ import '../home/home_cubit.dart';
 import 'create_category_cubit.dart';
 
 class CreateCategory extends StatefulWidget {
-  final int? index;
+  final Category? index;
 
   CreateCategory({Key? key, this.index}) : super(key: key);
 
@@ -33,7 +33,7 @@ class _CreateCategoryState extends State<CreateCategory> {
       _descriptionController = TextEditingController();
     } else {
       _titleController = TextEditingController(text: category.title);
-      _descriptionController = TextEditingController(text: category.descripton);
+      _descriptionController = TextEditingController(text: category.description);
     }
 
     Future.delayed(Duration.zero, () => _node = FocusScope.of(context));
@@ -165,9 +165,8 @@ class _CreateCategoryState extends State<CreateCategory> {
                         ),
                       )
                     : Image.asset(value.img),
-                onTap: () {
-                  context.read<CreateCategoryCubit>().onChooseIcon(value);
-                },
+                onTap: () =>
+                    context.read<CreateCategoryCubit>().onChooseIcon(value),
               ),
             );
           },

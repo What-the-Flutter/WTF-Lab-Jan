@@ -1,32 +1,49 @@
-import 'package:equatable/equatable.dart';
-
 import '../models/category.dart';
+import '../services/databases/db_category.dart';
 
-class HomeRepository extends Equatable {
-  final List<Category> _list = [];
+class HomeRepository {
+  final DBCategory db = DBCategory.instance;
+  final _list = <Category>[];
 
   List<Category> get list => _list;
 
-  void add(Category category) {
+  Future<List<Category>> getAll() async {
+    final listFromDB = await db.getAllCategories();
+    _list.addAll(listFromDB);
+    return _list;
+  }
+
+  Future<void> add(Category category) async {
     _list.add(category);
+    await db.add(category);
   }
 
-  void delete(int index) {
-    _list.removeAt(index);
+  Future<void> delete(String id) async {
+    _list.removeWhere((element) => element.id == id);
+    await db.delete(id);
   }
 
-  void update(int index, String title, String desc, Categories categories) {
-    _list[index] = _list[index].copyWith(
-        assetImage: categories.img,
-        descripton: desc,
-        title: title,
-        categories: categories);
+  Future<void> update(
+    Category category,
+    String title,
+    String description,
+    Categories categories,
+  ) async {
+    final updatedCategory = category.copyWith(
+      title: title,
+      description: description,
+      categories: categories,
+      assetImage: categories.img,
+    );
+    final index = _list.indexWhere((element) => element.id == category.id);
+    _list[index] = updatedCategory;
+    await db.update(updatedCategory);
   }
 
-  void pin(int index) {
-    _list[index] = _list[index].copyWith(isPin: !_list[index].isPin);
+  Future<void> pin(Category category) async {
+    final index = _list.indexWhere((element) => element.id == category.id);
+    final pinned = category.copyWith(isPin: !category.isPin);
+    _list[index] = pinned;
+    await db.pin(pinned);
   }
-
-  @override
-  List<Object> get props => [_list];
 }

@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:wtf_project/repository/tags_repository.dart';
 
 import '../../main.dart';
+import '../../models/category.dart';
 import '../../models/theme.dart';
+import '../../repository/tags_repository.dart';
 import '../../theme/theme_cubit.dart';
 import '../chat/chat.dart';
 import '../chat/chat_cubit.dart';
 import '../create_category/create_category.dart';
 import 'home_cubit.dart';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePage extends StatelessWidget {
   final scaffoldState = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -144,13 +140,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return Expanded(
       child: BlocBuilder<HomeCubit, HomeState>(
         builder: (context, state) {
-          if (state is HomeInitial) {
-            return Center(
-              child: Text(
-                'Create some category',
-                style: TextStyle(color: Colors.white, fontSize: 32),
-              ),
-            );
+          if (state is HomeAwaitInitial) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (state.categoryList.isEmpty) {
+            return Center(child: Text('add Some Category'));
           }
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -176,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     MaterialPageRoute(
                       builder: (_) => BlocProvider<ChatCubit>(
                         create: (context) =>
-                            ChatCubit(category.repository, TagRepository()),
+                            ChatCubit(category.repository, TagRepository(),category.id),
                         child: Chat(category: category),
                       ),
                     ),
@@ -188,9 +182,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: Colors.white,
                     ),
                   ),
-                  onLongPress: () => _showBottomSheet(index),
+                  onLongPress: () => _showBottomSheet(category, index, context),
                   subtitle: Text(
-                    category.descripton,
+                    category.description,
                     style: TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 );
@@ -202,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _showBottomSheet(int index) {
+  void _showBottomSheet(Category category, int index, BuildContext context) {
     final _textStyle = TextStyle(
       color: Colors.white,
       fontSize: 20,
@@ -222,7 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 'Info',
                 style: _textStyle,
               ),
-              onTap: () => _showDialog(index),
+              onTap: () => _showDialog(index, context),
             ),
             ListTile(
               leading: Icon(
@@ -252,7 +246,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CreateCategory(
-                      index: index,
+                      index: category,
                     ),
                   ),
                 );
@@ -268,7 +262,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: _textStyle,
               ),
               onTap: () {
-                context.read<HomeCubit>().remove(index);
+                context.read<HomeCubit>().remove(category.id);
                 Navigator.pop(context);
               },
             ),
@@ -278,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _showDialog(int index) {
+  void _showDialog(int index, BuildContext context) {
     final category = context.read<HomeCubit>().state.categoryList[index];
     showDialog(
       context: context,
@@ -303,7 +297,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 20,
               ),
               Text(
-                category.descripton,
+                category.description,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
