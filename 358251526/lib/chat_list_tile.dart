@@ -19,7 +19,7 @@ class ChatListTile extends StatelessWidget {
     return ListTile(
       title: Text(title),
       subtitle: Text(subtitle),
-      leading: CircleAvatar(foregroundColor: Colors.blueGrey, child: icon),
+      leading: CircleAvatar(foregroundColor: Colors.black54, child: icon),
       onTap: onTap,
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:my_journal/chat_list_tile.dart';
+import 'package:my_journal/main.dart';
+import 'package:my_journal/domain.dart';
 
-import 'chat_list_tile.dart';
 import 'chat_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,7 +19,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.teal,
+                //color: Colors.teal,
               ),
               child: Text('Profile'),
             ),
@@ -34,21 +36,23 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: BodyData(),
-      //ListView
       appBar: AppBar(
         title: Center(
           child: Text('Home'),
         ),
         actions: [
-          IconButton(icon: Icon(Icons.invert_colors), onPressed: () {}),
+          IconButton(
+            icon: Icon(Icons.invert_colors),
+            onPressed: () => ThemeChanger.instanceOf(context).changeTheme(),
+          )
         ],
       ),
       bottomNavigationBar: BottomNavigation(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         child: Icon(Icons.add),
-        backgroundColor: Colors.tealAccent,
-        foregroundColor: Colors.black54,
+        //backgroundColor: Colors.tealAccent,
+        //foregroundColor: Colors.black54,
       ),
     );
   }
@@ -66,6 +70,7 @@ Widget _myBottomNavigationBar(BuildContext context) {
     items: const <BottomNavigationBarItem>[
       BottomNavigationBarItem(
         icon: Icon(Icons.book),
+        backgroundColor: Colors.white60,
         label: 'Home',
       ),
       BottomNavigationBarItem(
@@ -81,8 +86,6 @@ Widget _myBottomNavigationBar(BuildContext context) {
         label: 'Explore',
       ),
     ],
-    unselectedItemColor: Colors.blueGrey,
-    selectedItemColor: Colors.teal,
     showUnselectedLabels: true,
   );
 }
@@ -104,10 +107,12 @@ class CategoriesList extends StatefulWidget {
 }
 
 class _CategoriesListState extends State<CategoriesList> {
+  String subtitle = 'No events. Click to create one.';
+
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemCount: widget.categories.length + 1,
+      itemCount: categories.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
           return Center(
@@ -128,16 +133,20 @@ class _CategoriesListState extends State<CategoriesList> {
           );
         }
         return ChatListTile(
-          title: widget.categories[index - 1].name,
-          icon: Icon(widget.categories[index - 1].iconData),
-          subtitle: widget.categories[index - 1].events.isEmpty
-              ? 'No events. Click to create one.'
-              : categories[index - 1].events.last.text,
-          onTap: () => openChat(context, widget.categories[index - 1]),
+          title: categories[index - 1].name,
+          icon: Icon(categories[index - 1].iconData),
+          subtitle: subtitle,
+          onTap: () => openChat(context, categories[index - 1]),
         );
       },
       separatorBuilder: (context, index) => const Divider(),
     );
+  }
+
+  void changeSubtitle(String newSubtitle) {
+    setState(() {
+      subtitle = newSubtitle;
+    });
   }
 }
 
@@ -149,26 +158,3 @@ void openChat(BuildContext context, Category category) {
 Widget _myListView(BuildContext context) {
   return CategoriesList(categories: categories);
 }
-
-class Event {
-  String text;
-  DateTime dateTime;
-
-  Event(this.text, this.dateTime);
-}
-
-class Category {
-  String name;
-  List<Event> events;
-  IconData iconData;
-
-  Category(this.name, this.events, this.iconData);
-}
-
-List<Category> categories = [
-  Category('Family', [], Icons.family_restroom),
-  Category('Job', [], Icons.work),
-  Category('Travel', [], Icons.local_shipping),
-  Category('Sports', [], Icons.sports_basketball),
-  Category('Friends', [], Icons.wine_bar),
-];
