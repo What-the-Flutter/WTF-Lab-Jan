@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_journal/chat_list_tile.dart';
-import 'package:my_journal/main.dart';
 import 'package:my_journal/domain.dart';
+import 'package:my_journal/theme_changer.dart';
 
+import 'add_chat_tile_page.dart';
 import 'chat_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,6 +12,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final categoriesList = initialCategories;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,8 +22,8 @@ class _HomePageState extends State<HomePage> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                //color: Colors.teal,
-              ),
+                  //color: Colors.teal,
+                  ),
               child: Text('Profile'),
             ),
             ListTile(
@@ -35,7 +38,7 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
         ),
       ),
-      body: BodyData(),
+      body: CategoriesList(categories: categoriesList),
       appBar: AppBar(
         title: Center(
           child: Text('Home'),
@@ -47,60 +50,59 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      bottomNavigationBar: BottomNavigation(),
+      bottomNavigationBar: _myBottomNavigationBar(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          addCategory(context);
+        },
         child: Icon(Icons.add),
-        //backgroundColor: Colors.tealAccent,
-        //foregroundColor: Colors.black54,
       ),
     );
   }
-}
 
-class BottomNavigation extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return _myBottomNavigationBar(context);
+
+  Widget _myBottomNavigationBar() {
+    return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.book),
+          backgroundColor: Colors.white60,
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.calendar_today),
+          label: 'Daily',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.timeline),
+          label: 'Timeline',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.explore),
+          label: 'Explore',
+        ),
+      ],
+      showUnselectedLabels: true,
+    );
   }
-}
 
-Widget _myBottomNavigationBar(BuildContext context) {
-  return BottomNavigationBar(
-    items: const <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
-        icon: Icon(Icons.book),
-        backgroundColor: Colors.white60,
-        label: 'Home',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.calendar_today),
-        label: 'Daily',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.timeline),
-        label: 'Timeline',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.explore),
-        label: 'Explore',
-      ),
-    ],
-    showUnselectedLabels: true,
-  );
-}
-
-class BodyData extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return _myListView(context);
+  void addCategory(BuildContext context) async {
+    final newCategory = await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => AddCategoryPage()));
+    if(newCategory is Category){
+      setState(() {
+        categoriesList.add(newCategory);
+      });
+    }
   }
 }
 
 class CategoriesList extends StatefulWidget {
-  final List<Category> categories;
+  final List categories;
 
-  const CategoriesList({Key? key, required this.categories}) : super(key: key);
+  const CategoriesList({
+    Key? key, required this.categories,
+  }) : super(key: key);
 
   @override
   _CategoriesListState createState() => _CategoriesListState();
@@ -112,7 +114,7 @@ class _CategoriesListState extends State<CategoriesList> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemCount: categories.length + 1,
+      itemCount: widget.categories.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
           return Center(
@@ -133,28 +135,24 @@ class _CategoriesListState extends State<CategoriesList> {
           );
         }
         return ChatListTile(
-          title: categories[index - 1].name,
-          icon: Icon(categories[index - 1].iconData),
-          subtitle: subtitle,
-          onTap: () => openChat(context, categories[index - 1]),
+          title: widget.categories[index - 1].name,
+          icon: Icon(widget.categories[index - 1].iconData),
+          subtitle: widget.categories[index - 1].events.isEmpty
+              ? subtitle
+              : widget.categories[index - 1].events.first.text,
+          onTap: () => openChat(context, widget.categories[index - 1]),
         );
       },
       separatorBuilder: (context, index) => const Divider(),
     );
   }
 
-  void changeSubtitle(String newSubtitle) {
-    setState(() {
-      subtitle = newSubtitle;
-    });
+  void openChat(BuildContext context, Category category) async {
+   await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => Chat(category: category)));
+       setState(() {
+       });
   }
+
 }
 
-void openChat(BuildContext context, Category category) {
-  Navigator.of(context)
-      .push(MaterialPageRoute(builder: (context) => Chat(category: category)));
-}
-
-Widget _myListView(BuildContext context) {
-  return CategoriesList(categories: categories);
-}

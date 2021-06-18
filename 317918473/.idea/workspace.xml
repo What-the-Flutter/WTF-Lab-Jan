@@ -28,23 +28,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cf4fb78-c971-44cb-9f75-7802d13ec5e9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../358251526/lib/domain.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.dart_tool/chrome-device/Default/Cache/data_0" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/chrome-device/Default/Cache/data_0" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.dart_tool/chrome-device/Default/Cache/data_1" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/chrome-device/Default/Cache/data_1" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.dart_tool/package_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/package_config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.dart_tool/package_config_subset" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/package_config_subset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.dart_tool/version" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/version" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../358251526/lib/pages/add_chat_tile_page.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../358251526/lib/theme_changer.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.packages" beforeDir="false" afterPath="$PROJECT_DIR$/.packages" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/GeneratedPluginRegistrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/GeneratedPluginRegistrant.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/GeneratedPluginRegistrant.m" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/GeneratedPluginRegistrant.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wtf_project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/wtf_project.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../358251526/lib/chat_list_tile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/chat_list_tile.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../358251526/lib/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/pages/chat_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../358251526/lib/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/pages/home_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../358251526/lib/domain.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/domain.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../358251526/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../978913784/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../978913784/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../358251526/lib/pages/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/pages/home_page.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
