@@ -28,11 +28,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cf4fb78-c971-44cb-9f75-7802d13ec5e9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../358251526/lib/pages/add_chat_tile_page.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../358251526/lib/theme_changer.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../358251526/lib/pages/update_chat_tile_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../358251526/lib/chat_list_tile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/chat_list_tile.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../358251526/lib/domain.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/domain.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../358251526/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../358251526/lib/pages/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../358251526/lib/pages/home_page.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

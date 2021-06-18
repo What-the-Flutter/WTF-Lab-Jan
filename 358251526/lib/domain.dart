@@ -9,9 +9,9 @@ class Event {
 }
 
 class Category {
-  final String name;
+  String name;
   List<Event> events;
-  final IconData iconData;
+  IconData iconData;
 
   Category(this.name, this.events, this.iconData);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_journal/chat_list_tile.dart';
 import 'package:my_journal/domain.dart';
+import 'package:my_journal/pages/update_chat_tile_page.dart';
 import 'package:my_journal/theme_changer.dart';
 
 import 'add_chat_tile_page.dart';
@@ -60,7 +61,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   Widget _myBottomNavigationBar() {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
@@ -87,9 +87,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void addCategory(BuildContext context) async {
-    final newCategory = await Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => AddCategoryPage()));
-    if(newCategory is Category){
+    final newCategory = await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => AddCategoryPage()));
+    if (newCategory is Category) {
       setState(() {
         categoriesList.add(newCategory);
       });
@@ -101,7 +101,8 @@ class CategoriesList extends StatefulWidget {
   final List categories;
 
   const CategoriesList({
-    Key? key, required this.categories,
+    Key? key,
+    required this.categories,
   }) : super(key: key);
 
   @override
@@ -140,19 +141,74 @@ class _CategoriesListState extends State<CategoriesList> {
           subtitle: widget.categories[index - 1].events.isEmpty
               ? subtitle
               : widget.categories[index - 1].events.first.text,
-          onTap: () => openChat(context, widget.categories[index - 1]),
+          onTap: () => _openUpdatePage(context, widget.categories[index - 1]),
+          onLongPress: () =>
+              _selectAction(context, widget.categories[index - 1]),
         );
       },
       separatorBuilder: (context, index) => const Divider(),
     );
   }
 
-  void openChat(BuildContext context, Category category) async {
-   await Navigator.of(context).push(
+  void _openUpdatePage(BuildContext context, Category category) async {
+    await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => UpdateCategoryPage(category: category)));
+    setState(() {});
+  }
+
+  void _openChat(BuildContext context, Category category) async {
+    await Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => Chat(category: category)));
-       setState(() {
-       });
+    setState(() {});
+  }
+
+  void _selectAction(BuildContext context, Category category) async {
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            elevation: 16,
+            child: Container(
+              height: 200.0,
+              width: 200.0,
+              child: ListView(
+                children: <Widget>[
+                  SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      'Select an action',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  ListTile(
+                    title: Text('Delete'),
+                    leading: CircleAvatar(
+                      foregroundColor: Colors.black54,
+                      child: Icon(Icons.clear),
+                    ),
+                    onTap: () {
+                      widget.categories.remove(category);
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Update'),
+                    leading: CircleAvatar(
+                        foregroundColor: Colors.black54,
+                        child: Icon(Icons.lightbulb)),
+                    onTap: () {
+                      _openUpdatePage(context, category);
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+    setState(() {});
   }
 
 }
-
