@@ -34,6 +34,7 @@ android/
 ios/
 .vscode/
 web/
+.packages
 
 # Web related
 lib/generated_plugin_registrant.dart
