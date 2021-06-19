@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../main.dart';
 import '../../models/category.dart';
 import '../../models/theme.dart';
+import '../../repository/chat_repository.dart';
 import '../../repository/tags_repository.dart';
 import '../../theme/theme_cubit.dart';
+import '../../widgets/app_bar.dart';
 import '../chat/chat.dart';
 import '../chat/chat_cubit.dart';
 import '../create_category/create_category.dart';
@@ -170,7 +171,7 @@ class MyHomePage extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (_) => BlocProvider<ChatCubit>(
                         create: (context) =>
-                            ChatCubit(category.repository, TagRepository(),category.id),
+                            ChatCubit(ChatRepository(),TagRepository(),category.id),
                         child: Chat(category: category),
                       ),
                     ),

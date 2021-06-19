@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import '../repository/chat_repositore.dart';
 
 enum Categories { forest, taiga, tundra, grasslands }
 
@@ -25,7 +24,6 @@ class Category extends Equatable {
   final String title;
   final Categories categories;
   final bool isPin;
-  final repository = ChatRepository();
 
   Category({
     required this.id,
@@ -51,19 +49,19 @@ class Category extends Equatable {
       id: id ?? this.id,
       assetImage: assetImage ?? this.assetImage,
       description: description ?? this.description,
-      title:title ?? this.title,
-      categories:categories ?? this.categories,
+      title: title ?? this.title,
+      categories: categories ?? this.categories,
       isPin: isPin ?? this.isPin,
     );
   }
 
   factory Category.fromMap(Map<String, dynamic> map) {
     return Category(
-      id:map['id'],
-      assetImage:map['assert_image'],
-      description:map['description'],
-      title:map['title'],
-      categories:categoriesFromString(map['categories']),
+      id: map['id'],
+      assetImage: map['assert_image'],
+      description: map['description'],
+      title: map['title'],
+      categories: categoriesFromString(map['categories']),
       isPin: map['pinned'] == 0 ? false : true,
     );
   }
