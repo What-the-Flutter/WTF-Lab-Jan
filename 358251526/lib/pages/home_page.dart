@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:my_journal/chat_list_tile.dart';
-import 'package:my_journal/domain.dart';
-import 'package:my_journal/pages/update_chat_tile_page.dart';
-import 'package:my_journal/theme_changer.dart';
+import 'package:intl/intl.dart';
 
+import '../chat_list_tile.dart';
+import '../domain.dart';
+import '../theme_changer.dart';
 import 'add_chat_tile_page.dart';
 import 'chat_page.dart';
+import 'update_chat_tile_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -141,7 +142,7 @@ class _CategoriesListState extends State<CategoriesList> {
           subtitle: widget.categories[index - 1].events.isEmpty
               ? subtitle
               : widget.categories[index - 1].events.first.text,
-          onTap: () => _openUpdatePage(context, widget.categories[index - 1]),
+          onTap: () => _openChat(context, widget.categories[index - 1]),
           onLongPress: () =>
               _selectAction(context, widget.categories[index - 1]),
         );
@@ -150,9 +151,11 @@ class _CategoriesListState extends State<CategoriesList> {
     );
   }
 
-  void _openUpdatePage(BuildContext context, Category category) async {
-    await Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => UpdateCategoryPage(category: category)));
+  void _openUpdatePage(BuildContext context, Category category,
+      BuildContext dialogContext) async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => UpdateCategoryPage(category: category)));
+    Navigator.pop(dialogContext);
     setState(() {});
   }
 
@@ -165,13 +168,13 @@ class _CategoriesListState extends State<CategoriesList> {
   void _selectAction(BuildContext context, Category category) async {
     await showDialog(
         context: context,
-        builder: (context) {
+        builder: (dialogContext) {
           return Dialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
             elevation: 16,
             child: Container(
-              height: 200.0,
+              height: 240.0,
               width: 200.0,
               child: ListView(
                 children: <Widget>[
@@ -192,6 +195,7 @@ class _CategoriesListState extends State<CategoriesList> {
                     ),
                     onTap: () {
                       widget.categories.remove(category);
+                      Navigator.pop(dialogContext);
                     },
                   ),
                   ListTile(
@@ -199,10 +203,67 @@ class _CategoriesListState extends State<CategoriesList> {
                     leading: CircleAvatar(
                         foregroundColor: Colors.black54,
                         child: Icon(Icons.lightbulb)),
-                    onTap: () {
-                      _openUpdatePage(context, category);
+                    onTap: () async {
+                      _openUpdatePage(context, category, dialogContext);
                     },
-                  )
+                  ),
+                  ListTile(
+                      title: Text('Info'),
+                      leading: CircleAvatar(
+                          foregroundColor: Colors.black54,
+                          child: Icon(Icons.info)),
+                      onTap: () {
+                        Navigator.pop(dialogContext);
+                        showDialog(
+                            context: context,
+                            builder: (infoDialogContext) {
+                              return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(40)),
+                                  elevation: 16,
+                                  child: Container(
+                                    height: 300.0,
+                                    width: 220.0,
+                                    child: ListView(children: <Widget>[
+                                      SizedBox(height: 20),
+                                      ListTile(
+                                        leading: CircleAvatar(
+                                            foregroundColor: Colors.black54,
+                                            child: Icon(category.iconData)),
+                                        title: Text(category.name),
+                                      ),
+                                      SizedBox(height: 20),
+                                      ListTile(
+                                        title: Text('Created'),
+                                        subtitle: Text(
+                                            DateFormat('yyyy-MM-dd KK:mm:ss')
+                                                .format(category.dateTime)),
+                                      ),
+                                      SizedBox(height: 10),
+                                      ListTile(
+                                        title: Text('Last Event'),
+                                        subtitle: category.events.isEmpty
+                                            ? Text('No events')
+                                            : Text(
+                                                DateFormat('yyyy-MM-dd KK:mm:ss')
+                                                    .format(category.events
+                                                        .first.dateTime)),
+                                      ),
+                                      SizedBox(height: 20),
+                                      Center(
+                                        child: Container(
+                                          height: 40.0,
+                                          width: 50.0,
+                                          child: ElevatedButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(infoDialogContext),
+                                              child: Text('Ok')),
+                                        ),
+                                      ),
+                                    ]),
+                                  ));
+                            });
+                      })
                 ],
               ),
             ),
@@ -210,5 +271,4 @@ class _CategoriesListState extends State<CategoriesList> {
         });
     setState(() {});
   }
-
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_journal/domain.dart';
+import '../domain.dart';
 
 class AddCategoryPage extends StatefulWidget {
   AddCategoryPage({Key? key}) : super(key: key);
@@ -28,7 +28,7 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                 ? () {}
                 : {
                     Navigator.of(context).pop(Category(
-                        _textEditingController.text, [], _selectedIcon)),
+                        _textEditingController.text, [], _selectedIcon,DateTime.now())),
                     _textEditingController.clear(),
                   };
           },

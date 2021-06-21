@@ -9,19 +9,20 @@ class Event {
 }
 
 class Category {
+  DateTime dateTime;
   String name;
   List<Event> events;
   IconData iconData;
 
-  Category(this.name, this.events, this.iconData);
+  Category(this.name, this.events, this.iconData, this.dateTime);
 }
 
 List<Category> initialCategories = [
-  Category('Family', [], Icons.family_restroom),
-  Category('Job', [], Icons.work),
-  Category('Travel', [], Icons.local_shipping),
-  Category('Sports', [], Icons.sports_basketball),
-  Category('Friends', [], Icons.wine_bar),
+  Category('Family', [], Icons.family_restroom, DateTime.now()),
+  Category('Job', [], Icons.work,DateTime.now()),
+  Category('Travel', [], Icons.local_shipping,DateTime.now()),
+  Category('Sports', [], Icons.sports_basketball,DateTime.now()),
+  Category('Friends', [], Icons.wine_bar,DateTime.now()),
 ];
 List<IconData> initialIcons = [
   Icons.accessibility,

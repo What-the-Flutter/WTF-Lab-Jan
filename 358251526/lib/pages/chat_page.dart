@@ -69,7 +69,7 @@ class _Chat extends State<Chat> {
             icon: Icon(Icons.delete),
             onPressed: () => showDialog(
                 context: context,
-                builder: (BuildContext context) => _deleteAlertDialog(index))),
+                builder: (context) => _deleteAlertDialog(index))),
       ],
     );
   }
@@ -118,7 +118,6 @@ class _Chat extends State<Chat> {
             borderRadius: BorderRadius.circular(30),
             child: Card(
               elevation: 3,
-              //color: Colors.tealAccent,
               child: ListTile(
                 title: Text(event.text),
                 subtitle:

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_journal/domain.dart';
+import '../domain.dart';
 
 class UpdateCategoryPage extends StatefulWidget {
   final Category category;
