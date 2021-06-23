@@ -2,7 +2,7 @@ import '../models/category.dart';
 import '../services/databases/db_category.dart';
 
 class HomeRepository {
-  final DBCategory db = DBCategory.instance;
+  final DBProvider db = DBProvider.instance;
   final _list = <Category>[];
 
   List<Category> get list => _list;
@@ -15,12 +15,12 @@ class HomeRepository {
 
   Future<void> add(Category category) async {
     _list.add(category);
-    await db.add(category);
+    await db.addCategory(category);
   }
 
   Future<void> delete(String id) async {
     _list.removeWhere((element) => element.id == id);
-    await db.delete(id);
+    await db.deleteCategory(id);
   }
 
   Future<void> update(
@@ -37,13 +37,13 @@ class HomeRepository {
     );
     final index = _list.indexWhere((element) => element.id == category.id);
     _list[index] = updatedCategory;
-    await db.update(updatedCategory);
+    await db.updateCategory(updatedCategory);
   }
 
   Future<void> pin(Category category) async {
     final index = _list.indexWhere((element) => element.id == category.id);
     final pinned = category.copyWith(isPin: !category.isPin);
     _list[index] = pinned;
-    await db.pin(pinned);
+    await db.pinCategory(pinned);
   }
 }

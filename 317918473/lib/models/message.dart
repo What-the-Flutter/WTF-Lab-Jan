@@ -68,6 +68,8 @@ class Messages extends Equatable {
       createAt: DateTime.tryParse(map['create_at']) ?? DateTime.now(),
       message: map['message'],
       pathImage: map['path_image'],
+      isEdit: map['is_edit'] == 0 ? false : true,
+      isSelect: map['is_selected'] == 0 ? false : true,
       isFavorite: map['is_favorite'] == 0 ? false : true,
       tag: tagFromString(map['tag']) ?? Icons.home,
     );
@@ -77,11 +79,13 @@ class Messages extends Equatable {
     return {
       'id': id,
       'category_id': categoryId,
-      'create_at':createAt.toIso8601String(),
-      'message':message,
-      'path_image':pathImage,
-      'is_favorite':isFavorite == false ? 0 : 1,
-      'tag':tag.toString()
+      'create_at': createAt.toIso8601String(),
+      'message': message,
+      'path_image': pathImage,
+      'is_edit': isEdit == false ? 0 : 1,
+      'is_selected': isSelect == false ? 0 : 1,
+      'is_favorite': isFavorite == false ? 0 : 1,
+      'tag': tag.toString()
     };
   }
 

@@ -17,6 +17,8 @@ dependencies:
   flutter_bloc: ^7.0.1
   flutter_svg: ^0.22.0
   image_picker: ^0.7.5
+  intl: ^0.17.0
+  local_auth: ^1.1.6
   path: ^1.8.0
   shared_preferences: ^2.0.6
   sqflite: ^2.0.0+3

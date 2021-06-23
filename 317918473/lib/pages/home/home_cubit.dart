@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/category.dart';
-import '../../repository/home_repositore.dart';
+import '../../repository/home_repository.dart';
 
 part 'home_state.dart';
 
