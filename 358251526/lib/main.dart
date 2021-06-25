@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'domain.dart';
 import 'pages/home_page.dart';
@@ -21,12 +20,12 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
   void didChangeDependencies() {
     super.didChangeDependencies();
   }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Home Page',
-      themeMode: ThemeChanger.of(context) ? ThemeMode.light : ThemeMode.dark,
+      themeMode:
+      ThemeChanger.of(context)? ThemeMode.light : ThemeMode.dark,
       theme: lightTheme,
       darkTheme: darkTheme,
       home: HomePage(),
@@ -35,6 +34,7 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
 }
 
 class MyApp extends StatefulWidget {
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -42,6 +42,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return ThemeChanger(isLight: true, child: MyMaterialApp());
+    return ThemeChanger(
+        isLight: true,
+        child: MyMaterialApp()
+    );
   }
 }

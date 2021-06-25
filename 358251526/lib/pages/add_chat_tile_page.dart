@@ -28,10 +28,7 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                 ? () {}
                 : {
                     Navigator.of(context).pop(Category(
-                        _textEditingController.text,
-                        [],
-                        _selectedIcon,
-                        DateTime.now())),
+                        _textEditingController.text, [], _selectedIcon,DateTime.now())),
                     _textEditingController.clear(),
                   };
           },
