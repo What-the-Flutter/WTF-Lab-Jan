@@ -5,6 +5,7 @@ class ChatListTile extends StatelessWidget {
   final String subtitle;
   final Icon icon;
   final void Function()? onTap;
+  final void Function()? onLongPress;
 
   const ChatListTile({
     Key? key,
@@ -12,6 +13,7 @@ class ChatListTile extends StatelessWidget {
     required this.icon,
     required this.subtitle,
     this.onTap,
+    this.onLongPress,
   }) : super(key: key);
 
   @override
@@ -19,8 +21,9 @@ class ChatListTile extends StatelessWidget {
     return ListTile(
       title: Text(title),
       subtitle: Text(subtitle),
-      leading: CircleAvatar(foregroundColor: Colors.blueGrey, child: icon),
+      leading: CircleAvatar(foregroundColor: Colors.black54, child: icon),
       onTap: onTap,
+      onLongPress: onLongPress,
     );
   }
 }
