@@ -10,8 +10,7 @@ class _ThemeChanger extends InheritedWidget {
   }) : super(key: key, child: child);
 
   static _ThemeChanger of(BuildContext context) {
-    final result =
-    context.dependOnInheritedWidgetOfExactType<_ThemeChanger>();
+    final result = context.dependOnInheritedWidgetOfExactType<_ThemeChanger>();
     assert(result != null, 'No ThemeChanger found in context');
     return result!;
   }
@@ -25,16 +24,21 @@ class _ThemeChanger extends InheritedWidget {
 class ThemeChanger extends StatefulWidget {
   final Widget child;
   final bool isLight;
-  const ThemeChanger({Key? key, required this.child, required this.isLight}) : super(key: key);
+
+  const ThemeChanger({
+    Key? key,
+    required this.child,
+    required this.isLight,
+  }) : super(key: key);
 
   @override
   _ThemeChangerState createState() => _ThemeChangerState();
 
-  static bool of(BuildContext context){
+  static bool of(BuildContext context) {
     return _ThemeChanger.of(context).data.isLight;
   }
 
-  static _ThemeChangerState instanceOf(BuildContext context){
+  static _ThemeChangerState instanceOf(BuildContext context) {
     return _ThemeChanger.of(context).data;
   }
 }
@@ -42,7 +46,7 @@ class ThemeChanger extends StatefulWidget {
 class _ThemeChangerState extends State<ThemeChanger> {
   late bool isLight;
 
-  void changeTheme(){
+  void changeTheme() {
     setState(() {
       isLight = !isLight;
     });
@@ -56,6 +60,9 @@ class _ThemeChangerState extends State<ThemeChanger> {
 
   @override
   Widget build(BuildContext context) {
-    return _ThemeChanger(data: this, child: widget.child);
+    return _ThemeChanger(
+      data: this,
+      child: widget.child,
+    );
   }
 }

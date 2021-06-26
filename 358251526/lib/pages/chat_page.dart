@@ -192,22 +192,28 @@ class _Chat extends State<Chat> {
     _textEditingController.clear();
   }
 
-  void _swapAppBar() => setState(() {
-        _eventSelected = !_eventSelected;
-      });
+  void _swapAppBar() => setState(
+        () {
+          _eventSelected = !_eventSelected;
+        },
+      );
 
   void _editEvent(int index) {
-    setState(() {
-      _isEditing = true;
-      _textEditingController.text = _category.events[index].text;
-      _textEditingController.selection = TextSelection.fromPosition(
-          TextPosition(offset: _textEditingController.text.length));
-      _focusNode.requestFocus();
-    });
+    setState(
+      () {
+        _isEditing = true;
+        _textEditingController.text = _category.events[index].text;
+        _textEditingController.selection = TextSelection.fromPosition(
+            TextPosition(offset: _textEditingController.text.length));
+        _focusNode.requestFocus();
+      },
+    );
   }
 
   void _copyEvent(int index) {
-    Clipboard.setData(ClipboardData(text: _category.events[index].text));
+    Clipboard.setData(
+      ClipboardData(text: _category.events[index].text),
+    );
   }
 
   void _deleteEvent(int index) => _category.events.removeAt(index);

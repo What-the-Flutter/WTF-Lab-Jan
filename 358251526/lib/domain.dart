@@ -18,11 +18,36 @@ class Category {
 }
 
 List<Category> initialCategories = [
-  Category('Family', [], Icons.family_restroom, DateTime.now()),
-  Category('Job', [], Icons.work,DateTime.now()),
-  Category('Travel', [], Icons.local_shipping,DateTime.now()),
-  Category('Sports', [], Icons.sports_basketball,DateTime.now()),
-  Category('Friends', [], Icons.wine_bar,DateTime.now()),
+  Category(
+    'Family',
+    [],
+    Icons.family_restroom,
+    DateTime.now(),
+  ),
+  Category(
+    'Job',
+    [],
+    Icons.work,
+    DateTime.now(),
+  ),
+  Category(
+    'Travel',
+    [],
+    Icons.local_shipping,
+    DateTime.now(),
+  ),
+  Category(
+    'Sports',
+    [],
+    Icons.sports_basketball,
+    DateTime.now(),
+  ),
+  Category(
+    'Friends',
+    [],
+    Icons.wine_bar,
+    DateTime.now(),
+  ),
 ];
 List<IconData> initialIcons = [
   Icons.accessibility,
@@ -38,22 +63,24 @@ List<IconData> initialIcons = [
 ];
 
 ThemeData lightTheme = ThemeData(
-    brightness: Brightness.light,
-    primaryColor: Colors.teal,
-    primarySwatch: Colors.green,
-    dialogBackgroundColor: Colors.tealAccent,
-    focusColor: Colors.tealAccent,
-    accentColor: Colors.teal,
-    backgroundColor: Colors.grey,
-    buttonColor: Colors.tealAccent,
-    iconTheme: IconThemeData(color: Colors.teal),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ButtonStyle(
+  brightness: Brightness.light,
+  primaryColor: Colors.teal,
+  primarySwatch: Colors.green,
+  dialogBackgroundColor: Colors.tealAccent,
+  focusColor: Colors.tealAccent,
+  accentColor: Colors.teal,
+  backgroundColor: Colors.grey,
+  buttonColor: Colors.tealAccent,
+  iconTheme: IconThemeData(color: Colors.teal),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ButtonStyle(
       backgroundColor: MaterialStateProperty.all<Color>(Colors.teal),
-    )),
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      unselectedItemColor: Colors.blueGrey,
-      selectedItemColor: Colors.teal,
-      elevation: 2,
-    ));
+    ),
+  ),
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    unselectedItemColor: Colors.blueGrey,
+    selectedItemColor: Colors.teal,
+    elevation: 2,
+  ),
+);
 ThemeData darkTheme = ThemeData.dark();
