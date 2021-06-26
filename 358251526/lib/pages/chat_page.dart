@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-import 'home_page.dart';
+import '../domain.dart';
 
 class Chat extends StatefulWidget {
   final Category category;
@@ -14,29 +14,30 @@ class Chat extends StatefulWidget {
 }
 
 class _Chat extends State<Chat> {
-  final Category category;
-  final TextEditingController textEditingController = TextEditingController();
-  final FocusNode focusNode = FocusNode();
-  final bool isEditingText = false;
-  bool eventSelected = true;
-  int indexOfSelectedElement = 0;
-  bool isEditing = false;
+  final Category _category;
+  final TextEditingController _textEditingController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  final bool _isEditingText = false;
+  bool _eventSelected = true;
+  int _indexOfSelectedElement = 0;
+  bool _isEditing = false;
 
-  _Chat(this.category);
+  _Chat(this._category);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          eventSelected ? baseAppBar : selectItemAppBar(indexOfSelectedElement),
-      body: chatBody,
+      appBar: _eventSelected
+          ? _baseAppBar
+          : _selectItemAppBar(_indexOfSelectedElement),
+      body: _chatBody,
     );
   }
 
-  AppBar get baseAppBar {
+  AppBar get _baseAppBar {
     return AppBar(
       title: Center(
-        child: Text(category.name),
+        child: Text(_category.name),
       ),
       actions: [
         IconButton(icon: Icon(Icons.search), onPressed: () {}),
@@ -45,35 +46,35 @@ class _Chat extends State<Chat> {
     );
   }
 
-  AppBar selectItemAppBar(int index, {int? count}) {
+  AppBar _selectItemAppBar(int index, {int? count}) {
     return AppBar(
       backgroundColor: Colors.blueGrey,
-      leading: IconButton(icon: Icon(Icons.clear), onPressed: swapAppBar),
+      leading: IconButton(icon: Icon(Icons.clear), onPressed: _swapAppBar),
       actions: <Widget>[
         IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {
-              swapAppBar();
-              editEvent(index);
-            }),
+          icon: Icon(Icons.edit),
+          onPressed: () {
+            _swapAppBar();
+            _editEvent(index);
+          },
+        ),
         IconButton(
             icon: Icon(Icons.copy),
             onPressed: () {
-              swapAppBar();
-              copyEvent(index);
+              _swapAppBar();
+              _copyEvent(index);
             }),
-        IconButton(icon: Icon(Icons.bookmark_border), onPressed: swapAppBar),
+        IconButton(icon: Icon(Icons.bookmark_border), onPressed: _swapAppBar),
         IconButton(
             icon: Icon(Icons.delete),
-            onPressed: () {
-              swapAppBar();
-              deleteEvent(index);
-            }),
+            onPressed: () => showDialog(
+                context: context,
+                builder: (context) => _deleteAlertDialog(index))),
       ],
     );
   }
 
-  Widget get chatBody {
+  Widget get _chatBody {
     return Column(
       children: <Widget>[
         Expanded(
@@ -88,7 +89,7 @@ class _Chat extends State<Chat> {
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: Colors.black12,
+                  color: Colors.black26,
                 ),
               ),
             ),
@@ -103,10 +104,10 @@ class _Chat extends State<Chat> {
     return ListView.builder(
       scrollDirection: Axis.vertical,
       reverse: true,
-      itemCount: category.events.length,
+      itemCount: _category.events.length,
       itemBuilder: (context, index) {
-        indexOfSelectedElement = index;
-        final event = category.events[index];
+        _indexOfSelectedElement = index;
+        final event = _category.events[index];
         return Container(
           padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
           width: 100,
@@ -117,14 +118,13 @@ class _Chat extends State<Chat> {
             borderRadius: BorderRadius.circular(30),
             child: Card(
               elevation: 3,
-              color: Colors.tealAccent,
               child: ListTile(
                 title: Text(event.text),
                 subtitle:
                     Text(DateFormat('yyyy-MM-dd kk:mm').format(event.dateTime)),
                 onLongPress: () {
-                  indexOfSelectedElement = index;
-                  swapAppBar();
+                  _indexOfSelectedElement = index;
+                  _swapAppBar();
                 },
               ),
             ),
@@ -140,7 +140,6 @@ class _Chat extends State<Chat> {
         IconButton(
           icon: Icon(Icons.camera_alt_outlined),
           iconSize: 30,
-          color: Colors.teal,
           onPressed: () {
             setState(() {});
           },
@@ -150,8 +149,8 @@ class _Chat extends State<Chat> {
         ),
         Expanded(
           child: TextField(
-            controller: textEditingController,
-            focusNode: focusNode,
+            controller: _textEditingController,
+            focusNode: _focusNode,
             decoration: InputDecoration(
               hintText: 'Enter Event',
               border: InputBorder.none,
@@ -165,14 +164,13 @@ class _Chat extends State<Chat> {
         IconButton(
           icon: Icon(Icons.send),
           iconSize: 30,
-          color: Colors.teal,
           onPressed: () {
-            if (isEditing) {
+            if (_isEditing) {
               setState(() {
-                editText(indexOfSelectedElement);
+                _editText(_indexOfSelectedElement);
               });
             } else {
-              setState(sendEvent);
+              setState(_sendEvent);
             }
           },
         ),
@@ -180,39 +178,58 @@ class _Chat extends State<Chat> {
     );
   }
 
-  void editText(int index) {
-    category.events[index].text = textEditingController.text;
-    textEditingController.clear();
-    isEditing = false;
+  void _editText(int index) {
+    _category.events[index].text = _textEditingController.text;
+    _textEditingController.clear();
+    _isEditing = false;
   }
 
-  void sendEvent() {
-    category.events.insert(
+  void _sendEvent() {
+    _category.events.insert(
       0,
-      Event(textEditingController.text, DateTime.now()),
+      Event(_textEditingController.text, DateTime.now()),
     );
-    textEditingController.clear();
+    _textEditingController.clear();
   }
 
-  void swapAppBar() {
+  void _swapAppBar() => setState(() {
+        _eventSelected = !_eventSelected;
+      });
+
+  void _editEvent(int index) {
     setState(() {
-      eventSelected = !eventSelected;
+      _isEditing = true;
+      _textEditingController.text = _category.events[index].text;
+      _textEditingController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _textEditingController.text.length));
+      _focusNode.requestFocus();
     });
   }
 
-  void editEvent(int index) {
-    setState(() {
-      isEditing = true;
-      textEditingController.text = category.events[index].text;
-      focusNode.requestFocus();
-    });
+  void _copyEvent(int index) {
+    Clipboard.setData(ClipboardData(text: _category.events[index].text));
   }
 
-  void copyEvent(int index) {
-    Clipboard.setData(ClipboardData(text: category.events[index].text));
-  }
+  void _deleteEvent(int index) => _category.events.removeAt(index);
 
-  void deleteEvent(int index) {
-    category.events.removeAt(index);
+  AlertDialog _deleteAlertDialog(int index) {
+    return AlertDialog(
+      title: const Text('Delete event?'),
+      elevation: 3,
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Cancel'),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context, 'Yes');
+            _swapAppBar();
+            _deleteEvent(index);
+          },
+          child: const Text('Yes'),
+        ),
+      ],
+    );
   }
 }
