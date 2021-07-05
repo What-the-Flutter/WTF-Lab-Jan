@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -50,6 +51,11 @@ List<Category> initialCategories = [
   ),
 ];
 List<IconData> initialIcons = [
+  Icons.family_restroom,
+  Icons.work,
+  Icons.local_shipping,
+  Icons.sports_basketball,
+  Icons.wine_bar,
   Icons.accessibility,
   Icons.agriculture,
   Icons.anchor,

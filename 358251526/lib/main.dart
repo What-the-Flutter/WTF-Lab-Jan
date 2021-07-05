@@ -1,50 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_journal/pages/add_page/add_page_cubit.dart';
+import 'package:my_journal/pages/home_page/home_page_cubit.dart';
+import 'package:my_journal/theme_bloc/theme_bloc.dart';
 
 import 'domain.dart';
-import 'pages/home_page.dart';
-import 'theme_changer.dart';
+import 'pages/home_page/home_page.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyMaterialApp extends StatefulWidget {
-  const MyMaterialApp({Key? key}) : super(key: key);
-
-  @override
-  _MyMaterialAppState createState() => _MyMaterialAppState();
-}
-
-class _MyMaterialAppState extends State<MyMaterialApp> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Home Page',
-      themeMode:
-      ThemeChanger.of(context)? ThemeMode.light : ThemeMode.dark,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      home: HomePage(),
-    );
-  }
-}
-
-class MyApp extends StatefulWidget {
-
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return ThemeChanger(
-        isLight: true,
-        child: MyMaterialApp()
+    return BlocProvider(
+      create: (context) => AddPageCubit(),
+      child: BlocProvider(
+        create: (context) => HomePageCubit(initialCategories),
+        child: BlocProvider<ThemeBloc>(
+          create: (context) => ThemeBloc(true),
+          child: BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, state) {
+              return MaterialApp(
+                title: 'Home Page',
+                themeMode: state.isLight ? ThemeMode.light : ThemeMode.dark,
+                theme: lightTheme,
+                darkTheme: darkTheme,
+                home: HomePage(),
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 }
