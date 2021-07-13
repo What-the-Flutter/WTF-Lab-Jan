@@ -1,6 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:my_journal/domain.dart';
 
 part 'add_page_state.dart';
 

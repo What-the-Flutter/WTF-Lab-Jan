@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:my_journal/pages/chat_page/chat_page_cubit.dart';
 
-import '../../domain.dart';
+import '../../util/domain.dart';
+import 'chat_page_cubit.dart';
 
 class Chat extends StatefulWidget {
   final Category category;
@@ -125,7 +123,7 @@ class _Chat extends State<Chat> {
         height: 300,
         width: 220,
         child: ListView.separated(
-          itemCount: state.categotiesList.length + 1,
+          itemCount: state.categoriesList.length + 1,
           itemBuilder: (context, index) {
             if (index == 0) {
               return Center(
@@ -134,8 +132,8 @@ class _Chat extends State<Chat> {
               );
             }
             return ListTile(
-              title: Text(state.categotiesList[index - 1].name),
-              leading: Icon(state.categotiesList[index - 1].iconData),
+              title: Text(state.categoriesList[index - 1].name),
+              leading: Icon(state.categoriesList[index - 1].iconData),
               onTap: () {
                 BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
                 Navigator.pop(dialogContext);
@@ -339,8 +337,8 @@ ListView _selectCategoryField(
     ChatPageState state, BuildContext blocContext, BuildContext context) {
   return ListView.builder(
     scrollDirection: Axis.horizontal,
-    itemCount: state.categotiesList.length + 1,
-    itemBuilder: (context, int index) {
+    itemCount: state.categoriesList.length + 1,
+    itemBuilder: (context, index) {
       if (index == 0) {
         return Container(
           height: 83,
@@ -363,7 +361,7 @@ ListView _selectCategoryField(
           ),
         );
       } else {
-        final category = state.categotiesList[index - 1];
+        final category = state.categoriesList[index - 1];
         return Container(
           height: 83,
           width: 80,

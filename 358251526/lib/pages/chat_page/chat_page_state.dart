@@ -1,7 +1,7 @@
 part of 'chat_page_cubit.dart';
 
 class ChatPageState {
-  final List<Category> categotiesList;
+  final List<Category> categoriesList;
   final Category category;
   final bool eventSelected;
   final bool isEditing;
@@ -10,7 +10,7 @@ class ChatPageState {
 
   ChatPageState({
     required this.isSending,
-    required this.categotiesList,
+    required this.categoriesList,
     required this.isEditing,
     required this.category,
     required this.eventSelected,
@@ -27,7 +27,7 @@ class ChatPageState {
   }) {
     return ChatPageState(
       isSending: isSending?? this.isSending,
-      categotiesList: categotiesList,
+      categoriesList: categoriesList?? this.categoriesList,
       isEditing: isEditing ?? this.isEditing,
       category: category ?? this.category,
       eventSelected: eventSelected ?? this.eventSelected,
