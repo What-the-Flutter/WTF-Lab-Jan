@@ -15,6 +15,7 @@ dependencies:
   intl: ^0.17.0
   flutter_bloc: ^7.0.1
   equatable: ^2.0.0
+  shared_preferences: ^2.0.6
 
 
 

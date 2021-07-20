@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_journal/pages/add_page/add_page_cubit.dart';
-import '../../domain.dart';
+
+import '../../util/domain.dart';
+import 'add_page_cubit.dart';
 
 class AddCategoryPage extends StatefulWidget {
   final List<Category> categoriesList;

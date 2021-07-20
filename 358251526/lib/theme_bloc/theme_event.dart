@@ -5,3 +5,4 @@ abstract class ThemeEvent {
 }
 
 class ChangeThemeEvent extends ThemeEvent {}
+class SetTheme extends ThemeEvent{}

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:my_journal/pages/home_page/home_page_cubit.dart';
+import 'home_page_cubit.dart';
 
 class SelectCategoryWidgetDialog extends StatelessWidget {
   final List categoriesList;

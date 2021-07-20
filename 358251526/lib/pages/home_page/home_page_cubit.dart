@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:my_journal/domain.dart';
+import '../../util/domain.dart';
 
 import '../add_page/add_category_page.dart';
 import '../chat_page/chat_page.dart';

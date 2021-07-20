@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_journal/domain.dart';
+import '../../util/domain.dart';
 
 part 'chat_page_state.dart';
 
@@ -9,7 +8,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   ChatPageCubit(Category category, List<Category> categoriesList)
       : super(
           ChatPageState(
-            categotiesList: categoriesList,
+            categoriesList: categoriesList,
             isEditing: false,
             category: category,
             eventSelected: false,
@@ -71,7 +70,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   }
 
   void changeEventCategory(int eventIndex, int categoryIndex) {
-    state.categotiesList[categoryIndex].events.insert(
+    state.categoriesList[categoryIndex].events.insert(
       0,
       Event(
         state.category.events[eventIndex].text,
@@ -81,7 +80,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     state.category.events.removeAt(eventIndex);
     emit(
       state.copyWith(
-          category: state.category, categoriesList: state.categotiesList),
+          category: state.category, categoriesList: state.categoriesList),
     );
   }
 }
