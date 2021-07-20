@@ -127,7 +127,7 @@ class CategoriesList extends StatelessWidget {
         }
         return ChatListTile(
           title: categories[index - 1].name,
-          icon: Icon(categories[index - 1].iconData),
+          icon: Icon(initialIcons[categories[index - 1].iconIndex]),
           subtitle: categories[index - 1].events.isEmpty
               ? 'No events. Click to create one.'
               : categories[index - 1].events.first.text,

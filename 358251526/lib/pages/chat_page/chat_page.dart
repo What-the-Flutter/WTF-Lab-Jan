@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import '../../util/domain.dart';
 import 'chat_page_cubit.dart';
@@ -14,31 +13,34 @@ class Chat extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _Chat();
+  State<StatefulWidget> createState() => _Chat(categoriesList: categoriesList);
 }
 
 class _Chat extends State<Chat> {
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final List<Category> categoriesList;
 
-  _Chat();
+  _Chat({required this.categoriesList});
+
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<ChatPageCubit>(context).init(widget.category);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          ChatPageCubit(widget.category, widget.categoriesList),
-      child: BlocBuilder<ChatPageCubit, ChatPageState>(
-        builder: (blocContext, state) {
-          return Scaffold(
-            appBar: state.eventSelected
-                ? _selectItemAppBar(
-                    state.indexOfSelectedEvent, blocContext, state)
-                : _baseAppBar(state),
-            body: _chatBody(state, blocContext),
-          );
-        },
-      ),
+    return BlocBuilder<ChatPageCubit, ChatPageState>(
+      builder: (blocContext, state) {
+        return Scaffold(
+          appBar: state.eventSelected
+              ? _selectItemAppBar(
+                  state.indexOfSelectedEvent, blocContext, state)
+              : _baseAppBar(state),
+          body: _chatBody(state, blocContext),
+        );
+      },
     );
   }
 
@@ -54,7 +56,8 @@ class _Chat extends State<Chat> {
             showSearch(
               context: context,
               delegate: SearchEventDelegate(
-                category: widget.category,
+                events: state.events,
+                category: state.category,
               ),
             );
           },
@@ -81,14 +84,14 @@ class _Chat extends State<Chat> {
           icon: Icon(Icons.edit),
           onPressed: () {
             BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
-            _editEvent(index, blocContext);
+            _editEvent(index, blocContext, state);
           },
         ),
         IconButton(
           icon: Icon(Icons.copy),
           onPressed: () {
             BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
-            _copyEvent(index);
+            _copyEvent(index, state);
           },
         ),
         IconButton(
@@ -123,22 +126,27 @@ class _Chat extends State<Chat> {
         height: 300,
         width: 220,
         child: ListView.separated(
-          itemCount: state.categoriesList.length + 1,
+          itemCount: categoriesList.length + 1,
           itemBuilder: (context, index) {
             if (index == 0) {
               return Center(
                 child: Text(
-                    ' Select the page you want to migrate the selected event to!'),
+                  'Select the page you want to migrate the selected event to!',
+                ),
               );
             }
             return ListTile(
-              title: Text(state.categoriesList[index - 1].name),
-              leading: Icon(state.categoriesList[index - 1].iconData),
+              title: Text(categoriesList[index - 1].name),
+              leading: Icon(
+                initialIcons[categoriesList[index - 1].iconIndex],
+              ),
               onTap: () {
                 BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
                 Navigator.pop(dialogContext);
-                BlocProvider.of<ChatPageCubit>(blocContext)
-                    .changeEventCategory(eventIndex, index - 1);
+                BlocProvider.of<ChatPageCubit>(blocContext).changeEventCategory(
+                  eventIndex,
+                  categoriesList[index - 1],
+                );
               },
             );
           },
@@ -169,7 +177,8 @@ class _Chat extends State<Chat> {
                       ),
                     ),
                   ),
-                  child: _selectCategoryField(state, blocContext, context),
+                  child: _selectCategoryField(
+                      categoriesList, state, blocContext, context),
                 ),
               )
             : SizedBox(
@@ -196,16 +205,16 @@ class _Chat extends State<Chat> {
     return ListView.builder(
       scrollDirection: Axis.vertical,
       reverse: true,
-      itemCount: widget.category.events.length,
+      itemCount: state.events!.length,
       itemBuilder: (context, index) {
-        final event = widget.category.events[index];
+        final event = state.events![index];
         return Dismissible(
           key: UniqueKey(),
           onDismissed: (direction) {
             if (direction == DismissDirection.endToStart) {
               BlocProvider.of<ChatPageCubit>(blocContext).deleteEvent(index);
             } else if (direction == DismissDirection.startToEnd) {
-              _editEvent(index, blocContext);
+              _editEvent(index, blocContext, state);
             }
           },
           child: Container(
@@ -220,11 +229,10 @@ class _Chat extends State<Chat> {
                 elevation: 3,
                 child: ListTile(
                   title: Text(event.text),
-                  subtitle: Text(
-                      DateFormat('yyyy-MM-dd kk:mm').format(event.dateTime)),
+                  subtitle: Text(event.dateTime),
                   onLongPress: () {
                     BlocProvider.of<ChatPageCubit>(blocContext)
-                        .changeIndexOfSelectedIvent(index);
+                        .changeIndexOfSelectedEvent(index);
                     BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
                   },
                 ),
@@ -274,10 +282,7 @@ class _Chat extends State<Chat> {
               BlocProvider.of<ChatPageCubit>(blocContext).setEditEvent(false);
             } else {
               BlocProvider.of<ChatPageCubit>(blocContext).addEvent(
-                Event(
-                  _textEditingController.text,
-                  DateTime.now(),
-                ),
+                _textEditingController.text,
               );
               _textEditingController.clear();
               BlocProvider.of<ChatPageCubit>(blocContext).setSending(true);
@@ -296,18 +301,18 @@ class _Chat extends State<Chat> {
     BlocProvider.of<ChatPageCubit>(blocContext).setEditEvent(false);
   }
 
-  void _editEvent(int index, BuildContext blocContext) {
+  void _editEvent(int index, BuildContext blocContext, ChatPageState state) {
     BlocProvider.of<ChatPageCubit>(blocContext).setEditEvent(true);
-    _textEditingController.text = widget.category.events[index].text;
+    _textEditingController.text = state.events![index].text;
     _textEditingController.selection = TextSelection.fromPosition(
       TextPosition(offset: _textEditingController.text.length),
     );
     _focusNode.requestFocus();
   }
 
-  void _copyEvent(int index) {
+  void _copyEvent(int index, ChatPageState state) {
     Clipboard.setData(
-      ClipboardData(text: widget.category.events[index].text),
+      ClipboardData(text: state.events![index].text),
     );
   }
 
@@ -333,11 +338,11 @@ class _Chat extends State<Chat> {
   }
 }
 
-ListView _selectCategoryField(
+ListView _selectCategoryField(List<Category> categoriesList,
     ChatPageState state, BuildContext blocContext, BuildContext context) {
   return ListView.builder(
     scrollDirection: Axis.horizontal,
-    itemCount: state.categoriesList.length + 1,
+    itemCount: categoriesList.length + 1,
     itemBuilder: (context, index) {
       if (index == 0) {
         return Container(
@@ -361,7 +366,7 @@ ListView _selectCategoryField(
           ),
         );
       } else {
-        final category = state.categoriesList[index - 1];
+        final category = categoriesList[index - 1];
         return Container(
           height: 83,
           width: 80,
@@ -376,10 +381,10 @@ ListView _selectCategoryField(
                 color: Theme.of(context).accentColor,
                 onPressed: () {
                   BlocProvider.of<ChatPageCubit>(blocContext)
-                      .changeEventCategory(0, index - 1);
+                      .changeEventCategory(0, category);
                   BlocProvider.of<ChatPageCubit>(blocContext).setSending(false);
                 },
-                icon: Icon(category.iconData),
+                icon: Icon(initialIcons[category.iconIndex]),
               ),
               Text(category.name),
             ],
@@ -391,9 +396,10 @@ ListView _selectCategoryField(
 }
 
 class SearchEventDelegate extends SearchDelegate {
-  final Category category;
+  final Category? category;
+  final List<Event>? events;
 
-  SearchEventDelegate({required this.category});
+  SearchEventDelegate({required this.category, required this.events});
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -430,7 +436,7 @@ class SearchEventDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return category.events
+    return events!
             .where(
               (element) => element.text.contains(query),
             )
@@ -441,13 +447,13 @@ class SearchEventDelegate extends SearchDelegate {
         : ListView.builder(
             scrollDirection: Axis.vertical,
             reverse: true,
-            itemCount: category.events
+            itemCount: events!
                 .where(
                   (element) => element.text.contains(query),
                 )
                 .length,
             itemBuilder: (context, index) {
-              final event = category.events
+              final event = events!
                   .where(
                     (element) => element.text.contains(query),
                   )
@@ -465,7 +471,7 @@ class SearchEventDelegate extends SearchDelegate {
                     child: ListTile(
                       title: Text(event.text),
                       subtitle: Text(
-                        '${DateFormat('yyyy-MM-dd kk:mm').format(event.dateTime)}\n${category.name}',
+                        '${event.dateTime}\n${category!.name}',
                       ),
                       isThreeLine: true,
                     ),

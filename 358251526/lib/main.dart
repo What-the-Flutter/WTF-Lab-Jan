@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_journal/pages/chat_page/chat_page_cubit.dart';
+import 'package:my_journal/util/db_provider.dart';
 
 import '../util/shared_preferences_provider.dart';
 import 'pages/add_page/add_page_cubit.dart';
@@ -10,10 +12,14 @@ import 'util/domain.dart';
 
 void main() async {
   await SharedPreferencesProvider.initialize();
+  await DBProvider.initialize();
   runApp(
     BlocProvider<ThemeBloc>(
       create: (context) => ThemeBloc(),
-      child: MyApp(),
+      child: BlocProvider<ChatPageCubit>(
+        create: (context) => ChatPageCubit(),
+        child: MyApp(),
+      ),
     ),
   );
 }
