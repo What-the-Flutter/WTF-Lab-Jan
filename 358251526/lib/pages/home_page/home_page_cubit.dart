@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:my_journal/util/db_provider.dart';
 import '../../util/domain.dart';
 
 import '../add_page/add_category_page.dart';
@@ -14,7 +15,11 @@ class HomePageCubit extends Cubit<HomePageState> {
           HomePageState(categoriesList: categoriesList),
         );
 
+  final DBProvider _dBProvider = DBProvider();
+
   void removeCategory(int index) {
+    _dBProvider.deleteCategory(state.categoriesList[index]);
+    _dBProvider.deleteEventsFromCategory(state.categoriesList[index].id);
     state.categoriesList.removeAt(index);
     categoryListRedrawing();
   }
@@ -23,9 +28,15 @@ class HomePageCubit extends Cubit<HomePageState> {
         state.copyWith(categoriesList: state.categoriesList),
       );
 
-  void init(List<Category> categoryList) => emit(
-        state.copyWith(categoriesList: categoryList),
+  void init(List<Category> categoryList) async {
+    emit(
+        state.copyWith(categoriesList: <Category>[]),
       );
+    await DBProvider.initialize();
+    emit(
+      state.copyWith(categoriesList: await _dBProvider.fetchCategoriesList()),
+    );
+  }
 
   void addCategory(BuildContext context) async {
     final newCategory = await Navigator.of(context).push(

@@ -1,53 +1,79 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Event {
+  int id;
+  int categoryId;
   String text;
-  DateTime dateTime;
+  String dateTime;
 
-  Event(this.text, this.dateTime);
+
+  Event({required this.id,required this.categoryId, required this.text, required this.dateTime});
+
+  Map<String, dynamic> convertEventToMap() {
+    return {
+      'category_id': categoryId,
+      'event_text': text,
+      'event_time': dateTime,
+    };
+  }
+
+  Map<String, dynamic> convertEventToMapWithId() {
+    return {
+      'event_id': id,
+      'category_id': categoryId,
+      'event_text': text,
+      'event_time': dateTime,
+    };
+  }
+
+  factory Event.fromMap(Map<String, dynamic> map) {
+    return Event(
+       id: map['event_id'],
+       categoryId: map['category_id'],
+       text: map['event_text'],
+       dateTime: map['event_time'],
+    );
+  }
 }
 
 class Category {
-  DateTime dateTime;
+  int id;
+  int iconIndex;
+  String dateTime;
   String name;
-  List<Event> events;
-  IconData iconData;
 
-  Category(this.name, this.events, this.iconData, this.dateTime);
+  Category({required this.id, required this.name, required this.iconIndex, required this.dateTime});
+
+  Map<String, dynamic> convertCategoryToMapWithId() {
+    return {
+      'id': id,
+      'name': name,
+      'icon_index': iconIndex,
+      'category_date': dateTime,
+    };
+  }
+
+  Map<String, dynamic> convertCategoryToMap() {
+    return {
+      'name': name,
+      'icon_index': iconIndex,
+      'category_date': dateTime,
+    };
+  }
+
+  factory Category.fromMap(Map<String, dynamic> map) {
+    return Category(
+      id: map['id'],
+      name: map['name'],
+      iconIndex: map['icon_index'],
+      dateTime: map['category_date'],
+    );
+  }
 }
 
 List<Category> initialCategories = [
-  Category(
-    'Family',
-    [],
-    Icons.family_restroom,
-    DateTime.now(),
-  ),
-  Category(
-    'Job',
-    [],
-    Icons.work,
-    DateTime.now(),
-  ),
-  Category(
-    'Travel',
-    [],
-    Icons.local_shipping,
-    DateTime.now(),
-  ),
-  Category(
-    'Sports',
-    [],
-    Icons.sports_basketball,
-    DateTime.now(),
-  ),
-  Category(
-    'Friends',
-    [],
-    Icons.wine_bar,
-    DateTime.now(),
-  ),
 ];
 List<IconData> initialIcons = [
   Icons.family_restroom,

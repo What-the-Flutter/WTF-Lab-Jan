@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../util/domain.dart';
 import 'add_page_cubit.dart';
@@ -33,8 +34,7 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
   @override
   void initState() {
     BlocProvider.of<AddPageCubit>(context).init(widget.isEditing
-        ? widget.icons
-            .indexOf(widget.categoriesList[widget.indexOfCategory].iconData)
+        ? widget.categoriesList[widget.indexOfCategory].iconIndex
         : 0);
     if (widget.isEditing) {
       _textEditingController.text =
@@ -76,23 +76,28 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
   }
 
   void _update(AddPageState state, BuildContext context) {
-    widget.categoriesList[widget.indexOfCategory].iconData =
-        widget.icons[state.selectedIconIndex];
+    widget.categoriesList[widget.indexOfCategory].iconIndex =
+        state.selectedIconIndex;
     widget.categoriesList[widget.indexOfCategory].name =
         _textEditingController.text;
+    BlocProvider.of<AddPageCubit>(context).editPage(
+      widget.categoriesList[widget.indexOfCategory],
+    );
     Navigator.of(context).pop();
     _textEditingController.clear();
   }
 
-  void _create(AddPageState state, BuildContext context) {
-    Navigator.of(context).pop(
-      Category(
-        _textEditingController.text,
-        [],
-        widget.icons[state.selectedIconIndex],
+  void _create(AddPageState state, BuildContext context) async {
+    var category = Category(
+      id: -1,
+      name: _textEditingController.text,
+      iconIndex: state.selectedIconIndex,
+      dateTime: DateFormat('yyyy-MM-dd kk:mm').format(
         DateTime.now(),
       ),
     );
+    await BlocProvider.of<AddPageCubit>(context).addPage(category);
+    Navigator.of(context).pop();
     _textEditingController.clear();
   }
 
@@ -134,8 +139,11 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
           title: Text('tab to select this icon'),
           subtitle: Text('#${index - 1}'),
           leading: CircleAvatar(
-              foregroundColor: Colors.black54,
-              child: Icon(widget.icons[index - 1])),
+            foregroundColor: Colors.black54,
+            child: Icon(
+              widget.icons[index - 1],
+            ),
+          ),
           onTap: () {
             BlocProvider.of<AddPageCubit>(context)
                 .setSelectedIconIndex(index - 1);

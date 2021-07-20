@@ -16,7 +16,9 @@ class SelectCategoryWidgetDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(40),
+      ),
       elevation: 16,
       child: Container(
         height: 240.0,
@@ -59,7 +61,9 @@ class SelectCategoryWidgetDialog extends StatelessWidget {
             ListTile(
               title: Text('Info'),
               leading: CircleAvatar(
-                  foregroundColor: Colors.black54, child: Icon(Icons.info)),
+                foregroundColor: Colors.black54,
+                child: Icon(Icons.info),
+              ),
               onTap: () {
                 Navigator.pop(dialogContext);
                 _showInfoDialog(context);
@@ -76,8 +80,9 @@ class SelectCategoryWidgetDialog extends StatelessWidget {
       context: context,
       builder: (infoDialogContext) {
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40),
+          ),
           elevation: 16,
           child: Container(
             height: 300.0,
@@ -87,23 +92,28 @@ class SelectCategoryWidgetDialog extends StatelessWidget {
                 SizedBox(height: 20),
                 ListTile(
                   leading: CircleAvatar(
-                      foregroundColor: Colors.black54,
-                      child: Icon(categoriesList[index].iconData)),
+                    foregroundColor: Colors.black54,
+                    child: Icon(categoriesList[index].iconData),
+                  ),
                   title: Text(categoriesList[index].name),
                 ),
                 SizedBox(height: 20),
                 ListTile(
                   title: Text('Created'),
-                  subtitle: Text(DateFormat('yyyy-MM-dd KK:mm:ss')
-                      .format(categoriesList[index].dateTime)),
+                  subtitle: Text(
+                    DateFormat('yyyy-MM-dd KK:mm:ss')
+                        .format(categoriesList[index].dateTime),
+                  ),
                 ),
                 SizedBox(height: 10),
                 ListTile(
                   title: Text('Last Event'),
                   subtitle: categoriesList[index].events.isEmpty
                       ? Text('No events')
-                      : Text(DateFormat('yyyy-MM-dd KK:mm:ss')
-                          .format(categoriesList[index].events.first.dateTime)),
+                      : Text(
+                          DateFormat('yyyy-MM-dd KK:mm:ss').format(
+                              categoriesList[index].events.first.dateTime),
+                        ),
                 ),
                 SizedBox(height: 20),
                 Center(
@@ -111,8 +121,9 @@ class SelectCategoryWidgetDialog extends StatelessWidget {
                     height: 40.0,
                     width: 50.0,
                     child: ElevatedButton(
-                        onPressed: () => Navigator.pop(infoDialogContext),
-                        child: Text('Ok')),
+                      onPressed: () => Navigator.pop(infoDialogContext),
+                      child: Text('Ok'),
+                    ),
                   ),
                 ),
               ],
