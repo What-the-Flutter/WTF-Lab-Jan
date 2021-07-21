@@ -27,7 +27,7 @@ class MyMainPage extends StatefulWidget {
 }
 
 class _MyMainPageState extends State<MyMainPage> {
-  List<Widget> _pages = [
+  final List<Widget> _pages = [
     MyHomePage(),
     Container(
       color:Colors.red
@@ -43,6 +43,7 @@ class _MyMainPageState extends State<MyMainPage> {
     )
   ];
   int _currentIndex = 0;
+
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;

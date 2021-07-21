@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'events_page.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -9,10 +10,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void onThemeButtonTapped() {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,8 +18,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Home', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
-              onPressed: onThemeButtonTapped,
-              icon: const Icon(Icons.nightlight_round))
+            onPressed: () => {},
+            icon: const Icon(Icons.nightlight_round),
+          )
         ],
         backgroundColor: Colors.blueGrey,
         elevation: 10,
@@ -36,7 +34,8 @@ class _MyHomePageState extends State<MyHomePage> {
               decoration: BoxDecoration(
                 color: Colors.blueGrey,
               ),
-              child: Text(DateFormat('yyyy-MM-dd').format(DateTime.now()).toString()),
+              child: Text(
+                  DateFormat('yyyy-MM-dd').format(DateTime.now()).toString()),
             ),
             ListTile(
               leading: const Icon(Icons.card_giftcard),
@@ -106,9 +105,12 @@ class _MyHomePageState extends State<MyHomePage> {
               }),
           onPressed: () => {},
           child: ListTile(
-              leading: Icon(Icons.smart_toy_outlined),
-              title: const Text('Questionnaire bot',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500))),
+            leading: Icon(Icons.smart_toy_outlined),
+            title: const Text(
+              'Questionnaire bot',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+            ),
+          ),
         ),
         ListTile(
           leading: const Icon(Icons.import_contacts_outlined),
@@ -117,6 +119,14 @@ class _MyHomePageState extends State<MyHomePage> {
           subtitle: Text('No events.Click to create one.',
               style: TextStyle(fontWeight: FontWeight.w300)),
           contentPadding: EdgeInsets.fromLTRB(20, 20, 0, 0),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => MyListEventsPage(
+                      title: 'Notes'
+                  )
+              )
+          ),
           onLongPress: () => showModalBottomSheet(
               context: context,
               builder: (context) {
@@ -154,6 +164,14 @@ class _MyHomePageState extends State<MyHomePage> {
           subtitle: Text('No events.Click to create one.',
               style: TextStyle(fontWeight: FontWeight.w300)),
           contentPadding: EdgeInsets.fromLTRB(20, 5, 0, 0),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => MyListEventsPage(
+                      title: 'Journal'
+                  )
+              )
+          ),
           onLongPress: () => showModalBottomSheet(
               context: context,
               builder: (context) {
@@ -191,6 +209,14 @@ class _MyHomePageState extends State<MyHomePage> {
           subtitle: Text('No events.Click to create one.',
               style: TextStyle(fontWeight: FontWeight.w300)),
           contentPadding: EdgeInsets.fromLTRB(20, 5, 0, 0),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => MyListEventsPage(
+                      title: 'Gratitude'
+                  )
+              )
+          ),
           onLongPress: () => showModalBottomSheet(
               context: context,
               builder: (context) {
