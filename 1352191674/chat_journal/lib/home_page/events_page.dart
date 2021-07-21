@@ -8,7 +8,7 @@ import '../models/event_model.dart';
 
 class MyListEventsPage extends StatefulWidget {
   final String title;
-  late List events = [];
+  final List events = [];
 
   MyListEventsPage({required this.title});
 
@@ -21,8 +21,8 @@ class _MyListEventsPageState extends State<MyListEventsPage> {
   File? _image;
   final picker = ImagePicker();
 
-  _getImage(ImageSource imageSource) async {
-    PickedFile? imageFile = await picker.getImage(source: imageSource);
+  Future<void> _getImage(ImageSource imageSource) async {
+    var imageFile = await picker.getImage(source: imageSource);
     if (imageFile == null) return;
     setState(
       () {
@@ -140,14 +140,14 @@ class _MyListEventsPageState extends State<MyListEventsPage> {
             color: Theme.of(context).primaryColor,
             onPressed: () {
               _getImage(ImageSource.gallery);
-              widget.events.insert(
+              _image!=null ? widget.events.insert(
                   0,
                   Event(
                       time: DateTime.now(),
                       text: '',
                       isFavorite: false,
                       isEdit: false,
-                      image: _image));
+                      image: _image)) : _image = null;
               _image = null;
             },
           ),

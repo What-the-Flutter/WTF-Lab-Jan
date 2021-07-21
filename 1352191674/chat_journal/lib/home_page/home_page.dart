@@ -122,11 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) => MyListEventsPage(
-                      title: 'Notes'
-                  )
-              )
-          ),
+                  builder: (_) => MyListEventsPage(title: 'Notes'))),
           onLongPress: () => showModalBottomSheet(
               context: context,
               builder: (context) {
@@ -167,11 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) => MyListEventsPage(
-                      title: 'Journal'
-                  )
-              )
-          ),
+                  builder: (_) => MyListEventsPage(title: 'Journal'))),
           onLongPress: () => showModalBottomSheet(
               context: context,
               builder: (context) {
@@ -212,11 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) => MyListEventsPage(
-                      title: 'Gratitude'
-                  )
-              )
-          ),
+                  builder: (_) => MyListEventsPage(title: 'Gratitude'))),
           onLongPress: () => showModalBottomSheet(
               context: context,
               builder: (context) {
