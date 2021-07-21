@@ -25,6 +25,7 @@ dependencies:
     sdk: flutter
   hover_effect: ^0.6.0
   intl: ^0.17.0
+  image_picker: ^0.8.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
