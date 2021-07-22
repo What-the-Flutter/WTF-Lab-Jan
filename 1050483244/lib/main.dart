@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'pages/all_pages.dart';
 import 'package:jiffy/jiffy.dart';
+
+import 'pages/all_pages.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,13 +12,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Chat Journal',
       theme: theme,
-      home: Main(),
+      //home: Main(),
+      home: EventPage(title: 'Travel'),
     );
   }
 }
 
 final theme = ThemeData(
-  primaryColor: Colors.teal[700],
+  primarySwatch: Colors.teal,
 );
 
 class Main extends StatefulWidget {
@@ -53,9 +55,9 @@ class _MainState extends State<Main> {
         ],
       ),
       drawer: Drawer(
-          child: ListView(
-        children: <Widget>[
-          DrawerHeader(
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.teal[700],
               ),
@@ -66,44 +68,47 @@ class _MainState extends State<Main> {
                   Text(
                     Jiffy(DateTime.now()).format('MMM d, yyyy'),
                     style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
                   ),
                 ],
-              )),
-          ListTile(
-            leading: Icon(Icons.card_giftcard_outlined),
-            title: Text('Help spread the word'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.search_outlined),
-            title: Text('Search'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text('Notifications'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.multiline_chart_outlined),
-            title: Text('Statistics'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.mail),
-            title: Text('Feedback'),
-            onTap: () {},
-          ),
-        ],
-      )),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.card_giftcard_outlined),
+              title: Text('Help spread the word'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.search_outlined),
+              title: Text('Search'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.notifications),
+              title: Text('Notifications'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.multiline_chart_outlined),
+              title: Text('Statistics'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.mail),
+              title: Text('Feedback'),
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -129,9 +134,11 @@ class _MainState extends State<Main> {
         selectedItemColor: theme.primaryColor,
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
-        onTap: (index) => setState(() {
-          _selectedIndex = index;
-        }),
+        onTap: (index) => setState(
+          () {
+            _selectedIndex = index;
+          },
+        ),
       ),
     );
   }
