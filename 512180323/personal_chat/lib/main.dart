@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:personal_chat/screens/daily_screen.dart';
-import 'package:personal_chat/screens/explore_screen.dart';
-import 'package:personal_chat/screens/timeline_screen.dart';
-import 'package:personal_chat/screens/home_screen.dart';
 
 import 'constants.dart';
+import 'screens/daily_screen.dart';
+import 'screens/explore_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/timeline_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +13,10 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Personal Chat', home: MainScreen());
+    return const MaterialApp(
+      title: 'Personal Chat',
+      home: MainScreen(),
+    );
   }
 }
 
@@ -27,69 +30,73 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final List<Widget> _children = [
-    HomeScreen(),
-    DailyScreen(),
-    TimelineScreen(),
-    ExploreScreen(),
+    const HomeScreen(),
+    const DailyScreen(),
+    const TimelineScreen(),
+    const ExploreScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _children[_currentIndex],
-
-      // Here we have bottomNavigationBar and a button for adding a chat.
       bottomNavigationBar: Container(
-        height: 90,
-        margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 5.0, bottom: 20),
-        decoration: BoxDecoration(
-            color: pinkDecor, borderRadius: BorderRadius.circular(40)),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          selectedItemColor: Colors.red,
-          unselectedItemColor: black,
-          selectedIconTheme: IconThemeData(size: 30.0),
-          iconSize: 25.0,
-          selectedFontSize: 15,
-          showUnselectedLabels: true,
-          elevation: 0,
-          onTap: onTabTapped,
-          currentIndex: _currentIndex,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home_outlined,
+        color: pinkBg,
+        child: Container(
+          height: 90,
+          margin: const EdgeInsets.only(
+              left: 10.0, right: 10.0, top: 5.0, bottom: 20),
+          decoration: BoxDecoration(
+            color: pinkDecor,
+            borderRadius: BorderRadius.circular(40),
+          ),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent,
+            selectedItemColor: Colors.blue,
+            unselectedItemColor: black,
+            selectedIconTheme: const IconThemeData(size: 23.0),
+            iconSize: 25.0,
+            selectedFontSize: 12,
+            showUnselectedLabels: true,
+            elevation: 0,
+            onTap: onTabTapped,
+            currentIndex: _currentIndex,
+            items: [
+              const BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home_outlined,
+                ),
+                label: 'Home',
               ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.assignment_rounded,
+              const BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.assignment_rounded,
+                ),
+                label: 'Daily',
               ),
-              label: 'Daily',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.timer,
+              const BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.timer,
+                ),
+                label: 'Timeline',
               ),
-              label: 'Timeline',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.explore_outlined,
+              const BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.explore_outlined,
+                ),
+                label: 'Explore',
               ),
-              label: 'Explore',
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  void onTabTapped(int index) => setState(
+        () {
+          _currentIndex = index;
+        },
+      );
 }
