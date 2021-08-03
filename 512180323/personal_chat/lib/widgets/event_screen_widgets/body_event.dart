@@ -7,16 +7,16 @@ import 'package:jiffy/jiffy.dart';
 
 import '../../constants.dart';
 
-class MyBodyEvent extends StatefulWidget {
-  const MyBodyEvent({Key key}) : super(key: key);
+class BodyEvent extends StatefulWidget {
+  const BodyEvent({Key key}) : super(key: key);
 
   @override
-  _MyBodyEventState createState() => _MyBodyEventState();
+  _BodyEventState createState() => _BodyEventState();
 }
 
-class _MyBodyEventState extends State<MyBodyEvent> {
+class _BodyEventState extends State<BodyEvent> {
   final _event = <Object>[];
-  final List _date = <String>[];
+  final _date = <String>[];
   final _controller = TextEditingController();
   int _eventIndex = 0;
   bool _editText = false;
@@ -121,18 +121,18 @@ class _MyBodyEventState extends State<MyBodyEvent> {
       children: [
         // Here we check - if Event is empty, we create a new body section.
         _event.isEmpty
-            ? buildEmptyBodyList()
+            ? emptyBodyList()
 
             // Here is a list with different events.
-            : buildBodyEventList(),
+            : bodyEventList(),
 
         // Here is the bottom section with textField widgets and various functions.
-        buildBottomSection(context),
+        bottomSection(context),
       ],
     );
   }
 
-  Container buildBottomSection(BuildContext context) {
+  Widget bottomSection(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(10.0),
       child: Row(
@@ -145,7 +145,7 @@ class _MyBodyEventState extends State<MyBodyEvent> {
             child: Container(
               padding: const EdgeInsets.only(left: 10.0, top: 4.0, right: 10.0),
               decoration: BoxDecoration(
-                color: Colors.blue[100],
+                color: Theme.of(context).accentColor,
                 borderRadius: BorderRadius.circular(30),
               ),
               child: TextField(
@@ -156,6 +156,7 @@ class _MyBodyEventState extends State<MyBodyEvent> {
                 textCapitalization: TextCapitalization.sentences,
                 decoration: const InputDecoration(
                   hintText: 'Enter Event...',
+                  hintStyle: TextStyle(color: black),
                   border: InputBorder.none,
                 ),
                 cursorColor: white,
@@ -167,12 +168,12 @@ class _MyBodyEventState extends State<MyBodyEvent> {
           Container(
             margin: const EdgeInsets.only(left: 10.0),
             decoration: BoxDecoration(
-              color: pinkDecor,
+              color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 const BoxShadow(
                   blurRadius: 1,
-                  color: Colors.grey,
+                  color: shadowColor,
                   offset: Offset(2, 2),
                 ),
               ],
@@ -181,9 +182,9 @@ class _MyBodyEventState extends State<MyBodyEvent> {
               onPressed: () {
                 _sendMessage();
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.send_outlined,
-                color: blue,
+                color: Theme.of(context).accentColor,
               ),
             ),
           ),
@@ -192,16 +193,16 @@ class _MyBodyEventState extends State<MyBodyEvent> {
     );
   }
 
-  Container firstButtonOfSectionBottom(BuildContext context) {
+  Widget firstButtonOfSectionBottom(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(right: 10.0),
       decoration: BoxDecoration(
-        color: pinkDecor,
+        color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           const BoxShadow(
             blurRadius: 1,
-            color: Colors.grey,
+            color: shadowColor,
             offset: Offset(2, 2),
           ),
         ],
@@ -280,16 +281,16 @@ class _MyBodyEventState extends State<MyBodyEvent> {
             },
           );
         },
-        icon: const Icon(
+        icon: Icon(
           Icons.attach_file,
-          color: blue,
+          color: Theme.of(context).accentColor,
         ),
       ),
     );
   }
 
-  Expanded buildBodyEventList() {
-    return Expanded(
+  Widget bodyEventList() {
+    return Flexible(
       child: ListView.builder(
         reverse: true,
         itemBuilder: (context, index) {
@@ -299,9 +300,9 @@ class _MyBodyEventState extends State<MyBodyEvent> {
               top: 10.0,
               right: 30.0,
             ),
-            decoration: const BoxDecoration(
-              color: pinkDecor,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(5),
                 topLeft: Radius.circular(25),
                 bottomRight: Radius.circular(20),
@@ -328,7 +329,7 @@ class _MyBodyEventState extends State<MyBodyEvent> {
     );
   }
 
-  Expanded buildEmptyBodyList() {
+  Widget emptyBodyList() {
     return Expanded(
       child: SingleChildScrollView(
         child: Column(
@@ -346,7 +347,7 @@ class _MyBodyEventState extends State<MyBodyEvent> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               decoration: BoxDecoration(
-                color: pinkDecor,
+                color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: Column(
@@ -354,6 +355,7 @@ class _MyBodyEventState extends State<MyBodyEvent> {
                   const Text(
                     'This is the page where you can track'
                     ' everything about "..."',
+                    textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey, fontSize: 18.0),
                   ),
                   const SizedBox(
@@ -367,8 +369,9 @@ class _MyBodyEventState extends State<MyBodyEvent> {
                     ' opposite direction. Tap on the bookmark'
                     ' icon on the top right corner to show the'
                     ' bookmarked events only.',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.grey[700],
+                      color: Colors.grey[400],
                     ),
                   ),
                 ],
@@ -377,27 +380,6 @@ class _MyBodyEventState extends State<MyBodyEvent> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget iconCreating(Color bgColor, Icon icon, String nameIcon, void tap) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            tap;
-          },
-          child: CircleAvatar(
-            backgroundColor: bgColor,
-            radius: 30,
-            child: icon,
-          ),
-        ),
-        const SizedBox(
-          height: 4.0,
-        ),
-        Text(nameIcon),
-      ],
     );
   }
 }
