@@ -47,19 +47,87 @@ class _HomePageState extends State<HomePage> {
   _HomePageState(this._categories);
 
   void _showToast() {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No magic happened yet')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('No magic happened yet')));
   }
 
   void _addCategory() {
-    setState(() {
-      _categories.add(_categories[_categories.length - 3]);
-    });
+    setState(() => _categories.add(_categories[_categories.length - 3]));
   }
 
   void _selectTab(int tab) {
-    setState(() {
-      _currentTab = tab;
-    });
+    setState(() => _currentTab = tab);
+  }
+
+  Widget _bottomNavigationBar() {
+    return BottomNavigationBar(
+      backgroundColor: Colors.red,
+      items: [
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined),
+          label: 'Home',
+          backgroundColor: Colors.red,
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.three_k_sharp),
+          label: 'Daily',
+          backgroundColor: Colors.pinkAccent,
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.timeline_outlined),
+          label: 'Timeline',
+          backgroundColor: Colors.purple,
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.explore_outlined),
+          label: 'Explore',
+          backgroundColor: Colors.deepPurple,
+        ),
+      ],
+      onTap: _selectTab,
+      currentIndex: _currentTab,
+    );
+  }
+
+  Widget _topButton() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 40.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(primary: Colors.white),
+          onPressed: _showToast,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.attractions,
+                color: Colors.red,
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                child: const Text(
+                  'Questionnaire Bot',
+                  style: TextStyle(fontSize: 16.0, color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _fab() {
+    return FloatingActionButton(
+      backgroundColor: Colors.redAccent,
+      onPressed: _addCategory,
+      child: const Icon(
+        Icons.add,
+        color: Colors.white,
+      ),
+    );
   }
 
   @override
@@ -68,46 +136,18 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Center(child: Text(widget.title)),
         actions: [
-          IconButton(onPressed: _showToast, icon: Icon(Icons.auto_awesome)),
+          IconButton(
+            onPressed: _showToast,
+            icon: const Icon(Icons.auto_awesome),
+          ),
         ],
       ),
-      drawer: Drawer(),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.red,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home', backgroundColor: Colors.red),
-          BottomNavigationBarItem(icon: Icon(Icons.three_k_sharp), label: 'Daily', backgroundColor: Colors.pinkAccent),
-          BottomNavigationBarItem(icon: Icon(Icons.timeline_outlined), label: 'Timeline', backgroundColor: Colors.purple),
-          BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: 'Explore', backgroundColor: Colors.deepPurple),
-        ],
-        onTap: _selectTab,
-        currentIndex: _currentTab,
-      ),
+      drawer: const Drawer(),
+      bottomNavigationBar: _bottomNavigationBar(),
       body: Center(
         child: Column(
           children: [
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                margin: EdgeInsets.symmetric(horizontal: 40.0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.white),
-                  onPressed: () {},
-                  child: Container(
-                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Icon(
-                        Icons.attractions,
-                        color: Colors.red,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0),
-                        child: Text('Questionnaire Bot', style: TextStyle(fontSize: 16.0, color: Colors.red), textAlign: TextAlign.center),
-                      ),
-                    ]),
-                  ),
-                ),
-              ),
-            ),
+            _topButton(),
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -121,14 +161,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.redAccent,
-        onPressed: _addCategory,
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-      ),
+      floatingActionButton: _fab(),
     );
   }
 }

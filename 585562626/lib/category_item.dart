@@ -21,7 +21,11 @@ class CategoryItem extends StatelessWidget {
             children: [
               Text(
                 category.name,
-                style: const TextStyle(color: Colors.black54, fontSize: 18.0, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.black54,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Image.asset(category.image),
             ],
