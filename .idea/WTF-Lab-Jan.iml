@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/1017646504/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/1017646504/build" />
+      <excludeFolder url="file://$MODULE_DIR$/1050483244/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/1050483244/build" />
+      <excludeFolder url="file://$MODULE_DIR$/1352191674/chat_journal/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/1352191674/chat_journal/build" />
+      <excludeFolder url="file://$MODULE_DIR$/1608418138/wtf/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/1608418138/wtf/build" />
+      <excludeFolder url="file://$MODULE_DIR$/241400843/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/241400843/build" />
+      <excludeFolder url="file://$MODULE_DIR$/317918473/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/317918473/build" />
+      <excludeFolder url="file://$MODULE_DIR$/338772975/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/338772975/build" />
+      <excludeFolder url="file://$MODULE_DIR$/354313932/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/354313932/build" />
+      <excludeFolder url="file://$MODULE_DIR$/358251526/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/358251526/build" />
+      <excludeFolder url="file://$MODULE_DIR$/396575457/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/396575457/build" />
+      <excludeFolder url="file://$MODULE_DIR$/438173465/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/438173465/build" />
+      <excludeFolder url="file://$MODULE_DIR$/466347603/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/466347603/build" />
+      <excludeFolder url="file://$MODULE_DIR$/473252049/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/473252049/build" />
+      <excludeFolder url="file://$MODULE_DIR$/479827527/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/479827527/build" />
+      <excludeFolder url="file://$MODULE_DIR$/512180323/personal_chat/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/512180323/personal_chat/build" />
+      <excludeFolder url="file://$MODULE_DIR$/522774998/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/522774998/build" />
+      <excludeFolder url="file://$MODULE_DIR$/522971200/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/522971200/build" />
+      <excludeFolder url="file://$MODULE_DIR$/585562626/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/585562626/build" />
+      <excludeFolder url="file://$MODULE_DIR$/585988802/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/585988802/build" />
+      <excludeFolder url="file://$MODULE_DIR$/613460888/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/613460888/build" />
+      <excludeFolder url="file://$MODULE_DIR$/619740324/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/619740324/build" />
+      <excludeFolder url="file://$MODULE_DIR$/720212877/chat_journal_clone/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/720212877/chat_journal_clone/build" />
+      <excludeFolder url="file://$MODULE_DIR$/722723006/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/722723006/build" />
+      <excludeFolder url="file://$MODULE_DIR$/767970405/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/767970405/build" />
+      <excludeFolder url="file://$MODULE_DIR$/978913784/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/978913784/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
