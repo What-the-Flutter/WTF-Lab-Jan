@@ -106,30 +106,26 @@ class _HomePageState extends State<HomePage> {
 
   Widget _categoriesGrid() {
     return Expanded(
-      child: OrientationBuilder(
-        builder: (context, orientation) {
-          return GridView.count(
-            shrinkWrap: true,
-            crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
-            mainAxisSpacing: Insets.xsmall,
-            crossAxisSpacing: Insets.xsmall,
-            padding: const EdgeInsets.fromLTRB(
-              Insets.large,
-              0.0,
-              Insets.large,
-              Insets.medium,
-            ),
-            childAspectRatio: 1.0,
-            children: _categories
-                .map(
-                  (category) => CategoryItem(
-                    category: category,
-                    onTap: _onCategoryClick,
-                  ),
-                )
-                .toList(),
-          );
-        },
+      child: GridView.count(
+        shrinkWrap: true,
+        crossAxisCount: 2,
+        mainAxisSpacing: Insets.xsmall,
+        crossAxisSpacing: Insets.xsmall,
+        padding: const EdgeInsets.fromLTRB(
+          Insets.large,
+          0.0,
+          Insets.large,
+          Insets.medium,
+        ),
+        childAspectRatio: 1.0,
+        children: _categories
+            .map(
+              (category) => CategoryItem(
+                category: category,
+                onTap: _onCategoryClick,
+              ),
+            )
+            .toList(),
       ),
     );
   }

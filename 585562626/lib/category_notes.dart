@@ -93,8 +93,11 @@ class _CategoryNotesState extends State<CategoryNotes> {
             ),
             Expanded(
               child: TextField(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Start typing..',
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Theme.of(context).accentColor),
+                  ),
                 ),
                 controller: _controller,
               ),
