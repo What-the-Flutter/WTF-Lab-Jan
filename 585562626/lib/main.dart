@@ -3,9 +3,11 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'category.dart';
-import 'category_item.dart';
+import 'category_notes.dart';
 import 'constants.dart';
+import 'models/category.dart';
+import 'models/note.dart';
+import 'widgets/category_item.dart';
 
 void main() {
   runApp(MyApp());
@@ -46,14 +48,15 @@ class HomePage extends StatefulWidget {
   final List<Category> categories;
 
   @override
-  _HomePageState createState() => _HomePageState(categories);
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   int _currentTab = 0;
-  final List<Category> _categories;
-
-  _HomePageState(this._categories);
+  late final List<Category> _categories = widget.categories;
+  late final Map<int, List<Note>> _categoryNotes = {
+    for (var category in _categories) category.id: []
+  };
 
   void _showToast() {
     ScaffoldMessenger.of(context)
@@ -66,34 +69,6 @@ class _HomePageState extends State<HomePage> {
 
   void _selectTab(int tab) {
     setState(() => _currentTab = tab);
-  }
-
-  Widget _bottomNavigationBar() {
-    return BottomNavigationBar(
-      selectedItemColor: Theme.of(context).accentColor,
-      unselectedItemColor: Colors.indigo,
-      backgroundColor: Theme.of(context).primaryColor,
-      items: [
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: 'Home',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.three_k_sharp),
-          label: 'Daily',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.timeline_outlined),
-          label: 'Timeline',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.explore_outlined),
-          label: 'Explore',
-        ),
-      ],
-      onTap: _selectTab,
-      currentIndex: _currentTab,
-    );
   }
 
   Widget _topButton() {
@@ -129,6 +104,36 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _categoriesGrid() {
+    return Expanded(
+      child: OrientationBuilder(
+        builder: (context, orientation) {
+          return GridView.count(
+            shrinkWrap: true,
+            crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
+            mainAxisSpacing: Insets.xsmall,
+            crossAxisSpacing: Insets.xsmall,
+            padding: const EdgeInsets.fromLTRB(
+              Insets.large,
+              0.0,
+              Insets.large,
+              Insets.medium,
+            ),
+            childAspectRatio: 1.0,
+            children: _categories
+                .map(
+                  (category) => CategoryItem(
+                    category: category,
+                    onTap: _onCategoryClick,
+                  ),
+                )
+                .toList(),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _fab() {
     return FloatingActionButton(
       onPressed: _addCategory,
@@ -136,6 +141,34 @@ class _HomePageState extends State<HomePage> {
         Icons.add,
         color: Colors.white,
       ),
+    );
+  }
+
+  Widget _bottomNavigationBar() {
+    return BottomNavigationBar(
+      selectedItemColor: Theme.of(context).accentColor,
+      unselectedItemColor: Colors.indigo,
+      backgroundColor: Theme.of(context).primaryColor,
+      items: [
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined),
+          label: 'Home',
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.list_alt_outlined),
+          label: 'Daily',
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.timeline_outlined),
+          label: 'Timeline',
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.explore_outlined),
+          label: 'Explore',
+        ),
+      ],
+      onTap: _selectTab,
+      currentIndex: _currentTab,
     );
   }
 
@@ -161,23 +194,18 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: _bottomNavigationBar(),
       body: Center(
         child: Column(
-          children: [
-            _topButton(),
-            Expanded(
-              child: GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 2,
-                mainAxisSpacing: Insets.xsmall,
-                crossAxisSpacing: Insets.xsmall,
-                padding: const EdgeInsets.fromLTRB(Insets.large, 0.0, Insets.large, Insets.medium),
-                childAspectRatio: 1.0,
-                children: _categories.map((category) => CategoryItem(category: category)).toList(),
-              ),
-            ),
-          ],
+          children: [_topButton(), _categoriesGrid()],
         ),
       ),
       floatingActionButton: _fab(),
+    );
+  }
+
+  void _onCategoryClick(Category category) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CategoryNotes(category: category, notes: _categoryNotes[category.id] ?? []),
+      ),
     );
   }
 }
