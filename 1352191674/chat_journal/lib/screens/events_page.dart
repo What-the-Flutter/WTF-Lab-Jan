@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,16 +21,20 @@ class _MyListEventsPageState extends State<MyListEventsPage> {
   final picker = ImagePicker();
 
   Future<void> _getImage(ImageSource imageSource) async {
-    var imageFile = await picker.getImage(source: imageSource);
+    var imageFile = await picker.pickImage(source: imageSource);
     if (imageFile == null) return;
-    setState(
-      () {
-        _image = File(imageFile.path);
-      },
-    );
+    setState(() {
+      _image = File(imageFile.path);
+    });
   }
 
-  Container _buildEvent(Event event) {
+  void _likeEvent(Event event) async {
+    event.isFavorite ? event.isFavorite = false : event.isFavorite = true;
+    setState(() {});
+    Navigator.pop(context);
+  }
+
+  Widget _eventBuilder(Event event) {
     return Container(
       margin: event.isFavorite
           ? EdgeInsets.only(top: 8.0, bottom: 8.0, left: 80.0)
@@ -58,11 +61,7 @@ class _MyListEventsPageState extends State<MyListEventsPage> {
                       Icon(Icons.attach_file_outlined, color: Colors.green),
                   title: Text('Like/Unlike Event'),
                   onTap: () {
-                    event.isFavorite
-                        ? event.isFavorite = false
-                        : event.isFavorite = true;
-                    setState(() {});
-                    Navigator.pop(context);
+                    _likeEvent(event);
                   },
                 ),
                 ListTile(
@@ -126,33 +125,36 @@ class _MyListEventsPageState extends State<MyListEventsPage> {
     );
   }
 
-  Container _buildEventComposer() {
+  Widget _eventComposer() {
     var insert = true;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.0),
       height: 70.0,
-      color: Colors.white,
+      color: Theme.of(context).primaryColor,
       child: Row(
         children: <Widget>[
           IconButton(
             icon: Icon(Icons.photo),
             iconSize: 25.0,
-            color: Theme.of(context).primaryColor,
+            color: Colors.white,
             onPressed: () {
               _getImage(ImageSource.gallery);
-              _image!=null ? widget.events.insert(
-                  0,
-                  Event(
-                      time: DateTime.now(),
-                      text: '',
-                      isFavorite: false,
-                      isEdit: false,
-                      image: _image)) : _image = null;
+              _image != null
+                  ? widget.events.insert(
+                      0,
+                      Event(
+                          time: DateTime.now(),
+                          text: '',
+                          isFavorite: false,
+                          isEdit: false,
+                          image: _image))
+                  : _image = null;
               _image = null;
             },
           ),
           Expanded(
             child: TextField(
+              style: TextStyle(backgroundColor: Theme.of(context).primaryColor),
               controller: myController,
               textCapitalization: TextCapitalization.sentences,
               onChanged: (value) {},
@@ -164,15 +166,8 @@ class _MyListEventsPageState extends State<MyListEventsPage> {
           IconButton(
             icon: Icon(Icons.send),
             iconSize: 25.0,
-            color: Theme.of(context).primaryColor,
+            color: Colors.white,
             onPressed: () => {
-              widget.events.forEach((element) {
-                if (element.isEdit) {
-                  element.text = myController.text;
-                  element.isEdit = false;
-                  insert = false;
-                }
-              }),
               if (insert)
                 {
                   widget.events.insert(
@@ -185,6 +180,15 @@ class _MyListEventsPageState extends State<MyListEventsPage> {
                       image: null,
                     ),
                   ),
+                },
+              for (var event in widget.events)
+                {
+                  if (event.isEdit)
+                    {
+                      event.text = myController.text,
+                      event.isEdit = false,
+                      insert = false,
+                    },
                 },
               setState(() {}),
               myController.text = ''
@@ -228,12 +232,12 @@ class _MyListEventsPageState extends State<MyListEventsPage> {
                 itemCount: widget.events.length,
                 itemBuilder: (context, index) {
                   final event = widget.events[index];
-                  return _buildEvent(event);
+                  return _eventBuilder(event);
                 },
               ),
             ),
           ),
-          _buildEventComposer(),
+          _eventComposer(),
         ],
       ),
     );
