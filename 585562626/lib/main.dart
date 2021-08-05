@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
   Widget _topButton() {
     return Center(
       child: Container(
-        padding: const EdgeInsets.all(Insets.small),
+        padding: const EdgeInsets.all(Insets.xmedium),
         margin: const EdgeInsets.symmetric(horizontal: 40.0),
         child: ElevatedButton(
           onPressed: _showToast,
@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: Insets.medium),
+                padding: const EdgeInsets.symmetric(vertical: Insets.xmedium),
                 child: const Text(
                   'Questionnaire Bot',
                   style: TextStyle(
