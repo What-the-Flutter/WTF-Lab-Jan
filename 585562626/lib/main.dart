@@ -16,14 +16,22 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Cool Notes',
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        primaryColor: Colors.white,
+        accentColor: Colors.indigoAccent,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            primary: Colors.indigoAccent,
+            padding: const EdgeInsets.all(4.0),
+          ),
+        ),
+        fontFamily: 'Ubuntu',
       ),
       home: HomePage(
         title: 'Home',
         categories: [
-          Category('Sports', Colors.orangeAccent, 'volleyball.png'),
-          Category('Travel', Colors.lightBlue, 'world_travel.png'),
-          Category('Family', Colors.yellow, 'family.png'),
+          Category('Sports', Colors.orangeAccent, 'sports.png'),
+          Category('Travel', Colors.lightBlue, 'travel.png'),
+          Category('Family', Colors.indigoAccent, 'family.png'),
         ],
       ),
     );
@@ -61,27 +69,25 @@ class _HomePageState extends State<HomePage> {
 
   Widget _bottomNavigationBar() {
     return BottomNavigationBar(
-      backgroundColor: Colors.red,
+      selectedItemColor: Theme.of(context).accentColor,
+      unselectedItemColor: Colors.indigo,
+      backgroundColor: Theme.of(context).primaryColor,
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.home_outlined),
           label: 'Home',
-          backgroundColor: Colors.red,
         ),
         const BottomNavigationBarItem(
           icon: Icon(Icons.three_k_sharp),
           label: 'Daily',
-          backgroundColor: Colors.pinkAccent,
         ),
         const BottomNavigationBarItem(
           icon: Icon(Icons.timeline_outlined),
           label: 'Timeline',
-          backgroundColor: Colors.purple,
         ),
         const BottomNavigationBarItem(
           icon: Icon(Icons.explore_outlined),
           label: 'Explore',
-          backgroundColor: Colors.deepPurple,
         ),
       ],
       onTap: _selectTab,
@@ -95,20 +101,23 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(8.0),
         margin: const EdgeInsets.symmetric(horizontal: 40.0),
         child: ElevatedButton(
-          style: ElevatedButton.styleFrom(primary: Colors.white),
           onPressed: _showToast,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.attractions,
-                color: Colors.red,
+              const Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Icon(
+                  Icons.attractions,
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
                 child: const Text(
                   'Questionnaire Bot',
-                  style: TextStyle(fontSize: 16.0, color: Colors.red),
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -121,7 +130,6 @@ class _HomePageState extends State<HomePage> {
 
   Widget _fab() {
     return FloatingActionButton(
-      backgroundColor: Colors.redAccent,
       onPressed: _addCategory,
       child: const Icon(
         Icons.add,
@@ -134,7 +142,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text(widget.title)),
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Theme.of(context).accentColor),
+        title: Text(
+          widget.title,
+          style: TextStyle(color: Theme.of(context).accentColor),
+        ),
         actions: [
           IconButton(
             onPressed: _showToast,
@@ -150,11 +164,12 @@ class _HomePageState extends State<HomePage> {
             _topButton(),
             Expanded(
               child: GridView.count(
+                shrinkWrap: true,
                 crossAxisCount: 2,
                 mainAxisSpacing: 4.0,
                 crossAxisSpacing: 4.0,
-                padding: const EdgeInsets.all(4.0),
-                childAspectRatio: 2.0,
+                padding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 14.0),
+                childAspectRatio: 1.0,
                 children: _categories.map((category) => CategoryItem(category: category)).toList(),
               ),
             ),
