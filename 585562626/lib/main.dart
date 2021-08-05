@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'category.dart';
 import 'category_item.dart';
+import 'constants.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,10 +22,10 @@ class MyApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             primary: Colors.indigoAccent,
-            padding: const EdgeInsets.all(4.0),
+            padding: const EdgeInsets.all(Insets.xsmall),
           ),
         ),
-        fontFamily: 'Ubuntu',
+        fontFamily: Fonts.ubuntu,
       ),
       home: HomePage(
         title: 'Home',
@@ -98,7 +99,7 @@ class _HomePageState extends State<HomePage> {
   Widget _topButton() {
     return Center(
       child: Container(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(Insets.small),
         margin: const EdgeInsets.symmetric(horizontal: 40.0),
         child: ElevatedButton(
           onPressed: _showToast,
@@ -106,17 +107,17 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Padding(
-                padding: EdgeInsets.only(right: 8.0),
+                padding: EdgeInsets.only(right: Insets.small),
                 child: Icon(
                   Icons.attractions,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                padding: const EdgeInsets.symmetric(vertical: Insets.medium),
                 child: const Text(
                   'Questionnaire Bot',
                   style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: FontSize.normal,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -166,9 +167,9 @@ class _HomePageState extends State<HomePage> {
               child: GridView.count(
                 shrinkWrap: true,
                 crossAxisCount: 2,
-                mainAxisSpacing: 4.0,
-                crossAxisSpacing: 4.0,
-                padding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 14.0),
+                mainAxisSpacing: Insets.xsmall,
+                crossAxisSpacing: Insets.xsmall,
+                padding: const EdgeInsets.fromLTRB(Insets.large, 0.0, Insets.large, Insets.medium),
                 childAspectRatio: 1.0,
                 children: _categories.map((category) => CategoryItem(category: category)).toList(),
               ),

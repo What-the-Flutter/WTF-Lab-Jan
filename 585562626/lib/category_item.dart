@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'category.dart';
+import 'constants.dart';
 
 class CategoryItem extends StatelessWidget {
   final Category category;
@@ -17,13 +18,13 @@ class CategoryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
+        borderRadius: BorderRadius.circular(CornerRadius.card),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(15.0),
-        hoverColor: Theme.of(context).accentColor.withAlpha(30),
-        highlightColor: Theme.of(context).accentColor.withAlpha(20),
-        splashColor: Theme.of(context).accentColor.withAlpha(30),
+        borderRadius: BorderRadius.circular(CornerRadius.card),
+        hoverColor: Theme.of(context).accentColor.withAlpha(Alpha.alpha30),
+        highlightColor: Theme.of(context).accentColor.withAlpha(Alpha.alpha20),
+        splashColor: Theme.of(context).accentColor.withAlpha(Alpha.alpha30),
         onTap: () => _onCategoryClick(context, category),
         child: Center(
           child: Column(
@@ -31,10 +32,10 @@ class CategoryItem extends StatelessWidget {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50.0),
-                  color: category.color.withAlpha(50),
+                  borderRadius: BorderRadius.circular(CornerRadius.circle),
+                  color: category.color.withAlpha(Alpha.alpha50),
                 ),
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(Insets.xmedium),
                 height: 100,
                 width: 100,
                 child: Image.asset('assets/${category.image}'),
@@ -43,7 +44,7 @@ class CategoryItem extends StatelessWidget {
                 category.name,
                 style: TextStyle(
                   color: category.color,
-                  fontSize: 18.0,
+                  fontSize: FontSize.big,
                   fontWeight: FontWeight.bold,
                 ),
               ),
