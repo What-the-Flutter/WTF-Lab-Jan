@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +9,10 @@ import '../constants.dart';
 import '../models/note.dart';
 
 class NoteItem extends StatelessWidget {
-  final Note note;
+  final BaseNote note;
   final bool isEditingMode;
   final bool isSelected;
-  final Function(Note)? changeSelection;
+  final Function(BaseNote)? changeSelection;
   final Function? activateEditingMode;
 
   NoteItem({
@@ -22,12 +24,33 @@ class NoteItem extends StatelessWidget {
     this.activateEditingMode,
   }) : super(key: key);
 
-  Widget _textContainer(BuildContext context) {
+  Widget _contentContainer(BuildContext context) {
+    var content;
+    var padding;
+    var data = note;
+    if (data is TextNote) {
+      content = Text(data.text,
+          style: TextStyle(
+            fontSize: FontSize.normal,
+            color: note.direction == AlignDirection.right ? Colors.white : Colors.black87,
+          ));
+      padding = const EdgeInsets.symmetric(horizontal: Insets.medium, vertical: Insets.xmedium);
+    }
+    if (data is ImageNote) {
+      content = ClipRRect(
+        borderRadius: BorderRadius.circular(CornerRadius.card),
+        child: Image.file(
+          File(data.image),
+          fit: BoxFit.fitHeight,
+        ),
+      );
+      padding = const EdgeInsets.all(Insets.xsmall);
+    }
     return Container(
       margin: note.direction == AlignDirection.right
           ? const EdgeInsets.fromLTRB(Insets.large * 2, Insets.small, Insets.small, Insets.small)
           : const EdgeInsets.fromLTRB(Insets.small, Insets.small, Insets.large * 2, Insets.small),
-      padding: const EdgeInsets.symmetric(horizontal: Insets.medium, vertical: Insets.xmedium),
+      padding: padding,
       decoration: BoxDecoration(
         color: note.direction == AlignDirection.right
             ? Theme.of(context).accentColor
@@ -44,13 +67,7 @@ class NoteItem extends StatelessWidget {
                 bottomRight: Radius.circular(CornerRadius.card),
               ),
       ),
-      child: Text(
-        note.text,
-        style: TextStyle(
-          fontSize: FontSize.normal,
-          color: note.direction == AlignDirection.right ? Colors.white : Colors.black87,
-        ),
-      ),
+      child: content,
     );
   }
 
@@ -89,7 +106,7 @@ class NoteItem extends StatelessWidget {
                 crossAxisAlignment: note.direction == AlignDirection.right
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
-                children: [_textContainer(context), _timeContainer()],
+                children: [_contentContainer(context), _timeContainer()],
               ),
             ),
           ],

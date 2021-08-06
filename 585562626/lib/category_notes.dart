@@ -4,15 +4,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'constants.dart';
 import 'models/category.dart';
 import 'models/note.dart';
+import 'widgets/badge.dart';
 import 'widgets/note_item.dart';
 
 class CategoryNotes extends StatefulWidget {
   final NoteCategory category;
-  final List<Note> notes;
+  final List<BaseNote> notes;
 
   const CategoryNotes({Key? key, required this.category, required this.notes}) : super(key: key);
 
@@ -21,12 +24,55 @@ class CategoryNotes extends StatefulWidget {
 }
 
 class _CategoryNotesState extends State<CategoryNotes> {
-  late final List<Note> _notes = widget.notes;
-  final List<Note> _selectedNotes = [];
+  late final List<BaseNote> _notes = widget.notes;
+  final List<BaseNote> _selectedNotes = [];
   bool _isEditingMode = false;
   bool _startedUpdating = false;
+  PickedFile? _image;
+
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+
+  void _takePhoto() async {
+    if (await Permission.camera.request().isGranted) {
+      var image = await ImagePicker().getImage(source: ImageSource.camera, imageQuality: 50);
+      setState(() => _image = image);
+    }
+  }
+
+  void _pickFromGallery() async {
+    if (await Permission.photos.request().isGranted) {
+      var image = await ImagePicker().getImage(source: ImageSource.gallery, imageQuality: 50);
+      setState(() => _image = image);
+    }
+  }
+
+  void _showPicker() {
+    showModalBottomSheet(
+        context: context,
+        builder: (_) {
+          return Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Photo Library'),
+                onTap: () {
+                  _pickFromGallery();
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Camera'),
+                onTap: () {
+                  _takePhoto();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
 
   void _switchEditingMode() {
     setState(() {
@@ -42,22 +88,27 @@ class _CategoryNotesState extends State<CategoryNotes> {
 
   void _sendNote(AlignDirection direction) {
     var text = _controller.text.trim();
-    if (text.isNotEmpty) {
-      setState(() {
-        _notes.insert(0, Note(text, direction));
-        _controller.clear();
-      });
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          0.0,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.fastOutSlowIn,
-        );
+    setState(() {
+      var image = _image;
+      if (image != null) {
+        _notes.insert(0, ImageNote(image.path, direction));
+        _image = null;
       }
+      if (text.isNotEmpty) {
+        _notes.insert(0, TextNote(text, direction));
+        _controller.clear();
+      }
+    });
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.fastOutSlowIn,
+      );
     }
   }
 
-  void _switchNoteSelection(Note note) {
+  void _switchNoteSelection(BaseNote note) {
     setState(() {
       if (_selectedNotes.contains(note)) {
         _selectedNotes.remove(note);
@@ -77,25 +128,45 @@ class _CategoryNotesState extends State<CategoryNotes> {
   }
 
   void _startEditing() {
-    _controller.text = _selectedNotes.first.text;
+    var updatedNote = _selectedNotes.first;
+    if (updatedNote is TextNote) {
+      _controller.text = updatedNote.text;
+    }
+    if (updatedNote is ImageNote) {
+      _showPicker();
+    }
     setState(() => _startedUpdating = true);
   }
 
   void _updateNote() {
     setState(() {
       var updatedNote = _selectedNotes.first;
-      updatedNote.updateText(_controller.text);
-      _notes[_notes.indexOf(_selectedNotes.first)] = updatedNote;
-      _controller.clear();
-      _startedUpdating = false;
+      if (updatedNote is TextNote) {
+        updatedNote.updateText(_controller.text);
+        _notes[_notes.indexOf(_selectedNotes.first)] = updatedNote;
+        _controller.clear();
+        _startedUpdating = false;
+      }
+      if (updatedNote is ImageNote) {
+        var image = _image;
+        if (image != null) {
+          updatedNote.image = image.path;
+          _notes[_notes.indexOf(_selectedNotes.first)] = updatedNote;
+          _image = null;
+        }
+      }
       _isEditingMode = false;
+      _selectedNotes.clear();
     });
   }
 
   void _copyToClipboard() {
-    Clipboard.setData(ClipboardData(text: _selectedNotes.first.text));
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Text copied to clipboard')));
+    var selectedNote = _selectedNotes.first;
+    if (selectedNote is TextNote) {
+      Clipboard.setData(ClipboardData(text: selectedNote.text));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Text copied to clipboard')));
+    }
   }
 
   void _showDeleteDialog() {
@@ -223,9 +294,14 @@ class _CategoryNotesState extends State<CategoryNotes> {
         height: 60,
         child: Row(
           children: [
-            const IconButton(
-              onPressed: null,
-              icon: Icon(Icons.attach_file),
+            Badge(
+              visible: _image != null,
+              top: 6,
+              right: 12,
+              child: IconButton(
+                onPressed: _showPicker,
+                icon: const Icon(Icons.attach_file),
+              ),
             ),
             Expanded(
               child: TextField(

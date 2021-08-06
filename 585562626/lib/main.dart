@@ -54,7 +54,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentTab = 0;
   late final List<NoteCategory> _categories = widget.categories;
-  late final Map<int, List<Note>> _categoryNotes = {
+  late final Map<int, List<BaseNote>> _categoryNotes = {
     for (var category in _categories) category.id: []
   };
 
