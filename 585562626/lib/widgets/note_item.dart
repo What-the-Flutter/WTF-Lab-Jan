@@ -8,12 +8,25 @@ import '../models/note.dart';
 
 class NoteItem extends StatelessWidget {
   final Note note;
+  final bool isEditingMode;
+  final bool isSelected;
+  final Function(Note)? changeSelection;
+  final Function? activateEditingMode;
 
-  const NoteItem({Key? key, required this.note}) : super(key: key);
+  NoteItem({
+    Key? key,
+    required this.note,
+    required this.isEditingMode,
+    this.isSelected = false,
+    this.changeSelection,
+    this.activateEditingMode,
+  }) : super(key: key);
 
   Widget _textContainer(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(Insets.small),
+      margin: note.direction == AlignDirection.right
+          ? const EdgeInsets.fromLTRB(Insets.large * 2, Insets.small, Insets.small, Insets.small)
+          : const EdgeInsets.fromLTRB(Insets.small, Insets.small, Insets.large * 2, Insets.small),
       padding: const EdgeInsets.symmetric(horizontal: Insets.medium, vertical: Insets.xmedium),
       decoration: BoxDecoration(
         color: note.direction == AlignDirection.right
@@ -57,11 +70,31 @@ class NoteItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: note.direction == AlignDirection.right
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
-      children: [_textContainer(context), _timeContainer()],
+    return GestureDetector(
+      onLongPress: () => activateEditingMode?.call(),
+      onTap: () => changeSelection?.call(note),
+      child: Container(
+        color: isSelected ? Theme.of(context).accentColor.withAlpha(Alpha.alpha20) : Colors.white24,
+        child: Row(
+          children: [
+            if (isEditingMode)
+              IconButton(
+                onPressed: () => changeSelection?.call(note),
+                icon: isSelected
+                    ? const Icon(Icons.check_circle_outline)
+                    : const Icon(Icons.circle_outlined),
+              ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: note.direction == AlignDirection.right
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                children: [_textContainer(context), _timeContainer()],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

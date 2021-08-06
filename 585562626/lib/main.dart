@@ -32,9 +32,9 @@ class MyApp extends StatelessWidget {
       home: HomePage(
         title: 'Home',
         categories: [
-          Category('Sports', Colors.orangeAccent, 'sports.png'),
-          Category('Travel', Colors.lightBlue, 'travel.png'),
-          Category('Family', Colors.indigoAccent, 'family.png'),
+          NoteCategory('Sports', Colors.orangeAccent, 'sports.png'),
+          NoteCategory('Travel', Colors.lightBlue, 'travel.png'),
+          NoteCategory('Family', Colors.indigoAccent, 'family.png'),
         ],
       ),
     );
@@ -45,7 +45,7 @@ class HomePage extends StatefulWidget {
   HomePage({Key? key, required this.title, required this.categories}) : super(key: key);
 
   final String title;
-  final List<Category> categories;
+  final List<NoteCategory> categories;
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -53,7 +53,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentTab = 0;
-  late final List<Category> _categories = widget.categories;
+  late final List<NoteCategory> _categories = widget.categories;
   late final Map<int, List<Note>> _categoryNotes = {
     for (var category in _categories) category.id: []
   };
@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _onCategoryClick(Category category) {
+  void _onCategoryClick(NoteCategory category) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CategoryNotes(category: category, notes: _categoryNotes[category.id] ?? []),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class Category {
+class NoteCategory {
   final int id;
   final Color color;
   final String name;
   final String image;
 
-  Category(this.name, this.color, this.image): id = name.hashCode;
+  NoteCategory(this.name, this.color, this.image): id = name.hashCode;
 }

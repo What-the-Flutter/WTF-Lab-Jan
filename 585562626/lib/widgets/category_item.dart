@@ -6,8 +6,8 @@ import '../constants.dart';
 import '../models/category.dart';
 
 class CategoryItem extends StatelessWidget {
-  final Category category;
-  final Function(Category)? onTap;
+  final NoteCategory category;
+  final Function(NoteCategory)? onTap;
 
   const CategoryItem({Key? key, required this.category, this.onTap}) : super(key: key);
 
