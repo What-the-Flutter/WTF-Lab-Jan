@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'constants.dart';
 import 'models/category.dart';
 import 'models/note.dart';
+import 'starred_notes.dart';
 import 'widgets/badge.dart';
 import 'widgets/note_item.dart';
 
@@ -26,12 +27,25 @@ class CategoryNotes extends StatefulWidget {
 class _CategoryNotesState extends State<CategoryNotes> {
   late final List<BaseNote> _notes = widget.notes;
   final List<BaseNote> _selectedNotes = [];
+  final List<BaseNote> _starredNotes = [];
   bool _isEditingMode = false;
   bool _startedUpdating = false;
   PickedFile? _image;
 
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+
+  void _switchStar() {
+    setState(() {
+      for (final note in _selectedNotes) {
+        if (_starredNotes.contains(note)) {
+          _starredNotes.remove(note);
+        } else {
+          _starredNotes.add(note);
+        }
+      }
+    });
+  }
 
   void _takePhoto() async {
     if (await Permission.camera.request().isGranted) {
@@ -234,14 +248,30 @@ class _CategoryNotesState extends State<CategoryNotes> {
                 ),
               ],
               IconButton(
+                onPressed: _switchStar,
+                icon: const Icon(Icons.star_outline, color: Colors.white),
+              ),
+              IconButton(
                 onPressed: _showDeleteDialog,
                 icon: const Icon(Icons.delete_outlined, color: Colors.white),
               ),
             ]
           : [
               IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-              const IconButton(onPressed: null, icon: Icon(Icons.bookmark_outline)),
+              IconButton(onPressed: _navigateToStarredNotes, icon: const Icon(Icons.star)),
             ],
+    );
+  }
+
+  void _deleteStarredNote(BaseNote note) {
+    setState(() => _starredNotes.remove(note));
+  }
+
+  void _navigateToStarredNotes() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => StarredNotes(notes: _starredNotes, deleteNote: _deleteStarredNote),
+      ),
     );
   }
 
@@ -305,6 +335,7 @@ class _CategoryNotesState extends State<CategoryNotes> {
             ),
             Expanded(
               child: TextField(
+                autofocus: false,
                 decoration: InputDecoration(
                   hintText: 'Start typing...',
                   focusedBorder: UnderlineInputBorder(
@@ -346,9 +377,10 @@ class _CategoryNotesState extends State<CategoryNotes> {
                       .map((note) => NoteItem(
                             note: note,
                             isEditingMode: _isEditingMode,
+                            isStarred: _starredNotes.contains(note),
                             isSelected: _selectedNotes.contains(note),
-                            changeSelection: _switchNoteSelection,
-                            activateEditingMode: _switchEditingMode,
+                            onTap: _switchNoteSelection,
+                            onLongPress: (_) => _switchEditingMode(),
                           ))
                       .toList(),
             ),

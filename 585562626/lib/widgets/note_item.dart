@@ -12,16 +12,18 @@ class NoteItem extends StatelessWidget {
   final BaseNote note;
   final bool isEditingMode;
   final bool isSelected;
-  final Function(BaseNote)? changeSelection;
-  final Function? activateEditingMode;
+  final bool isStarred;
+  final Function(BaseNote)? onTap;
+  final Function(BaseNote)? onLongPress;
 
   NoteItem({
     Key? key,
     required this.note,
-    required this.isEditingMode,
+    this.isEditingMode = false,
     this.isSelected = false,
-    this.changeSelection,
-    this.activateEditingMode,
+    this.isStarred = false,
+    this.onTap,
+    this.onLongPress,
   }) : super(key: key);
 
   Widget _contentContainer(BuildContext context) {
@@ -47,9 +49,6 @@ class NoteItem extends StatelessWidget {
       padding = const EdgeInsets.all(Insets.xsmall);
     }
     return Container(
-      margin: note.direction == AlignDirection.right
-          ? const EdgeInsets.fromLTRB(Insets.large * 2, Insets.small, Insets.small, Insets.small)
-          : const EdgeInsets.fromLTRB(Insets.small, Insets.small, Insets.large * 2, Insets.small),
       padding: padding,
       decoration: BoxDecoration(
         color: note.direction == AlignDirection.right
@@ -73,11 +72,7 @@ class NoteItem extends StatelessWidget {
 
   Widget _timeContainer() {
     return Container(
-      margin: const EdgeInsets.only(
-        left: Insets.small,
-        right: Insets.small,
-        bottom: Insets.xmedium,
-      ),
+      padding: const EdgeInsets.only(top: Insets.xsmall),
       child: Text(
         DateFormat.jm().format(note.created),
         style: const TextStyle(fontSize: FontSize.small, color: Colors.black38),
@@ -88,25 +83,52 @@ class NoteItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () => activateEditingMode?.call(),
-      onTap: () => changeSelection?.call(note),
+      onLongPress: () => onLongPress?.call(note),
+      onTap: () => onTap?.call(note),
       child: Container(
         color: isSelected ? Theme.of(context).accentColor.withAlpha(Alpha.alpha20) : Colors.white24,
         child: Row(
           children: [
             if (isEditingMode)
               IconButton(
-                onPressed: () => changeSelection?.call(note),
+                onPressed: () => onTap?.call(note),
                 icon: isSelected
                     ? const Icon(Icons.check_circle_outline)
                     : const Icon(Icons.circle_outlined),
               ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: note.direction == AlignDirection.right
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
-                children: [_contentContainer(context), _timeContainer()],
+            Flexible(
+              child: Container(
+                margin: note.direction == AlignDirection.right
+                    ? const EdgeInsets.fromLTRB(
+                        Insets.large * 2, Insets.small, Insets.small, Insets.small)
+                    : const EdgeInsets.fromLTRB(
+                        Insets.small, Insets.small, Insets.large * 2, Insets.small),
+                child: Row(
+                  mainAxisAlignment: note.direction == AlignDirection.right
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isStarred && note.direction == AlignDirection.right)
+                      const Padding(
+                        padding: EdgeInsets.only(right: Insets.small),
+                        child: Icon(Icons.star_outlined, color: Colors.amber),
+                      ),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: note.direction == AlignDirection.right
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: [_contentContainer(context), _timeContainer()],
+                      ),
+                    ),
+                    if (isStarred && note.direction == AlignDirection.left)
+                      const Padding(
+                        padding: EdgeInsets.only(left: Insets.small),
+                        child: Icon(Icons.star_outlined, color: Colors.amber),
+                      ),
+                  ],
+                ),
               ),
             ),
           ],
