@@ -98,6 +98,39 @@ class _CategoryNotesState extends State<CategoryNotes> {
         .showSnackBar(const SnackBar(content: Text('Text copied to clipboard')));
   }
 
+  void _showDeleteDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (context) {
+        var count = _selectedNotes.length;
+        return AlertDialog(
+          title: count > 1 ? Text('Delete $count notes') : const Text('Delete note'),
+          content: Text('Are you sure you want to delete '
+              ' ${count > 1 ? 'these notes' : 'this note'}?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: Text(
+                'Cancel'.toUpperCase(),
+                style: TextStyle(color: Theme.of(context).accentColor),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteSelectedNotes();
+                Navigator.pop(context, 'Delete');
+              },
+              child: Text(
+                'Delete'.toUpperCase(),
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   AppBar _appBar() {
     return AppBar(
       backgroundColor: _isEditingMode ? Theme.of(context).accentColor : Colors.white,
@@ -122,25 +155,17 @@ class _CategoryNotesState extends State<CategoryNotes> {
               if (_selectedNotes.length == 1) ...[
                 IconButton(
                   onPressed: _startEditing,
-                  icon: const Icon(
-                    Icons.mode_edit_outline,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.mode_edit_outline, color: Colors.white),
                 ),
                 IconButton(
                   onPressed: _copyToClipboard,
-                  icon: const Icon(
-                    Icons.copy_outlined,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.copy_outlined, color: Colors.white),
                 ),
               ],
               IconButton(
-                  onPressed: _deleteSelectedNotes,
-                  icon: const Icon(
-                    Icons.delete_outlined,
-                    color: Colors.white,
-                  )),
+                onPressed: _showDeleteDialog,
+                icon: const Icon(Icons.delete_outlined, color: Colors.white),
+              ),
             ]
           : [
               IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
