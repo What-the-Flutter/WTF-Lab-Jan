@@ -257,7 +257,7 @@ class _CategoryNotesState extends State<CategoryNotes> {
               ),
             ]
           : [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+              const IconButton(onPressed: null, icon: Icon(Icons.search)),
               IconButton(onPressed: _navigateToStarredNotes, icon: const Icon(Icons.star)),
             ],
     );
