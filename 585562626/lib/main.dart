@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'models/category.dart';
 import 'pages/home_page.dart';
-import 'utils/themes.dart';
+import 'widgets/inherited/app_theme.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,17 +12,22 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Cool Notes',
-      darkTheme: darkTheme,
-      theme: lightTheme,
-      home: HomePage(
-        title: 'Home',
-        categories: [
-          NoteCategory('Sports', Colors.orangeAccent, 'sports.png'),
-          NoteCategory('Travel', Colors.lightBlue, 'travel.png'),
-          NoteCategory('Family', Colors.indigoAccent, 'family.png'),
-        ],
+    return RootWidget(
+      child: LayoutBuilder(
+        builder: (context, _) {
+          return MaterialApp(
+            title: 'Cool Notes',
+            theme: AppTheme.of(context).theme,
+            home: HomePage(
+              title: 'Home',
+              categories: [
+                NoteCategory('Sports', Colors.orangeAccent, 'sports.png'),
+                NoteCategory('Travel', Colors.lightBlue, 'travel.png'),
+                NoteCategory('Family', Colors.indigoAccent, 'family.png'),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

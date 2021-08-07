@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/note.dart';
 import '../utils/constants.dart';
+import '../widgets/inherited/app_theme.dart';
 import '../widgets/category_item.dart';
 import 'category_notes_page.dart';
 
@@ -25,6 +26,11 @@ class _HomePageState extends State<HomePage> {
   late final Map<int, List<BaseNote>> _categoryNotes = {
     for (var category in _categories) category.id: []
   };
+
+  void _changeTheme(BuildContext context) {
+    print(AppTheme.of(context));
+    AppTheme.of(context).switchTheme();
+  }
 
   void _showToast() {
     ScaffoldMessenger.of(context)
@@ -141,6 +147,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var isDarkMode = AppTheme.of(context).isDarkMode;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -152,8 +159,8 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            onPressed: _showToast,
-            icon: const Icon(Icons.auto_awesome),
+            onPressed: () => _changeTheme(context),
+            icon: isDarkMode ? const Icon(Icons.light_mode) : const Icon(Icons.dark_mode),
           ),
         ],
       ),
