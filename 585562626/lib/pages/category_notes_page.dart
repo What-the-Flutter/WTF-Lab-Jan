@@ -7,24 +7,25 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'constants.dart';
-import 'models/category.dart';
-import 'models/note.dart';
+import '../models/category.dart';
+import '../models/note.dart';
+import '../utils/constants.dart';
+import '../widgets/badge.dart';
+import '../widgets/note_item.dart';
 import 'starred_notes.dart';
-import 'widgets/badge.dart';
-import 'widgets/note_item.dart';
 
-class CategoryNotes extends StatefulWidget {
+class CategoryNotesPage extends StatefulWidget {
   final NoteCategory category;
   final List<BaseNote> notes;
 
-  const CategoryNotes({Key? key, required this.category, required this.notes}) : super(key: key);
+  const CategoryNotesPage({Key? key, required this.category, required this.notes})
+      : super(key: key);
 
   @override
-  _CategoryNotesState createState() => _CategoryNotesState();
+  _CategoryNotesPageState createState() => _CategoryNotesPageState();
 }
 
-class _CategoryNotesState extends State<CategoryNotes> {
+class _CategoryNotesPageState extends State<CategoryNotesPage> {
   late final List<BaseNote> _notes = widget.notes;
   final List<BaseNote> _selectedNotes = [];
   final List<BaseNote> _starredNotes = [];
@@ -218,10 +219,13 @@ class _CategoryNotesState extends State<CategoryNotes> {
 
   AppBar _appBar() {
     return AppBar(
-      backgroundColor: _isEditingMode ? Theme.of(context).accentColor : Colors.white,
+      backgroundColor:
+          _isEditingMode ? Theme.of(context).accentColor : Theme.of(context).primaryColor,
       centerTitle: !_isEditingMode,
       iconTheme: IconThemeData(
-        color: _isEditingMode ? Colors.white : Theme.of(context).accentColor,
+        color: _isEditingMode
+            ? Theme.of(context).accentIconTheme.color
+            : Theme.of(context).accentColor,
       ),
       leading: _isEditingMode
           ? IconButton(onPressed: _switchEditingMode, icon: const Icon(Icons.close))
@@ -233,7 +237,11 @@ class _CategoryNotesState extends State<CategoryNotes> {
             ),
       title: Text(
         _isEditingMode ? _selectedNotes.length.toString() : widget.category.name,
-        style: TextStyle(color: _isEditingMode ? Colors.white : Theme.of(context).accentColor),
+        style: TextStyle(
+          color: _isEditingMode
+              ? Theme.of(context).accentIconTheme.color
+              : Theme.of(context).accentColor,
+        ),
       ),
       actions: _isEditingMode
           ? [
@@ -270,7 +278,7 @@ class _CategoryNotesState extends State<CategoryNotes> {
   void _navigateToStarredNotes() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => StarredNotes(notes: _starredNotes, deleteNote: _deleteStarredNote),
+        builder: (_) => StarredNotesPage(notes: _starredNotes, deleteNote: _deleteStarredNote),
       ),
     );
   }
@@ -290,26 +298,18 @@ class _CategoryNotesState extends State<CategoryNotes> {
               Padding(
                 padding: const EdgeInsets.only(bottom: Insets.small),
                 child: Text(
-                  'This is the page where you can note everything about '
-                  '${widget.category.name}',
+                    'This is the page where you can note everything about '
+                    '${widget.category.name}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyText1),
+              ),
+              Text(
+                  'Add your first event to the page by entering some text in the text box '
+                  'below and hitting the send button. Long tap the send button to align the '
+                  'event in the opposite direction. Tap on the bookmark icon on the top right '
+                  'corner to show the bookmarked events only.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: FontSize.normal,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const Text(
-                'Add your first event to the page by entering some text in the text box '
-                'below and hitting the send button. Long tap the send button to align the '
-                'event in the opposite direction. Tap on the bookmark icon on the top right '
-                'corner to show the bookmarked events only.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black87,
-                ),
-              ),
+                  style: Theme.of(context).textTheme.bodyText2),
             ],
           ),
         ],

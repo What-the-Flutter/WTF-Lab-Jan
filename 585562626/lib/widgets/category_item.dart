@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../constants.dart';
 import '../models/category.dart';
+import '../utils/constants.dart';
 
 class CategoryItem extends StatelessWidget {
   final NoteCategory category;

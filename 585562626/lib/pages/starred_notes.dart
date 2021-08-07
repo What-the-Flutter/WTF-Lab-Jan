@@ -2,21 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'constants.dart';
-import 'models/note.dart';
-import 'widgets/note_item.dart';
+import '../models/note.dart';
+import '../utils/constants.dart';
+import '../widgets/note_item.dart';
 
-class StarredNotes extends StatefulWidget {
+class StarredNotesPage extends StatefulWidget {
   final List<BaseNote> notes;
   final Function(BaseNote)? deleteNote;
 
-  const StarredNotes({Key? key, required this.notes, this.deleteNote}) : super(key: key);
+  const StarredNotesPage({Key? key, required this.notes, this.deleteNote}) : super(key: key);
 
   @override
-  _StarredNotesState createState() => _StarredNotesState();
+  _StarredNotesPageState createState() => _StarredNotesPageState();
 }
 
-class _StarredNotesState extends State<StarredNotes> {
+class _StarredNotesPageState extends State<StarredNotesPage> {
   late final List<BaseNote> _notes = widget.notes;
 
   AppBar _appBar() {
@@ -73,7 +73,7 @@ class _StarredNotesState extends State<StarredNotes> {
           ? const Center(
               child: Text(
                 'Nothing starred yet.',
-                style: TextStyle(fontSize: FontSize.big, color: Colors.black54),
+                style: TextStyle(fontSize: FontSize.big, fontWeight: FontWeight.bold),
               ),
             )
           : ListView(
