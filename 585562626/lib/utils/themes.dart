@@ -18,7 +18,8 @@ ThemeData lightTheme = ThemeData(
       subtitle2: TextStyle(
         color: Colors.black38,
         fontSize: FontSize.small,
-      )),
+      ),
+  ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       primary: Colors.indigoAccent,
@@ -42,7 +43,8 @@ ThemeData darkTheme = ThemeData(
       subtitle2: TextStyle(
         color: Colors.white60,
         fontSize: FontSize.small,
-      )),
+      ),
+  ),
   brightness: Brightness.dark,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(

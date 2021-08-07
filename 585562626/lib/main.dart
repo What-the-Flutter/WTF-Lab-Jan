@@ -1,18 +1,49 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'models/category.dart';
 import 'pages/home_page.dart';
+import 'utils/themes.dart';
 import 'widgets/inherited/app_theme.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late ThemeData theme;
+
+  void switchTheme() {
+    setState(() {
+      if (theme == darkTheme) {
+        theme = lightTheme;
+      } else {
+        theme = darkTheme;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    var brightness = SchedulerBinding.instance?.window.platformBrightness;
+    var darkModeOn = brightness == Brightness.dark;
+    theme = darkModeOn ? lightTheme : darkTheme;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return RootWidget(
+    return AppTheme(
+      theme: theme,
+      switchTheme: switchTheme,
       child: LayoutBuilder(
         builder: (context, _) {
           return MaterialApp(
