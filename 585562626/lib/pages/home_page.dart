@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/note.dart';
 import '../utils/constants.dart';
-import '../widgets/inherited/app_theme.dart';
 import '../widgets/category_item.dart';
+import '../widgets/inherited/app_theme.dart';
 import 'category_notes_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -107,6 +107,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _onCategoryClick(NoteCategory category) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            CategoryNotesPage(category: category, notes: _categoryNotes[category.id] ?? []),
+      ),
+    );
+  }
+
   Widget _fab(BuildContext context) {
     return FloatingActionButton(
       onPressed: _addCategory,
@@ -172,15 +181,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: _fab(context),
-    );
-  }
-
-  void _onCategoryClick(NoteCategory category) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) =>
-            CategoryNotesPage(category: category, notes: _categoryNotes[category.id] ?? []),
-      ),
     );
   }
 }

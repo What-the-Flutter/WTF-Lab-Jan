@@ -32,6 +32,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   bool _isEditingMode = false;
   bool _startedUpdating = false;
   PickedFile? _image;
+  final FocusNode _inputFieldFocusNode = FocusNode();
 
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
@@ -114,6 +115,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
         _controller.clear();
       }
     });
+    FocusScope.of(context).requestFocus(_inputFieldFocusNode);
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         0.0,
@@ -336,6 +338,12 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
             Expanded(
               child: TextField(
                 autofocus: false,
+                textInputAction: TextInputAction.send,
+                maxLines: 3,
+                minLines: 1,
+                focusNode: _inputFieldFocusNode,
+                onSubmitted: (_) => _sendNote(AlignDirection.left),
+                style: Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: FontSize.big),
                 decoration: InputDecoration(
                   hintText: 'Start typing...',
                   focusedBorder: UnderlineInputBorder(
@@ -395,6 +403,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
+    _inputFieldFocusNode.dispose();
     super.dispose();
   }
 }
