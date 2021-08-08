@@ -8,6 +8,12 @@ ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   accentIconTheme: const IconThemeData(color: Colors.white),
   iconTheme: const IconThemeData(color: Colors.indigoAccent),
+  primaryIconTheme: const IconThemeData(color: Colors.indigoAccent),
+  appBarTheme: const AppBarTheme(
+    centerTitle: true,
+    titleTextStyle: TextStyle(color: Colors.indigoAccent),
+    backgroundColor: Colors.white
+  ),
   textTheme: const TextTheme(
       bodyText1: TextStyle(
         color: Colors.black87,
@@ -33,6 +39,11 @@ ThemeData darkTheme = ThemeData(
   accentColor: Colors.indigoAccent,
   accentIconTheme: const IconThemeData(color: Colors.white70),
   iconTheme: const IconThemeData(color: Colors.white70),
+  primaryIconTheme: const IconThemeData(color: Colors.indigoAccent),
+  appBarTheme: const AppBarTheme(
+      centerTitle: true,
+      titleTextStyle: TextStyle(color: Colors.indigoAccent),
+  ),
   textTheme: const TextTheme(
       bodyText1: TextStyle(
         color: Colors.white70,

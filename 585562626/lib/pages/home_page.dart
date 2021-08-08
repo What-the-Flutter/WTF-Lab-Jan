@@ -9,6 +9,7 @@ import '../utils/constants.dart';
 import '../widgets/category_item.dart';
 import '../widgets/inherited/app_theme.dart';
 import 'category_notes_page.dart';
+import 'new_category_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key, required this.title, required this.categories}) : super(key: key);
@@ -37,8 +38,8 @@ class _HomePageState extends State<HomePage> {
         .showSnackBar(const SnackBar(content: Text('No magic happened yet')));
   }
 
-  void _addCategory() {
-    setState(() => _categories.add(_categories[_categories.length - 3]));
+  void _addCategory(NoteCategory category) {
+    setState(() => _categories.add(category));
   }
 
   void _selectTab(int tab) {
@@ -97,9 +98,14 @@ class _HomePageState extends State<HomePage> {
         childAspectRatio: 1.0,
         children: _categories
             .map(
-              (category) => CategoryItem(
-                category: category,
-                onTap: _onCategoryClick,
+              (category) => Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(CornerRadius.card),
+                ),
+                child: CategoryItem(
+                  category: category,
+                  onTap: _onCategoryClick,
+                ),
               ),
             )
             .toList(),
@@ -108,17 +114,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onCategoryClick(NoteCategory category) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) =>
-            CategoryNotesPage(category: category, notes: _categoryNotes[category.id] ?? []),
+    Navigator.of(context).pushNamed(
+      CategoryNotesPage.routeName,
+      arguments: CategoryNotesArguments(
+        category: category,
+        notes: _categoryNotes[category.id] ?? [],
       ),
     );
   }
 
+  void _navigateToNewCategory() async {
+    var result = await Navigator.of(context).pushNamed(NewCategoryPage.routeName);
+    if (result != null && result is NoteCategory) {
+      _addCategory(result);
+    }
+  }
+
   Widget _fab(BuildContext context) {
     return FloatingActionButton(
-      onPressed: _addCategory,
+      onPressed: _navigateToNewCategory,
       child: Icon(
         Icons.add,
         color: Theme.of(context).accentIconTheme.color,
@@ -159,12 +173,9 @@ class _HomePageState extends State<HomePage> {
     var isDarkMode = AppTheme.of(context).isDarkMode;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Theme.of(context).accentColor),
         title: Text(
           widget.title,
-          style: TextStyle(color: Theme.of(context).accentColor),
+          style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         actions: [
           IconButton(

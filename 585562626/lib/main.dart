@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import 'models/category.dart';
+import 'pages/category_notes_page.dart';
 import 'pages/home_page.dart';
+import 'pages/new_category_page.dart';
+import 'pages/starred_notes.dart';
 import 'utils/themes.dart';
 import 'widgets/inherited/app_theme.dart';
 
@@ -35,7 +38,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     var brightness = SchedulerBinding.instance?.window.platformBrightness;
     var darkModeOn = brightness == Brightness.dark;
-    theme = darkModeOn ? lightTheme : darkTheme;
+    theme = darkModeOn ? darkTheme : lightTheme;
     super.initState();
   }
 
@@ -44,19 +47,36 @@ class _MyAppState extends State<MyApp> {
     return AppTheme(
       theme: theme,
       switchTheme: switchTheme,
-      child: LayoutBuilder(
-        builder: (context, _) {
+      child: Builder(
+        builder: (context) {
           return MaterialApp(
             title: 'Cool Notes',
             theme: AppTheme.of(context).theme,
             home: HomePage(
               title: 'Home',
               categories: [
-                NoteCategory('Sports', Colors.orangeAccent, 'sports.png'),
-                NoteCategory('Travel', Colors.lightBlue, 'travel.png'),
-                NoteCategory('Family', Colors.indigoAccent, 'family.png'),
+                NoteCategory(name: 'Sports', color: Colors.orangeAccent, image: 'sports.png'),
+                NoteCategory(name: 'Travel', color: Colors.lightBlue, image: 'travel.png'),
+                NoteCategory(name: 'Family', color: Colors.indigoAccent, image: 'family.png'),
               ],
             ),
+            onGenerateRoute: (settings) {
+              Route pageRoute(Widget destination) => MaterialPageRoute(builder: (_) => destination);
+              switch (settings.name) {
+                case CategoryNotesPage.routeName:
+                  final args = settings.arguments as CategoryNotesArguments;
+                  return pageRoute(
+                    CategoryNotesPage(category: args.category, notes: args.notes),
+                  );
+                case StarredNotesPage.routeName:
+                  final args = settings.arguments as StarredNotesArguments;
+                  return pageRoute(
+                    StarredNotesPage(notes: args.notes, deleteNote: args.deleteNote),
+                  );
+                case NewCategoryPage.routeName:
+                  return pageRoute(NewCategoryPage());
+              }
+            },
           );
         },
       ),

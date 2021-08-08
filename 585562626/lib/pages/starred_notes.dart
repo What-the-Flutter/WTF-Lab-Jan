@@ -1,14 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/note.dart';
 import '../utils/constants.dart';
 import '../widgets/note_item.dart';
 
+class StarredNotesArguments {
+  final List<BaseNote> notes;
+  final Function(BaseNote)? deleteNote;
+
+  StarredNotesArguments({required this.notes, this.deleteNote});
+}
+
 class StarredNotesPage extends StatefulWidget {
   final List<BaseNote> notes;
   final Function(BaseNote)? deleteNote;
+
+  static const routeName = '/starred_notes';
 
   const StarredNotesPage({Key? key, required this.notes, this.deleteNote}) : super(key: key);
 
@@ -23,11 +33,7 @@ class _StarredNotesPageState extends State<StarredNotesPage> {
     return AppBar(
       title: Text(
         'Starred notes',
-        style: TextStyle(color: Theme.of(context).accentColor),
-      ),
-      centerTitle: true,
-      iconTheme: IconThemeData(
-        color: Theme.of(context).accentColor,
+        style: Theme.of(context).appBarTheme.titleTextStyle,
       ),
     );
   }
@@ -82,7 +88,10 @@ class _StarredNotesPageState extends State<StarredNotesPage> {
                   .map((note) => NoteItem(
                         note: note,
                         isStarred: true,
-                        onLongPress: (note) => _showDeleteDialog(context, note),
+                        onLongPress: (note) {
+                          _showDeleteDialog(context, note);
+                          HapticFeedback.mediumImpact();
+                        },
                       ))
                   .toList(),
             ),

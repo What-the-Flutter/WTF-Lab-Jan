@@ -14,9 +14,18 @@ import '../widgets/badge.dart';
 import '../widgets/note_item.dart';
 import 'starred_notes.dart';
 
+class CategoryNotesArguments {
+  final NoteCategory category;
+  final List<BaseNote> notes;
+
+  CategoryNotesArguments({required this.category, required this.notes});
+}
+
 class CategoryNotesPage extends StatefulWidget {
   final NoteCategory category;
   final List<BaseNote> notes;
+
+  static const routeName = '/categoryNotes';
 
   const CategoryNotesPage({Key? key, required this.category, required this.notes})
       : super(key: key);
@@ -34,7 +43,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   PickedFile? _image;
   final FocusNode _inputFieldFocusNode = FocusNode();
 
-  final _controller = TextEditingController();
+  final _textController = TextEditingController();
   final _scrollController = ScrollController();
 
   void _switchStar() {
@@ -97,13 +106,13 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
       if (wasActive) {
         _selectedNotes.clear();
         _startedUpdating = false;
-        _controller.clear();
+        _textController.clear();
       }
     });
   }
 
   void _sendNote(AlignDirection direction) {
-    var text = _controller.text.trim();
+    var text = _textController.text.trim();
     setState(() {
       var image = _image;
       if (image != null) {
@@ -112,7 +121,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
       }
       if (text.isNotEmpty) {
         _notes.insert(0, TextNote(text, direction));
-        _controller.clear();
+        _textController.clear();
       }
     });
     FocusScope.of(context).requestFocus(_inputFieldFocusNode);
@@ -147,7 +156,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   void _startEditing() {
     var updatedNote = _selectedNotes.first;
     if (updatedNote is TextNote) {
-      _controller.text = updatedNote.text;
+      _textController.text = updatedNote.text;
     }
     if (updatedNote is ImageNote) {
       _showPicker();
@@ -159,9 +168,9 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
     setState(() {
       var updatedNote = _selectedNotes.first;
       if (updatedNote is TextNote) {
-        updatedNote.updateText(_controller.text);
+        updatedNote.updateText(_textController.text);
         _notes[_notes.indexOf(_selectedNotes.first)] = updatedNote;
-        _controller.clear();
+        _textController.clear();
         _startedUpdating = false;
       }
       if (updatedNote is ImageNote) {
@@ -238,7 +247,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
                   : const Icon(Icons.arrow_back),
             ),
       title: Text(
-        _isEditingMode ? _selectedNotes.length.toString() : widget.category.name,
+        _isEditingMode ? _selectedNotes.length.toString() : widget.category.name ?? '',
         style: TextStyle(
           color: _isEditingMode
               ? Theme.of(context).accentIconTheme.color
@@ -278,10 +287,9 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   }
 
   void _navigateToStarredNotes() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => StarredNotesPage(notes: _starredNotes, deleteNote: _deleteStarredNote),
-      ),
+    Navigator.of(context).pushNamed(
+      StarredNotesPage.routeName,
+      arguments: StarredNotesArguments(notes: _starredNotes, deleteNote: _deleteStarredNote),
     );
   }
 
@@ -350,7 +358,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
                     borderSide: BorderSide(color: Theme.of(context).accentColor),
                   ),
                 ),
-                controller: _controller,
+                controller: _textController,
               ),
             ),
             _startedUpdating
@@ -360,7 +368,10 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
                       onPressed: () => _sendNote(AlignDirection.left),
                       icon: const Icon(Icons.send),
                     ),
-                    onLongPress: () => _sendNote(AlignDirection.right),
+                    onLongPress: () {
+                      _sendNote(AlignDirection.right);
+                      HapticFeedback.mediumImpact();
+                    },
                   ),
           ],
         ),
@@ -382,14 +393,19 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
               children: _notes.isEmpty
                   ? [_emptyNotesMessage()]
                   : _notes
-                      .map((note) => NoteItem(
-                            note: note,
-                            isEditingMode: _isEditingMode,
-                            isStarred: _starredNotes.contains(note),
-                            isSelected: _selectedNotes.contains(note),
-                            onTap: _switchNoteSelection,
-                            onLongPress: (_) => _switchEditingMode(),
-                          ))
+                      .map(
+                        (note) => NoteItem(
+                          note: note,
+                          isEditingMode: _isEditingMode,
+                          isStarred: _starredNotes.contains(note),
+                          isSelected: _selectedNotes.contains(note),
+                          onTap: _switchNoteSelection,
+                          onLongPress: (_) {
+                            _switchEditingMode();
+                            HapticFeedback.mediumImpact();
+                          },
+                        ),
+                      )
                       .toList(),
             ),
           ),
@@ -401,7 +417,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _textController.dispose();
     _scrollController.dispose();
     _inputFieldFocusNode.dispose();
     super.dispose();
