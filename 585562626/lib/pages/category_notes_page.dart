@@ -12,7 +12,7 @@ import '../models/note.dart';
 import '../utils/constants.dart';
 import '../widgets/badge.dart';
 import '../widgets/note_item.dart';
-import 'starred_notes.dart';
+import 'starred_notes_page.dart';
 
 class CategoryNotesArguments {
   final NoteCategory category;
@@ -37,7 +37,7 @@ class CategoryNotesPage extends StatefulWidget {
 class _CategoryNotesPageState extends State<CategoryNotesPage> {
   late final List<BaseNote> _notes = widget.notes;
   final List<BaseNote> _selectedNotes = [];
-  final List<BaseNote> _starredNotes = [];
+
   bool _isEditingMode = false;
   bool _startedUpdating = false;
   PickedFile? _image;
@@ -49,11 +49,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   void _switchStar() {
     setState(() {
       for (final note in _selectedNotes) {
-        if (_starredNotes.contains(note)) {
-          _starredNotes.remove(note);
-        } else {
-          _starredNotes.add(note);
-        }
+        note.hasStar = !note.hasStar;
       }
     });
   }
@@ -283,13 +279,15 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   }
 
   void _deleteStarredNote(BaseNote note) {
-    setState(() => _starredNotes.remove(note));
+    setState(() => note.hasStar = false);
   }
 
   void _navigateToStarredNotes() {
     Navigator.of(context).pushNamed(
       StarredNotesPage.routeName,
-      arguments: StarredNotesArguments(notes: _starredNotes, deleteNote: _deleteStarredNote),
+      arguments: StarredNotesArguments(
+          notes: _notes.where((element) => element.hasStar).toList(),
+          deleteNote: _deleteStarredNote),
     );
   }
 
@@ -397,7 +395,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
                         (note) => NoteItem(
                           note: note,
                           isEditingMode: _isEditingMode,
-                          isStarred: _starredNotes.contains(note),
+                          isStarred: note.hasStar,
                           isSelected: _selectedNotes.contains(note),
                           onTap: _switchNoteSelection,
                           onLongPress: (_) {

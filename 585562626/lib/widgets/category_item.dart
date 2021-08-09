@@ -8,8 +8,14 @@ import '../utils/constants.dart';
 class CategoryItem extends StatelessWidget {
   final NoteCategory category;
   final Function(NoteCategory)? onTap;
+  final Function(NoteCategory)? onLongPress;
 
-  const CategoryItem({Key? key, required this.category, this.onTap}) : super(key: key);
+  const CategoryItem({
+    Key? key,
+    required this.category,
+    this.onTap,
+    this.onLongPress,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +25,7 @@ class CategoryItem extends StatelessWidget {
       highlightColor: Theme.of(context).accentColor.withAlpha(Alpha.alpha20),
       splashColor: Theme.of(context).accentColor.withAlpha(Alpha.alpha30),
       onTap: () => onTap?.call(category),
+      onLongPress: () => onLongPress?.call(category),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

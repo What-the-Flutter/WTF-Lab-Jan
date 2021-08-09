@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/note.dart';
 import '../utils/constants.dart';
+import '../widgets/actions_popup_menu.dart';
 import '../widgets/category_item.dart';
 import '../widgets/inherited/app_theme.dart';
 import 'category_notes_page.dart';
 import 'new_category_page.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key, required this.title, required this.categories}) : super(key: key);
+  HomePage({Key? key, required this.categories}) : super(key: key);
 
-  final String title;
   final List<NoteCategory> categories;
 
   @override
@@ -23,13 +23,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentTab = 0;
+  Offset? _tapPosition;
   late final List<NoteCategory> _categories = widget.categories;
   late final Map<int, List<BaseNote>> _categoryNotes = {
     for (var category in _categories) category.id: []
   };
 
   void _changeTheme(BuildContext context) {
-    print(AppTheme.of(context));
     AppTheme.of(context).switchTheme();
   }
 
@@ -40,6 +40,17 @@ class _HomePageState extends State<HomePage> {
 
   void _addCategory(NoteCategory category) {
     setState(() => _categories.add(category));
+  }
+
+  void _updateCategory(NoteCategory category) {
+    setState(() {
+      var oldCategory = _categories.firstWhere((element) => element.id == category.id);
+      if (oldCategory.image != category.image || oldCategory.name != category.name) {
+        var index = _categories.indexOf(oldCategory);
+        _categories.remove(oldCategory);
+        _categories.insert(index, category);
+      }
+    });
   }
 
   void _selectTab(int tab) {
@@ -82,6 +93,85 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showPopupMenu(NoteCategory category) async {
+    var overlay = Overlay.of(context)?.context.findRenderObject() as RenderBox?;
+    var tapOffset = _tapPosition;
+    if (overlay != null && tapOffset != null) {
+      var action = await showMenu(
+        context: context,
+        position: RelativeRect.fromRect(
+          tapOffset & const Size(40, 40),
+          Offset.zero & overlay.size,
+        ),
+        items: [
+          ActionPopupMenuEntry(
+            action: PopupAction.edit,
+            name: 'Edit',
+            color: Theme.of(context).accentColor,
+          ),
+          ActionPopupMenuEntry(
+            action: PopupAction.delete,
+            name: 'Delete',
+            color: Colors.red,
+          ),
+        ],
+      );
+      if (action != null) {
+        switch (action) {
+          case PopupAction.edit:
+            var result = await Navigator.of(context)
+                .pushNamed(NewCategoryPage.routeName, arguments: NewCategoryArguments(category));
+            if (result != null && result is NoteCategory) {
+              _updateCategory(result);
+            }
+            break;
+          case PopupAction.delete:
+            _showDeleteDialog(category);
+            break;
+        }
+      }
+    }
+  }
+
+  void _showDeleteDialog(NoteCategory category) {
+    showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete note category'),
+          content:
+              const Text('Are you sure you want to delete the category and all associated notes?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel'.toUpperCase(),
+                style: TextStyle(color: Theme.of(context).accentColor),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteNoteCategory(category);
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Delete'.toUpperCase(),
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteNoteCategory(NoteCategory category) {
+    setState(() {
+      _categoryNotes.remove(category.id);
+      _categories.remove(category);
+    });
+  }
+
   Widget _categoriesGrid() {
     return Expanded(
       child: GridView.count(
@@ -98,13 +188,17 @@ class _HomePageState extends State<HomePage> {
         childAspectRatio: 1.0,
         children: _categories
             .map(
-              (category) => Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(CornerRadius.card),
-                ),
-                child: CategoryItem(
-                  category: category,
-                  onTap: _onCategoryClick,
+              (category) => GestureDetector(
+                onTapDown: (position) => setState(() => _tapPosition = position.globalPosition),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(CornerRadius.card),
+                  ),
+                  child: CategoryItem(
+                    category: category,
+                    onTap: _onCategoryClick,
+                    onLongPress: _showPopupMenu,
+                  ),
                 ),
               ),
             )
@@ -174,7 +268,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.title,
+          'Home',
           style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         actions: [

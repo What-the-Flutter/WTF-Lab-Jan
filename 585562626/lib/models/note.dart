@@ -4,10 +4,16 @@ class BaseNote {
   int id;
   DateTime created;
   AlignDirection direction;
+  bool hasStar;
 
-  BaseNote(this.direction)
+  BaseNote(this.direction, {this.hasStar = false})
       : id = DateTime.now().hashCode,
         created = DateTime.now();
+
+  @override
+  String toString() {
+    return identityHashCode(this).toString();
+  }
 }
 
 class TextNote extends BaseNote {

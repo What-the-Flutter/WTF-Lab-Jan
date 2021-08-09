@@ -8,8 +8,17 @@ import '../models/category.dart';
 import '../utils/constants.dart';
 import '../widgets/category_item.dart';
 
+class NewCategoryArguments {
+  final NoteCategory? category;
+
+  NewCategoryArguments(this.category);
+}
+
 class NewCategoryPage extends StatefulWidget {
+  final NoteCategory? editCategory;
   static const routeName = '/new_category';
+
+  NewCategoryPage({Key? key, this.editCategory}) : super(key: key);
 
   @override
   _NewCategoryPageState createState() => _NewCategoryPageState();
@@ -18,7 +27,6 @@ class NewCategoryPage extends StatefulWidget {
 class _NewCategoryPageState extends State<NewCategoryPage> {
   final _textController = TextEditingController();
   NoteCategory? _selectedCategory;
-  String? _categoryName;
   bool _showError = false;
 
   final List<NoteCategory> _defaultCategories = [
@@ -35,6 +43,13 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
     NoteCategory(image: 'todo.png', color: Colors.pinkAccent),
     NoteCategory(image: 'travel.png', color: Colors.lightBlue)
   ];
+
+  @override
+  void initState() {
+    _textController.text = widget.editCategory?.name ?? '';
+    _selectedCategory = widget.editCategory;
+    super.initState();
+  }
 
   void _addCategory() {
     var name = _textController.text;
@@ -92,11 +107,11 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                   borderRadius: BorderRadius.circular(CornerRadius.card),
                   border: Border.all(
                     width: 2,
-                    color: _selectedCategory == category
+                    color: _selectedCategory?.image == category.image
                         ? Theme.of(context).accentColor
                         : Theme.of(context).scaffoldBackgroundColor,
                   ),
-                  color: _selectedCategory == category
+                  color: _selectedCategory?.image == category.image
                       ? Theme.of(context).accentColor.withAlpha(50)
                       : null,
                 ),

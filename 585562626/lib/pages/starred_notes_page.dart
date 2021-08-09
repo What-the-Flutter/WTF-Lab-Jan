@@ -39,13 +39,13 @@ class _StarredNotesPageState extends State<StarredNotesPage> {
   }
 
   void _showDeleteDialog(BuildContext context, BaseNote note) {
-    showDialog<String>(
+    showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Delete note'),
           content: const Text('Are you sure you want to delete this note?'),
-          actions: <Widget>[
+          actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 'Cancel'),
               child: Text(
@@ -55,7 +55,6 @@ class _StarredNotesPageState extends State<StarredNotesPage> {
             ),
             TextButton(
               onPressed: () {
-                print((note as TextNote).text);
                 setState(() => _notes.remove(note));
                 widget.deleteNote?.call(note);
                 Navigator.pop(context, 'Delete');

@@ -6,7 +6,7 @@ import 'models/category.dart';
 import 'pages/category_notes_page.dart';
 import 'pages/home_page.dart';
 import 'pages/new_category_page.dart';
-import 'pages/starred_notes.dart';
+import 'pages/starred_notes_page.dart';
 import 'utils/themes.dart';
 import 'widgets/inherited/app_theme.dart';
 
@@ -53,7 +53,6 @@ class _MyAppState extends State<MyApp> {
             title: 'Cool Notes',
             theme: AppTheme.of(context).theme,
             home: HomePage(
-              title: 'Home',
               categories: [
                 NoteCategory(name: 'Sports', color: Colors.orangeAccent, image: 'sports.png'),
                 NoteCategory(name: 'Travel', color: Colors.lightBlue, image: 'travel.png'),
@@ -74,7 +73,8 @@ class _MyAppState extends State<MyApp> {
                     StarredNotesPage(notes: args.notes, deleteNote: args.deleteNote),
                   );
                 case NewCategoryPage.routeName:
-                  return pageRoute(NewCategoryPage());
+                  final args = settings.arguments as NewCategoryArguments;
+                  return pageRoute(NewCategoryPage(editCategory: args.category));
               }
             },
           );
