@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-enum PopupAction { edit, delete }
+enum PopupAction { edit, delete, pin }
 
 class ActionPopupMenuEntry extends PopupMenuEntry<PopupAction> {
   final PopupAction action;

@@ -110,6 +110,11 @@ class _HomePageState extends State<HomePage> {
             color: Theme.of(context).accentColor,
           ),
           ActionPopupMenuEntry(
+            action: PopupAction.pin,
+            name: category.priority == CategoryPriority.high ? 'Unpin' : 'Pin',
+            color: Theme.of(context).accentColor,
+          ),
+          ActionPopupMenuEntry(
             action: PopupAction.delete,
             name: 'Delete',
             color: Colors.red,
@@ -128,9 +133,22 @@ class _HomePageState extends State<HomePage> {
           case PopupAction.delete:
             _showDeleteDialog(category);
             break;
+          case PopupAction.pin:
+            _switchPriority(category);
+            break;
         }
       }
     }
+  }
+
+  void _switchPriority(NoteCategory category) {
+    setState(() {
+      if (category.priority == CategoryPriority.high) {
+        category.priority = CategoryPriority.normal;
+      } else {
+        category.priority = CategoryPriority.high;
+      }
+    });
   }
 
   void _showDeleteDialog(NoteCategory category) {
@@ -173,6 +191,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _categoriesGrid() {
+    _categories.sort((a,b)=> a.priority.index.compareTo(b.priority.index) );
     return Expanded(
       child: GridView.count(
         shrinkWrap: true,
