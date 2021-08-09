@@ -73,8 +73,8 @@ class _MyAppState extends State<MyApp> {
                     StarredNotesPage(notes: args.notes, deleteNote: args.deleteNote),
                   );
                 case NewCategoryPage.routeName:
-                  final args = settings.arguments as NewCategoryArguments;
-                  return pageRoute(NewCategoryPage(editCategory: args.category));
+                  final args = settings.arguments as NewCategoryArguments?;
+                  return pageRoute(NewCategoryPage(editCategory: args?.category));
               }
             },
           );
