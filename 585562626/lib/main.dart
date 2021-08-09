@@ -1,133 +1,84 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
-import 'category.dart';
-import 'category_item.dart';
+import 'models/category.dart';
+import 'pages/category_notes_page.dart';
+import 'pages/home_page.dart';
+import 'pages/new_category_page.dart';
+import 'pages/starred_notes_page.dart';
+import 'utils/themes.dart';
+import 'widgets/inherited/app_theme.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Cool Notes',
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-      ),
-      home: HomePage(
-        title: 'Home',
-        categories: [
-          Category('Sports', Colors.orangeAccent, 'volleyball.png'),
-          Category('Travel', Colors.lightBlue, 'world_travel.png'),
-          Category('Family', Colors.yellow, 'family.png'),
-        ],
-      ),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  HomePage({Key? key, required this.title, required this.categories}) : super(key: key);
-
-  final String title;
-  final List<Category> categories;
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState(categories);
+  _MyAppState createState() => _MyAppState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int _currentTab = 0;
-  final List<Category> _categories;
+class _MyAppState extends State<MyApp> {
+  late ThemeData theme;
 
-  _HomePageState(this._categories);
-
-  void _showToast() {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No magic happened yet')));
-  }
-
-  void _addCategory() {
+  void switchTheme() {
     setState(() {
-      _categories.add(_categories[_categories.length - 3]);
-    });
-  }
-
-  void _selectTab(int tab) {
-    setState(() {
-      _currentTab = tab;
+      if (theme == darkTheme) {
+        theme = lightTheme;
+      } else {
+        theme = darkTheme;
+      }
     });
   }
 
   @override
+  void initState() {
+    var brightness = SchedulerBinding.instance?.window.platformBrightness;
+    var darkModeOn = brightness == Brightness.dark;
+    theme = darkModeOn ? darkTheme : lightTheme;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(child: Text(widget.title)),
-        actions: [
-          IconButton(onPressed: _showToast, icon: Icon(Icons.auto_awesome)),
-        ],
-      ),
-      drawer: Drawer(),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.red,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home', backgroundColor: Colors.red),
-          BottomNavigationBarItem(icon: Icon(Icons.three_k_sharp), label: 'Daily', backgroundColor: Colors.pinkAccent),
-          BottomNavigationBarItem(icon: Icon(Icons.timeline_outlined), label: 'Timeline', backgroundColor: Colors.purple),
-          BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: 'Explore', backgroundColor: Colors.deepPurple),
-        ],
-        onTap: _selectTab,
-        currentIndex: _currentTab,
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                margin: EdgeInsets.symmetric(horizontal: 40.0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.white),
-                  onPressed: () {},
-                  child: Container(
-                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Icon(
-                        Icons.attractions,
-                        color: Colors.red,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0),
-                        child: Text('Questionnaire Bot', style: TextStyle(fontSize: 16.0, color: Colors.red), textAlign: TextAlign.center),
-                      ),
-                    ]),
-                  ),
-                ),
-              ),
+    return AppTheme(
+      theme: theme,
+      switchTheme: switchTheme,
+      child: Builder(
+        builder: (context) {
+          return MaterialApp(
+            title: 'Cool Notes',
+            theme: AppTheme.of(context).theme,
+            home: HomePage(
+              categories: [
+                NoteCategory(name: 'Sports', color: Colors.orangeAccent, image: 'sports.png'),
+                NoteCategory(name: 'Travel', color: Colors.lightBlue, image: 'travel.png'),
+                NoteCategory(name: 'Family', color: Colors.indigoAccent, image: 'family.png'),
+              ],
             ),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 4.0,
-                crossAxisSpacing: 4.0,
-                padding: const EdgeInsets.all(4.0),
-                childAspectRatio: 2.0,
-                children: _categories.map((category) => CategoryItem(category: category)).toList(),
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.redAccent,
-        onPressed: _addCategory,
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
+            onGenerateRoute: (settings) {
+              Route pageRoute(Widget destination) => MaterialPageRoute(builder: (_) => destination);
+              switch (settings.name) {
+                case CategoryNotesPage.routeName:
+                  final args = settings.arguments as CategoryNotesArguments;
+                  return pageRoute(
+                    CategoryNotesPage(category: args.category, notes: args.notes),
+                  );
+                case StarredNotesPage.routeName:
+                  final args = settings.arguments as StarredNotesArguments;
+                  return pageRoute(
+                    StarredNotesPage(notes: args.notes, deleteNote: args.deleteNote),
+                  );
+                case NewCategoryPage.routeName:
+                  final args = settings.arguments as NewCategoryArguments?;
+                  return pageRoute(NewCategoryPage(editCategory: args?.category));
+              }
+            },
+          );
+        },
       ),
     );
   }
