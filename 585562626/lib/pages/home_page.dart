@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../models/category.dart';
@@ -26,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   Offset? _tapPosition;
   late final List<NoteCategory> _categories = widget.categories;
   late final Map<int, List<BaseNote>> _categoryNotes = {
-    for (var category in _categories) category.id: []
+    for (final category in _categories) category.id: []
   };
 
   void _changeTheme(BuildContext context) {
@@ -44,9 +43,9 @@ class _HomePageState extends State<HomePage> {
 
   void _updateCategory(NoteCategory category) {
     setState(() {
-      var oldCategory = _categories.firstWhere((element) => element.id == category.id);
+      final oldCategory = _categories.firstWhere((element) => element.id == category.id);
       if (oldCategory.image != category.image || oldCategory.name != category.name) {
-        var index = _categories.indexOf(oldCategory);
+        final index = _categories.indexOf(oldCategory);
         _categories.remove(oldCategory);
         _categories.insert(index, category);
       }
@@ -94,10 +93,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showPopupMenu(NoteCategory category) async {
-    var overlay = Overlay.of(context)?.context.findRenderObject() as RenderBox?;
-    var tapOffset = _tapPosition;
+    final overlay = Overlay.of(context)?.context.findRenderObject() as RenderBox?;
+    final tapOffset = _tapPosition;
     if (overlay != null && tapOffset != null) {
-      var action = await showMenu(
+      final action = await showMenu(
         context: context,
         position: RelativeRect.fromRect(
           tapOffset & const Size(40, 40),
@@ -124,7 +123,7 @@ class _HomePageState extends State<HomePage> {
       if (action != null) {
         switch (action) {
           case PopupAction.edit:
-            var result = await Navigator.of(context)
+            final result = await Navigator.of(context)
                 .pushNamed(NewCategoryPage.routeName, arguments: NewCategoryArguments(category));
             if (result != null && result is NoteCategory) {
               _updateCategory(result);
@@ -191,7 +190,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _categoriesGrid() {
-    _categories.sort((a,b)=> a.priority.index.compareTo(b.priority.index) );
+    _categories.sort((a, b) => a.priority.index.compareTo(b.priority.index));
     return Expanded(
       child: GridView.count(
         shrinkWrap: true,
@@ -237,7 +236,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _navigateToNewCategory() async {
-    var result = await Navigator.of(context).pushNamed(NewCategoryPage.routeName);
+    final result = await Navigator.of(context).pushNamed(NewCategoryPage.routeName);
     if (result != null && result is NoteCategory) {
       _addCategory(result);
     }
@@ -283,7 +282,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var isDarkMode = AppTheme.of(context).isDarkMode;
+    final isDarkMode = AppTheme.of(context).isDarkMode;
     return Scaffold(
       appBar: AppBar(
         title: Text(

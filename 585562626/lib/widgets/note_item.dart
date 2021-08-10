@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -29,7 +28,7 @@ class NoteItem extends StatelessWidget {
   Widget _contentContainer(BuildContext context) {
     var content;
     var padding;
-    var data = note;
+    final data = note;
     switch (data.runtimeType) {
       case TextNote:
         content = Text(

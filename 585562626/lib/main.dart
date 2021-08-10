@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -24,7 +23,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late ThemeData theme;
 
-  void switchTheme() {
+  void _switchTheme() {
     setState(() {
       if (theme == darkTheme) {
         theme = lightTheme;
@@ -36,8 +35,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    var brightness = SchedulerBinding.instance?.window.platformBrightness;
-    var darkModeOn = brightness == Brightness.dark;
+    final brightness = SchedulerBinding.instance?.window.platformBrightness;
+    final darkModeOn = brightness == Brightness.dark;
     theme = darkModeOn ? darkTheme : lightTheme;
     super.initState();
   }
@@ -46,7 +45,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return AppTheme(
       theme: theme,
-      switchTheme: switchTheme,
+      switchTheme: _switchTheme,
       child: Builder(
         builder: (context) {
           return MaterialApp(

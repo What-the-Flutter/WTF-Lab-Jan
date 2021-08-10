@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -56,14 +55,14 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
 
   void _takePhoto() async {
     if (await Permission.camera.request().isGranted) {
-      var image = await ImagePicker().getImage(source: ImageSource.camera, imageQuality: 50);
+      final image = await ImagePicker().getImage(source: ImageSource.camera, imageQuality: 50);
       setState(() => _image = image);
     }
   }
 
   void _pickFromGallery() async {
     if (await Permission.photos.request().isGranted) {
-      var image = await ImagePicker().getImage(source: ImageSource.gallery, imageQuality: 50);
+      final image = await ImagePicker().getImage(source: ImageSource.gallery, imageQuality: 50);
       setState(() => _image = image);
     }
   }
@@ -97,7 +96,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
 
   void _switchEditingMode() {
     setState(() {
-      var wasActive = _isEditingMode;
+      final wasActive = _isEditingMode;
       _isEditingMode = !wasActive;
       if (wasActive) {
         _selectedNotes.clear();
@@ -108,9 +107,9 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   }
 
   void _sendNote(AlignDirection direction) {
-    var text = _textController.text.trim();
+    final text = _textController.text.trim();
     setState(() {
-      var image = _image;
+      final image = _image;
       if (image != null) {
         _notes.insert(0, ImageNote(image.path, direction));
         _image = null;
@@ -150,7 +149,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   }
 
   void _startEditing() {
-    var updatedNote = _selectedNotes.first;
+    final updatedNote = _selectedNotes.first;
     if (updatedNote is TextNote) {
       _textController.text = updatedNote.text;
     }
@@ -162,7 +161,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
 
   void _updateNote() {
     setState(() {
-      var updatedNote = _selectedNotes.first;
+      final updatedNote = _selectedNotes.first;
       if (updatedNote is TextNote) {
         updatedNote.updateText(_textController.text);
         _notes[_notes.indexOf(_selectedNotes.first)] = updatedNote;
@@ -170,7 +169,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
         _startedUpdating = false;
       }
       if (updatedNote is ImageNote) {
-        var image = _image;
+        final image = _image;
         if (image != null) {
           updatedNote.image = image.path;
           _notes[_notes.indexOf(_selectedNotes.first)] = updatedNote;
@@ -183,7 +182,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
   }
 
   void _copyToClipboard() {
-    var selectedNote = _selectedNotes.first;
+    final selectedNote = _selectedNotes.first;
     if (selectedNote is TextNote) {
       Clipboard.setData(ClipboardData(text: selectedNote.text));
       ScaffoldMessenger.of(context)
@@ -195,7 +194,7 @@ class _CategoryNotesPageState extends State<CategoryNotesPage> {
     showDialog<String>(
       context: context,
       builder: (context) {
-        var count = _selectedNotes.length;
+        final count = _selectedNotes.length;
         return AlertDialog(
           title: count > 1 ? Text('Delete $count notes') : const Text('Delete note'),
           content: Text('Are you sure you want to delete '

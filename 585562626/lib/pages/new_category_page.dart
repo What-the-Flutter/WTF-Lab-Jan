@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -52,8 +51,8 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
   }
 
   void _addCategory() {
-    var name = _textController.text;
-    var selectedCategory = _selectedCategory;
+    final name = _textController.text;
+    final selectedCategory = _selectedCategory;
     if (name.isEmpty) {
       setState(() => _showError = true);
       return;
