@@ -17,6 +17,7 @@ class _EventScreenState extends State<EventScreen> {
   TextEditingController messageController = TextEditingController();
   int selectedMessageIndex = -1;
   bool isCRUDMode = false;
+  bool isBookmarkedOnly = false;
   final events = <Event>[];
 
   @override
@@ -50,7 +51,9 @@ class _EventScreenState extends State<EventScreen> {
           onPressed: _copyEvent,
         ),
         IconButton(
-          icon: const Icon(Icons.bookmark_border),
+          icon: events[selectedMessageIndex].isBookmarked
+              ? const Icon(Icons.bookmark)
+              : const Icon(Icons.bookmark_border),
           onPressed: _bookmarkEvent,
         ),
         IconButton(
@@ -63,6 +66,15 @@ class _EventScreenState extends State<EventScreen> {
         IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {},
+        ),
+        IconButton(
+          icon: isBookmarkedOnly
+              ? const Icon(Icons.bookmark)
+              : const Icon(Icons.bookmark_border),
+          onPressed: () {
+            isBookmarkedOnly ^= true;
+            setState(() {});
+          },
         ),
       ];
     }
@@ -163,55 +175,75 @@ class _EventScreenState extends State<EventScreen> {
             },
             child: Row(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(12)),
-                    color: selectedMessageIndex != index
-                        ? Theme.of(context).dialogBackgroundColor
-                        : Theme.of(context).selectedRowColor,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 10,
-                  ),
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      events[index].isBookmarked
-                          ? Icon(
-                              Icons.star,
-                              color: Colors.orange[700],
-                            )
-                          : const SizedBox(),
-                      events[index].message != null
-                          ? Text(
-                              events[index].message!,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 16),
-                            )
-                          : Container(
-                              width: 150,
-                              height: 150,
-                              child: Image.file(events[index].image!),
-                            ),
-                      const SizedBox(width: 5),
-                      Text(
-                        events[index].sendTime,
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(0.7),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                if (events[index].isBookmarked)
+                  _eventListElement(index, context)
+                else if (!isBookmarkedOnly)
+                  _eventListElement(index, context),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Container _eventListElement(int index, BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        color: selectedMessageIndex != index
+            ? Theme.of(context).dialogBackgroundColor
+            : Theme.of(context).selectedRowColor,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 10,
+      ),
+      margin: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 8,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          events[index].isBookmarked
+              ? Icon(
+                  Icons.star,
+                  color: Colors.orange[700],
+                )
+              : const SizedBox(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              events[index].message != null
+                  ? Row(
+                      children: [
+                        Text(
+                          events[index].message!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Container(
+                          width: 150,
+                          height: 150,
+                          child: Image.file(events[index].image!),
+                        ),
+                      ],
+                    ),
+              const SizedBox(width: 5),
+              Text(
+                events[index].sendTime,
+                style: TextStyle(
+                  color: Colors.black.withOpacity(0.7),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -254,8 +286,8 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   Future<void> _addImageEvent() async {
-    final ip = ImagePicker();
-    final xFile = await ip.pickImage(source: ImageSource.gallery);
+    final imagePicker = ImagePicker();
+    final xFile = await imagePicker.pickImage(source: ImageSource.gallery);
     if (xFile != null) {
       File? imageFile = File(xFile.path);
       events.insert(0, Event(image: imageFile));
@@ -280,7 +312,6 @@ class _EventScreenState extends State<EventScreen> {
         ),
       );
     }
-    selectedMessageIndex = -1;
     messageController.clear();
     setState(() {});
   }
