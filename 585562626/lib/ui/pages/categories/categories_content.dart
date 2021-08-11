@@ -1,59 +1,50 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/category.dart';
-import '../models/note.dart';
-import '../utils/constants.dart';
-import '../widgets/actions_popup_menu.dart';
-import '../widgets/category_item.dart';
-import '../widgets/inherited/app_theme.dart';
-import 'category_notes_page.dart';
-import 'new_category_page.dart';
+import '../../../models/category.dart';
+import '../../../utils/constants.dart';
+import '../../../widgets/actions_popup_menu.dart';
+import '../../../widgets/category_item.dart';
+import '../../category_notes/category_notes_page.dart';
+import '../new_category/new_category_page.dart';
+import 'bloc/bloc.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key? key, required this.categories}) : super(key: key);
-
-  final List<NoteCategory> categories;
-
+class CategoriesContent extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _CategoriesContentState createState() => _CategoriesContentState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int _currentTab = 0;
+class _CategoriesContentState extends State<CategoriesContent> {
   Offset? _tapPosition;
-  late final List<NoteCategory> _categories = widget.categories;
-  late final Map<int, List<BaseNote>> _categoryNotes = {
-    for (final category in _categories) category.id: []
-  };
+  late CategoriesBloc _categoriesBloc;
 
-  void _changeTheme(BuildContext context) {
-    AppTheme.of(context).switchTheme();
-  }
-
-  void _showToast() {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('No magic happened yet')));
+  @override
+  void initState() {
+    super.initState();
+    _categoriesBloc = context.read<CategoriesBloc>();
   }
 
   void _addCategory(NoteCategory category) {
-    setState(() => _categories.add(category));
+    _categoriesBloc.add(AddCategoryEvent(category));
   }
 
   void _updateCategory(NoteCategory category) {
-    setState(() {
-      final oldCategory = _categories.firstWhere((element) => element.id == category.id);
-      if (oldCategory.image != category.image || oldCategory.name != category.name) {
-        final index = _categories.indexOf(oldCategory);
-        _categories.remove(oldCategory);
-        _categories.insert(index, category);
-      }
-    });
+    _categoriesBloc.add(UpdateCategoryEvent(category));
   }
 
-  void _selectTab(int tab) {
-    setState(() => _currentTab = tab);
+  void _deleteNoteCategory(NoteCategory category) {
+    _categoriesBloc.add(DeleteCategoryEvent(category));
+  }
+
+  void _switchPriority(NoteCategory category) {
+    _categoriesBloc.add(SwitchPriorityForCategoryEvent(category));
+  }
+
+  void _showSnackBar() {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('No magic happened yet')));
   }
 
   Widget _topButton() {
@@ -62,7 +53,7 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(Insets.xmedium),
         margin: const EdgeInsets.symmetric(horizontal: 40.0),
         child: ElevatedButton(
-          onPressed: _showToast,
+          onPressed: _showSnackBar,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -140,16 +131,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _switchPriority(NoteCategory category) {
-    setState(() {
-      if (category.priority == CategoryPriority.high) {
-        category.priority = CategoryPriority.normal;
-      } else {
-        category.priority = CategoryPriority.high;
-      }
-    });
-  }
-
   void _showDeleteDialog(NoteCategory category) {
     showDialog<String>(
       context: context,
@@ -182,56 +163,56 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _deleteNoteCategory(NoteCategory category) {
-    setState(() {
-      _categoryNotes.remove(category.id);
-      _categories.remove(category);
-    });
-  }
-
   Widget _categoriesGrid() {
-    _categories.sort((a, b) => a.priority.index.compareTo(b.priority.index));
     return Expanded(
-      child: GridView.count(
-        shrinkWrap: true,
-        crossAxisCount: 2,
-        mainAxisSpacing: Insets.xsmall,
-        crossAxisSpacing: Insets.xsmall,
-        padding: const EdgeInsets.fromLTRB(
-          Insets.large,
-          0.0,
-          Insets.large,
-          Insets.medium,
-        ),
-        childAspectRatio: 1.0,
-        children: _categories
-            .map(
-              (category) => GestureDetector(
-                onTapDown: (position) => setState(() => _tapPosition = position.globalPosition),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(CornerRadius.card),
-                  ),
-                  child: CategoryItem(
-                    category: category,
-                    onTap: _onCategoryClick,
-                    onLongPress: _showPopupMenu,
-                  ),
-                ),
+      child: BlocBuilder<CategoriesBloc, CategoriesState>(
+          bloc: _categoriesBloc,
+          builder: (context, state) {
+            if (state is CategoriesFetchingState) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 2,
+              mainAxisSpacing: Insets.xsmall,
+              crossAxisSpacing: Insets.xsmall,
+              padding: const EdgeInsets.fromLTRB(
+                Insets.large,
+                0.0,
+                Insets.large,
+                Insets.medium,
               ),
-            )
-            .toList(),
-      ),
+              childAspectRatio: 1.0,
+              children: (state as CategoriesFetchedState)
+                  .categories
+                  .map(
+                    (category) => GestureDetector(
+                      onTapDown: (position) =>
+                          setState(() => _tapPosition = position.globalPosition),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(CornerRadius.card),
+                        ),
+                        child: CategoryItem(
+                          category: category,
+                          onTap: _onCategoryClick,
+                          onLongPress: _showPopupMenu,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+          }),
     );
   }
 
   void _onCategoryClick(NoteCategory category) {
     Navigator.of(context).pushNamed(
       CategoryNotesPage.routeName,
-      arguments: CategoryNotesArguments(
-        category: category,
-        notes: _categoryNotes[category.id] ?? [],
-      ),
+      arguments: CategoryNotesArguments(category: category, notes: [] // FIXME
+          // notes: _categoryNotes[category.id] ?? [],
+          ),
     );
   }
 
@@ -252,52 +233,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _bottomNavigationBar() {
-    return BottomNavigationBar(
-      selectedItemColor: Theme.of(context).accentColor,
-      unselectedItemColor: Colors.indigo,
-      backgroundColor: Theme.of(context).primaryColor,
-      items: [
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: 'Home',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.list_alt_outlined),
-          label: 'Daily',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.timeline_outlined),
-          label: 'Timeline',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.explore_outlined),
-          label: 'Explore',
-        ),
-      ],
-      onTap: _selectTab,
-      currentIndex: _currentTab,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = AppTheme.of(context).isDarkMode;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Home',
-          style: Theme.of(context).appBarTheme.titleTextStyle,
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _changeTheme(context),
-            icon: isDarkMode ? const Icon(Icons.light_mode) : const Icon(Icons.dark_mode),
-          ),
-        ],
-      ),
-      drawer: const Drawer(),
-      bottomNavigationBar: _bottomNavigationBar(),
       body: Center(
         child: Column(
           children: [_topButton(), _categoriesGrid()],
