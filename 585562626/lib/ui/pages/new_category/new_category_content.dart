@@ -1,11 +1,9 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../models/category.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/category_item.dart';
 import 'bloc/bloc.dart';
@@ -17,48 +15,19 @@ class NewCategoryContent extends StatefulWidget {
 
 class _NewCategoryContentState extends State<NewCategoryContent> {
   final _textController = TextEditingController();
-
-  // NoteCategory? _selectedCategory;
-  // bool _showError = false;
-  // late final List<NoteCategory> _defaultCategories;
   late final NewCategoryBloc _bloc;
 
   @override
   void initState() {
-    // _textController.text = widget.editCategory?.name ?? '';
-    // _selectedCategory = widget.editCategory;
     super.initState();
     _bloc = context.read<NewCategoryBloc>();
   }
 
   void _addCategory() {
     _bloc.add(const NewCategorySubmitted());
-    // final name = _textController.text;
-    // final selectedCategory = _selectedCategory;
-    // if (name.isEmpty) {
-    //   setState(() => _showError = true);
-    //   return;
-    // }
-    // if (selectedCategory == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Specify the icon for new category'),
-    //     ),
-    //   );
-    //   return;
-    // }
-    // setState(() => _showError = false);
-    // Navigator.of(context).pop(
-    //   NoteCategory(
-    //     name: name,
-    //     image: selectedCategory.image,
-    //     color: selectedCategory.color,
-    //   ),
-    // );
   }
 
   Widget _textInput(UpdateCategoryState state) {
-    print('TEXT_INPUT ERROR: ${state.error}');
     return Padding(
       padding: const EdgeInsets.only(top: Insets.medium, right: Insets.large, left: Insets.large),
       child: TextField(
@@ -114,13 +83,7 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
         if (state is UpdateCategoryState) {
           switch (state.result) {
             case SubmissionResult.success:
-              Navigator.of(context).pop(
-                NoteCategory(
-                  name: state.selectedCategory!.name,
-                  image: state.selectedCategory!.image,
-                  color: state.selectedCategory!.color,
-                ),
-              );
+              Navigator.of(context).pop(state.selectedCategory);
               break;
             case SubmissionResult.failure:
               if (state.selectedCategory == null) {
@@ -155,7 +118,9 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
             return const Center(child: CircularProgressIndicator());
           }
           final currentState = state as UpdateCategoryState;
-          _textController.text = currentState.name ?? '';
+          if (_textController.text != currentState.name) {
+            _textController.text = currentState.name ?? '';
+          }
           return Column(
             children: [_textInput(currentState), _gridContent(currentState)],
           );
@@ -164,7 +129,6 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
     );
   }
 
-//
   @override
   void dispose() {
     _textController.dispose();

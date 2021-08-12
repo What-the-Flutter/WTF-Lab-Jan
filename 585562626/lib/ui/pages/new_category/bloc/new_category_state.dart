@@ -18,12 +18,14 @@ class FetchingDefaultCategoriesState extends NewCategoryState {
 
 class UpdateCategoryState extends NewCategoryState {
   final List<NoteCategory> defaultCategories;
+  final NoteCategory? editCategory;
   final NoteCategory? selectedCategory;
   final String? name;
   final NameValidationError? error;
   final SubmissionResult? result;
 
   UpdateCategoryState({
+    this.editCategory,
     this.selectedCategory,
     this.name,
     this.error,
@@ -34,6 +36,7 @@ class UpdateCategoryState extends NewCategoryState {
   UpdateCategoryState copyWith({
     List<NoteCategory>? categories,
     NoteCategory? category,
+    NoteCategory? editCategory,
     String? name,
     NameValidationError? error,
     SubmissionResult? result,
@@ -41,6 +44,7 @@ class UpdateCategoryState extends NewCategoryState {
     return UpdateCategoryState(
       defaultCategories: categories ?? defaultCategories,
       selectedCategory: category ?? selectedCategory,
+      editCategory: editCategory ?? this.editCategory,
       name: name ?? this.name,
       error: error ?? this.error,
       result: result ?? this.result,

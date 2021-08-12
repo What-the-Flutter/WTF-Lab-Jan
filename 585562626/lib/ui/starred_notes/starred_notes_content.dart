@@ -1,5 +1,5 @@
-import 'package:cool_notes/ui/starred_notes/bloc/bloc.dart';
-import 'package:cool_notes/ui/starred_notes/bloc/starred_notes_bloc.dart';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/note.dart';
 import '../../utils/constants.dart';
 import '../../widgets/note_item.dart';
+import 'bloc/bloc.dart';
+import 'bloc/starred_notes_bloc.dart';
 
 class StarredNotesContent extends StatefulWidget {
   const StarredNotesContent({Key? key}) : super(key: key);
@@ -17,8 +19,14 @@ class StarredNotesContent extends StatefulWidget {
 }
 
 class _StarredNotesContentState extends State<StarredNotesContent> {
-  AppBar _appBar() {
+  AppBar _appBar(FetchedStarredNotesState state) {
     return AppBar(
+      leading: IconButton(
+        onPressed: () => Navigator.pop(context, state.switchedStar),
+        icon: !kIsWeb && (Platform.isMacOS || Platform.isIOS)
+            ? const Icon(Icons.arrow_back_ios)
+            : const Icon(Icons.arrow_back),
+      ),
       title: Text(
         'Starred notes',
         style: Theme.of(context).appBarTheme.titleTextStyle,
@@ -26,7 +34,7 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, BaseNote note, FetchedStarredNotesState state) {
+  void _showDeleteDialog(BuildContext context, Note note, FetchedStarredNotesState state) {
     showDialog(
       context: context,
       builder: (_) {
@@ -44,8 +52,6 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
             TextButton(
               onPressed: () {
                 context.read<StarredNotesBloc>().add(DeleteFromStarredNotesEvent(note));
-                // setState(() => state.notes.remove(note));
-                // widget.deleteNote?.call(note);
                 Navigator.pop(context, 'Delete');
               },
               child: Text(
@@ -70,7 +76,7 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
         }
         final currentState = state as FetchedStarredNotesState;
         return Scaffold(
-          appBar: _appBar(),
+          appBar: _appBar(currentState),
           body: currentState.notes.isEmpty
               ? const Center(
                   child: Text(

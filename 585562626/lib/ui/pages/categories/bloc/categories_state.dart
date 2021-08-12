@@ -9,8 +9,8 @@ abstract class CategoriesState extends Equatable {
   List<Object?> get props => [];
 }
 
-class InitialCategoriesState extends CategoriesFetchedState {
-  const InitialCategoriesState(): super(const []);
+class InitialCategoriesState extends CategoriesState {
+  const InitialCategoriesState(): super();
 }
 
 class CategoriesFetchedState extends CategoriesState {

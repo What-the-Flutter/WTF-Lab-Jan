@@ -14,7 +14,7 @@ class FetchStarredNotesEvent extends StarredNotesEvent {
 }
 
 class DeleteFromStarredNotesEvent extends StarredNotesEvent {
-  final BaseNote note;
+  final Note note;
 
   DeleteFromStarredNotesEvent(this.note);
 

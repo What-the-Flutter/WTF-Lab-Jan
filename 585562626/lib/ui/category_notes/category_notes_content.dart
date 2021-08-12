@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../models/category.dart';
 import '../../models/note.dart';
 import '../../utils/constants.dart';
 import '../../widgets/badge.dart';
@@ -25,12 +24,6 @@ class CategoryNotesContent extends StatefulWidget {
 }
 
 class _CategoryNotesContentState extends State<CategoryNotesContent> {
-  // late final List<BaseNote> _notes = widget.notes;
-  // final List<BaseNote> _selectedNotes = [];
-
-  // bool _isEditingMode = false;
-  // bool _startedUpdating = false;
-  // PickedFile? _image;
   late final CategoryNotesBloc _bloc;
   final FocusNode _inputFieldFocusNode = FocusNode();
 
@@ -45,25 +38,18 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
 
   void _switchStar() {
     _bloc.add(const SwitchStarEvent());
-    // setState(() {
-    //   for (final note in _selectedNotes) {
-    //     note.hasStar = !note.hasStar;
-    //   }
-    // });
   }
 
   void _takePhoto() async {
     if (await Permission.camera.request().isGranted) {
       final image = await ImagePicker().getImage(source: ImageSource.camera, imageQuality: 50);
       if (image != null) _bloc.add(ImageSelectedEvent(image));
-      // setState(() => _image = image);
     }
   }
 
   void _pickFromGallery() async {
     if (await Permission.photos.request().isGranted) {
       final image = await ImagePicker().getImage(source: ImageSource.gallery, imageQuality: 50);
-      // setState(() => _image = image);
       if (image != null) _bloc.add(ImageSelectedEvent(image));
     }
   }
@@ -99,31 +85,10 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
 
   void _switchEditingMode() {
     _bloc.add(const SwitchEditingModeEvent());
-    // setState(() {
-    //   final wasActive = _isEditingMode;
-    //   _isEditingMode = !wasActive;
-    //   if (wasActive) {
-    //     _selectedNotes.clear();
-    //     _startedUpdating = false;
-    //     _textController.clear();
-    //   }
-    // });
   }
 
   void _sendNote(AlignDirection direction) {
-    // final text = _textController.text.trim();
     _bloc.add(AddNoteEvent(direction: direction));
-    // setState(() {
-    //   final image = _image;
-    //   if (image != null) {
-    //     _notes.insert(0, ImageNote(image.path, direction));
-    //     _image = null;
-    //   }
-    //   if (text.isNotEmpty) {
-    //     _notes.insert(0, TextNote(text, direction));
-    //     _textController.clear();
-    //   }
-    // });
     FocusScope.of(context).requestFocus(_inputFieldFocusNode);
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -134,69 +99,27 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
     }
   }
 
-  void _switchNoteSelection(BaseNote note) {
-    // setState(() {
-    //   if (_selectedNotes.contains(note)) {
-    //     _selectedNotes.remove(note);
-    //   } else {
-    //     _selectedNotes.add(note);
-    //   }
-    // });
+  void _switchNoteSelection(Note note) {
     _bloc.add(SwitchNoteSelectionEvent(note));
   }
 
   void _deleteSelectedNotes() {
     _bloc.add(const DeleteSelectedNotesEvent());
-    // setState(() {
-    //   _notes.removeWhere(_selectedNotes.contains);
-    //   _selectedNotes.clear();
-    //   _isEditingMode = !_isEditingMode;
-    //   _startedUpdating = false;
-    // });
   }
 
   void _startEditing() {
     _bloc.add(const StartEditingEvent());
-    // final updatedNote = _selectedNotes.first;
-    // if (updatedNote is TextNote) {
-    //   _textController.text = updatedNote.text;
-    // }
-    // if (updatedNote is ImageNote) {
-    //   _showPicker();
-    // }
-    // setState(() => _startedUpdating = true);
   }
 
   void _updateNote() {
     _bloc.add(const UpdateNoteEvent());
-    // setState(() {
-    //   final updatedNote = _selectedNotes.first;
-    //   if (updatedNote is TextNote) {
-    //     updatedNote.updateText(_textController.text);
-    //     _notes[_notes.indexOf(_selectedNotes.first)] = updatedNote;
-    //     _textController.clear();
-    //     _startedUpdating = false;
-    //   }
-    //   if (updatedNote is ImageNote) {
-    //     final image = _image;
-    //     if (image != null) {
-    //       updatedNote.image = image.path;
-    //       _notes[_notes.indexOf(_selectedNotes.first)] = updatedNote;
-    //       _image = null;
-    //     }
-    //   }
-    //   _isEditingMode = false;
-    //   _selectedNotes.clear();
-    // });
   }
 
   void _copyToClipboard(CategoryNotesState state) {
     final selectedNote = state.selectedNotes.first;
-    if (selectedNote is TextNote) {
-      Clipboard.setData(ClipboardData(text: selectedNote.text));
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Text copied to clipboard')));
-    }
+    Clipboard.setData(ClipboardData(text: selectedNote.text));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Text copied to clipboard')));
   }
 
   void _showDeleteDialog(CategoryNotesState state) {
@@ -289,11 +212,14 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
     );
   }
 
-  void _navigateToStarredNotes(CategoryNotesState state) {
-    Navigator.of(context).pushNamed(
+  void _navigateToStarredNotes(CategoryNotesState state) async {
+    final result = await Navigator.of(context).pushNamed(
       StarredNotesPage.routeName,
       arguments: StarredNotesArguments(category: state.category),
     );
+    if (result != null && result is bool && result) {
+      _bloc.add(const FetchNotesEvent());
+    }
   }
 
   Widget _emptyNotesMessage(CategoryNotesState state) {
@@ -392,6 +318,9 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
         }
         if (state.text != _textController.text) {
           _textController.text = state.text ?? _textController.text;
+          _textController.selection = TextSelection.fromPosition(
+            TextPosition(offset: _textController.text.length),
+          );
         }
       },
       child: BlocBuilder<CategoryNotesBloc, CategoryNotesState>(

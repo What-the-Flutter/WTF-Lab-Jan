@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../models/category.dart';
 import '../../../models/note.dart';
 
 abstract class CategoryNotesEvent extends Equatable {
@@ -12,7 +11,7 @@ abstract class CategoryNotesEvent extends Equatable {
 }
 
 abstract class NoteEvent extends CategoryNotesEvent {
-  final BaseNote note;
+  final Note note;
 
   NoteEvent(this.note);
 
@@ -21,7 +20,7 @@ abstract class NoteEvent extends CategoryNotesEvent {
 }
 
 class FetchNotesEvent extends CategoryNotesEvent {
-  FetchNotesEvent();
+  const FetchNotesEvent();
 }
 
 class AddNoteEvent extends CategoryNotesEvent {
@@ -50,7 +49,7 @@ class SwitchEditingModeEvent extends CategoryNotesEvent {
 }
 
 class SwitchNoteSelectionEvent extends NoteEvent {
-  SwitchNoteSelectionEvent(BaseNote note) : super(note);
+  SwitchNoteSelectionEvent(Note note) : super(note);
 }
 
 class StartEditingEvent extends CategoryNotesEvent {

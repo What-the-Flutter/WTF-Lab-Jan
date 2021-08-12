@@ -1,9 +1,9 @@
-import 'package:cool_notes/repository/category_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/category.dart';
+import '../../../repository/category_repository.dart';
 import 'bloc/bloc.dart';
 import 'new_category_content.dart';
 
@@ -22,17 +22,10 @@ class NewCategoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) {
-        final bloc = NewCategoryBloc(
-          const FetchingDefaultCategoriesState(),
-          repository: RepositoryProvider.of<CategoryRepository>(context),
-        );
-        bloc.add(const FetchDefaultCategoriesEvent());
-        if (editCategory != null) {
-          bloc.add(CategoryChanged(editCategory!));
-        }
-        return bloc;
-      },
+      create: (_) => NewCategoryBloc(
+        const FetchingDefaultCategoriesState(),
+        repository: RepositoryProvider.of<CategoryRepository>(context),
+      )..add(FetchDefaultCategoriesEvent(editCategory: editCategory)),
       child: NewCategoryContent(),
     );
   }

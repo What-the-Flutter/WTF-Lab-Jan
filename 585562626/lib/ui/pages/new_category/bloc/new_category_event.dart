@@ -10,7 +10,12 @@ abstract class NewCategoryEvent extends Equatable {
 }
 
 class FetchDefaultCategoriesEvent extends NewCategoryEvent {
-  const FetchDefaultCategoriesEvent();
+  final NoteCategory? editCategory;
+
+  const FetchDefaultCategoriesEvent({this.editCategory});
+
+  @override
+  List<Object?> get props => [editCategory];
 }
 
 class NameChangedEvent extends NewCategoryEvent {

@@ -18,10 +18,11 @@ class InitialStarredNotesState extends FetchedStarredNotesState {
 }
 
 class FetchedStarredNotesState extends StarredNotesState {
-  final List<BaseNote> notes;
+  final List<Note> notes;
+  final bool switchedStar;
 
-  const FetchedStarredNotesState(this.notes);
+  const FetchedStarredNotesState(this.notes, {this.switchedStar = false});
 
   @override
-  List<Object?> get props => [notes];
+  List<Object?> get props => [notes, switchedStar];
 }

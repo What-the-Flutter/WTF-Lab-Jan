@@ -8,12 +8,12 @@ import '../models/note.dart';
 import '../utils/constants.dart';
 
 class NoteItem extends StatelessWidget {
-  final BaseNote note;
+  final Note note;
   final bool isEditingMode;
   final bool isSelected;
   final bool isStarred;
-  final Function(BaseNote)? onTap;
-  final Function(BaseNote)? onLongPress;
+  final Function(Note)? onTap;
+  final Function(Note)? onLongPress;
 
   NoteItem({
     Key? key,
@@ -26,35 +26,30 @@ class NoteItem extends StatelessWidget {
   }) : super(key: key);
 
   Widget _contentContainer(BuildContext context) {
-    var content;
-    var padding;
-    final data = note;
-    switch (data.runtimeType) {
-      case TextNote:
-        content = Text(
-          (data as TextNote).text,
+    final content = Column(
+      crossAxisAlignment: note.direction == AlignDirection.right ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      children: [
+        if (note.image != null)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(CornerRadius.card),
+            child: Image.file(
+              File(note.image!),
+              fit: BoxFit.fitHeight,
+            ),
+          ),
+        Text(
+          note.text ?? '',
           style: TextStyle(
             fontSize: FontSize.normal,
             color: note.direction == AlignDirection.right
                 ? Theme.of(context).accentIconTheme.color
                 : null,
           ),
-        );
-        padding = const EdgeInsets.symmetric(horizontal: Insets.medium, vertical: Insets.xmedium);
-        break;
-      case ImageNote:
-        content = ClipRRect(
-          borderRadius: BorderRadius.circular(CornerRadius.card),
-          child: Image.file(
-            File((data as ImageNote).image),
-            fit: BoxFit.fitHeight,
-          ),
-        );
-        padding = const EdgeInsets.all(Insets.xsmall);
-        break;
-    }
+        ),
+      ],
+    );
     return Container(
-      padding: padding,
+      padding: const EdgeInsets.symmetric(horizontal: Insets.medium, vertical: Insets.xmedium),
       decoration: BoxDecoration(
         color: note.direction == AlignDirection.right
             ? Theme.of(context).accentColor

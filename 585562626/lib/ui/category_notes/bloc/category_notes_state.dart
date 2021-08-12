@@ -1,15 +1,15 @@
-import 'package:cool_notes/models/category.dart';
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../models/category.dart';
 import '../../../models/note.dart';
 
 class CategoryNotesState extends Equatable {
   final bool isEditingMode;
   final bool startedUpdating;
   final NoteCategory category;
-  final List<BaseNote> notes;
-  final List<BaseNote> selectedNotes;
+  final List<Note> notes;
+  final List<Note> selectedNotes;
   final PickedFile? image;
   final String? text;
   final bool showImagePicker;
@@ -28,8 +28,8 @@ class CategoryNotesState extends Equatable {
   CategoryNotesState copyWith(
       {bool? isEditingMode,
       bool? startedUpdating,
-      List<BaseNote>? notes,
-      List<BaseNote>? selectedNotes,
+      List<Note>? notes,
+      List<Note>? selectedNotes,
       PickedFile? image,
       String? text,
       bool? showImagePicker,
@@ -43,6 +43,19 @@ class CategoryNotesState extends Equatable {
       image: image ?? this.image,
       text: text ?? this.text,
       showImagePicker: showImagePicker ?? this.showImagePicker,
+    );
+  }
+
+  CategoryNotesState resetImage() {
+    return CategoryNotesState(
+      isEditingMode: isEditingMode,
+      startedUpdating: startedUpdating,
+      category: category,
+      notes: notes,
+      selectedNotes: selectedNotes,
+      image: null,
+      text: text,
+      showImagePicker: showImagePicker,
     );
   }
 

@@ -165,61 +165,55 @@ class _CategoriesContentState extends State<CategoriesContent> {
 
   Widget _categoriesGrid() {
     return Expanded(
-      child: BlocBuilder<CategoriesBloc, CategoriesState>(
-          bloc: _categoriesBloc,
-          builder: (context, state) {
-            if (state is CategoriesFetchingState) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 2,
-              mainAxisSpacing: Insets.xsmall,
-              crossAxisSpacing: Insets.xsmall,
-              padding: const EdgeInsets.fromLTRB(
-                Insets.large,
-                0.0,
-                Insets.large,
-                Insets.medium,
-              ),
-              childAspectRatio: 1.0,
-              children: (state as CategoriesFetchedState)
-                  .categories
-                  .map(
-                    (category) => GestureDetector(
-                      onTapDown: (position) =>
-                          setState(() => _tapPosition = position.globalPosition),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(CornerRadius.card),
-                        ),
-                        child: CategoryItem(
-                          category: category,
-                          onTap: _onCategoryClick,
-                          onLongPress: _showPopupMenu,
-                        ),
-                      ),
+      child: BlocBuilder<CategoriesBloc, CategoriesState>(builder: (context, state) {
+        if (state is! CategoriesFetchedState) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return GridView.count(
+          shrinkWrap: true,
+          crossAxisCount: 2,
+          mainAxisSpacing: Insets.xsmall,
+          crossAxisSpacing: Insets.xsmall,
+          padding: const EdgeInsets.fromLTRB(
+            Insets.large,
+            0.0,
+            Insets.large,
+            Insets.medium,
+          ),
+          childAspectRatio: 1.0,
+          children: state.categories
+              .map(
+                (category) => GestureDetector(
+                  onTapDown: (position) => setState(() => _tapPosition = position.globalPosition),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(CornerRadius.card),
                     ),
-                  )
-                  .toList(),
-            );
-          }),
+                    child: CategoryItem(
+                      category: category,
+                      onTap: _onCategoryClick,
+                      onLongPress: _showPopupMenu,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        );
+      }),
     );
   }
 
   void _onCategoryClick(NoteCategory category) {
     Navigator.of(context).pushNamed(
       CategoryNotesPage.routeName,
-      arguments: CategoryNotesArguments(category: category, notes: [] // FIXME
-          // notes: _categoryNotes[category.id] ?? [],
-          ),
+      arguments: CategoryNotesArguments(category: category),
     );
   }
 
   void _navigateToNewCategory() async {
     final result = await Navigator.of(context).pushNamed(NewCategoryPage.routeName);
     if (result != null && result is NoteCategory) {
-      _addCategory(result);
+      result.id == null ? _addCategory(result) : _updateCategory(result);
     }
   }
 
