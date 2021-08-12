@@ -9,25 +9,25 @@ class CategoryRepository {
 
   CategoryRepository(this.dbProvider);
 
-  Future<List<NoteCategory>> fetchCategories() async {
+  Future<List<Category>> fetchCategories() async {
     final dbCategories = await dbProvider.categories();
     return dbCategories.map(CategoryMapper.fromDb).toList();
   }
 
-  Future<List<NoteCategory>> fetchDefaultCategories() async {
+  Future<List<Category>> fetchDefaultCategories() async {
     final dbCategories = await dbProvider.categories(isDefault: true);
     return dbCategories.map(CategoryMapper.fromDb).toList();
   }
 
-  Future<void> addCategory(NoteCategory category) async {
+  Future<void> addCategory(Category category) async {
     return await dbProvider.insertCategory(CategoryMapper.toDb(category));
   }
 
-  Future<void> updateCategory(NoteCategory category) async {
+  Future<void> updateCategory(Category category) async {
     return await dbProvider.updateCategory(CategoryMapper.toDb(category));
   }
 
-  Future<void> switchPriority(NoteCategory category) async {
+  Future<void> switchPriority(Category category) async {
     final priority;
     if (category.priority == CategoryPriority.high) {
       priority = CategoryPriority.normal;
@@ -38,7 +38,7 @@ class CategoryRepository {
         .updateCategory(CategoryMapper.toDb(category.copyWith(priority: priority)));
   }
 
-  Future<void> deleteCategory(NoteCategory category) async {
+  Future<void> deleteCategory(Category category) async {
     if (category.id != null) {
       return await dbProvider.deleteCategory(category.id!);
     }

@@ -8,12 +8,12 @@ class NoteRepository {
 
   NoteRepository(this.dbProvider);
 
-  Future<List<Note>> fetchNotes(NoteCategory category) async {
+  Future<List<Note>> fetchNotes(Category category) async {
     final dbNotes = await dbProvider.notesFor(category);
     return dbNotes.map(NoteMapper.fromDb).toList();
   }
 
-  Future<List<Note>> fetchStarredNotes(NoteCategory category) async {
+  Future<List<Note>> fetchStarredNotes(Category category) async {
     final dbNotes = await dbProvider.starredNotes(category);
     return dbNotes.map(NoteMapper.fromDb).toList();
   }
@@ -23,10 +23,8 @@ class NoteRepository {
   }
 
   Future<void> switchStar(List<Note> notes) async {
-    for (final note in notes) {
-      note.hasStar = !note.hasStar;
-    }
-    await dbProvider.updateNotes(notes.map(NoteMapper.toDb).toList());
+    final updatedNotes = notes.map((e) => e.copyWith(hasStar: !e.hasStar));
+    await dbProvider.updateNotes(updatedNotes.map(NoteMapper.toDb).toList());
   }
 
   Future<void> deleteNotes(List<Note> notes) async {

@@ -5,9 +5,9 @@ import '../models/category.dart';
 import '../utils/constants.dart';
 
 class CategoryItem extends StatelessWidget {
-  final NoteCategory category;
-  final Function(NoteCategory)? onTap;
-  final Function(NoteCategory)? onLongPress;
+  final Category category;
+  final Function(Category)? onTap;
+  final Function(Category)? onLongPress;
 
   const CategoryItem({
     Key? key,

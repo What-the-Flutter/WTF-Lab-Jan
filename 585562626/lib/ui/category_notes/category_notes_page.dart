@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,13 +7,13 @@ import 'bloc/bloc.dart';
 import 'category_notes_content.dart';
 
 class CategoryNotesArguments {
-  final NoteCategory category;
+  final Category category;
 
   CategoryNotesArguments({required this.category});
 }
 
 class CategoryNotesPage extends StatelessWidget {
-  final NoteCategory category;
+  final Category category;
   static const routeName = '/categoryNotes';
 
   const CategoryNotesPage({Key? key, required this.category}) : super(key: key);

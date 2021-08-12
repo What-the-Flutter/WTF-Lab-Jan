@@ -4,8 +4,8 @@ import '../../models/category.dart';
 import '../database/models/category.dart';
 
 class CategoryMapper {
-  static NoteCategory fromDb(DbCategory dbCategory) {
-    return NoteCategory(
+  static Category fromDb(DbCategory dbCategory) {
+    return Category(
       id: dbCategory.id!,
       color: Color(dbCategory.color),
       image: dbCategory.image,
@@ -14,7 +14,7 @@ class CategoryMapper {
     );
   }
 
-  static DbCategory toDb(NoteCategory category, {bool isDefault = false}) {
+  static DbCategory toDb(Category category, {bool isDefault = false}) {
     return DbCategory(
       id: category.id,
       color: category.color.value,

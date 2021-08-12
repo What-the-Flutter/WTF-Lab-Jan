@@ -10,7 +10,7 @@ abstract class NewCategoryEvent extends Equatable {
 }
 
 class FetchDefaultCategoriesEvent extends NewCategoryEvent {
-  final NoteCategory? editCategory;
+  final Category? editCategory;
 
   const FetchDefaultCategoriesEvent({this.editCategory});
 
@@ -28,7 +28,7 @@ class NameChangedEvent extends NewCategoryEvent {
 }
 
 class CategoryChanged extends NewCategoryEvent {
-  final NoteCategory category;
+  final Category category;
 
   CategoryChanged(this.category);
 

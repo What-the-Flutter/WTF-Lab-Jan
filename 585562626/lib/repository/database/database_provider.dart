@@ -137,7 +137,7 @@ class DbProvider {
     return List.generate(maps.length, (i) => DbNote.fromMap(maps[i]));
   }
 
-  Future<List<DbNote>> notesFor(NoteCategory category) async {
+  Future<List<DbNote>> notesFor(Category category) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery('SELECT * FROM $notesTable '
         'INNER JOIN $categoryNoteTable ON $notesTable.id = $categoryNoteTable.note_id '
@@ -145,7 +145,7 @@ class DbProvider {
     return List.generate(maps.length, (i) => DbNote.fromMap(maps[i]));
   }
 
-  Future<List<DbNote>> starredNotes(NoteCategory category) async {
+  Future<List<DbNote>> starredNotes(Category category) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery('SELECT * FROM $notesTable '
         'INNER JOIN $categoryNoteTable ON $notesTable.id = $categoryNoteTable.note_id '

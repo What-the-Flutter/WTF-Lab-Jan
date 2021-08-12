@@ -7,7 +7,7 @@ import 'starred_notes_state.dart';
 
 class StarredNotesBloc extends Bloc<StarredNotesEvent, StarredNotesState> {
   final NoteRepository noteRepository;
-  final NoteCategory category;
+  final Category category;
 
   StarredNotesBloc(
     StarredNotesState initialState, {

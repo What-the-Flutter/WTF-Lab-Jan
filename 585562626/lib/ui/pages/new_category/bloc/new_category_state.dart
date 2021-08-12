@@ -17,9 +17,9 @@ class FetchingDefaultCategoriesState extends NewCategoryState {
 }
 
 class UpdateCategoryState extends NewCategoryState {
-  final List<NoteCategory> defaultCategories;
-  final NoteCategory? editCategory;
-  final NoteCategory? selectedCategory;
+  final List<Category> defaultCategories;
+  final Category? editCategory;
+  final Category? selectedCategory;
   final String? name;
   final NameValidationError? error;
   final SubmissionResult? result;
@@ -34,9 +34,9 @@ class UpdateCategoryState extends NewCategoryState {
   });
 
   UpdateCategoryState copyWith({
-    List<NoteCategory>? categories,
-    NoteCategory? category,
-    NoteCategory? editCategory,
+    List<Category>? categories,
+    Category? category,
+    Category? editCategory,
     String? name,
     NameValidationError? error,
     SubmissionResult? result,

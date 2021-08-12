@@ -1,13 +1,15 @@
+import 'package:equatable/equatable.dart';
+
 enum AlignDirection { right, left }
 
-class Note {
-  int? id;
-  DateTime created;
-  AlignDirection direction;
-  bool hasStar;
-  DateTime? updated;
-  String? text;
-  String? image;
+class Note extends Equatable{
+  final int? id;
+  final DateTime created;
+  final AlignDirection direction;
+  final bool hasStar;
+  final DateTime? updated;
+  final String? text;
+  final String? image;
 
   Note({
     this.id,
@@ -34,4 +36,7 @@ class Note {
   String toString() {
     return identityHashCode(this).toString();
   }
+
+  @override
+  List<Object?> get props => [id, direction, hasStar, text, image, updated, created];
 }

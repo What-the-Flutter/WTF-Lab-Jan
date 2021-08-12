@@ -14,7 +14,7 @@ class InitialCategoriesState extends CategoriesState {
 }
 
 class CategoriesFetchedState extends CategoriesState {
-  final List<NoteCategory> categories;
+  final List<Category> categories;
 
   const CategoriesFetchedState(this.categories);
 

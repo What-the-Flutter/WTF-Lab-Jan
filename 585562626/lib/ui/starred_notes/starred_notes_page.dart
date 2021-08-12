@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,13 +8,13 @@ import 'bloc/starred_notes_bloc.dart';
 import 'starred_notes_content.dart';
 
 class StarredNotesArguments {
-  final NoteCategory category;
+  final Category category;
 
   StarredNotesArguments({required this.category});
 }
 
 class StarredNotesPage extends StatelessWidget {
-  final NoteCategory category;
+  final Category category;
 
   static const routeName = '/starred_notes';
 

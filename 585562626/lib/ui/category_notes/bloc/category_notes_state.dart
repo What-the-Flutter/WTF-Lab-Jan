@@ -7,7 +7,7 @@ import '../../../models/note.dart';
 class CategoryNotesState extends Equatable {
   final bool isEditingMode;
   final bool startedUpdating;
-  final NoteCategory category;
+  final Category category;
   final List<Note> notes;
   final List<Note> selectedNotes;
   final PickedFile? image;

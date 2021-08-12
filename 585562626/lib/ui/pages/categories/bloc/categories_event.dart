@@ -14,7 +14,7 @@ class FetchCategoriesEvent extends CategoriesEvent {
 }
 
 abstract class CategoryHomeEvent extends CategoriesEvent {
-  final NoteCategory category;
+  final Category category;
 
   CategoryHomeEvent(this.category);
 

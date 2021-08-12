@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,13 +7,13 @@ import 'bloc/bloc.dart';
 import 'new_category_content.dart';
 
 class NewCategoryArguments {
-  final NoteCategory? category;
+  final Category? category;
 
   NewCategoryArguments(this.category);
 }
 
 class NewCategoryPage extends StatelessWidget {
-  final NoteCategory? editCategory;
+  final Category? editCategory;
   static const routeName = '/new_category';
 
   const NewCategoryPage({Key? key, this.editCategory}) : super(key: key);

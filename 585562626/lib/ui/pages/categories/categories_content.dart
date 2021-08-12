@@ -26,19 +26,19 @@ class _CategoriesContentState extends State<CategoriesContent> {
     _categoriesBloc = context.read<CategoriesBloc>();
   }
 
-  void _addCategory(NoteCategory category) {
+  void _addCategory(Category category) {
     _categoriesBloc.add(AddCategoryEvent(category));
   }
 
-  void _updateCategory(NoteCategory category) {
+  void _updateCategory(Category category) {
     _categoriesBloc.add(UpdateCategoryEvent(category));
   }
 
-  void _deleteNoteCategory(NoteCategory category) {
+  void _deleteNoteCategory(Category category) {
     _categoriesBloc.add(DeleteCategoryEvent(category));
   }
 
-  void _switchPriority(NoteCategory category) {
+  void _switchPriority(Category category) {
     _categoriesBloc.add(SwitchPriorityForCategoryEvent(category));
   }
 
@@ -83,7 +83,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
     );
   }
 
-  void _showPopupMenu(NoteCategory category) async {
+  void _showPopupMenu(Category category) async {
     final overlay = Overlay.of(context)?.context.findRenderObject() as RenderBox?;
     final tapOffset = _tapPosition;
     if (overlay != null && tapOffset != null) {
@@ -116,7 +116,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
           case PopupAction.edit:
             final result = await Navigator.of(context)
                 .pushNamed(NewCategoryPage.routeName, arguments: NewCategoryArguments(category));
-            if (result != null && result is NoteCategory) {
+            if (result != null && result is Category) {
               _updateCategory(result);
             }
             break;
@@ -131,7 +131,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
     }
   }
 
-  void _showDeleteDialog(NoteCategory category) {
+  void _showDeleteDialog(Category category) {
     showDialog<String>(
       context: context,
       builder: (context) {
@@ -203,7 +203,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
     );
   }
 
-  void _onCategoryClick(NoteCategory category) {
+  void _onCategoryClick(Category category) {
     Navigator.of(context).pushNamed(
       CategoryNotesPage.routeName,
       arguments: CategoryNotesArguments(category: category),
@@ -212,7 +212,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
 
   void _navigateToNewCategory() async {
     final result = await Navigator.of(context).pushNamed(NewCategoryPage.routeName);
-    if (result != null && result is NoteCategory) {
+    if (result != null && result is Category) {
       result.id == null ? _addCategory(result) : _updateCategory(result);
     }
   }

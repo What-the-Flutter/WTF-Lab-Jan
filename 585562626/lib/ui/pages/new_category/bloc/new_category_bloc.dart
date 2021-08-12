@@ -56,7 +56,7 @@ class NewCategoryBloc extends Bloc<NewCategoryEvent, NewCategoryState> {
           image: currentState.selectedCategory!.image,
         );
       } else {
-        category = NoteCategory(
+        category = Category(
           color: currentState.selectedCategory!.color,
           image: currentState.selectedCategory!.image,
           name: currentState.name,
