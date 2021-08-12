@@ -30,7 +30,7 @@ dependencies:
   flutter_bloc: ^7.0.1
   equatable: ^2.0.0
   path: ^1.8.0
-#  shared_preferences: ^2.0.6
+  shared_preferences: ^2.0.6
   sqflite: ^2.0.0+3
 
 dev_dependencies:

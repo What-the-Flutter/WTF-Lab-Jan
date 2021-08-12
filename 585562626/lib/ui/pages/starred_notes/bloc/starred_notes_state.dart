@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../models/note.dart';
+import '../../../../models/note.dart';
 
 abstract class StarredNotesState extends Equatable {
   const StarredNotesState();

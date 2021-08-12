@@ -7,12 +7,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../models/note.dart';
-import '../../utils/constants.dart';
-import '../../widgets/badge.dart';
-import '../../widgets/note_item.dart';
+import '../../../models/note.dart';
+import '../../../utils/constants.dart';
+import '../../../widgets/badge.dart';
+import '../../../widgets/note_item.dart';
+import '../category_notes/bloc/bloc.dart';
 import '../starred_notes/starred_notes_page.dart';
-import 'bloc/bloc.dart';
 
 class CategoryNotesContent extends StatefulWidget {
   static const routeName = '/categoryNotes';

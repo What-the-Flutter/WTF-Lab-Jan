@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../category_notes/category_notes_page.dart';
+import '../../utils/themes.dart';
+import '../pages/category_notes/category_notes_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/new_category/new_category_page.dart';
-import '../starred_notes/starred_notes_page.dart';
+import '../pages/starred_notes/starred_notes_page.dart';
 import 'bloc/bloc.dart';
 
 class App extends StatelessWidget {
@@ -13,7 +14,10 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AppBloc(),
+      create: (context) => AppBloc(
+        preferencesProvider: RepositoryProvider.of(context),
+        initialState: AppState(lightTheme, false),
+      )..add(const InitState()),
       child: BlocBuilder<AppBloc, AppState>(builder: (_, state) {
         return MaterialApp(
           title: 'Cool Notes',
@@ -30,7 +34,9 @@ class App extends StatelessWidget {
               case StarredNotesPage.routeName:
                 final args = settings.arguments as StarredNotesArguments;
                 return pageRoute(
-                  StarredNotesPage(category: args.category,),
+                  StarredNotesPage(
+                    category: args.category,
+                  ),
                 );
               case NewCategoryPage.routeName:
                 final args = settings.arguments as NewCategoryArguments?;

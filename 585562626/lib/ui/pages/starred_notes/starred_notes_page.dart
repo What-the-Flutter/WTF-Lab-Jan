@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../models/category.dart';
-import '../../repository/note_repository.dart';
+import '../../../models/category.dart';
+import '../../../repository/note_repository.dart';
 import 'bloc/bloc.dart';
 import 'bloc/starred_notes_bloc.dart';
 import 'starred_notes_content.dart';

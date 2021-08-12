@@ -7,7 +7,7 @@ import '../../../models/category.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/actions_popup_menu.dart';
 import '../../../widgets/category_item.dart';
-import '../../category_notes/category_notes_page.dart';
+import '../category_notes/category_notes_page.dart';
 import '../new_category/new_category_page.dart';
 import 'bloc/bloc.dart';
 

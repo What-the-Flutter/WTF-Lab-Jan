@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../models/note.dart';
-import '../../../repository/note_repository.dart';
+import '../../../../models/note.dart';
+import '../../../../repository/note_repository.dart';
 import 'category_notes_event.dart';
 import 'category_notes_state.dart';
 
