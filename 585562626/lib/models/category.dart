@@ -1,18 +1,33 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 enum CategoryPriority { high, normal }
 
-class NoteCategory {
-  final int id;
+class Category extends Equatable {
+  final int? id;
   final Color color;
   final String? name;
   final String image;
-  CategoryPriority priority;
+  final CategoryPriority priority;
 
-  NoteCategory({
+  Category({
+    this.id,
     this.name,
     required this.color,
     required this.image,
     this.priority = CategoryPriority.normal,
-  }) : id = name.hashCode;
+  });
+
+  Category copyWith({Color? color, String? image, String? name, CategoryPriority? priority}) {
+    return Category(
+      id: id,
+      color: color ?? this.color,
+      image: image ?? this.image,
+      name: name ?? this.name,
+      priority: priority ?? this.priority,
+    );
+  }
+
+  @override
+  List<Object?> get props => [id, color, name, image, priority];
 }
