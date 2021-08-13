@@ -103,6 +103,16 @@ class DbProvider {
     await db.insert(categoryNoteTable, {'category_id': categoryId, 'note_id': noteId});
   }
 
+  Future<void> updateNoteCategory(int categoryId, int noteId) async {
+    final db = await database;
+    await db.update(
+      categoryNoteTable,
+      {'category_id': categoryId, 'note_id': noteId},
+      where: 'note_id = ?',
+      whereArgs: [noteId],
+    );
+  }
+
   Future<void> updateNote(DbNote note) async {
     final db = await database;
     await db.update(notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);

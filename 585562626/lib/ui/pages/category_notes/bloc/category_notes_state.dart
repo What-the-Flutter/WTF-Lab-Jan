@@ -13,6 +13,9 @@ class CategoryNotesState extends Equatable {
   final PickedFile? image;
   final String? text;
   final bool showImagePicker;
+  final bool showCategoryPicker;
+  final List<Category>? defaultCategories;
+  final Category? tempCategory;
 
   CategoryNotesState({
     this.isEditingMode = false,
@@ -23,17 +26,25 @@ class CategoryNotesState extends Equatable {
     this.image,
     this.text,
     this.showImagePicker = false,
+    this.showCategoryPicker = false,
+    this.defaultCategories,
+    this.tempCategory,
   });
 
-  CategoryNotesState copyWith(
-      {bool? isEditingMode,
-      bool? startedUpdating,
-      List<Note>? notes,
-      List<Note>? selectedNotes,
-      PickedFile? image,
-      String? text,
-      bool? showImagePicker,
-      bool? textCopiedToClipboard}) {
+  CategoryNotesState copyWith({
+    bool? isEditingMode,
+    bool? startedUpdating,
+    List<Note>? notes,
+    List<Note>? selectedNotes,
+    PickedFile? image,
+    String? text,
+    bool? showImagePicker,
+    bool? showCategoryPicker,
+    bool? textCopiedToClipboard,
+    List<Category>? categories,
+    Category? tempCategory,
+  }) {
+    print('category: ${category.image} ____ temp: ${tempCategory?.image}');
     return CategoryNotesState(
       isEditingMode: isEditingMode ?? this.isEditingMode,
       startedUpdating: startedUpdating ?? this.startedUpdating,
@@ -43,6 +54,9 @@ class CategoryNotesState extends Equatable {
       image: image ?? this.image,
       text: text ?? this.text,
       showImagePicker: showImagePicker ?? this.showImagePicker,
+      showCategoryPicker: showCategoryPicker ?? this.showCategoryPicker,
+      defaultCategories: categories ?? defaultCategories,
+      tempCategory: tempCategory ?? this.tempCategory,
     );
   }
 
@@ -56,6 +70,7 @@ class CategoryNotesState extends Equatable {
       image: null,
       text: text,
       showImagePicker: showImagePicker,
+      showCategoryPicker: showCategoryPicker,
     );
   }
 
@@ -69,5 +84,8 @@ class CategoryNotesState extends Equatable {
         image,
         text,
         showImagePicker,
+        showCategoryPicker,
+        tempCategory,
+        defaultCategories,
       ];
 }

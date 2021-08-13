@@ -13,6 +13,7 @@ ThemeData lightTheme = ThemeData(
       centerTitle: true,
       titleTextStyle: TextStyle(color: Colors.indigoAccent),
       backgroundColor: Colors.white),
+  indicatorColor: Colors.indigoAccent,
   textTheme: const TextTheme(
     bodyText1: TextStyle(
       color: Colors.black87,
@@ -43,6 +44,7 @@ ThemeData darkTheme = ThemeData(
     centerTitle: true,
     titleTextStyle: TextStyle(color: Colors.indigoAccent),
   ),
+  indicatorColor: Colors.indigoAccent,
   textTheme: const TextTheme(
     bodyText1: TextStyle(
       color: Colors.white70,

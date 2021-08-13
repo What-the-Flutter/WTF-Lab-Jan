@@ -34,4 +34,8 @@ class NoteRepository {
   Future<void> updateNote(Note note) async {
     await dbProvider.updateNote(NoteMapper.toDb(note));
   }
+
+  Future<void> updateNoteCategory(Category category, Note note) async {
+    await dbProvider.updateNoteCategory(category.id!, note.id!);
+  }
 }

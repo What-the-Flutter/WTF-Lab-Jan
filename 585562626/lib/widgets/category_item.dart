@@ -21,22 +21,32 @@ class CategoryItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(CornerRadius.circle),
-              color: category.color.withAlpha(Alpha.alpha50),
+          FractionallySizedBox(
+            widthFactor: 0.6,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(CornerRadius.circle),
+                  color: category.color.withAlpha(Alpha.alpha50),
+                ),
+                child: FractionallySizedBox(
+                  widthFactor: 0.7,
+                  child: Image.asset('assets/${category.image}'),
+                ),
+              ),
             ),
-            padding: const EdgeInsets.all(Insets.xmedium),
-            height: 100,
-            width: 100,
-            child: Image.asset('assets/${category.image}'),
           ),
           if (category.name != null)
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: Insets.medium),
+              margin: const EdgeInsets.only(
+                left: Insets.medium,
+                right: Insets.medium,
+                bottom: Insets.medium,
+              ),
               child: Text(
                 category.name!,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: category.color,

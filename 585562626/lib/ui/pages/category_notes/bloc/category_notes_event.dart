@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../models/category.dart';
 import '../../../../models/note.dart';
 
 abstract class CategoryNotesEvent extends Equatable {
@@ -76,4 +77,21 @@ class TextChangedEvent extends CategoryNotesEvent {
 
   @override
   List<Object?> get props => [text];
+}
+
+class ShowCategoriesEvent extends CategoryNotesEvent {
+  const ShowCategoriesEvent();
+}
+
+class CategorySelectedEvent extends CategoryNotesEvent {
+  final Category category;
+
+  CategorySelectedEvent(this.category);
+
+  @override
+  List<Object?> get props => [category];
+}
+
+class CategoryPickerClosedEvent extends CategoryNotesEvent {
+  const CategoryPickerClosedEvent();
 }

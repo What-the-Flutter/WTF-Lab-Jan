@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cool_notes/widgets/category_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -83,6 +84,55 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
     _bloc.add(const ImagePickerClosedEvent());
   }
 
+  void _showCategoryPicker(CategoryNotesState state) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        if (state.defaultCategories == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Wrap(children: [
+          Center(
+            child: GridView.count(
+              padding: const EdgeInsets.all(Insets.medium),
+              shrinkWrap: true,
+              crossAxisCount: 3,
+              mainAxisSpacing: Insets.xsmall,
+              crossAxisSpacing: Insets.xsmall,
+              childAspectRatio: 1.0,
+              children: state.defaultCategories!
+                  .map(
+                    (category) => Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(CornerRadius.card),
+                        border: Border.all(
+                          width: 2,
+                          color: state.tempCategory?.image == category.image
+                              ? Theme.of(context).accentColor
+                              : Theme.of(context).scaffoldBackgroundColor,
+                        ),
+                        color: state.tempCategory?.image == category.image
+                            ? Theme.of(context).accentColor.withAlpha(50)
+                            : null,
+                      ),
+                      child: CategoryItem(
+                        category: category,
+                        onTap: (category) {
+                          _bloc.add(CategorySelectedEvent(category));
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ]);
+      },
+    );
+    _bloc.add(const CategoryPickerClosedEvent());
+  }
+
   void _switchEditingMode() {
     _bloc.add(const SwitchEditingModeEvent());
   }
@@ -131,7 +181,7 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
           title: count > 1 ? Text('Delete $count notes') : const Text('Delete note'),
           content: Text('Are you sure you want to delete '
               ' ${count > 1 ? 'these notes' : 'this note'}?'),
-          actions: <Widget>[
+          actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 'Cancel'),
               child: Text(
@@ -272,6 +322,19 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
                 icon: const Icon(Icons.attach_file),
               ),
             ),
+            IconButton(
+              padding: const EdgeInsets.only(right: Insets.small),
+              constraints: const BoxConstraints(maxWidth: 32),
+              onPressed: () {
+                _bloc.add(const ShowCategoriesEvent());
+              },
+              icon: Icon(
+                Icons.auto_awesome,
+                color: state.tempCategory != null && state.tempCategory != state.category
+                    ? Colors.amberAccent
+                    : Theme.of(context).iconTheme.color,
+              ),
+            ),
             Expanded(
               child: TextField(
                 autofocus: false,
@@ -321,6 +384,9 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
           _textController.selection = TextSelection.fromPosition(
             TextPosition(offset: _textController.text.length),
           );
+        }
+        if (state.showCategoryPicker) {
+          _showCategoryPicker(state);
         }
       },
       child: BlocBuilder<CategoryNotesBloc, CategoryNotesState>(

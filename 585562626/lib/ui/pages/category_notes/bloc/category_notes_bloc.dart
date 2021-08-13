@@ -1,3 +1,4 @@
+import 'package:cool_notes/repository/category_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../models/note.dart';
@@ -7,9 +8,13 @@ import 'category_notes_state.dart';
 
 class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
   final NoteRepository noteRepository;
+  final CategoryRepository categoryRepository;
 
-  CategoryNotesBloc(CategoryNotesState initialState, {required this.noteRepository, required})
-      : super(initialState);
+  CategoryNotesBloc(
+    CategoryNotesState initialState, {
+    required this.noteRepository,
+    required this.categoryRepository,
+  }) : super(initialState);
 
   @override
   Stream<CategoryNotesState> mapEventToState(CategoryNotesEvent event) async* {
@@ -35,6 +40,20 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
       yield state.copyWith(showImagePicker: false);
     } else if (event is TextChangedEvent) {
       yield state.copyWith(text: event.text);
+    } else if (event is ShowCategoriesEvent) {
+      print('ShowCategoriesEvent: if');
+      if (state.defaultCategories == null) {
+        final categories = await categoryRepository.fetchCategories();
+        print('ShowCategoriesEvent: ${categories.length}');
+        yield state.copyWith(categories: categories, showCategoryPicker: true);
+      } else {
+        yield state.copyWith(showCategoryPicker: true);
+      }
+    } else if (event is CategorySelectedEvent) {
+      print('CategorySelectedEvent: ${event.category.image}');
+      yield state.copyWith(tempCategory: event.category, showCategoryPicker: false);
+    } else if (event is CategoryPickerClosedEvent) {
+      yield state.copyWith(showCategoryPicker: false);
     }
   }
 
@@ -45,22 +64,31 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
 
   CategoryNotesState _switchEditingMode() {
     return state.copyWith(
-      isEditingMode: !state.isEditingMode,
-      selectedNotes: [],
-      startedUpdating: false,
-      text: '',
-    );
+        isEditingMode: !state.isEditingMode,
+        selectedNotes: [],
+        startedUpdating: false,
+        text: '',
+        tempCategory: state.category);
   }
 
   Future<CategoryNotesState> _addNote(AddNoteEvent event) async {
-    if (state.category.id != null) {
+    final newState;
+    if (state.category.id != null &&
+        state.tempCategory != null &&
+        state.tempCategory?.id != state.category.id) {
+      await noteRepository.addNote(
+        state.tempCategory!.id!,
+        Note(image: state.image?.path, text: state.text, direction: event.direction),
+      );
+      newState = state;
+    } else {
       await noteRepository.addNote(
         state.category.id!,
         Note(image: state.image?.path, text: state.text, direction: event.direction),
       );
+      newState = await _fetchNotes();
     }
-    final newState = await _fetchNotes();
-    return newState.resetImage().copyWith(text: '');
+    return newState.resetImage().copyWith(text: '', tempCategory: state.category);
   }
 
   CategoryNotesState _switchNoteSelection(SwitchNoteSelectionEvent event) {
@@ -89,7 +117,11 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
 
   Future<CategoryNotesState> _updateNote() async {
     final note = state.selectedNotes.first.copyWith(text: state.text, image: state.image?.path);
-    await noteRepository.updateNote(note);
+    if (state.tempCategory == state.category) {
+      await noteRepository.updateNote(note);
+    } else {
+      await noteRepository.updateNoteCategory(state.tempCategory!, note);
+    }
     final newState = await _fetchNotes();
     return newState
         .resetImage()
