@@ -8,8 +8,9 @@ import 'app_state.dart';
 class AppBloc extends Bloc<AppEvent, AppState> {
   final PreferencesProvider preferencesProvider;
 
-  AppBloc({required this.preferencesProvider, required AppState initialState})
-      : super(initialState);
+  static AppState get _initialState => AppState(lightTheme, false);
+
+  AppBloc({required this.preferencesProvider}) : super(_initialState);
 
   Future<AppState> _initState() async {
     final isDarkMode = await preferencesProvider.isDarkTheme();
@@ -20,7 +21,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   @override
   Stream<AppState> mapEventToState(AppEvent event) async* {
     final currentState = state;
-    if (event is InitState) {
+    if (event is InitStateEvent) {
       yield await _initState();
     }
     if (currentState is AppState) {

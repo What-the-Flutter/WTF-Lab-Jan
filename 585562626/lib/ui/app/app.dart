@@ -16,8 +16,7 @@ class App extends StatelessWidget {
     return BlocProvider(
       create: (context) => AppBloc(
         preferencesProvider: RepositoryProvider.of(context),
-        initialState: AppState(lightTheme, false),
-      )..add(const InitState()),
+      )..add(const InitStateEvent()),
       child: BlocBuilder<AppBloc, AppState>(builder: (_, state) {
         return MaterialApp(
           title: 'Cool Notes',

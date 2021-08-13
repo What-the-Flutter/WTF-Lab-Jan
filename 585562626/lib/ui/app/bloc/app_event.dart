@@ -7,8 +7,8 @@ abstract class AppEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class InitState extends AppEvent {
-  const InitState();
+class InitStateEvent extends AppEvent {
+  const InitStateEvent();
 }
 
 class SwitchThemeEvent extends AppEvent {
