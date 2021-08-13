@@ -1,7 +1,7 @@
-import 'package:cool_notes/repository/category_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../models/note.dart';
+import '../../../../repository/category_repository.dart';
 import '../../../../repository/note_repository.dart';
 import 'category_notes_event.dart';
 import 'category_notes_state.dart';
@@ -41,16 +41,8 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     } else if (event is TextChangedEvent) {
       yield state.copyWith(text: event.text);
     } else if (event is ShowCategoriesEvent) {
-      print('ShowCategoriesEvent: if');
-      if (state.defaultCategories == null) {
-        final categories = await categoryRepository.fetchCategories();
-        print('ShowCategoriesEvent: ${categories.length}');
-        yield state.copyWith(categories: categories, showCategoryPicker: true);
-      } else {
-        yield state.copyWith(showCategoryPicker: true);
-      }
+      yield await _showCategoriesEvent();
     } else if (event is CategorySelectedEvent) {
-      print('CategorySelectedEvent: ${event.category.image}');
       yield state.copyWith(tempCategory: event.category, showCategoryPicker: false);
     } else if (event is CategoryPickerClosedEvent) {
       yield state.copyWith(showCategoryPicker: false);
@@ -132,5 +124,14 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     final notes = await noteRepository.fetchNotes(state.category);
     notes.sort((e1, e2) => e2.created.compareTo(e1.created));
     return state.copyWith(notes: notes);
+  }
+
+  Future<CategoryNotesState> _showCategoriesEvent() async {
+    if (state.defaultCategories == null) {
+      final categories = await categoryRepository.fetchCategories();
+      return state.copyWith(categories: categories, showCategoryPicker: true);
+    } else {
+      return state.copyWith(showCategoryPicker: true);
+    }
   }
 }

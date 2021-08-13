@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cool_notes/widgets/category_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +10,11 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../models/note.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/badge.dart';
+import '../../../widgets/category_item.dart';
 import '../../../widgets/note_item.dart';
 import '../category_notes/bloc/bloc.dart';
 import '../starred_notes/starred_notes_page.dart';
+import 'note_search.dart';
 
 class CategoryNotesContent extends StatefulWidget {
   static const routeName = '/categoryNotes';
@@ -253,7 +254,13 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
               ),
             ]
           : [
-              const IconButton(onPressed: null, icon: Icon(Icons.search)),
+              IconButton(
+                onPressed: () => showSearch(
+                  context: context,
+                  delegate: NoteSearch(context, state.notes),
+                ),
+                icon: const Icon(Icons.search),
+              ),
               IconButton(
                 onPressed: () => _navigateToStarredNotes(state),
                 icon: const Icon(Icons.star),

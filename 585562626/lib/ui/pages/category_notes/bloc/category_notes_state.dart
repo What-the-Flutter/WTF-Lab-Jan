@@ -44,7 +44,6 @@ class CategoryNotesState extends Equatable {
     List<Category>? categories,
     Category? tempCategory,
   }) {
-    print('category: ${category.image} ____ temp: ${tempCategory?.image}');
     return CategoryNotesState(
       isEditingMode: isEditingMode ?? this.isEditingMode,
       startedUpdating: startedUpdating ?? this.startedUpdating,
