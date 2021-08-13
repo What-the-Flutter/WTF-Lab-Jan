@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../utils/themes.dart';
 import '../pages/category_notes/category_notes_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/new_category/new_category_page.dart';
