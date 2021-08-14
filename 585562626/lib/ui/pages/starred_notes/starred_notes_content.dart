@@ -23,9 +23,7 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
     return AppBar(
       leading: IconButton(
         onPressed: () => Navigator.pop(context, state.switchedStar),
-        icon: !kIsWeb && (Platform.isMacOS || Platform.isIOS)
-            ? const Icon(Icons.arrow_back_ios)
-            : const Icon(Icons.arrow_back),
+        icon: Platform.isIOS ? const Icon(Icons.arrow_back_ios) : const Icon(Icons.arrow_back),
       ),
       title: Text(
         'Starred notes',

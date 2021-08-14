@@ -20,14 +20,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   @override
   Stream<AppState> mapEventToState(AppEvent event) async* {
-    final currentState = state;
     if (event is InitStateEvent) {
       yield await _initState();
     }
-    if (currentState is AppState) {
+    if (state is AppState) {
       if (event is SwitchThemeEvent) {
         final theme;
-        if (currentState.theme == lightTheme) {
+        if (state.theme == lightTheme) {
           theme = darkTheme;
         } else {
           theme = lightTheme;

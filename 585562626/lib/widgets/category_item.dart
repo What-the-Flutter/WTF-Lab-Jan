@@ -6,6 +6,7 @@ import '../utils/constants.dart';
 
 class CategoryItem extends StatelessWidget {
   final Category category;
+  final bool showPin;
   final Function(Category)? onTap;
   final Function(Category)? onLongPress;
 
@@ -14,6 +15,7 @@ class CategoryItem extends StatelessWidget {
     required this.category,
     this.onTap,
     this.onLongPress,
+    this.showPin = false
   }) : super(key: key);
 
   Widget _content() {
@@ -72,7 +74,7 @@ class CategoryItem extends StatelessWidget {
       child: Stack(
         children: [
           _content(),
-          if (category.priority == CategoryPriority.high)
+          if (showPin && category.priority == CategoryPriority.high)
             const Positioned(
               right: 0,
               child: Padding(

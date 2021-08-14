@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,17 +30,18 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
     return Padding(
       padding: const EdgeInsets.only(top: Insets.medium, right: Insets.large, left: Insets.large),
       child: TextField(
-          textInputAction: TextInputAction.done,
-          style: Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: FontSize.big),
-          decoration: InputDecoration(
-            hintText: 'Type the name...',
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Theme.of(context).accentColor),
-            ),
-            errorText: state.error == NameValidationError.empty ? 'Name can\'t be empty' : null,
+        textInputAction: TextInputAction.done,
+        style: Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: FontSize.big),
+        decoration: InputDecoration(
+          hintText: 'Type the name...',
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Theme.of(context).accentColor),
           ),
-          controller: _textController,
-          onChanged: (text) => _bloc.add(NameChangedEvent(text))),
+          errorText: state.error == NameValidationError.empty ? 'Name can\'t be empty' : null,
+        ),
+        controller: _textController,
+        onChanged: (text) => _bloc.add(NameChangedEvent(text)),
+      ),
     );
   }
 
@@ -102,9 +102,7 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: !kIsWeb && (Platform.isMacOS || Platform.isIOS)
-                ? const Icon(Icons.arrow_back_ios)
-                : const Icon(Icons.arrow_back),
+            icon: Platform.isIOS ? const Icon(Icons.arrow_back_ios) : const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(

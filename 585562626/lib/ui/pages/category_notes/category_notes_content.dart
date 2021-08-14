@@ -89,9 +89,10 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
     await showModalBottomSheet(
       context: context,
       builder: (_) {
-        if (state.defaultCategories == null) {
+        if (state.existingCategories == null) {
           return const Center(child: CircularProgressIndicator());
         }
+        final selectedCategory = state.tempCategory ?? state.category;
         return Wrap(children: [
           Center(
             child: GridView.count(
@@ -101,18 +102,18 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
               mainAxisSpacing: Insets.xsmall,
               crossAxisSpacing: Insets.xsmall,
               childAspectRatio: 1.0,
-              children: state.defaultCategories!
+              children: state.existingCategories!
                   .map(
                     (category) => Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(CornerRadius.card),
                         border: Border.all(
                           width: 2,
-                          color: state.tempCategory?.image == category.image
+                          color: selectedCategory.id == category.id
                               ? Theme.of(context).accentColor
                               : Theme.of(context).scaffoldBackgroundColor,
                         ),
-                        color: state.tempCategory?.image == category.image
+                        color: selectedCategory.id == category.id
                             ? Theme.of(context).accentColor.withAlpha(50)
                             : null,
                       ),
@@ -220,9 +221,8 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
           ? IconButton(onPressed: _switchEditingMode, icon: const Icon(Icons.close))
           : IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: !kIsWeb && (Platform.isMacOS || Platform.isIOS)
-                  ? const Icon(Icons.arrow_back_ios)
-                  : const Icon(Icons.arrow_back),
+              icon:
+                  Platform.isIOS ? const Icon(Icons.arrow_back_ios) : const Icon(Icons.arrow_back),
             ),
       title: Text(
         state.isEditingMode ? state.selectedNotes.length.toString() : state.category.name ?? '',
@@ -332,14 +332,17 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
             IconButton(
               padding: const EdgeInsets.only(right: Insets.small),
               constraints: const BoxConstraints(maxWidth: 32),
-              onPressed: () {
-                _bloc.add(const ShowCategoriesEvent());
-              },
+              onPressed: !state.isEditingMode || state.startedUpdating
+                  ? () => _bloc.add(const ShowCategoriesEvent())
+                  : null,
+              disabledColor: Colors.red,
               icon: Icon(
                 Icons.auto_awesome,
-                color: state.tempCategory != null && state.tempCategory != state.category
-                    ? Colors.amberAccent
-                    : Theme.of(context).iconTheme.color,
+                color: !state.isEditingMode || state.startedUpdating
+                    ? (state.tempCategory != null && state.tempCategory != state.category
+                        ? Colors.amberAccent
+                        : Theme.of(context).iconTheme.color)
+                    : Colors.grey,
               ),
             ),
             Expanded(

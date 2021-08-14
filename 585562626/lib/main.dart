@@ -14,11 +14,9 @@ void main() {
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider<CategoryRepository>(
-          create: (_) => CategoryRepository(DbProvider.dbProvider),
+          create: (_) => CategoryRepository(DbProvider.dbProvider)
         ),
-        RepositoryProvider<NoteRepository>(
-          create: (_) => NoteRepository(DbProvider.dbProvider),
-        ),
+        RepositoryProvider<NoteRepository>(create: (_) => NoteRepository(DbProvider.dbProvider)),
         RepositoryProvider<PreferencesProvider>(create: (_) => PreferencesProvider.prefsProvider),
       ],
       child: const App(),

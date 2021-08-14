@@ -14,7 +14,7 @@ class CategoryNotesState extends Equatable {
   final String? text;
   final bool showImagePicker;
   final bool showCategoryPicker;
-  final List<Category>? defaultCategories;
+  final List<Category>? existingCategories;
   final Category? tempCategory;
 
   CategoryNotesState({
@@ -27,7 +27,7 @@ class CategoryNotesState extends Equatable {
     this.text,
     this.showImagePicker = false,
     this.showCategoryPicker = false,
-    this.defaultCategories,
+    this.existingCategories,
     this.tempCategory,
   });
 
@@ -54,7 +54,7 @@ class CategoryNotesState extends Equatable {
       text: text ?? this.text,
       showImagePicker: showImagePicker ?? this.showImagePicker,
       showCategoryPicker: showCategoryPicker ?? this.showCategoryPicker,
-      defaultCategories: categories ?? defaultCategories,
+      existingCategories: categories ?? existingCategories,
       tempCategory: tempCategory ?? this.tempCategory,
     );
   }
@@ -85,6 +85,6 @@ class CategoryNotesState extends Equatable {
         showImagePicker,
         showCategoryPicker,
         tempCategory,
-        defaultCategories,
+        existingCategories,
       ];
 }

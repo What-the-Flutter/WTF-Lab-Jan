@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/note.dart';
@@ -26,7 +25,7 @@ class NoteSearch extends SearchDelegate<String> {
   Widget buildLeading(BuildContext context) {
     return IconButton(
       onPressed: () => Navigator.pop(context),
-      icon: !kIsWeb && (Platform.isMacOS || Platform.isIOS)
+      icon: Platform.isIOS
           ? Icon(Icons.arrow_back_ios, color: Theme.of(context).iconTheme.color)
           : Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
     );

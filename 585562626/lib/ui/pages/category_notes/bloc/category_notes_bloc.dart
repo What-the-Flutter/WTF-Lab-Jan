@@ -56,11 +56,12 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
 
   CategoryNotesState _switchEditingMode() {
     return state.copyWith(
-        isEditingMode: !state.isEditingMode,
-        selectedNotes: [],
-        startedUpdating: false,
-        text: '',
-        tempCategory: state.category);
+      isEditingMode: !state.isEditingMode,
+      selectedNotes: [],
+      startedUpdating: false,
+      text: '',
+      tempCategory: state.category,
+    );
   }
 
   Future<CategoryNotesState> _addNote(AddNoteEvent event) async {
@@ -127,7 +128,7 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
   }
 
   Future<CategoryNotesState> _showCategoriesEvent() async {
-    if (state.defaultCategories == null) {
+    if (state.existingCategories == null) {
       final categories = await categoryRepository.fetchCategories();
       return state.copyWith(categories: categories, showCategoryPicker: true);
     } else {
