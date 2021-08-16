@@ -4,13 +4,14 @@ import '../main.dart';
 import 'add_note_page.dart';
 import 'info_page/note_info_page.dart';
 
+List<String> titles = ['Home', 'Daily', 'Timeline', 'Explore'];
+
 class MainPage extends StatefulWidget {
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-
   String title = 'Home';
 
   int index = 0;
@@ -177,8 +178,9 @@ class _MainPageState extends State<MainPage> {
                 fontSize: 16,
               ),
             ),
-            subtitle:
-                Text(notes[index].note?.first.description ?? 'Entry event'),
+            subtitle: Text(notes[index].note!.isNotEmpty
+                ? notes[index].note!.last.description
+                : 'Entry event'),
             onTap: () {
               // print('ListView element $index');
               Navigator.of(context).push(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../main.dart';
@@ -29,9 +30,12 @@ class _NoteInfo extends State<NoteInfo> {
   final TextEditingController _textController = TextEditingController();
 
   List<Note> activeNotes = [];
-  bool isEditMode = false;
+  List<Note> allNotes = [];
 
+  bool isEditMode = false;
   bool isMultiSelection = false;
+
+  bool isTextEditMode = false;
 
   String inputText = '';
   bool isTextTyped = false;
@@ -42,7 +46,7 @@ class _NoteInfo extends State<NoteInfo> {
 
   void deleteMessages() {
     for (var element in activeNotes) {
-      notes[0].note?.remove(element);
+      allNotes.remove(element);
     }
     setState(() {});
   }
@@ -52,6 +56,24 @@ class _NoteInfo extends State<NoteInfo> {
     isMultiSelection = false;
     activeNotes.clear();
     setState(() {});
+  }
+
+  void addToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    Scaffold.of(context)
+        .showSnackBar(const SnackBar(content: Text('text copied')));
+  }
+
+  void selectNotes(Note note) {
+    final isSelected = activeNotes.contains(note);
+    isSelected ? activeNotes.remove(note) : activeNotes.add(note);
+    isEditMode = activeNotes.isEmpty ? false : true;
+    isMultiSelection = activeNotes.length > 1 ? true : false;
+    setState(() {});
+  }
+
+  bool itContains(int index) {
+    return activeNotes.contains(allNotes.elementAt(index)) ? true : false;
   }
 
   void initText() {
@@ -70,7 +92,9 @@ class _NoteInfo extends State<NoteInfo> {
 
   @override
   void initState() {
+    allNotes = widget.listView;
     initText();
+    print(allNotes);
     super.initState();
   }
 
@@ -139,14 +163,21 @@ class _NoteInfo extends State<NoteInfo> {
         isEditMode
             ? IconButton(
                 icon: const Icon(Icons.copy),
-                onPressed: () {},
+                onPressed: () {
+                  var value = '';
+                  for(var element in activeNotes) {
+                    value += element.description;
+                  }
+                  addToClipboard(value);
+                },
               )
             : Container(),
         isEditMode && !isMultiSelection
             ? IconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: () {
-                  // _textController.text = activeNotes[0].description;
+                  isTextEditMode = true;
+                  _textController.text = activeNotes[0].description;
                 },
               )
             : Container(),
@@ -156,7 +187,7 @@ class _NoteInfo extends State<NoteInfo> {
   }
 
   Widget buildParam() {
-    if (notes[0].note?.length == 0) {
+    if (allNotes.isEmpty) {
       return noListView();
     } else {
       return withListView();
@@ -243,14 +274,13 @@ class _NoteInfo extends State<NoteInfo> {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(10),
-
-        child: ListView(
-            widget.listView.map((note) => null)
+        child: ListView.builder(
             controller: _scrollController,
             reverse: false,
-            itemCount: notes[0].note?.length,
+            itemCount: allNotes.length,
             itemBuilder: (context, index) {
               return NoteTile(
+                onSelectedNote: selectNotes,
                 onSelected: (value) {
                   setState(
                     () {
@@ -271,8 +301,8 @@ class _NoteInfo extends State<NoteInfo> {
                     isEditMode = value;
                   });
                 },
-                note: notes[0].note![index],
-                isSelected: activeNotes.contains(selectedNotes[index]) ? true : false,
+                note: allNotes[index],
+                isSelected: itContains(index),
                 isEditMode: isEditMode,
               );
             }),
@@ -329,9 +359,18 @@ class _NoteInfo extends State<NoteInfo> {
                   : IconButton(
                       icon: const Icon(Icons.send),
                       onPressed: () {
-                        addMessageToList();
-                        moveToLastMessage();
-                        setState(() {});
+                        if (!isTextEditMode) {
+                          addMessageToList();
+                          moveToLastMessage();
+                          setState(() {});
+                        } else {
+                          var index = allNotes.indexOf(activeNotes[0]);
+                          setState(() {
+                            _textController.text = allNotes[index].description;
+                          });
+                          _textController.text = '';
+                          isTextEditMode = false;
+                        }
                       },
                     ),
             ],

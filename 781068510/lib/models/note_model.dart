@@ -1,4 +1,3 @@
-
 class Notes {
   final String title;
   List<Note>? note;
@@ -7,11 +6,13 @@ class Notes {
   Notes({required this.title, required this.iconIndex, this.note});
 }
 
-class Note{
+class Note {
   String time;
   bool isBookmarked;
   String description;
 
-  Note({required this.time, required this.isBookmarked, required this.description});
+  Note(
+      {required this.time,
+      required this.isBookmarked,
+      required this.description});
 }
-
