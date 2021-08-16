@@ -37,6 +37,8 @@ class _NoteInfo extends State<NoteInfo> {
 
   bool isTextEditMode = false;
 
+  bool isBookmarkedNoteMode = false;
+
   String inputText = '';
   bool isTextTyped = false;
 
@@ -142,7 +144,9 @@ class _NoteInfo extends State<NoteInfo> {
         !isEditMode
             ? IconButton(
                 icon: const Icon(Icons.bookmark_added),
-                onPressed: () {},
+                onPressed: () {
+                  isBookmarkedNoteMode ? false : true;
+                },
               )
             : Container(),
         isEditMode
@@ -169,6 +173,7 @@ class _NoteInfo extends State<NoteInfo> {
                     value += element.description;
                   }
                   addToClipboard(value);
+                  cancelEditMode();
                 },
               )
             : Container(),
@@ -366,10 +371,11 @@ class _NoteInfo extends State<NoteInfo> {
                         } else {
                           var index = allNotes.indexOf(activeNotes[0]);
                           setState(() {
-                            _textController.text = allNotes[index].description;
+                            allNotes[index].description = _textController.text;
                           });
                           _textController.text = '';
                           isTextEditMode = false;
+                          cancelEditMode();
                         }
                       },
                     ),
