@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 
-enum Themes {
-  light,
-  dark,
-}
-
 class StatefulCustomTheme extends StatefulWidget {
   final ThemeData themeData;
   final Widget child;
