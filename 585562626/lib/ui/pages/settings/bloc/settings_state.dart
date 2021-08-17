@@ -16,38 +16,49 @@ class InitialSettingsState extends SettingsState {
 class MainSettingsState extends SettingsState {
   final bool isDarkMode;
   final bool isRightBubbleAlignment;
+  final bool canCheckBiometrics;
   final BiometricsCheck checkBiometrics;
   final bool showBiometricsDialog;
   final bool isDateTimeModificationEnabled;
+  final SettingsFontSize fontSize;
 
   const MainSettingsState({
+    required this.canCheckBiometrics,
     required this.checkBiometrics,
     required this.isDarkMode,
     required this.isRightBubbleAlignment,
     required this.showBiometricsDialog,
     required this.isDateTimeModificationEnabled,
+    required this.fontSize,
   });
 
   MainSettingsState copyWith({
+    bool? canCheckBiometrics,
     BiometricsCheck? checkBiometrics,
     bool? isDarkMode,
     bool? isRightBubbleAlignment,
     bool? isDateTimeModificationEnabled,
+    SettingsFontSize? fontSize,
   }) {
     return MainSettingsState(
-        checkBiometrics: checkBiometrics ?? this.checkBiometrics,
-        isDarkMode: isDarkMode ?? this.isDarkMode,
-        isRightBubbleAlignment: isRightBubbleAlignment ?? this.isRightBubbleAlignment,
-        isDateTimeModificationEnabled:
-            isDateTimeModificationEnabled ?? this.isDateTimeModificationEnabled,
-        showBiometricsDialog: showBiometricsDialog);
+      canCheckBiometrics: canCheckBiometrics ?? this.canCheckBiometrics,
+      checkBiometrics: checkBiometrics ?? this.checkBiometrics,
+      isDarkMode: isDarkMode ?? this.isDarkMode,
+      isRightBubbleAlignment: isRightBubbleAlignment ?? this.isRightBubbleAlignment,
+      isDateTimeModificationEnabled:
+          isDateTimeModificationEnabled ?? this.isDateTimeModificationEnabled,
+      showBiometricsDialog: showBiometricsDialog,
+      fontSize: fontSize ?? this.fontSize,
+    );
   }
 
   @override
   List<Object?> get props => [
+        canCheckBiometrics,
         checkBiometrics,
         isDarkMode,
         isRightBubbleAlignment,
         isDateTimeModificationEnabled,
+        fontSize,
       ];
 }

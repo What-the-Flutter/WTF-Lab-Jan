@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'bloc.dart';
+
 abstract class SettingsEvent extends Equatable {
   const SettingsEvent();
 
@@ -30,4 +32,17 @@ class UpdateAlignmentEvent extends SettingsEvent {
 
 class UpdateDateTimeModificationEvent extends SettingsEvent {
   const UpdateDateTimeModificationEvent();
+}
+
+class UpdateFontSizeEvent extends SettingsEvent {
+  final SettingsFontSize fontSize;
+
+  const UpdateFontSizeEvent(this.fontSize);
+
+  @override
+  List<Object> get props => [fontSize];
+}
+
+class ClearSettingsEvent extends SettingsEvent {
+  const ClearSettingsEvent();
 }

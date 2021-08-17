@@ -7,6 +7,7 @@ import '../../../../repository/preferences_provider.dart';
 import 'bloc.dart';
 
 enum BiometricsCheck { enabled, disabled, notAvailable }
+enum SettingsFontSize { small, medium, normal, big, large }
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final PreferencesProvider preferencesProvider;
@@ -21,19 +22,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     if (event is InitSettingsEvent) {
       final _localAuthentication = LocalAuthentication();
       final canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
-      final isBiometricsEnabled = await preferencesProvider.biometricsLockEnabled();
-      final isDarkMode = await preferencesProvider.isDarkTheme();
-      final isLeftAlignment = await preferencesProvider.bubbleAlignment();
-      final isDateTimeModificationEnabled = await preferencesProvider.dateTimeModificationEnabled();
-      yield MainSettingsState(
-        showBiometricsDialog: isBiometricsEnabled,
-        isRightBubbleAlignment: isLeftAlignment,
-        isDateTimeModificationEnabled: isDateTimeModificationEnabled,
-        isDarkMode: isDarkMode,
-        checkBiometrics: canCheckBiometrics
-            ? (isBiometricsEnabled ? BiometricsCheck.enabled : BiometricsCheck.disabled)
-            : BiometricsCheck.notAvailable,
-      );
+      yield await _init(canCheckBiometrics);
     } else if (state is MainSettingsState) {
       final currentState = state as MainSettingsState;
       if (event is UpdateBiometricsEvent) {
@@ -54,7 +43,32 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         final newMode = !currentState.isDateTimeModificationEnabled;
         preferencesProvider.saveDateTimeModification(newMode);
         yield currentState.copyWith(isDateTimeModificationEnabled: newMode);
+      } else if (event is UpdateFontSizeEvent) {
+        preferencesProvider.saveFontSize(event.fontSize.index);
+        yield currentState.copyWith(fontSize: event.fontSize);
+      } else if (event is ClearSettingsEvent) {
+        preferencesProvider.resetAll();
+        yield await _init(currentState.canCheckBiometrics);
       }
     }
+  }
+
+  Future<SettingsState> _init(bool canCheckBiometrics) async {
+    final isBiometricsEnabled = await preferencesProvider.biometricsLockEnabled();
+    final isDarkMode = await preferencesProvider.isDarkTheme();
+    final isLeftAlignment = await preferencesProvider.bubbleAlignment();
+    final isDateTimeModificationEnabled = await preferencesProvider.dateTimeModificationEnabled();
+    final fontSizeIndex = await preferencesProvider.fontSize();
+    return MainSettingsState(
+      showBiometricsDialog: isBiometricsEnabled,
+      isRightBubbleAlignment: isLeftAlignment,
+      isDateTimeModificationEnabled: isDateTimeModificationEnabled,
+      isDarkMode: isDarkMode,
+      canCheckBiometrics: canCheckBiometrics,
+      checkBiometrics: canCheckBiometrics
+          ? (isBiometricsEnabled ? BiometricsCheck.enabled : BiometricsCheck.disabled)
+          : BiometricsCheck.notAvailable,
+      fontSize: SettingsFontSize.values[fontSizeIndex ?? SettingsFontSize.normal.index],
+    );
   }
 }

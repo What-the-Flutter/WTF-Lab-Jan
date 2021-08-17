@@ -31,7 +31,9 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
       padding: const EdgeInsets.only(top: Insets.medium, right: Insets.large, left: Insets.large),
       child: TextField(
         textInputAction: TextInputAction.done,
-        style: Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: FontSize.big),
+        style: Theme.of(context).textTheme.bodyText2!.copyWith(
+              fontSize: Theme.of(context).textTheme.bodyText2!.fontSize! + 2,
+            ),
         decoration: InputDecoration(
           hintText: 'Type the name...',
           focusedBorder: UnderlineInputBorder(
@@ -62,7 +64,7 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
                         : Theme.of(context).scaffoldBackgroundColor,
                   ),
                   color: state.selectedCategory?.image == category.image
-                      ? Theme.of(context).accentColor.withAlpha(50)
+                      ? Theme.of(context).accentColor.withAlpha(Alpha.alpha50)
                       : null,
                 ),
                 child: CategoryItem(

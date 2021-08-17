@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../utils/themes.dart';
+import '../../utils/utils.dart';
 import '../pages/category_notes/category_notes_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/lock/lock_page.dart';
@@ -21,14 +22,24 @@ class App extends StatelessWidget {
         initialState: const InitialSettingsState(),
       )..add(const InitSettingsEvent()),
       child: BlocBuilder<SettingsBloc, SettingsState>(
+        buildWhen: (previousState, state) {
+          var shouldRebuild = false;
+          if (previousState is MainSettingsState && state is MainSettingsState) {
+            shouldRebuild = previousState.isDarkMode != state.isDarkMode ||
+                previousState.fontSize != state.fontSize;
+          }
+          return previousState.runtimeType != state.runtimeType || shouldRebuild;
+        },
         builder: (_, state) {
           if (state is InitialSettingsState) {
-            return Container(color: lightTheme.primaryColor);
+            return Container(color: lightTheme().primaryColor);
           }
           state as MainSettingsState;
           return MaterialApp(
             title: 'Cool Notes',
-            theme: state.isDarkMode ? darkTheme : lightTheme,
+            theme: state.isDarkMode
+                ? darkTheme(fontSizeRatio: state.fontSize.fontRatio())
+                : lightTheme(fontSizeRatio: state.fontSize.fontRatio()),
             home: state.showBiometricsDialog ? const LockPage() : const HomePage(),
             onGenerateRoute: (settings) {
               Route pageRoute(Widget destination) => MaterialPageRoute(builder: (_) => destination);

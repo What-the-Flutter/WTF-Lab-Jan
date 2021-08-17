@@ -18,7 +18,7 @@ class CategoryItem extends StatelessWidget {
     this.showPin = false
   }) : super(key: key);
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -50,9 +50,8 @@ class CategoryItem extends StatelessWidget {
                 category.name!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: Theme.of(context).textTheme.headline4?.copyWith(
                   color: category.color,
-                  fontSize: FontSize.big,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -73,7 +72,7 @@ class CategoryItem extends StatelessWidget {
       onLongPress: () => onLongPress?.call(category),
       child: Stack(
         children: [
-          _content(),
+          _content(context),
           if (showPin && category.priority == CategoryPriority.high)
             const Positioned(
               right: 0,

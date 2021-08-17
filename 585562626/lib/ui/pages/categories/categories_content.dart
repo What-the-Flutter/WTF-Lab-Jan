@@ -67,11 +67,11 @@ class _CategoriesContentState extends State<CategoriesContent> {
                 padding: const EdgeInsets.symmetric(vertical: Insets.xmedium),
                 child: Text(
                   'Questionnaire Bot',
-                  style: TextStyle(
-                    color: Theme.of(context).accentIconTheme.color,
-                    fontSize: FontSize.normal,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.headline4!.copyWith(
+                        color: Theme.of(context).accentIconTheme.color,
+                        fontSize: Theme.of(context).textTheme.headline4!.fontSize! - 2,
+                        fontWeight: FontWeight.bold,
+                      ),
                   textAlign: TextAlign.center,
                 ),
               ),

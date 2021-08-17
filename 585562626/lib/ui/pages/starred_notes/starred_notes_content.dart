@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/note.dart';
-import '../../../utils/constants.dart';
 import '../../../widgets/note_item.dart';
 import 'bloc/bloc.dart';
 import 'bloc/starred_notes_bloc.dart';
@@ -76,10 +75,10 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
         return Scaffold(
           appBar: _appBar(currentState),
           body: currentState.notes.isEmpty
-              ? const Center(
+              ? Center(
                   child: Text(
                     'Nothing starred yet.',
-                    style: TextStyle(fontSize: FontSize.big, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.bodyText2,
                   ),
                 )
               : ListView(

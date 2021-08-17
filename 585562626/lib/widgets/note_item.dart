@@ -45,11 +45,11 @@ class NoteItem extends StatelessWidget {
           ),
         Text(
           note.text ?? '',
-          style: TextStyle(
-            fontSize: FontSize.normal,
-            color:
-                note.direction == defaultDirection ? Theme.of(context).accentIconTheme.color : null,
-          ),
+          style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                color: note.direction == defaultDirection
+                    ? Theme.of(context).accentIconTheme.color
+                    : null,
+              ),
         ),
       ],
     );

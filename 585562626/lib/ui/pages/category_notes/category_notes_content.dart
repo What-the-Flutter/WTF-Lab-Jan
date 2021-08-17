@@ -114,7 +114,7 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
                               : Theme.of(context).scaffoldBackgroundColor,
                         ),
                         color: selectedCategory.id == category.id
-                            ? Theme.of(context).accentColor.withAlpha(50)
+                            ? Theme.of(context).accentColor.withAlpha(Alpha.alpha50)
                             : null,
                       ),
                       child: CategoryItem(
@@ -353,7 +353,9 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
                 minLines: 1,
                 focusNode: _inputFieldFocusNode,
                 onSubmitted: (_) => _sendNote(AlignDirection.left),
-                style: Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: FontSize.big),
+                style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                      fontSize: Theme.of(context).textTheme.bodyText2!.fontSize! + 2,
+                    ),
                 decoration: InputDecoration(
                   hintText: 'Start typing...',
                   focusedBorder: UnderlineInputBorder(

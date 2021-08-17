@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../../models/note.dart';
-import '../../../utils/constants.dart';
 import '../../../widgets/note_item.dart';
 
 class NoteSearch extends SearchDelegate<String> {
@@ -11,7 +10,9 @@ class NoteSearch extends SearchDelegate<String> {
 
   NoteSearch(BuildContext context, this.notes)
       : super(
-          searchFieldStyle: Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: FontSize.big),
+          searchFieldStyle: Theme.of(context).textTheme.bodyText2!.copyWith(
+                fontSize: Theme.of(context).textTheme.bodyText2!.fontSize! + 2,
+              ),
         );
 
   @override

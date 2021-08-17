@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/utils.dart';
+
 class PreferencesProvider {
   PreferencesProvider._();
 
@@ -9,6 +11,7 @@ class PreferencesProvider {
   static final String biometricsLockKey = 'biometrics_lock';
   static final String bubbleAlignmentKey = 'bubble_alignment';
   static final String dateTimeModificationKey = 'date_time_modification';
+  static final String fontSizeKey = 'font_size';
 
   Future<SharedPreferences> get prefs async {
     if (_prefs != null) {
@@ -56,5 +59,24 @@ class PreferencesProvider {
   void saveDateTimeModification(bool enabled) async {
     final prefs = await this.prefs;
     prefs.setBool(dateTimeModificationKey, enabled);
+  }
+
+  Future<int?> fontSize() async {
+    final prefs = await this.prefs;
+    return prefs.getInt(fontSizeKey);
+  }
+
+  void saveFontSize(int fontSize) async {
+    final prefs = await this.prefs;
+    prefs.setInt(fontSizeKey, fontSize);
+  }
+
+  void resetAll() async {
+    final prefs = await this.prefs;
+    prefs.setBool(themeKey, false);
+    prefs.setBool(bubbleAlignmentKey, false);
+    prefs.setBool(dateTimeModificationKey, false);
+    prefs.setInt(fontSizeKey, defaultFontSizeIndex);
+    prefs.setBool(biometricsLockKey, false);
   }
 }
