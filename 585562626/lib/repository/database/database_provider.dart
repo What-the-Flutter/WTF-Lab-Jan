@@ -7,6 +7,7 @@ import '../../models/category.dart';
 import 'database_data.dart';
 import 'models/category.dart';
 import 'models/note.dart';
+import 'models/tag.dart';
 
 class DbProvider {
   DbProvider._();
@@ -16,6 +17,7 @@ class DbProvider {
   final String categoriesTable = 'categories';
   final String notesTable = 'notes';
   final String categoryNoteTable = 'category_note';
+  final String tagsTable = 'tags';
 
   Future<Database> get database async {
     if (_database != null) {
@@ -26,25 +28,31 @@ class DbProvider {
   }
 
   Future<Database> initDB() async {
-    return await openDatabase(
-      join(await getDatabasesPath(), 'note_database.db'),
-      version: 1,
-      onCreate: (db, version) async {
-        db.execute(
-            'CREATE TABLE $categoriesTable(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, '
-            'color INTEGER, image TEXT, priority INTEGER, isDefault BOOL);');
-        db.execute(
-            'CREATE TABLE $notesTable(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, created INTEGER, '
-            'direction INTEGER, hasStar BOOL, updated INTEGER, text TEXT, image TEXT);');
-        db.execute(
-            'CREATE TABLE $categoryNoteTable(category_id INTEGER NOT NULL, note_id INTEGER NOT NULL, '
-            'FOREIGN KEY (category_id) REFERENCES $categoriesTable(id) '
-            'ON DELETE CASCADE ON UPDATE NO ACTION, '
-            'FOREIGN KEY (note_id) REFERENCES $notesTable(id) ON DELETE CASCADE ON UPDATE NO ACTION );');
-        await _insertCategories(db, defaultCategoriesData);
-        await _insertCategories(db, categoriesData);
-      },
-    );
+    return await openDatabase(join(await getDatabasesPath(), 'note_database.db'), version: 2,
+        onCreate: (db, version) async {
+      db.execute(
+        'CREATE TABLE $categoriesTable(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, '
+        'color INTEGER, image TEXT, priority INTEGER, isDefault BOOL);',
+      );
+      db.execute(
+        'CREATE TABLE $notesTable(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, created INTEGER, '
+        'direction INTEGER, hasStar BOOL, updated INTEGER, text TEXT, image TEXT);',
+      );
+      db.execute(
+        'CREATE TABLE $categoryNoteTable(category_id INTEGER NOT NULL, note_id INTEGER NOT NULL, '
+        'FOREIGN KEY (category_id) REFERENCES $categoriesTable(id) '
+        'ON DELETE CASCADE ON UPDATE NO ACTION, '
+        'FOREIGN KEY (note_id) REFERENCES $notesTable(id) ON DELETE CASCADE ON UPDATE NO ACTION );',
+      );
+      await _insertCategories(db, defaultCategoriesData);
+      await _insertCategories(db, categoriesData);
+    }, onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion < newVersion) {
+        await db.execute(
+          'CREATE TABLE $tagsTable(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT UNIQUE);',
+        );
+      }
+    });
   }
 
   Future<void> insertCategory(DbCategory category) async {
@@ -161,5 +169,20 @@ class DbProvider {
         'INNER JOIN $categoryNoteTable ON $notesTable.id = $categoryNoteTable.note_id '
         'WHERE $categoryNoteTable.category_id = ${category.id} AND $notesTable.hasStar = 1');
     return List.generate(maps.length, (i) => DbNote.fromMap(maps[i]));
+  }
+
+  Future<void> insertTag(DbTag tag) async {
+    final db = await database;
+    try {
+      await db.insert(tagsTable, tag.toMap());
+    } catch (e) {
+      print('insertTag Exception: $e');
+    }
+  }
+
+  Future<List<DbTag>> tags() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(tagsTable);
+    return List.generate(maps.length, (i) => DbTag.fromMap(maps[i]));
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:hashtagable/hashtagable.dart';
 
 import '../../../models/note.dart';
 import '../../../utils/constants.dart';
@@ -14,7 +15,8 @@ import '../../../widgets/category_item.dart';
 import '../../../widgets/note_item.dart';
 import '../category_notes/bloc/bloc.dart';
 import '../starred_notes/starred_notes_page.dart';
-import 'note_search.dart';
+import 'search/bloc/bloc.dart';
+import 'search/note_search.dart';
 
 class CategoryNotesContent extends StatefulWidget {
   static const routeName = '/categoryNotes';
@@ -255,10 +257,7 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
             ]
           : [
               IconButton(
-                onPressed: () => showSearch(
-                  context: context,
-                  delegate: NoteSearch(context, state.notes),
-                ),
+                onPressed: () => _bloc.add(const OpenSearchEvent()),
                 icon: const Icon(Icons.search),
               ),
               IconButton(
@@ -294,18 +293,20 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
               Padding(
                 padding: const EdgeInsets.only(bottom: Insets.small),
                 child: Text(
-                    'This is the page where you can note everything about '
-                    '${state.category.name}',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyText1),
+                  'This is the page where you can note everything about '
+                  '${state.category.name}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
               ),
               Text(
-                  'Add your first event to the page by entering some text in the text box '
-                  'below and hitting the send button. Long tap the send button to align the '
-                  'event in the opposite direction. Tap on the bookmark icon on the top right '
-                  'corner to show the bookmarked events only.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyText2),
+                'Add your first event to the page by entering some text in the text box '
+                'below and hitting the send button. Long tap the send button to align the '
+                'event in the opposite direction. Tap on the bookmark icon on the top right '
+                'corner to show the bookmarked events only.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyText2,
+              ),
             ],
           ),
         ],
@@ -346,16 +347,20 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
               ),
             ),
             Expanded(
-              child: TextField(
+              child: HashTagTextField(
                 autofocus: false,
                 textInputAction: TextInputAction.send,
                 maxLines: 3,
                 minLines: 1,
                 focusNode: _inputFieldFocusNode,
                 onSubmitted: (_) => _sendNote(AlignDirection.left),
-                style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                basicStyle: Theme.of(context).textTheme.bodyText2!.copyWith(
                       fontSize: Theme.of(context).textTheme.bodyText2!.fontSize! + 2,
                     ),
+                decoratedStyle: Theme.of(context).textTheme.bodyText2!.copyWith(
+                  fontSize: Theme.of(context).textTheme.bodyText2!.fontSize! + 2,
+                  color: Theme.of(context).accentColor,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Start typing...',
                   focusedBorder: UnderlineInputBorder(
@@ -423,10 +428,47 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
     }
   }
 
+  void _showSearch(CategoryNotesState state) async {
+    await showSearch(
+      context: context,
+      delegate: NoteSearch(context, context.read<SearchBloc>(), state.notes, state.tags),
+    );
+    _bloc.add(const OpenSearchClosedEvent());
+  }
+
+  Widget _content(CategoryNotesState state) {
+    return Expanded(
+      child: ListView(
+        reverse: state.notes.isNotEmpty,
+        physics: const ClampingScrollPhysics(),
+        controller: _scrollController,
+        children: state.notes.isEmpty
+            ? [_emptyNotesMessage(state)]
+            : state.notes
+                .map(
+                  (note) => NoteItem(
+                    note: note,
+                    originDirection: !state.isRightAlignmentEnabled,
+                    isEditingMode: state.isEditingMode,
+                    isStarred: note.hasStar,
+                    isSelected: state.selectedNotes.contains(note),
+                    onTap: _switchNoteSelection,
+                    onLongPress: (_) {
+                      _switchEditingMode();
+                      HapticFeedback.mediumImpact();
+                    },
+                    onTimeTap: state.isDateTimeModificationEnabled ? _showTimePicker : null,
+                  ),
+                )
+                .toList(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CategoryNotesBloc, CategoryNotesState>(
-      listener: (context, state) {
+    return BlocConsumer<CategoryNotesBloc, CategoryNotesState>(
+      listener: (_, state) {
         if (state.showImagePicker) {
           _showPicker();
         }
@@ -439,46 +481,18 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
         if (state.showCategoryPicker) {
           _showCategoryPicker(state);
         }
+        if (state.showSearch) {
+          _showSearch(state);
+        }
       },
-      child: BlocBuilder<CategoryNotesBloc, CategoryNotesState>(
-        builder: (context, state) {
-          return Scaffold(
-            appBar: _appBar(state),
-            body: Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    reverse: state.notes.isNotEmpty,
-                    physics: const ClampingScrollPhysics(),
-                    controller: _scrollController,
-                    children: state.notes.isEmpty
-                        ? [_emptyNotesMessage(state)]
-                        : state.notes
-                            .map(
-                              (note) => NoteItem(
-                                note: note,
-                                originDirection: !state.isRightAlignmentEnabled,
-                                isEditingMode: state.isEditingMode,
-                                isStarred: note.hasStar,
-                                isSelected: state.selectedNotes.contains(note),
-                                onTap: _switchNoteSelection,
-                                onLongPress: (_) {
-                                  _switchEditingMode();
-                                  HapticFeedback.mediumImpact();
-                                },
-                                onTimeTap:
-                                    state.isDateTimeModificationEnabled ? _showTimePicker : null,
-                              ),
-                            )
-                            .toList(),
-                  ),
-                ),
-                _bottomContainer(state)
-              ],
-            ),
-          );
-        },
-      ),
+      builder: (context, state) {
+        return Scaffold(
+          appBar: _appBar(state),
+          body: Column(
+            children: [_content(state), _bottomContainer(state)],
+          ),
+        );
+      },
     );
   }
 

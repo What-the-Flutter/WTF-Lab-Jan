@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hashtagable/hashtagable.dart';
 import 'package:intl/intl.dart';
 
 import '../models/note.dart';
@@ -43,12 +44,17 @@ class NoteItem extends StatelessWidget {
               fit: BoxFit.fitHeight,
             ),
           ),
-        Text(
-          note.text ?? '',
-          style: Theme.of(context).textTheme.subtitle1?.copyWith(
+        HashTagText(
+          text: note.text ?? '',
+          basicStyle: Theme.of(context).textTheme.subtitle1!.copyWith(
                 color: note.direction == defaultDirection
                     ? Theme.of(context).accentIconTheme.color
                     : null,
+              ),
+          decoratedStyle: Theme.of(context).textTheme.subtitle1!.copyWith(
+                color: note.direction == defaultDirection
+                    ? Colors.white70
+                    : Theme.of(context).accentColor,
               ),
         ),
       ],

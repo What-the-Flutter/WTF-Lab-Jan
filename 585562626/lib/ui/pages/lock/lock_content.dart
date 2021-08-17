@@ -25,7 +25,7 @@ class _LockContentState extends State<LockContent> {
   Future<void> _authenticateMe() async {
     try {
       final result = await _localAuthentication.authenticate(
-        localizedReason: 'Authenticate for Testing',
+        localizedReason: 'Authenticate to enter the app',
         useErrorDialogs: true,
         stickyAuth: true,
         biometricOnly: true,

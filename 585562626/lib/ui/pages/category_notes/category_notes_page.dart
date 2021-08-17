@@ -6,6 +6,7 @@ import '../../../repository/category_repository.dart';
 import '../../../repository/note_repository.dart';
 import 'bloc/bloc.dart';
 import 'category_notes_content.dart';
+import 'search/bloc/bloc.dart';
 
 class CategoryNotesArguments {
   final Category category;
@@ -21,13 +22,18 @@ class CategoryNotesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => CategoryNotesBloc(
-        CategoryNotesState(category: category),
-        preferencesProvider: RepositoryProvider.of(context),
-        noteRepository: RepositoryProvider.of<NoteRepository>(context),
-        categoryRepository: RepositoryProvider.of<CategoryRepository>(context),
-      )..add(const FetchNotesEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => CategoryNotesBloc(
+            CategoryNotesState(category: category),
+            preferencesProvider: RepositoryProvider.of(context),
+            noteRepository: RepositoryProvider.of<NoteRepository>(context),
+            categoryRepository: RepositoryProvider.of<CategoryRepository>(context),
+          )..add(const FetchNotesEvent()),
+        ),
+        BlocProvider(create: (_) => SearchBloc(SearchState(notes: [], tags: []))),
+      ],
       child: const CategoryNotesContent(),
     );
   }

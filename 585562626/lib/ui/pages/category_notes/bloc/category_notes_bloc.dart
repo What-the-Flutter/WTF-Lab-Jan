@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/hashtagable.dart';
 
 import '../../../../models/note.dart';
+import '../../../../models/tag.dart';
 import '../../../../repository/category_repository.dart';
 import '../../../../repository/note_repository.dart';
 import '../../../../repository/preferences_provider.dart';
@@ -51,6 +53,10 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
       yield state.copyWith(showCategoryPicker: false);
     } else if (event is UpdateNoteDateEvent) {
       yield await _updateNoteDate(event);
+    } else if (event is OpenSearchEvent) {
+      yield await _openSearch();
+    } else if (event is OpenSearchClosedEvent) {
+      yield state.copyWith(showSearch: false);
     }
   }
 
@@ -81,6 +87,10 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
 
   Future<CategoryNotesState> _addNote(AddNoteEvent event) async {
     final newState;
+    final tags = extractHashTags(state.text ?? '').map((e) => Tag(name: e));
+    for (final tag in tags) {
+      await noteRepository.addTag(tag);
+    }
     if (state.category.id != null &&
         state.tempCategory != null &&
         state.tempCategory?.id != state.category.id) {
@@ -154,5 +164,10 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
   Future<CategoryNotesState> _updateNoteDate(UpdateNoteDateEvent event) async {
     await noteRepository.updateNote(event.note.copyWith(createdAt: event.dateTime));
     return _fetchNotes();
+  }
+
+  Future<CategoryNotesState> _openSearch() async {
+    final tags = await noteRepository.fetchTags();
+    return state.copyWith(tags: tags, showSearch: true);
   }
 }

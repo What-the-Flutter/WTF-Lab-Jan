@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'constants.dart';
 
+final darkAccentColor = Colors.indigo;
+
 ThemeData lightTheme({double fontSizeRatio = 1}) => ThemeData(
       primaryColor: Colors.white,
       accentColor: Colors.indigoAccent,

@@ -105,3 +105,11 @@ class UpdateNoteDateEvent extends CategoryNotesEvent {
   @override
   List<Object?> get props => [note];
 }
+
+class OpenSearchEvent extends CategoryNotesEvent {
+  const OpenSearchEvent();
+}
+
+class OpenSearchClosedEvent extends CategoryNotesEvent {
+  const OpenSearchClosedEvent();
+}
