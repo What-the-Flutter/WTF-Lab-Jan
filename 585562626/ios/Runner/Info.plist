@@ -47,5 +47,7 @@
     <string>Allow access to camera to capture photos</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow access to microphone</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>Why is my app authenticating using face id?</string>
 </dict>
 </plist>

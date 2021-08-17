@@ -382,6 +382,45 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
     );
   }
 
+  void _showTimePicker(Note note) async {
+    final accentColor = Theme.of(context).accentColor;
+    final pickerThemeData = Theme.of(context).copyWith(
+      colorScheme: Theme.of(context).colorScheme.copyWith(
+            primary: accentColor,
+            onPrimary: Theme.of(context).primaryColor,
+            onSurface: Theme.of(context).textTheme.bodyText2!.color!,
+          ),
+    );
+    final dateResult = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now(),
+      builder: (_, child) => Theme(data: pickerThemeData, child: child!),
+    );
+    if (dateResult != null) {
+      final timeResult = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+        builder: (_, child) => Theme(data: pickerThemeData, child: child!),
+      );
+      if (timeResult != null) {
+        _bloc.add(
+          UpdateNoteDateEvent(
+            note: note,
+            dateTime: DateTime(
+              dateResult.year,
+              dateResult.month,
+              dateResult.day,
+              timeResult.hour,
+              timeResult.minute,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<CategoryNotesBloc, CategoryNotesState>(
@@ -416,6 +455,7 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
                             .map(
                               (note) => NoteItem(
                                 note: note,
+                                originDirection: !state.isRightAlignmentEnabled,
                                 isEditingMode: state.isEditingMode,
                                 isStarred: note.hasStar,
                                 isSelected: state.selectedNotes.contains(note),
@@ -424,6 +464,8 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
                                   _switchEditingMode();
                                   HapticFeedback.mediumImpact();
                                 },
+                                onTimeTap:
+                                    state.isDateTimeModificationEnabled ? _showTimePicker : null,
                               ),
                             )
                             .toList(),

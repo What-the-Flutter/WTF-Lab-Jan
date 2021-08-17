@@ -133,7 +133,6 @@ class _CategoriesContentState extends State<CategoriesContent> {
         );
       },
     );
-    // _bloc.add(const ImagePickerClosedEvent());
   }
 
   void _showDeleteDialog(Category category) {

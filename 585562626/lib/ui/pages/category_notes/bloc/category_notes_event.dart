@@ -95,3 +95,13 @@ class CategorySelectedEvent extends CategoryNotesEvent {
 class CategoryPickerClosedEvent extends CategoryNotesEvent {
   const CategoryPickerClosedEvent();
 }
+
+class UpdateNoteDateEvent extends CategoryNotesEvent {
+  final Note note;
+  final DateTime dateTime;
+
+  const UpdateNoteDateEvent({required this.note, required this.dateTime});
+
+  @override
+  List<Object?> get props => [note];
+}

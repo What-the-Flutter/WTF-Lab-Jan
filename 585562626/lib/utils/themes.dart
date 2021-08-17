@@ -32,6 +32,9 @@ ThemeData lightTheme = ThemeData(
       padding: const EdgeInsets.all(Insets.xsmall),
     ),
   ),
+  textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(primary: Colors.indigoAccent),
+  ),
   fontFamily: Fonts.ubuntu,
 );
 
@@ -63,6 +66,9 @@ ThemeData darkTheme = ThemeData(
       primary: Colors.indigoAccent,
       padding: const EdgeInsets.all(Insets.xsmall),
     ),
+  ),
+  textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(primary: Colors.indigoAccent),
   ),
   fontFamily: Fonts.ubuntu,
 );

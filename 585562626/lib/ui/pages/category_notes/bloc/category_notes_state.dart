@@ -16,6 +16,8 @@ class CategoryNotesState extends Equatable {
   final bool showCategoryPicker;
   final List<Category>? existingCategories;
   final Category? tempCategory;
+  late final bool isRightAlignmentEnabled;
+  late final bool isDateTimeModificationEnabled;
 
   CategoryNotesState({
     this.isEditingMode = false,
@@ -29,6 +31,8 @@ class CategoryNotesState extends Equatable {
     this.showCategoryPicker = false,
     this.existingCategories,
     this.tempCategory,
+    this.isRightAlignmentEnabled = false,
+    this.isDateTimeModificationEnabled = false,
   });
 
   CategoryNotesState copyWith({
@@ -43,6 +47,8 @@ class CategoryNotesState extends Equatable {
     bool? textCopiedToClipboard,
     List<Category>? categories,
     Category? tempCategory,
+    bool? isRightAlignmentEnabled,
+    bool? isDateTimeModificationEnabled,
   }) {
     return CategoryNotesState(
       isEditingMode: isEditingMode ?? this.isEditingMode,
@@ -56,6 +62,8 @@ class CategoryNotesState extends Equatable {
       showCategoryPicker: showCategoryPicker ?? this.showCategoryPicker,
       existingCategories: categories ?? existingCategories,
       tempCategory: tempCategory ?? this.tempCategory,
+      isRightAlignmentEnabled: isRightAlignmentEnabled ?? this.isRightAlignmentEnabled,
+      isDateTimeModificationEnabled: isDateTimeModificationEnabled ?? this.isDateTimeModificationEnabled,
     );
   }
 

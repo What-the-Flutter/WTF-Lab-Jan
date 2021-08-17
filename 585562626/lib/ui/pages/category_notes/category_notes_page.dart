@@ -24,6 +24,7 @@ class CategoryNotesPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => CategoryNotesBloc(
         CategoryNotesState(category: category),
+        preferencesProvider: RepositoryProvider.of(context),
         noteRepository: RepositoryProvider.of<NoteRepository>(context),
         categoryRepository: RepositoryProvider.of<CategoryRepository>(context),
       )..add(const FetchNotesEvent()),

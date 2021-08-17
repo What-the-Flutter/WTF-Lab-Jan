@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../app/bloc/bloc.dart';
 import '../categories/categories_page.dart';
+import '../settings/settings_page.dart';
 import 'bloc/bloc.dart';
 
 class HomeContent extends StatefulWidget {
@@ -17,10 +17,6 @@ class _HomeContentState extends State<HomeContent> {
     Center(child: Text('3')),
     Center(child: Text('4')),
   ];
-
-  void _changeTheme(BuildContext context) {
-    context.read<AppBloc>().add(const SwitchThemeEvent());
-  }
 
   void _selectTab(int tab) {
     context.read<HomeBloc>().add(TabSelectedEvent(index: tab));
@@ -60,17 +56,13 @@ class _HomeContentState extends State<HomeContent> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = context.read<AppBloc>().state.isDarkMode;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Home',
-          style: Theme.of(context).appBarTheme.titleTextStyle,
-        ),
+        title: Text('Home', style: Theme.of(context).appBarTheme.titleTextStyle),
         actions: [
           IconButton(
-            onPressed: () => _changeTheme(context),
-            icon: isDarkMode ? const Icon(Icons.light_mode) : const Icon(Icons.dark_mode),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.routeName),
+            icon: const Icon(Icons.settings_outlined),
           ),
         ],
       ),
