@@ -1,6 +1,6 @@
-import 'package:cool_notes/models/note.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../../../../models/note.dart';
 import '../../../../../models/tag.dart';
 
 abstract class SearchEvent extends Equatable {

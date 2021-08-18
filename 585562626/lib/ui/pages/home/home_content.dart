@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../categories/categories_page.dart';
 import '../settings/settings_page.dart';
+import '../timeline/timeline_page.dart';
 import 'bloc/bloc.dart';
 
 class HomeContent extends StatefulWidget {
@@ -14,7 +15,7 @@ class _HomeContentState extends State<HomeContent> {
   final _tabs = const [
     CategoriesPage(),
     Center(child: Text('2')),
-    Center(child: Text('3')),
+    TimelinePage(),
     Center(child: Text('4')),
   ];
 

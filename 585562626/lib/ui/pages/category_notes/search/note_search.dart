@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:cool_notes/utils/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../models/note.dart';
 import '../../../../models/tag.dart';
 import '../../../../utils/constants.dart';
+import '../../../../utils/themes.dart';
 import '../../../../widgets/note_item.dart';
 import 'bloc/bloc.dart';
 

@@ -15,7 +15,7 @@ class CategoryItem extends StatelessWidget {
     required this.category,
     this.onTap,
     this.onLongPress,
-    this.showPin = false
+    this.showPin = false,
   }) : super(key: key);
 
   Widget _content(BuildContext context) {
@@ -23,18 +23,21 @@ class CategoryItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          FractionallySizedBox(
-            widthFactor: 0.6,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(CornerRadius.circle),
-                  color: category.color.withAlpha(Alpha.alpha50),
-                ),
-                child: FractionallySizedBox(
-                  widthFactor: 0.7,
-                  child: Image.asset('assets/${category.image}'),
+          Container(
+            padding: const EdgeInsets.only(top: Insets.small),
+            child: FractionallySizedBox(
+              widthFactor: 0.6,
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(CornerRadius.circle),
+                    color: category.color.withAlpha(Alpha.alpha50),
+                  ),
+                  child: FractionallySizedBox(
+                    widthFactor: 0.7,
+                    child: Image.asset('assets/${category.image}'),
+                  ),
                 ),
               ),
             ),
@@ -44,16 +47,16 @@ class CategoryItem extends StatelessWidget {
               margin: const EdgeInsets.only(
                 left: Insets.medium,
                 right: Insets.medium,
-                bottom: Insets.medium,
+                bottom: Insets.small,
               ),
               child: Text(
                 category.name!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.headline4?.copyWith(
-                  color: category.color,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: category.color,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
         ],

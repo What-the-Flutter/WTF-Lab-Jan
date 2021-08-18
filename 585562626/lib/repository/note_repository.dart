@@ -1,8 +1,10 @@
 import '../models/category.dart';
 import '../models/note.dart';
+import '../models/note_with_category.dart';
 import '../models/tag.dart';
 import 'database/database_provider.dart';
 import 'mappers/note_mapper.dart';
+import 'mappers/note_with_category_mapper.dart';
 import 'mappers/tag_mapper.dart';
 
 class NoteRepository {
@@ -48,5 +50,10 @@ class NoteRepository {
   Future<List<Tag>> fetchTags() async {
     final dbTags = await dbProvider.tags();
     return dbTags.map(TagMapper.fromDb).toList();
+  }
+
+  Future<List<NoteWithCategory>> fetchNotesWithCategories() async {
+    final dbTags = await dbProvider.notesWithCategories();
+    return dbTags.map(NoteWithCategoryMapper.fromDb).toList();
   }
 }

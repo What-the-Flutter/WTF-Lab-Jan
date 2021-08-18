@@ -5,11 +5,13 @@ import 'package:flutter/widgets.dart';
 import 'package:hashtagable/hashtagable.dart';
 import 'package:intl/intl.dart';
 
+import '../models/category.dart';
 import '../models/note.dart';
 import '../utils/constants.dart';
 
 class NoteItem extends StatelessWidget {
   final Note note;
+  final Category? category;
   final bool isEditingMode;
   final bool isSelected;
   final bool isStarred;
@@ -21,6 +23,7 @@ class NoteItem extends StatelessWidget {
   NoteItem({
     Key? key,
     required this.note,
+    this.category,
     this.isEditingMode = false,
     this.isSelected = false,
     this.isStarred = false,
@@ -33,9 +36,13 @@ class NoteItem extends StatelessWidget {
 
   Widget _contentContainer(BuildContext context) {
     final content = Column(
-      crossAxisAlignment:
-          note.direction == defaultDirection ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (category != null)
+          Text(
+            category!.name!,
+            style: Theme.of(context).textTheme.subtitle2,
+          ),
         if (note.image != null)
           ClipRRect(
             borderRadius: BorderRadius.circular(CornerRadius.card),

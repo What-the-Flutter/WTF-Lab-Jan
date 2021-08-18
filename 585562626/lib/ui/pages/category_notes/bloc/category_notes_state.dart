@@ -1,9 +1,9 @@
-import 'package:cool_notes/models/tag.dart';
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../models/category.dart';
 import '../../../../models/note.dart';
+import '../../../../models/tag.dart';
 
 class CategoryNotesState extends Equatable {
   final bool isEditingMode;

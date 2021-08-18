@@ -7,6 +7,7 @@ import '../../models/category.dart';
 import 'database_data.dart';
 import 'models/category.dart';
 import 'models/note.dart';
+import 'models/note_with_category.dart';
 import 'models/tag.dart';
 
 class DbProvider {
@@ -18,6 +19,9 @@ class DbProvider {
   final String notesTable = 'notes';
   final String categoryNoteTable = 'category_note';
   final String tagsTable = 'tags';
+
+  static final notePrefix = 'note_';
+  static final categoryPrefix = 'category_';
 
   Future<Database> get database async {
     if (_database != null) {
@@ -157,9 +161,11 @@ class DbProvider {
 
   Future<List<DbNote>> notesFor(Category category) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.rawQuery('SELECT * FROM $notesTable '
-        'INNER JOIN $categoryNoteTable ON $notesTable.id = $categoryNoteTable.note_id '
-        'WHERE $categoryNoteTable.category_id = ${category.id}');
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      'SELECT * FROM $notesTable '
+      'INNER JOIN $categoryNoteTable ON $notesTable.id = $categoryNoteTable.note_id '
+      'WHERE $categoryNoteTable.category_id = ${category.id}',
+    );
     return List.generate(maps.length, (i) => DbNote.fromMap(maps[i]));
   }
 
@@ -184,5 +190,22 @@ class DbProvider {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(tagsTable);
     return List.generate(maps.length, (i) => DbTag.fromMap(maps[i]));
+  }
+
+  Future<List<DbNoteWithCategory>> notesWithCategories() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      'SELECT $notesTable.id as ${notePrefix}id, $notesTable.created as ${notePrefix}created, '
+      '$notesTable.direction as ${notePrefix}direction, $notesTable.hasStar as ${notePrefix}hasStar, '
+      '$notesTable.updated as ${notePrefix}updated, $notesTable.text as ${notePrefix}text, '
+      '$notesTable.image as ${notePrefix}image, $categoriesTable.id as ${categoryPrefix}id, '
+      '$categoriesTable.name as ${categoryPrefix}name, $categoriesTable.color as '
+      '${categoryPrefix}color, $categoriesTable.image as ${categoryPrefix}image, '
+      '$categoriesTable.priority as ${categoryPrefix}priority, $categoriesTable.isDefault as '
+      '${categoryPrefix}isDefault FROM $notesTable '
+      'INNER JOIN $categoryNoteTable ON $notesTable.id = $categoryNoteTable.note_id '
+      'INNER JOIN $categoriesTable ON $categoryNoteTable.category_id = $categoriesTable.id;',
+    );
+    return List.generate(maps.length, (i) => DbNoteWithCategory.fromMap(maps[i]));
   }
 }

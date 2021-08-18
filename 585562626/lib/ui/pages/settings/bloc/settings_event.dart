@@ -43,6 +43,6 @@ class UpdateFontSizeEvent extends SettingsEvent {
   List<Object> get props => [fontSize];
 }
 
-class ClearSettingsEvent extends SettingsEvent {
-  const ClearSettingsEvent();
+class ResetSettingsEvent extends SettingsEvent {
+  const ResetSettingsEvent();
 }

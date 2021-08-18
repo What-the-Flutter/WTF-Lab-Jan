@@ -46,7 +46,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       } else if (event is UpdateFontSizeEvent) {
         preferencesProvider.saveFontSize(event.fontSize.index);
         yield currentState.copyWith(fontSize: event.fontSize);
-      } else if (event is ClearSettingsEvent) {
+      } else if (event is ResetSettingsEvent) {
         preferencesProvider.resetAll();
         yield await _init(currentState.canCheckBiometrics);
       }

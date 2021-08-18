@@ -10,6 +10,7 @@ import '../pages/new_category/new_category_page.dart';
 import '../pages/settings/bloc/bloc.dart';
 import '../pages/settings/settings_page.dart';
 import '../pages/starred_notes/starred_notes_page.dart';
+import '../pages/timeline/filter/filter_page.dart';
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
@@ -56,13 +57,13 @@ class App extends StatelessWidget {
                 case StarredNotesPage.routeName:
                   final args = settings.arguments as StarredNotesArguments;
                   return pageRoute(
-                    StarredNotesPage(
-                      category: args.category,
-                    ),
+                    StarredNotesPage(category: args.category),
                   );
                 case NewCategoryPage.routeName:
                   final args = settings.arguments as NewCategoryArguments?;
                   return pageRoute(NewCategoryPage(editCategory: args?.category));
+                case FilterPage.routeName:
+                  return pageRoute(const FilterPage());
               }
             },
           );

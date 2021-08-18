@@ -28,6 +28,8 @@ class StarredNotesBloc extends Bloc<StarredNotesEvent, StarredNotesState> {
 
   Future<StarredNotesState> _fetchStarredNotes({bool switchedStar = false}) async {
     final notes = await noteRepository.fetchStarredNotes(category);
+    final notesWithCategories = await noteRepository.fetchNotesWithCategories();
+    print('notes with categories: $notesWithCategories');
     return FetchedStarredNotesState(notes, switchedStar: switchedStar);
   }
 }

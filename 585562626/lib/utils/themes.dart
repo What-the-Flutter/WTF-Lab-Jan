@@ -16,6 +16,10 @@ ThemeData lightTheme({double fontSizeRatio = 1}) => ThemeData(
         titleTextStyle: TextStyle(color: Colors.indigoAccent),
         backgroundColor: Colors.white,
       ),
+      textSelectionTheme: const TextSelectionThemeData(
+        selectionHandleColor: Colors.indigoAccent,
+        cursorColor: Colors.indigoAccent,
+      ),
       indicatorColor: Colors.indigoAccent,
       textTheme: TextTheme(
         bodyText1: TextStyle(
@@ -73,6 +77,10 @@ ThemeData darkTheme({double fontSizeRatio = 1}) => ThemeData(
           primary: Colors.indigoAccent,
           padding: const EdgeInsets.all(Insets.xsmall),
         ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        selectionHandleColor: Colors.indigoAccent,
+        cursorColor: Colors.indigoAccent,
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(primary: Colors.indigoAccent),
