@@ -5,14 +5,12 @@ enum MyThemeKeys {
   dark,
 }
 
-class MyThemes {
-  static final ThemeData lightTheme = ThemeData(
+final ThemeData lightTheme = ThemeData(
     primaryColor: Colors.blueGrey,
     brightness: Brightness.light,
   );
 
-  static final ThemeData darkTheme = ThemeData(
+final ThemeData darkTheme = ThemeData(
     primaryColor: Colors.black,
     brightness: Brightness.dark,
   );
-}
