@@ -115,7 +115,7 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
         ),
         body: BlocBuilder<NewCategoryBloc, NewCategoryState>(builder: (_, state) {
           if (state is FetchingDefaultCategoriesState) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
           }
           final currentState = state as UpdateCategoryState;
           if (_textController.text != currentState.name) {

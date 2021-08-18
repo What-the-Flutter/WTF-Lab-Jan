@@ -171,7 +171,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
     return Expanded(
       child: BlocBuilder<CategoriesBloc, CategoriesState>(builder: (context, state) {
         if (state is! CategoriesFetchedState) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
         }
         return GridView.count(
           shrinkWrap: true,

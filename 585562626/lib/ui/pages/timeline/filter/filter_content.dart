@@ -166,8 +166,8 @@ class _FilterContentState extends State<FilterContent> {
             ),
           );
         } else {
-          content = const Center(
-            child: CircularProgressIndicator(),
+          content = Center(
+            child: CircularProgressIndicator(color: Theme.of(context).accentColor),
           );
         }
         return Scaffold(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share/share.dart';
 
 import '../../../utils/constants.dart';
 import 'bloc/bloc.dart';
@@ -93,29 +94,54 @@ class _SettingsContentState extends State<SettingsContent> {
     ];
   }
 
+  List<Widget> _info() {
+    return [
+      ListTile(title: Text('Info', style: Theme.of(context).textTheme.subtitle2)),
+      GestureDetector(
+        onTap: () => Share.share('Keep track of your life with CoolNotes 😆'),
+        child: const ListTile(
+          leading: Icon(Icons.share_outlined),
+          title: Text('Share the app'),
+        ),
+      )
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings', style: Theme.of(context).appBarTheme.titleTextStyle),
-        actions: [TextButton(onPressed: _resetSettings, child: const Text('Reset'))],
-      ),
-      body: BlocBuilder<SettingsBloc, SettingsState>(
-        builder: (context, state) {
-          if (state is InitialSettingsState) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          state as MainSettingsState;
-          return Column(
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      builder: (context, state) {
+        final content;
+        if (state is MainSettingsState) {
+          content = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ..._generalSettings(state),
               const Divider(),
               ..._securitySettings(state),
+              const Divider(),
+              ..._info(),
             ],
           );
-        },
-      ),
+        } else {
+          content = Center(
+            child: CircularProgressIndicator(color: Theme.of(context).accentColor),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Settings', style: Theme.of(context).appBarTheme.titleTextStyle),
+            actions: [
+              TextButton(
+                onPressed:
+                    state is MainSettingsState && state.settingsChanged ? _resetSettings : null,
+                child: const Text('Reset'),
+              )
+            ],
+          ),
+          body: content,
+        );
+      },
     );
   }
 }

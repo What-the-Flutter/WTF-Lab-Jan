@@ -21,8 +21,9 @@ class MainSettingsState extends SettingsState {
   final bool showBiometricsDialog;
   final bool isDateTimeModificationEnabled;
   final SettingsFontSize fontSize;
+  late final bool settingsChanged;
 
-  const MainSettingsState({
+  MainSettingsState({
     required this.canCheckBiometrics,
     required this.checkBiometrics,
     required this.isDarkMode,
@@ -30,7 +31,13 @@ class MainSettingsState extends SettingsState {
     required this.showBiometricsDialog,
     required this.isDateTimeModificationEnabled,
     required this.fontSize,
-  });
+  }) {
+    settingsChanged = isDarkMode ||
+        isRightBubbleAlignment ||
+        checkBiometrics == BiometricsCheck.enabled ||
+        isDateTimeModificationEnabled ||
+        fontSize != SettingsFontSize.normal;
+  }
 
   MainSettingsState copyWith({
     bool? canCheckBiometrics,

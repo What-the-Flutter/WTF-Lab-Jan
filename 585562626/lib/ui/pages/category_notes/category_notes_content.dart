@@ -92,7 +92,7 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
       context: context,
       builder: (_) {
         if (state.existingCategories == null) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
         }
         final selectedCategory = state.tempCategory ?? state.category;
         return Wrap(children: [

@@ -41,8 +41,8 @@ class _TimelineContentState extends State<TimelineContent> {
                       .toList(),
                 );
         } else {
-          content = const Center(
-            child: CircularProgressIndicator(),
+          content = Center(
+            child: CircularProgressIndicator(color: Theme.of(context).accentColor),
           );
         }
         return Scaffold(

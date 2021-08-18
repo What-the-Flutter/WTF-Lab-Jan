@@ -67,8 +67,8 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
     return BlocBuilder<StarredNotesBloc, StarredNotesState>(
       builder: (context, state) {
         if (state is FetchingStarredNotesState) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Center(
+            child: CircularProgressIndicator(color: Theme.of(context).accentColor),
           );
         }
         final currentState = state as FetchedStarredNotesState;
