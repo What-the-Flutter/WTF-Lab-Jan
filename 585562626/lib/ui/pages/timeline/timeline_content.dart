@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/category.dart';
@@ -15,13 +16,35 @@ class TimelineContent extends StatefulWidget {
   _TimelineContentState createState() => _TimelineContentState();
 }
 
-class _TimelineContentState extends State<TimelineContent> {
+class _TimelineContentState extends State<TimelineContent> with SingleTickerProviderStateMixin {
   late final TimelineBloc _bloc;
+  late final AnimationController _animationController;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _bloc = context.read();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+      value: 1
+    );
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    switch (_scrollController.position.userScrollDirection) {
+      case ScrollDirection.idle:
+        break;
+      case ScrollDirection.forward:
+        _animationController.forward();
+        break;
+      case ScrollDirection.reverse:
+        _animationController.reverse();
+        break;
+    }
   }
 
   @override
@@ -35,6 +58,7 @@ class _TimelineContentState extends State<TimelineContent> {
                   child: Text('Nothing found.', style: Theme.of(context).textTheme.bodyText2),
                 )
               : ListView(
+                  controller: _scrollController,
                   physics: const ClampingScrollPhysics(),
                   children: state.filteredNotes
                       .map((note) => NoteItem(note: note.note, category: note.category))
@@ -47,10 +71,16 @@ class _TimelineContentState extends State<TimelineContent> {
         }
         return Scaffold(
           body: content,
-          floatingActionButton: FloatingActionButton(
-            heroTag: 'filter_hero',
-            child: const Icon(Icons.filter_list),
-            onPressed: _navigateToFilter,
+          floatingActionButton: RotationTransition(
+            turns: _animationController,
+            child: ScaleTransition(
+              scale: _animationController,
+              child: FloatingActionButton(
+                heroTag: 'filter_hero',
+                child: const Icon(Icons.filter_list),
+                onPressed: _navigateToFilter,
+              ),
+            ),
           ),
         );
       },
@@ -62,6 +92,13 @@ class _TimelineContentState extends State<TimelineContent> {
     if (result != null && result is FilterResult) {
       _bloc.add(ApplyFilterEvent(result.categories, result.tags, result.query));
     }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 }
 
