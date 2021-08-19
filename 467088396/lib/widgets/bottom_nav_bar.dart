@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../constants.dart';
 
 class BottomNavBar extends StatelessWidget {
+
+  const BottomNavBar({
+    Key? key,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -14,7 +18,7 @@ class BottomNavBar extends StatelessWidget {
       ),
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         boxShadow: [
           BoxShadow(
             offset: const Offset(0, -10),
@@ -29,17 +33,24 @@ class BottomNavBar extends StatelessWidget {
           IconButton(
             iconSize: 32,
             icon: const Icon(Icons.home_rounded),
-            color: primaryColor, //SvgPicture.asset('assets/icons/home.svg'),
+            color: Theme.of(context)
+                .bottomNavigationBarTheme
+                .selectedItemColor, //SvgPicture.asset('assets/icons/home.svg'),
             onPressed: () {},
           ),
           IconButton(
-              iconSize: 32,
-              icon: SvgPicture.asset(
-                  'assets/icons/clipboard.svg'), //Icon(Icons.date_range_outlined),
-              color: primaryColor,
+              iconSize: 28,
+              icon: const Icon(Icons.event_note_rounded),
+              color: Theme.of(context)
+                  .bottomNavigationBarTheme
+                  .unselectedItemColor,
               onPressed: () {}),
           IconButton(
-              icon: SvgPicture.asset('assets/icons/clock.svg'),
+              iconSize: 28,
+              icon: const Icon(Icons.access_time_rounded),
+              color: Theme.of(context)
+                  .bottomNavigationBarTheme
+                  .unselectedItemColor,
               onPressed: () {}),
         ],
       ),

@@ -56,15 +56,12 @@ class _EventPageState extends State<EventPage> {
     return AppBar(
       elevation: 15,
       leading: IconButton(
-        icon: const Icon(
-          Icons.arrow_back_rounded,
-          color: Colors.white,
-          size: 28,
-        ),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: Colors.white,
+            size: 28,
+          ),
+          onPressed: () => Navigator.pop(context)),
       shadowColor: primaryColor,
       title: Text(
         title,
@@ -114,7 +111,7 @@ class _EventPageState extends State<EventPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -194,8 +191,9 @@ class _EventPageState extends State<EventPage> {
         ),
         padding: const EdgeInsets.all(defaultPadding / 2),
         decoration: BoxDecoration(
-          color:
-              event.isSelected ? primaryColor.withOpacity(0.2) : Colors.white,
+          color: event.isSelected
+              ? primaryColor.withOpacity(0.2)
+              : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
@@ -261,47 +259,46 @@ class _EventPageState extends State<EventPage> {
 
   Wrap _modalBottomSheet(Event event, BuildContext context) {
     return Wrap(
-            children: [
-              ListTile(
-                leading:
-                    const Icon(Icons.bookmark_rounded, color: secondColor),
-                title: const Text('Bookmark'),
-                onTap: () {
-                  event.isBookmarked = true;
-                  setState(() {});
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.copy_rounded, color: secondColor),
-                title: const Text('Copy'),
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: event.text));
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.edit_rounded, color: secondColor),
-                title: const Text('Edit'),
-                onTap: () {
-                  _isEditingText = true;
-                  _controller.text = event.text;
-                  event.isEdit = true;
-                  setState(() {});
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete_rounded, color: secondColor),
-                title: const Text('Delete'),
-                onTap: () {
-                  widget.events.remove(event);
-                  setState(() {});
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          );
+      children: [
+        ListTile(
+          leading: const Icon(Icons.bookmark_rounded, color: secondColor),
+          title: const Text('Bookmark'),
+          onTap: () {
+            event.isBookmarked = true;
+            setState(() {});
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.copy_rounded, color: secondColor),
+          title: const Text('Copy'),
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: event.text));
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.edit_rounded, color: secondColor),
+          title: const Text('Edit'),
+          onTap: () {
+            _isEditingText = true;
+            _controller.text = event.text;
+            event.isEdit = true;
+            setState(() {});
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.delete_rounded, color: secondColor),
+          title: const Text('Delete'),
+          onTap: () {
+            widget.events.remove(event);
+            setState(() {});
+            Navigator.pop(context);
+          },
+        ),
+      ],
+    );
   }
 
   String _calculateTime() => DateFormat('hh:mm a').format(DateTime.now());

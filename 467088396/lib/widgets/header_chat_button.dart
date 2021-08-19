@@ -22,7 +22,7 @@ class BotButton extends StatelessWidget {
       width: size.width,
       height: size.height * 0.12,
       decoration: BoxDecoration(
-        color: primaryColor,
+        color: Theme.of(context).primaryColor,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(36),
           bottomRight: Radius.circular(36),
@@ -44,17 +44,18 @@ class BotButton extends StatelessWidget {
             size: 24,
             color: Color(0xff87D2F7),
           ),
-          label: const Text(
+          label: Text(
             'Questionnaire Bot',
             style: TextStyle(
-              color: textColor,
+              color: Theme.of(context).textTheme.caption!.color,
               fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: 2,
             ),
           ),
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+            backgroundColor:
+                MaterialStateProperty.all<Color>(Theme.of(context).cardColor),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.0))),
