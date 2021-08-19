@@ -10,13 +10,14 @@ abstract class CategoriesState extends Equatable {
 }
 
 class InitialCategoriesState extends CategoriesState {
-  const InitialCategoriesState(): super();
+  const InitialCategoriesState() : super();
 }
 
 class CategoriesFetchedState extends CategoriesState {
   final List<Category> categories;
+  final bool errorOccurred;
 
-  const CategoriesFetchedState(this.categories);
+  const CategoriesFetchedState(this.categories, {this.errorOccurred = false});
 
   @override
   List<Object?> get props => [categories];

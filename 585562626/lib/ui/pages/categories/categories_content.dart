@@ -105,9 +105,11 @@ class _CategoriesContentState extends State<CategoriesContent> {
               },
             ),
             ListTile(
-              leading: Icon(category.priority == CategoryPriority.high
-                  ? Icons.push_pin_outlined
-                  : Icons.push_pin),
+              leading: Icon(
+                category.priority == CategoryPriority.high
+                    ? Icons.push_pin_outlined
+                    : Icons.push_pin,
+              ),
               title: Text(category.priority == CategoryPriority.high ? 'Unpin' : 'Pin'),
               onTap: () {
                 Navigator.of(context).pop();
@@ -169,42 +171,51 @@ class _CategoriesContentState extends State<CategoriesContent> {
 
   Widget _categoriesGrid() {
     return Expanded(
-      child: BlocBuilder<CategoriesBloc, CategoriesState>(builder: (context, state) {
-        if (state is! CategoriesFetchedState) {
-          return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
-        }
-        return GridView.count(
-          shrinkWrap: true,
-          crossAxisCount: 2,
-          mainAxisSpacing: Insets.xsmall,
-          crossAxisSpacing: Insets.xsmall,
-          padding: const EdgeInsets.fromLTRB(
-            Insets.large,
-            0.0,
-            Insets.large,
-            Insets.medium,
-          ),
-          childAspectRatio: 1.0,
-          children: state.categories
-              .map(
-                (category) => GestureDetector(
-                  onTapDown: (position) => setState(() => _tapPosition = position.globalPosition),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(CornerRadius.card),
-                    ),
-                    child: CategoryItem(
-                      category: category,
-                      showPin: true,
-                      onTap: _onCategoryClick,
-                      onLongPress: _showCategoryMenu,
+      child: BlocConsumer<CategoriesBloc, CategoriesState>(
+        listener: (context, state) {
+          if (state is CategoriesFetchedState && state.errorOccurred) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Something went wrong :(')),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is! CategoriesFetchedState) {
+            return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
+          }
+          return GridView.count(
+            shrinkWrap: true,
+            crossAxisCount: 2,
+            mainAxisSpacing: Insets.xsmall,
+            crossAxisSpacing: Insets.xsmall,
+            padding: const EdgeInsets.fromLTRB(
+              Insets.large,
+              0.0,
+              Insets.large,
+              Insets.medium,
+            ),
+            childAspectRatio: 1.0,
+            children: state.categories
+                .map(
+                  (category) => GestureDetector(
+                    onTapDown: (position) => setState(() => _tapPosition = position.globalPosition),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(CornerRadius.card),
+                      ),
+                      child: CategoryItem(
+                        category: category,
+                        showPin: true,
+                        onTap: _onCategoryClick,
+                        onLongPress: _showCategoryMenu,
+                      ),
                     ),
                   ),
-                ),
-              )
-              .toList(),
-        );
-      }),
+                )
+                .toList(),
+          );
+        },
+      ),
     );
   }
 

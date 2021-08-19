@@ -19,27 +19,25 @@ class CategoryRepository {
     return dbCategories.map(CategoryMapper.fromDb).toList();
   }
 
-  Future<void> addCategory(Category category) async {
+  Future<int> addCategory(Category category) async {
     return dbProvider.insertCategory(CategoryMapper.toDb(category));
   }
 
-  Future<void> updateCategory(Category category) async {
+  Future<int> updateCategory(Category category) async {
     return dbProvider.updateCategory(CategoryMapper.toDb(category));
   }
 
-  Future<void> switchPriority(Category category) async {
-    final priority;
-    if (category.priority == CategoryPriority.high) {
-      priority = CategoryPriority.normal;
-    } else {
-      priority = CategoryPriority.high;
-    }
-    return dbProvider.updateCategory(CategoryMapper.toDb(category.copyWith(priority: priority)));
-  }
+  // Future<int> switchPriority(Category category) async {
+  //   final priority;
+  //   if (category.priority == CategoryPriority.high) {
+  //     priority = CategoryPriority.normal;
+  //   } else {
+  //     priority = CategoryPriority.high;
+  //   }
+  //   return dbProvider.updateCategory(CategoryMapper.toDb(category.copyWith(priority: priority)));
+  // }
 
-  Future<void> deleteCategory(Category category) async {
-    if (category.id != null) {
-      return dbProvider.deleteCategory(category.id!);
-    }
+  Future<int> deleteCategory(Category category) async {
+    return dbProvider.deleteCategory(category.id!);
   }
 }

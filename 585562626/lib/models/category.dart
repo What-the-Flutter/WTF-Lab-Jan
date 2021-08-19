@@ -18,9 +18,15 @@ class Category extends Equatable {
     this.priority = CategoryPriority.normal,
   });
 
-  Category copyWith({Color? color, String? image, String? name, CategoryPriority? priority}) {
+  Category copyWith({
+    int? id,
+    Color? color,
+    String? image,
+    String? name,
+    CategoryPriority? priority,
+  }) {
     return Category(
-      id: id,
+      id: id ?? this.id,
       color: color ?? this.color,
       image: image ?? this.image,
       name: name ?? this.name,

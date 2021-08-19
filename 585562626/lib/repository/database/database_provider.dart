@@ -62,9 +62,9 @@ class DbProvider {
     });
   }
 
-  Future<void> insertCategory(DbCategory category) async {
+  Future<int> insertCategory(DbCategory category) async {
     final db = await database;
-    await db.insert(
+    return db.insert(
       categoriesTable,
       category.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -88,14 +88,14 @@ class DbProvider {
     await _insertCategories(db, categories);
   }
 
-  Future<void> updateCategory(DbCategory category) async {
+  Future<int> updateCategory(DbCategory category) async {
     final db = await database;
-    await db.update(categoriesTable, category.toMap(), where: 'id = ?', whereArgs: [category.id]);
+    return db.update(categoriesTable, category.toMap(), where: 'id = ?', whereArgs: [category.id]);
   }
 
-  Future<void> deleteCategory(int id) async {
+  Future<int> deleteCategory(int id) async {
     final db = await database;
-    await db.delete(categoriesTable, where: 'id = ?', whereArgs: [id]);
+    return db.delete(categoriesTable, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<DbCategory>> categories({bool isDefault = false}) async {

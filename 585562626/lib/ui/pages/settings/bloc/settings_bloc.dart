@@ -21,7 +21,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   Stream<SettingsState> mapEventToState(SettingsEvent event) async* {
     if (event is InitSettingsEvent) {
       final _localAuthentication = LocalAuthentication();
-      final canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
+      final biometrics = await _localAuthentication.getAvailableBiometrics();
+      print(biometrics);
+      final canCheckBiometrics = biometrics.contains(BiometricType.fingerprint);
+      print('canCheckBiometrics: $canCheckBiometrics');
       yield await _init(canCheckBiometrics);
     } else if (state is MainSettingsState) {
       final currentState = state as MainSettingsState;
