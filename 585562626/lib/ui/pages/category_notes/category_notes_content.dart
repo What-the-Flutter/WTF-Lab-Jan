@@ -30,7 +30,6 @@ class CategoryNotesContent extends StatefulWidget {
 class _CategoryNotesContentState extends State<CategoryNotesContent> {
   late final CategoryNotesBloc _bloc;
   final FocusNode _inputFieldFocusNode = FocusNode();
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
@@ -144,7 +143,6 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
 
   void _sendNote(AlignDirection direction) {
     _bloc.add(AddNoteEvent(direction: direction));
-    _listKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 500));
     FocusScope.of(context).requestFocus(_inputFieldFocusNode);
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -440,19 +438,15 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
 
   Widget _content(CategoryNotesState state) {
     return Expanded(
-      child: state.notes.isEmpty
-          ? Wrap(children: [_emptyNotesMessage(state)])
-          : AnimatedList(
-              key: _listKey,
-              reverse: state.notes.isNotEmpty,
-              physics: const ClampingScrollPhysics(),
-              controller: _scrollController,
-              initialItemCount: state.notes.length,
-              itemBuilder: (context, i, animation) {
-                final note = state.notes[i];
-                return FadeTransition(
-                  opacity: animation,
-                  child: NoteItem(
+      child: ListView(
+        reverse: state.notes.isNotEmpty,
+        physics: const ClampingScrollPhysics(),
+        controller: _scrollController,
+        children: state.notes.isEmpty
+            ? [_emptyNotesMessage(state)]
+            : state.notes
+                .map(
+                  (note) => NoteItem(
                     note: note,
                     originDirection: !state.isRightAlignmentEnabled,
                     isEditingMode: state.isEditingMode,
@@ -465,9 +459,9 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
                     },
                     onTimeTap: state.isDateTimeModificationEnabled ? _showTimePicker : null,
                   ),
-                );
-              },
-            ),
+                )
+                .toList(),
+      ),
     );
   }
 

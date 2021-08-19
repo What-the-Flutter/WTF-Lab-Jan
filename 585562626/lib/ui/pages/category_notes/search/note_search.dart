@@ -58,8 +58,9 @@ class NoteSearch extends SearchDelegate<String> {
                           color: Theme.of(context).accentIconTheme.color,
                         ),
                   ),
-                  backgroundColor:
-                      state.selectedTag == tag ? Theme.of(context).accentColor : darkAccentColor,
+                  backgroundColor: state.selectedTags.contains(tag)
+                      ? Theme.of(context).accentColor
+                      : darkAccentColor,
                 ),
               ),
             )
@@ -69,18 +70,11 @@ class NoteSearch extends SearchDelegate<String> {
   }
 
   Widget _content(SearchState state) {
-    if (query.isNotEmpty || state.selectedTag != null) {
-      final filteredList = state.notes
-          .where(
-            (element) =>
-                (element.text?.contains(query) ?? false) &&
-                (element.text?.contains(state.selectedTag?.name ?? '') ?? false),
-          )
-          .toList();
+    if (state.query.isNotEmpty || state.selectedTags.isNotEmpty) {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: filteredList.length,
-        itemBuilder: (context, index) => NoteItem(note: filteredList[index]),
+        itemCount: state.filteredNotes.length,
+        itemBuilder: (context, index) => NoteItem(note: state.filteredNotes[index]),
       );
     } else {
       return Expanded(
@@ -96,6 +90,7 @@ class NoteSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    bloc.add(QueryChangedEvent(query));
     return BlocBuilder<SearchBloc, SearchState>(
       bloc: bloc,
       builder: (context, state) {

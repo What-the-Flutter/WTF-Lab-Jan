@@ -28,3 +28,12 @@ class TagTapEvent extends SearchEvent {
   @override
   List<Object?> get props => [tag];
 }
+
+class QueryChangedEvent extends SearchEvent {
+  final String query;
+
+  QueryChangedEvent(this.query);
+
+  @override
+  List<Object?> get props => [query];
+}

@@ -35,7 +35,7 @@ class Note extends Equatable {
 
   @override
   String toString() {
-    return identityHashCode(this).toString();
+    return '$text';
   }
 
   @override
