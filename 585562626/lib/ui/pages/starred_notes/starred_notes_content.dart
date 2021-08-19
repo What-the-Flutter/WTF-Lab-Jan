@@ -18,6 +18,8 @@ class StarredNotesContent extends StatefulWidget {
 }
 
 class _StarredNotesContentState extends State<StarredNotesContent> {
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+
   AppBar _appBar(FetchedStarredNotesState state) {
     return AppBar(
       leading: IconButton(
@@ -49,6 +51,14 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
             TextButton(
               onPressed: () {
                 context.read<StarredNotesBloc>().add(DeleteFromStarredNotesEvent(note));
+                _listKey.currentState?.removeItem(
+                  state.notes.indexOf(note),
+                  (context, animation) => FadeTransition(
+                    opacity: animation,
+                    child: NoteItem(note: note),
+                  ),
+                  duration: const Duration(milliseconds: 500),
+                );
                 Navigator.pop(context, 'Delete');
               },
               child: Text(
@@ -76,23 +86,22 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
           appBar: _appBar(currentState),
           body: currentState.notes.isEmpty
               ? Center(
-                  child: Text(
-                    'Nothing starred yet.',
-                    style: Theme.of(context).textTheme.bodyText2,
-                  ),
+                  child: Text('Nothing starred yet.', style: Theme.of(context).textTheme.bodyText2),
                 )
-              : ListView(
+              : AnimatedList(
+                  key: _listKey,
+                  initialItemCount: currentState.notes.length,
                   physics: const ClampingScrollPhysics(),
-                  children: currentState.notes
-                      .map((note) => NoteItem(
-                            note: note,
-                            isStarred: true,
-                            onLongPress: (note) {
-                              _showDeleteDialog(context, note, currentState);
-                              HapticFeedback.mediumImpact();
-                            },
-                          ))
-                      .toList(),
+                  itemBuilder: (context, i, animation) {
+                    return NoteItem(
+                      note: currentState.notes[i],
+                      isStarred: true,
+                      onLongPress: (note) {
+                        _showDeleteDialog(context, note, currentState);
+                        HapticFeedback.mediumImpact();
+                      },
+                    );
+                  },
                 ),
         );
       },
