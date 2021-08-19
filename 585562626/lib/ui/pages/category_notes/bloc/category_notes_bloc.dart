@@ -1,25 +1,30 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/hashtagable.dart';
 
 import '../../../../models/note.dart';
+import '../../../../models/tag.dart';
 import '../../../../repository/category_repository.dart';
 import '../../../../repository/note_repository.dart';
+import '../../../../repository/preferences_provider.dart';
 import 'category_notes_event.dart';
 import 'category_notes_state.dart';
 
 class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
   final NoteRepository noteRepository;
   final CategoryRepository categoryRepository;
+  final PreferencesProvider preferencesProvider;
 
   CategoryNotesBloc(
     CategoryNotesState initialState, {
     required this.noteRepository,
     required this.categoryRepository,
+    required this.preferencesProvider,
   }) : super(initialState);
 
   @override
   Stream<CategoryNotesState> mapEventToState(CategoryNotesEvent event) async* {
     if (event is FetchNotesEvent) {
-      yield await _fetchNotes();
+      yield await _initialFetch();
     } else if (event is SwitchStarEvent) {
       yield await _switchStar();
     } else if (event is SwitchEditingModeEvent) {
@@ -46,7 +51,23 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
       yield state.copyWith(tempCategory: event.category, showCategoryPicker: false);
     } else if (event is CategoryPickerClosedEvent) {
       yield state.copyWith(showCategoryPicker: false);
+    } else if (event is UpdateNoteDateEvent) {
+      yield await _updateNoteDate(event);
+    } else if (event is OpenSearchEvent) {
+      yield await _openSearch();
+    } else if (event is OpenSearchClosedEvent) {
+      yield state.copyWith(showSearch: false);
     }
+  }
+
+  Future<CategoryNotesState> _initialFetch() async {
+    final isRightAlignmentEnabled = await preferencesProvider.bubbleAlignment();
+    final isDateTimeModificationEnabled = await preferencesProvider.dateTimeModificationEnabled();
+    final newState = await _fetchNotes();
+    return newState.copyWith(
+      isRightAlignmentEnabled: isRightAlignmentEnabled,
+      isDateTimeModificationEnabled: isDateTimeModificationEnabled,
+    );
   }
 
   Future<CategoryNotesState> _switchStar() async {
@@ -56,15 +77,20 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
 
   CategoryNotesState _switchEditingMode() {
     return state.copyWith(
-        isEditingMode: !state.isEditingMode,
-        selectedNotes: [],
-        startedUpdating: false,
-        text: '',
-        tempCategory: state.category);
+      isEditingMode: !state.isEditingMode,
+      selectedNotes: [],
+      startedUpdating: false,
+      text: '',
+      tempCategory: state.category,
+    );
   }
 
   Future<CategoryNotesState> _addNote(AddNoteEvent event) async {
     final newState;
+    final tags = extractHashTags(state.text ?? '').map((e) => Tag(name: e));
+    for (final tag in tags) {
+      await noteRepository.addTag(tag);
+    }
     if (state.category.id != null &&
         state.tempCategory != null &&
         state.tempCategory?.id != state.category.id) {
@@ -127,11 +153,21 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
   }
 
   Future<CategoryNotesState> _showCategoriesEvent() async {
-    if (state.defaultCategories == null) {
+    if (state.existingCategories == null) {
       final categories = await categoryRepository.fetchCategories();
       return state.copyWith(categories: categories, showCategoryPicker: true);
     } else {
       return state.copyWith(showCategoryPicker: true);
     }
+  }
+
+  Future<CategoryNotesState> _updateNoteDate(UpdateNoteDateEvent event) async {
+    await noteRepository.updateNote(event.note.copyWith(createdAt: event.dateTime));
+    return _fetchNotes();
+  }
+
+  Future<CategoryNotesState> _openSearch() async {
+    final tags = await noteRepository.fetchTags();
+    return state.copyWith(tags: tags, showSearch: true);
   }
 }

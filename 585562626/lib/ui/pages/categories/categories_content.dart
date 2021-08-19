@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/category.dart';
 import '../../../utils/constants.dart';
-import '../../../widgets/actions_popup_menu.dart';
 import '../../../widgets/category_item.dart';
 import '../category_notes/category_notes_page.dart';
 import '../new_category/new_category_page.dart';
@@ -68,11 +67,11 @@ class _CategoriesContentState extends State<CategoriesContent> {
                 padding: const EdgeInsets.symmetric(vertical: Insets.xmedium),
                 child: Text(
                   'Questionnaire Bot',
-                  style: TextStyle(
-                    color: Theme.of(context).accentIconTheme.color,
-                    fontSize: FontSize.normal,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.headline4!.copyWith(
+                        color: Theme.of(context).accentIconTheme.color,
+                        fontSize: Theme.of(context).textTheme.headline4!.fontSize! - 2,
+                        fontWeight: FontWeight.bold,
+                      ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -83,52 +82,57 @@ class _CategoriesContentState extends State<CategoriesContent> {
     );
   }
 
-  void _showPopupMenu(Category category) async {
-    final overlay = Overlay.of(context)?.context.findRenderObject() as RenderBox?;
-    final tapOffset = _tapPosition;
-    if (overlay != null && tapOffset != null) {
-      final action = await showMenu(
-        context: context,
-        position: RelativeRect.fromRect(
-          tapOffset & const Size(40, 40),
-          Offset.zero & overlay.size,
-        ),
-        items: [
-          ActionPopupMenuEntry(
-            action: PopupAction.edit,
-            name: 'Edit',
-            color: Theme.of(context).accentColor,
-          ),
-          ActionPopupMenuEntry(
-            action: PopupAction.pin,
-            name: category.priority == CategoryPriority.high ? 'Unpin' : 'Pin',
-            color: Theme.of(context).accentColor,
-          ),
-          ActionPopupMenuEntry(
-            action: PopupAction.delete,
-            name: 'Delete',
-            color: Colors.red,
-          ),
-        ],
-      );
-      if (action != null) {
-        switch (action) {
-          case PopupAction.edit:
-            final result = await Navigator.of(context)
-                .pushNamed(NewCategoryPage.routeName, arguments: NewCategoryArguments(category));
-            if (result != null && result is Category) {
-              _updateCategory(result);
-            }
-            break;
-          case PopupAction.delete:
-            _showDeleteDialog(category);
-            break;
-          case PopupAction.pin:
-            _switchPriority(category);
-            break;
-        }
-      }
+  void _update(Category category) async {
+    final result = await Navigator.of(context)
+        .pushNamed(NewCategoryPage.routeName, arguments: NewCategoryArguments(category));
+    if (result != null && result is Category) {
+      _updateCategory(result);
     }
+  }
+
+  void _showCategoryMenu(Category category) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _update(category);
+              },
+            ),
+            ListTile(
+              leading: Icon(category.priority == CategoryPriority.high
+                  ? Icons.push_pin_outlined
+                  : Icons.push_pin),
+              title: Text(category.priority == CategoryPriority.high ? 'Unpin' : 'Pin'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _switchPriority(category);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(
+                Icons.delete_forever_outlined,
+                color: Colors.red,
+              ),
+              title: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+                _showDeleteDialog(category);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showDeleteDialog(Category category) {
@@ -167,7 +171,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
     return Expanded(
       child: BlocBuilder<CategoriesBloc, CategoriesState>(builder: (context, state) {
         if (state is! CategoriesFetchedState) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
         }
         return GridView.count(
           shrinkWrap: true,
@@ -191,8 +195,9 @@ class _CategoriesContentState extends State<CategoriesContent> {
                     ),
                     child: CategoryItem(
                       category: category,
+                      showPin: true,
                       onTap: _onCategoryClick,
-                      onLongPress: _showPopupMenu,
+                      onLongPress: _showCategoryMenu,
                     ),
                   ),
                 ),
@@ -219,6 +224,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
 
   Widget _fab(BuildContext context) {
     return FloatingActionButton(
+      heroTag: 'new_category',
       onPressed: _navigateToNewCategory,
       child: Icon(
         Icons.add,

@@ -49,7 +49,7 @@ final List<DbCategory> defaultCategoriesData = [
   ),
   DbCategory(
     image: 'shopping.png',
-    color: Colors.blueGrey.shade800.value,
+    color: Colors.red.shade600.value,
     priority: _defaultPriority,
     isDefault: 1,
   ),

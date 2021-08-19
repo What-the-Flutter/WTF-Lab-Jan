@@ -6,6 +6,7 @@ import '../utils/constants.dart';
 
 class CategoryItem extends StatelessWidget {
   final Category category;
+  final bool showPin;
   final Function(Category)? onTap;
   final Function(Category)? onLongPress;
 
@@ -14,25 +15,29 @@ class CategoryItem extends StatelessWidget {
     required this.category,
     this.onTap,
     this.onLongPress,
+    this.showPin = false,
   }) : super(key: key);
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          FractionallySizedBox(
-            widthFactor: 0.6,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(CornerRadius.circle),
-                  color: category.color.withAlpha(Alpha.alpha50),
-                ),
-                child: FractionallySizedBox(
-                  widthFactor: 0.7,
-                  child: Image.asset('assets/${category.image}'),
+          Container(
+            padding: const EdgeInsets.only(top: Insets.small),
+            child: FractionallySizedBox(
+              widthFactor: 0.6,
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(CornerRadius.circle),
+                    color: category.color.withAlpha(Alpha.alpha50),
+                  ),
+                  child: FractionallySizedBox(
+                    widthFactor: 0.7,
+                    child: Image.asset('assets/${category.image}'),
+                  ),
                 ),
               ),
             ),
@@ -42,17 +47,16 @@ class CategoryItem extends StatelessWidget {
               margin: const EdgeInsets.only(
                 left: Insets.medium,
                 right: Insets.medium,
-                bottom: Insets.medium,
+                bottom: Insets.small,
               ),
               child: Text(
                 category.name!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: category.color,
-                  fontSize: FontSize.big,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headline4?.copyWith(
+                      color: category.color,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
         ],
@@ -71,8 +75,8 @@ class CategoryItem extends StatelessWidget {
       onLongPress: () => onLongPress?.call(category),
       child: Stack(
         children: [
-          _content(),
-          if (category.priority == CategoryPriority.high)
+          _content(context),
+          if (showPin && category.priority == CategoryPriority.high)
             const Positioned(
               right: 0,
               child: Padding(

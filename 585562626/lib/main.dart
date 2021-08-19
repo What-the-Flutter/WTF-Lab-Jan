@@ -8,7 +8,7 @@ import 'repository/preferences_provider.dart';
 import 'simple_bloc_observer.dart';
 import 'ui/app/app.dart';
 
-void main() {
+void main() async {
   Bloc.observer = SimpleBlocObserver();
   runApp(
     MultiRepositoryProvider(
@@ -16,9 +16,7 @@ void main() {
         RepositoryProvider<CategoryRepository>(
           create: (_) => CategoryRepository(DbProvider.dbProvider),
         ),
-        RepositoryProvider<NoteRepository>(
-          create: (_) => NoteRepository(DbProvider.dbProvider),
-        ),
+        RepositoryProvider<NoteRepository>(create: (_) => NoteRepository(DbProvider.dbProvider)),
         RepositoryProvider<PreferencesProvider>(create: (_) => PreferencesProvider.prefsProvider),
       ],
       child: const App(),

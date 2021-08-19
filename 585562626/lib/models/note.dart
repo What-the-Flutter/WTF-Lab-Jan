@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 enum AlignDirection { right, left }
 
-class Note extends Equatable{
+class Note extends Equatable {
   final int? id;
   final DateTime created;
   final AlignDirection direction;
@@ -21,20 +21,21 @@ class Note extends Equatable{
     DateTime? created,
   }) : created = created ?? DateTime.now();
 
-  Note copyWith({bool? hasStar, String? text, String? image}) {
+  Note copyWith({bool? hasStar, String? text, String? image, DateTime? createdAt}) {
     return Note(
-        id: id,
-        direction: direction,
-        hasStar: hasStar ?? this.hasStar,
-        text: text ?? this.text,
-        image: image ?? this.image,
-        created: created,
-        updated: DateTime.now());
+      id: id,
+      direction: direction,
+      hasStar: hasStar ?? this.hasStar,
+      text: text ?? this.text,
+      image: image ?? this.image,
+      created: createdAt ?? created,
+      updated: DateTime.now(),
+    );
   }
 
   @override
   String toString() {
-    return identityHashCode(this).toString();
+    return '$text';
   }
 
   @override

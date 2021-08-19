@@ -20,11 +20,11 @@ class CategoryRepository {
   }
 
   Future<void> addCategory(Category category) async {
-    return await dbProvider.insertCategory(CategoryMapper.toDb(category));
+    return dbProvider.insertCategory(CategoryMapper.toDb(category));
   }
 
   Future<void> updateCategory(Category category) async {
-    return await dbProvider.updateCategory(CategoryMapper.toDb(category));
+    return dbProvider.updateCategory(CategoryMapper.toDb(category));
   }
 
   Future<void> switchPriority(Category category) async {
@@ -34,14 +34,12 @@ class CategoryRepository {
     } else {
       priority = CategoryPriority.high;
     }
-    return await dbProvider
-        .updateCategory(CategoryMapper.toDb(category.copyWith(priority: priority)));
+    return dbProvider.updateCategory(CategoryMapper.toDb(category.copyWith(priority: priority)));
   }
 
   Future<void> deleteCategory(Category category) async {
     if (category.id != null) {
-      return await dbProvider.deleteCategory(category.id!);
+      return dbProvider.deleteCategory(category.id!);
     }
-    return;
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,17 +30,20 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
     return Padding(
       padding: const EdgeInsets.only(top: Insets.medium, right: Insets.large, left: Insets.large),
       child: TextField(
-          textInputAction: TextInputAction.done,
-          style: Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: FontSize.big),
-          decoration: InputDecoration(
-            hintText: 'Type the name...',
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Theme.of(context).accentColor),
+        textInputAction: TextInputAction.done,
+        style: Theme.of(context).textTheme.bodyText2!.copyWith(
+              fontSize: Theme.of(context).textTheme.bodyText2!.fontSize! + 2,
             ),
-            errorText: state.error == NameValidationError.empty ? 'Name can\'t be empty' : null,
+        decoration: InputDecoration(
+          hintText: 'Type the name...',
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Theme.of(context).accentColor),
           ),
-          controller: _textController,
-          onChanged: (text) => _bloc.add(NameChangedEvent(text))),
+          errorText: state.error == NameValidationError.empty ? 'Name can\'t be empty' : null,
+        ),
+        controller: _textController,
+        onChanged: (text) => _bloc.add(NameChangedEvent(text)),
+      ),
     );
   }
 
@@ -62,7 +64,7 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
                         : Theme.of(context).scaffoldBackgroundColor,
                   ),
                   color: state.selectedCategory?.image == category.image
-                      ? Theme.of(context).accentColor.withAlpha(50)
+                      ? Theme.of(context).accentColor.withAlpha(Alpha.alpha50)
                       : null,
                 ),
                 child: CategoryItem(
@@ -102,29 +104,33 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: !kIsWeb && (Platform.isMacOS || Platform.isIOS)
-                ? const Icon(Icons.arrow_back_ios)
-                : const Icon(Icons.arrow_back),
+            icon: Platform.isIOS ? const Icon(Icons.arrow_back_ios) : const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
             'New Category',
             style: Theme.of(context).appBarTheme.titleTextStyle,
           ),
-          actions: [IconButton(onPressed: _addCategory, icon: const Icon(Icons.done))],
         ),
-        body: BlocBuilder<NewCategoryBloc, NewCategoryState>(builder: (_, state) {
-          if (state is FetchingDefaultCategoriesState) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final currentState = state as UpdateCategoryState;
-          if (_textController.text != currentState.name) {
-            _textController.text = currentState.name ?? '';
-          }
-          return Column(
-            children: [_textInput(currentState), _gridContent(currentState)],
-          );
-        }),
+        body: BlocBuilder<NewCategoryBloc, NewCategoryState>(
+          builder: (_, state) {
+            if (state is FetchingDefaultCategoriesState) {
+              return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
+            }
+            final currentState = state as UpdateCategoryState;
+            if (_textController.text != currentState.name) {
+              _textController.text = currentState.name ?? '';
+            }
+            return Column(
+              children: [_textInput(currentState), _gridContent(currentState)],
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          heroTag: 'new_category',
+          onPressed: _addCategory,
+          child: const Icon(Icons.done),
+        ),
       ),
     );
   }
