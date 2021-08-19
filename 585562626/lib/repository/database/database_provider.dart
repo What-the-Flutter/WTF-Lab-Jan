@@ -48,6 +48,9 @@ class DbProvider {
         'ON DELETE CASCADE ON UPDATE NO ACTION, '
         'FOREIGN KEY (note_id) REFERENCES $notesTable(id) ON DELETE CASCADE ON UPDATE NO ACTION );',
       );
+      db.execute(
+        'CREATE TABLE $tagsTable(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT UNIQUE);',
+      );
       await _insertCategories(db, defaultCategoriesData);
       await _insertCategories(db, categoriesData);
     }, onUpgrade: (db, oldVersion, newVersion) async {
