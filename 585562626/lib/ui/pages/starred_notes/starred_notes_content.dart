@@ -55,7 +55,10 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
                   state.notes.indexOf(note),
                   (context, animation) => FadeTransition(
                     opacity: animation,
-                    child: NoteItem(note: note),
+                    child: NoteItem(
+                      note: note,
+                      isStarred: true,
+                    ),
                   ),
                   duration: const Duration(milliseconds: 500),
                 );

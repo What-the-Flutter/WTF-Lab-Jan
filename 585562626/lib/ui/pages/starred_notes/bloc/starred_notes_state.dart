@@ -24,5 +24,5 @@ class FetchedStarredNotesState extends StarredNotesState {
   const FetchedStarredNotesState(this.notes, {this.switchedStar = false});
 
   @override
-  List<Object?> get props => [notes, switchedStar];
+  List<Object?> get props => [switchedStar];
 }
