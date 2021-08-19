@@ -224,6 +224,7 @@ class _CategoriesContentState extends State<CategoriesContent> {
 
   Widget _fab(BuildContext context) {
     return FloatingActionButton(
+      heroTag: 'new_category',
       onPressed: _navigateToNewCategory,
       child: Icon(
         Icons.add,

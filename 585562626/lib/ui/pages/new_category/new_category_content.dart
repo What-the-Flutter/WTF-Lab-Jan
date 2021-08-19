@@ -111,20 +111,26 @@ class _NewCategoryContentState extends State<NewCategoryContent> {
             'New Category',
             style: Theme.of(context).appBarTheme.titleTextStyle,
           ),
-          actions: [IconButton(onPressed: _addCategory, icon: const Icon(Icons.done))],
         ),
-        body: BlocBuilder<NewCategoryBloc, NewCategoryState>(builder: (_, state) {
-          if (state is FetchingDefaultCategoriesState) {
-            return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
-          }
-          final currentState = state as UpdateCategoryState;
-          if (_textController.text != currentState.name) {
-            _textController.text = currentState.name ?? '';
-          }
-          return Column(
-            children: [_textInput(currentState), _gridContent(currentState)],
-          );
-        }),
+        body: BlocBuilder<NewCategoryBloc, NewCategoryState>(
+          builder: (_, state) {
+            if (state is FetchingDefaultCategoriesState) {
+              return Center(child: CircularProgressIndicator(color: Theme.of(context).accentColor));
+            }
+            final currentState = state as UpdateCategoryState;
+            if (_textController.text != currentState.name) {
+              _textController.text = currentState.name ?? '';
+            }
+            return Column(
+              children: [_textInput(currentState), _gridContent(currentState)],
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          heroTag: 'new_category',
+          onPressed: _addCategory,
+          child: const Icon(Icons.done),
+        ),
       ),
     );
   }
