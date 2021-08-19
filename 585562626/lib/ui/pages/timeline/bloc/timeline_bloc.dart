@@ -43,7 +43,6 @@ class TimelineBloc extends Bloc<TimelineEvent, TimelineState> {
 
   Future<TimelineState> _fetchNotes() async {
     final notes = await noteRepository.fetchNotesWithCategories();
-    print('notes with categories: $notes');
     return FetchedNotesState(notes, notes);
   }
 }
