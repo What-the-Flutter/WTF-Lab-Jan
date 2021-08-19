@@ -26,19 +26,19 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     if (event is FetchNotesEvent) {
       yield await _initialFetch();
     } else if (event is SwitchStarEvent) {
-      yield await _switchStar();
+      yield* _switchStar(state);
     } else if (event is SwitchEditingModeEvent) {
       yield _switchEditingMode();
     } else if (event is AddNoteEvent) {
-      yield await _addNote(event);
+      yield* _addNote(event, state);
     } else if (event is SwitchNoteSelectionEvent) {
       yield _switchNoteSelection(event);
     } else if (event is DeleteSelectedNotesEvent) {
-      yield await _deleteNotes();
+      yield* _deleteNotes(state);
     } else if (event is StartEditingEvent) {
       yield _startEditing();
     } else if (event is UpdateNoteEvent) {
-      yield await _updateNote();
+      yield* _updateNote(state);
     } else if (event is ImageSelectedEvent) {
       yield state.copyWith(image: event.image, showImagePicker: false);
     } else if (event is ImagePickerClosedEvent) {
@@ -52,7 +52,7 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     } else if (event is CategoryPickerClosedEvent) {
       yield state.copyWith(showCategoryPicker: false);
     } else if (event is UpdateNoteDateEvent) {
-      yield await _updateNoteDate(event);
+      yield* _updateNoteDate(event, state);
     } else if (event is OpenSearchEvent) {
       yield await _openSearch();
     } else if (event is OpenSearchClosedEvent) {
@@ -70,9 +70,17 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     );
   }
 
-  Future<CategoryNotesState> _switchStar() async {
-    await noteRepository.switchStar(state.selectedNotes);
-    return await _fetchNotes();
+  Stream<CategoryNotesState> _switchStar(CategoryNotesState oldState) async* {
+    final notes = List<Note>.from(oldState.notes);
+    final updatedNotes = oldState.selectedNotes.map((e) => e.copyWith(hasStar: !e.hasStar));
+    notes.removeWhere((element) => oldState.selectedNotes.contains(element));
+    notes.addAll(updatedNotes);
+    notes.sort((e1, e2) => e2.created.compareTo(e1.created));
+    yield state.copyWith(notes: notes);
+    final result = await noteRepository.switchStar(updatedNotes.toList());
+    if (!result) {
+      yield await _fetchNotes();
+    }
   }
 
   CategoryNotesState _switchEditingMode() {
@@ -85,28 +93,40 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     );
   }
 
-  Future<CategoryNotesState> _addNote(AddNoteEvent event) async {
-    final newState;
+  Stream<CategoryNotesState> _addNote(AddNoteEvent event, CategoryNotesState oldState) async* {
+    // add note to tempCategory
+    if (state.category.id != null &&
+        state.tempCategory != null &&
+        state.tempCategory?.id != state.category.id) {
+      yield oldState.resetImage().copyWith(text: '', tempCategory: state.category);
+      final result = await noteRepository.addNote(
+        state.tempCategory!.id!,
+        Note(image: state.image?.path, text: state.text, direction: event.direction),
+      );
+      if (result == 0) {
+        yield state.copyWith(notInsertedForAnotherCategory: true);
+      }
+    } else {
+      final notes = List<Note>.from(oldState.notes);
+      final note = Note(image: state.image?.path, text: state.text, direction: event.direction);
+      notes.insert(0, note);
+      yield oldState.resetImage().copyWith(notes: notes, text: '', tempCategory: state.category);
+      final result = await noteRepository.addNote(state.category.id!, note);
+      if (result == 0) {
+        yield oldState.resetImage().copyWith(text: '', tempCategory: state.category);
+      } else {
+        final newNote = note.copyWith(id: result);
+        notes.removeAt(0);
+        notes.insert(0, newNote);
+        yield oldState
+            .resetImage()
+            .copyWith(notes: notes.toList(), text: '', tempCategory: state.category);
+      }
+    }
     final tags = extractHashTags(state.text ?? '').map((e) => Tag(name: e));
     for (final tag in tags) {
       await noteRepository.addTag(tag);
     }
-    if (state.category.id != null &&
-        state.tempCategory != null &&
-        state.tempCategory?.id != state.category.id) {
-      await noteRepository.addNote(
-        state.tempCategory!.id!,
-        Note(image: state.image?.path, text: state.text, direction: event.direction),
-      );
-      newState = state;
-    } else {
-      await noteRepository.addNote(
-        state.category.id!,
-        Note(image: state.image?.path, text: state.text, direction: event.direction),
-      );
-      newState = await _fetchNotes();
-    }
-    return newState.resetImage().copyWith(text: '', tempCategory: state.category);
   }
 
   CategoryNotesState _switchNoteSelection(SwitchNoteSelectionEvent event) {
@@ -119,10 +139,20 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     return state.copyWith(selectedNotes: selectedNotes);
   }
 
-  Future<CategoryNotesState> _deleteNotes() async {
-    await noteRepository.deleteNotes(state.selectedNotes);
-    final newState = await _fetchNotes();
-    return newState.copyWith(selectedNotes: [], isEditingMode: false, startedUpdating: false);
+  Stream<CategoryNotesState> _deleteNotes(CategoryNotesState oldState) async* {
+    final notes = List<Note>.from(oldState.notes);
+    notes.removeWhere((element) => oldState.selectedNotes.contains(element));
+    yield oldState.copyWith(
+      notes: notes,
+      selectedNotes: [],
+      isEditingMode: false,
+      startedUpdating: false,
+    );
+    final result = await noteRepository.deleteNotes(state.selectedNotes);
+    if (!result) {
+      final newState = await _fetchNotes();
+      yield newState.copyWith(selectedNotes: [], isEditingMode: false, startedUpdating: false);
+    }
   }
 
   CategoryNotesState _startEditing() {
@@ -133,17 +163,38 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     );
   }
 
-  Future<CategoryNotesState> _updateNote() async {
-    final note = state.selectedNotes.first.copyWith(text: state.text, image: state.image?.path);
-    if (state.tempCategory == state.category) {
-      await noteRepository.updateNote(note);
+  Stream<CategoryNotesState> _updateNote(CategoryNotesState oldState) async* {
+    final note = oldState.selectedNotes.first.copyWith(
+      text: oldState.text,
+      image: oldState.image?.path,
+    );
+    final index = oldState.notes.indexWhere((element) => element.id == note.id);
+    final notes = List<Note>.from(oldState.notes);
+    notes.removeAt(index);
+    final result;
+    if (oldState.tempCategory == oldState.category) {
+      notes.insert(index, note);
+      yield oldState.resetImage().copyWith(
+            notes: notes,
+            isEditingMode: false,
+            selectedNotes: [],
+            text: '',
+            startedUpdating: false,
+          );
+      result = await noteRepository.updateNote(note);
     } else {
-      await noteRepository.updateNoteCategory(state.tempCategory!, note);
+      yield oldState.resetImage().copyWith(
+            notes: notes,
+            isEditingMode: false,
+            selectedNotes: [],
+            text: '',
+            startedUpdating: false,
+          );
+      result = await noteRepository.updateNoteCategory(oldState.tempCategory!, note);
     }
-    final newState = await _fetchNotes();
-    return newState
-        .resetImage()
-        .copyWith(isEditingMode: false, selectedNotes: [], text: '', startedUpdating: false);
+    if (result == 0) {
+      yield oldState;
+    }
   }
 
   Future<CategoryNotesState> _fetchNotes() async {
@@ -161,9 +212,21 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     }
   }
 
-  Future<CategoryNotesState> _updateNoteDate(UpdateNoteDateEvent event) async {
-    await noteRepository.updateNote(event.note.copyWith(createdAt: event.dateTime));
-    return _fetchNotes();
+  Stream<CategoryNotesState> _updateNoteDate(
+    UpdateNoteDateEvent event,
+    CategoryNotesState oldState,
+  ) async* {
+    final newNote = event.note.copyWith(createdAt: event.dateTime);
+    final notes = List<Note>.from(oldState.notes);
+    final index = notes.indexWhere((element) => element.id == newNote.id);
+    notes.removeAt(index);
+    notes.insert(index, newNote);
+    notes.sort((e1, e2) => e2.created.compareTo(e1.created));
+    yield oldState.copyWith(notes: notes);
+    final result = await noteRepository.updateNote(newNote);
+    if (result == 0) {
+      yield oldState;
+    }
   }
 
   Future<CategoryNotesState> _openSearch() async {

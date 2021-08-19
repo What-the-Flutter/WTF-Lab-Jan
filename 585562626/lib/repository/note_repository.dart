@@ -22,25 +22,24 @@ class NoteRepository {
     return dbNotes.map(NoteMapper.fromDb).toList();
   }
 
-  Future<void> addNote(int categoryId, Note note) async {
-    await dbProvider.insertNote(categoryId, NoteMapper.toDb(note));
+  Future<int> addNote(int categoryId, Note note) async {
+    return dbProvider.insertNote(categoryId, NoteMapper.toDb(note));
   }
 
-  Future<void> switchStar(List<Note> notes) async {
-    final updatedNotes = notes.map((e) => e.copyWith(hasStar: !e.hasStar));
-    await dbProvider.updateNotes(updatedNotes.map(NoteMapper.toDb).toList());
+  Future<bool> switchStar(List<Note> notes) async {
+    return dbProvider.updateNotes(notes.map(NoteMapper.toDb).toList());
   }
 
-  Future<void> deleteNotes(List<Note> notes) async {
-    await dbProvider.deleteNotes(notes.map(NoteMapper.toDb).toList());
+  Future<bool> deleteNotes(List<Note> notes) async {
+    return dbProvider.deleteNotes(notes.map(NoteMapper.toDb).toList());
   }
 
-  Future<void> updateNote(Note note) async {
-    await dbProvider.updateNote(NoteMapper.toDb(note));
+  Future<int> updateNote(Note note) async {
+    return dbProvider.updateNote(NoteMapper.toDb(note));
   }
 
-  Future<void> updateNoteCategory(Category category, Note note) async {
-    await dbProvider.updateNoteCategory(category.id!, note.id!);
+  Future<int> updateNoteCategory(Category category, Note note) async {
+    return dbProvider.updateNoteCategory(category.id!, note.id!);
   }
 
   Future<void> addTag(Tag tag) async {

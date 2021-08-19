@@ -484,6 +484,11 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
         if (state.showSearch) {
           _showSearch(state);
         }
+        if (state.notInsertedForAnotherCategory) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Error occured while adding note to another category :('),
+          ));
+        }
       },
       builder: (context, state) {
         return Scaffold(

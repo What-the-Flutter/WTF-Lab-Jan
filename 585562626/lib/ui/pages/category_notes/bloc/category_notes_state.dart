@@ -21,24 +21,25 @@ class CategoryNotesState extends Equatable {
   final Category? tempCategory;
   late final bool isRightAlignmentEnabled;
   late final bool isDateTimeModificationEnabled;
+  final bool notInsertedForAnotherCategory;
 
-  CategoryNotesState({
-    this.isEditingMode = false,
-    this.startedUpdating = false,
-    required this.category,
-    this.notes = const [],
-    this.tags = const [],
-    this.selectedNotes = const [],
-    this.image,
-    this.text,
-    this.showImagePicker = false,
-    this.showCategoryPicker = false,
-    this.showSearch = false,
-    this.existingCategories,
-    this.tempCategory,
-    this.isRightAlignmentEnabled = false,
-    this.isDateTimeModificationEnabled = false,
-  });
+  CategoryNotesState(
+      {this.isEditingMode = false,
+      this.startedUpdating = false,
+      required this.category,
+      this.notes = const [],
+      this.tags = const [],
+      this.selectedNotes = const [],
+      this.image,
+      this.text,
+      this.showImagePicker = false,
+      this.showCategoryPicker = false,
+      this.showSearch = false,
+      this.existingCategories,
+      this.tempCategory,
+      this.isRightAlignmentEnabled = false,
+      this.isDateTimeModificationEnabled = false,
+      this.notInsertedForAnotherCategory = false});
 
   CategoryNotesState copyWith({
     bool? isEditingMode,
@@ -56,6 +57,7 @@ class CategoryNotesState extends Equatable {
     Category? tempCategory,
     bool? isRightAlignmentEnabled,
     bool? isDateTimeModificationEnabled,
+    bool notInsertedForAnotherCategory = false,
   }) {
     return CategoryNotesState(
       isEditingMode: isEditingMode ?? this.isEditingMode,
@@ -74,6 +76,7 @@ class CategoryNotesState extends Equatable {
       isRightAlignmentEnabled: isRightAlignmentEnabled ?? this.isRightAlignmentEnabled,
       isDateTimeModificationEnabled:
           isDateTimeModificationEnabled ?? this.isDateTimeModificationEnabled,
+      notInsertedForAnotherCategory: notInsertedForAnotherCategory,
     );
   }
 

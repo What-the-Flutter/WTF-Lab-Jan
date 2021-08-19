@@ -27,16 +27,6 @@ class CategoryRepository {
     return dbProvider.updateCategory(CategoryMapper.toDb(category));
   }
 
-  // Future<int> switchPriority(Category category) async {
-  //   final priority;
-  //   if (category.priority == CategoryPriority.high) {
-  //     priority = CategoryPriority.normal;
-  //   } else {
-  //     priority = CategoryPriority.high;
-  //   }
-  //   return dbProvider.updateCategory(CategoryMapper.toDb(category.copyWith(priority: priority)));
-  // }
-
   Future<int> deleteCategory(Category category) async {
     return dbProvider.deleteCategory(category.id!);
   }

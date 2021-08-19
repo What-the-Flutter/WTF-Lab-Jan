@@ -108,7 +108,7 @@ class DbProvider {
     return List.generate(maps.length, (i) => DbCategory.fromMap(maps[i]));
   }
 
-  Future<void> insertNote(int categoryId, DbNote note) async {
+  Future<int> insertNote(int categoryId, DbNote note) async {
     final db = await database;
     final noteId = await db.insert(
       notesTable,
@@ -116,11 +116,12 @@ class DbProvider {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     await db.insert(categoryNoteTable, {'category_id': categoryId, 'note_id': noteId});
+    return noteId;
   }
 
-  Future<void> updateNoteCategory(int categoryId, int noteId) async {
+  Future<int> updateNoteCategory(int categoryId, int noteId) async {
     final db = await database;
-    await db.update(
+    return db.update(
       categoryNoteTable,
       {'category_id': categoryId, 'note_id': noteId},
       where: 'note_id = ?',
@@ -128,18 +129,20 @@ class DbProvider {
     );
   }
 
-  Future<void> updateNote(DbNote note) async {
+  Future<int> updateNote(DbNote note) async {
     final db = await database;
-    await db.update(notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
+    return db.update(notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
   }
 
-  Future<void> updateNotes(List<DbNote> notes) async {
+  // returns true if all update transactions succeeded
+  Future<bool> updateNotes(List<DbNote> notes) async {
     final db = await database;
     final batch = db.batch();
     for (final note in notes) {
       batch.update(notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
     }
-    await batch.commit();
+    final result = await batch.commit();
+    return !result.any((element) => element is DatabaseException);
   }
 
   Future<void> deleteNote(int id) async {
@@ -147,13 +150,15 @@ class DbProvider {
     await db.delete(notesTable, where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<void> deleteNotes(List<DbNote> notes) async {
+  // returns true if all delete transactions succeeded
+  Future<bool> deleteNotes(List<DbNote> notes) async {
     final db = await database;
     final batch = db.batch();
     for (final note in notes) {
       batch.delete(notesTable, where: 'id = ?', whereArgs: [note.id]);
     }
-    await batch.commit();
+    final result = await batch.commit();
+    return !result.any((element) => element is DatabaseException);
   }
 
   Future<List<DbNote>> notes() async {
