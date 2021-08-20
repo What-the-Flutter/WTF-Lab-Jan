@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Themes/themes.dart';
 
 import 'models/note_model.dart';
 import 'screens/home_screen.dart';
@@ -27,22 +28,28 @@ void initTestFields() {
   notes.add(Notes(title: 'Notes', iconIndex: 0, note: notesList[0]));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  bool isDarkMode = false;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        backgroundColor: Colors.yellowAccent,
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-            selectedItemColor: Colors.yellowAccent,
-            unselectedItemColor: Colors.black),
-        scaffoldBackgroundColor: Colors.white,
-        primaryColor: Colors.white,
-        accentColor: Colors.yellowAccent,
-        primaryColorLight: Colors.yellowAccent,
+      themeMode: ThemeMode.system,
+      theme: isDarkMode? Themes().darkTheme : Themes().lightTheme,
+      darkTheme: Themes().darkTheme,
+      home: MainPage(
+        isChangedTheme: (value) {
+          isDarkMode = value;
+          setState(() {});
+        },
       ),
-      home: MainPage(),
     );
   }
 }

@@ -11,8 +11,9 @@ class Note {
   bool isBookmarked;
   String description;
 
-  Note(
-      {required this.time,
-      required this.isBookmarked,
-      required this.description});
+  Note({
+    required this.time,
+    required this.isBookmarked,
+    required this.description,
+  });
 }

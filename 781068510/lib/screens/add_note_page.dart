@@ -1,70 +1,73 @@
 import 'package:flutter/material.dart';
+
 import 'home_screen.dart';
 
 class AddNote extends StatefulWidget {
   @override
-  _AddNote createState() => _AddNote(description: '', title: '', colorFAB: Colors.black12);
+  _AddNote createState() =>
+      _AddNote(description: '', title: '', colorFAB: Colors.black12);
 }
 
 class _AddNote extends State<AddNote> {
-
   Color colorFAB;
   String title;
   String description;
 
-  _AddNote({required this.colorFAB, required this.title, required this.description});
+  _AddNote(
+      {required this.colorFAB, required this.title, required this.description});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            color: Colors.black,
             onPressed: () {
               Navigator.pop(
-                  context, MaterialPageRoute(builder: (context) => MainPage()));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MainPage(
+                    isChangedTheme: () {},
+                  ),
+                ),
+              );
             }),
         title: const Text(
           'Add note',
-          style: TextStyle(color: Colors.black),
         ),
       ),
-      body: Column(children: <Widget>[
-        Container(
-            padding: const EdgeInsets.all(16),
-            child: TextFormField(
-              autofocus: true,
-              onChanged: (text) {
-                if (text != '') {
-                  setState(() {
-                    title = text;
-                    colorFAB = Colors.green;
-                  });
-                } else {
-                  setState(() {
-                    title = text;
-                    colorFAB = Colors.grey;
-                  });
-                }
-              },
-              keyboardType: TextInputType.text,
-              maxLines: 1,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Title of your note',
-                helperText: '*required field, keep it short',
-                helperStyle: TextStyle(
-                  color: Colors.blue
+      body: Column(
+        children: <Widget>[
+          Container(
+              padding: const EdgeInsets.all(16),
+              child: TextFormField(
+                autofocus: true,
+                onChanged: (text) {
+                  if (text != '') {
+                    setState(() {
+                      title = text;
+                      colorFAB = Colors.green;
+                    });
+                  } else {
+                    setState(() {
+                      title = text;
+                      colorFAB = Colors.grey;
+                    });
+                  }
+                },
+                keyboardType: TextInputType.text,
+                maxLines: 1,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Title of your note',
+                  helperText: '*required field, keep it short',
+                  helperStyle: TextStyle(color: Colors.blue),
+                  labelText: 'Title',
+                  contentPadding: EdgeInsets.all(10),
                 ),
-                labelText: 'Title',
-                contentPadding: EdgeInsets.all(10),
-              ),
-            )),
-        Container(
+              )),
+          Container(
             padding: const EdgeInsets.all(16),
             child: TextFormField(
               autofocus: false,
@@ -72,8 +75,7 @@ class _AddNote extends State<AddNote> {
                 setState(() {
                   if (text != '') {
                     description = text;
-                  }
-                  else {
+                  } else {
                     description = '';
                   }
                 });
@@ -85,8 +87,10 @@ class _AddNote extends State<AddNote> {
                 labelText: 'Description',
                 contentPadding: EdgeInsets.all(10),
               ),
-            )),
-      ]),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(
           Icons.check,
@@ -99,7 +103,13 @@ class _AddNote extends State<AddNote> {
               // Add data to notes
             });
             Navigator.pop(
-                context, MaterialPageRoute(builder: (context) => MainPage()));
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainPage(
+                  isChangedTheme: () {},
+                ),
+              ),
+            );
           }
         },
       ),

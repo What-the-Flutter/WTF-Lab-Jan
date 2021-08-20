@@ -7,14 +7,20 @@ import 'info_page/note_info_page.dart';
 List<String> titles = ['Home', 'Daily', 'Timeline', 'Explore'];
 
 class MainPage extends StatefulWidget {
+
+  final Function isChangedTheme;
+
+  MainPage({required this.isChangedTheme});
+
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  String title = 'Home';
 
+  String title = 'Home';
   int index = 0;
+  bool isDarkMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +35,15 @@ class _MainPageState extends State<MainPage> {
         ),
         title: Text(
           title,
-          style: const TextStyle(color: Colors.black),
         ),
         centerTitle: true,
         actions: <Widget>[
           IconButton(
               onPressed: () {
                 print('theme');
+                print(isDarkMode);
+                isDarkMode = !isDarkMode;
+                widget.isChangedTheme(isDarkMode);
               },
               icon: const Icon(Icons.invert_colors)),
         ],
@@ -122,7 +130,6 @@ class _MainPageState extends State<MainPage> {
   Widget buildSearchContainer() {
     return Container(
       height: 65,
-      color: Colors.white,
       child: Center(
         child: Expanded(
           child: Container(

@@ -22,6 +22,9 @@ environment:
 
 dependencies:
   intl: 0.17.0
+
+  provider: ^4.3.2+3
+
   flutter:
     sdk: flutter
 

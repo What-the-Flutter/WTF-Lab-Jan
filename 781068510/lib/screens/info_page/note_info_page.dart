@@ -13,13 +13,13 @@ class NoteInfo extends StatefulWidget {
   final bool isEditMode;
   final bool isMultiSelection;
 
-  NoteInfo(
-      {required this.title,
-      required this.listView,
-      required this.isEditMode,
-      required this.isMultiSelection,
-      required Key key})
-      : super(key: key);
+  NoteInfo({
+    required this.title,
+    required this.listView,
+    required this.isEditMode,
+    required this.isMultiSelection,
+    required Key key,
+  }) : super(key: key);
 
   @override
   _NoteInfo createState() => _NoteInfo();
@@ -62,8 +62,6 @@ class _NoteInfo extends State<NoteInfo> {
 
   void addToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    Scaffold.of(context)
-        .showSnackBar(const SnackBar(content: Text('text copied')));
   }
 
   void selectNotes(Note note) {
@@ -169,7 +167,7 @@ class _NoteInfo extends State<NoteInfo> {
                 icon: const Icon(Icons.copy),
                 onPressed: () {
                   var value = '';
-                  for(var element in activeNotes) {
+                  for (var element in activeNotes) {
                     value += element.description;
                   }
                   addToClipboard(value);
@@ -322,65 +320,59 @@ class _NoteInfo extends State<NoteInfo> {
         constraints: const BoxConstraints(
           maxHeight: 60,
         ),
-        child: Container(
-          color: Colors.white,
-          child: Row(
-            children: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.event),
-                onPressed: () {},
-              ),
-              Flexible(
-                child: Container(
-                  color: Colors.white,
-                  child: Container(
-                    margin: const EdgeInsets.all(5),
-                    decoration: const BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    child: TextFormField(
-                      controller: _textController,
-                      style: const TextStyle(color: Colors.black, fontSize: 16),
-                      decoration: const InputDecoration(
-                        // border: InputBorder.none,
-                        border: OutlineInputBorder(borderSide: BorderSide.none),
-                        hintText: 'Enter event',
-                        contentPadding: EdgeInsets.only(left: 10),
-                      ),
-                      keyboardType: TextInputType.text,
-                      onChanged: (text) {
-                        if (text != '') {}
-                      },
-                    ),
+        child: Row(
+          children: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.event),
+              onPressed: () {},
+            ),
+            Flexible(
+              child: Container(
+                margin: const EdgeInsets.all(5),
+                decoration: const BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: TextFormField(
+                  controller: _textController,
+                  style: const TextStyle(fontSize: 16),
+                  decoration: const InputDecoration(
+                    // border: InputBorder.none,
+                    border: OutlineInputBorder(borderSide: BorderSide.none),
+                    hintText: 'Enter event',
+                    contentPadding: EdgeInsets.only(left: 10),
                   ),
+                  keyboardType: TextInputType.text,
+                  onChanged: (text) {
+                    if (text != '') {}
+                  },
                 ),
               ),
-              !isTextTyped
-                  ? IconButton(
-                      icon: const Icon(Icons.camera_alt),
-                      onPressed: () {},
-                    )
-                  : IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: () {
-                        if (!isTextEditMode) {
-                          addMessageToList();
-                          moveToLastMessage();
-                          setState(() {});
-                        } else {
-                          var index = allNotes.indexOf(activeNotes[0]);
-                          setState(() {
-                            allNotes[index].description = _textController.text;
-                          });
-                          _textController.text = '';
-                          isTextEditMode = false;
-                          cancelEditMode();
-                        }
-                      },
-                    ),
-            ],
-          ),
+            ),
+            !isTextTyped
+                ? IconButton(
+                    icon: const Icon(Icons.camera_alt),
+                    onPressed: () {},
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: () {
+                      if (!isTextEditMode) {
+                        addMessageToList();
+                        moveToLastMessage();
+                        setState(() {});
+                      } else {
+                        var index = allNotes.indexOf(activeNotes[0]);
+                        setState(() {
+                          allNotes[index].description = _textController.text;
+                        });
+                        _textController.text = '';
+                        isTextEditMode = false;
+                        cancelEditMode();
+                      }
+                    },
+                  ),
+          ],
         ),
       ),
     );
