@@ -33,7 +33,7 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, Note note) {
+  void _showDeleteDialog(BuildContext context, Note note, FetchedStarredNotesState state) {
     showDialog(
       context: context,
       builder: (_) {
@@ -50,6 +50,14 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
             ),
             TextButton(
               onPressed: () {
+                _listKey.currentState?.removeItem(
+                  state.notes.indexOf(note),
+                  (context, animation) => FadeTransition(
+                    opacity: animation,
+                    child: NoteItem(note: note, isStarred: false),
+                  ),
+                  duration: const Duration(milliseconds: 300),
+                );
                 context.read<StarredNotesBloc>().add(DeleteFromStarredNotesEvent(note));
                 Navigator.pop(context);
               },
@@ -65,30 +73,13 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
   }
 
   Future<bool> _onPop(FetchedStarredNotesState state) async {
-    Navigator.pop(context, state.deleteAt != null);
+    Navigator.pop(context, state.switchedStar);
     return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<StarredNotesBloc, StarredNotesState>(
-      listener: (context, state) {
-        if (state is FetchedStarredNotesState) {
-          if (state.deleteAt != null) {
-            _listKey.currentState?.removeItem(
-              state.deleteAt!,
-              (context, animation) => FadeTransition(
-                opacity: animation,
-                child: NoteItem(
-                  note: state.noteToDelete!,
-                  isStarred: false,
-                ),
-              ),
-              duration: const Duration(milliseconds: 300),
-            );
-          }
-        }
-      },
+    return BlocBuilder<StarredNotesBloc, StarredNotesState>(
       builder: (context, state) {
         if (state is FetchingStarredNotesState) {
           return Center(
@@ -116,7 +107,7 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
                         note: currentState.notes[i],
                         isStarred: true,
                         onLongPress: (note) {
-                          _showDeleteDialog(context, note);
+                          _showDeleteDialog(context, note, state);
                           HapticFeedback.mediumImpact();
                         },
                       );

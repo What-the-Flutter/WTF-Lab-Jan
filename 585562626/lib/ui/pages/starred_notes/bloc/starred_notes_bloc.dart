@@ -24,9 +24,8 @@ class StarredNotesBloc extends Bloc<StarredNotesEvent, StarredNotesState> {
     } else if (event is DeleteFromStarredNotesEvent) {
       final currentState = state as FetchedStarredNotesState;
       final list = List<Note>.from(currentState.notes);
-      final index = list.indexOf(event.note);
       list.remove(event.note);
-      yield FetchedStarredNotesState(list, deleteAt: index, noteToDelete: event.note);
+      yield FetchedStarredNotesState(list, switchedStar: true);
       final result = await noteRepository.updateNotes([event.note.copyWith(hasStar: false)]);
       if (!result) {
         yield await _fetchStarredNotes();
@@ -34,7 +33,7 @@ class StarredNotesBloc extends Bloc<StarredNotesEvent, StarredNotesState> {
     }
   }
 
-  Future<StarredNotesState> _fetchStarredNotes({bool deleteAt = false}) async {
+  Future<StarredNotesState> _fetchStarredNotes({bool switchedStar = false}) async {
     final notes = await noteRepository.fetchStarredNotes(category);
     if (state is FetchedStarredNotesState) {
       return (state as FetchedStarredNotesState).copyWith(notes: notes);

@@ -19,19 +19,17 @@ class InitialStarredNotesState extends FetchedStarredNotesState {
 
 class FetchedStarredNotesState extends StarredNotesState {
   final List<Note> notes;
-  final int? deleteAt;
-  final Note? noteToDelete;
+  final bool switchedStar;
 
-  const FetchedStarredNotesState(this.notes, {this.deleteAt, this.noteToDelete});
+  const FetchedStarredNotesState(this.notes, {this.switchedStar = false});
 
-  FetchedStarredNotesState copyWith({List<Note>? notes, int? deleteAt, Note? noteToDelete}) {
+  FetchedStarredNotesState copyWith({List<Note>? notes, bool? switchedStar}) {
     return FetchedStarredNotesState(
       notes ?? this.notes,
-      deleteAt: deleteAt ?? this.deleteAt,
-      noteToDelete: noteToDelete ?? this.noteToDelete,
+      switchedStar: switchedStar ?? this.switchedStar,
     );
   }
 
   @override
-  List<Object?> get props => [deleteAt, noteToDelete];
+  List<Object?> get props => [notes, switchedStar];
 }
