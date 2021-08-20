@@ -7,10 +7,7 @@ import 'timeline_state.dart';
 class TimelineBloc extends Bloc<TimelineEvent, TimelineState> {
   final NoteRepository noteRepository;
 
-  TimelineBloc(
-    TimelineState initialState, {
-    required this.noteRepository,
-  }) : super(initialState);
+  TimelineBloc(TimelineState initialState, {required this.noteRepository}) : super(initialState);
 
   @override
   Stream<TimelineState> mapEventToState(TimelineEvent event) async* {

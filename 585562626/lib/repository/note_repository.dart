@@ -26,7 +26,7 @@ class NoteRepository {
     return dbProvider.insertNote(categoryId, NoteMapper.toDb(note));
   }
 
-  Future<bool> switchStar(List<Note> notes) async {
+  Future<bool> updateNotes(Iterable<Note> notes) async {
     return dbProvider.updateNotes(notes.map(NoteMapper.toDb).toList());
   }
 

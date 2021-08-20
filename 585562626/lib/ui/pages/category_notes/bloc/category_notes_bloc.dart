@@ -77,7 +77,7 @@ class CategoryNotesBloc extends Bloc<CategoryNotesEvent, CategoryNotesState> {
     notes.addAll(updatedNotes);
     notes.sort((e1, e2) => e2.created.compareTo(e1.created));
     yield state.copyWith(notes: notes);
-    final result = await noteRepository.switchStar(updatedNotes.toList());
+    final result = await noteRepository.updateNotes(updatedNotes);
     if (!result) {
       yield await _fetchNotes();
     }
