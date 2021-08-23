@@ -162,7 +162,7 @@ class _StatsContentState extends State<StatsContent> with SingleTickerProviderSt
                       ),
                     ),
                     _notes(state),
-                    _categories(state.categoryCountData.length),
+                    _categories(state.categoryAmount),
                   ],
                 );
         } else {

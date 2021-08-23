@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../repository/category_repository.dart';
 import '../../../repository/note_repository.dart';
 import 'bloc/bloc.dart';
 import 'bloc/stats_bloc.dart';
@@ -15,6 +16,7 @@ class StatsPage extends StatelessWidget {
       create: (_) => StatsBloc(
         const InitialDataState(),
         noteRepository: RepositoryProvider.of<NoteRepository>(context),
+        categoryRepository: RepositoryProvider.of<CategoryRepository>(context),
       )..add(const FetchDataEvent()),
       child: const StatsContent(),
     );

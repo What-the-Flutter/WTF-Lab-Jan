@@ -15,14 +15,24 @@ class FetchingDataState extends StatsState {
 }
 
 class InitialDataState extends FetchedNotesState {
-  const InitialDataState() : super(const [], categoryCountData: const []);
+  const InitialDataState()
+      : super(
+          notes: const [],
+          categoryCountData: const [],
+          categoryAmount: 0,
+        );
 }
 
 class FetchedNotesState extends StatsState {
   final List<NoteWithCategory> notes;
   final List<CategoryCount> categoryCountData;
+  final int categoryAmount;
 
-  const FetchedNotesState(this.notes, {required this.categoryCountData});
+  const FetchedNotesState({
+    required this.notes,
+    required this.categoryCountData,
+    required this.categoryAmount,
+  });
 
   @override
   List<Object?> get props => [notes, categoryCountData];
