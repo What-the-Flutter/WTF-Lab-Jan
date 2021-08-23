@@ -152,18 +152,20 @@ class _StatsContentState extends State<StatsContent> with SingleTickerProviderSt
               ? Center(
                   child: Text('Nothing found.', style: Theme.of(context).textTheme.bodyText2),
                 )
-              : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: Insets.xmedium),
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: StatsPieChart(data: state.categoryCountData),
-                      ),
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: Insets.xmedium),
+                    child: Column(
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 1,
+                          child: StatsPieChart(data: state.categoryCountData),
+                        ),
+                        _notes(state),
+                        _categories(state.categoryAmount),
+                      ],
                     ),
-                    _notes(state),
-                    _categories(state.categoryAmount),
-                  ],
+                  ),
                 );
         } else {
           content = Center(
