@@ -1,9 +1,9 @@
-class Notes {
-  final String title;
-  List<Note>? note;
-  final int iconIndex;
+class Journal {
+  String title;
+  List<Note> note;
+  int iconIndex;
 
-  Notes({required this.title, required this.iconIndex, this.note});
+  Journal({required this.title, required this.iconIndex, required this.note});
 }
 
 class Note {

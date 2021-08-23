@@ -8,17 +8,11 @@ import '../../models/note_model.dart';
 import 'info_note_tile.dart';
 
 class NoteInfo extends StatefulWidget {
-  final String title;
-  final List<Note> listView;
-  final bool isEditMode;
-  final bool isMultiSelection;
+  final Journal journal;
 
   NoteInfo({
-    required this.title,
-    required this.listView,
-    required this.isEditMode,
-    required this.isMultiSelection,
-    required Key key,
+    required this.journal,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -34,47 +28,13 @@ class _NoteInfo extends State<NoteInfo> {
 
   bool isEditMode = false;
   bool isMultiSelection = false;
-
   bool isTextEditMode = false;
-
   bool isBookmarkedNoteMode = false;
 
   String inputText = '';
   bool isTextTyped = false;
 
-  void moveToLastMessage() {
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-  }
 
-  void deleteMessages() {
-    for (var element in activeNotes) {
-      allNotes.remove(element);
-    }
-    setState(() {});
-  }
-
-  void cancelEditMode() {
-    isEditMode = false;
-    isMultiSelection = false;
-    activeNotes.clear();
-    setState(() {});
-  }
-
-  void addToClipboard(String text) {
-    Clipboard.setData(ClipboardData(text: text));
-  }
-
-  void selectNotes(Note note) {
-    final isSelected = activeNotes.contains(note);
-    isSelected ? activeNotes.remove(note) : activeNotes.add(note);
-    isEditMode = activeNotes.isEmpty ? false : true;
-    isMultiSelection = activeNotes.length > 1 ? true : false;
-    setState(() {});
-  }
-
-  bool itContains(int index) {
-    return activeNotes.contains(allNotes.elementAt(index)) ? true : false;
-  }
 
   void initText() {
     _textController.addListener(() {
@@ -92,31 +52,29 @@ class _NoteInfo extends State<NoteInfo> {
 
   @override
   void initState() {
-    allNotes = widget.listView;
+    allNotes = widget.journal.note;
     initText();
-    print(allNotes);
     super.initState();
   }
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is removed from the
-    // widget tree.
     _textController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // final args = ModalRoute.of(context)!.settings.arguments as Journal;
     return Scaffold(
       appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60), child: buildAppBar()),
+          preferredSize: const Size.fromHeight(60), child: buildAppBar(widget.journal.title)),
       body: buildParam(),
     );
   }
 
-  Widget buildAppBar() {
-    final label = !isEditMode ? widget.title : '';
+  Widget buildAppBar(String title) {
+    final label = !isEditMode ? title : '';
     return AppBar(
       elevation: 0.0,
       centerTitle: true,
@@ -242,7 +200,7 @@ class _NoteInfo extends State<NoteInfo> {
         child: Column(
           children: <Widget>[
             Text(
-              'This is the page where you can track everything about ${widget.title}!',
+              'This is the page where you can track everything about ${widget.journal.title}!',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
@@ -254,7 +212,7 @@ class _NoteInfo extends State<NoteInfo> {
               height: 20,
             ),
             Text(
-              'Add your first event to "${widget.title}" '
+              'Add your first event to "${widget.journal.title}" '
               'page by entering some text in the text box'
               'below and hitting the send button. Long tap'
               'the send button to align the event in the '
@@ -283,7 +241,7 @@ class _NoteInfo extends State<NoteInfo> {
             itemCount: allNotes.length,
             itemBuilder: (context, index) {
               return NoteTile(
-                onSelectedNote: selectNotes,
+                onSelectedNote: selectedNotes,
                 onSelected: (value) {
                   setState(
                     () {
@@ -383,7 +341,42 @@ class _NoteInfo extends State<NoteInfo> {
     var date = DateFormat('yyyy-MM-dd – kk:mm').format(now);
     notes[0]
         .note
-        ?.add(Note(isBookmarked: false, time: date, description: inputText));
+        .add(Note(isBookmarked: false, time: date, description: inputText));
     _textController.text = '';
   }
+
+  void moveToLastMessage() {
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+  }
+
+  void deleteMessages() {
+    for (var element in activeNotes) {
+      allNotes.remove(element);
+    }
+    setState(() {});
+  }
+
+  void cancelEditMode() {
+    isEditMode = false;
+    isMultiSelection = false;
+    activeNotes.clear();
+    setState(() {});
+  }
+
+  void addToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+  }
+
+  void selectedNotes(Note note) {
+    final isSelected = activeNotes.contains(note);
+    isSelected ? activeNotes.remove(note) : activeNotes.add(note);
+    isEditMode = activeNotes.isEmpty ? false : true;
+    isMultiSelection = activeNotes.length > 1 ? true : false;
+    setState(() {});
+  }
+
+  bool itContains(int index) {
+    return activeNotes.contains(allNotes.elementAt(index)) ? true : false;
+  }
+
 }

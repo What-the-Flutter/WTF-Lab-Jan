@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+
+import 'Themes/theme_change.dart';
 import 'Themes/themes.dart';
-
 import 'models/note_model.dart';
-import 'screens/home_screen.dart';
+import 'routes/routes.dart' as route;
 
-List<Notes> notes = [];
+
+List<Journal> notes = [];
 List<List<Note>> notesList = [];
 
 List<IconData> listOfIcons = [
+  Icons.text_fields,
+  Icons.coffee,
+  Icons.cake,
+  Icons.star,
+  Icons.vpn_key_sharp,
+  Icons.work_outlined,
   Icons.flight_takeoff,
   Icons.hotel,
   Icons.call,
@@ -20,36 +28,28 @@ List<IconData> listOfIcons = [
 
 void main() {
   initTestFields();
-  return runApp(MyApp());
+  runApp(MyApp()); //remove?
+  runApp(
+    ThemeSelector(
+      theme: Themes().lightTheme,
+      child: MyApp(),
+    ),
+  );
 }
 
 void initTestFields() {
   notesList.add(List<Note>.empty(growable: true));
-  notes.add(Notes(title: 'Notes', iconIndex: 0, note: notesList[0]));
+  notes.add(Journal(title: 'Notes', iconIndex: 0, note: notesList[0]));
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-
-  bool isDarkMode = false;
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
-      theme: isDarkMode? Themes().darkTheme : Themes().lightTheme,
-      darkTheme: Themes().darkTheme,
-      home: MainPage(
-        isChangedTheme: (value) {
-          isDarkMode = value;
-          setState(() {});
-        },
-      ),
+      theme: ThemeSelector.instanceOf(context).theme,
+      onGenerateRoute: route.controller,
+      initialRoute: route.mainPage,
     );
   }
 }

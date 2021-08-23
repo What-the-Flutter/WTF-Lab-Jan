@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
-import 'add_note_page.dart';
-import 'info_page/note_info_page.dart';
+import '../../Themes/theme_change.dart';
+import '../../main.dart';
+import '../../routes/routes.dart' as route;
+import 'list_view_build.dart';
 
 List<String> titles = ['Home', 'Daily', 'Timeline', 'Explore'];
 
 class MainPage extends StatefulWidget {
-
-  final Function isChangedTheme;
-
-  MainPage({required this.isChangedTheme});
-
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-
   String title = 'Home';
   int index = 0;
   bool isDarkMode = false;
@@ -28,9 +23,7 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         elevation: 0.0,
         leading: IconButton(
-          onPressed: () {
-            print('menu');
-          },
+          onPressed: () => print('menu'),
           icon: const Icon(Icons.menu),
         ),
         title: Text(
@@ -40,10 +33,8 @@ class _MainPageState extends State<MainPage> {
         actions: <Widget>[
           IconButton(
               onPressed: () {
-                print('theme');
-                print(isDarkMode);
                 isDarkMode = !isDarkMode;
-                widget.isChangedTheme(isDarkMode);
+                ThemeSelector.instanceOf(context).changeTheme();
               },
               icon: const Icon(Icons.invert_colors)),
         ],
@@ -92,13 +83,9 @@ class _MainPageState extends State<MainPage> {
     return FloatingActionButton(
       child: const Icon(
         Icons.add,
-        //color: Colors.white,
       ),
-      //backgroundColor: Colors.black,
       onPressed: () {
-        // print('Floating button pressed');
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => AddNote()));
+        Navigator.of(context).pushNamed(route.addNotePage);
       },
     );
   }
@@ -121,8 +108,8 @@ class _MainPageState extends State<MainPage> {
   Widget homePage() {
     return Column(
       children: <Widget>[
-        buildSearchContainer(),
-        Flexible(child: homeListView())
+        //buildSearchContainer(),
+        Flexible(child: BuildListView())
       ],
     );
   }
@@ -162,47 +149,6 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
-  }
-
-  Widget homeListView() {
-    return ListView.builder(
-        itemCount: notes.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            contentPadding: const EdgeInsets.all(5),
-            leading: CircleAvatar(
-              radius: 30,
-              // backgroundColor: Colors.yellowAccent,
-              child: Icon(
-                listOfIcons[notes[index].iconIndex],
-                size: 30,
-              ),
-            ),
-            title: Text(
-              notes[index].title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Text(notes[index].note!.isNotEmpty
-                ? notes[index].note!.last.description
-                : 'Entry event'),
-            onTap: () {
-              // print('ListView element $index');
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => NoteInfo(
-                      title: notes[index].title,
-                      listView: notesList[index],
-                      isEditMode: false,
-                      isMultiSelection: false,
-                      key: UniqueKey()),
-                ),
-              );
-            },
-          );
-        });
   }
 
   Widget daily() => Container();
