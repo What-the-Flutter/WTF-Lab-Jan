@@ -23,6 +23,13 @@ class FetchedStarredNotesState extends StarredNotesState {
 
   const FetchedStarredNotesState(this.notes, {this.switchedStar = false});
 
+  FetchedStarredNotesState copyWith({List<Note>? notes, bool? switchedStar}) {
+    return FetchedStarredNotesState(
+      notes ?? this.notes,
+      switchedStar: switchedStar ?? this.switchedStar,
+    );
+  }
+
   @override
-  List<Object?> get props => [switchedStar];
+  List<Object?> get props => [notes, switchedStar];
 }

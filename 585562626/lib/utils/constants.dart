@@ -12,6 +12,7 @@ class FontSize {
   static const double normal = 16;
   static const double big = 18;
   static const double large = 20;
+  static const double superLarge = 24;
 }
 
 class CornerRadius {

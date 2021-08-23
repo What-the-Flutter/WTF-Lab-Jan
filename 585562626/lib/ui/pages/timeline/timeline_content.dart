@@ -28,7 +28,7 @@ class _TimelineContentState extends State<TimelineContent> with SingleTickerProv
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
-      value: 1
+      value: 1,
     );
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
@@ -57,12 +57,14 @@ class _TimelineContentState extends State<TimelineContent> with SingleTickerProv
               ? Center(
                   child: Text('Nothing found.', style: Theme.of(context).textTheme.bodyText2),
                 )
-              : ListView(
+              : ListView.builder(
                   controller: _scrollController,
                   physics: const ClampingScrollPhysics(),
-                  children: state.filteredNotes
-                      .map((note) => NoteItem(note: note.note, category: note.category))
-                      .toList(),
+                  itemCount: state.filteredNotes.length,
+                  itemBuilder: (context, index) {
+                    final note = state.filteredNotes[index];
+                    return NoteItem(note: note.note, category: note.category);
+                  },
                 );
         } else {
           content = Center(

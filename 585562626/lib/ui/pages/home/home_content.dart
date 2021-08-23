@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../categories/categories_page.dart';
 import '../settings/settings_page.dart';
+import '../stats/stats_page.dart';
 import '../timeline/timeline_page.dart';
 import 'bloc/bloc.dart';
 
@@ -16,7 +17,7 @@ class _HomeContentState extends State<HomeContent> {
     CategoriesPage(),
     Center(child: Text('2')),
     TimelinePage(),
-    Center(child: Text('4')),
+    StatsPage(),
   ];
 
   void _selectTab(int tab) {
@@ -44,8 +45,8 @@ class _HomeContentState extends State<HomeContent> {
               label: 'Timeline',
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.explore_outlined),
-              label: 'Explore',
+              icon: Icon(Icons.bar_chart),
+              label: 'Stats',
             ),
           ],
           onTap: _selectTab,
@@ -59,7 +60,7 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home', style: Theme.of(context).appBarTheme.titleTextStyle),
+        title: Text('Cool Notes', style: Theme.of(context).appBarTheme.titleTextStyle),
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).pushNamed(SettingsPage.routeName),

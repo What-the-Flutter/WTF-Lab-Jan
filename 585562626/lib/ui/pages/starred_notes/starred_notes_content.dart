@@ -23,7 +23,7 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
   AppBar _appBar(FetchedStarredNotesState state) {
     return AppBar(
       leading: IconButton(
-        onPressed: () => Navigator.pop(context, state.switchedStar),
+        onPressed: () => _onPop(state),
         icon: Platform.isIOS ? const Icon(Icons.arrow_back_ios) : const Icon(Icons.arrow_back),
       ),
       title: Text(
@@ -42,7 +42,7 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
           content: const Text('Are you sure you want to delete this note?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
+              onPressed: () => Navigator.pop(context),
               child: Text(
                 'Cancel'.toUpperCase(),
                 style: TextStyle(color: Theme.of(context).accentColor),
@@ -50,19 +50,16 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
             ),
             TextButton(
               onPressed: () {
-                context.read<StarredNotesBloc>().add(DeleteFromStarredNotesEvent(note));
                 _listKey.currentState?.removeItem(
                   state.notes.indexOf(note),
                   (context, animation) => FadeTransition(
                     opacity: animation,
-                    child: NoteItem(
-                      note: note,
-                      isStarred: true,
-                    ),
+                    child: NoteItem(note: note, isStarred: false),
                   ),
-                  duration: const Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 300),
                 );
-                Navigator.pop(context, 'Delete');
+                context.read<StarredNotesBloc>().add(DeleteFromStarredNotesEvent(note));
+                Navigator.pop(context);
               },
               child: Text(
                 'Delete'.toUpperCase(),
@@ -75,6 +72,11 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
     );
   }
 
+  Future<bool> _onPop(FetchedStarredNotesState state) async {
+    Navigator.pop(context, state.switchedStar);
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<StarredNotesBloc, StarredNotesState>(
@@ -85,27 +87,33 @@ class _StarredNotesContentState extends State<StarredNotesContent> {
           );
         }
         final currentState = state as FetchedStarredNotesState;
-        return Scaffold(
-          appBar: _appBar(currentState),
-          body: currentState.notes.isEmpty
-              ? Center(
-                  child: Text('Nothing starred yet.', style: Theme.of(context).textTheme.bodyText2),
-                )
-              : AnimatedList(
-                  key: _listKey,
-                  initialItemCount: currentState.notes.length,
-                  physics: const ClampingScrollPhysics(),
-                  itemBuilder: (context, i, animation) {
-                    return NoteItem(
-                      note: currentState.notes[i],
-                      isStarred: true,
-                      onLongPress: (note) {
-                        _showDeleteDialog(context, note, currentState);
-                        HapticFeedback.mediumImpact();
-                      },
-                    );
-                  },
-                ),
+        return WillPopScope(
+          onWillPop: () => _onPop(currentState),
+          child: Scaffold(
+            appBar: _appBar(currentState),
+            body: currentState.notes.isEmpty
+                ? Center(
+                    child: Text(
+                      'Nothing starred yet.',
+                      style: Theme.of(context).textTheme.bodyText2,
+                    ),
+                  )
+                : AnimatedList(
+                    key: _listKey,
+                    initialItemCount: currentState.notes.length,
+                    physics: const ClampingScrollPhysics(),
+                    itemBuilder: (context, i, animation) {
+                      return NoteItem(
+                        note: currentState.notes[i],
+                        isStarred: true,
+                        onLongPress: (note) {
+                          _showDeleteDialog(context, note, state);
+                          HapticFeedback.mediumImpact();
+                        },
+                      );
+                    },
+                  ),
+          ),
         );
       },
     );

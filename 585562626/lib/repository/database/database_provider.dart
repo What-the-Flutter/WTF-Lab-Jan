@@ -62,9 +62,9 @@ class DbProvider {
     });
   }
 
-  Future<void> insertCategory(DbCategory category) async {
+  Future<int> insertCategory(DbCategory category) async {
     final db = await database;
-    await db.insert(
+    return db.insert(
       categoriesTable,
       category.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -88,14 +88,24 @@ class DbProvider {
     await _insertCategories(db, categories);
   }
 
-  Future<void> updateCategory(DbCategory category) async {
+  Future<int> updateCategory(DbCategory category) async {
     final db = await database;
-    await db.update(categoriesTable, category.toMap(), where: 'id = ?', whereArgs: [category.id]);
+    return db.update(categoriesTable, category.toMap(), where: 'id = ?', whereArgs: [category.id]);
   }
 
-  Future<void> deleteCategory(int id) async {
+  Future<int> deleteCategory(int id) async {
     final db = await database;
-    await db.delete(categoriesTable, where: 'id = ?', whereArgs: [id]);
+    return db.delete(categoriesTable, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> countCategories({bool isDefault = false}) async {
+    final db = await database;
+    final categories = await db.query(
+      categoriesTable,
+      where: 'isDefault = ?',
+      whereArgs: [isDefault ? 1 : 0],
+    );
+    return categories.length;
   }
 
   Future<List<DbCategory>> categories({bool isDefault = false}) async {
@@ -108,7 +118,7 @@ class DbProvider {
     return List.generate(maps.length, (i) => DbCategory.fromMap(maps[i]));
   }
 
-  Future<void> insertNote(int categoryId, DbNote note) async {
+  Future<int> insertNote(int categoryId, DbNote note) async {
     final db = await database;
     final noteId = await db.insert(
       notesTable,
@@ -116,11 +126,12 @@ class DbProvider {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     await db.insert(categoryNoteTable, {'category_id': categoryId, 'note_id': noteId});
+    return noteId;
   }
 
-  Future<void> updateNoteCategory(int categoryId, int noteId) async {
+  Future<int> updateNoteCategory(int categoryId, int noteId) async {
     final db = await database;
-    await db.update(
+    return db.update(
       categoryNoteTable,
       {'category_id': categoryId, 'note_id': noteId},
       where: 'note_id = ?',
@@ -128,18 +139,20 @@ class DbProvider {
     );
   }
 
-  Future<void> updateNote(DbNote note) async {
+  Future<int> updateNote(DbNote note) async {
     final db = await database;
-    await db.update(notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
+    return db.update(notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
   }
 
-  Future<void> updateNotes(List<DbNote> notes) async {
+  // returns true if all update transactions succeeded
+  Future<bool> updateNotes(List<DbNote> notes) async {
     final db = await database;
     final batch = db.batch();
     for (final note in notes) {
       batch.update(notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
     }
-    await batch.commit();
+    final result = await batch.commit();
+    return !result.any((element) => element is DatabaseException);
   }
 
   Future<void> deleteNote(int id) async {
@@ -147,13 +160,15 @@ class DbProvider {
     await db.delete(notesTable, where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<void> deleteNotes(List<DbNote> notes) async {
+  // returns true if all delete transactions succeeded
+  Future<bool> deleteNotes(List<DbNote> notes) async {
     final db = await database;
     final batch = db.batch();
     for (final note in notes) {
       batch.delete(notesTable, where: 'id = ?', whereArgs: [note.id]);
     }
-    await batch.commit();
+    final result = await batch.commit();
+    return !result.any((element) => element is DatabaseException);
   }
 
   Future<List<DbNote>> notes() async {

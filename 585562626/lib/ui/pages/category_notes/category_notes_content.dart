@@ -438,30 +438,32 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
 
   Widget _content(CategoryNotesState state) {
     return Expanded(
-      child: ListView(
-        reverse: state.notes.isNotEmpty,
-        physics: const ClampingScrollPhysics(),
-        controller: _scrollController,
-        children: state.notes.isEmpty
-            ? [_emptyNotesMessage(state)]
-            : state.notes
-                .map(
-                  (note) => NoteItem(
-                    note: note,
-                    originDirection: !state.isRightAlignmentEnabled,
-                    isEditingMode: state.isEditingMode,
-                    isStarred: note.hasStar,
-                    isSelected: state.selectedNotes.contains(note),
-                    onTap: _switchNoteSelection,
-                    onLongPress: (_) {
-                      _switchEditingMode();
-                      HapticFeedback.mediumImpact();
-                    },
-                    onTimeTap: state.isDateTimeModificationEnabled ? _showTimePicker : null,
-                  ),
-                )
-                .toList(),
-      ),
+      child: state.notes.isEmpty
+          ? Wrap(
+              children: [_emptyNotesMessage(state)],
+            )
+          : ListView.builder(
+              reverse: state.notes.isNotEmpty,
+              physics: const ClampingScrollPhysics(),
+              controller: _scrollController,
+              itemCount: state.notes.length,
+              itemBuilder: (context, index) {
+                final note = state.notes[index];
+                return NoteItem(
+                  note: note,
+                  originDirection: !state.isRightAlignmentEnabled,
+                  isEditingMode: state.isEditingMode,
+                  isStarred: note.hasStar,
+                  isSelected: state.selectedNotes.contains(note),
+                  onTap: _switchNoteSelection,
+                  onLongPress: (_) {
+                    _switchEditingMode();
+                    HapticFeedback.mediumImpact();
+                  },
+                  onTimeTap: state.isDateTimeModificationEnabled ? _showTimePicker : null,
+                );
+              },
+            ),
     );
   }
 
@@ -483,6 +485,11 @@ class _CategoryNotesContentState extends State<CategoryNotesContent> {
         }
         if (state.showSearch) {
           _showSearch(state);
+        }
+        if (state.notInsertedForAnotherCategory) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Error occured while adding note to another category :('),
+          ));
         }
       },
       builder: (context, state) {
