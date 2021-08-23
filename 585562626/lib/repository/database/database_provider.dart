@@ -98,6 +98,16 @@ class DbProvider {
     return db.delete(categoriesTable, where: 'id = ?', whereArgs: [id]);
   }
 
+  Future<int> countCategories({bool isDefault = false}) async {
+    final db = await database;
+    final categories = await db.query(
+      categoriesTable,
+      where: 'isDefault = ?',
+      whereArgs: [isDefault ? 1 : 0],
+    );
+    return categories.length;
+  }
+
   Future<List<DbCategory>> categories({bool isDefault = false}) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(

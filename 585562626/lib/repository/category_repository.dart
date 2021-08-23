@@ -9,6 +9,10 @@ class CategoryRepository {
 
   CategoryRepository(this.dbProvider);
 
+  Future<int> countCategories() async {
+    return dbProvider.countCategories();
+  }
+
   Future<List<Category>> fetchCategories() async {
     final dbCategories = await dbProvider.categories();
     return dbCategories.map(CategoryMapper.fromDb).toList();
