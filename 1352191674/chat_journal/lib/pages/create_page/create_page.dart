@@ -1,116 +1,183 @@
-import 'package:chat_journal/pages/create_page/create_bloc.dart';
+import 'package:chat_journal/main.dart';
+import 'package:chat_journal/models/note_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'create_extras.dart';
+import 'create_cubit.dart';
 
-class CreatePage extends StatelessWidget {
-  final _bloc = CreateBloc();
-  final bool isEdit;
-  final String pageTitle;
-  final IconData pageIcon;
 
-  CreatePage({
-    Key? key,
-    this.isEdit = false,
-    this.pageTitle = '',
-    this.pageIcon = Icons.book,
-  }) : super(key: key);
+class NotePage extends StatefulWidget {
+  final List<Note>? noteList;
+  final Note? note;
+
+  const NotePage({Key? key, this.noteList, this.note}) : super(key: key);
+
+  @override
+  _NotePageState createState() => _NotePageState(
+    noteList: noteList,
+    note: note,
+  );
+}
+
+class _NotePageState extends State<NotePage> {
+  final FocusNode _focusNode = FocusNode();
+  final List<Note>? noteList;
+  final Note? note;
+  final TextEditingController _textController = TextEditingController();
+
+  _NotePageState({this.noteList, this.note});
+
+  @override
+  void initState() {
+    if (note != null) {
+      BlocProvider.of<NotesCubit>(context)
+          .setIndexOfIcon(note!.indexOfCircleAvatar);
+      _textController.text = note!.noteName;
+      _focusNode.requestFocus();
+    } else {
+      BlocProvider.of<NotesCubit>(context).setIndexOfIcon(0);
+    }
+    BlocProvider.of<NotesCubit>(context).init(note, noteList);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CreateBloc,CreateState>(
-      bloc: _bloc,
+    return BlocBuilder<NotesCubit, NotesState>(
       builder: (context, state) {
         return Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => _bloc.controller.text.isNotEmpty
-                ? Navigator.pop(context, <Object>[
-                    _bloc.controller.text,
-                    state.currentIconIndex
-                  ])
-                : Navigator.pop(context),
-            tooltip: 'Save',
-            child: Icon(Icons.done_outlined),
-            backgroundColor: Theme.of(context).accentColor,
-          ),
-          body: SafeArea(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 30),
-                    child: Text(
-                      isEdit ? 'Edit Page' : 'Create a new Page',
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        left: 30, top: 18, right: 30, bottom: 20),
-                    child: TextField(
-                      controller: _bloc.controller,
-                      decoration: InputDecoration(
-                        filled: true,
-                        labelText: 'Name of the Page',
-                      ),
-                    ),
-                  ),
-                  IconsList(bloc:_bloc,state:state),
-                ],
-              ),
-            ),
-          ),
+          appBar: _appBar,
+          body: _notePageBody(context, state),
+          floatingActionButton: _floatingActionButton(state),
         );
       },
     );
   }
-}
 
-class IconsList extends StatelessWidget {
-  final CreateBloc bloc;
-  final CreateState state;
-  const IconsList({Key? key, required this.bloc, required this.state}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      scrollDirection: Axis.vertical,
-      shrinkWrap: true,
-      itemCount: iconsList.length,
-      itemBuilder: (context, index) {
-        return IconButton(
-          icon: CircleAvatar(
-            backgroundColor: state.currentIconIndex == index
-                ? Theme.of(context).accentColor
-                : Colors.blueGrey[600],
-            radius: 28,
-            child: Icon(iconsList[index], size: 35, color: Colors.white),
+  Widget _notePageBody(BuildContext context, NotesState state) {
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      child: Column(
+        children: <Widget>[
+          Align(
+            alignment: Alignment.topCenter,
+            child: _textFieldAria(state),
           ),
-          onPressed: () {
-            bloc.add(NewIconEvent(index));
-          },
+          Expanded(
+            child: _gridView,
+          ),
+        ],
+      ),
+    );
+  }
+
+  GridView get _gridView {
+    return GridView.extent(
+      crossAxisSpacing: 5,
+      mainAxisSpacing: 5,
+      shrinkWrap: true,
+      scrollDirection: Axis.vertical,
+      padding: EdgeInsets.all(5),
+      maxCrossAxisExtent: 100,
+      children: [
+        for (var index = 0; index < iconsList.length; index++)
+          GestureDetector(
+            onTap: () =>
+                BlocProvider.of<NotesCubit>(context).setIndexOfIcon(index),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(left: 20),
+                  height: 80,
+                  width: 80,
+                  child: CircleAvatar(
+                    radius: 10,
+                    child: Icon(iconsList[index]),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Row _textFieldAria(NotesState state) {
+    return Row(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(left: 20, right: 20),
+          child: CircleAvatar(
+            child: Icon(iconsList[state.indexOfSelectIcon]),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: 30),
+            child: TextField(
+              style: TextStyle(
+                color: Colors.black,
+              ),
+              controller: _textController,
+              focusNode: _focusNode,
+              onChanged: (value) => value.isNotEmpty
+                  ? BlocProvider.of<NotesCubit>(context).setWritingState(true)
+                  : BlocProvider.of<NotesCubit>(context).setWritingState(false),
+              decoration: InputDecoration(
+                hintText: 'Enter event',
+                hintStyle: TextStyle(
+                  color: Colors.black45,
+                ),
+                fillColor: Colors.grey[200],
+                border: InputBorder.none,
+                filled: true,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  FloatingActionButton _floatingActionButton(NotesState state) {
+    return FloatingActionButton(
+      onPressed: () => _floatingActionButtonEvent(state),
+      child: state.isWriting!
+          ? Icon(
+        Icons.check,
+      )
+          : Icon(
+        Icons.clear,
+      ),
+    );
+  }
+
+  void _floatingActionButtonEvent(NotesState state) {
+    if (note != null && state.isWriting!) {
+      note!.noteName = _textController.text;
+      note!.indexOfCircleAvatar = state.indexOfSelectIcon;
+      Navigator.of(context).pop();
+    } else {
+      if (state.isWriting!) {
+        BlocProvider.of<NotesCubit>(context).addNote(_textController.text);
+        Navigator.of(context).pop();
+      } else {
+        Navigator.pop(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyApp(),
+          ),
         );
-      },
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 5.0,
-        crossAxisSpacing: 7.0,
+      }
+    }
+  }
+
+  AppBar get _appBar {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      title: Center(
+        child: Text('Create a new note'),
       ),
     );
   }
 }
-
-final iconsList = <IconData>[
-  Icons.book,
-  Icons.import_contacts_outlined,
-  Icons.nature_people_outlined,
-  Icons.info,
-  Icons.mail,
-  Icons.ac_unit,
-  Icons.access_time,
-  Icons.camera_alt,
-  Icons.hail,
-  Icons.all_inbox,
-];
