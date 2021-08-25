@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_chat_journal/bottom_bar.dart';
-import 'package:flutter_app_chat_journal/first_page.dart';
-import 'package:flutter_app_chat_journal/question_button.dart';
+import 'package:flutter_app_chat_journal/message_page.dart';
+import 'add_page.dart';
+
+import 'first_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,9 +23,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _index = 0;
-  List<Widget> _widgetList = <Widget>[
+  final List<Widget> _widgetList = <Widget>[
     FirstPage(),
-    Text('2'),
+    MessagePage(),
     Text('3'),
     Text('4'),
   ];
@@ -38,37 +39,47 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _index,
-          unselectedItemColor: Colors.grey,
-          selectedItemColor: Colors.teal,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add_box_rounded),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today_rounded),
-              label: 'Messages',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.map_outlined),
-              label: 'Timeline',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.explore),
-              label: 'Explore',
-            )
-          ],
-          onTap: _onItemTap,
-        ),
-        body: _widgetList.elementAt(_index),
-        drawer: Drawer(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: Icon(Icons.add),
-          backgroundColor: Colors.green,
-        ));
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _index,
+        unselectedItemColor: Colors.grey,
+        selectedItemColor: Colors.teal,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_box_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today_rounded),
+            label: 'Messages',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map_outlined),
+            label: 'Timeline',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.explore),
+            label: 'Explore',
+          )
+        ],
+        onTap: _onItemTap,
+      ),
+      body: _widgetList.elementAt(_index),
+      drawer: Drawer(),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () async {
+      //     typed = await Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) {
+      //           return AddPage();
+      //         },
+      //       ),
+      //     );
+      //   },
+      //   child: Icon(Icons.add),
+      //   backgroundColor: Colors.green,
+      // ),
+    );
   }
 }

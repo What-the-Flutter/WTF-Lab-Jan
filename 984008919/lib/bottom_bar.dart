@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_chat_journal/main.dart';
+import 'main.dart';
 
 class BottomBar extends StatefulWidget {
   @override
@@ -8,11 +8,11 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   int _index = 0;
-  List<Widget> _widget = <Widget>[
+  final List<Widget> _widget = <Widget>[
     MyHomePage(),
-    Text('2'),
-    Text('3'),
-    Text('4'),
+    const Text('2'),
+    const Text('3'),
+    const Text('4'),
   ];
 
   void _onItemTap(int index) {
@@ -28,19 +28,19 @@ class _BottomBarState extends State<BottomBar> {
       unselectedItemColor: Colors.grey,
       selectedItemColor: Colors.teal,
       items: [
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.add_box_rounded),
           label: 'Home',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today_rounded),
           label: 'Messages',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.map_outlined),
           label: 'Timeline',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.explore),
           label: 'Explore',
         )

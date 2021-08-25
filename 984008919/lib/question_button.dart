@@ -10,10 +10,12 @@ class QuestionnareButton extends StatelessWidget {
           style: ButtonStyle(
               backgroundColor:
                   MaterialStateProperty.all(Colors.green.shade200)),
-          icon: Icon(Icons.android, color: Colors.black),
+          icon: const Icon(Icons.android, color: Colors.black),
           onPressed: () {},
-          label:
-              Text('Questionnaire Bot', style: TextStyle(color: Colors.black)),
+          label: const Text(
+            'Questionnaire Bot',
+            style: TextStyle(color: Colors.black),
+          ),
         ),
       ),
     );
