@@ -51,7 +51,7 @@ class CreatePageCubit extends Cubit<CreatePageState> {
     );
   }
 
-  PageInfo? createPage(String title) {
+  void createPage(String title) {
     PageInfo updatedPage;
     if (title.isEmpty) {
       return null;
@@ -67,7 +67,7 @@ class CreatePageCubit extends Cubit<CreatePageState> {
         icon: Icon(state.selectedIcon, color: Colors.white),
       );
     }
-    return updatedPage;
+    emit(state.copyWith(editPage: updatedPage));
   }
 
   void setEditPage(PageInfo? page) {

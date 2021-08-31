@@ -81,7 +81,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(pages: pages));
   }
 
-  void setNavBarItem(int? index) {
+  void changeNavBarItem(int? index) {
     emit(state.copyWith(selectedContent: index));
   }
 }

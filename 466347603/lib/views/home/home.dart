@@ -20,17 +20,16 @@ class HomeScreen extends StatelessWidget {
   }
 
   AppBar _appBar(BuildContext context) {
-    final themeCubit = context.read<ThemeCubit>();
     return AppBar(
       title: const Center(
         child: Text('Home'),
       ),
       actions: <Widget>[
         IconButton(
-          icon: themeCubit.isDarkMode
+          icon: context.read<ThemeCubit>().isDarkMode
               ? const Icon(Icons.dark_mode)
               : const Icon(Icons.dark_mode_outlined),
-          onPressed: themeCubit.changeTheme,
+          onPressed: context.read<ThemeCubit>().changeTheme,
         ),
       ],
     );
@@ -133,8 +132,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showPageInfo(BuildContext context, int index) {
-    final pagesCubit = context.read<HomeCubit>();
-    final pages = pagesCubit.state.pages;
+    final pages = context.read<HomeCubit>().state.pages;
     Navigator.of(context).pop();
     showDialog(
       context: context,
@@ -217,15 +215,13 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _editPage(BuildContext context, int index) async {
-    final pagesCubit = context.read<HomeCubit>();
-    final pages = pagesCubit.state.pages;
+    final homeCubit = context.read<HomeCubit>();
+    final pages = homeCubit.state.pages;
     final page = await Navigator.of(context).popAndPushNamed(
       '/create-screen',
       arguments: pages[index],
     );
-    if (page is PageInfo) {
-      pagesCubit.editPage(index, page);
-    }
+    homeCubit.editPage(index, page as PageInfo);
   }
 
   void _deletePage(BuildContext context, int index) {
@@ -275,7 +271,7 @@ class HomeScreen extends StatelessWidget {
               label: 'Explore',
             ),
           ],
-          onTap: (index) => context.read<HomeCubit>().setNavBarItem(index),
+          onTap: (index) => context.read<HomeCubit>().changeNavBarItem(index),
         );
       },
     );

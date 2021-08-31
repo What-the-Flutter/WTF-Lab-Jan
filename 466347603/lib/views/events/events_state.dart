@@ -2,23 +2,21 @@ part of 'events_cubit.dart';
 
 class EventsState extends Equatable {
   final PageInfo? page;
+  final PageInfo? replyPage;
   final List<int> selectedEvents;
+  final List<Event> showEvents;
+  final List<Category> categories;
+  final Category selectedCategory;
+  final int replyPageIndex;
   final bool isEditMode;
   final bool isSearchMode;
   final bool isBookmarkedOnly;
   final bool isMessageEdit;
-  final List<Category> categories;
-  final Category selectedCategory;
-  final PageInfo? replyPage;
-  final int replyPageIndex;
-  final double? xStart;
-  final double? xCurrent;
 
   EventsState({
-    this.xCurrent,
-    this.xStart,
     this.page,
     this.selectedEvents = const [],
+    this.showEvents = const [],
     this.categories = const [],
     this.isEditMode = false,
     this.isSearchMode = false,
@@ -33,10 +31,9 @@ class EventsState extends Equatable {
   });
 
   EventsState copyWith({
-    double? xStart,
-    double? xCurrent,
     PageInfo? page,
     List<int>? selectedEvents,
+    List<Event>? showEvents,
     bool? isEditMode,
     bool? isSearchMode,
     List<Category>? categories,
@@ -47,10 +44,9 @@ class EventsState extends Equatable {
     int? replyPageIndex,
   }) {
     return EventsState(
-      xStart: xStart ?? this.xStart,
-      xCurrent: xCurrent ?? this.xCurrent,
       page: page ?? this.page,
       selectedEvents: selectedEvents ?? this.selectedEvents,
+      showEvents: showEvents ?? this.showEvents,
       isEditMode: isEditMode ?? this.isEditMode,
       isSearchMode: isSearchMode ?? this.isSearchMode,
       categories: categories ?? this.categories,
@@ -67,6 +63,7 @@ class EventsState extends Equatable {
     return [
       selectedEvents,
       isEditMode,
+      showEvents,
       isSearchMode,
       isBookmarkedOnly,
       isMessageEdit,
@@ -74,8 +71,6 @@ class EventsState extends Equatable {
       replyPageIndex,
       if (page != null) {page},
       if (replyPage != null) {replyPage},
-      if (xStart != null) {xStart},
-      if (xCurrent != null) {xCurrent},
     ];
   }
 }

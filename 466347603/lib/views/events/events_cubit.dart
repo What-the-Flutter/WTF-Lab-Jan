@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,12 +17,12 @@ class EventsCubit extends Cubit<EventsState> {
       const Category(icon: Icons.bubble_chart, title: '');
   final List<Category> _initCategories = const <Category>[
     Category(icon: Icons.favorite, title: 'favorite'),
-    Category(icon: Icons.ac_unit, title: 'ac unit'),
-    Category(icon: Icons.wine_bar, title: 'wine bar'),
-    Category(icon: Icons.local_pizza, title: 'local pizza'),
+    Category(icon: Icons.ac_unit, title: 'unit'),
+    Category(icon: Icons.wine_bar, title: 'wine'),
+    Category(icon: Icons.local_pizza, title: 'pizza'),
     Category(icon: Icons.money, title: 'money'),
-    Category(icon: Icons.car_rental, title: 'car rental'),
-    Category(icon: Icons.food_bank, title: 'food bank'),
+    Category(icon: Icons.car_rental, title: 'car'),
+    Category(icon: Icons.food_bank, title: 'food'),
     Category(icon: Icons.navigation, title: 'navigation'),
   ];
 
@@ -34,46 +33,58 @@ class EventsCubit extends Cubit<EventsState> {
       state.copyWith(
         selectedCategory: _defaultCategory,
         page: page,
+        replyPage: state.replyPage ?? page,
         categories:
             state.categories.isEmpty ? _initCategories : state.categories,
+        showEvents: state.page == page
+            ? state.showEvents.isEmpty
+                ? page.events
+                : state.showEvents
+            : page.events,
       ),
     );
   }
 
-  void setEditMode(bool isEditMode) {
+  void changeEditMode(bool isEditMode) {
     emit(state.copyWith(isEditMode: isEditMode));
   }
 
-  void setSearchMode(bool isSearchMode) {
+  void updateSearchQuery(String query) {
+    final showEvents = state.page!.events
+        .where(
+          (event) =>
+              event.message != null &&
+              event.message!.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList();
+    emit(state.copyWith(showEvents: showEvents));
+  }
+
+  void changeSearchMode(bool isSearchMode) {
+    if (!isSearchMode) {
+      emit(state.copyWith(showEvents: state.page!.events));
+    } else {
+      updateSearchQuery('');
+    }
     emit(state.copyWith(isSearchMode: isSearchMode));
   }
 
-  bool isSearchSuggest(int index, String query) {
-    if (state.page!.events[index].message == null) {
-      return false;
-    }
-    return state.page!.events[index].message!
-        .toLowerCase()
-        .contains(query.toLowerCase());
-  }
-
-  void setCategory(Category category) {
+  void changeCategory(Category category) {
     emit(state.copyWith(selectedCategory: category));
   }
 
-  void setReplyPage(BuildContext context, int index) {
-    final page = context.read<HomeCubit>().state.pages[index];
+  void changeReplyPage(PageInfo page, int index) {
     emit(state.copyWith(
       replyPage: page,
       replyPageIndex: index,
     ));
   }
 
-  void setDefaultCategory() {
+  void initDefaultCategory() {
     emit(state.copyWith(selectedCategory: _defaultCategory));
   }
 
-  void setMessageEdit(bool isMessageEdit) {
+  void changeIsMessageEdit(bool isMessageEdit) {
     emit(state.copyWith(isMessageEdit: isMessageEdit));
   }
 
@@ -82,9 +93,17 @@ class EventsCubit extends Cubit<EventsState> {
   }
 
   void changeBookmarkedOnly() {
-    emit(
-      state.copyWith(isBookmarkedOnly: state.isBookmarkedOnly ? false : true),
-    );
+    if (state.isBookmarkedOnly) {
+      emit(state.copyWith(
+          showEvents: state.page!.events, isBookmarkedOnly: false));
+    } else {
+      final showEvents =
+          state.page!.events.where((event) => event.isBookmarked).toList();
+      emit(state.copyWith(
+        showEvents: showEvents,
+        isBookmarkedOnly: true,
+      ));
+    }
   }
 
   void selectEvent(int index) {
@@ -92,7 +111,7 @@ class EventsCubit extends Cubit<EventsState> {
     if (state.selectedEvents.contains(index)) {
       updatedSelectedEvents.remove(index);
       if (updatedSelectedEvents.isEmpty) {
-        setEditMode(false);
+        changeEditMode(false);
       }
     } else {
       updatedSelectedEvents.add(index);
@@ -104,18 +123,18 @@ class EventsCubit extends Cubit<EventsState> {
     final page = state.replyPage;
     var eventsToReply = <Event>[];
     for (var i in state.selectedEvents) {
-      eventsToReply.add(state.page!.events[i]);
+      eventsToReply.add(state.showEvents[i]);
     }
     deleteEvent();
     context.read<HomeCubit>().addEvents(eventsToReply, page!);
   }
 
   void copyEvent() {
-    final message = state.page!.events[state.selectedEvents[0]].message;
+    final message = state.showEvents[state.selectedEvents[0]].message;
     if (message != null) {
       Clipboard.setData(ClipboardData(text: message));
     }
-    setEditMode(false);
+    changeEditMode(false);
     unselectEvents();
   }
 
@@ -126,7 +145,7 @@ class EventsCubit extends Cubit<EventsState> {
       updatedPage.events[index].isBookmarked =
           updatedPage.events[index].isBookmarked ? false : true;
     }
-    setEditMode(false);
+    changeEditMode(false);
     unselectEvents();
   }
 
@@ -136,7 +155,7 @@ class EventsCubit extends Cubit<EventsState> {
     for (var i = selectedEvents.length - 1; i >= 0; i--) {
       updatedPage.events.removeAt(selectedEvents[i]);
     }
-    setEditMode(false);
+    changeEditMode(false);
     unselectEvents();
   }
 
@@ -166,17 +185,9 @@ class EventsCubit extends Cubit<EventsState> {
       updatedPage = state.page!..events.insert(0, Event(message: text));
       if (state.selectedCategory != _defaultCategory) {
         updatedPage.events[0].category = state.selectedCategory;
-        setDefaultCategory();
+        initDefaultCategory();
       }
     }
     emit(state.copyWith(page: updatedPage));
-  }
-
-  void setHorizontalDragStart(DragStartDetails details) {
-    emit(state.copyWith(xStart: details.globalPosition.dx));
-  }
-
-  void setHorizontalDragUpdate(DragUpdateDetails details) {
-    emit(state.copyWith(xCurrent: details.globalPosition.dx));
   }
 }

@@ -5,7 +5,7 @@ import '../../modules/page_info.dart';
 import 'create_page_cubit.dart';
 
 class CreatePageScreen extends StatelessWidget {
-  final _pageNameController = TextEditingController();
+  final TextEditingController _pageNameController = TextEditingController();
 
   CreatePageScreen({Key? key}) : super(key: key);
 
@@ -84,9 +84,8 @@ class CreatePageScreen extends StatelessWidget {
   }
 
   void _createPage(BuildContext context) {
-    Navigator.of(context).pop(
-      context.read<CreatePageCubit>().createPage(_pageNameController.text),
-    );
+    context.read<CreatePageCubit>().createPage(_pageNameController.text);
+    Navigator.of(context).pop(context.read<CreatePageCubit>().state.editPage);
   }
 
   List<Widget> _iconList(BuildContext context) {
