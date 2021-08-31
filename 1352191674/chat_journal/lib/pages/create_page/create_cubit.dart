@@ -23,7 +23,7 @@ class NotesCubit extends Cubit<NotesState> {
 
   void addNote(String text) async {
     final noteId = state.noteList.length;
-    var note = Note(
+    final note = Note(
       noteName: text,
       subTitleEvent: 'Add event',
       indexOfCircleAvatar: state.indexOfSelectIcon,
@@ -32,6 +32,7 @@ class NotesCubit extends Cubit<NotesState> {
       ),
       isSelected: false, id: noteId+1,
     );
+    //сделать олдстейт и сделать имитабельность
     state.noteList.insert(0, note);
     note.id = await _dbHelper.insertNote(note);
     emit(state.copyWith(noteList: state.noteList, isWriting: state.isWriting));

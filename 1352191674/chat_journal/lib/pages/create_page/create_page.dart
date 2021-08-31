@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'create_cubit.dart';
 
-
+//пересмотреть логику и сделать либо полноценно на блоке либо как минивиджет
 class NotePage extends StatefulWidget {
   final List<Note>? noteList;
   final Note? note;
@@ -14,9 +14,9 @@ class NotePage extends StatefulWidget {
 
   @override
   _NotePageState createState() => _NotePageState(
-    noteList: noteList,
-    note: note,
-  );
+        noteList: noteList,
+        note: note,
+      );
 }
 
 class _NotePageState extends State<NotePage> {
@@ -144,11 +144,11 @@ class _NotePageState extends State<NotePage> {
       onPressed: () => _floatingActionButtonEvent(state),
       child: state.isWriting!
           ? Icon(
-        Icons.check,
-      )
+              Icons.check,
+            )
           : Icon(
-        Icons.clear,
-      ),
+              Icons.clear,
+            ),
     );
   }
 

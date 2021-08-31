@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chat_journal/models/note_model.dart';
 import 'package:chat_journal/models/event_model.dart';
 import 'package:chat_journal/services/db_provider.dart';
+import 'package:chat_journal/services/shared_preferences_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
@@ -12,6 +13,7 @@ part 'event_page_state.dart';
 
 class EventCubit extends Cubit<EventsState> {
   final DBProvider _dbProvider = DBProvider();
+  final _prefs = SharedPreferencesProvider();
 
   EventCubit()
       : super(
@@ -20,7 +22,7 @@ class EventCubit extends Cubit<EventsState> {
             isDateTimeModification: false,
           ),
         );
-
+ //переписать инит под емит одного стейта,императивный стиль,переписать под декл
   void init(Note note) {
     setNote(note);
     setEventListState(<Event>[]);
@@ -33,6 +35,7 @@ class EventCubit extends Cubit<EventsState> {
     setEditingPhotoState(false);
     setEditState(false);
     setEventSelectedState(false);
+    initSettingsState();
     initEventList();
   }
 
@@ -57,6 +60,19 @@ class EventCubit extends Cubit<EventsState> {
   void setNote(Note note) => emit(state.copyWith(note: note));
 
   void setDate(String date) => emit(state.copyWith(date: date));
+
+  void initSettingsState() {
+    final isBubbleAlignment = _prefs.fetchBubbleAlignmentState();
+    final isCenterDateBubble = _prefs.fetchCenterDateBubbleState();
+    final isDateTimeModification = _prefs.fetchDateTimeModificationState();
+    emit(
+      state.copyWith(
+        isBubbleAlignment: isBubbleAlignment,
+        isCenterDateBubble: isCenterDateBubble,
+        isDateTimeModification: isDateTimeModification,
+      ),
+    );
+  }
 
   void transferEvent(Event currentEvent, List<Note> noteList) {
     final eventId = state.eventList!.length;
@@ -150,7 +166,6 @@ class EventCubit extends Cubit<EventsState> {
       noteId: state.note!.id,
       isSelected: false,
       id: eventId + 1,
-      indexOfCircleAvatar: state.indexOfCircleAvatar!,
     );
     event.id = await _dbProvider.insertEvent(event);
 

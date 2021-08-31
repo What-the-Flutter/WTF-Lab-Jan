@@ -157,13 +157,62 @@ class _EventPageState extends State<EventPage>
             ),
           ],
         ),
+        if (state.isDateTimeModification!)
+          Align(
+            alignment: state.isBubbleAlignment!
+                ? Alignment.topLeft
+                : Alignment.topRight,
+            child: GestureDetector(
+              child: Padding(
+                padding: EdgeInsets.only(top: 8, right: 8, left: 8),
+                child: Container(
+                  padding:
+                      EdgeInsets.only(top: 5, left: 5, right: 3, bottom: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(70)),
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  child: _calendarRow(state),
+                ),
+              ),
+              onTap: () async {
+                var date = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2025),
+                );
+                if (date != null) {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(date),
+                  );
+                  if (time != null) {
+                    date = DateTime(
+                      date.year,
+                      date.month,
+                      date.day,
+                      time.hour,
+                      time.minute,
+                    );
+                    BlocProvider.of<EventCubit>(context)
+                        .setDateTime('${DateFormat.yMMMd().format(date)}');
+                    BlocProvider.of<EventCubit>(context).setHourTime(
+                      '${DateFormat.jm().format(date)}',
+                    );
+                  }
+                }
+              },
+            ),
+          ),
       ],
     );
   }
 
   Directionality _directionality(EventsState state) {
     return Directionality(
-      textDirection: ui.TextDirection.ltr,
+      textDirection:
+      state.isBubbleAlignment! ? ui.TextDirection.rtl : ui.TextDirection.ltr,
       child: _listView(state),
     );
   }
@@ -423,7 +472,7 @@ class _EventPageState extends State<EventPage>
             _showDialogWindow(event);
           },
         ),
-        if (event.imagePath == null)
+        if (event.imagePath.isNotEmpty)
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () {
@@ -545,8 +594,8 @@ class _EventPageState extends State<EventPage>
       ),
       value: index,
       groupValue: state.selectedTile,
-      onChanged: (value) =>
-          BlocProvider.of<EventCubit>(context).setIndexOfSelectedTile(value as int),
+      onChanged: (value) => BlocProvider.of<EventCubit>(context)
+          .setIndexOfSelectedTile(value as int),
     );
   }
 
@@ -579,6 +628,7 @@ class _EventListWidgetState extends State<EventListWidget> {
       padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
       child: Column(
         children: [
+          _dateListTile(widget.event),
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Card(
@@ -631,8 +681,8 @@ class _EventListWidgetState extends State<EventListWidget> {
         leading: event.indexOfCircleAvatar != null
             ? CircleAvatar(child: Icon(iconsList[event.indexOfCircleAvatar!]))
             : null,
-        title: event.imagePath != null && event.imagePath!.isNotEmpty
-            ? Image.file(File(event.imagePath!))
+        title: event.imagePath.isNotEmpty
+            ? Image.file(File(event.imagePath))
             : Text(
                 event.text,
                 style: TextStyle(color: Colors.white),
@@ -647,4 +697,11 @@ class _EventListWidgetState extends State<EventListWidget> {
     );
   }
 
+  Widget _dateListTile(Event event) {
+    return ListTile(
+      title: widget.state.isCenterDateBubble
+          ? Center(child: Text(event.date))
+          : Text(event.date),
+    );
+  }
 }

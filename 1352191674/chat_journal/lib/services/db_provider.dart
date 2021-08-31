@@ -91,7 +91,7 @@ class DBProvider {
     final db = await database;
     return await db.update(
       tableNotes,
-      note.toMap(),
+      note.insertToMap(),
       where: '$columnId = ?',
       whereArgs: [note.id],
     );
@@ -169,7 +169,7 @@ class DBProvider {
     final db = await database;
     return await db.update(
       tableEvents,
-      event.toMap(),
+      event.insertToMap(),
       where: '$columnEventId = ?',
       whereArgs: [event.id],
     );

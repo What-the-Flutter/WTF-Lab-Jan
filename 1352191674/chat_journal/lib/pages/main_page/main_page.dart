@@ -1,8 +1,10 @@
 import 'package:chat_journal/pages/main_page/main_page_cubit.dart';
-import 'package:chat_journal/services/theme_bloc/theme_bloc.dart';
+import 'package:chat_journal/pages/settings_page/settings_page.dart';
+import 'package:chat_journal/services/theme_bloc/theme_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class MainPage extends StatelessWidget {
   @override
@@ -11,6 +13,7 @@ class MainPage extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: _appbar(state, context),
+          drawer: _drawer(context),
           body: state.currentPage,
           bottomNavigationBar: _bottomNavbar(context),
         );
@@ -27,13 +30,65 @@ class MainPage extends StatelessWidget {
           icon: Icon(
             Icons.opacity,
           ),
-          onPressed: () => BlocProvider.of<ThemeBloc>(context).add(
-            ChangeThemeEvent(),
-          ),
+          onPressed: () => BlocProvider.of<ThemeCubit>(context).changeTheme(),
         ),
       ],
       backgroundColor: Theme.of(context).primaryColor,
       elevation: 10,
+    );
+  }
+
+  Drawer _drawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: [
+          SizedBox(
+            height: 145,
+            child: DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: ListTile(
+                  title: Text(
+                    DateFormat.yMMMd('en_US').format(
+                      DateTime.now(),
+                    ),
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    '(Click here to setup Drive backups)',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Search'),
+            leading: Icon(Icons.search),
+          ),
+          ListTile(
+            title: Text('Notifications'),
+            leading: Icon(Icons.notifications),
+          ),
+          ListTile(
+            title: Text('Settings'),
+            leading: Icon(Icons.settings),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SettingsPage(),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Feedback'),
+            leading: Icon(Icons.mail),
+          ),
+        ],
+      ),
     );
   }
 
