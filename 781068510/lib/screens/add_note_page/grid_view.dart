@@ -6,9 +6,11 @@ class GridViewBuild extends StatefulWidget {
   final int selectedIndex;
   final Function onIconChanged;
 
-  GridViewBuild(
-      {Key? key, required this.selectedIndex, required this.onIconChanged})
-      : super(key: key);
+  GridViewBuild({
+    Key? key,
+    required this.selectedIndex,
+    required this.onIconChanged,
+  }) : super(key: key);
 
   @override
   _GridViewBuildState createState() => _GridViewBuildState();

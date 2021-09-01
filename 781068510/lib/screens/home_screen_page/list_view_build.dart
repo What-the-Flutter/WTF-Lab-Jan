@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:notes/screens/add_note_page/add_note_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/journal_cubit.dart';
 import '../../main.dart';
+import '../../models/note_model.dart';
 import '../../routes/routes.dart';
+import '../add_note_page/add_note_page.dart';
+import '../info_page/note_info_page.dart';
 
 class BuildListView extends StatefulWidget {
   @override
@@ -12,8 +16,16 @@ class BuildListView extends StatefulWidget {
 class _BuildListView extends State<BuildListView> {
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: notes.length,
+    //JournalCubit()..addElement(Journal(title: '1',iconIndex: 2,note:[]));
+    return BlocBuilder<JournalCubit, List<Journal>>(
+        builder: (context, journals) {
+      if (journals.isEmpty) {
+        return const Center(
+          child: Text('Nothing to show'),
+        );
+      }
+      return ListView.builder(
+        itemCount: journals.length,
         itemBuilder: (context, index) {
           return ListTile(
             onLongPress: () {
@@ -36,11 +48,11 @@ class _BuildListView extends State<BuildListView> {
                               ListTile(
                                 leading: CircleAvatar(
                                   child: Icon(
-                                    listOfIcons[notes[index].iconIndex],
+                                    listOfIcons[journals[index].iconIndex],
                                   ),
                                 ),
                                 title: Text(
-                                  notes[index].title,
+                                  journals[index].title,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 25,
@@ -50,7 +62,7 @@ class _BuildListView extends State<BuildListView> {
                               ListTile(
                                 title: const Text('Number of notes'),
                                 trailing:
-                                    Text(notes[index].note.length.toString()),
+                                    Text(journals[index].note.length.toString()),
                               ),
                             ],
                           ),
@@ -72,15 +84,16 @@ class _BuildListView extends State<BuildListView> {
                       title: Text('Archive Page'),
                     ),
                     ListTile(
-                      onTap: () {
-                        Navigator.of(context).pushNamed(
+                      onTap: () async{
+                        await Navigator.of(context).pushNamed(
                           addNotePage,
                           arguments: AddNote(
-                            title: notes[index].title,
-                            selectedIcon: notes[index].iconIndex,
+                            title: journals[index].title,
+                            selectedIcon: journals[index].iconIndex,
                             index: index,
                           ),
                         );
+                        setState(() {});
                       },
                       leading: const Icon(
                         Icons.edit,
@@ -90,7 +103,7 @@ class _BuildListView extends State<BuildListView> {
                     ),
                     ListTile(
                       onTap: () {
-                        notes.removeAt(index);
+                        JournalCubit()..deleteJournal(index);
                         Navigator.pop(context);
                         setState(() {});
                       },
@@ -109,25 +122,32 @@ class _BuildListView extends State<BuildListView> {
               radius: 30,
               // backgroundColor: Colors.yellowAccent,
               child: Icon(
-                listOfIcons[notes[index].iconIndex],
+                listOfIcons[journals[index].iconIndex],
                 size: 30,
               ),
             ),
             title: Text(
-              notes[index].title,
+              journals[index].title,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
             ),
-            subtitle: Text(notes[index].note.isNotEmpty
-                ? notes[index].note.last.description
+            subtitle: Text(journals[index].note.isNotEmpty
+                ? journals[index].note.last.description
                 : 'Entry event'),
             onTap: () {
-              Navigator.of(context)
-                  .pushNamed(noteInfoPage, arguments: notes[index]);
+              Navigator.of(context).pushNamed(
+                noteInfoPage,
+                arguments: NoteInfo(
+                  index: index,
+                  journal: journals[index],
+                ),
+              );
             },
           );
-        });
+        },
+      );
+    });
   }
 }
