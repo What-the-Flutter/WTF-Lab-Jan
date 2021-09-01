@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:chat_diary/screens/home/home_screen.dart';
-import '../../../constants.dart';
+
+import 'custom_themes.dart';
+import 'screens/create_page.dart';
+import 'screens/home_page.dart';
+import 'themes.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    CustomTheme(
+      themeData: MyThemes.light,
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -13,13 +21,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Chat Diary',
-      theme: ThemeData(
-        scaffoldBackgroundColor: kBackgroundColor,
-        primaryColor: kPrimaryColor,
-        textTheme: Theme.of(context).textTheme.apply(bodyColor: kTextColor),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: HomeScreen()
+      theme: CustomTheme.of(context),
+      home: HomePage(),
+      routes: {'/create-page': (context) => CreatePage()},
     );
   }
 }
