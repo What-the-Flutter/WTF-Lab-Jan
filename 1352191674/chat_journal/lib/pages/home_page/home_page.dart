@@ -71,13 +71,13 @@ class _HomePageState extends State<HomePage> {
       builder: (context) {
         return Container(
           height: 170,
-          child: _buildBottomNavigationMenu(index, state),
+          child: _bottomNavigationMenu(index, state),
         );
       },
     );
   }
 
-  Column _buildBottomNavigationMenu(int index, HomePageState state) {
+  Widget _bottomNavigationMenu(int index, HomePageState state) {
     return Column(
       children: <Widget>[
         ListTile(
@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  FloatingActionButton _floatingActionButton(HomePageState state) {
+  Widget _floatingActionButton(HomePageState state) {
     return FloatingActionButton(
       onPressed: () async {
         await Navigator.push(

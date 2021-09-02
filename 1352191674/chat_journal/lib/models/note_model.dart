@@ -6,17 +6,6 @@ class Note {
   String date = '';
   bool isSelected;
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': noteName,
-      'circle_avatar_index': indexOfCircleAvatar,
-      'sub_tittle_name': subTitleEvent,
-      'date': date,
-      'is_selected': isSelected ? 1 : 0,
-    };
-  }
-
   Map<String, dynamic> insertToMap() {
     return {
       'name': noteName,

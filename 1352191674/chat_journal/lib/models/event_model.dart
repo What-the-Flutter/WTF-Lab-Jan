@@ -5,9 +5,9 @@ class Event {
   int noteId;
   int? indexOfCircleAvatar;
   bool isBookmarked;
-  String bookmarkCreateTime;
-  String? imagePath;
-  String date;
+  String bookmarkCreateTime = '';
+  String imagePath = '';
+  String date = '';
   bool isSelected;
 
   Event({
@@ -17,28 +17,14 @@ class Event {
     required this.time,
     this.indexOfCircleAvatar,
     required this.isBookmarked,
-    this.imagePath,
     required this.date,
     required this.isSelected,
     required this.bookmarkCreateTime,
+    required this.imagePath,
   });
 
   Map<String, dynamic> insertToMap() {
     return {
-      'note_id': noteId,
-      'time': time,
-      'text': text,
-      'event_circle_avatar': indexOfCircleAvatar,
-      'bookmark': isBookmarked ? 1 : 0,
-      'image_path': imagePath,
-      'date_format': date,
-      'bookmark_create_time': bookmarkCreateTime,
-    };
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'event_id': id,
       'note_id': noteId,
       'time': time,
       'text': text,

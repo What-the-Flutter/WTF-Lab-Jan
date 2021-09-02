@@ -3,14 +3,14 @@ import 'package:chat_journal/pages/events_page/event_page_cubit.dart';
 import 'package:chat_journal/pages/home_page/home_page_cubit.dart';
 import 'package:chat_journal/pages/main_page/main_page.dart';
 import 'package:chat_journal/pages/main_page/main_page_cubit.dart';
+import 'package:chat_journal/pages/settings_page/general_settings/general_settings_cubit.dart';
 import 'package:chat_journal/services/shared_preferences_provider.dart';
 import 'package:chat_journal/services/db_provider.dart';
-import 'package:chat_journal/services/theme_bloc/theme_bloc.dart';
+import 'package:chat_journal/services/theme_bloc/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'models/note_model.dart';
 import 'services/my_themes.dart';
+//вынести инициализацию в main cubit или сделать инит кьюбит и инит пейдж и тоже самое с шейред преференсами
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => ThemeBloc(),
+          create: (context) => ThemeCubit(),
         ),
         BlocProvider(
           create: (context) => MainPageCubit(),
@@ -34,6 +34,9 @@ void main() async {
         BlocProvider(
           create: (context) => EventCubit(),
         ),
+        BlocProvider(
+          create: (context) => GeneralSettingsCubit(),
+        ),
       ],
       child: MyApp(),
     ),
@@ -46,15 +49,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    BlocProvider.of<ThemeBloc>(context);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeBloc, ThemeState>(
+    return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -72,25 +70,8 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-List<Note> initialCategories = [];
-List<IconData> initialIcons = [
-  Icons.family_restroom,
-  Icons.work,
-  Icons.local_shipping,
-  Icons.sports_basketball,
-  Icons.wine_bar,
-  Icons.accessibility,
-  Icons.agriculture,
-  Icons.anchor,
-  Icons.category,
-  Icons.title,
-  Icons.airline_seat_flat_rounded,
-  Icons.attach_money,
-  Icons.attach_file_outlined,
-  Icons.auto_fix_high,
-  Icons.workspaces_filled,
-];
-List <IconData>iconsList = [
+
+List<IconData> iconsList = [
   Icons.book,
   Icons.import_contacts_outlined,
   Icons.nature_people_outlined,
