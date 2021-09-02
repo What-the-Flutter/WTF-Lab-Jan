@@ -21,7 +21,8 @@ class NoteTile extends StatefulWidget {
     required this.note,
     required this.isSelected,
     required this.isEditMode,
-  });
+    Key? key
+  }): super(key: key);
 
   @override
   _NoteTile createState() => _NoteTile();
@@ -46,7 +47,8 @@ class _NoteTile extends State<NoteTile> {
           print(widget.isEditMode);
           widget.onSelectedNote(widget.note);
         },
-        leading: const Icon(Icons.sports),
+        leading: widget.note.icon != null ? Icon(widget.note.icon) : null,
+        // leading: Icon(listOfEventsIcons[1]),
         title: Text(widget.note.description),
         subtitle: Text(widget.note.time),
         trailing: widget.isSelected

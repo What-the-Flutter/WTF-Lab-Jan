@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../Themes/theme_change.dart';
-import '../../main.dart';
 import '../../routes/routes.dart' as route;
 import 'list_view_build.dart';
 
@@ -84,8 +83,9 @@ class _MainPageState extends State<MainPage> {
       child: const Icon(
         Icons.add,
       ),
-      onPressed: () {
-        Navigator.of(context).pushNamed(route.addNotePage);
+      onPressed: () async {
+        await Navigator.of(context).pushNamed(route.addNotePage);
+        setState(() {});
       },
     );
   }
@@ -125,13 +125,16 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               decoration: const BoxDecoration(
                 color: Colors.black12,
-                borderRadius: BorderRadius.all(Radius.circular(15)),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(15),
+                ),
               ),
               child: Row(
                 children: [
                   Container(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: const Icon(Icons.search)),
+                    padding: const EdgeInsets.only(left: 15),
+                    child: const Icon(Icons.search),
+                  ),
                   Expanded(
                     child: TextFormField(
                       style: const TextStyle(color: Colors.black, fontSize: 16),

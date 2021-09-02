@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:notes/screens/info_page/dismissible_widget.dart';
+import 'package:notes/screens/info_page/labeled_radio_tile.dart';
 
+import '../../Themes/theme_change.dart';
+import '../../data/journal_cubit.dart';
 import '../../main.dart';
 import '../../models/note_model.dart';
-import 'info_note_tile.dart';
+import 'note_info_tile.dart';
+import 'note_search_delegate.dart';
 
 class NoteInfo extends StatefulWidget {
   final Journal journal;
+  final int index;
 
   NoteInfo({
     required this.journal,
+    required this.index,
     Key? key,
   }) : super(key: key);
 
@@ -24,37 +32,39 @@ class _NoteInfo extends State<NoteInfo> {
   final TextEditingController _textController = TextEditingController();
 
   List<Note> activeNotes = [];
-  List<Note> allNotes = [];
 
   bool isEditMode = false;
   bool isMultiSelection = false;
   bool isTextEditMode = false;
   bool isBookmarkedNoteMode = false;
+  bool isChangingCategory = false;
 
   String inputText = '';
+  IconData? _selectedIcon;
   bool isTextTyped = false;
 
+  int _checked = -1;
+  Journal? _checkedElement;
 
+  late List<String> _words;
+  late NoteSearchDelegate _delegate;
+  late List<Note> _elements;
+
+  List<Note> items = [];
 
   void initText() {
     _textController.addListener(() {
-      print('value: ${_textController.text}');
       setState(() {
         inputText = _textController.text;
-        if (inputText.isEmpty) {
-          isTextTyped = false;
-        } else {
-          isTextTyped = true;
-        }
+        inputText.isEmpty ? isTextTyped = false : isTextTyped = true;
       });
     });
   }
 
   @override
   void initState() {
-    allNotes = widget.journal.note;
-    initText();
     super.initState();
+    initText();
   }
 
   @override
@@ -65,16 +75,23 @@ class _NoteInfo extends State<NoteInfo> {
 
   @override
   Widget build(BuildContext context) {
-    // final args = ModalRoute.of(context)!.settings.arguments as Journal;
-    return Scaffold(
-      appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60), child: buildAppBar(widget.journal.title)),
-      body: buildParam(),
+    return BlocBuilder<JournalCubit, List<Journal>>(
+      builder: (context, journals) {
+        var events = journals[widget.index];
+        items = List.of(events.note);
+        return Scaffold(
+          appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(60),
+              child: buildAppBar(widget.journal.title, events)),
+          body: events.note.isEmpty ? noListView() : withListView(events),
+        );
+      },
     );
   }
 
-  Widget buildAppBar(String title) {
+  Widget buildAppBar(String title, Journal events) {
     final label = !isEditMode ? title : '';
+    BlocProvider.of<JournalCubit>(context);
     return AppBar(
       elevation: 0.0,
       centerTitle: true,
@@ -94,7 +111,84 @@ class _NoteInfo extends State<NoteInfo> {
         !isEditMode
             ? IconButton(
                 icon: const Icon(Icons.search),
-                onPressed: () {},
+                onPressed: () async {
+                  _words = BlocProvider.of<JournalCubit>(context)
+                      .getJournalsDescriptions(widget.index);
+                  _elements = BlocProvider.of<JournalCubit>(context)
+                      .getJournalsNotes(widget.index);
+                  _delegate =
+                      NoteSearchDelegate(widget.index, _words, _elements);
+                  final selected = await showSearch<String>(
+                      context: context, delegate: _delegate);
+                  if (selected != null) {
+                    //TODO _scrollController jump to the element in ListView}
+                  }
+                },
+              )
+            : Container(),
+        isEditMode
+            ? IconButton(
+                icon: const Icon(Icons.reply),
+                onPressed: () {
+                  var journals = BlocProvider.of<JournalCubit>(context).state;
+                  isEditMode = !isEditMode;
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Move to:'),
+                        content: StatefulBuilder(
+                          builder: (context, setState) {
+                            return Container(
+                              height: 250,
+                              width: 100,
+                              child: ListView.builder(
+                                itemCount: journals.length,
+                                itemBuilder: (context, index) {
+                                  return LabeledRadio(
+                                      label: journals[index].title,
+                                      padding: const EdgeInsets.all(10),
+                                      groupValue: _checked,
+                                      value: index,
+                                      onChanged: (value) {
+                                        setState(
+                                          () {
+                                            _checked = value;
+                                            _checkedElement = journals[index];
+                                          },
+                                        );
+                                      });
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              _checkedElement = null;
+                              _checked = -1;
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              for (var el in activeNotes) {
+                                _checkedElement?.note.add(el);
+                                deleteMessages(events);
+                              }
+                              _checkedElement = null;
+                              _checked = -1;
+                              Navigator.pop(context, 'Ok');
+                            },
+                            child: const Text('Ok'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               )
             : Container(),
         !isEditMode
@@ -109,7 +203,7 @@ class _NoteInfo extends State<NoteInfo> {
             ? IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () {
-                  deleteMessages();
+                  deleteMessages(events);
                   cancelEditMode();
                 },
               )
@@ -147,14 +241,6 @@ class _NoteInfo extends State<NoteInfo> {
     );
   }
 
-  Widget buildParam() {
-    if (allNotes.isEmpty) {
-      return noListView();
-    } else {
-      return withListView();
-    }
-  }
-
   Widget noListView() {
     return Scaffold(
       body: SafeArea(
@@ -163,24 +249,69 @@ class _NoteInfo extends State<NoteInfo> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             buildNote(),
-            buildBottomContainer(),
+            buildBottomContainer(null),
           ],
         ),
       ),
     );
   }
 
-  Widget withListView() {
+  Widget withListView(Journal events) {
     return Scaffold(
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            buildListView(),
-            buildBottomContainer(),
+            buildListView(events),
+            isChangingCategory ? buildCategories() : Container(),
+            buildBottomContainer(events),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildCategories() {
+    var iconThemeColor =
+        ThemeSelector.instanceOf(context).theme.iconTheme.color;
+    return Container(
+      height: 110,
+      child: ListView.builder(
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        itemCount: listOfEventsIcons.length,
+        itemBuilder: (context, index) {
+          return Container(
+            padding: const EdgeInsets.all(10),
+            child: GestureDetector(
+              onTap: () {
+                if (index == 0) {
+                  _selectedIcon = null;
+                  isChangingCategory = !isChangingCategory;
+                } else {
+                  _selectedIcon = listOfEventsIcons[index];
+                  isChangingCategory = !isChangingCategory;
+                }
+                setState(() {});
+              },
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    child: Icon(
+                      listOfEventsIcons[index],
+                      color: index == 0 ? Colors.red : iconThemeColor,
+                    ),
+                  ),
+                  Container(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(listOfEventsNames[index])),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -231,25 +362,26 @@ class _NoteInfo extends State<NoteInfo> {
     );
   }
 
-  Expanded buildListView() {
+  Expanded buildListView(Journal events) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(10),
         child: ListView.builder(
-            controller: _scrollController,
-            reverse: false,
-            itemCount: allNotes.length,
-            itemBuilder: (context, index) {
-              return NoteTile(
+          controller: _scrollController,
+          reverse: false,
+          itemCount: events.note.length,
+          itemBuilder: (context, index) {
+            return DismissibleWidget(
+              onDismissed: (direction) => dismissItem(context, index, direction),
+              item: events.note[index],
+              child: NoteTile(
                 onSelectedNote: selectedNotes,
                 onSelected: (value) {
-                  setState(
-                    () {
-                      activeNotes.contains(value)
-                          ? activeNotes.add(value)
-                          : activeNotes.remove(value);
-                    },
-                  );
+                  setState(() {
+                    activeNotes.contains(value)
+                        ? activeNotes.add(value)
+                        : activeNotes.remove(value);
+                  });
                   print(activeNotes);
                 },
                 onChangedMultiSelection: (value) {
@@ -262,16 +394,39 @@ class _NoteInfo extends State<NoteInfo> {
                     isEditMode = value;
                   });
                 },
-                note: allNotes[index],
-                isSelected: itContains(index),
+                note: events.note[index],
+                isSelected: itContains(index, events),
                 isEditMode: isEditMode,
-              );
-            }),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
-  Align buildBottomContainer() {
+  void dismissItem(
+      BuildContext context,
+      int index,
+      DismissDirection direction,
+      ) {
+    setState(() {
+      items.removeAt(index);
+    });
+
+    switch (direction) {
+      case DismissDirection.endToStart:
+        print('1');
+        break;
+      case DismissDirection.startToEnd:
+        print('2');
+        break;
+      default:
+        break;
+    }
+  }
+
+  Align buildBottomContainer(Journal? events) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
@@ -281,8 +436,13 @@ class _NoteInfo extends State<NoteInfo> {
         child: Row(
           children: <Widget>[
             IconButton(
-              icon: const Icon(Icons.event),
-              onPressed: () {},
+              icon: _selectedIcon != null
+                  ? Icon(_selectedIcon)
+                  : const Icon(Icons.event),
+              onPressed: () {
+                isChangingCategory = !isChangingCategory;
+                setState(() {});
+              },
             ),
             Flexible(
               child: Container(
@@ -314,21 +474,7 @@ class _NoteInfo extends State<NoteInfo> {
                   )
                 : IconButton(
                     icon: const Icon(Icons.send),
-                    onPressed: () {
-                      if (!isTextEditMode) {
-                        addMessageToList();
-                        moveToLastMessage();
-                        setState(() {});
-                      } else {
-                        var index = allNotes.indexOf(activeNotes[0]);
-                        setState(() {
-                          allNotes[index].description = _textController.text;
-                        });
-                        _textController.text = '';
-                        isTextEditMode = false;
-                        cancelEditMode();
-                      }
-                    },
+                    onPressed: () => addMessageToList(),
                   ),
           ],
         ),
@@ -336,23 +482,59 @@ class _NoteInfo extends State<NoteInfo> {
     );
   }
 
+  int indexOfSelected(Journal data, Note element) => data.note.indexOf(element);
+
+  void editEvent(int? index) {
+    if (!isTextEditMode) {
+      addMessageToList();
+      setState(() {});
+    } else {
+      if (index == null) {
+        var events = BlocProvider.of<JournalCubit>(context).state.toList();
+        index = events[widget.index].note.indexOf(activeNotes[0]);
+      }
+      setState(() {
+        JournalCubit()
+          ..changeEvent(
+            _textController.text,
+            widget.index,
+            index!,
+          );
+      });
+      _textController.text = '';
+      isTextEditMode = false;
+      cancelEditMode();
+    }
+  }
+
   void addMessageToList() {
     var now = DateTime.now();
     var date = DateFormat('yyyy-MM-dd – kk:mm').format(now);
-    notes[0]
-        .note
-        .add(Note(isBookmarked: false, time: date, description: inputText));
+    JournalCubit()
+      ..addEvent(
+          Note(
+            isBookmarked: false,
+            time: date,
+            description: inputText,
+            icon: _selectedIcon,
+          ),
+          widget.index);
+    moveToLastMessage();
+    _selectedIcon = null;
     _textController.text = '';
+    setState(() {});
   }
 
   void moveToLastMessage() {
     _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
   }
 
-  void deleteMessages() {
+  void deleteMessages(Journal events) {
     for (var element in activeNotes) {
-      allNotes.remove(element);
+      BlocProvider.of<JournalCubit>(context)
+        ..deleteEvent(widget.index, indexOfSelected(events, element));
     }
+    activeNotes = [];
     setState(() {});
   }
 
@@ -375,8 +557,7 @@ class _NoteInfo extends State<NoteInfo> {
     setState(() {});
   }
 
-  bool itContains(int index) {
-    return activeNotes.contains(allNotes.elementAt(index)) ? true : false;
+  bool itContains(int index, Journal events) {
+    return activeNotes.contains(events.note.elementAt(index)) ? true : false;
   }
-
 }

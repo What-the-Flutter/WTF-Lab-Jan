@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes/data/journal_cubit.dart';
 
 import '../../main.dart';
 import '../../models/note_model.dart';
@@ -10,7 +11,11 @@ class AddNote extends StatefulWidget {
   final int? selectedIcon;
   final int? index;
 
-  AddNote({this.title, this.selectedIcon, this.index});
+  AddNote({
+    this.title,
+    this.selectedIcon,
+    this.index,
+  });
 
   @override
   _AddNote createState() => _AddNote();
@@ -25,7 +30,6 @@ class _AddNote extends State<AddNote> {
 
   bool isTextTyped = false;
   final TextEditingController _textController = TextEditingController();
-
 
   void initText() {
     _textController.addListener(() {
@@ -42,9 +46,10 @@ class _AddNote extends State<AddNote> {
 
   @override
   void initState() {
-    if (widget.title != null && widget.selectedIcon != null &&
+    super.initState();
+    if (widget.title != null &&
+        widget.selectedIcon != null &&
         widget.index != null) {
-      super.initState();
       isEditMode = true;
       title = widget.title!;
       _textController.text = title;
@@ -60,9 +65,7 @@ class _AddNote extends State<AddNote> {
         elevation: 0.0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Add note',
@@ -123,12 +126,23 @@ class _AddNote extends State<AddNote> {
         onPressed: () {
           if (_textController.text != '') {
             if (isEditMode) {
-              notes[index].title = _textController.text;
-              notes[index].iconIndex = selectedIcon;
+              JournalCubit()
+                ..changeJournal(
+                    Journal(
+                      iconIndex: selectedIcon,
+                      title: title,
+                      note: notes[index].note,
+                    ),
+                    index);
             } else {
-              notesList.add(List<Note>.empty(growable: true));
-              notes.add(Journal(
-                  iconIndex: selectedIcon, title: title, note: notesList.last));
+              JournalCubit()
+                ..addJournal(
+                  Journal(
+                    iconIndex: selectedIcon,
+                    title: title,
+                    note: [],
+                  ),
+                );
             }
             Navigator.of(context).pop(mainPage);
             setState(() {});
