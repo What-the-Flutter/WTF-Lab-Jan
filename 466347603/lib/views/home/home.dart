@@ -110,7 +110,7 @@ class HomeScreen extends StatelessWidget {
               title: const Text('Pin/Unpin page'),
             ),
             ListTile(
-              onTap: () => _editPage(context, index),
+              onTap: () => _updatePage(context, index),
               leading: const Icon(
                 Icons.edit,
                 color: Colors.blue,
@@ -214,14 +214,14 @@ class HomeScreen extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void _editPage(BuildContext context, int index) async {
+  void _updatePage(BuildContext context, int index) async {
     final homeCubit = context.read<HomeCubit>();
     final pages = homeCubit.state.pages;
     final page = await Navigator.of(context).popAndPushNamed(
       '/create-screen',
       arguments: pages[index],
     );
-    homeCubit.editPage(index, page as PageInfo);
+    homeCubit.updatePage(index, page as PageInfo);
   }
 
   void _deletePage(BuildContext context, int index) {

@@ -1,51 +1,29 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 
 import '../../../modules/page_info.dart';
+import '../../utils/database.dart';
 
 part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  final List<PageInfo> _initPages = <PageInfo>[
-    PageInfo(
-      title: 'Journal',
-      icon: const Icon(
-        Icons.book,
-        color: Colors.white,
-      ),
-    ),
-    PageInfo(
-      title: 'Notes',
-      icon: const Icon(
-        Icons.my_library_books,
-        color: Colors.white,
-      ),
-    ),
-    PageInfo(
-      title: 'Text',
-      icon: const Icon(
-        Icons.text_fields,
-        color: Colors.white,
-      ),
-    ),
-  ];
-
   HomeCubit() : super(const HomeState());
 
-  void init() {
-    emit(state.copyWith(
-      pages: state.pages.isEmpty ? _initPages : state.pages,
-    ));
+  void init() async {
+    emit(state.copyWith(pages: await DatabaseProvider.fetchPages()));
   }
 
   void addPage(PageInfo page) {
     final pages = List<PageInfo>.from(state.pages)..add(page);
+    DatabaseProvider.insertPage(page);
+    final s = state;
     emit(state.copyWith(pages: pages));
+    print(s == state);
   }
 
   void deletePage(int index) {
     final pages = List<PageInfo>.from(state.pages)..removeAt(index);
+    DatabaseProvider.deletePage(state.pages[index]);
     emit(state.copyWith(pages: pages));
   }
 
@@ -54,14 +32,17 @@ class HomeCubit extends Cubit<HomeState> {
     final index = pages.indexOf(page);
     for (var event in events) {
       pages[index].events.add(event);
+      DatabaseProvider.insertEvent(event);
     }
     pages[index].sortEvents();
+    DatabaseProvider.updatePage(pages[index]);
     emit(state.copyWith(pages: pages));
   }
 
-  void editPage(int index, PageInfo page) {
+  void updatePage(int index, PageInfo page) {
     final pages = List<PageInfo>.from(state.pages)
       ..[index] = PageInfo.from(page);
+    DatabaseProvider.updatePage(page);
     emit(state.copyWith(pages: pages));
   }
 
@@ -73,10 +54,12 @@ class HomeCubit extends Cubit<HomeState> {
         i++;
       }
       pages[index].isPinned = pages[index].isPinned ? false : true;
+      DatabaseProvider.updatePage(pages[index]);
       pages.insert(i - 1, PageInfo.from(pages.removeAt(index)));
     } else {
       pages.insert(0, PageInfo.from(pages.removeAt(index)));
       pages[0].isPinned = true;
+      DatabaseProvider.updatePage(pages[0]);
     }
     emit(state.copyWith(pages: pages));
   }

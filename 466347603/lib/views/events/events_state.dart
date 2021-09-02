@@ -6,7 +6,7 @@ class EventsState extends Equatable {
   final List<int> selectedEvents;
   final List<Event> showEvents;
   final List<Category> categories;
-  final Category selectedCategory;
+  final int categoryIndex;
   final int replyPageIndex;
   final bool isEditMode;
   final bool isSearchMode;
@@ -18,14 +18,11 @@ class EventsState extends Equatable {
     this.selectedEvents = const [],
     this.showEvents = const [],
     this.categories = const [],
+    this.categoryIndex = 0,
     this.isEditMode = false,
     this.isSearchMode = false,
     this.isBookmarkedOnly = false,
     this.isMessageEdit = false,
-    this.selectedCategory = const Category(
-      icon: Icons.favorite,
-      title: 'favorite',
-    ),
     this.replyPage,
     this.replyPageIndex = 0,
   });
@@ -39,7 +36,7 @@ class EventsState extends Equatable {
     List<Category>? categories,
     bool? isBookmarkedOnly,
     bool? isMessageEdit,
-    Category? selectedCategory,
+    int? categoryIndex,
     PageInfo? replyPage,
     int? replyPageIndex,
   }) {
@@ -52,7 +49,7 @@ class EventsState extends Equatable {
       categories: categories ?? this.categories,
       isBookmarkedOnly: isBookmarkedOnly ?? this.isBookmarkedOnly,
       isMessageEdit: isMessageEdit ?? this.isMessageEdit,
-      selectedCategory: selectedCategory ?? this.selectedCategory,
+      categoryIndex: categoryIndex ?? this.categoryIndex,
       replyPage: replyPage ?? this.replyPage,
       replyPageIndex: replyPageIndex ?? this.replyPageIndex,
     );
@@ -67,7 +64,7 @@ class EventsState extends Equatable {
       isSearchMode,
       isBookmarkedOnly,
       isMessageEdit,
-      selectedCategory,
+      categoryIndex,
       replyPageIndex,
       if (page != null) {page},
       if (replyPage != null) {replyPage},

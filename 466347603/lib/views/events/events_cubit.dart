@@ -8,34 +8,27 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../modules/page_info.dart';
+import '../../utils/data.dart';
+import '../../utils/database.dart';
 import '../home/home_cubit.dart';
 
 part 'events_state.dart';
 
 class EventsCubit extends Cubit<EventsState> {
-  final Category _defaultCategory =
-      const Category(icon: Icons.bubble_chart, title: '');
-  final List<Category> _initCategories = const <Category>[
-    Category(icon: Icons.favorite, title: 'favorite'),
-    Category(icon: Icons.ac_unit, title: 'unit'),
-    Category(icon: Icons.wine_bar, title: 'wine'),
-    Category(icon: Icons.local_pizza, title: 'pizza'),
-    Category(icon: Icons.money, title: 'money'),
-    Category(icon: Icons.car_rental, title: 'car'),
-    Category(icon: Icons.food_bank, title: 'food'),
-    Category(icon: Icons.navigation, title: 'navigation'),
-  ];
-
   EventsCubit() : super(EventsState());
 
-  void init(PageInfo page) {
+  void init(PageInfo page) async {
+    emit(state.copyWith(
+      page: page,
+      categories: state.categories.isEmpty ? initCategories : state.categories,
+    ));
+    final events = await DatabaseProvider.fetchEvents(page.id!);
+    page = page.copyWith(events: events);
     emit(
       state.copyWith(
-        selectedCategory: _defaultCategory,
+        categoryIndex: 0,
         page: page,
         replyPage: state.replyPage ?? page,
-        categories:
-            state.categories.isEmpty ? _initCategories : state.categories,
         showEvents: state.page == page
             ? state.showEvents.isEmpty
                 ? page.events
@@ -53,8 +46,8 @@ class EventsCubit extends Cubit<EventsState> {
     final showEvents = state.page!.events
         .where(
           (event) =>
-              event.message != null &&
-              event.message!.toLowerCase().contains(query.toLowerCase()),
+              event.message != '' &&
+              event.message.toLowerCase().contains(query.toLowerCase()),
         )
         .toList();
     emit(state.copyWith(showEvents: showEvents));
@@ -69,8 +62,8 @@ class EventsCubit extends Cubit<EventsState> {
     emit(state.copyWith(isSearchMode: isSearchMode));
   }
 
-  void changeCategory(Category category) {
-    emit(state.copyWith(selectedCategory: category));
+  void changeCategory(int index) {
+    emit(state.copyWith(categoryIndex: index));
   }
 
   void changeReplyPage(PageInfo page, int index) {
@@ -81,7 +74,7 @@ class EventsCubit extends Cubit<EventsState> {
   }
 
   void initDefaultCategory() {
-    emit(state.copyWith(selectedCategory: _defaultCategory));
+    emit(state.copyWith(categoryIndex: 0));
   }
 
   void changeIsMessageEdit(bool isMessageEdit) {
@@ -131,7 +124,7 @@ class EventsCubit extends Cubit<EventsState> {
 
   void copyEvent() {
     final message = state.showEvents[state.selectedEvents[0]].message;
-    if (message != null) {
+    if (message != '') {
       Clipboard.setData(ClipboardData(text: message));
     }
     changeEditMode(false);
@@ -154,6 +147,7 @@ class EventsCubit extends Cubit<EventsState> {
     var updatedPage = PageInfo.from(state.page!);
     for (var i = selectedEvents.length - 1; i >= 0; i--) {
       updatedPage.events.removeAt(selectedEvents[i]);
+      DatabaseProvider.deleteEvent(updatedPage.events[selectedEvents[i]]);
     }
     changeEditMode(false);
     unselectEvents();
@@ -165,7 +159,9 @@ class EventsCubit extends Cubit<EventsState> {
     if (xFile != null) {
       var imageFile = File(xFile.path);
       var updatedPage = PageInfo.from(state.page!)
-        ..events.insert(0, Event(image: imageFile));
+        ..events.insert(0, Event(imagePath: imageFile.path));
+      DatabaseProvider.insertEvent(
+          Event(imagePath: imageFile.path, pageId: state.page!.id!));
       emit(state.copyWith(page: updatedPage));
     }
   }
@@ -182,12 +178,17 @@ class EventsCubit extends Cubit<EventsState> {
       }
       emit(state.copyWith(selectedEvents: []));
     } else if (text.isNotEmpty) {
-      updatedPage = state.page!..events.insert(0, Event(message: text));
-      if (state.selectedCategory != _defaultCategory) {
-        updatedPage.events[0].category = state.selectedCategory;
+      updatedPage = state.page!.copyWith(
+        events: List<Event>.from(state.page!.events)
+          ..insert(0, Event(message: text)),
+      );
+      DatabaseProvider.insertEvent(
+          Event(message: text, pageId: state.page!.id!));
+      if (state.categoryIndex != 0) {
+        updatedPage.events[0].categoryId = state.categoryIndex;
         initDefaultCategory();
       }
+      emit(state.copyWith(page: updatedPage));
     }
-    emit(state.copyWith(page: updatedPage));
   }
 }

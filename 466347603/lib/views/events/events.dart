@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +28,7 @@ class EventsScreen extends StatelessWidget {
     return BlocBuilder<EventsCubit, EventsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: _appBar(state, context),
+          appBar: _appBar(context),
           body: GestureDetector(
             onTap: () {
               context.read<EventsCubit>()
@@ -36,7 +38,7 @@ class EventsScreen extends StatelessWidget {
             },
             child: Column(
               children: [
-                state.showEvents.isEmpty
+                context.read<EventsCubit>().state.showEvents.isEmpty
                     ? _hintMessageBox(context)
                     : _eventList(context),
                 _messageBar(context),
@@ -48,7 +50,8 @@ class EventsScreen extends StatelessWidget {
     );
   }
 
-  AppBar _appBar(EventsState state, BuildContext context) {
+  AppBar _appBar(BuildContext context) {
+    final state = context.read<EventsCubit>().state;
     return AppBar(
       leading: state.isSearchMode
           ? IconButton(
@@ -87,7 +90,7 @@ class EventsScreen extends StatelessWidget {
           onPressed: () => _replyEvents(context),
         ),
         if (state.selectedEvents.length == 1 &&
-            state.showEvents[state.selectedEvents[0]].message != null)
+            state.showEvents[state.selectedEvents[0]].message != '')
           Row(
             children: [
               IconButton(
@@ -233,8 +236,7 @@ class EventsScreen extends StatelessWidget {
   void _editEvent(BuildContext context) {
     final state = context.read<EventsCubit>().state;
     _messageFocusNode.requestFocus();
-    _messageController.text =
-        state.showEvents[state.selectedEvents[0]].message!;
+    _messageController.text = state.showEvents[state.selectedEvents[0]].message;
     _messageController.selection = TextSelection.fromPosition(
       TextPosition(offset: _messageController.text.length),
     );
@@ -380,31 +382,31 @@ class EventsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (event.category != null)
+          if (event.categoryId != 0)
             Row(
               children: [
-                Icon(event.category!.icon),
+                Icon(state.categories[event.categoryId].icon),
                 const SizedBox(
                   width: 15,
                 ),
                 Text(
-                  event.category!.title,
+                  state.categories[event.categoryId].title,
                   style: const TextStyle(fontSize: 18),
                 ),
               ],
             ),
           const SizedBox(height: 5),
-          event.message != null
+          event.message != ''
               ? LimitedBox(
                   maxWidth: 320,
                   child: Text(
-                    event.message!,
+                    event.message,
                   ),
                 )
               : Container(
                   width: 150,
                   height: 150,
-                  child: Image.file(event.image!),
+                  child: Image.file(File(event.imagePath)),
                 ),
           const SizedBox(height: 5),
           Row(
@@ -425,6 +427,7 @@ class EventsScreen extends StatelessWidget {
   }
 
   Widget _messageBar(BuildContext context) {
+    final state = context.read<EventsCubit>().state;
     return Container(
       margin: const EdgeInsets.all(7),
       child: Row(
@@ -438,7 +441,7 @@ class EventsScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(
-              context.read<EventsCubit>().state.selectedCategory.icon,
+              state.categories[state.categoryIndex].icon,
               color: Theme.of(context).accentIconTheme.color,
             ),
             onPressed: () {
@@ -486,8 +489,7 @@ class EventsScreen extends StatelessWidget {
                 width: 70,
                 child: GestureDetector(
                   onTap: () {
-                    context.read<EventsCubit>().changeCategory(
-                        context.read<EventsCubit>().state.categories[index]);
+                    context.read<EventsCubit>().changeCategory(index);
                     Navigator.of(context).pop();
                   },
                   child: Column(

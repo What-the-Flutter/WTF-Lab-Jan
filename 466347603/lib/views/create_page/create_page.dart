@@ -14,7 +14,7 @@ class CreatePageScreen extends StatelessWidget {
     final createPageCubit = context.read<CreatePageCubit>();
     createPageCubit.loadIcons();
     createPageCubit
-        .setEditPage(ModalRoute.of(context)!.settings.arguments as PageInfo?);
+        .initEditPage(ModalRoute.of(context)!.settings.arguments as PageInfo?);
     _pageNameController.text = createPageCubit.state.editPage?.title ?? '';
 
     return Scaffold(
