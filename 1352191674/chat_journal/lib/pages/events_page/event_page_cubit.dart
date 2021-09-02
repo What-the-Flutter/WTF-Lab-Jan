@@ -17,32 +17,13 @@ class EventCubit extends Cubit<EventsState> {
 
   EventCubit()
       : super(
-          EventsState(
-            isBubbleAlignment: false,
-            isDateTimeModification: false,
-          ),
+          EventsState(),
         );
- //переписать инит под емит одного стейта,императивный стиль,переписать под декл
-  void init(Note note) {
-    setNote(note);
-    setEventListState(<Event>[]);
-    setWritingState(false);
-    setAllBookmarkState(false);
-    setIconButtonSearchPressedState(false);
-    setWritingBottomTextFieldState(false);
-    setIndexOfCircleAvatar(0);
-    setIndexOfSelectedTile(0);
-    setEditingPhotoState(false);
-    setEditState(false);
-    setEventSelectedState(false);
-    initSettingsState();
-    initEventList();
-  }
-
-  void initEventList() async {
+  void init(Note note) async {
     emit(
       state.copyWith(
-        eventList: await _dbProvider.dbEventList(state.note!.id)
+        note: note,
+        eventList: await _dbProvider.dbEventList(note.id)
           ..sort(
             (a, b) {
               var aDate = DateFormat().add_yMMMd().parse(a.date);
@@ -50,29 +31,26 @@ class EventCubit extends Cubit<EventsState> {
               return bDate.compareTo(aDate);
             },
           ),
+        isWriting: false,
+        isAllBookmarked: false,
+        isIconButtonSearchPressed: false,
+        isWritingBottomTextField: false,
+        indexOfCircleAvatar: 0,
+        selectedTile: 0,
+        isEditingPhoto: false,
+        isEditing: false,
+        eventSelected: false,
+        isBubbleAlignment: _prefs.fetchBubbleAlignmentState(),
+        isCenterDateBubble: _prefs.fetchCenterDateBubbleState(),
+        isDateTimeModification: _prefs.fetchDateTimeModificationState(),
       ),
     );
   }
 
-  void setEventListState(List<Event> eventList) =>
-      emit(state.copyWith(eventList: eventList));
 
   void setNote(Note note) => emit(state.copyWith(note: note));
 
   void setDate(String date) => emit(state.copyWith(date: date));
-
-  void initSettingsState() {
-    final isBubbleAlignment = _prefs.fetchBubbleAlignmentState();
-    final isCenterDateBubble = _prefs.fetchCenterDateBubbleState();
-    final isDateTimeModification = _prefs.fetchDateTimeModificationState();
-    emit(
-      state.copyWith(
-        isBubbleAlignment: isBubbleAlignment,
-        isCenterDateBubble: isCenterDateBubble,
-        isDateTimeModification: isDateTimeModification,
-      ),
-    );
-  }
 
   void transferEvent(Event currentEvent, List<Note> noteList) {
     final eventId = state.eventList!.length;

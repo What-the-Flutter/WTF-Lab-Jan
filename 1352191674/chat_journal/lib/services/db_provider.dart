@@ -24,10 +24,10 @@ const String columnIsBookmarked = 'bookmark';
 const String columnBookmarkCreateTime = 'bookmark_create_time';
 
 class DBProvider {
+  static const DBProvider _dbProvider = DBProvider._createInstance();
   static late final Database _database;
-  static final DBProvider _dbProvider = DBProvider._createInstance();
 
-  DBProvider._createInstance();
+  const DBProvider._createInstance();
 
   factory DBProvider() {
     return _dbProvider;

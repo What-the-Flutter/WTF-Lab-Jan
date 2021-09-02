@@ -1,11 +1,11 @@
 part of 'event_page_cubit.dart';
 
 class EventsState {
-  final bool? eventSelected;
+  final bool eventSelected;
   final Event? selectedElement;
   final bool? isEditing;
-  final bool? isIconButtonSearchPressed;
-  final bool? isWriting;
+  final bool isIconButtonSearchPressed;
+  final bool isWriting;
   final bool? isWritingBottomTextField;
   final int? selectedTile;
   final Note? note;
@@ -68,11 +68,11 @@ class EventsState {
   }
 
   const EventsState({
-    this.eventSelected,
+    this.eventSelected = false,
     this.selectedElement,
     this.isEditing,
-    this.isIconButtonSearchPressed,
-    this.isWriting,
+    this.isIconButtonSearchPressed = false,
+    this.isWriting = false,
     this.isWritingBottomTextField,
     this.selectedTile,
     this.note,

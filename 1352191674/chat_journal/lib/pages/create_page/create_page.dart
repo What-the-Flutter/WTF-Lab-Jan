@@ -14,8 +14,8 @@ class NotePage extends StatefulWidget {
 
   @override
   _NotePageState createState() => _NotePageState(
-        noteList: noteList,
-        note: note,
+        noteList,
+        note,
       );
 }
 
@@ -25,7 +25,7 @@ class _NotePageState extends State<NotePage> {
   final Note? note;
   final TextEditingController _textController = TextEditingController();
 
-  _NotePageState({this.noteList, this.note});
+  _NotePageState(this.noteList, this.note);
 
   @override
   void initState() {

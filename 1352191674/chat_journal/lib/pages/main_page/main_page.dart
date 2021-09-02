@@ -57,10 +57,6 @@ class MainPage extends StatelessWidget {
                     ),
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
-                  subtitle: Text(
-                    '(Click here to setup Drive backups)',
-                    style: TextStyle(color: Colors.white),
-                  ),
                 ),
               ),
             ),

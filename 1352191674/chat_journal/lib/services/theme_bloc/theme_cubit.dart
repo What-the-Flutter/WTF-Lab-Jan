@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 
+import '../db_provider.dart';
 import '../shared_preferences_provider.dart';
 
 part 'theme_state.dart';
 
-//переписывать на кьюбит
 class ThemeCubit extends Cubit<ThemeState> {
   ThemeCubit()
       : super(
@@ -22,4 +23,6 @@ class ThemeCubit extends Cubit<ThemeState> {
       );
     emit(state.copyWith(isLight: SharedPreferencesProvider().fetchTheme()));
   }
+
+
 }

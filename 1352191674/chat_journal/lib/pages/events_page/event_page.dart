@@ -53,7 +53,7 @@ class _EventPageState extends State<EventPage>
     return BlocBuilder<EventCubit, EventsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: state.eventSelected!
+          appBar: state.eventSelected
               ? _appBarMenu(state.selectedElement!, state)
               : _defaultAppBar(state),
           body: _eventPageBody(state),
@@ -67,7 +67,7 @@ class _EventPageState extends State<EventPage>
   AppBar _defaultAppBar(EventsState state) {
     return AppBar(
       leading: _iconButtonBack(state),
-      title: state.isIconButtonSearchPressed!
+      title: state.isIconButtonSearchPressed
           ? TextField(
               focusNode: _searchTextFieldFocusNode,
               controller: _searchTextController,
@@ -86,7 +86,7 @@ class _EventPageState extends State<EventPage>
             )
           : Text(widget.title!),
       actions: [
-        state.isWriting!
+        state.isWriting
             ? IconButton(
                 icon: Icon(Icons.clear),
                 onPressed: () {
@@ -100,7 +100,7 @@ class _EventPageState extends State<EventPage>
                   _searchTextFieldFocusNode.requestFocus();
                   BlocProvider.of<EventCubit>(context)
                       .setIconButtonSearchPressedState(
-                    !state.isIconButtonSearchPressed!,
+                    !state.isIconButtonSearchPressed,
                   );
                 },
               ),
@@ -117,7 +117,7 @@ class _EventPageState extends State<EventPage>
     return IconButton(
       icon: Icon(Icons.arrow_back),
       onPressed: () {
-        if (state.isIconButtonSearchPressed!) {
+        if (state.isIconButtonSearchPressed) {
           BlocProvider.of<EventCubit>(context)
               .setIconButtonSearchPressedState(false);
           BlocProvider.of<EventCubit>(context).setWritingState(false);
@@ -301,7 +301,7 @@ class _EventPageState extends State<EventPage>
   }
 
   ListView _listView(EventsState state) {
-    final _searchedEventList = state.isIconButtonSearchPressed!
+    final _searchedEventList = state.isIconButtonSearchPressed
         ? state.eventList!
             .where(
                 (element) => element.text.contains(_searchTextController.text))
@@ -452,7 +452,7 @@ class _EventPageState extends State<EventPage>
   }
 
   void _appBarChange(EventsState state) => BlocProvider.of<EventCubit>(context)
-      .setEventSelectedState(!state.eventSelected!);
+      .setEventSelectedState(!state.eventSelected);
 
   AppBar _appBarMenu(Event event, EventsState state) {
     return AppBar(
