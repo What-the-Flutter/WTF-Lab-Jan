@@ -5,8 +5,13 @@ import '../../screens/event_screen.dart';
 
 class MyItem extends StatefulWidget {
   final String title;
-  final AssetImage img;
-  const MyItem({Key key, this.title, this.img}) : super(key: key);
+  final IconData icon;
+
+  const MyItem({
+    Key key,
+    this.title,
+    this.icon,
+  }) : super(key: key);
 
   @override
   _MyItemState createState() => _MyItemState();
@@ -23,7 +28,7 @@ class _MyItemState extends State<MyItem> {
             padding:
                 const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFEFB),
+              color: const Color(0xFFFFFEFB).withOpacity(0.7),
               borderRadius: BorderRadius.circular(30),
             ),
             child: Text(
@@ -39,39 +44,37 @@ class _MyItemState extends State<MyItem> {
         ),
         GestureDetector(
           onTap: () {
-            setState(
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EventScreen(
-                      appBarTitle: widget.title,
-                    ),
+            setState(() {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EventScreen(
+                    appBarTitle: widget.title,
                   ),
-                );
-              },
-            );
+                ),
+              );
+            });
           },
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10),
             height: 100,
             decoration: BoxDecoration(
-              color: const Color(0xFFFEDB81).withOpacity(0.3),
+              color: Theme.of(context).primaryColorLight,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: blue,
+                    color: Theme.of(context).accentColor,
                     borderRadius: BorderRadius.circular(50),
                   ),
                   margin: const EdgeInsets.all(10.0),
                   padding: const EdgeInsets.all(10.0),
-                  child: Image(
-                    image: widget.img,
-                    width: 50,
-                    height: 50,
+                  child: Icon(
+                    widget.icon,
+                    size: 50.0,
+                    color: black,
                   ),
                 ),
                 const Padding(
