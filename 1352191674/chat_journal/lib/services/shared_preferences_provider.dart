@@ -20,24 +20,33 @@ class SharedPreferencesProvider {
     return _prefs.getBool('isLight') ?? true;
   }
 
-  void changeBubbleAlignmentState(bool isBubbleAlignment) =>
+  void changeBubbleAlignment(bool isBubbleAlignment) =>
       _prefs.setBool('isBubbleAlignment', isBubbleAlignment);
 
-  bool fetchBubbleAlignmentState() {
+  bool fetchBubbleAlignment() {
     return _prefs.getBool('isBubbleAlignment') ?? false;
   }
 
-  void changeDateTimeModificationState(bool isDateTimeModification) =>
+  void changeDateTimeModification(bool isDateTimeModification) =>
       _prefs.setBool('isDateTimeModification', isDateTimeModification);
 
-  bool fetchDateTimeModificationState() {
+  bool fetchDateTimeModification() {
     return _prefs.getBool('isDateTimeModification') ?? false;
   }
 
-  void changeCenterDateBubbleState(bool isCenterDateBubble) =>
+  void changeCenterDateBubble(bool isCenterDateBubble) =>
       _prefs.setBool('isCenterDateBubble', isCenterDateBubble);
 
-  bool fetchCenterDateBubbleState() {
+  bool fetchCenterDateBubble() {
     return _prefs.getBool('isCenterDateBubble') ?? false;
   }
+
+  void changeFontSizeIndex(int fontSizeIndex) =>
+      _prefs.setInt('fontSizeIndex', fontSizeIndex);
+
+  int fetchFontSizeIndex() {
+    return _prefs.getInt('fontSizeIndex') ?? 1;
+  }
+
+
 }

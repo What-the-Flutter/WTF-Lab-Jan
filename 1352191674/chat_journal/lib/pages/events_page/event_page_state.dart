@@ -3,21 +3,21 @@ part of 'event_page_cubit.dart';
 class EventsState {
   final bool eventSelected;
   final Event? selectedElement;
-  final bool? isEditing;
+  final bool isEditing;
   final bool isIconButtonSearchPressed;
   final bool isWriting;
-  final bool? isWritingBottomTextField;
+  final bool isWritingBottomTextField;
   final int? selectedTile;
   final Note? note;
-  final List<Event>? eventList;
+  final List<Event> eventList;
   final int? indexOfCircleAvatar;
-  final bool? isEditingPhoto;
+  final bool isEditingPhoto;
   final String? dateTime;
   final String? hourTime;
-  final bool? isCenterDateBubble;
-  final bool? isBubbleAlignment;
-  final bool? isDateTimeModification;
-  final bool? isAllBookmarked;
+  final bool isCenterDateBubble;
+  final bool isBubbleAlignment;
+  final bool isDateTimeModification;
+  final bool isAllBookmarked;
   final Event? event;
 
   EventsState copyWith({
@@ -68,23 +68,23 @@ class EventsState {
   }
 
   const EventsState({
-    this.eventSelected = false,
+    required this.eventSelected,
     this.selectedElement,
-    this.isEditing,
-    this.isIconButtonSearchPressed = false,
-    this.isWriting = false,
-    this.isWritingBottomTextField,
+    required this.isEditing,
+    required this.isIconButtonSearchPressed,
+    required this.isWriting,
+    required this.isWritingBottomTextField,
     this.selectedTile,
     this.note,
-    this.eventList,
+    required this.eventList,
     this.indexOfCircleAvatar,
-    this.isEditingPhoto,
+    required this.isEditingPhoto,
     this.dateTime,
     this.hourTime,
-    this.isCenterDateBubble,
-    this.isBubbleAlignment,
-    this.isDateTimeModification,
-    this.isAllBookmarked,
+    required this.isCenterDateBubble,
+    required this.isBubbleAlignment,
+    required this.isDateTimeModification,
+    required this.isAllBookmarked,
     this.event,
   });
 }

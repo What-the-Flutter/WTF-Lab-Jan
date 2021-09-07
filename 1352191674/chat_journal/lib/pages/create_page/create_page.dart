@@ -1,11 +1,10 @@
-import 'package:chat_journal/main.dart';
-import 'package:chat_journal/models/note_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../main.dart';
+import '../../models/note_model.dart';
 import 'create_cubit.dart';
 
-//пересмотреть логику и сделать либо полноценно на блоке либо как минивиджет
 class NotePage extends StatefulWidget {
   final List<Note>? noteList;
   final Note? note;

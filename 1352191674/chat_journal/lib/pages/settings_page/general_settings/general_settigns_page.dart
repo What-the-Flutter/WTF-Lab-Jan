@@ -1,7 +1,8 @@
-import 'package:chat_journal/services/theme_bloc/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share/share.dart';
 
+import '../../../ui/theme_cubit/theme_cubit.dart';
 import 'general_settings_cubit.dart';
 
 class GeneralSettingsPage extends StatefulWidget {
@@ -72,8 +73,83 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
             ),
             title: Text('Center Date Bubble'),
           ),
+          ListTile(
+            leading: Icon(Icons.text_fields),
+            title: Text('Font size'),
+            subtitle: Text('Small / Default /Large'),
+            onTap: _showDialogWindow,
+          ),
+          ListTile(
+            leading: Icon(Icons.replay),
+            title: Text('Reset All Preferences'),
+            subtitle: Text('Reset all Visual Customization'),
+            onTap: () {
+              BlocProvider.of<GeneralSettingsCubit>(context)
+                  .resetAllPreferences();
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.share),
+            title: Text('Share app'),
+            subtitle: Text('Share a link of the Chat Journal'),
+            onTap: () async {
+              print('test');
+              await Share.share(
+                  'Download Chat journal right now! \n\r https://t.me/oldUnixLover');
+            },
+          ),
         ],
       ).toList(),
+    );
+  }
+
+  void _showDialogWindow() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return BlocBuilder<GeneralSettingsCubit, GeneralSettingsState>(
+          builder: (context, state) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+              elevation: 16,
+              child: Container(
+                width: 150,
+                height: 250,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: Text(
+                        'Font Size',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    _listTile('Small', 0),
+                    _listTile('Default', 1),
+                    _listTile('Large', 2),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Ok'),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  ListTile _listTile(String size, int index) {
+    return ListTile(
+      title: Text(size),
+      onTap: () {
+        BlocProvider.of<ThemeCubit>(context).changeTextTheme(index);
+        Navigator.pop(context);
+      },
     );
   }
 }

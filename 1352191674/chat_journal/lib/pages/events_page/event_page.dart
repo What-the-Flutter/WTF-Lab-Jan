@@ -1,15 +1,17 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:chat_journal/models/note_model.dart';
-import 'package:chat_journal/models/event_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/widgets/hashtag_text.dart';
+import 'package:hashtagable/widgets/hashtag_text_field.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../main.dart';
+import '../../models/event_model.dart';
+import '../../models/note_model.dart';
 import 'event_page_cubit.dart';
 
 class EventPage extends StatefulWidget {
@@ -107,7 +109,7 @@ class _EventPageState extends State<EventPage>
         IconButton(
           icon: Icon(Icons.bookmark_border),
           onPressed: () => BlocProvider.of<EventCubit>(context)
-              .setAllBookmarkState(!state.isAllBookmarked!),
+              .setAllBookmarkState(!state.isAllBookmarked),
         ),
       ],
     );
@@ -137,7 +139,7 @@ class _EventPageState extends State<EventPage>
             Expanded(
               child: _directionality(state),
             ),
-            if (state.isEditingPhoto!)
+            if (state.isEditingPhoto)
               Padding(
                 padding: EdgeInsets.only(
                   top: 10,
@@ -157,9 +159,9 @@ class _EventPageState extends State<EventPage>
             ),
           ],
         ),
-        if (state.isDateTimeModification!)
+        if (state.isDateTimeModification)
           Align(
-            alignment: state.isBubbleAlignment!
+            alignment: state.isBubbleAlignment
                 ? Alignment.topLeft
                 : Alignment.topRight,
             child: GestureDetector(
@@ -212,7 +214,7 @@ class _EventPageState extends State<EventPage>
   Directionality _directionality(EventsState state) {
     return Directionality(
       textDirection:
-      state.isBubbleAlignment! ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+          state.isBubbleAlignment ? ui.TextDirection.rtl : ui.TextDirection.ltr,
       child: _listView(state),
     );
   }
@@ -302,25 +304,25 @@ class _EventPageState extends State<EventPage>
 
   ListView _listView(EventsState state) {
     final _searchedEventList = state.isIconButtonSearchPressed
-        ? state.eventList!
+        ? state.eventList
             .where(
                 (element) => element.text.contains(_searchTextController.text))
             .toList()
         : state.eventList;
-    final _allBookmarkedList = state.isAllBookmarked!
-        ? _searchedEventList!.where((element) => element.isBookmarked).toList()
+    final _allBookmarkedList = state.isAllBookmarked
+        ? _searchedEventList.where((element) => element.isBookmarked).toList()
         : _searchedEventList;
 
     return ListView.builder(
       scrollDirection: Axis.vertical,
       reverse: true,
-      itemCount: state.isAllBookmarked!
-          ? _allBookmarkedList!.length
-          : _searchedEventList!.length,
+      itemCount: state.isAllBookmarked
+          ? _allBookmarkedList.length
+          : _searchedEventList.length,
       itemBuilder: (context, index) {
-        final _event = state.isAllBookmarked!
-            ? _allBookmarkedList![index]
-            : _searchedEventList![index];
+        final _event = state.isAllBookmarked
+            ? _allBookmarkedList[index]
+            : _searchedEventList[index];
         return EventListWidget(
           _event,
           state,
@@ -367,7 +369,9 @@ class _EventPageState extends State<EventPage>
           },
         ),
         Expanded(
-          child: TextField(
+          child: HashTagTextField(
+            decoratedStyle: TextStyle(color: Colors.blue),
+            basicStyle: TextStyle(color: Colors.black),
             controller: _textController,
             focusNode: _focusNode,
             onChanged: (value) {
@@ -424,12 +428,12 @@ class _EventPageState extends State<EventPage>
   }
 
   IconButton _sendButton(EventsState state) {
-    return state.isWritingBottomTextField!
+    return state.isWritingBottomTextField
         ? IconButton(
             icon: Icon(Icons.send),
             iconSize: 29,
             onPressed: () {
-              if (state.isEditing!) {
+              if (state.isEditing) {
                 BlocProvider.of<EventCubit>(context).editText(
                   state.selectedElement!,
                   _textController.text,
@@ -447,7 +451,7 @@ class _EventPageState extends State<EventPage>
             icon: Icon(Icons.photo),
             iconSize: 29,
             onPressed: () => BlocProvider.of<EventCubit>(context)
-                .setEditingPhotoState(!state.isEditingPhoto!),
+                .setEditingPhotoState(!state.isEditingPhoto),
           );
   }
 
@@ -483,7 +487,7 @@ class _EventPageState extends State<EventPage>
               _focusNode.requestFocus();
             },
           ),
-        if (event.imagePath == null)
+        if (event.imagePath.isEmpty)
           IconButton(
             icon: Icon(Icons.copy),
             onPressed: () {
@@ -581,10 +585,10 @@ class _EventPageState extends State<EventPage>
   }
 
   void _updateSubTittle(EventsState state) {
-    state.eventList!.isEmpty
+    state.eventList.isEmpty
         ? _noteList[state.selectedTile!].subTitleEvent = 'Add event'
         : _noteList[state.selectedTile!].subTitleEvent =
-            state.eventList![0].text;
+            state.eventList[0].text;
   }
 
   Widget _showDialogEventList(int index, EventsState state) {
@@ -683,9 +687,10 @@ class _EventListWidgetState extends State<EventListWidget> {
             : null,
         title: event.imagePath.isNotEmpty
             ? Image.file(File(event.imagePath))
-            : Text(
-                event.text,
-                style: TextStyle(color: Colors.white),
+            : HashTagText(
+                text: event.text,
+                decoratedStyle: TextStyle(color: Colors.blue),
+                basicStyle: TextStyle(color: Colors.white),
               ),
         subtitle: Text(
           event.time,

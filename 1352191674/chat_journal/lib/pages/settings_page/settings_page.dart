@@ -36,12 +36,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.cloud),
-            trailing: Icon(Icons.navigate_next),
-            title: Text('Backup & Sync'),
-            subtitle: Text('Local & Drive backup & sync'),
-          ),
         ],
       ).toList(),
     );

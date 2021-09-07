@@ -1,6 +1,7 @@
-import 'package:chat_journal/models/note_model.dart';
-import 'package:chat_journal/services/db_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../models/note_model.dart';
+import '../../services/db_provider.dart';
 
 part 'home_page_state.dart';
 
