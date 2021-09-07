@@ -1,6 +1,7 @@
-import 'package:chat_journal/pages/home_page/home_page.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../home_page/home_page.dart';
 
 part 'main_page_state.dart';
 

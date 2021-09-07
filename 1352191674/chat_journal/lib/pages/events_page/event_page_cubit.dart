@@ -1,23 +1,36 @@
 import 'dart:io';
 
-import 'package:chat_journal/models/note_model.dart';
-import 'package:chat_journal/models/event_model.dart';
-import 'package:chat_journal/services/db_provider.dart';
-import 'package:chat_journal/services/shared_preferences_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
+import '../../models/event_model.dart';
+import '../../models/note_model.dart';
+import '../../services/db_provider.dart';
+import '../../services/shared_preferences_provider.dart';
+
 part 'event_page_state.dart';
 
 class EventCubit extends Cubit<EventsState> {
   final DBProvider _dbProvider = DBProvider();
-  final _prefs = SharedPreferencesProvider();
+  final SharedPreferencesProvider _prefs = SharedPreferencesProvider();
 
   EventCubit()
       : super(
-          EventsState(),
+          EventsState(
+            eventList: <Event>[],
+            isAllBookmarked: false,
+            isBubbleAlignment: false,
+            isWriting: false,
+            isIconButtonSearchPressed: false,
+            eventSelected: false,
+            isEditingPhoto: false,
+            isWritingBottomTextField: false,
+            isDateTimeModification: false,
+            isCenterDateBubble: false,
+            isEditing: false,
+          ),
         );
   void init(Note note) async {
     emit(
@@ -40,20 +53,19 @@ class EventCubit extends Cubit<EventsState> {
         isEditingPhoto: false,
         isEditing: false,
         eventSelected: false,
-        isBubbleAlignment: _prefs.fetchBubbleAlignmentState(),
-        isCenterDateBubble: _prefs.fetchCenterDateBubbleState(),
-        isDateTimeModification: _prefs.fetchDateTimeModificationState(),
+        isBubbleAlignment: _prefs.fetchBubbleAlignment(),
+        isCenterDateBubble: _prefs.fetchCenterDateBubble(),
+        isDateTimeModification: _prefs.fetchDateTimeModification(),
       ),
     );
   }
-
 
   void setNote(Note note) => emit(state.copyWith(note: note));
 
   void setDate(String date) => emit(state.copyWith(date: date));
 
   void transferEvent(Event currentEvent, List<Note> noteList) {
-    final eventId = state.eventList!.length;
+    final eventId = state.eventList.length;
     final event = Event(
       text: currentEvent.text,
       time: DateFormat.jm().format(
@@ -103,11 +115,11 @@ class EventCubit extends Cubit<EventsState> {
 
   void deleteEvent(Event event) {
     _dbProvider.deleteEvent(event);
-    state.eventList!.remove(event);
-    if (state.eventList!.isEmpty) {
+    state.eventList.remove(event);
+    if (state.eventList.isEmpty) {
       state.note!.subTitleEvent = 'Add event';
     } else {
-      state.note!.subTitleEvent = state.eventList![0].text;
+      state.note!.subTitleEvent = state.eventList[0].text;
     }
     emit(state.copyWith(eventList: state.eventList));
   }
@@ -126,7 +138,7 @@ class EventCubit extends Cubit<EventsState> {
       emit(state.copyWith(isAllBookmarked: isAllBookmarked));
 
   Future<void> addImageEventFromResource(File image) async {
-    final eventId = state.eventList!.length;
+    final eventId = state.eventList.length;
     final appDir = await getApplicationDocumentsDirectory();
     final fileName = path.basename(image.path);
     final saved = await image.copy('${appDir.path}/$fileName');
@@ -146,8 +158,7 @@ class EventCubit extends Cubit<EventsState> {
       id: eventId + 1,
     );
     event.id = await _dbProvider.insertEvent(event);
-
-    state.eventList!.insert(0, event);
+    state.eventList.insert(0, event);
     setEditingPhotoState(false);
     emit(state.copyWith(note: state.note));
   }
@@ -171,10 +182,10 @@ class EventCubit extends Cubit<EventsState> {
       isSelected: false,
       imagePath: '',
     );
-    state.eventList!.insert(0, event);
+    state.eventList.insert(0, event);
     emit(
       state.copyWith(
-        eventList: state.eventList!
+        eventList: state.eventList
           ..sort(
             (a, b) {
               var aDate = DateFormat().add_yMMMd().parse(a.date);
@@ -185,7 +196,7 @@ class EventCubit extends Cubit<EventsState> {
       ),
     );
     event.id = await _dbProvider.insertEvent(event);
-    state.note!.subTitleEvent = state.eventList![0].text;
+    state.note!.subTitleEvent = state.eventList[0].text;
     emit(state.copyWith(note: state.note));
   }
 

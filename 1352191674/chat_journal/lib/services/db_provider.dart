@@ -1,8 +1,9 @@
-import 'package:chat_journal/models/note_model.dart';
-import 'package:chat_journal/models/event_model.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../models/event_model.dart';
+import '../models/note_model.dart';
 
 const String tableNotes = 'notes';
 const String columnId = 'id';

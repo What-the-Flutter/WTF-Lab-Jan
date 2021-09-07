@@ -1,9 +1,9 @@
-import 'package:chat_journal/main.dart';
-import 'package:chat_journal/pages/create_page/create_page.dart';
-import 'package:chat_journal/pages/events_page/event_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../main.dart';
+import '../create_page/create_page.dart';
+import '../events_page/event_page.dart';
 import 'home_page_cubit.dart';
 
 class HomePage extends StatefulWidget {
