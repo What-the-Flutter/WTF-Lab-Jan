@@ -11,8 +11,8 @@ BoxDecoration backgroundDecoration = const BoxDecoration(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFFEFF7FA),
-      Color(0xFFF7F1FC),
+      Color(0xFFEDF6F9),
+      Color(0xFFF7EFFC),
     ],
   ),
 );
