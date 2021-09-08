@@ -36,9 +36,7 @@ class NoteSearchDelegate extends SearchDelegate<String> {
     return IconButton(
       tooltip: 'Back',
       icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, '');
-      },
+      onPressed: () => close(context, ''),
     );
   }
 
@@ -50,19 +48,24 @@ class NoteSearchDelegate extends SearchDelegate<String> {
       padding: const EdgeInsets.all(8),
       child: Center(
         child: ListTile(
-            title: Text(
-              query,
-              style: textTheme!
-                  .copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
+          title: Text(
+            query,
+            style: textTheme!.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
             ),
-            leading: Icon(_elements[_index].icon),
-            subtitle: Text(_elements[_index].time),
-            trailing: IconButton(
-              icon: const Icon(Icons.reply),
-              onPressed: () {
-                close(context, query);
-              },
-            )),
+          ),
+          // leading: Icon(_elements[_index].icon),
+          leading: Icon(Icons.restaurant_outlined),
+          // subtitle: Text(_elements[_index].time),
+          subtitle: Text('test'),
+          trailing: IconButton(
+            icon: const Icon(Icons.reply),
+            onPressed: () {
+              close(context, query);
+            },
+          ),
+        ),
       ),
     );
   }
@@ -113,8 +116,10 @@ class _SuggestionsList extends StatelessWidget {
           title: RichText(
             text: TextSpan(
               text: suggestion.substring(0, query.length),
-              style: textTheme!
-                  .copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
+              style: textTheme!.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
               children: <TextSpan>[
                 TextSpan(
                   text: suggestion.substring(query.length),

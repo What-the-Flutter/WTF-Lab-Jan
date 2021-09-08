@@ -1,65 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:notes/data/journal_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../main.dart';
+import '../../cubit/create_page/create_page_cubit.dart';
 import '../../models/note_model.dart';
-import '../../routes/routes.dart';
-import 'grid_view.dart';
 
-class AddNote extends StatefulWidget {
-  final String? title;
-  final int? selectedIcon;
-  final int? index;
+class AddNote extends StatelessWidget {
+  AddNote({Key? key}) : super(key: key);
 
-  AddNote({
-    this.title,
-    this.selectedIcon,
-    this.index,
-  });
-
-  @override
-  _AddNote createState() => _AddNote();
-}
-
-class _AddNote extends State<AddNote> {
-  Color colorFAB = Colors.black12;
-  String title = '';
-  int selectedIcon = 0;
-  int index = 0;
-  bool isEditMode = false;
-
-  bool isTextTyped = false;
   final TextEditingController _textController = TextEditingController();
-
-  void initText() {
-    _textController.addListener(() {
-      setState(() {
-        title = _textController.text;
-        if (title.isEmpty) {
-          isTextTyped = false;
-        } else {
-          isTextTyped = true;
-        }
-      });
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.title != null &&
-        widget.selectedIcon != null &&
-        widget.index != null) {
-      isEditMode = true;
-      title = widget.title!;
-      _textController.text = title;
-      index = widget.index!;
-      selectedIcon = widget.selectedIcon!;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final createPageCubit = context.read<CreatePageCubit>();
+    createPageCubit.loadIcons();
+    createPageCubit.setEditPage(
+        ModalRoute
+            .of(context)!
+            .settings
+            .arguments as PageCategoryInfo?);
+    _textController.text = createPageCubit.state.editPage?.title ?? '';
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -67,8 +27,10 @@ class _AddNote extends State<AddNote> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Add note',
+        title: Text(
+          createPageCubit.state.editPage == null
+              ? 'Create new page'
+              : 'Edit page',
         ),
       ),
       body: Column(
@@ -79,17 +41,7 @@ class _AddNote extends State<AddNote> {
               controller: _textController,
               autofocus: true,
               onChanged: (text) {
-                if (text != '') {
-                  setState(() {
-                    title = text;
-                    colorFAB = Colors.green;
-                  });
-                } else {
-                  setState(() {
-                    title = text;
-                    colorFAB = Colors.grey;
-                  });
-                }
+                // TODO???
               },
               keyboardType: TextInputType.text,
               maxLines: 1,
@@ -106,11 +58,15 @@ class _AddNote extends State<AddNote> {
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(20),
-              child: GridViewBuild(
-                selectedIndex: selectedIcon,
-                onIconChanged: (value) {
-                  selectedIcon = value;
-                  setState(() {});
+              child: BlocBuilder<CreatePageCubit, CreatePageState>(
+                builder: (context, state) {
+                  return GridView.count(
+                    crossAxisCount: 4,
+                    padding: const EdgeInsets.all(20),
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20,
+                    children: _iconList(context),
+                  );
                 },
               ),
             ),
@@ -122,33 +78,70 @@ class _AddNote extends State<AddNote> {
           Icons.check,
           color: Colors.white,
         ),
-        backgroundColor: colorFAB,
+        backgroundColor: Colors.green,
         onPressed: () {
           if (_textController.text != '') {
-            if (isEditMode) {
-              JournalCubit()
-                ..changeJournal(
-                    Journal(
-                      iconIndex: selectedIcon,
-                      title: title,
-                      note: notes[index].note,
-                    ),
-                    index);
-            } else {
-              JournalCubit()
-                ..addJournal(
-                  Journal(
-                    iconIndex: selectedIcon,
-                    title: title,
-                    note: [],
-                  ),
-                );
-            }
-            Navigator.of(context).pop(mainPage);
-            setState(() {});
+            Navigator.of(context).pop(
+                context.read<CreatePageCubit>().createPage(
+                    _textController.text));
           }
         },
       ),
     );
   }
+}
+
+List<Widget> _iconList(BuildContext context) {
+  return context
+      .read<CreatePageCubit>()
+      .state
+      .icons
+      .map(
+        (iconData) {
+      return GestureDetector(
+        onTap: () {
+          context.read<CreatePageCubit>().selectIcon(iconData);
+        },
+        child: _iconListElement(context, iconData),
+      );
+    },
+  )
+      .toList();
+}
+
+Widget _iconListElement(BuildContext context, IconData iconData) {
+  return Stack(
+    alignment: Alignment.bottomRight,
+    children: [
+      CircleAvatar(
+        child: Icon(
+          iconData,
+          color: Theme
+              .of(context)
+              .accentColor,
+        ),
+        radius: 32,
+        backgroundColor: Theme
+            .of(context)
+            .cardColor,
+      ),
+      if (context
+          .read<CreatePageCubit>()
+          .state
+          .selectedIcon == iconData)
+        const CircleAvatar(
+          radius: 11,
+          backgroundColor: Colors.white,
+          child: CircleAvatar(
+            radius: 9,
+            backgroundColor: Colors.green,
+            child: Icon(
+              Icons.check,
+              color: Colors.white,
+              size: 17,
+            ),
+          ),
+        ),
+    ],
+  );
 }

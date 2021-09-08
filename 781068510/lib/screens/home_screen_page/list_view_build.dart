@@ -1,32 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/journal_cubit.dart';
-import '../../main.dart';
-import '../../models/note_model.dart';
+import '../../cubit/home_screen/home_cubit.dart';
 import '../../routes/routes.dart';
 import '../add_note_page/add_note_page.dart';
-import '../info_page/note_info_page.dart';
+import '../event_page/note_info_page.dart';
 
-class BuildListView extends StatefulWidget {
-  @override
-  _BuildListView createState() => _BuildListView();
-}
+class BuildListView extends StatelessWidget {
+  BuildListView({Key? key}) : super(key: key);
 
-class _BuildListView extends State<BuildListView> {
   @override
   Widget build(BuildContext context) {
-    //JournalCubit()..addElement(Journal(title: '1',iconIndex: 2,note:[]));
-    return BlocBuilder<JournalCubit, List<Journal>>(
-        builder: (context, journals) {
-      if (journals.isEmpty) {
+    context.read<HomeCubit>().init();
+    return BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
+      if (state.pages.isEmpty) {
         return const Center(
           child: Text('Nothing to show'),
         );
       }
       return ListView.builder(
-        itemCount: journals.length,
-        itemBuilder: (context, index) {
+        itemCount: state.pages.length,
+        itemBuilder: (_, index) {
           return ListTile(
             onLongPress: () {
               showModalBottomSheet(
@@ -48,11 +42,11 @@ class _BuildListView extends State<BuildListView> {
                               ListTile(
                                 leading: CircleAvatar(
                                   child: Icon(
-                                    listOfIcons[journals[index].iconIndex],
+                                    state.pages[index].icon,
                                   ),
                                 ),
                                 title: Text(
-                                  journals[index].title,
+                                  state.pages[index].title,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 25,
@@ -61,8 +55,8 @@ class _BuildListView extends State<BuildListView> {
                               ),
                               ListTile(
                                 title: const Text('Number of notes'),
-                                trailing:
-                                    Text(journals[index].note.length.toString()),
+                                trailing: Text(
+                                    state.pages[index].lastMessage),
                               ),
                             ],
                           ),
@@ -84,16 +78,11 @@ class _BuildListView extends State<BuildListView> {
                       title: Text('Archive Page'),
                     ),
                     ListTile(
-                      onTap: () async{
+                      onTap: () async {
                         await Navigator.of(context).pushNamed(
                           addNotePage,
-                          arguments: AddNote(
-                            title: journals[index].title,
-                            selectedIcon: journals[index].iconIndex,
-                            index: index,
-                          ),
+                          arguments: AddNote(),
                         );
-                        setState(() {});
                       },
                       leading: const Icon(
                         Icons.edit,
@@ -103,9 +92,8 @@ class _BuildListView extends State<BuildListView> {
                     ),
                     ListTile(
                       onTap: () {
-                        JournalCubit()..deleteJournal(index);
+                        // PageCubit()..deleteJournal(index);
                         Navigator.pop(context);
-                        setState(() {});
                       },
                       leading: const Icon(
                         Icons.delete,
@@ -122,27 +110,22 @@ class _BuildListView extends State<BuildListView> {
               radius: 30,
               // backgroundColor: Colors.yellowAccent,
               child: Icon(
-                listOfIcons[journals[index].iconIndex],
+                state.pages[index].icon,
                 size: 30,
               ),
             ),
             title: Text(
-              journals[index].title,
+              state.pages[index].title,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
             ),
-            subtitle: Text(journals[index].note.isNotEmpty
-                ? journals[index].note.last.description
-                : 'Entry event'),
+            subtitle: Text(state.pages[index].lastMessage),
             onTap: () {
               Navigator.of(context).pushNamed(
                 noteInfoPage,
-                arguments: NoteInfo(
-                  index: index,
-                  journal: journals[index],
-                ),
+                arguments: state.pages[index],
               );
             },
           );

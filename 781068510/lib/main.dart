@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/cubit/create_page/create_page_cubit.dart';
+import 'package:notes/database/shared_preferences_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Themes/theme_change.dart';
 import 'Themes/themes.dart';
-import 'models/note_model.dart';
+import 'cubit/events/event_cubit.dart';
+import 'cubit/home_screen/home_cubit.dart';
+import 'cubit/themes/theme_cubit.dart';
 import 'routes/routes.dart' as route;
+import 'screens/add_note_page/add_note_page.dart';
+import 'screens/event_page/note_info_page.dart';
+import 'screens/home_screen_page/home_screen.dart';
 
-List<Journal> notes = [];
+List<Page> notes = [];
 
 List<IconData> listOfEventsIcons = [
   Icons.cancel,
@@ -44,45 +53,40 @@ List<IconData> listOfIcons = [
   Icons.car_rental
 ];
 
-void main() {
-  initTestFields();
-  runApp(
-    ThemeSelector(
-      theme: Themes().lightTheme,
-      child: MyApp(),
-    ),
-  );
-}
+var theme;
 
-void initTestFields() {
-  notes.add(
-    Journal(
-      title: 'Notes',
-      iconIndex: 0,
-      note: [
-        Note(description: 'test', isBookmarked: false, time: '1'),
-        Note(description: 'event 1', isBookmarked: false, time: '2'),
-        Note(description: 'event 2', isBookmarked: false, time: '3'),
-        Note(description: 'run', isBookmarked: false, time: '4'),
-        Note(description: 'eat', isBookmarked: false, time: '5'),
-        Note(description: 'task 1', isBookmarked: false, time: '6'),
-        Note(description: 'task 2', isBookmarked: false, time: '7'),
-        Note(description: 'task 3', isBookmarked: false, time: '8'),
-        Note(description: 'task 4', isBookmarked: false, time: '9'),
-        Note(description: 'task 5', isBookmarked: false, time: '10'),
-      ],
-    ),
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  theme = await ThemePreferences.init();
+  runApp(
+    MyApp(),
   );
 }
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeSelector.instanceOf(context).theme,
-      onGenerateRoute: route.controller,
-      initialRoute: route.mainPage,
+  Widget build(BuildContext context)  {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<EventCubit>(create: (context) => EventCubit()),
+        BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()),
+        BlocProvider<HomeCubit>(create: (context) => HomeCubit()),
+        BlocProvider<CreatePageCubit>(create: (context) => CreatePageCubit()),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeData>(
+        builder: (context, state) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: state,
+            // theme: theme == 1 ? Themes().darkTheme : Themes().lightTheme,
+            home: MainPage(),
+            routes: {
+              route.noteInfoPage : (context) => NoteInfo(),
+              route.addNotePage : (context) => AddNote(),
+            }
+          );
+        },
+      ),
     );
   }
 }

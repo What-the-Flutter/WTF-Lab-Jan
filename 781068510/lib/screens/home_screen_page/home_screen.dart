@@ -1,54 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/database/shared_preferences_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../cubit/home_screen/home_cubit.dart';
+import '../../cubit/themes/theme_cubit.dart';
+import '../../models/note_model.dart';
 
-import '../../Themes/theme_change.dart';
 import '../../routes/routes.dart' as route;
 import 'list_view_build.dart';
 
-List<String> titles = ['Home', 'Daily', 'Timeline', 'Explore'];
-
-class MainPage extends StatefulWidget {
-  @override
-  _MainPageState createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  String title = 'Home';
-  int index = 0;
-  bool isDarkMode = false;
-
+class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0.0,
-        leading: IconButton(
-          onPressed: () => print('menu'),
-          icon: const Icon(Icons.menu),
-        ),
-        title: Text(
-          title,
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-              onPressed: () {
-                isDarkMode = !isDarkMode;
-                ThemeSelector.instanceOf(context).changeTheme();
-              },
-              icon: const Icon(Icons.invert_colors)),
-        ],
-      ),
-      body: buildPages(),
-      floatingActionButton: buildFloatingActionButton(),
-      bottomNavigationBar: buildBottomNavigationBar(),
+    final themeCubit = context.read<ThemeCubit>();
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (cubitContext, state) {
+        return Scaffold(
+          appBar: AppBar(
+            elevation: 0.0,
+            leading: IconButton(
+              onPressed: () => print('menu'),
+              icon: const Icon(Icons.menu),
+            ),
+            title: const Text(
+              ('title'),
+            ),
+            centerTitle: true,
+            actions: <Widget>[
+              IconButton(
+                  // onPressed:() async {
+                  //   var num = ThemePreferences.getIntFromSharedPrefs();
+                  //   await num == 0 ? ThemePreferences.setTheme(1) : ThemePreferences.setTheme(0);
+                  //   themeCubit..changeTheme;
+                  //   },
+                onPressed: themeCubit.changeTheme,
+                  icon: const Icon(Icons.invert_colors)),
+            ],
+          ),
+          body: buildPages(state),
+          floatingActionButton: buildFloatingActionButton(context),
+          bottomNavigationBar: buildBottomNavigationBar(cubitContext, state),
+        );
+      },
     );
   }
 
-  BottomNavigationBar buildBottomNavigationBar() {
+  Widget buildBottomNavigationBar(BuildContext context, HomeState state) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       elevation: 0.0,
-      currentIndex: index,
+      currentIndex: state.selectedIndex,
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.class_),
@@ -67,31 +68,28 @@ class _MainPageState extends State<MainPage> {
           label: 'Explore',
         ),
       ],
-      onTap: onNavBarTap,
+      onTap: (index) {
+        context.read<HomeCubit>().setNavBarItem(index);
+      },
     );
   }
 
-  void onNavBarTap(int index) {
-    setState(() {
-      this.index = index;
-      title = titles[index];
-    });
-  }
-
-  Widget buildFloatingActionButton() {
+  Widget buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
       child: const Icon(
         Icons.add,
       ),
       onPressed: () async {
-        await Navigator.of(context).pushNamed(route.addNotePage);
-        setState(() {});
+        final page = await Navigator.of(context).pushNamed(route.addNotePage);
+        if (page is PageCategoryInfo) {
+          context.read<HomeCubit>().addPage(page);
+        }
       },
     );
   }
 
-  Widget buildPages() {
-    switch (index) {
+  Widget buildPages(HomeState state) {
+    switch (state.selectedIndex) {
       case 0:
         return homePage();
       case 1:
