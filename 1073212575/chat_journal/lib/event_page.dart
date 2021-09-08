@@ -1,36 +1,26 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'style.dart';
+import 'package:jiffy/jiffy.dart';
 
-class EventMessage {
-  dynamic content;
-  dynamic date;
-  bool isMarked = false;
-  EventMessage(this.content, this.date);
-}
-
-List _allMessages = [];
-List _markedMessages = [];
-List _messages = _allMessages;
-bool _isSelected = false;
-late int _selectedMessageIndex;
+import 'event_classes.dart';
+import 'themes.dart';
 
 class EventPage extends StatefulWidget {
+  final int eventPageIndex;
+  const EventPage({Key? key, required this.eventPageIndex}) : super(key: key);
   @override
   _EventPageState createState() => _EventPageState();
 }
 
 class _EventPageState extends State<EventPage> {
+  List _messages = [];
+  bool onlyMarked = false;
+  bool _isSelected = false;
+  late int _selectedMessageIndex;
   final _controller = TextEditingController();
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   void dispose() {
     _controller.dispose();
@@ -38,9 +28,25 @@ class _EventPageState extends State<EventPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _showMessages();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: backgroundDecoration,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Theme.of(context).colorScheme.secondary,
+            Theme.of(context).colorScheme.onSecondary,
+            Theme.of(context).colorScheme.secondaryVariant,
+          ],
+        ),
+      ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: _isSelected ? _editingAppBar() : _defaultAppBar(),
@@ -56,46 +62,52 @@ class _EventPageState extends State<EventPage> {
 
   PreferredSizeWidget _editingAppBar() {
     return AppBar(
-        backgroundColor: mainColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadiusBottom,
+      backgroundColor: Theme.of(context).colorScheme.onPrimary,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(radiusValue),
         ),
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            onPressed: () => setState(() => _isSelected = false)),
-        title: const Text(''),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_rounded),
-            onPressed: _delete,
-          ),
-          IconButton(
-            icon: const Icon(Icons.copy_rounded),
-            onPressed: _copy,
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit_rounded),
-            onPressed: _edit,
-          ),
-        ]);
-  }
-
-  PreferredSizeWidget _defaultAppBar() {
-    return AppBar(
-      backgroundColor: mainColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadiusBottom,
       ),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_rounded),
-        onPressed: () {
-          Navigator.pop(context);
-        },
+        onPressed: () => setState(() => _isSelected = false),
       ),
       title: const Text(''),
       actions: [
         IconButton(
-          icon: const Icon(Icons.bookmark_border_rounded),
+          icon: const Icon(Icons.delete_rounded),
+          onPressed: _delete,
+        ),
+        IconButton(
+          icon: const Icon(Icons.copy_rounded),
+          onPressed: _copy,
+        ),
+        IconButton(
+          icon: const Icon(Icons.edit_rounded),
+          onPressed: _edit,
+        ),
+      ],
+    );
+  }
+
+  PreferredSizeWidget _defaultAppBar() {
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(radiusValue),
+        ),
+      ),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_rounded),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: const Text(''),
+      actions: [
+        IconButton(
+          icon: onlyMarked
+              ? const Icon(Icons.bookmark_rounded)
+              : const Icon(Icons.bookmark_border_rounded),
           onPressed: _showMarked,
         ),
       ],
@@ -106,15 +118,17 @@ class _EventPageState extends State<EventPage> {
     return Align(
       alignment: Alignment.bottomLeft,
       child: ClipRRect(
-        borderRadius: borderRadiusTop,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(radiusValue),
+        ),
         child: Container(
           height: 50,
-          color: eventBackgroundColor,
+          color: Theme.of(context).colorScheme.onPrimary,
           child: Row(
             children: [
               IconButton(
                 icon: const Icon(Icons.add_a_photo_rounded),
-                color: mainColor,
+                color: Theme.of(context).colorScheme.onPrimary,
                 onPressed: _addImage,
               ),
               Expanded(
@@ -129,7 +143,7 @@ class _EventPageState extends State<EventPage> {
               ),
               IconButton(
                 icon: const Icon(Icons.send_rounded),
-                color: mainColor,
+                color: Theme.of(context).colorScheme.background,
                 onPressed: () => _addMessage(context),
               ),
             ],
@@ -158,9 +172,11 @@ class _EventPageState extends State<EventPage> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: _messages[i].isMarked == true
-              ? markedMessageColor
-              : eventBackgroundColor,
-          borderRadius: borderRadius,
+              ? Theme.of(context).colorScheme.surface
+              : Theme.of(context).colorScheme.onPrimary,
+          borderRadius: const BorderRadius.all(
+            Radius.circular(radiusValue),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +184,8 @@ class _EventPageState extends State<EventPage> {
             Padding(
               padding: const EdgeInsets.only(bottom: 5),
               child: Text(_messages[i].date,
-                  style: TextStyle(fontSize: 12, color: mainColor)),
+                  style: TextStyle(
+                      fontSize: 12, color: Theme.of(context).colorScheme.background)),
             ),
             _messages[i].content.toString() == "Instance of 'XFile'"
                 ? Image.file(
@@ -176,7 +193,8 @@ class _EventPageState extends State<EventPage> {
                     height: 300,
                   )
                 : Text(_messages[i].content.toString(),
-                    style: TextStyle(fontSize: 16, color: mainColor)),
+                    style: TextStyle(
+                        fontSize: 16, color: Theme.of(context).colorScheme.background)),
           ],
         ),
       ),
@@ -185,43 +203,72 @@ class _EventPageState extends State<EventPage> {
 
   void _mark(int i) {
     setState(() {
-      if (_allMessages[i].isMarked == false) {
-        _allMessages[i].isMarked = true;
-        _markedMessages.add(_allMessages[i]);
+      if (eventPages[widget.eventPageIndex].eventMessages[i].isMarked ==
+          false) {
+        eventPages[widget.eventPageIndex].eventMessages[i].isMarked = true;
       } else {
-        _allMessages[i].isMarked = false;
-        _markedMessages.remove(_allMessages[i]);
+        eventPages[widget.eventPageIndex].eventMessages[i].isMarked = false;
       }
     });
   }
 
   void _showMarked() {
     setState(() {
-      _messages == _allMessages
-          ? _messages = _markedMessages
-          : _messages = _allMessages;
+      onlyMarked = !onlyMarked;
+      if (onlyMarked) {
+        _messages = eventPages[widget.eventPageIndex]
+            .eventMessages
+            .where((message) => message.isMarked == true)
+            .toList();
+      } else {
+        _messages = eventPages[widget.eventPageIndex].eventMessages;
+      }
+    });
+  }
+
+  void _showMessages() {
+    setState(() {
+      if (onlyMarked) {
+        _messages = eventPages[widget.eventPageIndex]
+            .eventMessages
+            .where((message) => message.isMarked == true)
+            .toList();
+      } else {
+        _messages = eventPages[widget.eventPageIndex].eventMessages;
+      }
     });
   }
 
   void _delete() {
     setState(() {
-      _allMessages.removeAt(_selectedMessageIndex);
+      eventPages[widget.eventPageIndex]
+          .eventMessages
+          .removeAt(_selectedMessageIndex);
       _isSelected = false;
     });
   }
 
   void _edit() {
-    if (_allMessages[_selectedMessageIndex].content.toString() ==
+    if (eventPages[widget.eventPageIndex]
+            .eventMessages[_selectedMessageIndex]
+            .content
+            .toString() ==
         "Instance of 'XFile'") {
       _addImage();
     } else {
-      _controller.text = _allMessages[_selectedMessageIndex].content;
+      _controller.text = eventPages[widget.eventPageIndex]
+          .eventMessages[_selectedMessageIndex]
+          .content;
     }
   }
 
   void _copy() {
     Clipboard.setData(
-        ClipboardData(text: _allMessages[_selectedMessageIndex].content));
+      ClipboardData(
+          text: eventPages[widget.eventPageIndex]
+              .eventMessages[_selectedMessageIndex]
+              .content),
+    );
     setState(() => _isSelected = false);
   }
 
@@ -237,36 +284,48 @@ class _EventPageState extends State<EventPage> {
     final image = await _picker.pickImage(source: ImageSource.gallery);
     var message;
     if (_isSelected) {
-      var tempDate = _allMessages[_selectedMessageIndex].date;
+      var tempDate = eventPages[widget.eventPageIndex]
+          .eventMessages[_selectedMessageIndex]
+          .date;
       _delete();
       message = EventMessage(image, tempDate);
       setState(() {
-        _allMessages.insert(_selectedMessageIndex, message);
+        eventPages[widget.eventPageIndex]
+            .eventMessages
+            .insert(_selectedMessageIndex, message);
       });
     } else {
-      message =
-          EventMessage(image, Jiffy(DateTime.now()).format('d/M/y h:mm a'));
+      message = EventMessage(
+        image,
+        Jiffy(DateTime.now()).format('d/M/y h:mm a'),
+      );
 
       setState(() {
-        _allMessages.add(message);
+        eventPages[widget.eventPageIndex].eventMessages.add(message);
       });
     }
   }
 
   void _addMessage(BuildContext context) {
     if (_isSelected) {
-      var tempDate = _allMessages[_selectedMessageIndex].date;
+      var tempDate = eventPages[widget.eventPageIndex]
+          .eventMessages[_selectedMessageIndex]
+          .date;
       var message = EventMessage(_controller.text, tempDate);
       _delete();
       setState(() {
-        _allMessages.insert(_selectedMessageIndex, message);
+        eventPages[widget.eventPageIndex]
+            .eventMessages
+            .insert(_selectedMessageIndex, message);
         _isSelected = false;
       });
     } else {
       var message = EventMessage(
-          _controller.text, Jiffy(DateTime.now()).format('d/M/y h:mm a'));
+        _controller.text,
+        Jiffy(DateTime.now()).format('d/M/y h:mm a'),
+      );
       setState(() {
-        _allMessages.add(message);
+        eventPages[widget.eventPageIndex].eventMessages.add(message);
       });
     }
     _controller.clear();
