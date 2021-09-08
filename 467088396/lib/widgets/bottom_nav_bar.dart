@@ -14,9 +14,9 @@ class BottomNavBar extends StatelessWidget {
       padding: const EdgeInsets.only(
         left: defaultPadding * 2,
         right: defaultPadding * 2,
-        bottom: defaultPadding,
+        //bottom: defaultPadding,
       ),
-      height: 80,
+      height: 60,
       decoration: BoxDecoration(
         color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         boxShadow: [

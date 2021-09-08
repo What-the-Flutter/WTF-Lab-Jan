@@ -6,7 +6,7 @@ const Color textColor = Color(0xFF3C4046);
 const Color backgroundColor = Color(0xFFF9F8FD);
 const Color secondColor = Color(0xff87D2F7);
 
-List<IconData> icons = <IconData>[
+const List<IconData> icons = <IconData>[
   Icons.star,
   Icons.shopping_bag,
   Icons.favorite,
@@ -40,3 +40,13 @@ List<IconData> icons = <IconData>[
   Icons.camera,
   Icons.change_history,
 ];
+
+const Map<String, IconData> sections = {
+  'Food': Icons.fastfood,
+  'Running': Icons.directions_run,
+  'Laundry': Icons.local_laundry_service,
+  'Sport': Icons.sports_basketball,
+  'Shopping': Icons.shopping_cart,
+  'Movie': Icons.movie,
+  'Fav': Icons.star,
+};

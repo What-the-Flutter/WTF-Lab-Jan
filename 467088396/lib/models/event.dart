@@ -1,17 +1,19 @@
 import 'dart:io';
 
+import 'section.dart';
+
 class Event {
   String text;
   bool isBookmarked;
-  bool isEdit;
   bool isSelected;
   File? image;
+  Section? section;
 
   Event({
     required this.text,
     required this.isBookmarked,
-    required this.isEdit,
-    required this.isSelected,
     required this.image,
+    this.isSelected = false,
+    this.section,
   });
 }

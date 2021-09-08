@@ -1,90 +1,109 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../constants.dart';
 import '../models/category.dart';
+import 'create_cubit.dart';
+import 'create_state.dart';
 
 class CreatePage extends StatefulWidget {
+  Category? editCategory;
+
+  CreatePage({this.editCategory});
+
   @override
-  _CreatePageState createState() => _CreatePageState();
+  _CreatePageState createState() =>
+      _CreatePageState(editCategory: editCategory);
 }
 
 class _CreatePageState extends State<CreatePage> {
   final _controller = TextEditingController();
   IconData _selectedIcon = icons[0];
-  late Category? _editCategory;
+  late Category? editCategory;
   bool _isEdit = false;
+
+  _CreatePageState({this.editCategory});
+
+  @override
+  void initState() {
+    if (editCategory != null) {
+      _isEdit = true;
+      _controller.text = editCategory!.name;
+      _selectedIcon = icons[icons.indexOf(editCategory!.iconData)];
+    }
+    BlocProvider.of<CreatePageCubit>(context).init();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _editCategory = ModalRoute.of(context)?.settings.arguments as Category?;
-    if (_editCategory != null) {
-      _isEdit = true;
-     // _controller.text = _editCategory!.name;
-      //_selectedIcon = icons[icons.indexOf(_editCategory!.iconData)];
-    }
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 20,
-            horizontal: 30,
-          ),
-          child: Column(
-            children: <Widget>[
-              Text(
-                _isEdit ? 'Edit Page' : 'Create a new Page',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w300,
-                  fontSize: 20,
-                  letterSpacing: 2,
-                ),
+    return BlocBuilder<CreatePageCubit, CreatePageState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 20,
+                horizontal: 30,
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 3,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      spreadRadius: 5,
-                      blurRadius: 5,
-                      offset: const Offset(5, 5),
-                      color: primaryColor.withOpacity(0.10),
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    _isEdit ? 'Edit Page' : 'Create a new Page',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontSize: 20,
+                      letterSpacing: 2,
                     ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _controller,
-                  onChanged: (_) => setState(() {}),
-                  decoration:  const InputDecoration(
-                    hintText: 'Enter Event',
-                    border: InputBorder.none,
                   ),
-                ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          spreadRadius: 5,
+                          blurRadius: 5,
+                          offset: const Offset(5, 5),
+                          color: primaryColor.withOpacity(0.10),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _controller,
+                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                        hintText: 'Enter Event',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    child: GridView.count(
+                      padding: const EdgeInsets.all(20),
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                      crossAxisCount: 4,
+                      children: _iconList,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              Expanded(
-                child: GridView.count(
-                  padding: const EdgeInsets.all(20),
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 20,
-                  crossAxisCount: 4,
-                  children: _iconList,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-      floatingActionButton: _floatingActionButton(context),
+          floatingActionButton: _floatingActionButton(),
+        );
+      },
     );
   }
 
@@ -148,7 +167,7 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
 
-  FloatingActionButton _floatingActionButton(BuildContext context) {
+  FloatingActionButton _floatingActionButton() {
     return FloatingActionButton(
       onPressed: _finishCreatingPage,
       elevation: 0,

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../constants.dart';
-import '../custom_themes.dart';
+import '../create_screen/create_page.dart';
+import '../event_screen/event_page.dart';
 import '../models/category.dart';
+import '../theme/theme_cubit.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/header_chat_button.dart';
-import 'create_page.dart';
-import 'event_page.dart';
+import 'home_cubit.dart';
+import 'home_state.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,66 +20,65 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool themeChanged = false;
   int _selectedCategory = -1;
-  final List<Category> _categories = <Category>[
-    Category(
-      name: 'Travel',
-      iconData: Icons.flight_takeoff_rounded,
-      createdTime: DateTime.now(),
-    ),
-    Category(
-      name: 'Family',
-      iconData: Icons.family_restroom_rounded,
-      createdTime: DateTime.now(),
-    ),
-    Category(
-      name: 'Sport',
-      iconData: Icons.sports_tennis_rounded,
-      createdTime: DateTime.now(),
-    ),
-  ];
+
+  @override
+  void initState() {
+    BlocProvider.of<HomeCubit>(context).init();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: _appBar(context),
-        body: _body(),
-        floatingActionButton: _floatingActionButton(context),
-        bottomNavigationBar: const BottomNavBar());
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: _appBar(),
+          body: _body(state),
+          floatingActionButton: _floatingActionButton(state),
+          bottomNavigationBar: const BottomNavBar(),
+        );
+      },
+    );
   }
 
-  Column _body() {
+  Column _body(HomeState state) {
     var size = MediaQuery.of(context).size;
     return Column(
       children: <Widget>[
         BotButton(size: size),
-        _categoryList(),
+        _categoryList(state),
       ],
     );
   }
 
-  Expanded _categoryList() {
+  Expanded _categoryList(HomeState state) {
     return Expanded(
       child: ListView.builder(
-        itemCount: _categories.length,
+        itemCount: state.categoryList.length,
         itemBuilder: (context, index) => _categoryCard(
           index,
-          _categories[index],
+          state.categoryList[index],
+          state,
         ),
       ),
     );
   }
 
-  GestureDetector _categoryCard(int index, Category category) {
+  GestureDetector _categoryCard(
+    int index,
+    Category category,
+    HomeState state,
+  ) {
     return GestureDetector(
       onLongPress: () {
         _selectedCategory = index;
-        _showOptions(context);
+        _showOptions(state);
       },
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => EventPage(title: category.name)),
+              builder: (context) => EventPage(category: category)),
         );
       },
       child: Container(
@@ -115,9 +117,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  FloatingActionButton _floatingActionButton(BuildContext context) {
+  FloatingActionButton _floatingActionButton(HomeState state) {
     return FloatingActionButton(
-      onPressed: () => _createPage(context),
+      onPressed: () => _createPage(state),
       elevation: 0,
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -144,15 +146,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _createPage(BuildContext context) async {
+  void _createPage(HomeState state) async {
     final category = await Navigator.push(
         context, MaterialPageRoute(builder: (context) => CreatePage()));
     if (category is Category && mounted) {
-      setState(() => _categories.add(category));
+      BlocProvider.of<HomeCubit>(context).addCategory(category);
     }
   }
 
-  AppBar _appBar(BuildContext context) {
+  AppBar _appBar() {
     return AppBar(
       elevation: 0,
       leading: IconButton(
@@ -169,16 +171,16 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       actions: [
-        _changeThemeIconButton(context),
+        _changeThemeIconButton(),
       ],
     );
   }
 
-  IconButton _changeThemeIconButton(BuildContext context) {
+  IconButton _changeThemeIconButton() {
     return IconButton(
       onPressed: () {
         themeChanged = !themeChanged;
-        CustomTheme.instanceOf(context).changeTheme();
+        BlocProvider.of<ThemeCubit>(context).changeTheme();
       },
       //iconSize: 28,
       icon: const Icon(Icons.nightlight),
@@ -186,7 +188,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<dynamic> _showOptions(BuildContext context) {
+  Future<dynamic> _showOptions(HomeState state) {
     return showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -197,19 +199,20 @@ class _HomePageState extends State<HomePage> {
               title: const Text('Info'),
               onTap: () {
                 Navigator.of(context).pop();
-                _showInfo();
+                _showInfo(state);
               },
             ),
             ListTile(
               leading: const Icon(Icons.edit_rounded, color: secondColor),
               title: const Text('Edit'),
-              onTap: _editPage,
+              onTap: () => _editPage(state),
             ),
             ListTile(
               leading: const Icon(Icons.delete_rounded, color: secondColor),
               title: const Text('Delete'),
               onTap: () {
-                setState(() => _categories.removeAt(_selectedCategory));
+                BlocProvider.of<HomeCubit>(context)
+                    .deleteCategory(_selectedCategory);
                 Navigator.of(context).pop();
               },
             ),
@@ -219,8 +222,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future _showInfo() {
-    var category = _categories[_selectedCategory];
+  Future _showInfo(HomeState state) {
+    var category = state.categoryList[_selectedCategory];
     var date = category.createdTime;
     return showDialog(
       context: context,
@@ -248,15 +251,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _editPage() async {
-    final category = await Navigator.of(context).popAndPushNamed(
-      '/create-page',
-      arguments: _categories[_selectedCategory],
+  void _editPage(HomeState state) async {
+    Navigator.pop(context);
+    final category = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return CreatePage(
+              editCategory: state.categoryList[_selectedCategory]);
+        },
+      ),
     );
     if (category is Category) {
-      setState(() {
-        _categories[_selectedCategory] = category;
-      });
+      BlocProvider.of<HomeCubit>(context).editCategory(
+        _selectedCategory,
+        category,
+      );
     }
   }
 }
