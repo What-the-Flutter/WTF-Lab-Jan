@@ -42,15 +42,12 @@ class ThemeCubit extends Cubit<ThemeState> {
     switch (fontSizeIndex) {
       case 0:
         emit(state.copyWith(textTheme: ThemeState.smallTextTheme));
-        print('0');
         break;
       case 1:
         emit(state.copyWith(textTheme: ThemeState.defaultTextTheme));
-        print('1');
         break;
       case 2:
         emit(state.copyWith(textTheme: ThemeState.largeTextTheme));
-        print('2');
         break;
     }
   }
