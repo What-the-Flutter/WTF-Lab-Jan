@@ -13,16 +13,17 @@ class MessagesState {
 
   MessagesState(this.events);
 
-  MessagesState copyWith(
-      {bool? isSearching,
-      int? selectedIconIndex,
-      bool? isOnEdit,
-      bool? isOnSelectionMode,
-      bool? showingFavourites,
-      List<Event>? events,
-      List<Event>? eventsToDisplay,
-      Set<Event>? selected}) {
-    var state = MessagesState(events ?? this.events);
+  MessagesState copyWith({
+    bool? isSearching,
+    int? selectedIconIndex,
+    bool? isOnEdit,
+    bool? isOnSelectionMode,
+    bool? showingFavourites,
+    List<Event>? events,
+    List<Event>? eventsToDisplay,
+    Set<Event>? selected,
+  }) {
+    final state = MessagesState(events ?? this.events);
     state.selectedIconIndex = selectedIconIndex ?? this.selectedIconIndex;
     state.isSearching = isSearching ?? this.isSearching;
     state.isOnEdit = isOnEdit ?? this.isOnEdit;
@@ -34,7 +35,7 @@ class MessagesState {
   }
 
   bool areAllFavourites() {
-    for (var event in selected) {
+    for (final event in selected) {
       if (!event.isFavourite) {
         return false;
       }

@@ -6,11 +6,9 @@ import 'package:intl/intl.dart';
 
 import '../color_theme.dart';
 import '../icons.dart';
-import '../main_page/pages_bloc.dart';
-import '../main_page/pages_event.dart';
+import '../main_page/pages_cubit.dart';
 import '../page.dart';
-import 'messages_bloc.dart';
-import 'messages_event.dart';
+import 'messages_cubit.dart';
 import 'messages_state.dart';
 
 class MessagePage extends StatefulWidget {
@@ -25,33 +23,33 @@ class MessagePage extends StatefulWidget {
 
 class _MessagePageState extends State<MessagePage> {
   _MessagePageState({required this.page}) {
-    bloc = MessagesBloc(MessagesState(page!.events));
+    cubit = MessageCubit(MessagesState(page!.events));
   }
 
   final JournalPage? page;
   final controller = TextEditingController();
   final _focusNode = FocusNode();
 
-  late MessagesBloc bloc;
+  MessageCubit? cubit;
 
   PreferredSizeWidget get _infoAppBar {
     return AppBar(
       backgroundColor: ColorThemeData.of(context)!.accentColor,
       actions: [
         IconButton(
-          onPressed: () => bloc.add(ShowFavourites(!bloc.state.showingFavourites)),
-          icon: Icon(bloc.state.showingFavourites ? Icons.star : Icons.star_border_outlined),
+          onPressed: () => cubit!.showFavourites(!cubit!.state.showingFavourites),
+          icon: Icon(
+            cubit!.state.showingFavourites ? Icons.star : Icons.star_border_outlined,
+          ),
         ),
         IconButton(
-          onPressed: () {
-            bloc.add(const SetOnSearch(true));
-          },
+          onPressed: () => cubit!.setOnSearch(true),
           icon: const Icon(Icons.search),
         ),
       ],
       title: Row(
         children: [
-          Icon(page!.icon),
+          Icon(iconList[page!.iconIndex]),
           Expanded(
             child: Text(
               page!.title,
@@ -72,7 +70,7 @@ class _MessagePageState extends State<MessagePage> {
       leading: IconButton(
         icon: const Icon(Icons.close),
         onPressed: () {
-          bloc.add(const SetOnSearch(false));
+          cubit!.setOnSearch(false);
           controller.clear();
         },
       ),
@@ -94,13 +92,13 @@ class _MessagePageState extends State<MessagePage> {
         return Container(
           width: double.maxFinite,
           child: ListView.builder(
-            itemCount: BlocProvider.of<PagesBloc>(context).state.length,
+            itemCount: BlocProvider.of<PagesCubit>(context).state.length,
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () {
-                  BlocProvider.of<PagesBloc>(context).add(ForwardAccepted(
-                      BlocProvider.of<PagesBloc>(context).state[index], bloc.state.selected));
-                  bloc.add(const EventsDeleted());
+                  BlocProvider.of<PagesCubit>(context).acceptForward(
+                      BlocProvider.of<PagesCubit>(context).state[index], cubit!.state.selected);
+                  cubit!.deleteEvents();
                   Navigator.pop(context);
                 },
                 child: Container(
@@ -115,13 +113,13 @@ class _MessagePageState extends State<MessagePage> {
                   child: Row(
                     children: [
                       Icon(
-                        BlocProvider.of<PagesBloc>(context).state[index].icon,
+                        iconList[BlocProvider.of<PagesCubit>(context).state[index].iconIndex],
                         color: ColorThemeData.of(context)!.accentTextColor,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          BlocProvider.of<PagesBloc>(context).state[index].title,
+                          BlocProvider.of<PagesCubit>(context).state[index].title,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: ColorThemeData.of(context)!.accentTextColor,
@@ -155,7 +153,7 @@ class _MessagePageState extends State<MessagePage> {
       return IconButton(
         onPressed: () {
           controller.clear();
-          bloc.add(const SetSelectionMode(false));
+          cubit!.setSelectionMode(false);
         },
         icon: const Icon(Icons.clear),
       );
@@ -176,9 +174,9 @@ class _MessagePageState extends State<MessagePage> {
     IconButton _editButton() {
       return IconButton(
         onPressed: () {
-          controller.text = bloc.state.selected.first.description;
+          controller.text = cubit!.state.selected.first.description;
           _focusNode.requestFocus();
-          bloc.add(const SetOnEdit(true));
+          cubit!.setOnEdit(true);
         },
         icon: const Icon(Icons.edit_outlined),
       );
@@ -187,8 +185,8 @@ class _MessagePageState extends State<MessagePage> {
     IconButton _deleteButton() {
       return IconButton(
         onPressed: () {
-          bloc.add(const EventsDeleted());
-          bloc.add(const SetSelectionMode(false));
+          cubit!.deleteEvents();
+          cubit!.setSelectionMode(false);
         },
         icon: const Icon(Icons.delete_outline),
       );
@@ -197,11 +195,11 @@ class _MessagePageState extends State<MessagePage> {
     IconButton _favouritesButton() {
       return IconButton(
         onPressed: () {
-          bloc.add(const AddedToFavourites());
-          bloc.add(const SetSelectionMode(false));
+          cubit!.addToFavourites();
+          cubit!.setSelectionMode(false);
         },
         icon: Icon(
-          bloc.state.areAllFavourites() ? Icons.star : Icons.star_border_outlined,
+          cubit!.state.areAllFavourites() ? Icons.star : Icons.star_border_outlined,
         ),
       );
     }
@@ -209,8 +207,8 @@ class _MessagePageState extends State<MessagePage> {
     IconButton _copyButton() {
       return IconButton(
         onPressed: () {
-          FlutterClipboard.copy(bloc.state.selected.first.description);
-          bloc.add(const SetSelectionMode(false));
+          FlutterClipboard.copy(cubit!.state.selected.first.description);
+          cubit!.setSelectionMode(false);
         },
         icon: const Icon(Icons.copy),
       );
@@ -218,25 +216,25 @@ class _MessagePageState extends State<MessagePage> {
 
     return AppBar(
       backgroundColor: ColorThemeData.of(context)!.accentColor,
-      title: Text(bloc.state.selected.length.toString(),
+      title: Text(cubit!.state.selected.length.toString(),
           style: const TextStyle(fontWeight: FontWeight.bold)),
       leading: _closeButton(),
       actions: [
         _forwardButton(),
-        if (bloc.state.selected.length == 1) _editButton(),
+        if (cubit!.state.selected.length == 1) _editButton(),
         _deleteButton(),
         _favouritesButton(),
-        if (bloc.state.selected.length == 1) _copyButton(),
+        if (cubit!.state.selected.length == 1) _copyButton(),
       ],
     );
   }
 
   Widget get _listView {
-    var _allowed = bloc.state.isSearching
+    final _allowed = cubit!.state.isSearching
         ? page!.events.where((element) => element.description.contains(controller.text)).toList()
         : page!.events;
 
-    var _displayed = bloc.state.showingFavourites
+    final _displayed = cubit!.state.showingFavourites
         ? _allowed.where((event) => event.isFavourite).toList()
         : _allowed;
 
@@ -267,13 +265,13 @@ class _MessagePageState extends State<MessagePage> {
       return Row(
         children: [
           Icon(
-            eventIconList[event.selectedIconIndex],
+            eventIconList[event.iconIndex],
             color: ColorThemeData.of(context)!.accentTextColor,
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              eventStringList[event.selectedIconIndex],
+              eventStringList[event.iconIndex],
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: ColorThemeData.of(context)!.accentTextColor,
@@ -296,17 +294,17 @@ class _MessagePageState extends State<MessagePage> {
 
     return GestureDetector(
       onTap: () {
-        bloc.add(EventSelected(event));
+        cubit!.selectEvent(event);
       },
       onLongPress: () {
-        bloc.add(const SetSelectionMode(true));
-        bloc.add(EventSelected(event));
+        cubit!.setSelectionMode(true);
+        cubit!.selectEvent(event);
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(35),
-          color: bloc.state.selected.contains(event)
+          color: cubit!.state.selected.contains(event)
               ? ColorThemeData.of(context)!.accentLightColor
               : ColorThemeData.of(context)!.accentColor,
         ),
@@ -319,7 +317,7 @@ class _MessagePageState extends State<MessagePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (event.selectedIconIndex != 0) _title(event),
+            if (event.iconIndex != 0) _title(event),
             _content(event),
             const SizedBox(
               height: 5,
@@ -358,16 +356,16 @@ class _MessagePageState extends State<MessagePage> {
     return FloatingActionButton(
       onPressed: () {
         if (controller.text.isNotEmpty) {
-          if (bloc.state.isOnEdit) {
-            bloc.add(EventEdited(controller.text));
+          if (cubit!.state.isOnEdit) {
+            cubit!.editEvent(controller.text);
           } else {
-            bloc.add(EventAdded(Event(controller.text)));
+            cubit!.addEvent(Event(page!.id, controller.text, cubit!.state.selectedIconIndex));
           }
           controller.clear();
         }
       },
       child: Icon(
-        bloc.state.isOnEdit ? Icons.check : Icons.send,
+        cubit!.state.isOnEdit ? Icons.check : Icons.send,
         color: ColorThemeData.of(context)!.accentTextColor,
         size: 18,
       ),
@@ -382,8 +380,8 @@ class _MessagePageState extends State<MessagePage> {
         color: ColorThemeData.of(context)!.mainTextColor,
       ),
       onChanged: (text) {
-        if (bloc.state.isSearching) {
-          bloc.add(const SetOnSearch(true));
+        if (cubit!.state.isSearching) {
+          cubit!.setOnSearch(true);
         }
       },
       controller: controller,
@@ -411,10 +409,10 @@ class _MessagePageState extends State<MessagePage> {
             padding: const EdgeInsets.all(10),
             maxCrossAxisExtent: 100,
             children: [
-              for (var index = 0; index < eventIconList.length; index++)
+              for (int index = 0; index < eventIconList.length; index++)
                 GestureDetector(
                   onTap: () async {
-                    bloc.add(IconSelected(index));
+                    cubit!.selectIcon(index);
                     Navigator.pop(context, index);
                   },
                   child: Center(
@@ -471,12 +469,12 @@ class _MessagePageState extends State<MessagePage> {
             color: ColorThemeData.of(context)!.mainColor,
             child: Row(
               children: <Widget>[
-                if (!bloc.state.isSearching)
+                if (!cubit!.state.isSearching)
                   IconButton(
                     icon: Icon(
-                      bloc.state.selectedIconIndex == 0
+                      cubit!.state.selectedIconIndex == 0
                           ? Icons.insert_emoticon
-                          : eventIconList[bloc.state.selectedIconIndex],
+                          : eventIconList[cubit!.state.selectedIconIndex],
                       color: ColorThemeData.of(context)!.accentColor,
                     ),
                     onPressed: () async {
@@ -495,7 +493,7 @@ class _MessagePageState extends State<MessagePage> {
                 const SizedBox(
                   width: 5,
                 ),
-                if (!bloc.state.isSearching) _floatingActionButton,
+                if (!cubit!.state.isSearching) _floatingActionButton,
               ],
             ),
           ),
@@ -514,17 +512,18 @@ class _MessagePageState extends State<MessagePage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        bloc: bloc,
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: ColorThemeData.of(context)!.mainColor,
-            appBar: bloc.state.isOnSelectionMode
-                ? _editAppBar
-                : bloc.state.isSearching
-                    ? _searchAppBar
-                    : _infoAppBar,
-            body: _body,
-          );
-        });
+      bloc: cubit,
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: ColorThemeData.of(context)!.mainColor,
+          appBar: cubit!.state.isOnSelectionMode
+              ? _editAppBar
+              : cubit!.state.isSearching
+                  ? _searchAppBar
+                  : _infoAppBar,
+          body: _body,
+        );
+      },
+    );
   }
 }

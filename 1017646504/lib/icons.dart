@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-final List<IconData> iconList = [
+const List<IconData> iconList = [
   Icons.work_outlined,
   Icons.wifi_outlined,
   Icons.weekend,
@@ -19,7 +19,7 @@ final List<IconData> iconList = [
   Icons.airplanemode_on_rounded,
 ];
 
-final List<String> stringList = [
+const List<String> stringList = [
   'Work',
   'Internet',
   'Weekend',
