@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../color_theme.dart';
-import '../edit_page.dart';
+import '../edit_page/edit_page.dart';
+import '../icons.dart';
 import '../message_page/message_page.dart';
 import '../page.dart';
-import 'pages_bloc.dart';
-import 'pages_event.dart';
+import 'pages_cubit.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key? key, this.title}) : super(key: key);
@@ -24,6 +25,26 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  bool _usingLightTheme = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBool();
+  }
+
+  void _loadBool() async {
+    final prefs = await SharedPreferences.getInstance();
+    _usingLightTheme = (prefs.getBool('usingLightTheme') ?? true);
+  }
+
+  void _changeTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    _usingLightTheme = !(prefs.getBool('usingLightTheme') ?? true);
+    prefs.setBool('usingLightTheme', _usingLightTheme);
+    ColorThemeData.appThemeStateKey.currentState!.setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return _scaffold;
@@ -44,7 +65,7 @@ class _MainPageState extends State<MainPage> {
       ),
       bottomNavigationBar: _bottomNavigationBar,
       floatingActionButton: _floatingActionButton,
-      body: BlocBuilder<PagesBloc, List<JournalPage>>(
+      body: BlocBuilder<PagesCubit, List<JournalPage>>(
         builder: (context, state) {
           return _body;
         },
@@ -55,12 +76,9 @@ class _MainPageState extends State<MainPage> {
   Widget get _themeChangeButton {
     return IconButton(
       icon: Icon(
-        ColorThemeData.usingLightTheme ? Icons.wb_sunny_outlined : Icons.bedtime_outlined,
+        _usingLightTheme ? Icons.wb_sunny_outlined : Icons.bedtime_outlined,
       ),
-      onPressed: () => setState(() {
-        ColorThemeData.usingLightTheme = !ColorThemeData.usingLightTheme;
-        ColorThemeData.appThemeStateKey.currentState!.setState(() {});
-      }),
+      onPressed: _changeTheme,
     );
   }
 
@@ -86,17 +104,17 @@ class _MainPageState extends State<MainPage> {
   Widget get _floatingActionButton {
     return FloatingActionButton(
       onPressed: () async {
-        var pageInfo = await Navigator.push(
+        final pageInfo = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => EditPage(
-              page: JournalPage('New page', Icons.notes, creationTime: DateTime.now()),
+              page: JournalPage('New page', 0),
               title: 'New page',
             ),
           ),
         );
-        if (pageInfo.item2) {
-          BlocProvider.of<PagesBloc>(context).add(PageAdded(pageInfo.item1));
+        if (pageInfo.isAllowedToSave) {
+          BlocProvider.of<PagesCubit>(context).addPage(pageInfo.page);
         }
       },
       backgroundColor: ColorThemeData.of(context)!.accentColor,
@@ -106,7 +124,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget get _body {
-    return BlocProvider.of<PagesBloc>(context).state.isEmpty
+    return BlocProvider.of<PagesCubit>(context).state.isEmpty
         ? Center(
             child: Text(
               'No pages yet...',
@@ -117,76 +135,78 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _pageModalBottomSheet(context, int index) {
-    var selected = BlocProvider.of<PagesBloc>(context).state[index];
+    final selected = BlocProvider.of<PagesCubit>(context).state[index];
 
     Widget _pinTile() {
       return ListTile(
-          leading: Transform.rotate(
-            angle: 45 * pi / 180,
-            child: Icon(
-              Icons.push_pin_outlined,
-              color: ColorThemeData.of(context)!.mainTextColor,
-            ),
+        leading: Transform.rotate(
+          angle: 45 * pi / 180,
+          child: Icon(
+            Icons.push_pin_outlined,
+            color: ColorThemeData.of(context)!.mainTextColor,
           ),
-          title: Text(
-            selected.isPinned ? 'Unpin' : 'Pin',
-            style: TextStyle(
-              color: ColorThemeData.of(context)!.mainTextColor,
-            ),
+        ),
+        title: Text(
+          selected.isPinned ? 'Unpin' : 'Pin',
+          style: TextStyle(
+            color: ColorThemeData.of(context)!.mainTextColor,
           ),
-          onTap: () async {
-            BlocProvider.of<PagesBloc>(context).add(PagePinned(selected));
-            Navigator.pop(context);
-          });
+        ),
+        onTap: () async {
+          BlocProvider.of<PagesCubit>(context).pinPage(selected);
+          Navigator.pop(context);
+        },
+      );
     }
 
     Widget _editTile() {
       return ListTile(
-          leading: Icon(
-            Icons.edit_outlined,
+        leading: Icon(
+          Icons.edit_outlined,
+          color: ColorThemeData.of(context)!.mainTextColor,
+        ),
+        title: Text(
+          'Edit',
+          style: TextStyle(
             color: ColorThemeData.of(context)!.mainTextColor,
           ),
-          title: Text(
-            'Edit',
-            style: TextStyle(
-              color: ColorThemeData.of(context)!.mainTextColor,
-            ),
-          ),
-          onTap: () async {
-            var editInfo = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditPage(
-                      page:
-                          JournalPage(selected.title, selected.icon, creationTime: DateTime.now()),
-                      title: 'Edit',
-                    ),
+        ),
+        onTap: () async {
+          final editState = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditPage(
+                    page: JournalPage(selected.title, selected.iconIndex),
+                    title: 'Edit',
                   ),
-                ) ??
-                false;
-            if (editInfo.item2) {
-              BlocProvider.of<PagesBloc>(context).add(PageEdited(selected, editInfo.item1));
-            }
-            Navigator.pop(context);
-          });
+                ),
+              ) ??
+              false;
+          if (editState.isAllowedToSave) {
+            BlocProvider.of<PagesCubit>(context).editPage(selected, editState.page);
+          }
+          Navigator.pop(context);
+        },
+      );
     }
 
     Widget _deleteTile() {
       return ListTile(
-          leading: Icon(
-            Icons.delete_outlined,
+        leading: Icon(
+          Icons.delete_outlined,
+          color: ColorThemeData.of(context)!.mainTextColor,
+        ),
+        title: Text(
+          'Delete',
+          style: TextStyle(
             color: ColorThemeData.of(context)!.mainTextColor,
           ),
-          title: Text(
-            'Delete',
-            style: TextStyle(
-              color: ColorThemeData.of(context)!.mainTextColor,
-            ),
-          ),
-          onTap: () {
-            BlocProvider.of<PagesBloc>(context).add(PageDeleted(selected));
-            Navigator.pop(context);
-          });
+        ),
+        onTap: () {
+          BlocProvider.of<PagesCubit>(context).deletePage(selected);
+          Navigator.pop(context);
+        },
+      );
     }
 
     Widget _infoTile() {
@@ -199,7 +219,7 @@ class _MainPageState extends State<MainPage> {
                 foregroundColor: ColorThemeData.of(context)!.accentTextColor,
                 backgroundColor: ColorThemeData.of(context)!.accentColor,
                 child: Icon(
-                  selected.icon,
+                  iconList[selected.iconIndex],
                 ),
               ),
               Expanded(
@@ -272,38 +292,40 @@ class _MainPageState extends State<MainPage> {
       }
 
       return ListTile(
-          leading: Icon(
-            Icons.info_outline,
+        leading: Icon(
+          Icons.info_outline,
+          color: ColorThemeData.of(context)!.mainTextColor,
+        ),
+        title: Text(
+          'Info',
+          style: TextStyle(
             color: ColorThemeData.of(context)!.mainTextColor,
           ),
-          title: Text(
-            'Info',
-            style: TextStyle(
-              color: ColorThemeData.of(context)!.mainTextColor,
-            ),
-          ),
-          onTap: () async {
-            Navigator.pop(context);
-            await showDialog(
-              context: context,
-              builder: (context) => _alertDialog(),
-            );
-          });
+        ),
+        onTap: () async {
+          Navigator.pop(context);
+          await showDialog(
+            context: context,
+            builder: (context) => _alertDialog(),
+          );
+        },
+      );
     }
 
     showModalBottomSheet(
-        context: context,
-        backgroundColor: ColorThemeData.of(context)!.mainColor,
-        builder: (context) {
-          return Wrap(
-            children: <Widget>[
-              _pinTile(),
-              _editTile(),
-              _deleteTile(),
-              _infoTile(),
-            ],
-          );
-        });
+      context: context,
+      backgroundColor: ColorThemeData.of(context)!.mainColor,
+      builder: (context) {
+        return Wrap(
+          children: <Widget>[
+            _pinTile(),
+            _editTile(),
+            _deleteTile(),
+            _infoTile(),
+          ],
+        );
+      },
+    );
   }
 
   Widget get _gridView {
@@ -311,24 +333,25 @@ class _MainPageState extends State<MainPage> {
       maxCrossAxisExtent: 300,
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
-      itemCount: BlocProvider.of<PagesBloc>(context).state.length,
+      itemCount: BlocProvider.of<PagesCubit>(context).state.length,
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () async {
             await Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => MessagePage(
-                        page: BlocProvider.of<PagesBloc>(context).state[index],
-                        title: '',
-                      )),
+                builder: (context) => MessagePage(
+                  page: BlocProvider.of<PagesCubit>(context).state[index],
+                  title: '',
+                ),
+              ),
             );
-            BlocProvider.of<PagesBloc>(context).add(const PageUpdated());
+            BlocProvider.of<PagesCubit>(context).updatePages();
           },
           onLongPress: () {
             _pageModalBottomSheet(context, index);
           },
-          child: _gridViewItem(BlocProvider.of<PagesBloc>(context).state[index]),
+          child: _gridViewItem(BlocProvider.of<PagesCubit>(context).state[index]),
         );
       },
       staggeredTileBuilder: (index) => const StaggeredTile.fit(1),
@@ -347,7 +370,7 @@ class _MainPageState extends State<MainPage> {
         child: Row(
           children: [
             Icon(
-              page.icon,
+              iconList[page.iconIndex],
               color: ColorThemeData.of(context)!.accentTextColor,
             ),
             Expanded(
@@ -366,11 +389,12 @@ class _MainPageState extends State<MainPage> {
               Align(
                 alignment: Alignment.centerRight,
                 child: Transform.rotate(
-                    angle: 45 * pi / 180,
-                    child: Icon(
-                      Icons.push_pin_outlined,
-                      color: ColorThemeData.of(context)!.accentTextColor,
-                    )),
+                  angle: 45 * pi / 180,
+                  child: Icon(
+                    Icons.push_pin_outlined,
+                    color: ColorThemeData.of(context)!.accentTextColor,
+                  ),
+                ),
               ),
           ],
         ),

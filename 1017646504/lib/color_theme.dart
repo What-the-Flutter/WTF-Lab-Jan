@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ColorTheme extends StatefulWidget {
   final Widget child;
@@ -13,11 +14,26 @@ class ColorTheme extends StatefulWidget {
 class ColorThemeState extends State<ColorTheme> {
   final Widget child;
 
+  bool usingLightTheme = true;
+
   ColorThemeState({required this.child});
 
   @override
+  void initState() {
+    _loadBool();
+    super.initState();
+  }
+
+  void _loadBool() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => usingLightTheme = prefs.getBool('usingLightTheme') ?? true);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _loadBool();
     return applyTheme(
+      usingLightTheme: usingLightTheme,
       child: child,
     );
   }
@@ -25,8 +41,6 @@ class ColorThemeState extends State<ColorTheme> {
 
 class ColorThemeData extends InheritedWidget {
   static final GlobalKey<ColorThemeState> appThemeStateKey = GlobalKey<ColorThemeState>();
-
-  static bool usingLightTheme = true;
 
   final Color mainColor;
   final Color mainTextColor;
@@ -60,8 +74,8 @@ class ColorThemeData extends InheritedWidget {
       shadowColor != old.shadowColor;
 }
 
-Widget applyTheme({required Widget child}) {
-  return ColorThemeData.usingLightTheme ? lightTheme(child: child) : darkTheme(child: child);
+Widget applyTheme({required Widget child, required bool usingLightTheme}) {
+  return usingLightTheme ? lightTheme(child: child) : darkTheme(child: child);
 }
 
 ColorThemeData lightTheme({required Widget child}) {

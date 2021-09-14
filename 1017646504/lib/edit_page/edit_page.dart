@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tuple/tuple.dart';
 
 import '../color_theme.dart';
-import '../edit_page.dart';
+import '../icons.dart';
 import '../page.dart';
-import 'edit_bloc.dart';
-import 'edit_event.dart';
+import 'edit_cubit.dart';
+import 'edit_state.dart';
 
 class EditPage extends StatefulWidget {
   EditPage({required this.page, required this.title});
@@ -21,24 +20,24 @@ class EditPage extends StatefulWidget {
 
 class _EditPageState extends State<EditPage> {
   _EditPageState(JournalPage page, this._title) {
-    bloc = EditBloc(Tuple2(page, true));
+    cubit = EditCubit(EditState(page, true));
   }
 
   final String _title;
   final _controller = TextEditingController();
 
-  EditBloc bloc = 0 as EditBloc;///////////////
+  EditCubit? cubit;
 
   @override
   void initState() {
-    _controller.text = bloc.state.item1.title;
+    _controller.text = cubit!.state.page.title;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      bloc: bloc,
+      bloc: cubit,
       builder: (context, state) {
         return Scaffold(
           appBar: _appBar,
@@ -52,8 +51,7 @@ class _EditPageState extends State<EditPage> {
   PreferredSizeWidget get _appBar {
     return AppBar(
       leading: IconButton(
-        onPressed: () =>
-            Navigator.pop(context, Tuple2(bloc.state.item1, false)),
+        onPressed: () => Navigator.pop(context, cubit!.state),
         icon: Icon(
           Icons.arrow_back,
           color: ColorThemeData.of(context)!.accentTextColor,
@@ -63,11 +61,11 @@ class _EditPageState extends State<EditPage> {
       actions: [
         IconButton(
           onPressed: () {
-            bloc.state.item1.title = _controller.text;
-            Navigator.pop(context, Tuple2(bloc.state.item1, bloc.state.item2));
+            cubit!.renamePage(_controller.text);
+            Navigator.pop(context, cubit!.state);
           },
           icon: Icon(
-            bloc.state.item2 ? Icons.check : Icons.close,
+            cubit!.state.isAllowedToSave ? Icons.check : Icons.close,
             color: ColorThemeData.of(context)!.accentTextColor,
           ),
         ),
@@ -96,16 +94,15 @@ class _EditPageState extends State<EditPage> {
               mainAxisSpacing: 15,
               children: [
                 ...iconList.map(
-                      (e) => GestureDetector(
+                  (e) => GestureDetector(
                     onTap: () {
-                      bloc.add(IconChanged(e));
+                      cubit!.changeIcon(iconList.indexOf(e));
                     },
                     child: Center(
                       child: CircleAvatar(
                         maxRadius: 30,
                         backgroundColor: ColorThemeData.of(context)!.accentColor,
-                        foregroundColor:
-                        ColorThemeData.of(context)!.accentTextColor,
+                        foregroundColor: ColorThemeData.of(context)!.accentTextColor,
                         child: Icon(e),
                       ),
                     ),
@@ -123,7 +120,7 @@ class _EditPageState extends State<EditPage> {
     Widget _textField() {
       return TextField(
         onChanged: (text) {
-          bloc.add(AllowanceUpdated(text.isNotEmpty));
+          cubit!.updateAllowance(text.isNotEmpty);
         },
         cursorColor: ColorThemeData.of(context)!.accentTextColor,
         style: TextStyle(
@@ -157,7 +154,7 @@ class _EditPageState extends State<EditPage> {
             foregroundColor: ColorThemeData.of(context)!.accentTextColor,
             backgroundColor: ColorThemeData.of(context)!.accentColor,
             child: Icon(
-              bloc.state.item1.icon,
+              iconList[cubit!.state.page.iconIndex],
             ),
           ),
           Expanded(
