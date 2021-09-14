@@ -13,11 +13,6 @@ import 'services/db_provider.dart';
 import 'services/shared_preferences_provider.dart';
 import 'ui/theme_cubit/theme_cubit.dart';
 
-//вынести инициализацию в main cubit или сделать инит кьюбит и инит пейдж и тоже самое с шейред преференсами
-//сплеш скрин инициализация 2 стейта с инициализацией
-//через нативный сплешскрин возможно до ран аппа
-//но это не совсем правильно через сплешскрин
-// сплешскрин и шейред префенрасми можно
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferencesProvider.initialize();
