@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
-import '../widgets/event_screen_widgets/my_body_event.dart';
+import '../widgets/event_screen_widgets/body_event.dart';
 
 class EventScreen extends StatelessWidget {
   final String appBarTitle;
@@ -11,63 +11,62 @@ class EventScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: pinkBg,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: pinkBg,
+        backgroundColor: Theme.of(context).backgroundColor,
         elevation: 0,
         leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: myBoxContainer(
+          onTap: () => Navigator.pop(context),
+          child: boxContainer(
+            context,
             IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back_ios_outlined),
-              color: blue,
+              color: Theme.of(context).accentColor,
             ),
             const Offset(2, 2),
           ),
         ),
         title: Text(
           appBarTitle,
-          style: const TextStyle(color: Colors.grey),
+          style: const TextStyle(color: appBarText),
         ),
         actions: [
-          myBoxContainer(
+          boxContainer(
+            context,
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {},
-              color: blue,
+              color: Theme.of(context).accentColor,
             ),
             const Offset(-2, 2),
           ),
-          myBoxContainer(
+          boxContainer(
+            context,
             IconButton(
               icon: const Icon(Icons.bookmark_border_outlined),
-              color: blue,
+              color: Theme.of(context).accentColor,
               onPressed: () {},
             ),
             const Offset(-2, 2),
           ),
         ],
       ),
-      body: const MyBodyEvent(),
+      body: const BodyEvent(),
     );
   }
 
-  Widget myBoxContainer(IconButton icon, Offset offset) {
+  Widget boxContainer(BuildContext context, IconButton icon, Offset offset) {
     return Container(
       margin: const EdgeInsets.all(5.0),
       decoration: BoxDecoration(
-        color: pinkDecor,
+        color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             blurRadius: 1,
-            color: Colors.grey,
+            color: shadowColor,
             offset: offset,
           ),
         ],

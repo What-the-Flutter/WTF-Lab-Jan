@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
+import 'custom_theme.dart';
 import 'screens/daily_screen.dart';
 import 'screens/explore_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/timeline_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    CustomTheme(
+      initialThemeKey: CustomThemeKeys.dark,
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Personal Chat',
-      home: MainScreen(),
+      theme: CustomTheme.of(context),
+      home: const MainScreen(),
     );
   }
 }
@@ -41,20 +48,20 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: _children[_currentIndex],
       bottomNavigationBar: Container(
-        color: pinkBg,
+        color: Theme.of(context).backgroundColor,
         child: Container(
           height: 90,
           margin: const EdgeInsets.only(
               left: 10.0, right: 10.0, top: 5.0, bottom: 20),
           decoration: BoxDecoration(
-            color: pinkDecor,
+            color: Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(40),
           ),
           child: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.transparent,
-            selectedItemColor: Colors.blue,
-            unselectedItemColor: black,
+            selectedItemColor: Theme.of(context).textSelectionColor,
+            unselectedItemColor: Theme.of(context).unselectedWidgetColor,
             selectedIconTheme: const IconThemeData(size: 23.0),
             iconSize: 25.0,
             selectedFontSize: 12,
@@ -94,9 +101,9 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  void onTabTapped(int index) => setState(
-        () {
-          _currentIndex = index;
-        },
-      );
+  void onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 }

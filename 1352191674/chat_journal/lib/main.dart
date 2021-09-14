@@ -1,79 +1,88 @@
+import 'package:chat_journal/pages/create_page/create_cubit.dart';
+import 'package:chat_journal/pages/events_page/event_page_cubit.dart';
+import 'package:chat_journal/pages/home_page/home_page_cubit.dart';
+import 'package:chat_journal/pages/main_page/main_page.dart';
+import 'package:chat_journal/pages/main_page/main_page_cubit.dart';
+import 'package:chat_journal/pages/settings_page/general_settings/general_settings_cubit.dart';
+import 'package:chat_journal/services/shared_preferences_provider.dart';
+import 'package:chat_journal/services/db_provider.dart';
+import 'package:chat_journal/services/theme_bloc/theme_cubit.dart';
 import 'package:flutter/material.dart';
-import 'home_page/home_page.dart';
-void main() {
-  runApp(MyApp());
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'services/my_themes.dart';
+//вынести инициализацию в main cubit или сделать инит кьюбит и инит пейдж и тоже самое с шейред преференсами
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferencesProvider.initialize();
+  await DBProvider.initialize();
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => ThemeCubit(),
+        ),
+        BlocProvider(
+          create: (context) => MainPageCubit(),
+        ),
+        BlocProvider(
+          create: (context) => HomePageCubit(),
+        ),
+        BlocProvider(
+          create: (context) => NotesCubit(),
+        ),
+        BlocProvider(
+          create: (context) => EventCubit(),
+        ),
+        BlocProvider(
+          create: (context) => GeneralSettingsCubit(),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Chat Journal',
-      theme: ThemeData(
-
-        primarySwatch: Colors.blueGrey,
-      ),
-      home: MyMainPage(),
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, state) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Chat Journal',
+          themeMode: state.isLight ? ThemeMode.light : ThemeMode.dark,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          home: BlocBuilder<MainPageCubit, MainState>(
+            builder: (context, state) {
+              return MainPage();
+            },
+          ),
+        );
+      },
     );
   }
 }
 
-class MyMainPage extends StatefulWidget {
-  const MyMainPage({Key? key}) : super(key: key);
-
-  @override
-  _MyMainPageState createState() => _MyMainPageState();
-}
-
-class _MyMainPageState extends State<MyMainPage> {
-  final List<Widget> _pages = [
-    MyHomePage(),
-    Container(
-      color:Colors.red
-    ),
-    Container(
-      color:Colors.blue
-    ),
-    Container(
-      color:Colors.green
-    ),
-    Container(
-      color:Colors.black
-    )
-  ];
-  int _currentIndex = 0;
-
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body:_pages[_currentIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          onTap: onTabTapped,
-          currentIndex: _currentIndex,
-          items:[
-            BottomNavigationBarItem(
-                icon: Icon(Icons.bookmark),
-                label:'Home'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.menu_book_sharp),
-                label:'Daily'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.timeline),
-                label:'Timeline'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.explore),
-                label:'Explore')
-          ],
-          type: BottomNavigationBarType.fixed
-        ),
-      );
-  }
-}
-
+List<IconData> iconsList = [
+  Icons.book,
+  Icons.import_contacts_outlined,
+  Icons.nature_people_outlined,
+  Icons.info,
+  Icons.mail,
+  Icons.ac_unit,
+  Icons.access_time,
+  Icons.camera_alt,
+  Icons.hail,
+  Icons.all_inbox,
+  Icons.auto_fix_high,
+  Icons.workspaces_filled,
+  Icons.attach_money,
+];
