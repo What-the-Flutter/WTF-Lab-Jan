@@ -38,15 +38,22 @@ class _EventPageState extends State<EventPage>
   final TextEditingController _searchTextController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final FocusNode _searchTextFieldFocusNode = FocusNode();
+  late Animation<double> _animation;
+  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 1200), vsync: this);
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
     BlocProvider.of<EventCubit>(context).init(_note);
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
   }
 
@@ -132,82 +139,85 @@ class _EventPageState extends State<EventPage>
   }
 
   Widget _eventPageBody(EventsState state) {
-    return Stack(
-      children: [
-        Column(
-          children: <Widget>[
-            Expanded(
-              child: _directionality(state),
-            ),
-            if (state.isEditingPhoto)
-              Padding(
-                padding: EdgeInsets.only(
-                  top: 10,
-                  bottom: 10,
-                ),
-                child: _choiceImageSourceWrap,
+    return FadeTransition(
+      opacity: _animation,
+      child: Stack(
+        children: [
+          Column(
+            children: <Widget>[
+              Expanded(
+                child: _directionality(state),
               ),
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.black12,
+              if (state.isEditingPhoto)
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
+                  ),
+                  child: _choiceImageSourceWrap,
+                ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.black12,
+                    ),
                   ),
                 ),
+                child: _textFieldArea(state),
               ),
-              child: _textFieldArea(state),
-            ),
-          ],
-        ),
-        if (state.isDateTimeModification)
-          Align(
-            alignment: state.isBubbleAlignment
-                ? Alignment.topLeft
-                : Alignment.topRight,
-            child: GestureDetector(
-              child: Padding(
-                padding: EdgeInsets.only(top: 8, right: 8, left: 8),
-                child: Container(
-                  padding:
-                      EdgeInsets.only(top: 5, left: 5, right: 3, bottom: 5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(70)),
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  child: _calendarRow(state),
-                ),
-              ),
-              onTap: () async {
-                var date = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2025),
-                );
-                if (date != null) {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.fromDateTime(date),
-                  );
-                  if (time != null) {
-                    date = DateTime(
-                      date.year,
-                      date.month,
-                      date.day,
-                      time.hour,
-                      time.minute,
-                    );
-                    BlocProvider.of<EventCubit>(context)
-                        .setDateTime('${DateFormat.yMMMd().format(date)}');
-                    BlocProvider.of<EventCubit>(context).setHourTime(
-                      '${DateFormat.jm().format(date)}',
-                    );
-                  }
-                }
-              },
-            ),
+            ],
           ),
-      ],
+          if (state.isDateTimeModification)
+            Align(
+              alignment: state.isBubbleAlignment
+                  ? Alignment.topLeft
+                  : Alignment.topRight,
+              child: GestureDetector(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8, right: 8, left: 8),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(top: 5, left: 5, right: 3, bottom: 5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(70)),
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    child: _calendarRow(state),
+                  ),
+                ),
+                onTap: () async {
+                  var date = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2025),
+                  );
+                  if (date != null) {
+                    final time = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.fromDateTime(date),
+                    );
+                    if (time != null) {
+                      date = DateTime(
+                        date.year,
+                        date.month,
+                        date.day,
+                        time.hour,
+                        time.minute,
+                      );
+                      BlocProvider.of<EventCubit>(context)
+                          .setDateTime('${DateFormat.yMMMd().format(date)}');
+                      BlocProvider.of<EventCubit>(context).setHourTime(
+                        '${DateFormat.jm().format(date)}',
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -359,7 +369,7 @@ class _EventPageState extends State<EventPage>
           icon: state.indexOfCircleAvatar == null
               ? Icon(Icons.widgets_outlined)
               : CircleAvatar(
-                  child: Icon(iconsList[state.indexOfCircleAvatar!]),
+                  child: Icon(iconList[state.indexOfCircleAvatar!]),
                 ),
           iconSize: 25,
           onPressed: () {
@@ -408,14 +418,14 @@ class _EventPageState extends State<EventPage>
 
   ListView get _horizontalListView {
     return ListView.builder(
-      itemCount: iconsList.length,
+      itemCount: iconList.length,
       scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
         return GestureDetector(
           child: Container(
             width: 100,
             child: CircleAvatar(
-              child: Icon(iconsList[index]),
+              child: Icon(iconList[index]),
             ),
           ),
           onTap: () {
@@ -683,7 +693,7 @@ class _EventListWidgetState extends State<EventListWidget> {
       color: event.isSelected ? Colors.grey : Theme.of(context).primaryColor,
       child: ListTile(
         leading: event.indexOfCircleAvatar != null
-            ? CircleAvatar(child: Icon(iconsList[event.indexOfCircleAvatar!]))
+            ? CircleAvatar(child: Icon(iconList[event.indexOfCircleAvatar!]))
             : null,
         title: event.imagePath.isNotEmpty
             ? Image.file(File(event.imagePath))

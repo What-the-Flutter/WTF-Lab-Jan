@@ -47,6 +47,4 @@ class SharedPreferencesProvider {
   int fetchFontSizeIndex() {
     return _prefs.getInt('fontSizeIndex') ?? 1;
   }
-
-
 }

@@ -9,7 +9,8 @@ class NotePage extends StatefulWidget {
   final List<Note>? noteList;
   final Note? note;
 
-  const NotePage({Key? key, this.noteList, this.note}) : super(key: key);
+  const NotePage({Key? key, this.noteList,
+    this.note}) : super(key: key);
 
   @override
   _NotePageState createState() => _NotePageState(
@@ -79,7 +80,7 @@ class _NotePageState extends State<NotePage> {
       padding: EdgeInsets.all(5),
       maxCrossAxisExtent: 100,
       children: [
-        for (var index = 0; index < iconsList.length; index++)
+        for (var index = 0; index < iconList.length; index++)
           GestureDetector(
             onTap: () =>
                 BlocProvider.of<NotesCubit>(context).setIndexOfIcon(index),
@@ -91,7 +92,7 @@ class _NotePageState extends State<NotePage> {
                   width: 80,
                   child: CircleAvatar(
                     radius: 10,
-                    child: Icon(iconsList[index]),
+                    child: Icon(iconList[index]),
                   ),
                 ),
               ],
@@ -107,7 +108,7 @@ class _NotePageState extends State<NotePage> {
         Padding(
           padding: EdgeInsets.only(left: 20, right: 20),
           child: CircleAvatar(
-            child: Icon(iconsList[state.indexOfSelectIcon]),
+            child: Icon(iconList[state.indexOfSelectIcon]),
           ),
         ),
         Expanded(

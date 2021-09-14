@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../main.dart';
+import '../../ui/theme_cubit/theme_cubit.dart';
 import '../create_page/create_page.dart';
 import '../events_page/event_page.dart';
+import '../settings_page/settings_page.dart';
 import 'home_page_cubit.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,10 +29,82 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<HomePageCubit, HomePageState>(
       builder: (context, state) {
         return Scaffold(
+          appBar: _appBar(),
+          drawer: _drawer(context),
           body: _homePageBody(state),
           floatingActionButton: _floatingActionButton(state),
         );
       },
+    );
+  }
+
+  AppBar _appBar() {
+    return AppBar(
+      centerTitle: true,
+      title: const Text(
+        'Home',
+        style: TextStyle(color: Colors.white),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.opacity,
+          ),
+          onPressed: () => BlocProvider.of<ThemeCubit>(context).changeTheme(),
+        ),
+      ],
+      backgroundColor: Theme.of(context).primaryColor,
+      elevation: 10,
+    );
+  }
+
+  Drawer _drawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: [
+          SizedBox(
+            height: 145,
+            child: DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: ListTile(
+                  title: Text(
+                    DateFormat.yMMMd('en_US').format(
+                      DateTime.now(),
+                    ),
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Search'),
+            leading: Icon(Icons.search),
+          ),
+          ListTile(
+            title: Text('Notifications'),
+            leading: Icon(Icons.notifications),
+          ),
+          ListTile(
+            title: Text('Settings'),
+            leading: Icon(Icons.settings),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SettingsPage(),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Feedback'),
+            leading: Icon(Icons.mail),
+          ),
+        ],
+      ),
     );
   }
 
@@ -41,7 +116,7 @@ class _HomePageState extends State<HomePage> {
         title: Text(state.noteList[index].noteName),
         leading: IconButton(
           icon: CircleAvatar(
-            child: Icon(iconsList[state.noteList[index].indexOfCircleAvatar]),
+            child: Icon(iconList[state.noteList[index].indexOfCircleAvatar]),
           ),
           iconSize: 40,
           onPressed: () {},

@@ -3,14 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'pages/create_page/create_cubit.dart';
 import 'pages/events_page/event_page_cubit.dart';
+import 'pages/filter_page/fllter_page_cubit.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/main_page/main_page.dart';
 import 'pages/main_page/main_page_cubit.dart';
 import 'pages/settings_page/general_settings/general_settings_cubit.dart';
+import 'pages/timeline_page/timeline_page_cubit.dart';
 import 'services/db_provider.dart';
 import 'services/shared_preferences_provider.dart';
 import 'ui/theme_cubit/theme_cubit.dart';
-//вынести инициализацию в main cubit или сделать инит кьюбит и инит пейдж и тоже самое с шейред преференсами
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,12 @@ void main() async {
         BlocProvider(
           create: (context) => GeneralSettingsCubit(),
         ),
+        BlocProvider(
+          create: (context) => TimelinePageCubit(),
+        ),
+        BlocProvider(
+          create: (context) => FilterPageCubit(),
+        ),
       ],
       child: MyApp(),
     ),
@@ -49,7 +56,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     BlocProvider.of<ThemeCubit>(context).init();
@@ -76,7 +82,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-List<IconData> iconsList = [
+List<IconData> iconList = [
   Icons.book,
   Icons.import_contacts_outlined,
   Icons.nature_people_outlined,
@@ -90,4 +96,20 @@ List<IconData> iconsList = [
   Icons.auto_fix_high,
   Icons.workspaces_filled,
   Icons.attach_money,
+];
+
+List<String> iconNameList = [
+  'book',
+  'notebook',
+  'nature',
+  'info',
+  'mail',
+  'weather',
+  'time',
+  'photo',
+  'meetings',
+  'letters',
+  'wonders',
+  'work',
+  'money',
 ];

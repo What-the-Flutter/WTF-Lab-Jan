@@ -93,7 +93,6 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
             title: Text('Share app'),
             subtitle: Text('Share a link of the Chat Journal'),
             onTap: () async {
-              print('test');
               await Share.share(
                   'Download Chat journal right now! \n\r https://t.me/oldUnixLover');
             },
