@@ -8,6 +8,7 @@ import '../events_page/event_page.dart';
 import '../filter_page/filter_page.dart';
 import '../filter_page/fllter_page_cubit.dart';
 import '../settings_page/settings_page.dart';
+import '../statistics/statistics_page.dart';
 import 'timeline_page_cubit.dart';
 
 class TimelinePage extends StatefulWidget {
@@ -51,9 +52,9 @@ class _TimelinePageState extends State<TimelinePage> {
               onChanged: (value) {
                 value.isEmpty
                     ? BlocProvider.of<TimelinePageCubit>(context)
-                        .setWritingState(false)
+                        .setWriting(false)
                     : BlocProvider.of<TimelinePageCubit>(context)
-                        .setWritingState(true);
+                        .setWriting(true);
                 BlocProvider.of<TimelinePageCubit>(context)
                     .setSearchText(value);
               },
@@ -76,21 +77,21 @@ class _TimelinePageState extends State<TimelinePage> {
                 onPressed: () {
                   _searchTextController.clear();
                   BlocProvider.of<TimelinePageCubit>(context)
-                      .setWritingState(false);
+                      .setWriting(false);
                 },
               )
             : IconButton(
                 icon: Icon(Icons.search),
                 onPressed: () {
                   BlocProvider.of<TimelinePageCubit>(context)
-                      .setIconButtonSearchState();
+                      .setIconButtonSearch();
                   _searchTextFieldFocusNode.requestFocus();
                 },
               ),
         IconButton(
           icon: Icon(Icons.bookmark_border),
           onPressed: () => BlocProvider.of<TimelinePageCubit>(context)
-              .setAllBookmarkedState(),
+              .setAllBookmarked(),
         ),
       ],
     );
@@ -126,6 +127,16 @@ class _TimelinePageState extends State<TimelinePage> {
           ListTile(
             title: Text('Notifications'),
             leading: Icon(Icons.notifications),
+          ),
+          ListTile(
+            title: Text('Statistics'),
+            leading: Icon(Icons.timeline),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StatisticsPage(),
+              ),
+            ),
           ),
           ListTile(
             title: Text('Settings'),

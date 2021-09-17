@@ -51,14 +51,14 @@ class _FilterPageState extends State<FilterPage>
                       BlocProvider.of<FilterPageCubit>(context)
                           .state
                           .filterNotesList,
-                      _generateListTile,
+                      _listTile,
                       'page',
                     ),
                     _columnForTabBar(
                       BlocProvider.of<FilterPageCubit>(context)
                           .state
                           .filterLabelList,
-                      _generateLabelList,
+                      _labelList,
                       'label',
                     ),
                   ],
@@ -86,9 +86,8 @@ class _FilterPageState extends State<FilterPage>
           width: MediaQuery.of(context).size.width - 80,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: list.isNotEmpty
-                ? _generateCountOfFiltersText(text, list)
-                : _generateText(text),
+            children:
+                list.isNotEmpty ? _countOfFiltersText(text, list) : _text(text),
           ),
         ),
         Padding(
@@ -109,7 +108,7 @@ class _FilterPageState extends State<FilterPage>
     );
   }
 
-  List<Widget> _generateCountOfFiltersText(String text, dynamic list) {
+  List<Widget> _countOfFiltersText(String text, dynamic list) {
     return [
       Text(
         '${list.length} '
@@ -119,7 +118,7 @@ class _FilterPageState extends State<FilterPage>
     ];
   }
 
-  List<Widget> _generateText(String text) {
+  List<Widget> _text(String text) {
     return [
       Text(
         'Tap to select a $text you want to ',
@@ -136,7 +135,7 @@ class _FilterPageState extends State<FilterPage>
     ];
   }
 
-  List<Widget> _generateLabelList() {
+  List<Widget> _labelList() {
     var listTileList = <Widget>[];
     for (var i = 0; i < iconList.length; i++) {
       listTileList.add(
@@ -148,7 +147,7 @@ class _FilterPageState extends State<FilterPage>
               onTap: () =>
                   BlocProvider.of<FilterPageCubit>(context).addIndexOfLabel(i),
             ),
-            if (checkIndexInLabelList(
+            if (_checkIndexInLabelList(
                 BlocProvider.of<FilterPageCubit>(context).state.filterLabelList,
                 i))
               Icon(Icons.check),
@@ -159,7 +158,7 @@ class _FilterPageState extends State<FilterPage>
     return listTileList;
   }
 
-  bool checkIndexInLabelList(List<int> listOfLabels, int indexOfLabel) {
+  bool _checkIndexInLabelList(List<int> listOfLabels, int indexOfLabel) {
     for (var i = 0; i < listOfLabels.length; i++) {
       if (listOfLabels[i] == indexOfLabel) {
         return true;
@@ -168,7 +167,7 @@ class _FilterPageState extends State<FilterPage>
     return false;
   }
 
-  List<Widget> _generateListTile() {
+  List<Widget> _listTile() {
     var listTileList = <Widget>[];
     for (var i = 0;
         i < BlocProvider.of<FilterPageCubit>(context).state.noteList.length;

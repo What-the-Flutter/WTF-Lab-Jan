@@ -33,15 +33,15 @@ class FilterPageCubit extends Cubit<FilterPageState> {
     emit(state.copyWith(filterNotesList: state.filterNotesList));
   }
 
-  void addIndexOfLabel (int indexOfLabel) {
+  void addIndexOfLabel(int indexOfLabel) {
     var isRemove = false;
-    for(var i = 0; i < state.filterLabelList.length; i++){
-      if(state.filterLabelList[i] == indexOfLabel){
+    for (var i = 0; i < state.filterLabelList.length; i++) {
+      if (state.filterLabelList[i] == indexOfLabel) {
         state.filterLabelList.remove(indexOfLabel);
         isRemove = true;
       }
     }
-    if(isRemove == false) {
+    if (isRemove == false) {
       state.filterLabelList.add(indexOfLabel);
     }
     emit(state.copyWith(filterLabelList: state.filterLabelList));
@@ -58,4 +58,3 @@ class FilterPageCubit extends Cubit<FilterPageState> {
     emit(state.copyWith(filterNotesList: state.filterNotesList));
   }
 }
-

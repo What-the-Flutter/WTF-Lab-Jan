@@ -13,33 +13,36 @@ class TimelinePageCubit extends Cubit<TimelinePageState> {
   TimelinePageCubit()
       : super(
           TimelinePageState(
-              isIconButtonSearchPressed: false,
-              isCenterDateBubble: false,
-              searchText: '',
-              isWriting: false,
-              isEditing: false,
-              isAllBookmarked: false,
-              allEventList: [],
-              isSearchButtonPressed: false),
+            isIconButtonSearchPressed: false,
+            isCenterDateBubble: false,
+            searchText: '',
+            isWriting: false,
+            isEditing: false,
+            isAllBookmarked: false,
+            allEventList: [],
+            isSearchButtonPressed: false,
+          ),
         );
 
-  void init() async => emit(
-        state.copyWith(
-          allEventList: await _db.dbAllEventList(),
-          isEditing: false,
-          isWriting: false,
-          isAllBookmarked: false,
-          isIconButtonSearchPressed: false,
-          isCenterDateBubble: _prefs.fetchBubbleAlignment(),
-        ),
-      );
+  void init() async {
+    emit(
+      state.copyWith(
+        allEventList: await _db.dbAllEventList(),
+        isEditing: false,
+        isWriting: false,
+        isAllBookmarked: false,
+        isIconButtonSearchPressed: false,
+        isCenterDateBubble: _prefs.fetchBubbleAlignment(),
+      ),
+    );
+  }
 
   void updateList() =>
       emit(state.copyWith(isCenterDateBubble: state.isCenterDateBubble));
 
-  void setEditingState() => emit(state.copyWith(isEditing: !state.isEditing));
+  void setEditing() => emit(state.copyWith(isEditing: !state.isEditing));
 
-  void setIconButtonSearchState() => emit(state.copyWith(
+  void setIconButtonSearch() => emit(state.copyWith(
       isIconButtonSearchPressed: !state.isIconButtonSearchPressed));
 
   void deleteEvent(Event event) {
@@ -49,10 +52,10 @@ class TimelinePageCubit extends Cubit<TimelinePageState> {
     emit(state.copyWith(allEventList: eventList));
   }
 
-  void setAllBookmarkedState() =>
+  void setAllBookmarked() =>
       emit(state.copyWith(isAllBookmarked: !state.isAllBookmarked));
 
-  void setWritingState(bool isWriting) =>
+  void setWriting(bool isWriting) =>
       emit(state.copyWith(isWriting: isWriting));
 
   void setSearchText(String searchText) =>
