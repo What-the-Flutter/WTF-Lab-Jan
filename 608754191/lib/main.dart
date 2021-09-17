@@ -60,7 +60,7 @@ class ChatJournal extends StatelessWidget {
           routes: {
             '/home_page': (_) => ChatJournalHomePage(initialCategories),
             '/add_page': (_) => AddPage.add(),
-            '/timeline_page': (_) => TimelinePage(categories: initialCategories)
+            '/timeline_page': (_) => TimelinePage(categories: initialCategories),
           },
           initialRoute: '/home_page',
         ),

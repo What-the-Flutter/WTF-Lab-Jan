@@ -59,9 +59,7 @@ class _AddPage extends State<AddPage> {
 
   FloatingActionButton _floatingActionButtonFromSaving() {
     return FloatingActionButton(
-      onPressed: () {
-        _create(context);
-      },
+      onPressed: () => _create(context),
       child: const Icon(
         Icons.done,
         size: 40,
@@ -123,13 +121,9 @@ class _AddPage extends State<AddPage> {
                     foregroundColor: Colors.white,
                     backgroundColor: index == _selectedIndex ? (Colors.red) : (Colors.black),
                     child: IconButton(
-                      onPressed: () {
-                        setState(
-                          () {
-                            _selectedIndex = index;
-                          },
-                        );
-                      },
+                      onPressed: () => setState(
+                        () => _selectedIndex = index,
+                      ),
                       icon: Icon(
                         icons[index],
                         size: 33,

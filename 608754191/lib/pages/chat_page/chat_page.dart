@@ -253,11 +253,9 @@ class _ChatPage extends State<ChatPage> {
               iconSize: 30,
               onPressed: () {
                 if (_isEditing) {
-                  setState(
-                    () => _editText(
-                      _indexOfSelectedElement,
-                    ),
-                  );
+                  setState(() => _editText(
+                        _indexOfSelectedElement,
+                      ));
                 } else {
                   setState(
                     _sendMessage,
@@ -290,9 +288,7 @@ class _ChatPage extends State<ChatPage> {
   }
 
   void _swapAppBar() {
-    setState(
-      () => _eventSelected = !_eventSelected,
-    );
+    setState(() => _eventSelected = !_eventSelected);
   }
 
   void _editMessage(int index) {

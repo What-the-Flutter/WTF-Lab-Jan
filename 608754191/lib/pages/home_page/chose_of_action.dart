@@ -7,7 +7,7 @@ class ChoseOfAction extends StatefulWidget {
   List<Category> categories;
   final int index;
   final BuildContext dialogContext;
-  @required
+
   ChoseOfAction(
     this.dialogContext,
     this.categories,
@@ -18,18 +18,16 @@ class ChoseOfAction extends StatefulWidget {
   _ChoseOfActionState createState() => _ChoseOfActionState();
 }
 
-const String _titleForBlankScreen = 'No events. Click to create one';
-
 class _ChoseOfActionState extends State<ChoseOfAction> {
-  late List<Category> categories;
-  late final int index;
-  late final BuildContext dialogContext;
+  late List<Category> _categories;
+  late final int _index;
+  late final BuildContext _dialogContext;
 
   @override
   void initState() {
-    categories = widget.categories;
-    index = widget.index;
-    dialogContext = widget.dialogContext;
+    _categories = widget.categories;
+    _index = widget.index;
+    _dialogContext = widget.dialogContext;
   }
 
   @override
@@ -50,95 +48,109 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
             const SizedBox(
               height: 20,
             ),
-            const Center(
-              child: Text(
-                'chose of action',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            _text(),
             const SizedBox(
-              height: 20,
+              height: 30,
             ),
-            ListTile(
-              title: const Text(
-                'Delete',
-              ),
-              leading: const Icon(
-                Icons.clear,
-                color: Colors.red,
-              ),
-              onTap: () {
-                Navigator.pop(
-                  dialogContext,
-                );
-                categories.removeAt(
-                  index,
-                );
-              },
-            ),
-            ListTile(
-              title: const Text(
-                'Update',
-              ),
-              leading: const Icon(
-                Icons.edit,
-                color: Colors.blue,
-              ),
-              onTap: () async {
-                var newCategory = await Navigator.of(context).pushNamed('/add_page') as Category;
-                newCategory.listMessages = categories[index].listMessages;
-                setState(
-                  () {
-                    categories.removeAt(
-                      index,
-                    );
-                    categories.insert(
-                      index,
-                      newCategory,
-                    );
-                  },
-                );
-                Navigator.pop(
-                  dialogContext,
-                );
-              },
-            ),
-            ListTile(
-              title: const Text(
-                'Info',
-              ),
-              leading: const Icon(
-                Icons.info,
-                color: Colors.yellow,
-              ),
-              onTap: () {
-                Navigator.pop(
-                  dialogContext,
-                );
-                _showInfoDialog(
-                  context,
-                );
-              },
-            ),
-            ListTile(
-              title: const Text(
-                'Pin/Unpin',
-              ),
-              leading: const Icon(
-                Icons.attach_file,
-                color: Colors.green,
-              ),
-              onTap: () {
-                Navigator.pop(
-                  dialogContext,
-                );
-              },
-            )
+            _delete(),
+            _update(),
+            _info(),
+            _pinUnpin(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _text() {
+    return const Center(
+      child: Text(
+        'chose of action',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  ListTile _delete() {
+    return ListTile(
+      title: const Text(
+        'Delete',
+      ),
+      leading: const Icon(
+        Icons.clear,
+        color: Colors.red,
+      ),
+      onTap: () {
+        Navigator.pop(_dialogContext);
+        _categories.removeAt(
+          _index,
+        );
+      },
+    );
+  }
+
+  ListTile _update() {
+    return ListTile(
+      title: const Text(
+        'Update',
+      ),
+      leading: const Icon(
+        Icons.edit,
+        color: Colors.blue,
+      ),
+      onTap: () async {
+        final newCategory = await Navigator.of(context).pushNamed('/add_page') as Category;
+        newCategory.listMessages = _categories[_index].listMessages;
+        setState(() {
+          _categories.removeAt(
+            _index,
+          );
+          _categories.insert(
+            _index,
+            newCategory,
+          );
+        });
+        Navigator.pop(
+          _dialogContext,
+        );
+      },
+    );
+  }
+
+  ListTile _info() {
+    return ListTile(
+      title: const Text(
+        'Info',
+      ),
+      leading: const Icon(
+        Icons.info,
+        color: Colors.yellow,
+      ),
+      onTap: () {
+        Navigator.pop(
+          _dialogContext,
+        );
+        _showInfoDialog(
+          context,
+        );
+      },
+    );
+  }
+
+  ListTile _pinUnpin() {
+    return ListTile(
+      title: const Text(
+        'Pin/Unpin',
+      ),
+      leading: const Icon(
+        Icons.attach_file,
+        color: Colors.green,
+      ),
+      onTap: () => Navigator.pop(
+        _dialogContext,
       ),
     );
   }
@@ -166,11 +178,11 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                   leading: CircleAvatar(
                     foregroundColor: Colors.black54,
                     child: Icon(
-                      categories[index].iconData,
+                      _categories[_index].iconData,
                     ),
                   ),
                   title: Text(
-                    categories[index].title,
+                    _categories[_index].title,
                   ),
                 ),
                 const SizedBox(
@@ -180,7 +192,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                   title: const Text(
                     'Last message',
                   ),
-                  subtitle: categories[index].listMessages.isEmpty
+                  subtitle: _categories[_index].listMessages.isEmpty
                       ? const Text(
                           'No messages',
                         )
@@ -188,7 +200,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                           DateFormat(
                             'yyyy-MM-dd KK:mm:ss',
                           ).format(
-                            categories[index].listMessages.first.time,
+                            _categories[_index].listMessages.first.time,
                           ),
                         ),
                 ),
@@ -200,9 +212,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                     height: 40.0,
                     width: 50.0,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(
-                        infoDialogContext,
-                      ),
+                      onPressed: () => Navigator.pop(infoDialogContext),
                       child: const Text(
                         'Ok',
                       ),

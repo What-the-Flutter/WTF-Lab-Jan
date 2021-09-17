@@ -30,30 +30,18 @@ class ThemeChanger extends StatefulWidget {
   @override
   _ThemeChangerState createState() => _ThemeChangerState();
 
-  static bool of(BuildContext context) {
-    return _ThemeChanger.of(context).data.isLight;
-  }
+  static bool of(BuildContext context) => _ThemeChanger.of(context).data.isLight;
 
-  static _ThemeChangerState instanceOf(BuildContext context) {
-    return _ThemeChanger.of(context).data;
-  }
+  static _ThemeChangerState instanceOf(BuildContext context) => _ThemeChanger.of(context).data;
 }
 
 class _ThemeChangerState extends State<ThemeChanger> {
   late bool isLight;
 
-  void changeTheme() {
-    setState(
-      () {
-        isLight = !isLight;
-      },
-    );
-  }
+  void changeTheme() => setState(() => isLight = !isLight);
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
+  void didChangeDependencies() => super.didChangeDependencies();
 
   @override
   void initState() {
@@ -62,9 +50,7 @@ class _ThemeChangerState extends State<ThemeChanger> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return _ThemeChanger(data: this, child: widget.child);
-  }
+  Widget build(BuildContext context) => _ThemeChanger(data: this, child: widget.child);
 }
 
 ThemeData lightTheme = ThemeData.light();
@@ -84,10 +70,14 @@ ThemeData ownTheme = ThemeData(
     foregroundColor: Colors.white,
   ),
   buttonColor: Colors.grey,
-  iconTheme: const IconThemeData(color: Colors.white),
+  iconTheme: const IconThemeData(
+    color: Colors.white,
+  ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+      backgroundColor: MaterialStateProperty.all<Color>(
+        Colors.red,
+      ),
     ),
   ),
 );

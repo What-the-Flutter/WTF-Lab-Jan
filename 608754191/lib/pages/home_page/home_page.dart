@@ -17,21 +17,20 @@ class ChatJournalHomePage extends StatefulWidget {
   _ChatJournalHomePageState createState() => _ChatJournalHomePageState();
 }
 
-const String _titleForBlankScreen = 'No events. Click to create one';
-
 class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
-  late List<Category> categories;
+  late List<Category> _categories;
   late final _screens;
   late final _appBars;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
-    categories = widget.categories;
+    _categories = widget.categories;
     _screens = [
       _bodyOfHomePageChat(),
-      DailyPage(categories: categories),
-      TimelinePage(categories: categories),
-      ExplorePage(categories: categories)
+      DailyPage(categories: _categories),
+      TimelinePage(categories: _categories),
+      ExplorePage(categories: _categories)
     ];
     _appBars = [
       _appBarFromHomePage(),
@@ -52,11 +51,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         backgroundColor: Colors.black,
         onPressed: () async {
           final category = await Navigator.of(context).pushNamed('/add_page') as Category;
-          setState(
-            () {
-              categories.add(category);
-            },
-          );
+          setState(() => _categories.add(category));
         },
         child: const Icon(
           Icons.add_sharp,
@@ -185,7 +180,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: categories.length + 1,
+            itemCount: _categories.length + 1,
             itemBuilder: (
               context,
               index,
@@ -198,17 +193,17 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                 child: Card(
                   child: ListTile(
                     title: Text(
-                      categories[index - 1].title,
+                      _categories[index - 1].title,
                     ),
                     subtitle: Text(
-                      categories[index - 1].subtitle,
+                      _categories[index - 1].subtitle,
                       style: TextStyle(
                         color: Colors.blueGrey[300],
                       ),
                     ),
                     leading: CircleAvatar(
                       child: Icon(
-                        categories[index - 1].iconData,
+                        _categories[index - 1].iconData,
                       ),
                       backgroundColor: Colors.black,
                     ),
@@ -217,20 +212,16 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                         context: context,
                         builder: (context) => ChoseOfAction(
                           context,
-                          categories,
+                          _categories,
                           index - 1,
                         ),
                       );
-                      setState(
-                        () {
-                          categories = categories;
-                        },
-                      );
+                      setState(() => _categories = _categories);
                     },
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => ChatPage(
-                          category: categories[index - 1],
+                          category: _categories[index - 1],
                         ),
                       ),
                     ),
@@ -239,7 +230,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               );
             },
           ),
-        )
+        ),
       ],
     );
   }
@@ -307,8 +298,6 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  int _selectedIndex = 0;
-
   Widget _chatBottomNavigationBar() {
     return BottomNavigationBar(
       backgroundColor: Colors.grey[400],
@@ -349,11 +338,5 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  void _onItemTapped(int index) {
-    setState(
-      () {
-        _selectedIndex = index;
-      },
-    );
-  }
+  void _onItemTapped(int index) => setState(() => _selectedIndex = index);
 }
