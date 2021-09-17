@@ -8,6 +8,7 @@ import 'pages/home_page/home_page_cubit.dart';
 import 'pages/main_page/main_page.dart';
 import 'pages/main_page/main_page_cubit.dart';
 import 'pages/settings_page/general_settings/general_settings_cubit.dart';
+import 'pages/statistics/statistics_page_cubit.dart';
 import 'pages/timeline_page/timeline_page_cubit.dart';
 import 'services/db_provider.dart';
 import 'services/shared_preferences_provider.dart';
@@ -43,6 +44,9 @@ void main() async {
         ),
         BlocProvider(
           create: (context) => FilterPageCubit(),
+        ),
+        BlocProvider(
+          create: (context) => StatisticsPageCubit(),
         ),
       ],
       child: MyApp(),

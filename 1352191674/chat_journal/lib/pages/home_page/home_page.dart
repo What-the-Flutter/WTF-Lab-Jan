@@ -7,6 +7,7 @@ import '../../ui/theme_cubit/theme_cubit.dart';
 import '../create_page/create_page.dart';
 import '../events_page/event_page.dart';
 import '../settings_page/settings_page.dart';
+import '../statistics/statistics_page.dart';
 import 'home_page_cubit.dart';
 
 class HomePage extends StatefulWidget {
@@ -88,6 +89,16 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: Text('Notifications'),
             leading: Icon(Icons.notifications),
+          ),
+          ListTile(
+            title: Text('Statistics'),
+            leading: Icon(Icons.timeline),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StatisticsPage(),
+              ),
+            ),
           ),
           ListTile(
             title: Text('Settings'),
