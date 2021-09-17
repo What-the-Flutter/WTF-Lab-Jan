@@ -1,14 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class ChoseOfAction extends StatelessWidget {
-  final List categories;
-  final BuildContext dialogContext;
-  final int index;
+import '../entity/category.dart';
 
+class ChoseOfAction extends StatefulWidget {
+  List<Category> categories;
+  final int index;
+  final BuildContext dialogContext;
   @required
-  const ChoseOfAction(this.dialogContext, this.categories, this.index, {Key? key})
-      : super(key: key);
+  ChoseOfAction(
+    this.dialogContext,
+    this.categories,
+    this.index,
+  );
+
+  @override
+  _ChoseOfActionState createState() => _ChoseOfActionState();
+}
+
+const String _titleForBlankScreen = 'No events. Click to create one';
+
+class _ChoseOfActionState extends State<ChoseOfAction> {
+  late List<Category> categories;
+  late final int index;
+  late final BuildContext dialogContext;
+
+  @override
+  void initState() {
+    categories = widget.categories;
+    index = widget.index;
+    dialogContext = widget.dialogContext;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +59,9 @@ class ChoseOfAction extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(
+              height: 20,
+            ),
             ListTile(
               title: const Text(
                 'Delete',
@@ -47,8 +71,12 @@ class ChoseOfAction extends StatelessWidget {
                 color: Colors.red,
               ),
               onTap: () {
-                Navigator.pop(dialogContext);
-                categories.removeAt(index);
+                Navigator.pop(
+                  dialogContext,
+                );
+                categories.removeAt(
+                  index,
+                );
               },
             ),
             ListTile(
@@ -59,8 +87,23 @@ class ChoseOfAction extends StatelessWidget {
                 Icons.edit,
                 color: Colors.blue,
               ),
-              onTap: () {
-                Navigator.pop(dialogContext);
+              onTap: () async {
+                var newCategory = await Navigator.of(context).pushNamed('/add_page') as Category;
+                newCategory.listMessages = categories[index].listMessages;
+                setState(
+                  () {
+                    categories.removeAt(
+                      index,
+                    );
+                    categories.insert(
+                      index,
+                      newCategory,
+                    );
+                  },
+                );
+                Navigator.pop(
+                  dialogContext,
+                );
               },
             ),
             ListTile(
@@ -72,8 +115,12 @@ class ChoseOfAction extends StatelessWidget {
                 color: Colors.yellow,
               ),
               onTap: () {
-                Navigator.pop(dialogContext);
-                _showInfoDialog(context);
+                Navigator.pop(
+                  dialogContext,
+                );
+                _showInfoDialog(
+                  context,
+                );
               },
             ),
             ListTile(
@@ -85,7 +132,9 @@ class ChoseOfAction extends StatelessWidget {
                 color: Colors.green,
               ),
               onTap: () {
-                Navigator.pop(dialogContext);
+                Navigator.pop(
+                  dialogContext,
+                );
               },
             )
           ],
@@ -110,7 +159,9 @@ class ChoseOfAction extends StatelessWidget {
             width: 220.0,
             child: ListView(
               children: <Widget>[
-                const SizedBox(height: 20),
+                const SizedBox(
+                  height: 20,
+                ),
                 ListTile(
                   leading: CircleAvatar(
                     foregroundColor: Colors.black54,
@@ -122,7 +173,9 @@ class ChoseOfAction extends StatelessWidget {
                     categories[index].title,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(
+                  height: 20,
+                ),
                 ListTile(
                   title: const Text(
                     'Last message',
@@ -139,7 +192,9 @@ class ChoseOfAction extends StatelessWidget {
                           ),
                         ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(
+                  height: 20,
+                ),
                 Center(
                   child: Container(
                     height: 40.0,
