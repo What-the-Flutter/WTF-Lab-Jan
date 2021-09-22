@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:notes/database/database_helper.dart';
 
 import '../../models/note_model.dart';
 
@@ -12,49 +13,53 @@ class HomeCubit extends Cubit<HomeState> {
   final List<PageCategoryInfo> _initPages = <PageCategoryInfo>[
     PageCategoryInfo(
       title: 'Journal',
-      icon: Icons.book,
-      ),
+      icon: 2,
+    ),
     PageCategoryInfo(
       title: 'Notes',
-      icon: Icons.my_library_books
-      ),
+      icon: 1,
+    ),
     PageCategoryInfo(
       title: 'Text',
-      icon: Icons.text_fields,
+      icon: 0,
     ),
   ];
 
   HomeCubit() : super(HomeState());
 
-  void init() {
-    emit(state.copyWith(
-      pages: state.pages.isEmpty ? _initPages : state.pages,
-    ));
-  }
+  final DatabaseHelper _database = DatabaseHelper();
 
-  void addPage(PageCategoryInfo page) {
-    final pages = List<PageCategoryInfo>.from(state.pages)..add(page);
-    emit(state.copyWith(pages: pages));
-  }
-
-  void deletePage(int index) {
-    final pages = List<PageCategoryInfo>.from(state.pages)..removeAt(index);
-    emit(state.copyWith(pages: pages));
-  }
-
-  void addEvents(List<Note> events, PageCategoryInfo page) {
-    final pages = List<PageCategoryInfo>.from(state.pages);
-    final index = pages.indexOf(page);
-    for (var event in events) {
-      pages[index].note.add(event);
+  void init() async {
+    var pages = await _database.readAllPages();
+    if (await pages.isNotEmpty) {
+      emit(state.copyWith(pages: pages));
     }
-    pages[index].sortEvents();
+    else {
+      // DatabaseHelper().database;
+      // var pages = await _database.readAllPages();
+      // emit(state.copyWith(pages: pages));
+    }
+  }
+
+  void setCurrentPagesList(List<PageCategoryInfo> currentPagesList) =>
+      emit(state.copyWith(pages: currentPagesList));
+
+  void addPage(PageCategoryInfo page) async {
+    final pages = List<PageCategoryInfo>.from(state.pages)..add(page);
+    _database.addPage(page);
+    emit(state.copyWith(pages: pages));
+  }
+
+  void deletePage(int localIndex, int DBindex) {
+    final pages = List<PageCategoryInfo>.from(state.pages)..removeAt(localIndex);
+    _database.deletePage(DBindex);
     emit(state.copyWith(pages: pages));
   }
 
   void editPage(int index, PageCategoryInfo page) {
     final pages = List<PageCategoryInfo>.from(state.pages)
       ..[index] = PageCategoryInfo.from(page);
+    _database.updatePage(page);
     emit(state.copyWith(pages: pages));
   }
 

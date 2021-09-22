@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:notes/screens/event_page/note_info_page.dart';
 
 import '../screens/add_note_page/add_note_page.dart';
+import '../screens/event_page/note_info_page.dart';
 import '../screens/home_screen_page/home_screen.dart';
 
 const String mainPage = 'mainPage';
@@ -42,8 +42,8 @@ Route<dynamic> controller(RouteSettings settings) {
           builder: (context) {
             return NoteInfo(
               // index: args.index,
-              // journal: args.journal,
-            );
+                // journal: args.journal,
+                );
           },
         );
       } else {

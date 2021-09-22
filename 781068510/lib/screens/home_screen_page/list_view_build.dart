@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../cubit/home_screen/home_cubit.dart';
+import '../../main.dart';
+import '../../models/note_model.dart';
 import '../../routes/routes.dart';
-import '../add_note_page/add_note_page.dart';
-import '../event_page/note_info_page.dart';
+import '../../routes/routes.dart' as route;
 
 class BuildListView extends StatelessWidget {
   BuildListView({Key? key}) : super(key: key);
@@ -42,7 +43,7 @@ class BuildListView extends StatelessWidget {
                               ListTile(
                                 leading: CircleAvatar(
                                   child: Icon(
-                                    state.pages[index].icon,
+                                    pagesIcons[state.pages[index].icon],
                                   ),
                                 ),
                                 title: Text(
@@ -55,8 +56,7 @@ class BuildListView extends StatelessWidget {
                               ),
                               ListTile(
                                 title: const Text('Number of notes'),
-                                trailing: Text(
-                                    state.pages[index].lastMessage),
+                                trailing: Text(state.pages[index].lastMessage),
                               ),
                             ],
                           ),
@@ -78,12 +78,7 @@ class BuildListView extends StatelessWidget {
                       title: Text('Archive Page'),
                     ),
                     ListTile(
-                      onTap: () async {
-                        await Navigator.of(context).pushNamed(
-                          addNotePage,
-                          arguments: AddNote(),
-                        );
-                      },
+                      onTap: () => _editPage(context, index),
                       leading: const Icon(
                         Icons.edit,
                         color: Colors.blueAccent,
@@ -92,7 +87,11 @@ class BuildListView extends StatelessWidget {
                     ),
                     ListTile(
                       onTap: () {
-                        // PageCubit()..deleteJournal(index);
+                        context.read<HomeCubit>()
+                          ..deletePage(
+                            index,
+                            state.pages[index].id!,
+                          );
                         Navigator.pop(context);
                       },
                       leading: const Icon(
@@ -110,7 +109,7 @@ class BuildListView extends StatelessWidget {
               radius: 30,
               // backgroundColor: Colors.yellowAccent,
               child: Icon(
-                state.pages[index].icon,
+                pagesIcons[state.pages[index].icon],
                 size: 30,
               ),
             ),
@@ -132,5 +131,17 @@ class BuildListView extends StatelessWidget {
         },
       );
     });
+  }
+}
+
+void _editPage(BuildContext context, int index) async {
+  final pagesCubit = context.read<HomeCubit>();
+  final pages = pagesCubit.state.pages;
+  final page = await Navigator.of(context).popAndPushNamed(
+    route.addNotePage,
+    arguments: pages[index],
+  );
+  if (page is PageCategoryInfo) {
+    pagesCubit.editPage(index, page);
   }
 }

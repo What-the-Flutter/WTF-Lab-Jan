@@ -1,33 +1,32 @@
 import 'package:flutter/material.dart';
 
 final String pagesTable = 'pages';
+final String eventsTable = 'events';
 
 class PagesFields {
-  static final String columnId = '_id';
-  static final String isPinned = 'isPinned';
+  static final String id = '_id';
+  static final String icon = 'icon';
   static final String title = 'title';
+  static final String isPinned = 'isPinned';
   static final String lastEditDate = 'lastEditDate';
   static final String createDate = 'createDate';
   static final String lastMessage = 'lastMessage';
-}
 
-class PageCategory {
-  String title;
-  List<Note> note;
-  int iconIndex;
-
-  PageCategory({
-    required this.title,
-    required this.iconIndex,
-    required this.note,
-  });
+  static final List<String> values = [
+    id,
+    title,
+    icon,
+    isPinned,
+    lastEditDate,
+    createDate,
+    lastMessage,
+  ];
 }
 
 class PageCategoryInfo {
   int? id;
   String title;
-  List<Note> note = <Note>[];
-  IconData icon;
+  int icon;
   bool isPinned;
   String lastEditDate;
   String createDate;
@@ -36,19 +35,22 @@ class PageCategoryInfo {
   PageCategoryInfo({
     required this.title,
     required this.icon,
-    this.id,})
-      : lastMessage = 'Entry event',
+    this.id,
+  })  : lastMessage = 'Entry event',
         isPinned = false,
-        lastEditDate = '${DateTime.now().day}/${DateTime.now().month}''/${DateTime.now().year}'
-            ' at ${DateTime.now().hour}:''${DateTime.now().minute}',
-        createDate = '${DateTime.now().day}/${DateTime.now().month}''/${DateTime.now().year}'
-            ' at ${DateTime.now().hour}:''${DateTime.now().minute}';
+        lastEditDate = '${DateTime.now().day}/${DateTime.now().month}'
+            '/${DateTime.now().year}'
+            ' at ${DateTime.now().hour}:'
+            '${DateTime.now().minute}',
+        createDate = '${DateTime.now().day}/${DateTime.now().month}'
+            '/${DateTime.now().year}'
+            ' at ${DateTime.now().hour}:'
+            '${DateTime.now().minute}';
 
   PageCategoryInfo copyWith({
     int? id,
+    int? icon,
     String? title,
-    List<Note>? note,
-    IconData? icon,
     bool? isPinned,
     String? lastEditDate,
     String? createDate,
@@ -63,49 +65,120 @@ class PageCategoryInfo {
   PageCategoryInfo.from(PageCategoryInfo page)
       : title = page.title,
         icon = page.icon,
-        note = page.note,
         id = page.id,
         isPinned = page.isPinned,
         createDate = page.createDate,
         lastEditDate = page.lastEditDate,
         lastMessage = page.lastMessage;
 
-  Map<String, Object?> toJson() =>
-      {
-        // PagesFields.columnId
+  static PageCategoryInfo fromJson(Map<String, Object?> json) =>
+      PageCategoryInfo(
+        id: json[PagesFields.id] as int?,
+        title: json[PagesFields.title] as String,
+        icon: json[PagesFields.icon] as int,
+      );
+
+  Map<String, Object?> toJson() => {
+        PagesFields.id: id,
+        PagesFields.icon: icon,
+        PagesFields.title: title,
         PagesFields.lastEditDate: lastEditDate,
         PagesFields.lastMessage: lastMessage,
         PagesFields.createDate: createDate,
         PagesFields.isPinned: isPinned ? 1 : 0,
-        PagesFields.title: title,
       };
 
-  List<Note> sortEvents() {
-    note.sort((a, b) => a.compareTo(b));
-    return note;
-  }
+// List<Note> sortEvents() {
+//   note.sort((a, b) => a.compareTo(b));
+//   return note;
+// }
+}
 
+class EventsFields {
+  static final String id = '_id';
+  static final String tableId = 'tableId';
+  static final String description = 'description';
+  static final String category = 'category';
+  static final String time = 'time';
+  static final String formattedTime = 'formattedTime';
+  static final String isBookmarked = 'isBookMarked';
+  static final String image = 'image';
+
+  static final List<String> values = [
+    id,
+    tableId,
+    category,
+    description,
+    time,
+    formattedTime,
+    isBookmarked,
+    image,
+  ];
 }
 
 class Note {
-  DateTime time;
+  int? id;
+  int? tableId;
   bool isBookmarked;
   String? description;
-  EventCategory category;
+  int category;
   String formattedTime;
-
-  // File? image;
+  DateTime time;
   String? image;
 
-  Note({this.image, this.description})
-      : isBookmarked = false,
-        category = const EventCategory(icon: null, title: ''),
-        time = DateTime.now(),
-        formattedTime = '${DateTime
-            .now()
-            .hour}:${DateTime
-            .now()
-            .minute}';
+  Note({
+    this.id,
+    this.tableId,
+    this.image,
+    this.description,
+    required this.category,
+    required this.isBookmarked,
+    required this.time,
+    required this.formattedTime,
+  });
+
+  Map<String, Object?> toJson() => {
+        EventsFields.id: id,
+        EventsFields.tableId: tableId,
+        EventsFields.description: description,
+        EventsFields.category: category,
+        EventsFields.time: time.toIso8601String(),
+        EventsFields.formattedTime: formattedTime,
+        EventsFields.isBookmarked: isBookmarked ? 1 : 0,
+        EventsFields.image: image,
+      };
+
+  static Note fromJson(Map<String, Object?> json) => Note(
+        id: json[EventsFields.id] as int?,
+        tableId: json[EventsFields.tableId] as int,
+        description: json[EventsFields.description] as String,
+        category: json[EventsFields.category] as int,
+        time: DateTime.parse(json[EventsFields.time] as String),
+        formattedTime: json[EventsFields.formattedTime] as String,
+        isBookmarked: json[EventsFields.isBookmarked] == 1 ? true : false,
+        image: json[EventsFields.image] as String?,
+      );
+
+  Note copyWith({
+    int? id,
+    int? tableId,
+    int? category,
+    String? description,
+    DateTime? time,
+    bool? isBookmarked,
+    String? formattedTime,
+    String? image,
+  }) =>
+      Note(
+        id: id ?? id,
+        tableId: tableId ?? tableId,
+        category: category ?? this.category,
+        description: description ?? this.description,
+        time: time ?? this.time,
+        formattedTime: formattedTime ?? this.formattedTime,
+        isBookmarked: isBookmarked ?? this.isBookmarked,
+        image: image ?? image,
+      );
 
   int compareTo(Note other) {
     return time.isAfter(other.time) ? -1 : 1;
@@ -113,17 +186,7 @@ class Note {
 
   void updateSendTime() {
     final now = DateTime.now();
-    time = now;
     formattedTime = 'edited ${now.hour}:${now.minute}';
   }
 }
 
-class EventCategory {
-  final String title;
-  final IconData? icon;
-
-  const EventCategory({
-    required this.icon,
-    required this.title,
-  });
-}

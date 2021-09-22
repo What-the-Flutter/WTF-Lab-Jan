@@ -1,13 +1,29 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
-import '../../Themes/theme_change.dart';
 import '../../cubit/events/event_cubit.dart';
+import '../../cubit/home_screen/home_cubit.dart';
+import '../../cubit/settings/settings_cubit.dart';
+import '../../cubit/themes/theme_cubit.dart';
 import '../../main.dart';
 import '../../models/note_model.dart';
+import 'labeled_radio_tile.dart';
 import 'note_search_delegate.dart';
+
+final List<String> listOfEventsNames = [
+  'Cancel',
+  'Movie',
+  'Workout',
+  'Sports',
+  'Laundry',
+  'FastFood',
+  'Running',
+];
 
 class NoteInfo extends StatelessWidget {
   late final ScrollController _scrollController;
@@ -18,11 +34,11 @@ class NoteInfo extends StatelessWidget {
     _textController = TextEditingController();
   }
 
-  // late List<String> _words;
-  // late NoteSearchDelegate _delegate;
-  // late List<Note> _elements;
-  //
-  // List<Note> items = [];
+  late List<String> _words;
+  late NoteSearchDelegate _delegate;
+  late List<Note> _elements;
+
+  List<Note> items = [];
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +51,34 @@ class NoteInfo extends StatelessWidget {
             preferredSize: const Size.fromHeight(60),
             child: buildAppBar(context, state),
           ),
-          body: Column(
+          body: Stack(
             children: [
-              state.pageNote!.note.isEmpty
-                  ? buildNote(state)
-                  : buildListView(context),
-              state.isChangingCategory
-                  ? buildCategories(context, state)
-                  : Container(),
-              buildBottomContainer(context, state),
+              Column(
+                children: [
+                  state.allNotes.isEmpty
+                      ? buildNote(state)
+                      : buildListView(context),
+                  state.isChangingCategory
+                      ? buildCategories(context, state)
+                      : Container(),
+                  buildBottomContainer(context, state),
+                ],
+              ),
+              GestureDetector(
+                onTap: () {
+                  Picke;
+                },
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Theme.of(context).accentColor,
+                    ),
+                    child: Text('Какая-то рандомная дата'),
+                  ),
+                ),
+              )
             ],
           ),
         );
@@ -59,7 +94,8 @@ class NoteInfo extends StatelessWidget {
           ? IconButton(
               icon: const Icon(Icons.cancel),
               onPressed: () {
-                context.read<EventCubit>().setEditMode(true);
+                context.read<EventCubit>().setEditMode();
+                context.read<EventCubit>().unselectEvents();
               },
             )
           : IconButton(
@@ -68,7 +104,7 @@ class NoteInfo extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
-      title: !state.isEditMode ? Text(state.pageNote!.title) : const Text(''),
+      title: !state.isEditMode ? Text(state.title) : const Text(''),
       actions: [
         !state.isEditMode
             ? IconButton(
@@ -92,64 +128,58 @@ class NoteInfo extends StatelessWidget {
             ? IconButton(
                 icon: const Icon(Icons.reply),
                 onPressed: () {
-                  // var journals = BlocProvider.of<PageCubit>(context).state;
-                  // showDialog<void>(
-                  //   context: context,
-                  //   builder: (context) {
-                  //     return AlertDialog(
-                  //       title: const Text('Move to:'),
-                  //       content: StatefulBuilder(
-                  //         builder: (context, setState) {
-                  //           return Container(
-                  //             height: 250,
-                  //             width: 100,
-                  //             child: ListView.builder(
-                  //               itemCount: journals.pages.length,
-                  //               itemBuilder: (context, index) {
-                  //                 return LabeledRadio(
-                  //                     label: journals.pages[index].title,
-                  //                     padding: const EdgeInsets.all(10),
-                  //                     groupValue: _checked,
-                  //                     value: index,
-                  //                     onChanged: (value) {
-                  //                       setState(
-                  //                         () {
-                  //                           _checked = value;
-                  //                           _checkedElement =
-                  //                               journals.pages[index];
-                  //                         },
-                  //                       );
-                  //                     });
-                  //               },
-                  //             ),
-                  //           );
-                  //         },
-                  //       ),
-                  //       actions: [
-                  //         TextButton(
-                  //           onPressed: () {
-                  //             _checkedElement = null;
-                  //             _checked = -1;
-                  //             Navigator.pop(context);
-                  //           },
-                  //           child: const Text('Cancel'),
-                  //         ),
-                  //         TextButton(
-                  //           onPressed: () {
-                  //             for (var el in activeNotes) {
-                  //               _checkedElement?.note.add(el);
-                  //               deleteMessages(events);
-                  //             }
-                  //             _checkedElement = null;
-                  //             _checked = -1;
-                  //             Navigator.pop(context, 'Ok');
-                  //           },
-                  //           child: const Text('Ok'),
-                  //         ),
-                  //       ],
-                  //     );
-                  //   },
-                  // );
+                  var journals = BlocProvider.of<HomeCubit>(context).state;
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Move to:'),
+                        content: StatefulBuilder(
+                          builder: (context, setState) {
+                            return Container(
+                              height: 250,
+                              width: 100,
+                              child: ListView.builder(
+                                itemCount: journals.pages.length,
+                                itemBuilder: (context, index) {
+                                  return LabeledRadio(
+                                    label: journals.pages[index].title,
+                                    padding: const EdgeInsets.all(10),
+                                    groupValue: state.checked,
+                                    value: index,
+                                    onChanged: (value) {
+                                      context
+                                          .read<EventCubit>()
+                                          .setChecked(value);
+                                      context
+                                          .read<EventCubit>()
+                                          .setReplyPage(context, value);
+                                      print(state.pageReplyIndex);
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              context.read<EventCubit>().replyEvents();
+                              Navigator.pop(context, 'Ok');
+                            },
+                            child: const Text('Ok'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
               )
             : Container(),
@@ -191,7 +221,7 @@ class NoteInfo extends StatelessWidget {
                 onPressed: () {
                   context.read<EventCubit>().setMessageEditMode(true);
                   _textController.text =
-                      state.pageNote!.note[state.activeNotes[0]].description!;
+                      state.allNotes[state.activeNotes[0]].description!;
                 },
               )
             : Container(),
@@ -202,7 +232,7 @@ class NoteInfo extends StatelessWidget {
 
   Widget buildCategories(BuildContext context, EventState state) {
     var iconThemeColor =
-        ThemeSelector.instanceOf(context).theme.iconTheme.color;
+        context.read<ThemeCubit>().state.themeData!.iconTheme.color;
     return Container(
       height: 110,
       child: ListView.builder(
@@ -216,13 +246,10 @@ class NoteInfo extends StatelessWidget {
               onTap: () {
                 if (index == 0) {
                   context.read<EventCubit>().setDefaultCategory();
-                  context.read<EventCubit>().setIsChangingCategory();
                 } else {
-                  context.read<EventCubit>().setCategory(EventCategory(
-                      title: _textController.text,
-                      icon: state.selectedCategory.icon));
-                  context.read<EventCubit>().setIsChangingCategory();
+                  context.read<EventCubit>().setCategory(index);
                 }
+                context.read<EventCubit>().setIsChangingCategory();
               },
               child: Column(
                 children: [
@@ -234,8 +261,9 @@ class NoteInfo extends StatelessWidget {
                     ),
                   ),
                   Container(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Text(listOfEventsNames[index])),
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(listOfEventsNames[index]),
+                  ),
                 ],
               ),
             ),
@@ -258,7 +286,7 @@ class NoteInfo extends StatelessWidget {
               right: 25,
             ),
             child: Text(
-              'This is the page where you can track everything about ${state.pageNote!.title}!',
+              'This is the page where you can track everything about ${state.title}!',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
@@ -284,7 +312,7 @@ class NoteInfo extends StatelessWidget {
               right: 25,
             ),
             child: Text(
-              'Add your first event to "${state.pageNote!.title}" '
+              'Add your first event to "${state.title}" '
               'page by entering some text in the text box'
               'below and hitting the send button. Long tap'
               'the send button to align the event in the '
@@ -303,51 +331,108 @@ class NoteInfo extends StatelessWidget {
     );
   }
 
-  Expanded buildListView(BuildContext context) {
+  Widget buildListView(BuildContext context) {
     final state = context.read<EventCubit>().state;
     return Expanded(
-      child: Container(
-        margin: const EdgeInsets.all(10),
-        child: ListView.builder(
-          controller: _scrollController,
-          reverse: true,
-          itemCount: state.pageNote!.note.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () => context.read<EventCubit>().selectEvent(index),
-              onLongPress: () {
-                context.read<EventCubit>()
-                  ..setEditMode(true)
-                  ..selectEvent(index);
-              },
-              child: noteTile(index, context),
-            );
-          },
-        ),
+      child: ListView.builder(
+        controller: _scrollController,
+        reverse: true,
+        itemCount: state.allNotes.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => context.read<EventCubit>().selectEvent(index),
+            onLongPress: () {
+              context.read<EventCubit>()
+                ..setEditMode()
+                ..selectEvent(index);
+            },
+            child: noteTile(index, context),
+          );
+        },
       ),
     );
   }
 
+  bool checkDays(DateTime day1, DateTime day2) {
+    if (day1.day != day2.day) return true;
+    return false;
+  }
+
   Widget noteTile(int index, BuildContext context) {
+    context..read<EventCubit>();
+    final themeColor = context.read<ThemeCubit>().state.themeData!.accentColor;
     final state = context.read<EventCubit>().state;
-    return Container(
-      color: state.activeNotes.contains(index)
-          ? Colors.green[100]
-          : Colors.transparent, // TODO
-      child: ListTile(
-        leading: state.pageNote!.note[index].category.icon != null
-            ? Icon(state.pageNote!.note[index].category.icon)
-            : null,
-        title: Text(state.pageNote!.note[index].description!),
-        subtitle: Text(state.pageNote!.note[index].formattedTime),
-        trailing: state.activeNotes.contains(index)
-            ? const Icon(
-                Icons.check,
-                color: Colors.green,
-              )
-            : null,
-      ),
-    );
+    if (index > 0 &&
+        checkDays(state.allNotes[index].time, state.allNotes[index - 1].time)) {
+      return Align(
+        alignment: BlocProvider.of<SettingsCubit>(context)
+                .state
+                .isCenterDateBubble
+            ? Alignment.center
+            : BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
+                ? Alignment.centerLeft
+                : Alignment.centerRight,
+        child: Container(
+          color: themeColor,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(state.allNotes[index].time.month.toString()),
+        ),
+      );
+    } else {
+      return Container(
+        color: state.activeNotes.contains(index)
+            ? Colors.green[100]
+            : Colors.transparent,
+        child: ListTile(
+          leading: state.allNotes[index].category != 0
+              ? !BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
+                  ? null
+                  : Icon(listOfEventsIcons[state.allNotes[index].category])
+              : null,
+          title: Column(
+            crossAxisAlignment:
+                BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
+                    ? CrossAxisAlignment.start
+                    : CrossAxisAlignment.end,
+            children: [
+              state.allNotes[index].description != null
+                  ? Container(
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: Text(state.allNotes[index].description!),
+                    )
+                  : Container(),
+              state.allNotes[index].image != null
+                  ? ClipRRect(
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(8),
+                      ),
+                      child: Image.file(
+                        File(state.allNotes[index].image!),
+                      ),
+                    )
+                  : Container(),
+            ],
+          ),
+          subtitle: Align(
+            alignment:
+                BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
+                    ? Alignment.topLeft
+                    : Alignment.topRight,
+            child: Container(
+              padding: const EdgeInsets.only(top: 5),
+              child: Text(state.allNotes[index].formattedTime),
+            ),
+          ),
+          trailing: state.allNotes[index].category != 0
+              ? BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
+                  ? null
+                  : Icon(listOfEventsIcons[state.allNotes[index].category])
+              : null,
+        ),
+      );
+    }
   }
 
   Align buildBottomContainer(BuildContext context, EventState state) {
@@ -358,8 +443,8 @@ class NoteInfo extends StatelessWidget {
         child: Row(
           children: <Widget>[
             IconButton(
-              icon: state.selectedCategory.icon != null
-                  ? Icon(state.selectedCategory.icon)
+              icon: state.selectedCategory != 0
+                  ? Icon(listOfEventsIcons[state.selectedCategory])
                   : const Icon(Icons.event),
               onPressed: () {
                 context.read<EventCubit>().setIsChangingCategory();
@@ -388,28 +473,54 @@ class NoteInfo extends StatelessWidget {
                 ),
               ),
             ),
-
-            // _textController.text.isEmpty
-            //     ? IconButton(
-            //         icon: const Icon(Icons.camera_alt),
-            //         onPressed: () {},
-            //       )
-            //     :
-
-            IconButton(
-              icon: const Icon(Icons.send),
-              onPressed: () {
-                context
-                    .read<EventCubit>()
-                    .addMessageEvent(_textController.text);
-                _textController.text = '';
-                print(state.pageNote!.note.isEmpty);
-              },
-            ),
+            state.isPickingPhoto
+                ? GestureDetector(
+                    onLongPress: () {
+                      context.read<EventCubit>().setIsPickingPhoto();
+                    },
+                    child: IconButton(
+                      icon: const Icon(Icons.camera_alt),
+                      onPressed: () {
+                        context.read<EventCubit>().setIsPickingPhoto;
+                        pickImage(context, state);
+                      },
+                    ),
+                  )
+                : GestureDetector(
+                    onLongPress: () {
+                      context.read<EventCubit>().setIsPickingPhoto();
+                    },
+                    child: IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () => _sendMessage(context, null),
+                    ),
+                  ),
           ],
         ),
       ),
     );
+  }
+
+  Future pickImage(BuildContext context, EventState state) async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      // context.read<EventCubit>().setSelectedPhoto(await pickImage(context, state));
+      context.read<EventCubit>().setIsPickingPhoto();
+      final imageTemporary = File(await image.path);
+      _sendMessage(context, imageTemporary.path);
+      return imageTemporary.path;
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
+  void _sendMessage(BuildContext context, String? image) async {
+    context.read<EventCubit>().setIsPickingPhoto();
+
+    context.read<EventCubit>().addMessageEvent(_textController.text, image);
+    FocusScope.of(context).unfocus();
+    _textController.clear();
   }
 
   void _deleteEvent(BuildContext context) {

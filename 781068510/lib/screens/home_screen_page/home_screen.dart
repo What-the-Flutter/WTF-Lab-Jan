@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notes/database/shared_preferences_helper.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../cubit/home_screen/home_cubit.dart';
 import '../../cubit/themes/theme_cubit.dart';
 import '../../models/note_model.dart';
-
 import '../../routes/routes.dart' as route;
+import 'drawer_build.dart';
 import 'list_view_build.dart';
 
 class MainPage extends StatelessWidget {
@@ -16,23 +15,15 @@ class MainPage extends StatelessWidget {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (cubitContext, state) {
         return Scaffold(
+          drawer: BuildDrawer(),
           appBar: AppBar(
             elevation: 0.0,
-            leading: IconButton(
-              onPressed: () => print('menu'),
-              icon: const Icon(Icons.menu),
-            ),
             title: const Text(
               ('title'),
             ),
             centerTitle: true,
             actions: <Widget>[
               IconButton(
-                  // onPressed:() async {
-                  //   var num = ThemePreferences.getIntFromSharedPrefs();
-                  //   await num == 0 ? ThemePreferences.setTheme(1) : ThemePreferences.setTheme(0);
-                  //   themeCubit..changeTheme;
-                  //   },
                 onPressed: themeCubit.changeTheme,
                   icon: const Icon(Icons.invert_colors)),
             ],

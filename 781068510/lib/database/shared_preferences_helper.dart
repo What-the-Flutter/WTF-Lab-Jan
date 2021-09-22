@@ -1,23 +1,41 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-// ignore: avoid_classes_with_only_static_members
-class ThemePreferences {
+class SharedPreferencesProvider {
+  static SharedPreferencesProvider? _sharedPreferencesProvider;
   static SharedPreferences? _preferences;
-  static const _keyTheme = 'themeNumber';
+
+  SharedPreferencesProvider._createInstance();
+
+  static const _keyTheme = 'isDarkMode';
+  static const _keyDateTimeModification = 'isDateTimeModification';
+  static const _keyBubbleAlignment = 'isBubbleAlignment';
+  static const _keyCenterDateBubble = 'isCenterDateBubble';
+
+  factory SharedPreferencesProvider() => _sharedPreferencesProvider ??=
+      SharedPreferencesProvider._createInstance();
 
   static Future init() async =>
       _preferences = await SharedPreferences.getInstance();
 
-  static Future<int> getIntFromSharedPrefs() async{
-    final themeNumber = _preferences!.getInt(_keyTheme);
-    if (themeNumber == null) {
-      return 0;
-    }
-    return themeNumber;
-  }
+  void changeTheme(bool value) => _preferences!.setBool(_keyTheme, value);
 
-  static Future<void> setTheme(int value) async{
-    await _preferences!.setInt(_keyTheme, value);
-  }
+  bool getTheme() => _preferences!.getBool(_keyTheme) ?? true;
 
+  void changeDateTimeMode(bool value) =>
+      _preferences!.setBool(_keyDateTimeModification, value);
+
+  bool getDateTimeMode() =>
+      _preferences!.getBool(_keyDateTimeModification) ?? true;
+
+  void changeBubbleAlignment(bool value) =>
+      _preferences!.setBool(_keyBubbleAlignment, value);
+
+  bool getBubbleAlignment() =>
+      _preferences!.getBool(_keyBubbleAlignment) ?? true;
+
+  void changeCenterDateBubble(bool value) =>
+      _preferences!.setBool(_keyCenterDateBubble, value);
+
+  bool getCenterDateBubble() =>
+      _preferences!.getBool(_keyCenterDateBubble) ?? true;
 }

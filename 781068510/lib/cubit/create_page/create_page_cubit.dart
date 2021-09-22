@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
+import '../../main.dart';
+
 import '../../models/note_model.dart';
 
 part 'create_page_state.dart';
@@ -47,7 +49,7 @@ class CreatePageCubit extends Cubit<CreatePageState> {
     emit(
       CreatePageState(
         icons: _icons,
-        selectedIcon: _icons[0],
+        selectedIcon: 0,
       ),
     );
   }
@@ -73,27 +75,31 @@ class CreatePageCubit extends Cubit<CreatePageState> {
 
   void setEditPage(PageCategoryInfo? page) {
     if (page == null) {
-      emit(state.copyWith(
-        editPage: page,
-        selectedIcon: state.icons[0],
-      ));
+      emit(
+        state.copyWith(
+          editPage: page,
+          selectedIcon: 0,
+        ),
+      );
     } else {
       final icons = List<IconData>.from(state.icons);
-      final index = icons.indexOf(page.icon);
-      if (index != -1) {
-        icons.insert(0, icons.removeAt(index));
+      // final index = pagesIcons.indexOf(page.icon);
+      if (page.icon != -1) {
+        icons.insert(0, icons.removeAt(page.icon));
       } else {
-        icons.insert(0, page.icon);
+        icons.insert(0, pagesIcons[page.icon]);
       }
-      emit(state.copyWith(
-        icons: icons,
-        editPage: page,
-        selectedIcon: icons[0],
-      ));
+      emit(
+        state.copyWith(
+          icons: icons,
+          editPage: page,
+          selectedIcon: 0,
+        ),
+      );
     }
   }
 
-  void selectIcon(IconData icon) {
+  void selectIcon(int icon) {
     emit(state.copyWith(selectedIcon: icon));
   }
 }

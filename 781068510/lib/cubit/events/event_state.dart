@@ -1,26 +1,34 @@
 part of 'event_cubit.dart';
 
-class EventState extends Equatable {
+class EventState {
   final bool isEditMode;
+  final bool isPickingPhoto;
+  final String? selectedPhoto;
   final bool isTextTyped;
   final bool isMultiSelection;
   final bool isTextEditMode;
   final bool isBookmarkedNoteMode;
   final bool isChangingCategory;
-  final EventCategory selectedCategory;
+  final int selectedCategory;
   final List<int> activeNotes;
   final PageCategoryInfo? pageNote;
-  final int? checked;
+  final String title;
+  final List<Note> allNotes;
+  final int checked;
   final PageCategoryInfo? pageToReply;
   final int? pageReplyIndex;
 
-  EventState({
+  const EventState({
+    this.selectedPhoto,
+    required this.title,
+    required this.allNotes,
     this.pageNote,
     this.pageReplyIndex,
     this.pageToReply,
+    this.isPickingPhoto = false,
     this.isEditMode = false,
-    this.selectedCategory = const EventCategory(icon: Icons.event, title: ''),
-    this.checked,
+    this.selectedCategory = 0,
+    this.checked = 0,
     this.isTextTyped = false,
     this.isChangingCategory = false,
     this.isBookmarkedNoteMode = false,
@@ -30,25 +38,33 @@ class EventState extends Equatable {
   });
 
   EventState copyWith({
+    String? title,
+    String? selectedPhoto,
+    List<Note>? allNotes,
     bool? isEditMode,
     PageCategoryInfo? pageToReply,
     int? pageReplyIndex,
+    bool? isPickingPhoto,
     bool? isTextTyped,
     bool? isMultiSelection,
     bool? isTextEditMode,
     bool? isBookmarkedNoteMode,
     bool? isChangingCategory,
-    EventCategory? selectedCategory,
+    int? selectedCategory,
     int? checked,
     List<int>? activeNotes,
     PageCategoryInfo? pageNote,
   }) {
     return EventState(
+      selectedPhoto: selectedPhoto ?? selectedPhoto,
+      isPickingPhoto: isPickingPhoto ?? this.isPickingPhoto,
+      title: title ?? this.title,
+      allNotes: allNotes ?? this.allNotes,
       isChangingCategory: isChangingCategory ?? this.isChangingCategory,
       pageNote: pageNote ?? this.pageNote,
       pageReplyIndex: pageReplyIndex ?? pageReplyIndex,
       pageToReply: pageToReply ?? pageToReply,
-      checked: checked ?? checked,
+      checked: checked ?? this.checked,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       isTextTyped: isTextTyped ?? this.isTextTyped,
       isMultiSelection: isMultiSelection ?? this.isMultiSelection,
@@ -59,21 +75,4 @@ class EventState extends Equatable {
     );
   }
 
-  @override
-  List<Object?> get props {
-    return [
-      isEditMode,
-      isTextTyped,
-      isMultiSelection,
-      isTextEditMode,
-      isBookmarkedNoteMode,
-      isChangingCategory,
-      selectedCategory,
-      activeNotes,
-      pageNote,
-      checked,
-      pageToReply,
-      pageReplyIndex,
-    ];
-  }
 }

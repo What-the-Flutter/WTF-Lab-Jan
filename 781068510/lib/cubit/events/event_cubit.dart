@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/database/database_helper.dart';
 
 import '../../models/note_model.dart';
 import '../home_screen/home_cubit.dart';
@@ -10,45 +12,85 @@ import '../home_screen/home_cubit.dart';
 part 'event_state.dart';
 
 class EventCubit extends Cubit<EventState> {
-  final EventCategory _defaultCategory =
-  const EventCategory(icon: null, title: '');
+  final int _defaultCategory = 0;
 
-  EventCubit() : super(EventState());
+  final List<IconData> listOfEventsIcons = [
+    Icons.cancel,
+    Icons.movie,
+    Icons.sports_basketball,
+    Icons.sports_outlined,
+    Icons.local_laundry_service,
+    Icons.fastfood,
+    Icons.run_circle_outlined,
+  ];
 
-  void init(PageCategoryInfo note) {
+  final DatabaseHelper _database = DatabaseHelper();
+
+  EventCubit() : super(EventState(title: '', allNotes: []));
+
+  late int pageID;
+
+  void init(PageCategoryInfo note) async {
+    pageID = await note.id!;
+    var events = await _database.readAllEventsByIndex(note.id!);
+    emit(
+      state.copyWith(
+        title: note.title,
+        selectedCategory: 0,
+        allNotes: events,
+      ),
+    );
+  }
+
+  // void setImage(File image) {
+  //   emit(state.copyWith(allNotes: ))
+  // }
+
+  void setCurrentEventsList(List<Note> currentEventsList) =>
+      emit(state.copyWith(allNotes: currentEventsList));
+
+  void setEditMode() {
     emit(state.copyWith(
-      pageNote: note,
+      isEditMode: !state.isEditMode,
     ));
   }
 
-  void setEditMode(bool isEditMode){
-    emit(state.copyWith(
-      isEditMode: isEditMode,
-    ));
+  void setChecked(int value) {
+    emit(state.copyWith(checked: value));
   }
 
   void setMessageEditMode(bool isMessageEdit) {
     emit(state.copyWith(isTextEditMode: isMessageEdit));
   }
 
-  void setCategory(EventCategory category) {
-    emit(state.copyWith(selectedCategory: category));
+  void setCategory(int index) {
+    emit(state.copyWith(selectedCategory: index));
   }
 
   void setReplyPage(BuildContext context, int index) {
     final page = context.read<HomeCubit>().state.pages[index];
-    emit(state.copyWith(
-      pageToReply: page,
-      pageReplyIndex: index,
-    ));
+    emit(
+      state.copyWith(
+        pageToReply: page,
+        pageReplyIndex: index,
+      ),
+    );
   }
 
   void setDefaultCategory() {
-    emit(state.copyWith(selectedCategory: _defaultCategory));
+    emit(state.copyWith(selectedCategory: 0));
   }
 
   void setIsChangingCategory() {
     emit(state.copyWith(isChangingCategory: !state.isChangingCategory));
+  }
+
+  void setIsPickingPhoto() {
+    emit(state.copyWith(isPickingPhoto: !state.isPickingPhoto));
+  }
+
+  void setSelectedPhoto(String? path) {
+    emit(state.copyWith(selectedPhoto: path));
   }
 
   void unselectEvents() {
@@ -60,62 +102,86 @@ class EventCubit extends Cubit<EventState> {
     if (state.activeNotes.contains(index)) {
       updatedSelectedEvents.remove(index);
       if (updatedSelectedEvents.isEmpty) {
-        setEditMode(false);
+        setEditMode();
       }
     } else {
       updatedSelectedEvents.add(index);
     }
-    emit(state.copyWith(activeNotes: updatedSelectedEvents));
-  }
-
-  void replyEvents(BuildContext context) {
-    final page = state.pageToReply;
-    var eventsToReply = <Note>[];
-    for (var i in state.activeNotes) {
-      eventsToReply.add(state.pageNote!.note[i]);
-    }
-    deleteEvent();
-    context.read<HomeCubit>().addEvents(eventsToReply, page!);
+    emit(
+      state.copyWith(activeNotes: updatedSelectedEvents),
+    );
   }
 
   void copyDataFromEvents() {
-    final message = state.pageNote!.note[state.activeNotes[0]].description;
+    final message = state.allNotes[state.activeNotes[0]].description;
     if (message != null) {
-      Clipboard.setData(ClipboardData(text: message));
+      Clipboard.setData(
+        ClipboardData(text: message),
+      );
     }
-    setEditMode(false);
+    setEditMode();
     unselectEvents();
   }
 
-  void addMessageEvent(String text) {
-    PageCategoryInfo? updatedPage;
+  void replyEvents() async {
+    for (var i = state.activeNotes.length - 1; i >= 0; i--) {
+      state.allNotes.elementAt(state.activeNotes[i]).tableId =
+          state.pageReplyIndex! + 1;
+      _database.updateEvent(
+        pageID,
+        state.allNotes.elementAt(state.activeNotes[i]),
+      );
+      state.allNotes.removeAt(state.activeNotes[i]);
+    }
+    setCurrentEventsList(state.allNotes);
+  }
+
+  void addMessageEvent(String text, String? imagePath) async {
+    var updatedNote = Note(
+      time: DateTime.now(),
+      description: text,
+      formattedTime: '${DateTime.now().hour}:${DateTime.now().minute}',
+      isBookmarked: false,
+      category: state.selectedCategory,
+      tableId: pageID,
+    );
     if (state.activeNotes.length == 1 && state.isTextEditMode) {
       if (text.isEmpty) {
-        updatedPage = state.pageNote!..note.removeAt(state.activeNotes[0]);
+        await _database.deleteEvent(
+            pageID, state.allNotes.elementAt(state.activeNotes[0]).id!);
+        state.allNotes.removeAt(state.activeNotes[0]);
       } else {
-        updatedPage = state.pageNote!
-          ..note[state.activeNotes[0]].description = text
-          ..note[state.activeNotes[0]].updateSendTime();
+        updatedNote = state.allNotes[state.activeNotes[0]];
+        updatedNote.description = text;
+        updatedNote.updateSendTime();
+        await _database.updateEvent(pageID, updatedNote);
       }
       emit(state.copyWith(activeNotes: []));
-    } else if (text.isNotEmpty) {
-      updatedPage = state.pageNote!..note.insert(0, Note(description: text));
+    } else if (text.isNotEmpty || imagePath != null) {
+      updatedNote.category = 0;
       if (state.selectedCategory != _defaultCategory) {
-        updatedPage.note[0].category = state.selectedCategory;
+        updatedNote.category = state.selectedCategory;
         setDefaultCategory();
       }
+      if (imagePath != null) {
+        updatedNote.image = imagePath;
+        setSelectedPhoto(null);
+      }
+      updatedNote.description = text;
+      state.allNotes.insert(0, await _database.addEvent(pageID, updatedNote));
     }
-    emit(state.copyWith(pageNote: updatedPage));
+    setCurrentEventsList(state.allNotes);
   }
 
-  void deleteEvent() {
+  void deleteEvent() async {
     var activeNotes = List<int>.from(state.activeNotes)..sort();
-    var updatedPage = PageCategoryInfo.from(state.pageNote!);
-    for (var i = activeNotes.length - 1; i >= 0; i--) {
-      updatedPage.note.removeAt(activeNotes[i]);
+    for (var i = state.activeNotes.length - 1; i >= 0; i--) {
+      var id = state.allNotes.elementAt(activeNotes[i]).id!;
+      await _database.deleteEvent(pageID, id);
+      state.allNotes.removeAt(activeNotes[i]);
     }
-    setEditMode(false);
+    setCurrentEventsList(state.allNotes);
+    setEditMode();
     unselectEvents();
   }
-
 }

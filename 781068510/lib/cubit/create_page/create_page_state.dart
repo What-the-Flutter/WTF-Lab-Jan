@@ -4,7 +4,7 @@ part of 'create_page_cubit.dart';
 class CreatePageState extends Equatable {
   final List<IconData> icons;
   final PageCategoryInfo? editPage;
-  late final IconData? selectedIcon;
+  late final int? selectedIcon;
   late final bool? isEditMode;
 
   CreatePageState({
@@ -16,7 +16,7 @@ class CreatePageState extends Equatable {
 
   CreatePageState copyWith({
     List<IconData>? icons,
-    IconData? selectedIcon,
+    int? selectedIcon,
     PageCategoryInfo? editPage,
     bool? isEditMode,
   }) {

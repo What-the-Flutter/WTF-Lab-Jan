@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/main.dart';
 
 import '../../cubit/create_page/create_page_cubit.dart';
 import '../../models/note_model.dart';
@@ -13,11 +14,12 @@ class AddNote extends StatelessWidget {
   Widget build(BuildContext context) {
     final createPageCubit = context.read<CreatePageCubit>();
     createPageCubit.loadIcons();
-    createPageCubit.setEditPage(
-        ModalRoute
-            .of(context)!
-            .settings
-            .arguments as PageCategoryInfo?);
+
+    if (ModalRoute.of(context)!.settings.arguments != null) {
+      createPageCubit.setEditPage(
+          ModalRoute.of(context)!.settings.arguments as PageCategoryInfo);
+    }
+
     _textController.text = createPageCubit.state.editPage?.title ?? '';
 
     return Scaffold(
@@ -40,9 +42,6 @@ class AddNote extends StatelessWidget {
             child: TextFormField(
               controller: _textController,
               autofocus: true,
-              onChanged: (text) {
-                // TODO???
-              },
               keyboardType: TextInputType.text,
               maxLines: 1,
               decoration: const InputDecoration(
@@ -81,9 +80,9 @@ class AddNote extends StatelessWidget {
         backgroundColor: Colors.green,
         onPressed: () {
           if (_textController.text != '') {
-            Navigator.of(context).pop(
-                context.read<CreatePageCubit>().createPage(
-                    _textController.text));
+            Navigator.of(context).pop(context
+                .read<CreatePageCubit>()
+                .createPage(_textController.text));
           }
         },
       ),
@@ -92,21 +91,16 @@ class AddNote extends StatelessWidget {
 }
 
 List<Widget> _iconList(BuildContext context) {
-  return context
-      .read<CreatePageCubit>()
-      .state
-      .icons
-      .map(
-        (iconData) {
+  return context.read<CreatePageCubit>().state.icons.map(
+    (iconData) {
       return GestureDetector(
         onTap: () {
-          context.read<CreatePageCubit>().selectIcon(iconData);
+          context.read<CreatePageCubit>().selectIcon(pagesIcons.indexOf(iconData));
         },
         child: _iconListElement(context, iconData),
       );
     },
-  )
-      .toList();
+  ).toList();
 }
 
 Widget _iconListElement(BuildContext context, IconData iconData) {
@@ -116,19 +110,14 @@ Widget _iconListElement(BuildContext context, IconData iconData) {
       CircleAvatar(
         child: Icon(
           iconData,
-          color: Theme
-              .of(context)
-              .accentColor,
+          color: Theme.of(context).accentColor,
         ),
         radius: 32,
-        backgroundColor: Theme
-            .of(context)
-            .cardColor,
+        backgroundColor: Theme.of(context).cardColor,
       ),
-      if (context
-          .read<CreatePageCubit>()
-          .state
-          .selectedIcon == iconData)
+      if (
+      context.read<CreatePageCubit>().state.selectedIcon == context
+          .read<CreatePageCubit>().state.icons.indexOf(iconData))
         const CircleAvatar(
           radius: 11,
           backgroundColor: Colors.white,
