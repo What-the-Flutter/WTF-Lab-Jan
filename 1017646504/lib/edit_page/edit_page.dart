@@ -2,47 +2,45 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../color_theme.dart';
-import '../icons.dart';
-import '../page.dart';
+import '../data/icons.dart';
+import '../entity/page.dart';
 import 'edit_cubit.dart';
 import 'edit_state.dart';
 
 class EditPage extends StatefulWidget {
-  EditPage({required this.page, required this.title});
+  EditPage(this._page, this._title);
 
-  final JournalPage page;
-  final String title;
+  final JournalPage _page;
+  final String _title;
 
   @override
-  _EditPageState createState() => _EditPageState(page, title);
+  _EditPageState createState() => _EditPageState(_page, _title);
 }
 
 class _EditPageState extends State<EditPage> {
-  _EditPageState(JournalPage page, this._title) {
-    cubit = EditCubit(EditState(page, true));
-  }
-
-  final String _title;
+  late final String _title;
   final _controller = TextEditingController();
+  late EditCubit _cubit;
 
-  EditCubit? cubit;
+  _EditPageState(JournalPage page, this._title) {
+    _cubit = EditCubit(EditState(page, true));
+  }
 
   @override
   void initState() {
-    _controller.text = cubit!.state.page.title;
+    _controller.text = _cubit.state.page.title;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      bloc: cubit,
+      bloc: _cubit,
       builder: (context, state) {
         return Scaffold(
           appBar: _appBar,
           body: _body,
-          backgroundColor: ColorThemeData.of(context)!.mainColor,
+          backgroundColor: Theme.of(context).primaryColor,
         );
       },
     );
@@ -51,22 +49,22 @@ class _EditPageState extends State<EditPage> {
   PreferredSizeWidget get _appBar {
     return AppBar(
       leading: IconButton(
-        onPressed: () => Navigator.pop(context, cubit!.state),
+        onPressed: () => Navigator.pop(context, _cubit.state),
         icon: Icon(
           Icons.arrow_back,
-          color: ColorThemeData.of(context)!.accentTextColor,
+          color: Theme.of(context).textTheme.bodyText2!.color,
         ),
       ),
-      backgroundColor: ColorThemeData.of(context)!.accentColor,
+      backgroundColor: Theme.of(context).accentColor,
       actions: [
         IconButton(
           onPressed: () {
-            cubit!.renamePage(_controller.text);
-            Navigator.pop(context, cubit!.state);
+            _cubit.renamePage(_controller.text);
+            Navigator.pop(context, _cubit.state);
           },
           icon: Icon(
-            cubit!.state.isAllowedToSave ? Icons.check : Icons.close,
-            color: ColorThemeData.of(context)!.accentTextColor,
+            _cubit.state.isAllowedToSave ? Icons.check : Icons.close,
+            color: Theme.of(context).textTheme.bodyText2!.color,
           ),
         ),
       ],
@@ -74,7 +72,7 @@ class _EditPageState extends State<EditPage> {
         _title,
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          color: ColorThemeData.of(context)!.accentTextColor,
+          color: Theme.of(context).textTheme.bodyText2!.color,
         ),
       ),
     );
@@ -96,13 +94,14 @@ class _EditPageState extends State<EditPage> {
                 ...iconList.map(
                   (e) => GestureDetector(
                     onTap: () {
-                      cubit!.changeIcon(iconList.indexOf(e));
+                      _cubit.changeIcon(iconList.indexOf(e));
                     },
                     child: Center(
                       child: CircleAvatar(
                         maxRadius: 30,
-                        backgroundColor: ColorThemeData.of(context)!.accentColor,
-                        foregroundColor: ColorThemeData.of(context)!.accentTextColor,
+                        backgroundColor: Theme.of(context).accentColor,
+                        foregroundColor:
+                        Theme.of(context).textTheme.bodyText2!.color,
                         child: Icon(e),
                       ),
                     ),
@@ -119,19 +118,17 @@ class _EditPageState extends State<EditPage> {
   Widget get _pageInfo {
     Widget _textField() {
       return TextField(
-        onChanged: (text) {
-          cubit!.updateAllowance(text.isNotEmpty);
-        },
-        cursorColor: ColorThemeData.of(context)!.accentTextColor,
+        onChanged: _cubit.updateAllowance,
+        cursorColor: Theme.of(context).textTheme.bodyText2!.color,
         style: TextStyle(
-          color: ColorThemeData.of(context)!.accentTextColor,
+          color: Theme.of(context).textTheme.bodyText2!.color,
           fontWeight: FontWeight.bold,
         ),
         controller: _controller,
         decoration: InputDecoration(
           hintText: 'Write page name...',
           hintStyle: TextStyle(
-            color: ColorThemeData.of(context)!.accentTextColor.withOpacity(0.5),
+            color: Theme.of(context).textTheme.bodyText2!.color!.withOpacity(0.5),
           ),
           border: InputBorder.none,
         ),
@@ -143,7 +140,7 @@ class _EditPageState extends State<EditPage> {
         borderRadius: const BorderRadius.all(
           Radius.circular(5),
         ),
-        color: ColorThemeData.of(context)!.accentColor,
+        color: Theme.of(context).accentColor,
       ),
       padding: const EdgeInsets.all(5),
       margin: const EdgeInsets.all(5),
@@ -151,10 +148,10 @@ class _EditPageState extends State<EditPage> {
         children: [
           CircleAvatar(
             maxRadius: 20,
-            foregroundColor: ColorThemeData.of(context)!.accentTextColor,
-            backgroundColor: ColorThemeData.of(context)!.accentColor,
+            foregroundColor: Theme.of(context).textTheme.bodyText2!.color,
+            backgroundColor: Theme.of(context).accentColor,
             child: Icon(
-              iconList[cubit!.state.page.iconIndex],
+              iconList[_cubit.state.page.iconIndex],
             ),
           ),
           Expanded(
