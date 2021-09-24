@@ -1,10 +1,10 @@
-import '../page.dart';
+import '../entity/page.dart';
 
 class EditState {
   EditState(this.page, this.isAllowedToSave);
 
   JournalPage page;
-  bool isAllowedToSave;
+  final bool isAllowedToSave;
 
   EditState copyWith({
     JournalPage? page,

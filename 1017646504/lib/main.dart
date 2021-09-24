@@ -1,19 +1,32 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'color_theme.dart';
+import 'color_theme_cubit.dart';
+import 'color_theme_state.dart';
+import 'data/database_access.dart';
+import 'data/preferences_access.dart';
 import 'main_page/main_page.dart';
 import 'main_page/pages_cubit.dart';
-import 'page.dart';
+import 'settings_page/settings_cubit.dart';
+import 'settings_page/settings_state.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  JournalPage.initCount();
-  Event.initCount();
+  PreferencesAccess.initialize();
+  DatabaseAccess.initialize();
   runApp(
-    BlocProvider(
-      create: (context) => PagesCubit([])..init(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => PagesCubit([]),
+        ),
+        BlocProvider(
+          create: (context) => ColorThemeCubit(),
+        ),
+        BlocProvider(
+          create: (context) => SettingsCubit(SettingsState(false, false)),
+        ),
+      ],
       child: MyApp(),
     ),
   );
@@ -22,15 +35,20 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ColorTheme(
-      key: ColorThemeData.appThemeStateKey,
-      child: MaterialApp(
-        title: 'Chat Journal',
-        theme: ThemeData(
-          primarySwatch: Colors.deepPurple,
-        ),
-        home: MainPage(title: 'Flutter Demo Home Page'),
-      ),
+    BlocProvider.of<ColorThemeCubit>(context).initialize();
+    BlocProvider.of<SettingsCubit>(context).initialize();
+
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        return BlocBuilder<ColorThemeCubit, ColorThemeState>(
+          builder: (context, state) {
+            return MaterialApp(
+              theme: state.theme,
+              home: MainPage(),
+            );
+          },
+        );
+      },
     );
   }
 }

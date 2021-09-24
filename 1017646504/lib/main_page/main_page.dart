@@ -1,88 +1,112 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../color_theme.dart';
+import '../color_theme_cubit.dart';
+import '../data/icons.dart';
 import '../edit_page/edit_page.dart';
-import '../icons.dart';
+import '../entity/page.dart';
 import '../message_page/message_page.dart';
-import '../page.dart';
+import '../settings_page/settings_page.dart';
 import 'pages_cubit.dart';
 
-class MainPage extends StatefulWidget {
-  MainPage({Key? key, this.title}) : super(key: key);
-
-  final String? title;
-
-  @override
-  _MainPageState createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  bool _usingLightTheme = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadBool();
-  }
-
-  void _loadBool() async {
-    final prefs = await SharedPreferences.getInstance();
-    _usingLightTheme = (prefs.getBool('usingLightTheme') ?? true);
-  }
-
-  void _changeTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    _usingLightTheme = !(prefs.getBool('usingLightTheme') ?? true);
-    prefs.setBool('usingLightTheme', _usingLightTheme);
-    ColorThemeData.appThemeStateKey.currentState!.setState(() {});
-  }
+class MainPage extends StatelessWidget {
+  MainPage();
 
   @override
   Widget build(BuildContext context) {
-    return _scaffold;
+    BlocProvider.of<PagesCubit>(context).initialize();
+    return _scaffold(context);
   }
 
-  Widget get _scaffold {
+  Widget _scaffold(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorThemeData.of(context)!.mainColor,
+      backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
-        backgroundColor: ColorThemeData.of(context)!.accentColor,
-        title: const Text(
+        backgroundColor: Theme.of(context).accentColor,
+        title: Text(
           'Chat Journal',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.bodyText2!.color,
+          ),
         ),
+        iconTheme: Theme.of(context).accentIconTheme,
         actions: [
-          _themeChangeButton,
+          _themeChangeButton(context),
         ],
       ),
-      bottomNavigationBar: _bottomNavigationBar,
-      floatingActionButton: _floatingActionButton,
+      drawer: _drawer(context),
+      bottomNavigationBar: _bottomNavigationBar(context),
+      floatingActionButton: _floatingActionButton(context),
       body: BlocBuilder<PagesCubit, List<JournalPage>>(
-        builder: (context, state) {
-          return _body;
-        },
+        builder: (context, state) => _body(context),
       ),
     );
   }
 
-  Widget get _themeChangeButton {
+  Widget _themeChangeButton(BuildContext context) {
     return IconButton(
       icon: Icon(
-        _usingLightTheme ? Icons.wb_sunny_outlined : Icons.bedtime_outlined,
+        BlocProvider.of<ColorThemeCubit>(context).state.usingLightTheme
+            ? Icons.wb_sunny_outlined
+            : Icons.bedtime_outlined,
       ),
-      onPressed: _changeTheme,
+      onPressed: BlocProvider.of<ColorThemeCubit>(context).changeTheme,
     );
   }
 
-  Widget get _bottomNavigationBar {
+  Widget _drawer(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        canvasColor: Theme.of(context).primaryColor,
+      ),
+      child: Drawer(
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).accentColor,
+              ),
+              child: Text(
+                DateFormat('MMM d, yyyy').format(DateTime.now()),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyText2!.color,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 25,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.settings,
+                color: Theme.of(context).textTheme.bodyText1!.color,
+              ),
+              title: Text(
+                'Settings',
+                style: Theme.of(context).textTheme.bodyText1,
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
@@ -95,118 +119,113 @@ class _MainPageState extends State<MainPage> {
         ),
       ],
       currentIndex: 0,
-      backgroundColor: ColorThemeData.of(context)!.accentColor,
-      selectedItemColor: ColorThemeData.of(context)!.accentTextColor,
-      unselectedItemColor: ColorThemeData.of(context)!.accentTextColor.withOpacity(0.3),
+      backgroundColor: Theme.of(context).accentColor,
+      selectedItemColor: Theme.of(context).textTheme.bodyText2!.color,
+      unselectedItemColor: Theme.of(context).textTheme.bodyText2!.color!.withOpacity(0.3),
     );
   }
 
-  Widget get _floatingActionButton {
+  Widget _floatingActionButton(BuildContext context) {
     return FloatingActionButton(
+      foregroundColor: Theme.of(context).textTheme.bodyText2!.color,
       onPressed: () async {
         final pageInfo = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => EditPage(
-              page: JournalPage('New page', 0),
-              title: 'New page',
+              JournalPage('New page', 0, creationTime: DateTime.now()),
+              'New page',
             ),
           ),
         );
         if (pageInfo.isAllowedToSave) {
           BlocProvider.of<PagesCubit>(context).addPage(pageInfo.page);
+          BlocProvider.of<PagesCubit>(context).state.forEach((element) {});
         }
       },
-      backgroundColor: ColorThemeData.of(context)!.accentColor,
+      backgroundColor: Theme.of(context).accentColor,
       tooltip: 'New page',
       child: const Icon(Icons.add),
     );
   }
 
-  Widget get _body {
+  Widget _body(BuildContext context) {
     return BlocProvider.of<PagesCubit>(context).state.isEmpty
         ? Center(
             child: Text(
               'No pages yet...',
-              style: TextStyle(color: ColorThemeData.of(context)!.mainTextColor.withOpacity(0.5)),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyText1!.color!.withOpacity(0.5),
+              ),
             ),
           )
-        : _gridView;
+        : _gridView(context);
   }
 
-  void _pageModalBottomSheet(context, int index) {
+  void _pageModalBottomSheet(BuildContext context, int index) {
     final selected = BlocProvider.of<PagesCubit>(context).state[index];
 
     Widget _pinTile() {
       return ListTile(
-        leading: Transform.rotate(
-          angle: 45 * pi / 180,
-          child: Icon(
-            Icons.push_pin_outlined,
-            color: ColorThemeData.of(context)!.mainTextColor,
+          leading: Transform.rotate(
+            angle: 45 * pi / 180,
+            child: Icon(
+              Icons.push_pin_outlined,
+              color: Theme.of(context).textTheme.bodyText1!.color,
+            ),
           ),
-        ),
-        title: Text(
-          selected.isPinned ? 'Unpin' : 'Pin',
-          style: TextStyle(
-            color: ColorThemeData.of(context)!.mainTextColor,
+          title: Text(
+            selected.isPinned ? 'Unpin' : 'Pin',
+            style: Theme.of(context).textTheme.bodyText1,
           ),
-        ),
-        onTap: () async {
-          BlocProvider.of<PagesCubit>(context).pinPage(selected);
-          Navigator.pop(context);
-        },
-      );
+          onTap: () async {
+            BlocProvider.of<PagesCubit>(context).pinPage(selected);
+            Navigator.pop(context);
+          });
     }
 
     Widget _editTile() {
       return ListTile(
-        leading: Icon(
-          Icons.edit_outlined,
-          color: ColorThemeData.of(context)!.mainTextColor,
-        ),
-        title: Text(
-          'Edit',
-          style: TextStyle(
-            color: ColorThemeData.of(context)!.mainTextColor,
+          leading: Icon(
+            Icons.edit_outlined,
+            color: Theme.of(context).textTheme.bodyText1!.color,
           ),
-        ),
-        onTap: () async {
-          final editState = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditPage(
-                    page: JournalPage(selected.title, selected.iconIndex),
-                    title: 'Edit',
+          title: Text(
+            'Edit',
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+          onTap: () async {
+            final editState = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditPage(
+                      JournalPage(selected.title, selected.iconIndex, creationTime: DateTime.now()),
+                      'Edit',
+                    ),
                   ),
-                ),
-              ) ??
-              false;
-          if (editState.isAllowedToSave) {
-            BlocProvider.of<PagesCubit>(context).editPage(selected, editState.page);
-          }
-          Navigator.pop(context);
-        },
-      );
+                ) ??
+                false;
+            if (editState.isAllowedToSave) {
+              BlocProvider.of<PagesCubit>(context).editPage(selected, editState._page);
+            }
+            Navigator.pop(context);
+          });
     }
 
     Widget _deleteTile() {
       return ListTile(
-        leading: Icon(
-          Icons.delete_outlined,
-          color: ColorThemeData.of(context)!.mainTextColor,
-        ),
-        title: Text(
-          'Delete',
-          style: TextStyle(
-            color: ColorThemeData.of(context)!.mainTextColor,
+          leading: Icon(
+            Icons.delete_outlined,
+            color: Theme.of(context).textTheme.bodyText1!.color,
           ),
-        ),
-        onTap: () {
-          BlocProvider.of<PagesCubit>(context).deletePage(selected);
-          Navigator.pop(context);
-        },
-      );
+          title: Text(
+            'Delete',
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+          onTap: () {
+            BlocProvider.of<PagesCubit>(context).deletePage(selected);
+            Navigator.pop(context);
+          });
     }
 
     Widget _infoTile() {
@@ -216,8 +235,8 @@ class _MainPageState extends State<MainPage> {
             children: [
               CircleAvatar(
                 maxRadius: 20,
-                foregroundColor: ColorThemeData.of(context)!.accentTextColor,
-                backgroundColor: ColorThemeData.of(context)!.accentColor,
+                foregroundColor: Theme.of(context).textTheme.bodyText2!.color,
+                backgroundColor: Theme.of(context).accentColor,
                 child: Icon(
                   iconList[selected.iconIndex],
                 ),
@@ -226,7 +245,7 @@ class _MainPageState extends State<MainPage> {
                 child: Text(
                   selected.title,
                   style: TextStyle(
-                    color: ColorThemeData.of(context)!.accentTextColor,
+                    color: Theme.of(context).textTheme.bodyText2!.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -242,15 +261,13 @@ class _MainPageState extends State<MainPage> {
                 Text(
                   '$header:',
                   style: TextStyle(
-                    color: ColorThemeData.of(context)!.mainTextColor,
+                    color: Theme.of(context).textTheme.bodyText1!.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   DateFormat('dd.MM.yyyy HH:mm').format(time!),
-                  style: TextStyle(
-                    color: ColorThemeData.of(context)!.mainTextColor,
-                  ),
+                  style: Theme.of(context).textTheme.bodyText1,
                 ),
               ],
             );
@@ -270,7 +287,7 @@ class _MainPageState extends State<MainPage> {
         }
 
         return AlertDialog(
-          backgroundColor: ColorThemeData.of(context)!.mainColor,
+          backgroundColor: Theme.of(context).primaryColor,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
               Radius.circular(5),
@@ -281,7 +298,7 @@ class _MainPageState extends State<MainPage> {
               borderRadius: const BorderRadius.all(
                 Radius.circular(5),
               ),
-              color: ColorThemeData.of(context)!.accentColor,
+              color: Theme.of(context).accentColor,
             ),
             padding: const EdgeInsets.all(5),
             margin: const EdgeInsets.all(5),
@@ -292,29 +309,26 @@ class _MainPageState extends State<MainPage> {
       }
 
       return ListTile(
-        leading: Icon(
-          Icons.info_outline,
-          color: ColorThemeData.of(context)!.mainTextColor,
-        ),
-        title: Text(
-          'Info',
-          style: TextStyle(
-            color: ColorThemeData.of(context)!.mainTextColor,
+          leading: Icon(
+            Icons.info_outline,
+            color: Theme.of(context).textTheme.bodyText1!.color,
           ),
-        ),
-        onTap: () async {
-          Navigator.pop(context);
-          await showDialog(
-            context: context,
-            builder: (context) => _alertDialog(),
-          );
-        },
-      );
+          title: Text(
+            'Info',
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+          onTap: () async {
+            Navigator.pop(context);
+            await showDialog(
+              context: context,
+              builder: (context) => _alertDialog(),
+            );
+          });
     }
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: ColorThemeData.of(context)!.mainColor,
+      backgroundColor: Theme.of(context).primaryColor,
       builder: (context) {
         return Wrap(
           children: <Widget>[
@@ -328,7 +342,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Widget get _gridView {
+  Widget _gridView(BuildContext context) {
     return StaggeredGridView.extentBuilder(
       maxCrossAxisExtent: 300,
       scrollDirection: Axis.vertical,
@@ -341,8 +355,7 @@ class _MainPageState extends State<MainPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => MessagePage(
-                  page: BlocProvider.of<PagesCubit>(context).state[index],
-                  title: '',
+                  BlocProvider.of<PagesCubit>(context).state[index],
                 ),
               ),
             );
@@ -351,18 +364,18 @@ class _MainPageState extends State<MainPage> {
           onLongPress: () {
             _pageModalBottomSheet(context, index);
           },
-          child: _gridViewItem(BlocProvider.of<PagesCubit>(context).state[index]),
+          child: _gridViewItem(BlocProvider.of<PagesCubit>(context).state[index], context),
         );
       },
       staggeredTileBuilder: (index) => const StaggeredTile.fit(1),
     );
   }
 
-  Widget _gridViewItem(JournalPage page) {
+  Widget _gridViewItem(JournalPage page, BuildContext context) {
     Widget _header() {
       return Container(
         decoration: BoxDecoration(
-          color: ColorThemeData.of(context)!.accentColor,
+          color: Theme.of(context).accentColor,
           borderRadius:
               const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
         ),
@@ -371,7 +384,7 @@ class _MainPageState extends State<MainPage> {
           children: [
             Icon(
               iconList[page.iconIndex],
-              color: ColorThemeData.of(context)!.accentTextColor,
+              color: Theme.of(context).textTheme.bodyText2!.color,
             ),
             Expanded(
               child: Text(
@@ -380,9 +393,10 @@ class _MainPageState extends State<MainPage> {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: ColorThemeData.of(context)!.accentTextColor),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyText2!.color,
+                ),
               ),
             ),
             if (page.isPinned)
@@ -392,7 +406,7 @@ class _MainPageState extends State<MainPage> {
                   angle: 45 * pi / 180,
                   child: Icon(
                     Icons.push_pin_outlined,
-                    color: ColorThemeData.of(context)!.accentTextColor,
+                    color: Theme.of(context).textTheme.bodyText2!.color,
                   ),
                 ),
               ),
@@ -410,15 +424,13 @@ class _MainPageState extends State<MainPage> {
                 child: Text(
                   'No events yet...',
                   style: TextStyle(
-                    color: ColorThemeData.of(context)!.mainTextColor.withOpacity(0.5),
+                    color: Theme.of(context).textTheme.bodyText1!.color!.withOpacity(0.5),
                   ),
                 ),
               )
             : Text(
                 page.lastEvent!.description,
-                style: TextStyle(
-                  color: ColorThemeData.of(context)!.mainTextColor,
-                ),
+                style: Theme.of(context).textTheme.bodyText1,
               ),
       );
     }
@@ -432,13 +444,13 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       decoration: BoxDecoration(
-        color: ColorThemeData.of(context)!.mainColor,
+        color: Theme.of(context).primaryColor,
         borderRadius: const BorderRadius.all(
           Radius.circular(35),
         ),
         boxShadow: [
           BoxShadow(
-            color: ColorThemeData.of(context)!.shadowColor.withOpacity(0.3),
+            color: Theme.of(context).shadowColor.withOpacity(0.3),
             spreadRadius: 1,
             blurRadius: 2,
             offset: const Offset(1, 1),
