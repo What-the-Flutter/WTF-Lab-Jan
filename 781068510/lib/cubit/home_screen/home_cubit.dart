@@ -33,8 +33,7 @@ class HomeCubit extends Cubit<HomeState> {
     var pages = await _database.readAllPages();
     if (await pages.isNotEmpty) {
       emit(state.copyWith(pages: pages));
-    }
-    else {
+    } else {
       // DatabaseHelper().database;
       // var pages = await _database.readAllPages();
       // emit(state.copyWith(pages: pages));
@@ -51,7 +50,8 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void deletePage(int localIndex, int DBindex) {
-    final pages = List<PageCategoryInfo>.from(state.pages)..removeAt(localIndex);
+    final pages = List<PageCategoryInfo>.from(state.pages)
+      ..removeAt(localIndex);
     _database.deletePage(DBindex);
     emit(state.copyWith(pages: pages));
   }

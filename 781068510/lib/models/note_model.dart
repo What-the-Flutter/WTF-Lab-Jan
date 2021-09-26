@@ -170,14 +170,14 @@ class Note {
     String? image,
   }) =>
       Note(
-        id: id ?? id,
-        tableId: tableId ?? tableId,
+        id: id ?? this.id,
+        tableId: tableId ?? this.tableId,
         category: category ?? this.category,
         description: description ?? this.description,
         time: time ?? this.time,
         formattedTime: formattedTime ?? this.formattedTime,
         isBookmarked: isBookmarked ?? this.isBookmarked,
-        image: image ?? image,
+        image: image ?? this.image,
       );
 
   int compareTo(Note other) {

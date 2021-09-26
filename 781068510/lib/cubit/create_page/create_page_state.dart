@@ -1,7 +1,7 @@
 part of 'create_page_cubit.dart';
 
 @immutable
-class CreatePageState extends Equatable {
+class CreatePageState {
   final List<IconData> icons;
   final PageCategoryInfo? editPage;
   late final int? selectedIcon;
@@ -28,13 +28,5 @@ class CreatePageState extends Equatable {
     );
   }
 
-  @override
-  List<Object> get props {
-    return [
-      if (editPage != null) {editPage},
-      if (selectedIcon != null) {selectedIcon},
-      icons,
-    ];
-  }
 }
 

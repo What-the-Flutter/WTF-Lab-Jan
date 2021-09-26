@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/cubit/settings/settings_cubit.dart';
 
 import '../../cubit/home_screen/home_cubit.dart';
 import '../../cubit/themes/theme_cubit.dart';
@@ -9,22 +10,38 @@ import 'drawer_build.dart';
 import 'list_view_build.dart';
 
 class MainPage extends StatelessWidget {
+  late var textState;
+
   @override
   Widget build(BuildContext context) {
+    textState =
+        BlocProvider.of<SettingsCubit>(context).state.textSize.toDouble();
     final themeCubit = context.read<ThemeCubit>();
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (cubitContext, state) {
+        var index = BlocProvider.of<HomeCubit>(context).state.selectedIndex;
         return Scaffold(
           drawer: BuildDrawer(),
           appBar: AppBar(
             elevation: 0.0,
-            title: const Text(
-              ('title'),
+            title: Text(
+              index == 0
+                  ? 'Home'
+                  : index == 1
+                      ? 'Daily'
+                      : index == 2
+                          ? 'Timeline'
+                          : index == 3
+                              ? 'Explore'
+                              : 'IndexOutOfRange',
+              style: TextStyle(
+                fontSize: textState + 5,
+              ),
             ),
             centerTitle: true,
             actions: <Widget>[
               IconButton(
-                onPressed: themeCubit.changeTheme,
+                  onPressed: themeCubit.changeTheme,
                   icon: const Icon(Icons.invert_colors)),
             ],
           ),

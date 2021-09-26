@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:notes/database/database_helper.dart';
 
 import '../../models/note_model.dart';
@@ -33,6 +34,7 @@ class EventCubit extends Cubit<EventState> {
   void init(PageCategoryInfo note) async {
     pageID = await note.id!;
     var events = await _database.readAllEventsByIndex(note.id!);
+    events.sort((a, b) => b.time.compareTo(a.time));
     emit(
       state.copyWith(
         title: note.title,
@@ -42,17 +44,29 @@ class EventCubit extends Cubit<EventState> {
     );
   }
 
-  // void setImage(File image) {
-  //   emit(state.copyWith(allNotes: ))
-  // }
-
   void setCurrentEventsList(List<Note> currentEventsList) =>
       emit(state.copyWith(allNotes: currentEventsList));
 
   void setEditMode() {
-    emit(state.copyWith(
-      isEditMode: !state.isEditMode,
-    ));
+    emit(
+      state.copyWith(
+        isEditMode: !state.isEditMode,
+      ),
+    );
+  }
+
+  void addImageFromGallery() async {
+    try {
+      setIsPickingPhoto();
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      final imageTemporary = File(image.path);
+      setSelectedPhoto(imageTemporary.path);
+      emit(state.copyWith(selectedPhoto: imageTemporary.path));
+    } on PlatformException catch (e) {
+      print(e);
+    }
   }
 
   void setChecked(int value) {
@@ -65,6 +79,10 @@ class EventCubit extends Cubit<EventState> {
 
   void setCategory(int index) {
     emit(state.copyWith(selectedCategory: index));
+  }
+
+  void setPickedDate(DateTime date) {
+    emit(state.copyWith(selectedDate: date));
   }
 
   void setReplyPage(BuildContext context, int index) {
@@ -91,6 +109,10 @@ class EventCubit extends Cubit<EventState> {
 
   void setSelectedPhoto(String? path) {
     emit(state.copyWith(selectedPhoto: path));
+  }
+
+  void deleteSelectedPhoto() {
+    emit(state.copyWith(selectedPhoto: ''));
   }
 
   void unselectEvents() {
@@ -136,41 +158,79 @@ class EventCubit extends Cubit<EventState> {
     setCurrentEventsList(state.allNotes);
   }
 
-  void addMessageEvent(String text, String? imagePath) async {
+  void setBookmarkedOnly() {
+    emit(state.copyWith(isBookmarkedNoteMode: !state.isBookmarkedNoteMode));
+  }
+
+  void setInputText(String text) {
+    emit(state.copyWith(textInput: text));
+  }
+
+  void setIsAddingHashTag() {
+    emit(state.copyWith(isAddingHashTag: !state.isAddingHashTag));
+  }
+
+  void checkInput() {
+    if (!state.textInput!.contains('#') && state.isAddingHashTag) {
+      setIsAddingHashTag();
+    } else if (state.textInput!.contains('#') && !state.isAddingHashTag) {
+      setIsAddingHashTag();
+    }
+    print(state.isAddingHashTag);
+  }
+
+  void addToBookmarks(int index) async {
+    var updatedNote = state.allNotes[index];
+    updatedNote.isBookmarked = !updatedNote.isBookmarked;
+    await _database.updateEvent(pageID, updatedNote);
+
+    state.allNotes[index].isBookmarked == false ? true : false;
+    setCurrentEventsList(state.allNotes);
+  }
+
+  void addMessageEvent() async {
     var updatedNote = Note(
       time: DateTime.now(),
-      description: text,
+      description: state.textInput,
       formattedTime: '${DateTime.now().hour}:${DateTime.now().minute}',
       isBookmarked: false,
       category: state.selectedCategory,
       tableId: pageID,
     );
     if (state.activeNotes.length == 1 && state.isTextEditMode) {
-      if (text.isEmpty) {
+      if (state.textInput == '') {
         await _database.deleteEvent(
             pageID, state.allNotes.elementAt(state.activeNotes[0]).id!);
         state.allNotes.removeAt(state.activeNotes[0]);
       } else {
         updatedNote = state.allNotes[state.activeNotes[0]];
-        updatedNote.description = text;
+        updatedNote.description = state.textInput;
         updatedNote.updateSendTime();
         await _database.updateEvent(pageID, updatedNote);
       }
       emit(state.copyWith(activeNotes: []));
-    } else if (text.isNotEmpty || imagePath != null) {
+    } else if (state.textInput != '' || state.selectedPhoto != '') {
       updatedNote.category = 0;
       if (state.selectedCategory != _defaultCategory) {
         updatedNote.category = state.selectedCategory;
         setDefaultCategory();
       }
-      if (imagePath != null) {
-        updatedNote.image = imagePath;
-        setSelectedPhoto(null);
+      if (state.selectedPhoto != '') {
+        updatedNote.image = state.selectedPhoto;
+        deleteSelectedPhoto();
       }
-      updatedNote.description = text;
+      if (state.selectedDate != null) {
+        updatedNote.time = state.selectedDate!;
+        updatedNote.formattedTime =
+            '${updatedNote.time.hour}:${updatedNote.time.minute}';
+      }
+      updatedNote.description = state.textInput;
+      emit(state.copyWith(isAddingHashTag: false));
+      emit(state.copyWith(textInput: ''));
       state.allNotes.insert(0, await _database.addEvent(pageID, updatedNote));
+      state.allNotes.sort((a, b) => b.time.compareTo(a.time));
     }
-    setCurrentEventsList(state.allNotes);
+    setCurrentEventsList(await state.allNotes);
   }
 
   void deleteEvent() async {

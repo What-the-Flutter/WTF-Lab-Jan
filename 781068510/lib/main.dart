@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'database/shared_preferences_helper.dart';
 
 import 'cubit/create_page/create_page_cubit.dart';
 import 'cubit/events/event_cubit.dart';
@@ -8,6 +7,7 @@ import 'cubit/home_screen/home_cubit.dart';
 import 'cubit/settings/settings_cubit.dart';
 import 'cubit/themes/theme_cubit.dart';
 import 'cubit/themes/theme_state.dart';
+import 'database/shared_preferences_helper.dart';
 import 'routes/routes.dart' as route;
 import 'screens/add_note_page/add_note_page.dart';
 import 'screens/event_page/note_info_page.dart';
@@ -96,10 +96,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     BlocProvider.of<ThemeCubit>(context).init();
+    BlocProvider.of<SettingsCubit>(context).getState();
+
     super.initState();
   }
 

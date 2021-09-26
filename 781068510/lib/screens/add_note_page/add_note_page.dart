@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/cubit/settings/settings_cubit.dart';
 import 'package:notes/main.dart';
 
 import '../../cubit/create_page/create_page_cubit.dart';
 import '../../models/note_model.dart';
 
 class AddNote extends StatelessWidget {
+  late var textState;
   AddNote({Key? key}) : super(key: key);
 
   final TextEditingController _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    textState =
+        BlocProvider.of<SettingsCubit>(context).state.textSize.toDouble();
     final createPageCubit = context.read<CreatePageCubit>();
     createPageCubit.loadIcons();
 
@@ -33,6 +37,9 @@ class AddNote extends StatelessWidget {
           createPageCubit.state.editPage == null
               ? 'Create new page'
               : 'Edit page',
+          style: TextStyle(
+            fontSize: textState + 5,
+          ),
         ),
       ),
       body: Column(

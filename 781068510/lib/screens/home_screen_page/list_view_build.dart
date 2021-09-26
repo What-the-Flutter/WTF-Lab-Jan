@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/cubit/settings/settings_cubit.dart';
 
 import '../../cubit/home_screen/home_cubit.dart';
 import '../../main.dart';
@@ -9,14 +10,22 @@ import '../../routes/routes.dart' as route;
 
 class BuildListView extends StatelessWidget {
   BuildListView({Key? key}) : super(key: key);
+  late var textState;
 
   @override
   Widget build(BuildContext context) {
     context.read<HomeCubit>().init();
+    textState =
+        BlocProvider.of<SettingsCubit>(context).state.textSize.toDouble();
     return BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
       if (state.pages.isEmpty) {
-        return const Center(
-          child: Text('Nothing to show'),
+        return Center(
+          child: Text(
+            'Nothing to show',
+            style: TextStyle(
+              fontSize: textState,
+            ),
+          ),
         );
       }
       return ListView.builder(
@@ -34,7 +43,12 @@ class BuildListView extends StatelessWidget {
                         Icons.info,
                         color: Colors.green,
                       ),
-                      title: const Text('Info'),
+                      title: Text(
+                        'Info',
+                        style: TextStyle(
+                          fontSize: textState,
+                        ),
+                      ),
                       onTap: () {
                         showDialog<String>(
                           context: context,
@@ -55,7 +69,12 @@ class BuildListView extends StatelessWidget {
                                 ),
                               ),
                               ListTile(
-                                title: const Text('Number of notes'),
+                                title: Text(
+                                  'Number of notes',
+                                  style: TextStyle(
+                                    fontSize: textState,
+                                  ),
+                                ),
                                 trailing: Text(state.pages[index].lastMessage),
                               ),
                             ],
@@ -68,14 +87,24 @@ class BuildListView extends StatelessWidget {
                         Icons.attach_file,
                         color: Colors.green[300],
                       ),
-                      title: const Text('Pin/Unpin Page'),
+                      title: Text(
+                        'Pin/Unpin Page',
+                        style: TextStyle(
+                          fontSize: textState,
+                        ),
+                      ),
                     ),
-                    const ListTile(
-                      leading: Icon(
+                    ListTile(
+                      leading: const Icon(
                         Icons.archive,
                         color: Colors.orangeAccent,
                       ),
-                      title: Text('Archive Page'),
+                      title: Text(
+                        'Archive Page',
+                        style: TextStyle(
+                          fontSize: textState,
+                        ),
+                      ),
                     ),
                     ListTile(
                       onTap: () => _editPage(context, index),
@@ -83,7 +112,12 @@ class BuildListView extends StatelessWidget {
                         Icons.edit,
                         color: Colors.blueAccent,
                       ),
-                      title: const Text('Edit Page'),
+                      title: Text(
+                        'Edit Page',
+                        style: TextStyle(
+                          fontSize: textState,
+                        ),
+                      ),
                     ),
                     ListTile(
                       onTap: () {
@@ -98,7 +132,12 @@ class BuildListView extends StatelessWidget {
                         Icons.delete,
                         color: Colors.redAccent,
                       ),
-                      title: const Text('Delete Page'),
+                      title: Text(
+                        'Delete Page',
+                        style: TextStyle(
+                          fontSize: textState,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -115,12 +154,17 @@ class BuildListView extends StatelessWidget {
             ),
             title: Text(
               state.pages[index].title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: textState + 2,
               ),
             ),
-            subtitle: Text(state.pages[index].lastMessage),
+            subtitle: Text(
+              state.pages[index].lastMessage,
+              style: TextStyle(
+                fontSize: textState - 2,
+              ),
+            ),
             onTap: () {
               Navigator.of(context).pushNamed(
                 noteInfoPage,

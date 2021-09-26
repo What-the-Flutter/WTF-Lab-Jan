@@ -10,6 +10,7 @@ class SharedPreferencesProvider {
   static const _keyDateTimeModification = 'isDateTimeModification';
   static const _keyBubbleAlignment = 'isBubbleAlignment';
   static const _keyCenterDateBubble = 'isCenterDateBubble';
+  static const _keyTextSize = 'textSize';
 
   factory SharedPreferencesProvider() => _sharedPreferencesProvider ??=
       SharedPreferencesProvider._createInstance();
@@ -20,6 +21,12 @@ class SharedPreferencesProvider {
   void changeTheme(bool value) => _preferences!.setBool(_keyTheme, value);
 
   bool getTheme() => _preferences!.getBool(_keyTheme) ?? true;
+
+  void changeTextSize(int size) =>
+      _preferences!.setInt(_keyTextSize, size);
+
+  int getTextSize() =>
+      _preferences!.getInt(_keyTextSize) ?? 15;
 
   void changeDateTimeMode(bool value) =>
       _preferences!.setBool(_keyDateTimeModification, value);

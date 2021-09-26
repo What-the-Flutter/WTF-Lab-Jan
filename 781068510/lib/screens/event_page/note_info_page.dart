@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../cubit/events/event_cubit.dart';
 import '../../cubit/home_screen/home_cubit.dart';
@@ -12,8 +11,8 @@ import '../../cubit/settings/settings_cubit.dart';
 import '../../cubit/themes/theme_cubit.dart';
 import '../../main.dart';
 import '../../models/note_model.dart';
+import '../../utils/utils.dart';
 import 'labeled_radio_tile.dart';
-import 'note_search_delegate.dart';
 
 final List<String> listOfEventsNames = [
   'Cancel',
@@ -34,16 +33,20 @@ class NoteInfo extends StatelessWidget {
     _textController = TextEditingController();
   }
 
-  late List<String> _words;
-  late NoteSearchDelegate _delegate;
-  late List<Note> _elements;
+  // late List<String> _words;
+  // late NoteSearchDelegate _delegate;
+  // late List<Note> _elements;
+  //
+  // List<Note> items = [];
 
-  List<Note> items = [];
+  late var textState;
 
   @override
   Widget build(BuildContext context) {
     final page = ModalRoute.of(context)!.settings.arguments as PageCategoryInfo;
     context.read<EventCubit>().init(page);
+    textState =
+        BlocProvider.of<SettingsCubit>(context).state.textSize.toDouble();
     return BlocBuilder<EventCubit, EventState>(
       builder: (context, state) {
         return Scaffold(
@@ -58,32 +61,139 @@ class NoteInfo extends StatelessWidget {
                   state.allNotes.isEmpty
                       ? buildNote(state)
                       : buildListView(context),
-                  state.isChangingCategory
-                      ? buildCategories(context, state)
-                      : Container(),
+                  Column(
+                    children: [
+                      state.isAddingHashTag
+                          ? Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).backgroundColor,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(10),
+                                margin: const EdgeInsets.all(4),
+                                child: Text(
+                                  'Adding Tag: ${state.textInput}',
+                                  style: TextStyle(
+                                    fontSize: textState,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(),
+                      state.selectedPhoto != ''
+                          ? Align(
+                              alignment: Alignment.topLeft,
+                              child: GestureDetector(
+                                onTap: () =>
+                                    BlocProvider.of<EventCubit>(context)
+                                        .deleteSelectedPhoto(),
+                                child: Container(
+                                  margin: const EdgeInsets.all(6),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                5,
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                10,
+                                        // color: Theme.of(context).accentColor.withAlpha(80),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          child: Image.file(
+                                            File(state.selectedPhoto!),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                      ),
+                                      CircleAvatar(
+                                        backgroundColor:
+                                            Theme.of(context).buttonColor,
+                                        radius: 15,
+                                        child:
+                                            const Icon(Icons.close, size: 20),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(),
+                      state.isChangingCategory
+                          ? buildCategories(context, state)
+                          : Container(),
+                    ],
+                  ),
                   buildBottomContainer(context, state),
                 ],
               ),
-              GestureDetector(
-                onTap: () {
-                  Picke;
-                },
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Theme.of(context).accentColor,
-                    ),
-                    child: Text('Какая-то рандомная дата'),
-                  ),
-                ),
-              )
+              context.read<SettingsCubit>().state.isDateTimeModification
+                  ? Align(
+                      alignment: Alignment.topLeft,
+                      child: GestureDetector(
+                        onTap: () => showTime(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Theme.of(context).accentColor.withAlpha(70),
+                          ),
+                          child: Flex(
+                            direction: Axis.horizontal,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.calendar_today_outlined,
+                                size: 15,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: Text(state.selectedDate != null
+                                    ? getFullDate(state.selectedDate!)
+                                    : 'Today'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
             ],
           ),
         );
       },
     );
+  }
+
+  void showTime(BuildContext context) {
+    {
+      showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2001),
+        lastDate: DateTime(2200),
+      ).then((date) {
+        if (date != null) {
+          showTimePicker(
+            context: context,
+            initialTime: const TimeOfDay(hour: 0, minute: 0),
+          ).then((time) {
+            if (time != null) {
+              var newDate =
+                  date.add(Duration(hours: time.hour, minutes: time.minute));
+              BlocProvider.of<EventCubit>(context).setPickedDate(newDate);
+            }
+          });
+        }
+      });
+    }
   }
 
   Widget buildAppBar(BuildContext context, EventState state) {
@@ -104,12 +214,20 @@ class NoteInfo extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
-      title: !state.isEditMode ? Text(state.title) : const Text(''),
+      title: !state.isEditMode
+          ? Text(
+              state.title,
+              style: TextStyle(
+                fontSize: textState + 5,
+              ),
+            )
+          : const Text(''),
       actions: [
         !state.isEditMode
             ? IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () async {
+                  BlocProvider.of<EventCubit>(context).setIsPickingPhoto();
                   // _words = BlocProvider.of<PageCubit>(context)
                   //     .getJournalsDescriptions(widget.index);
                   // _elements = BlocProvider.of<PageCubit>(context)
@@ -133,7 +251,12 @@ class NoteInfo extends StatelessWidget {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        title: const Text('Move to:'),
+                        title: Text(
+                          'Move to:',
+                          style: TextStyle(
+                            fontSize: textState,
+                          ),
+                        ),
                         content: StatefulBuilder(
                           builder: (context, setState) {
                             return Container(
@@ -154,7 +277,6 @@ class NoteInfo extends StatelessWidget {
                                       context
                                           .read<EventCubit>()
                                           .setReplyPage(context, value);
-                                      print(state.pageReplyIndex);
                                     },
                                   );
                                 },
@@ -167,14 +289,24 @@ class NoteInfo extends StatelessWidget {
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: const Text('Cancel'),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: textState,
+                              ),
+                            ),
                           ),
                           TextButton(
                             onPressed: () {
                               context.read<EventCubit>().replyEvents();
                               Navigator.pop(context, 'Ok');
                             },
-                            child: const Text('Ok'),
+                            child: Text(
+                              'Ok',
+                              style: TextStyle(
+                                fontSize: textState,
+                              ),
+                            ),
                           ),
                         ],
                       );
@@ -185,16 +317,18 @@ class NoteInfo extends StatelessWidget {
             : Container(),
         !state.isEditMode
             ? IconButton(
-                icon: const Icon(Icons.bookmark_added),
+                icon: state.isBookmarkedNoteMode
+                    ? const Icon(Icons.bookmark_added)
+                    : const Icon(Icons.bookmark),
                 onPressed: () {
-                  state.isBookmarkedNoteMode ? false : true;
+                  BlocProvider.of<EventCubit>(context).setBookmarkedOnly();
                 },
               )
             : Container(),
         state.isEditMode
             ? IconButton(
                 icon: const Icon(Icons.delete),
-                onPressed: () {
+                onPressed: () async {
                   _deleteEvent(context);
                 },
               )
@@ -262,7 +396,12 @@ class NoteInfo extends StatelessWidget {
                   ),
                   Container(
                     padding: const EdgeInsets.only(top: 10),
-                    child: Text(listOfEventsNames[index]),
+                    child: Text(
+                      listOfEventsNames[index],
+                      style: TextStyle(
+                        fontSize: textState - 3,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -287,9 +426,9 @@ class NoteInfo extends StatelessWidget {
             ),
             child: Text(
               'This is the page where you can track everything about ${state.title}!',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 17,
+                fontSize: textState + 2,
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
@@ -319,8 +458,8 @@ class NoteInfo extends StatelessWidget {
               'opposite direction. Tap on the bookmark icon'
               'on the top right corner to show the bookmarked '
               'events only',
-              style: const TextStyle(
-                fontSize: 15,
+              style: TextStyle(
+                fontSize: textState - 2,
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
@@ -339,17 +478,60 @@ class NoteInfo extends StatelessWidget {
         reverse: true,
         itemCount: state.allNotes.length,
         itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () => context.read<EventCubit>().selectEvent(index),
-            onLongPress: () {
-              context.read<EventCubit>()
-                ..setEditMode()
-                ..selectEvent(index);
-            },
-            child: noteTile(index, context),
-          );
+          if (state.isBookmarkedNoteMode) {
+            if (state.allNotes[index].isBookmarked) {
+              return eventTile(state, index, context);
+            } else {
+              return Container();
+            }
+          } else {
+            if (index == 0) {
+              return Column(
+                children: [
+                  dateTile(context, state, index - 1),
+                  eventTile(state, index, context),
+                ],
+              );
+            } else if (index == state.allNotes.length - 1) {
+              return Column(
+                children: [
+                  dateTile(context, state, index - 1),
+                  eventTile(state, index, context),
+                ],
+              );
+            } else if (index > 0 &&
+                checkDays(state.allNotes[index].time,
+                    state.allNotes[index + 1].time)) {
+              return Column(
+                children: [
+                  dateTile(context, state, index - 1),
+                  eventTile(state, index, context),
+                ],
+              );
+            } else {
+              return Container();
+            }
+          }
         },
       ),
+    );
+  }
+
+  Widget eventTile(EventState state, int index, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (state.activeNotes.isNotEmpty) {
+          context.read<EventCubit>().selectEvent(index);
+        } else {
+          context.read<EventCubit>().addToBookmarks(index);
+        }
+      },
+      onLongPress: () {
+        context.read<EventCubit>()
+          ..setEditMode()
+          ..selectEvent(index);
+      },
+      child: noteTile(index, context),
     );
   }
 
@@ -358,81 +540,135 @@ class NoteInfo extends StatelessWidget {
     return false;
   }
 
+  String formattedTime(DateTime date) {
+    var formattedDate = '${date.day}'
+        ' ${getMonthNameByDate(date)}'
+        ', ${date.hour}'
+        ':${date.minute}'
+        ', ${date.year}';
+    return formattedDate;
+  }
+
+  Widget dateTile(BuildContext context, EventState state, int index) {
+    return Align(
+      alignment:
+          BlocProvider.of<SettingsCubit>(context).state.isCenterDateBubble
+              ? Alignment.center
+              : BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
+                  ? Alignment.centerLeft
+                  : Alignment.centerRight,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.all(7),
+        decoration: BoxDecoration(
+          color: Theme.of(context).backgroundColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          formattedTime(state.allNotes[index + 1].time),
+          style: TextStyle(
+            fontSize: textState,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget noteTile(int index, BuildContext context) {
     context..read<EventCubit>();
-    final themeColor = context.read<ThemeCubit>().state.themeData!.accentColor;
     final state = context.read<EventCubit>().state;
-    if (index > 0 &&
-        checkDays(state.allNotes[index].time, state.allNotes[index - 1].time)) {
-      return Align(
-        alignment: BlocProvider.of<SettingsCubit>(context)
-                .state
-                .isCenterDateBubble
-            ? Alignment.center
-            : BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
-                ? Alignment.centerLeft
-                : Alignment.centerRight,
-        child: Container(
-          color: themeColor,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(state.allNotes[index].time.month.toString()),
-        ),
-      );
-    } else {
-      return Container(
-        color: state.activeNotes.contains(index)
-            ? Colors.green[100]
-            : Colors.transparent,
-        child: ListTile(
-          leading: state.allNotes[index].category != 0
-              ? !BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
-                  ? null
-                  : Icon(listOfEventsIcons[state.allNotes[index].category])
-              : null,
-          title: Column(
-            crossAxisAlignment:
-                BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
-                    ? CrossAxisAlignment.start
-                    : CrossAxisAlignment.end,
-            children: [
-              state.allNotes[index].description != null
-                  ? Container(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: Text(state.allNotes[index].description!),
-                    )
-                  : Container(),
-              state.allNotes[index].image != null
-                  ? ClipRRect(
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(8),
-                      ),
-                      child: Image.file(
-                        File(state.allNotes[index].image!),
-                      ),
-                    )
-                  : Container(),
-            ],
-          ),
-          subtitle: Align(
-            alignment:
-                BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
-                    ? Alignment.topLeft
-                    : Alignment.topRight,
-            child: Container(
-              padding: const EdgeInsets.only(top: 5),
-              child: Text(state.allNotes[index].formattedTime),
+    return Stack(
+      children: [
+        Container(
+          color: state.activeNotes.contains(index)
+              ? Colors.green[100]
+              : Colors.transparent,
+          child: ListTile(
+            leading: state.allNotes[index].category != 0
+                ? !BlocProvider.of<SettingsCubit>(context)
+                        .state
+                        .isBubbleAlignment
+                    ? null
+                    : Icon(listOfEventsIcons[state.allNotes[index].category])
+                : null,
+            title: Column(
+              crossAxisAlignment: BlocProvider.of<SettingsCubit>(context)
+                      .state
+                      .isBubbleAlignment
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.end,
+              children: [
+                state.allNotes[index].description != null
+                    ? Container(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Text(
+                          state.allNotes[index].description!,
+                          style:
+                              state.allNotes[index].description!.contains('#')
+                                  ? TextStyle(
+                                      fontSize: textState,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).accentColor,
+                                    )
+                                  : TextStyle(
+                                      fontSize: textState,
+                                    ),
+                        ),
+                      )
+                    : Container(),
+                state.allNotes[index].image != null
+                    ? ClipRRect(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(8),
+                        ),
+                        child: Image.file(
+                          File(state.allNotes[index].image!),
+                        ),
+                      )
+                    : Container(),
+              ],
             ),
+            subtitle: Align(
+              alignment: BlocProvider.of<SettingsCubit>(context)
+                      .state
+                      .isBubbleAlignment
+                  ? Alignment.topLeft
+                  : Alignment.topRight,
+              child: Container(
+                padding: const EdgeInsets.only(top: 5),
+                // child: Text(state.allNotes[index].formattedTime),
+                child: Text(
+                  getFullDate(state.allNotes[index].time),
+                  style: TextStyle(
+                    fontSize: textState - 3,
+                  ),
+                ),
+              ),
+            ),
+            trailing: state.allNotes[index].category != 0
+                ? BlocProvider.of<SettingsCubit>(context)
+                        .state
+                        .isBubbleAlignment
+                    ? null
+                    : Icon(listOfEventsIcons[state.allNotes[index].category])
+                : null,
           ),
-          trailing: state.allNotes[index].category != 0
-              ? BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
-                  ? null
-                  : Icon(listOfEventsIcons[state.allNotes[index].category])
-              : null,
         ),
-      );
-    }
+        Align(
+          alignment:
+              BlocProvider.of<SettingsCubit>(context).state.isBubbleAlignment
+                  ? Alignment.topRight
+                  : Alignment.topLeft,
+          child: state.allNotes[index].isBookmarked
+              ? const Icon(
+                  Icons.bookmark,
+                  size: 30,
+                  color: Colors.yellowAccent,
+                )
+              : Container(),
+        ),
+      ],
+    );
   }
 
   Align buildBottomContainer(BuildContext context, EventState state) {
@@ -459,16 +695,20 @@ class NoteInfo extends StatelessWidget {
                 ),
                 child: TextFormField(
                   controller: _textController,
-                  style: const TextStyle(fontSize: 16),
-                  decoration: const InputDecoration(
+                  style: TextStyle(fontSize: textState),
+                  decoration: InputDecoration(
                     // border: InputBorder.none,
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                    hintText: 'Enter event',
-                    contentPadding: EdgeInsets.only(left: 10),
+                    border:
+                        const OutlineInputBorder(borderSide: BorderSide.none),
+                    hintText: state.selectedDate != null
+                        ? 'Entry @ ${getShortDate(state.selectedDate!)}'
+                        : 'Enter Event',
+                    contentPadding: const EdgeInsets.only(left: 10),
                   ),
                   keyboardType: TextInputType.text,
                   onChanged: (text) {
-                    if (text != '') {}
+                    BlocProvider.of<EventCubit>(context).setInputText(text);
+                    BlocProvider.of<EventCubit>(context).checkInput();
                   },
                 ),
               ),
@@ -480,19 +720,16 @@ class NoteInfo extends StatelessWidget {
                     },
                     child: IconButton(
                       icon: const Icon(Icons.camera_alt),
-                      onPressed: () {
-                        context.read<EventCubit>().setIsPickingPhoto;
-                        pickImage(context, state);
-                      },
+                      onPressed: () async =>
+                          context.read<EventCubit>().addImageFromGallery(),
                     ),
                   )
                 : GestureDetector(
-                    onLongPress: () {
-                      context.read<EventCubit>().setIsPickingPhoto();
-                    },
+                    onLongPress: () =>
+                        context.read<EventCubit>().setIsPickingPhoto(),
                     child: IconButton(
                       icon: const Icon(Icons.send),
-                      onPressed: () => _sendMessage(context, null),
+                      onPressed: () async => _sendMessage(context),
                     ),
                   ),
           ],
@@ -501,33 +738,20 @@ class NoteInfo extends StatelessWidget {
     );
   }
 
-  Future pickImage(BuildContext context, EventState state) async {
-    try {
-      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-      if (image == null) return;
-      // context.read<EventCubit>().setSelectedPhoto(await pickImage(context, state));
-      context.read<EventCubit>().setIsPickingPhoto();
-      final imageTemporary = File(await image.path);
-      _sendMessage(context, imageTemporary.path);
-      return imageTemporary.path;
-    } on PlatformException catch (e) {
-      print(e);
-    }
-  }
-
-  void _sendMessage(BuildContext context, String? image) async {
+  void _sendMessage(BuildContext context) async {
     context.read<EventCubit>().setIsPickingPhoto();
-
-    context.read<EventCubit>().addMessageEvent(_textController.text, image);
+    await context.read<EventCubit>()
+      ..addMessageEvent();
     FocusScope.of(context).unfocus();
     _textController.clear();
   }
 
-  void _deleteEvent(BuildContext context) {
-    context.read<EventCubit>().deleteEvent();
+  void _deleteEvent(BuildContext context) async {
+    await context.read<EventCubit>()
+      ..deleteEvent();
   }
 
-  void moveToLastMessage() {
+  void _moveToLastMessage() {
     _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
   }
 }

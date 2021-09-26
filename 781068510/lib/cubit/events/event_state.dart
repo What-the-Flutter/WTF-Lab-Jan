@@ -3,7 +3,10 @@ part of 'event_cubit.dart';
 class EventState {
   final bool isEditMode;
   final bool isPickingPhoto;
+  final bool isAddingHashTag;
   final String? selectedPhoto;
+  final String? textInput;
+  final DateTime? selectedDate;
   final bool isTextTyped;
   final bool isMultiSelection;
   final bool isTextEditMode;
@@ -11,6 +14,7 @@ class EventState {
   final bool isChangingCategory;
   final int selectedCategory;
   final List<int> activeNotes;
+  final List<int> bookmarkedNotes;
   final PageCategoryInfo? pageNote;
   final String title;
   final List<Note> allNotes;
@@ -19,7 +23,11 @@ class EventState {
   final int? pageReplyIndex;
 
   const EventState({
-    this.selectedPhoto,
+    this.textInput = '',
+    this.isAddingHashTag = false,
+    this.bookmarkedNotes = const [],
+    this.selectedDate,
+    this.selectedPhoto = '',
     required this.title,
     required this.allNotes,
     this.pageNote,
@@ -38,7 +46,11 @@ class EventState {
   });
 
   EventState copyWith({
+    String? textInput,
+    bool? isAddingHashTag,
+    List<int>? bookmarkedNotes,
     String? title,
+    DateTime? selectedDate,
     String? selectedPhoto,
     List<Note>? allNotes,
     bool? isEditMode,
@@ -56,14 +68,18 @@ class EventState {
     PageCategoryInfo? pageNote,
   }) {
     return EventState(
-      selectedPhoto: selectedPhoto ?? selectedPhoto,
+      textInput: textInput ?? this.textInput,
+      isAddingHashTag: isAddingHashTag ?? this.isAddingHashTag,
+      bookmarkedNotes: bookmarkedNotes ?? this.bookmarkedNotes,
+      selectedDate: selectedDate ?? this.selectedDate,
+      selectedPhoto: selectedPhoto ?? this.selectedPhoto,
       isPickingPhoto: isPickingPhoto ?? this.isPickingPhoto,
       title: title ?? this.title,
       allNotes: allNotes ?? this.allNotes,
       isChangingCategory: isChangingCategory ?? this.isChangingCategory,
       pageNote: pageNote ?? this.pageNote,
-      pageReplyIndex: pageReplyIndex ?? pageReplyIndex,
-      pageToReply: pageToReply ?? pageToReply,
+      pageReplyIndex: pageReplyIndex ?? this.pageReplyIndex,
+      pageToReply: pageToReply ?? this.pageToReply,
       checked: checked ?? this.checked,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       isTextTyped: isTextTyped ?? this.isTextTyped,
@@ -74,5 +90,4 @@ class EventState {
       activeNotes: activeNotes ?? this.activeNotes,
     );
   }
-
 }

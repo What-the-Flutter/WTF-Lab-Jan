@@ -22,8 +22,8 @@ class DatabaseHelper {
   }
 
   Future _initDatabase() async {
-    var directory = await getDatabasesPath();
-    var path = join(directory, _dbName);
+    final directory = await getDatabasesPath();
+    final path = join(directory, _dbName);
 
     return await openDatabase(path, version: _dbVersion, onCreate: _onCreate);
   }
