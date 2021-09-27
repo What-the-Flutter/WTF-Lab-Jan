@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'pages/add_page/add_page.dart';
+import 'pages/add_page/add_page_cubit.dart';
 import 'pages/entity/category.dart';
 import 'pages/home_page/home_page.dart';
+import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
-import 'util/application_theme.dart';
+import 'util/theme_bloc/theme_cubit.dart';
+import 'util/theme_inherited/application_theme.dart';
 
 List<Category> initialCategories = [
-  Category('Travel', _titleForBlankScreen, Icons.airport_shuttle_sharp, []),
-  Category('Family', _titleForBlankScreen, Icons.family_restroom_sharp, []),
-  Category('Sports', _titleForBlankScreen, Icons.directions_bike, []),
+  Category('Travel', Icons.airport_shuttle_sharp, []),
+  Category('Family', Icons.family_restroom_sharp, []),
+  Category('Sports', Icons.directions_bike, []),
 ];
 
-List<IconData> icons = [
+List<IconData> initialIcons = [
   Icons.theater_comedy,
   Icons.family_restroom,
   Icons.work,
@@ -46,23 +50,31 @@ void main() => runApp(
       ChatJournal(),
     );
 
-final String _titleForBlankScreen = 'No events. Click to create one';
-
 class ChatJournal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ThemeChanger(
-      isLight: true,
-      child: Builder(
-        builder: (context) => MaterialApp(
-          title: 'ChatJournal',
-          theme: ThemeChanger.of(context) ? lightTheme : darkTheme,
-          routes: {
-            '/home_page': (_) => ChatJournalHomePage(initialCategories),
-            '/add_page': (_) => AddPage.add(),
-            '/timeline_page': (_) => TimelinePage(categories: initialCategories),
-          },
-          initialRoute: '/home_page',
+    return BlocProvider(
+      create: (context) => AddPageCubit(),
+      child: BlocProvider(
+        create: (context) => HomePageCubit(initialCategories),
+        child: BlocProvider<ThemeCubit>(
+          create: (context) => ThemeCubit(true),
+          child: BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, state) {
+              return MaterialApp(
+                title: 'Home Page',
+                themeMode: state.isLight ? ThemeMode.light : ThemeMode.dark,
+                theme: lightTheme,
+                darkTheme: darkTheme,
+                routes: {
+                  '/home_page': (_) => ChatJournalHomePage(initialCategories),
+                  '/add_page': (_) => AddPage.add(),
+                  '/timeline_page': (_) => TimelinePage(categories: initialCategories),
+                },
+                initialRoute: '/home_page',
+              );
+            },
+          ),
         ),
       ),
     );

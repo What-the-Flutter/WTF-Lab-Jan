@@ -1,47 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../main.dart';
 import '../entity/category.dart';
+import 'add_page_cubit.dart';
 
 class AddPage extends StatefulWidget {
-  List<Category> categories;
-  final List<IconData> icons;
+  final List<Category> categories;
+  final List<IconData> icons = initialIcons;
+  final int indexOfCategory;
 
-  AddPage({
-    Key? key,
-    required this.categories,
-    required this.icons,
-  }) : super(key: key);
+  AddPage({Key? key, required this.categories, required this.indexOfCategory}) : super(key: key);
 
-  AddPage.add({
-    this.categories = const <Category>[],
-    this.icons = const <IconData>[],
-  });
+  AddPage.add({this.categories = const <Category>[], this.indexOfCategory = 0});
 
   @override
-  State<StatefulWidget> createState() => _AddPage();
+  _AddPageState createState() => _AddPageState();
 }
 
-class _AddPage extends State<AddPage> {
-  late List<Category> categories;
-  final TextEditingController _textEditingController = TextEditingController();
+class _AddPageState extends State<AddPage> {
+  late final TextEditingController _textEditingController;
   final FocusNode _focusNode = FocusNode();
-  int _selectedIndex = 0;
 
   @override
   void initState() {
-    categories = widget.categories;
+    _textEditingController = TextEditingController();
     _focusNode.requestFocus();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueGrey[100],
-      appBar: _appBarFromAddingPage(),
-      body: _bodyFromAddingPage(),
-      floatingActionButton: _floatingActionButtonFromSaving(),
+    return BlocBuilder<AddPageCubit, AddPageState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Colors.blueGrey[100],
+          appBar: _appBarFromAddingPage(),
+          body: _bodyFromAddingPage(state),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _create(state, context),
+            child: const Icon(
+              Icons.done,
+              size: 40,
+            ),
+            foregroundColor: Colors.black,
+            backgroundColor: Colors.yellow,
+          ),
+        );
+      },
     );
   }
 
@@ -51,36 +57,26 @@ class _AddPage extends State<AddPage> {
       title: const Center(
         child: Text(
           'Create a new page',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+          ),
         ),
       ),
     );
   }
 
-  FloatingActionButton _floatingActionButtonFromSaving() {
-    return FloatingActionButton(
-      onPressed: () => _create(context),
-      child: const Icon(
-        Icons.done,
-        size: 40,
+  void _create(AddPageState state, BuildContext context) {
+    Navigator.of(context).pop(
+      Category(
+        _textEditingController.text,
+        widget.icons[state.selectedIconIndex],
+        [],
       ),
-      foregroundColor: Colors.black,
-      backgroundColor: Colors.yellow,
     );
-  }
-
-  void _create(BuildContext context) {
-    final category = Category(
-      _textEditingController.text,
-      '',
-      icons[_selectedIndex],
-      [],
-    );
-    Navigator.pop(context, category);
     _textEditingController.clear();
   }
 
-  Widget _bodyFromAddingPage() {
+  Widget _bodyFromAddingPage(AddPageState state) {
     return Column(
       children: [
         const SizedBox(
@@ -107,25 +103,26 @@ class _AddPage extends State<AddPage> {
         ),
         Expanded(
           child: GridView.builder(
-            itemCount: icons.length,
+            itemCount: widget.icons.length,
             itemBuilder: (
               context,
               index,
             ) {
               return GridTile(
                 child: Padding(
-                  padding: index == _selectedIndex
+                  padding: index == state.selectedIconIndex
                       ? const EdgeInsets.all(10.0)
-                      : const EdgeInsets.all(19.0),
+                      : const EdgeInsets.all(22.0),
                   child: CircleAvatar(
                     foregroundColor: Colors.white,
-                    backgroundColor: index == _selectedIndex ? (Colors.red) : (Colors.black),
+                    backgroundColor:
+                        index == state.selectedIconIndex ? (Colors.red) : (Colors.black),
                     child: IconButton(
-                      onPressed: () => setState(
-                        () => _selectedIndex = index,
-                      ),
+                      onPressed: () {
+                        BlocProvider.of<AddPageCubit>(context).setSelectedIconIndex(index);
+                      },
                       icon: Icon(
-                        icons[index],
+                        widget.icons[index],
                         size: 33,
                       ),
                     ),

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../entity/category.dart';
+import '../../entity/category.dart';
+import 'chose_of_action_cubit.dart';
 
 class ChoseOfAction extends StatefulWidget {
-  List<Category> categories;
+  List<Category> initialCategories;
   final int index;
   final BuildContext dialogContext;
 
   ChoseOfAction(
     this.dialogContext,
-    this.categories,
+    this.initialCategories,
     this.index,
   );
 
@@ -25,39 +27,46 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
 
   @override
   void initState() {
-    _categories = widget.categories;
+    _categories = widget.initialCategories;
     _index = widget.index;
     _dialogContext = widget.dialogContext;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.blueGrey[100],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          20,
-        ),
-      ),
-      elevation: 16,
-      child: Container(
-        height: 320.0,
-        width: 150.0,
-        child: ListView(
-          children: <Widget>[
-            const SizedBox(
-              height: 20,
+    return BlocProvider(
+      create: (context) => ChoseOfActionCubit(widget.initialCategories),
+      child: BlocBuilder<ChoseOfActionCubit, ChoseOfActionState>(
+        builder: (blocContext, state) {
+          return Dialog(
+            backgroundColor: Colors.blueGrey[100],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                20,
+              ),
             ),
-            _text(),
-            const SizedBox(
-              height: 30,
+            elevation: 16,
+            child: Container(
+              height: 320.0,
+              width: 150.0,
+              child: ListView(
+                children: <Widget>[
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  _text(),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  _delete(),
+                  _update(),
+                  _info(),
+                  _pinUnpin(),
+                ],
+              ),
             ),
-            _delete(),
-            _update(),
-            _info(),
-            _pinUnpin(),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -84,6 +93,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
         color: Colors.red,
       ),
       onTap: () {
+        // BlocProvider.of<ChoseOfActionCubit>(context).removeCategory(_index);
         Navigator.pop(_dialogContext);
         _categories.removeAt(
           _index,
@@ -116,6 +126,8 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
         Navigator.pop(
           _dialogContext,
         );
+        // BlocProvider.of<ChoseOfActionCubit>(context)
+        //     .updateCategory(context, _index, _dialogContext);
       },
     );
   }
