@@ -99,7 +99,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     BlocProvider.of<ThemeCubit>(context).init();
-    BlocProvider.of<SettingsCubit>(context).getState();
+    BlocProvider.of<SettingsCubit>(context).init();
+    BlocProvider.of<HomeCubit>(context).init();
 
     super.initState();
   }

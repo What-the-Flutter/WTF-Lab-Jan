@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../cubit/settings/settings_cubit.dart';
 import '../../cubit/settings/settings_state.dart';
-import 'general_settings_page.dart';
+import 'general_settings/general_settings_page.dart';
 
 class SettingsPage extends StatefulWidget {
   @override

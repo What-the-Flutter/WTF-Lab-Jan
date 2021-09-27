@@ -1,7 +1,7 @@
 part of 'home_cubit.dart';
 
 @immutable
-class HomeState extends Equatable {
+class HomeState{
   final List<PageCategoryInfo> pages;
   final int selectedIndex;
 
@@ -20,8 +20,4 @@ class HomeState extends Equatable {
     );
   }
 
-  @override
-  List<Object?> get props {
-    return [pages, selectedIndex];
-  }
 }

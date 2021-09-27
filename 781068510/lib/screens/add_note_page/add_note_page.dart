@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notes/cubit/settings/settings_cubit.dart';
-import 'package:notes/main.dart';
 
 import '../../cubit/create_page/create_page_cubit.dart';
+import '../../cubit/settings/settings_cubit.dart';
+import '../../main.dart';
 import '../../models/note_model.dart';
 
 class AddNote extends StatelessWidget {
   late var textState;
+
   AddNote({Key? key}) : super(key: key);
 
   final TextEditingController _textController = TextEditingController();
@@ -51,13 +52,37 @@ class AddNote extends StatelessWidget {
               autofocus: true,
               keyboardType: TextInputType.text,
               maxLines: 1,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                    width: 0.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                    width: 0.0,
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                    width: 0.0,
+                  ),
+                ),
                 hintText: 'Title of your note',
                 helperText: '*required field, keep it short',
-                helperStyle: TextStyle(color: Colors.blue),
+                helperStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: textState - 3,
+                ),
                 labelText: 'Title',
-                contentPadding: EdgeInsets.all(10),
+                labelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: textState,
+                ),
+                contentPadding: const EdgeInsets.all(10),
               ),
             ),
           ),
@@ -102,7 +127,9 @@ List<Widget> _iconList(BuildContext context) {
     (iconData) {
       return GestureDetector(
         onTap: () {
-          context.read<CreatePageCubit>().selectIcon(pagesIcons.indexOf(iconData));
+          context
+              .read<CreatePageCubit>()
+              .selectIcon(pagesIcons.indexOf(iconData));
         },
         child: _iconListElement(context, iconData),
       );
@@ -122,9 +149,8 @@ Widget _iconListElement(BuildContext context, IconData iconData) {
         radius: 32,
         backgroundColor: Theme.of(context).cardColor,
       ),
-      if (
-      context.read<CreatePageCubit>().state.selectedIcon == context
-          .read<CreatePageCubit>().state.icons.indexOf(iconData))
+      if (context.read<CreatePageCubit>().state.selectedIcon ==
+          context.read<CreatePageCubit>().state.icons.indexOf(iconData))
         const CircleAvatar(
           radius: 11,
           backgroundColor: Colors.white,

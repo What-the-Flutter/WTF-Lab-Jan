@@ -1,11 +1,13 @@
 part of 'event_cubit.dart';
 
 class EventState {
+  final bool isSearchState;
   final bool isEditMode;
   final bool isPickingPhoto;
   final bool isAddingHashTag;
   final String? selectedPhoto;
   final String? textInput;
+  final String? searchInput;
   final DateTime? selectedDate;
   final bool isTextTyped;
   final bool isMultiSelection;
@@ -23,6 +25,8 @@ class EventState {
   final int? pageReplyIndex;
 
   const EventState({
+    this.searchInput = '',
+    this.isSearchState = false,
     this.textInput = '',
     this.isAddingHashTag = false,
     this.bookmarkedNotes = const [],
@@ -46,6 +50,8 @@ class EventState {
   });
 
   EventState copyWith({
+    String? searchInput,
+    bool? isSearchState,
     String? textInput,
     bool? isAddingHashTag,
     List<int>? bookmarkedNotes,
@@ -68,6 +74,8 @@ class EventState {
     PageCategoryInfo? pageNote,
   }) {
     return EventState(
+      searchInput: searchInput ?? this.searchInput,
+      isSearchState: isSearchState ?? this.isSearchState,
       textInput: textInput ?? this.textInput,
       isAddingHashTag: isAddingHashTag ?? this.isAddingHashTag,
       bookmarkedNotes: bookmarkedNotes ?? this.bookmarkedNotes,

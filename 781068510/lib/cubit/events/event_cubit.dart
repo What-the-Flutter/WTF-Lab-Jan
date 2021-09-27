@@ -162,8 +162,16 @@ class EventCubit extends Cubit<EventState> {
     emit(state.copyWith(isBookmarkedNoteMode: !state.isBookmarkedNoteMode));
   }
 
+  void setSearchState() {
+    emit(state.copyWith(isSearchState: !state.isSearchState));
+  }
+
   void setInputText(String text) {
     emit(state.copyWith(textInput: text));
+  }
+
+  void setSearchText(String text) {
+    emit(state.copyWith(searchInput: text));
   }
 
   void setIsAddingHashTag() {
@@ -185,6 +193,18 @@ class EventCubit extends Cubit<EventState> {
     await _database.updateEvent(pageID, updatedNote);
 
     state.allNotes[index].isBookmarked == false ? true : false;
+    setCurrentEventsList(state.allNotes);
+  }
+
+  void addSelectedToBookmarks() async {
+    var selected = state.activeNotes;
+    for (var el in selected) {
+      var updatedNote = state.allNotes[el];
+      updatedNote.isBookmarked = !updatedNote.isBookmarked;
+      await _database.updateEvent(pageID, updatedNote);
+      state.allNotes[el].isBookmarked == false ? true : false;
+    }
+
     setCurrentEventsList(state.allNotes);
   }
 

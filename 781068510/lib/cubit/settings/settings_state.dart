@@ -3,8 +3,10 @@ class GeneralSettingsStates {
   final bool isBubbleAlignment;
   final bool isCenterDateBubble;
   final int textSize;
+  final String? imagePath;
 
   const GeneralSettingsStates({
+    this.imagePath,
     this.textSize = 15,
     this.isDateTimeModification = false,
     this.isBubbleAlignment = false,
@@ -12,12 +14,14 @@ class GeneralSettingsStates {
   });
 
   GeneralSettingsStates copyWith({
+    String? imagePath,
     int? textSize,
     bool? isDateTimeModification,
     bool? isBubbleAlignment,
     bool? isCenterDateBubble,
   }) {
     return GeneralSettingsStates(
+      imagePath: imagePath ?? this.imagePath,
       textSize: textSize ?? this.textSize,
       isDateTimeModification: isDateTimeModification ?? this.isDateTimeModification,
       isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,

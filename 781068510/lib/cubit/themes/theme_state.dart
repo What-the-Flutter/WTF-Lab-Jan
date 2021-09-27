@@ -20,6 +20,16 @@ class ThemeStates {
     return ThemeStates(
       isDarkMode: false,
       themeData: ThemeData(
+        appBarTheme: const AppBarTheme(
+          iconTheme: IconThemeData(
+            color: Colors.black,
+          ),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+          ),
+          color: Colors.white,
+        ),
+        dialogBackgroundColor: Colors.white,
         backgroundColor: const Color(0xffFFC107),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           selectedItemColor: Color(0xff512DA8),
@@ -27,8 +37,10 @@ class ThemeStates {
         ),
         scaffoldBackgroundColor: const Color(0xffFFFFFF),
         primaryColor: const Color(0xffFFFFFF),
-        accentColor: const Color(0xff512DA8),
         primaryColorLight: const Color(0xff512DA8).withAlpha(50),
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: const Color(0xff512DA8),
+        ),
       ),
     );
   }
@@ -36,8 +48,24 @@ class ThemeStates {
   ThemeStates get darkTheme {
     return ThemeStates(
       isDarkMode: true,
-      themeData: ThemeData.dark(),
+      themeData: ThemeData.dark().copyWith(
+        canvasColor: Colors.black,
+        dialogBackgroundColor: Colors.black,
+        appBarTheme: const AppBarTheme(
+          iconTheme: IconThemeData(
+            color: Colors.white,
+          ),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+          ),
+          color: Colors.black,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.black,
+        ),
+        primaryColor: Colors.black,
+        scaffoldBackgroundColor: Colors.black,
+      ),
     );
   }
-
 }

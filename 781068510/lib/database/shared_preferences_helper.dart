@@ -11,6 +11,7 @@ class SharedPreferencesProvider {
   static const _keyBubbleAlignment = 'isBubbleAlignment';
   static const _keyCenterDateBubble = 'isCenterDateBubble';
   static const _keyTextSize = 'textSize';
+  static const _keyImagePath = 'imagePath';
 
   factory SharedPreferencesProvider() => _sharedPreferencesProvider ??=
       SharedPreferencesProvider._createInstance();
@@ -21,6 +22,10 @@ class SharedPreferencesProvider {
   void changeTheme(bool value) => _preferences!.setBool(_keyTheme, value);
 
   bool getTheme() => _preferences!.getBool(_keyTheme) ?? true;
+
+  void changeImage(String value) => _preferences!.setString(_keyImagePath, value);
+
+  String? getImage() => _preferences!.getString(_keyImagePath);
 
   void changeTextSize(int size) =>
       _preferences!.setInt(_keyTextSize, size);

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/cubit/settings/settings_cubit.dart';
@@ -14,7 +16,7 @@ class GeneralSettings extends StatefulWidget {
 class _GeneralSettingsState extends State<GeneralSettings> {
   @override
   void initState() {
-    BlocProvider.of<SettingsCubit>(context).getState();
+    BlocProvider.of<SettingsCubit>(context).init();
     super.initState();
   }
 
@@ -142,6 +144,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                         'Ok',
                         style: TextStyle(
                           fontSize: state.textSize.toDouble() + 3,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),
@@ -305,6 +308,99 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           ),
           onTap: () =>
               BlocProvider.of<SettingsCubit>(context).changeCenterDateBubble(),
+        ),
+        GestureDetector(
+          child: ListTile(
+            leading: const Icon(
+              Icons.image,
+              size: iconSize,
+            ),
+            title: Text(
+              'Change background message',
+              style: TextStyle(
+                fontSize: state.textSize.toDouble(),
+              ),
+            ),
+            subtitle: Text(
+              'Chat background image',
+              style: TextStyle(
+                fontSize: state.textSize.toDouble() - 3,
+              ),
+            ),
+          ),
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        state.imagePath != null && state.imagePath != ''
+                            ? Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width / 1.5,
+                                  height:
+                                      MediaQuery.of(context).size.height / 3,
+                                  child: Image.file(
+                                    File(
+                                      state.imagePath!,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const Align(
+                                alignment: Alignment.center,
+                                child: Text('No uploaded image'),
+                              ),
+                        ListTile(
+                          title: Text(
+                            'Upload image',
+                            style: TextStyle(
+                              fontSize: state.textSize.toDouble(),
+                            ),
+                          ),
+                          leading: const Icon(Icons.add_box_rounded),
+                          onTap: () async {
+                            BlocProvider.of<SettingsCubit>(context)
+                                .addImageFromGallery();
+                            Navigator.pop(context, 'Ok');
+                          },
+                        ),
+                        ListTile(
+                          title: Text(
+                            'Delete image',
+                            style: TextStyle(
+                              fontSize: state.textSize.toDouble(),
+                            ),
+                          ),
+                          leading: const Icon(Icons.delete),
+                          onTap: () {
+                            BlocProvider.of<SettingsCubit>(context)
+                                .changeImagePath('');
+                            Navigator.pop(context, 'Ok');
+                          },
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context, 'Ok');
+                        },
+                        child: Text(
+                          'Ok',
+                          style: TextStyle(
+                            fontSize: state.textSize.toDouble() + 3,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                });
+          },
         ),
       ],
     );
