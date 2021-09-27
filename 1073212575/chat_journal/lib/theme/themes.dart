@@ -4,7 +4,7 @@ const double radiusValue = 10;
 
 final ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme(
-    primary: Color(0xFF173E47), //appbar
+    primary:  Color(0xFF173E47), //appbar
     onPrimary: Color(0xFFFFFFFF), //bottomAppBar, pages, messages
     primaryVariant: Color(0xFFF0F4FA), //page icons
 
@@ -21,7 +21,7 @@ final ThemeData lightTheme = ThemeData(
     onError: Color(0xFF108098),
 
     surface: Color(0xFFD0E1E8), //selected items
-    onSurface: Color(0xFFF7FAFE),
+    onSurface: Color(0xFF87B0BA),
 
     brightness: Brightness.light,
   ),

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'add_page.dart';
-import 'custom_theme.dart';
-import 'event_classes.dart';
-import 'event_page.dart';
-import 'themes.dart';
+import '../../models/events.dart';
+import '../../theme/custom_theme.dart';
+import '../../theme/themes.dart';
+import '../add_page/add_page_screen.dart';
+import '../event_page/event_page_screen.dart';
+import 'home_page_cubit.dart';
+import 'home_page_state.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -23,43 +26,53 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var _isSelected = false;
-  var _selectedPageIndex;
+  // var _isSelected = false;
+  // var _selectedPageIndex;
+
   //List _unsortedPages = eventPages;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Theme.of(context).colorScheme.secondary,
-            Theme.of(context).colorScheme.onSecondary,
-            Theme.of(context).colorScheme.secondaryVariant,
-          ],
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: _isSelected ? _editingAppBar() : _defaultAppBar(),
-        floatingActionButton: floatingActionButton(),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              SizedBox(
-                width: double.infinity,
-                child: elevatedButton(),
-              ),
-              Expanded(child: _eventsList()),
-            ],
+    return BlocBuilder<HomePageCubit, HomePageState>(
+      builder: (context, state) {
+        final _homePageCubit = BlocProvider.of<HomePageCubit>(context);
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Theme.of(context).colorScheme.secondary,
+                Theme.of(context).colorScheme.onSecondary,
+                Theme.of(context).colorScheme.secondaryVariant,
+              ],
+            ),
           ),
-        ),
-        bottomNavigationBar: _bottomNavigationBar(),
-      ),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: state.isSelected
+                ? _editingAppBar(state, _homePageCubit)
+                : _defaultAppBar(),
+            floatingActionButton: floatingActionButton(),
+            body: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  SizedBox(
+                    width: double.infinity,
+                    child: _elevatedButton(),
+                  ),
+                  Expanded(
+                    child: _eventsList(state, _homePageCubit),
+                  ),
+                ],
+              ),
+            ),
+            bottomNavigationBar: _bottomNavigationBar(),
+          ),
+        );
+      },
     );
   }
 
@@ -69,7 +82,10 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const AddPage(needsEditing: false),
+            builder: (context) => const AddPage(
+              needsEditing: false,
+              selectedPageIndex: -1,
+            ),
           ),
         );
       },
@@ -81,7 +97,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget elevatedButton() {
+  Widget _elevatedButton() {
     return ElevatedButton(
       onPressed: () {},
       child: Text(
@@ -106,8 +122,9 @@ class _HomePageState extends State<HomePage> {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(bottom: Radius.circular(radiusValue)),
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(radiusValue),
+        ),
       ),
       leading: const Icon(Icons.menu_rounded),
       title: const Text('Home'),
@@ -120,7 +137,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  PreferredSizeWidget _editingAppBar() {
+  PreferredSizeWidget _editingAppBar(state, _homePageCubit) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       shape: const RoundedRectangleBorder(
@@ -129,25 +146,25 @@ class _HomePageState extends State<HomePage> {
       ),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_rounded),
-        onPressed: () => setState(() => _isSelected = false),
+        onPressed: _homePageCubit.unselect,
       ),
       title: const Text(''),
       actions: [
         IconButton(
           icon: const Icon(Icons.delete_rounded),
-          onPressed: _delete,
+          onPressed: _homePageCubit.delete,
         ),
         IconButton(
           icon: const Icon(Icons.book_rounded),
-          onPressed: _fix,
+          onPressed: _homePageCubit.fix,
         ),
         IconButton(
           icon: const Icon(Icons.edit_rounded),
-          onPressed: _edit,
+          onPressed: _homePageCubit.edit,
         ),
         IconButton(
           icon: const Icon(Icons.info_rounded),
-          onPressed: () => simpleDialog(context),
+          onPressed: () => simpleDialog(context, state, _homePageCubit),
         ),
       ],
     );
@@ -185,16 +202,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _eventsList() {
+  Widget _eventsList(state, _homePageCubit) {
     return ListView.builder(
       itemCount: eventPages.length,
-      itemBuilder: (context, i) => _event(i),
+      itemBuilder: (context, i) => _event(i, state, _homePageCubit),
     );
   }
 
-  Widget _event(int i) {
+  Widget _event(int i, state, _homePageCubit) {
     return GestureDetector(
-      onLongPress: () => _select(i),
+      onLongPress: () => _homePageCubit.select(i),
       child: Container(
         margin: const EdgeInsets.only(top: 5),
         height: 70,
@@ -202,12 +219,14 @@ class _HomePageState extends State<HomePage> {
           style: ButtonStyle(
             shadowColor: MaterialStateProperty.all<Color>(Colors.transparent),
             backgroundColor: MaterialStateProperty.all<Color>(
-                i == _selectedPageIndex && _isSelected
+                i == state.selectedPageIndex && state.isSelected
                     ? Theme.of(context).colorScheme.surface
                     : Theme.of(context).colorScheme.onPrimary),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(radiusValue)),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(radiusValue),
+                ),
               ),
             ),
           ),
@@ -219,45 +238,50 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           },
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                child: Icon(
-                  eventPages[i].icon,
-                  color: Theme.of(context).colorScheme.primaryVariant,
-                  size: 40,
-                ),
-              ),
-              Text(
-                eventPages[i].name,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.background,
-                  fontSize: 15,
-                ),
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Icon(
-                    Icons.book_rounded,
-                    // color: Theme.of(context).buttonColor,
-                    color: eventPages[i].isFixed
-                        ? Theme.of(context).colorScheme.primaryVariant
-                        : Colors.transparent,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: _eventContent(i),
         ),
       ),
     );
   }
 
-  Future simpleDialog(BuildContext context) {
+  Widget _eventContent(int i) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20),
+          child: Icon(
+            eventPages[i].icon,
+            color: Theme.of(context).colorScheme.primaryVariant,
+            size: 40,
+          ),
+        ),
+        Text(
+          eventPages[i].name,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.background,
+            fontSize: 15,
+          ),
+        ),
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Icon(
+              Icons.book_rounded,
+              // color: Theme.of(context).buttonColor,
+              color: eventPages[i].isFixed
+                  ? Theme.of(context).colorScheme.primaryVariant
+                  : Colors.transparent,
+              size: 20,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future simpleDialog(
+      BuildContext context, dynamic state, dynamic _homePageCubit) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -267,25 +291,30 @@ class _HomePageState extends State<HomePage> {
             child: AlertDialog(
               title: Row(
                 children: [
-                  Icon(eventPages[_selectedPageIndex].icon),
-                  Text(eventPages[_selectedPageIndex].name),
+                  Icon(eventPages[state.selectedPageIndex].icon),
+                  Text(eventPages[state.selectedPageIndex].name),
                 ],
               ),
               content: Column(
                 children: [
                   const Text('Created'),
-                  Text(eventPages[_selectedPageIndex].date),
+                  Text(eventPages[state.selectedPageIndex].date),
                   const Text('Latest Event'),
-                  Text(eventPages[_selectedPageIndex].eventMessages.last.date),
+                  Text(
+                    eventPages[state.selectedPageIndex].eventMessages.isEmpty
+                        ? 'no messages'
+                        : eventPages[state.selectedPageIndex]
+                            .eventMessages
+                            .last
+                            .date,
+                  ),
                 ],
               ),
               actions: <Widget>[
-                FlatButton(
+                TextButton(
                   child: const Text('Ok'),
                   onPressed: () {
-                    setState(() {
-                      _isSelected = !_isSelected;
-                    });
+                    _homePageCubit.unselect();
                     Navigator.of(context).pop();
                   },
                 ),
@@ -295,43 +324,5 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-  }
-
-  void _select(int i) {
-    setState(() {
-      _selectedPageIndex = i;
-      _isSelected = true;
-    });
-  }
-
-  void _delete() {
-    setState(() {
-      eventPages.removeAt(_selectedPageIndex);
-      _isSelected = false;
-    });
-  }
-
-  void _edit() {
-    _isSelected = false;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            AddPage(needsEditing: true, selectedPageIndex: _selectedPageIndex),
-      ),
-    );
-  }
-
-  void _fix() {
-    setState(() {
-      eventPages[_selectedPageIndex].isFixed =
-          !eventPages[_selectedPageIndex].isFixed;
-      _isSelected = false;
-      _sortPages();
-    });
-  }
-
-  void _sortPages() {
-    eventPages.sort((a, b) => b.isFixed ? 1 : -1);
   }
 }
