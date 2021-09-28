@@ -10,10 +10,11 @@ import 'chat_page_state.dart';
 
 class ChatPage extends StatefulWidget {
   final Category category;
-
+  final List<Category> categories;
   const ChatPage({
     Key? key,
     required this.category,
+    required this.categories,
   }) : super(key: key);
 
   @override
@@ -30,7 +31,7 @@ class _ChatPage extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ChatPageCubit(widget.category),
+      create: (context) => ChatPageCubit(widget.category, widget.categories),
       child: BlocBuilder<ChatPageCubit, ChatPageState>(
         builder: (blocContext, state) {
           return Scaffold(
@@ -65,10 +66,15 @@ class _ChatPage extends State<ChatPage> {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
-          icon: const Icon(
-            Icons.search,
-          ),
+          icon: const Icon(Icons.search),
+          onPressed: () {
+            showSearch(
+              context: context,
+              delegate: SearchEventDelegate(
+                category: widget.category,
+              ),
+            );
+          },
         ),
         IconButton(
           onPressed: () {},
@@ -120,7 +126,22 @@ class _ChatPage extends State<ChatPage> {
           ),
           onPressed: () => showDialog(
             context: context,
-            builder: (context) => _deleteAlertDialog(index, blocContext),
+            builder: (context) => _deleteAlertDialog(
+              index,
+              blocContext,
+            ),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.arrow_forward),
+          onPressed: () => showDialog(
+            context: context,
+            builder: (dialogContext) => _migrateEventDialog(
+              index,
+              blocContext,
+              dialogContext,
+              state,
+            ),
           ),
         ),
       ],
@@ -300,6 +321,38 @@ class _ChatPage extends State<ChatPage> {
     _textEditingController.clear();
   }
 
+  Dialog _migrateEventDialog(
+      int eventIndex, BuildContext blocContext, BuildContext dialogContext, ChatPageState state) {
+    return Dialog(
+      elevation: 16,
+      child: Container(
+        height: 300,
+        width: 220,
+        child: ListView.separated(
+          itemCount: state.categories.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return const Center(
+                child: Text('select the page you want to forward the message to!'),
+              );
+            }
+            return ListTile(
+              title: Text(state.categories[index - 1].title),
+              leading: Icon(state.categories[index - 1].iconData),
+              onTap: () {
+                BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
+                Navigator.pop(dialogContext);
+                BlocProvider.of<ChatPageCubit>(blocContext)
+                    .changeMessageCategory(eventIndex, index - 1);
+              },
+            );
+          },
+          separatorBuilder: (context, index) => const Divider(),
+        ),
+      ),
+    );
+  }
+
   void _editText(int index, BuildContext blocContext) {
     BlocProvider.of<ChatPageCubit>(blocContext).setMessageText(index, _textEditingController.text);
 
@@ -347,5 +400,105 @@ class _ChatPage extends State<ChatPage> {
         ),
       ],
     );
+  }
+}
+
+class SearchEventDelegate extends SearchDelegate {
+  final Category category;
+
+  SearchEventDelegate({required this.category});
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return Theme.of(context);
+  }
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.cleaning_services_rounded),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        query = '';
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return Container();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return category.listMessages
+            .where(
+              (element) => element.text.contains(
+                query,
+              ),
+            )
+            .isEmpty
+        ? const Center(
+            child: Text(
+              'No matches!',
+            ),
+          )
+        : ListView.builder(
+            scrollDirection: Axis.vertical,
+            reverse: true,
+            itemCount: category.listMessages
+                .where(
+                  (element) => element.text.contains(
+                    query,
+                  ),
+                )
+                .length,
+            itemBuilder: (context, index) {
+              final message = category.listMessages
+                  .where(
+                    (element) => element.text.contains(
+                      query,
+                    ),
+                  )
+                  .toList()[index];
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 5.0,
+                  horizontal: 20.0,
+                ),
+                width: 200,
+                constraints: const BoxConstraints(),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    50,
+                  ),
+                  child: Card(
+                    elevation: 3,
+                    child: ListTile(
+                      title: Text(
+                        message.text,
+                      ),
+                      subtitle: Text(
+                        '${DateFormat('yyyy-MM-dd kk:mm').format(message.time)}\n${category.title}',
+                      ),
+                      isThreeLine: true,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
   }
 }

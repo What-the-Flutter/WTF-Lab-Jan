@@ -8,10 +8,8 @@ import 'chose_of_action_cubit.dart';
 class ChoseOfAction extends StatefulWidget {
   List<Category> initialCategories;
   final int index;
-  final BuildContext dialogContext;
 
   ChoseOfAction(
-    this.dialogContext,
     this.initialCategories,
     this.index,
   );
@@ -22,20 +20,16 @@ class ChoseOfAction extends StatefulWidget {
 
 class _ChoseOfActionState extends State<ChoseOfAction> {
   late List<Category> _categories;
-  late final int _index;
-  late final BuildContext _dialogContext;
 
   @override
   void initState() {
     _categories = widget.initialCategories;
-    _index = widget.index;
-    _dialogContext = widget.dialogContext;
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ChoseOfActionCubit(widget.initialCategories),
+      create: (context) => ChoseOfActionCubit(widget.initialCategories, widget.index),
       child: BlocBuilder<ChoseOfActionCubit, ChoseOfActionState>(
         builder: (blocContext, state) {
           return Dialog(
@@ -93,11 +87,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
         color: Colors.red,
       ),
       onTap: () {
-        // BlocProvider.of<ChoseOfActionCubit>(context).removeCategory(_index);
-        Navigator.pop(_dialogContext);
-        _categories.removeAt(
-          _index,
-        );
+        BlocProvider.of<ChoseOfActionCubit>(context).removeCategory(context, widget.index);
       },
     );
   }
@@ -111,24 +101,8 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
         Icons.edit,
         color: Colors.blue,
       ),
-      onTap: () async {
-        final newCategory = await Navigator.of(context).pushNamed('/add_page') as Category;
-        newCategory.listMessages = _categories[_index].listMessages;
-        setState(() {
-          _categories.removeAt(
-            _index,
-          );
-          _categories.insert(
-            _index,
-            newCategory,
-          );
-        });
-        Navigator.pop(
-          _dialogContext,
-        );
-        // BlocProvider.of<ChoseOfActionCubit>(context)
-        //     .updateCategory(context, _index, _dialogContext);
-      },
+      onTap: () =>
+          BlocProvider.of<ChoseOfActionCubit>(context).update(context, _categories, widget.index),
     );
   }
 
@@ -143,7 +117,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
       ),
       onTap: () {
         Navigator.pop(
-          _dialogContext,
+          context,
         );
         _showInfoDialog(
           context,
@@ -162,7 +136,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
         color: Colors.green,
       ),
       onTap: () => Navigator.pop(
-        _dialogContext,
+        context,
       ),
     );
   }
@@ -190,11 +164,11 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                   leading: CircleAvatar(
                     foregroundColor: Colors.black54,
                     child: Icon(
-                      _categories[_index].iconData,
+                      _categories[widget.index].iconData,
                     ),
                   ),
                   title: Text(
-                    _categories[_index].title,
+                    _categories[widget.index].title,
                   ),
                 ),
                 const SizedBox(
@@ -204,7 +178,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                   title: const Text(
                     'Last message',
                   ),
-                  subtitle: _categories[_index].listMessages.isEmpty
+                  subtitle: _categories[widget.index].listMessages.isEmpty
                       ? const Text(
                           'No messages',
                         )
@@ -212,7 +186,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                           DateFormat(
                             'yyyy-MM-dd KK:mm:ss',
                           ).format(
-                            _categories[_index].listMessages.first.time,
+                            _categories[widget.index].listMessages.first.time,
                           ),
                         ),
                 ),

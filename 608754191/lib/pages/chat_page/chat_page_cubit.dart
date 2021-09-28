@@ -6,15 +6,15 @@ import '../entity/category.dart';
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
-  ChatPageCubit(
-    Category category,
-  ) : super(
+  ChatPageCubit(Category category, List<Category> categories)
+      : super(
           ChatPageState(
             eventSelected: true,
             indexOfSelectedElement: 0,
             isEditing: false,
             category: category,
             isSending: false,
+            categories: categories,
           ),
         );
 
@@ -76,6 +76,21 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   void setSending(bool isSending) {
     emit(
       state.copyWith(isSending: isSending),
+    );
+  }
+
+  void changeMessageCategory(int index, int categoryIndex) {
+    state.categories[categoryIndex].listMessages.insert(
+      0,
+      Message(
+        1,
+        DateTime.now(),
+        state.category.listMessages[index].text,
+      ),
+    );
+    state.category.listMessages.removeAt(index);
+    emit(
+      state.copyWith(category: state.category, categories: state.categories),
     );
   }
 }

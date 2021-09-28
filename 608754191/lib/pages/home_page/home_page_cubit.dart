@@ -38,7 +38,6 @@ class HomePageCubit extends Cubit<HomePageState> {
     await showDialog(
       context: context,
       builder: (context) => ChoseOfAction(
-        context,
         state.categories,
         index - 1,
       ),
@@ -50,6 +49,7 @@ class HomePageCubit extends Cubit<HomePageState> {
       MaterialPageRoute(
         builder: (context) => ChatPage(
           category: state.categories[index],
+          categories: state.categories,
         ),
       ),
     );

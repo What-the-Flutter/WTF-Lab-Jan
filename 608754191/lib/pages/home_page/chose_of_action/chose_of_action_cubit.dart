@@ -5,27 +5,29 @@ import '../../entity/category.dart';
 part 'chose_of_action_state.dart';
 
 class ChoseOfActionCubit extends Cubit<ChoseOfActionState> {
-  ChoseOfActionCubit(List<Category> categories) : super(ChoseOfActionState(categories: categories));
+  ChoseOfActionCubit(List<Category> categories, int index)
+      : super(ChoseOfActionState(categories: categories, index: index));
 
-  void updateCategory(BuildContext context, int index, BuildContext dialogContext) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => AddPage(
-          indexOfCategory: index,
-          categories: state.categories,
-        ),
-      ),
-    );
-    Navigator.pop(dialogContext);
-    categoryListRedrawing();
-  }
-
-  void removeCategory(int index) {
+  void removeCategory(BuildContext context, int index) {
     state.categories.removeAt(index);
+    Navigator.pop(context);
     categoryListRedrawing();
   }
 
   void categoryListRedrawing() => emit(
         state.copyWith(categories: state.categories),
       );
+
+  void update(BuildContext context, List<Category> categories, int index) async {
+    final newCategory = await Navigator.of(context).pushNamed('/add_page') as Category;
+    newCategory.listMessages = categories[index].listMessages;
+
+    state.categories.removeAt(index);
+    state.categories.insert(
+      index,
+      newCategory,
+    );
+    categoryListRedrawing();
+    Navigator.pop(context);
+  }
 }
