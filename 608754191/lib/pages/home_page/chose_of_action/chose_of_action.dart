@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../entity/category.dart';
+import '../../entity/category.dart';
+import 'chose_of_action_cubit.dart';
 
 class ChoseOfAction extends StatefulWidget {
-  List<Category> categories;
+  List<Category> initialCategories;
   final int index;
-  final BuildContext dialogContext;
 
   ChoseOfAction(
-    this.dialogContext,
-    this.categories,
+    this.initialCategories,
     this.index,
   );
 
@@ -20,44 +20,47 @@ class ChoseOfAction extends StatefulWidget {
 
 class _ChoseOfActionState extends State<ChoseOfAction> {
   late List<Category> _categories;
-  late final int _index;
-  late final BuildContext _dialogContext;
 
   @override
   void initState() {
-    _categories = widget.categories;
-    _index = widget.index;
-    _dialogContext = widget.dialogContext;
+    _categories = widget.initialCategories;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.blueGrey[100],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          20,
-        ),
-      ),
-      elevation: 16,
-      child: Container(
-        height: 320.0,
-        width: 150.0,
-        child: ListView(
-          children: <Widget>[
-            const SizedBox(
-              height: 20,
+    return BlocProvider(
+      create: (context) => ChoseOfActionCubit(widget.initialCategories, widget.index),
+      child: BlocBuilder<ChoseOfActionCubit, ChoseOfActionState>(
+        builder: (blocContext, state) {
+          return Dialog(
+            backgroundColor: Colors.blueGrey[100],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                20,
+              ),
             ),
-            _text(),
-            const SizedBox(
-              height: 30,
+            elevation: 16,
+            child: Container(
+              height: 320.0,
+              width: 150.0,
+              child: ListView(
+                children: <Widget>[
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  _text(),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  _delete(),
+                  _update(),
+                  _info(),
+                  _pinUnpin(),
+                ],
+              ),
             ),
-            _delete(),
-            _update(),
-            _info(),
-            _pinUnpin(),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -84,10 +87,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
         color: Colors.red,
       ),
       onTap: () {
-        Navigator.pop(_dialogContext);
-        _categories.removeAt(
-          _index,
-        );
+        BlocProvider.of<ChoseOfActionCubit>(context).removeCategory(context, widget.index);
       },
     );
   }
@@ -101,22 +101,8 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
         Icons.edit,
         color: Colors.blue,
       ),
-      onTap: () async {
-        final newCategory = await Navigator.of(context).pushNamed('/add_page') as Category;
-        newCategory.listMessages = _categories[_index].listMessages;
-        setState(() {
-          _categories.removeAt(
-            _index,
-          );
-          _categories.insert(
-            _index,
-            newCategory,
-          );
-        });
-        Navigator.pop(
-          _dialogContext,
-        );
-      },
+      onTap: () =>
+          BlocProvider.of<ChoseOfActionCubit>(context).update(context, _categories, widget.index),
     );
   }
 
@@ -131,7 +117,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
       ),
       onTap: () {
         Navigator.pop(
-          _dialogContext,
+          context,
         );
         _showInfoDialog(
           context,
@@ -150,7 +136,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
         color: Colors.green,
       ),
       onTap: () => Navigator.pop(
-        _dialogContext,
+        context,
       ),
     );
   }
@@ -178,11 +164,11 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                   leading: CircleAvatar(
                     foregroundColor: Colors.black54,
                     child: Icon(
-                      _categories[_index].iconData,
+                      _categories[widget.index].iconData,
                     ),
                   ),
                   title: Text(
-                    _categories[_index].title,
+                    _categories[widget.index].title,
                   ),
                 ),
                 const SizedBox(
@@ -192,7 +178,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                   title: const Text(
                     'Last message',
                   ),
-                  subtitle: _categories[_index].listMessages.isEmpty
+                  subtitle: _categories[widget.index].listMessages.isEmpty
                       ? const Text(
                           'No messages',
                         )
@@ -200,7 +186,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                           DateFormat(
                             'yyyy-MM-dd KK:mm:ss',
                           ).format(
-                            _categories[_index].listMessages.first.time,
+                            _categories[widget.index].listMessages.first.time,
                           ),
                         ),
                 ),

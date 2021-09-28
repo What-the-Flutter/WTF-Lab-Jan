@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../util/application_theme.dart';
-import '../chat_page/chat_page.dart';
+import '../../main.dart';
+import '../../util/theme_bloc/theme_cubit.dart';
 import '../entity/category.dart';
-import '../navbar_pages/daily_page/daily_page.dart';
-import '../navbar_pages/explore_page/explore_page.dart';
-import '../navbar_pages/timeline_page/timeline_page.dart';
-import 'chose_of_action.dart';
+import 'home_page_cubit.dart';
 
 class ChatJournalHomePage extends StatefulWidget {
   List<Category> categories;
@@ -18,20 +16,12 @@ class ChatJournalHomePage extends StatefulWidget {
 }
 
 class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
-  late List<Category> _categories;
-  late final _screens;
   late final _appBars;
   int _selectedIndex = 0;
 
   @override
   void initState() {
-    _categories = widget.categories;
-    _screens = [
-      _bodyOfHomePageChat(),
-      DailyPage(categories: _categories),
-      TimelinePage(categories: _categories),
-      ExplorePage(categories: _categories)
-    ];
+    BlocProvider.of<HomePageCubit>(context).init(initialCategories);
     _appBars = [
       _appBarFromHomePage(),
       _appBarFromDailyPage(),
@@ -43,22 +33,26 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueGrey[100],
-      appBar: _appBars[_selectedIndex],
-      body: _screens[_selectedIndex],
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-        onPressed: () async {
-          final category = await Navigator.of(context).pushNamed('/add_page') as Category;
-          setState(() => _categories.add(category));
+    return BlocProvider(
+      create: (context) => HomePageCubit(widget.categories),
+      child: BlocBuilder<HomePageCubit, HomePageState>(
+        builder: (blocContext, state) {
+          return Scaffold(
+            backgroundColor: Colors.blueGrey[100],
+            appBar: _appBars[_selectedIndex],
+            body: _bodyOfHomePageChat(state),
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: Colors.black,
+              onPressed: () => BlocProvider.of<HomePageCubit>(context).addCategory(context),
+              child: const Icon(
+                Icons.add_sharp,
+                color: Colors.yellow,
+              ),
+            ),
+            bottomNavigationBar: _chatBottomNavigationBar(),
+          );
         },
-        child: const Icon(
-          Icons.add_sharp,
-          color: Colors.yellow,
-        ),
       ),
-      bottomNavigationBar: _chatBottomNavigationBar(),
     );
   }
 
@@ -75,7 +69,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       ),
       actions: [
         IconButton(
-          onPressed: () => ThemeChanger.instanceOf(context).changeTheme(),
+          onPressed: () => BlocProvider.of<ThemeCubit>(context).changeTheme(),
           icon: const Icon(
             Icons.invert_colors,
           ),
@@ -173,14 +167,14 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  Widget _bodyOfHomePageChat() {
+  Widget _bodyOfHomePageChat(HomePageState state) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: _categories.length + 1,
+            itemCount: state.categories.length + 1,
             itemBuilder: (
               context,
               index,
@@ -193,37 +187,26 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                 child: Card(
                   child: ListTile(
                     title: Text(
-                      _categories[index - 1].title,
+                      state.categories[index - 1].title,
                     ),
                     subtitle: Text(
-                      _categories[index - 1].subtitle,
-                      style: TextStyle(
-                        color: Colors.blueGrey[300],
-                      ),
+                      state.categories[index - 1].listMessages.isEmpty
+                          ? 'No events. Click to create one.'
+                          : state.categories[index - 1].listMessages.first.text,
                     ),
                     leading: CircleAvatar(
                       child: Icon(
-                        _categories[index - 1].iconData,
+                        state.categories[index - 1].iconData,
                       ),
                       backgroundColor: Colors.black,
                     ),
-                    onLongPress: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => ChoseOfAction(
-                          context,
-                          _categories,
-                          index - 1,
-                        ),
-                      );
-                      setState(() => _categories = _categories);
-                    },
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ChatPage(
-                          category: _categories[index - 1],
-                        ),
-                      ),
+                    onLongPress: () => BlocProvider.of<HomePageCubit>(context).choseOfAction(
+                      index,
+                      context,
+                    ),
+                    onTap: () => BlocProvider.of<HomePageCubit>(context).openChat(
+                      index - 1,
+                      context,
                     ),
                   ),
                 ),
