@@ -3,65 +3,96 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../entity/category.dart';
-import 'chose_of_action_cubit.dart';
+import '../home_page_cubit.dart';
 
-class ChoseOfAction extends StatefulWidget {
-  List<Category> initialCategories;
+class ChoseOfAction extends StatelessWidget {
+  List<Category> categories;
   final int index;
 
   ChoseOfAction(
-    this.initialCategories,
+    this.categories,
     this.index,
   );
 
   @override
-  _ChoseOfActionState createState() => _ChoseOfActionState();
-}
-
-class _ChoseOfActionState extends State<ChoseOfAction> {
-  late List<Category> _categories;
-
-  @override
-  void initState() {
-    _categories = widget.initialCategories;
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.blueGrey[100],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          20,
+        ),
+      ),
+      elevation: 16,
+      child: Container(
+        height: 320.0,
+        width: 150.0,
+        child: _bodyFromDialog(context),
+      ),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ChoseOfActionCubit(widget.initialCategories, widget.index),
-      child: BlocBuilder<ChoseOfActionCubit, ChoseOfActionState>(
-        builder: (blocContext, state) {
-          return Dialog(
-            backgroundColor: Colors.blueGrey[100],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                20,
-              ),
-            ),
-            elevation: 16,
-            child: Container(
-              height: 320.0,
-              width: 150.0,
-              child: ListView(
-                children: <Widget>[
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  _text(),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  _delete(),
-                  _update(),
-                  _info(),
-                  _pinUnpin(),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+  Widget _bodyFromDialog(BuildContext context) {
+    return ListView(
+      children: <Widget>[
+        const SizedBox(
+          height: 20,
+        ),
+        _text(),
+        const SizedBox(
+          height: 30,
+        ),
+        _buildAction(
+          text: 'delete',
+          icon: const Icon(
+            Icons.clear,
+            color: Colors.red,
+          ),
+          onTap: () {
+            BlocProvider.of<HomePageCubit>(context).removeCategory(index);
+            Navigator.pop(
+              context,
+            );
+          },
+        ),
+        // _delete(),
+        _buildAction(
+          text: 'update',
+          icon: const Icon(
+            Icons.edit,
+            color: Colors.blue,
+          ),
+          onTap: () {
+            BlocProvider.of<HomePageCubit>(context).update(context, categories, index);
+            Navigator.pop(
+              context,
+            );
+          },
+        ),
+        _buildAction(
+          text: 'info',
+          icon: const Icon(
+            Icons.info,
+            color: Colors.yellow,
+          ),
+          onTap: () {
+            _showInfoDialog(
+              context,
+            );
+            Navigator.pop(
+              context,
+            );
+          },
+        ),
+
+        _buildAction(
+          text: 'pin/unpin',
+          icon: const Icon(Icons.attach_file, color: Colors.green),
+          onTap: () => Navigator.pop(
+            context,
+          ),
+        ),
+      ],
     );
   }
 
@@ -77,68 +108,12 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
     );
   }
 
-  ListTile _delete() {
-    return ListTile(
-      title: const Text(
-        'Delete',
-      ),
-      leading: const Icon(
-        Icons.clear,
-        color: Colors.red,
-      ),
-      onTap: () {
-        BlocProvider.of<ChoseOfActionCubit>(context).removeCategory(context, widget.index);
-      },
-    );
-  }
-
-  ListTile _update() {
-    return ListTile(
-      title: const Text(
-        'Update',
-      ),
-      leading: const Icon(
-        Icons.edit,
-        color: Colors.blue,
-      ),
-      onTap: () =>
-          BlocProvider.of<ChoseOfActionCubit>(context).update(context, _categories, widget.index),
-    );
-  }
-
-  ListTile _info() {
-    return ListTile(
-      title: const Text(
-        'Info',
-      ),
-      leading: const Icon(
-        Icons.info,
-        color: Colors.yellow,
-      ),
-      onTap: () {
-        Navigator.pop(
-          context,
-        );
-        _showInfoDialog(
-          context,
-        );
-      },
-    );
-  }
-
-  ListTile _pinUnpin() {
-    return ListTile(
-      title: const Text(
-        'Pin/Unpin',
-      ),
-      leading: const Icon(
-        Icons.attach_file,
-        color: Colors.green,
-      ),
-      onTap: () => Navigator.pop(
-        context,
-      ),
-    );
+  Widget _buildAction({
+    required String text,
+    required Widget icon,
+    VoidCallback? onTap,
+  }) {
+    return ListTile(title: Text(text), leading: icon, onTap: onTap);
   }
 
   void _showInfoDialog(BuildContext context) {
@@ -164,11 +139,11 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                   leading: CircleAvatar(
                     foregroundColor: Colors.black54,
                     child: Icon(
-                      _categories[widget.index].iconData,
+                      categories[index].iconData,
                     ),
                   ),
                   title: Text(
-                    _categories[widget.index].title,
+                    categories[index].title,
                   ),
                 ),
                 const SizedBox(
@@ -178,7 +153,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                   title: const Text(
                     'Last message',
                   ),
-                  subtitle: _categories[widget.index].listMessages.isEmpty
+                  subtitle: categories[index].listMessages.isEmpty
                       ? const Text(
                           'No messages',
                         )
@@ -186,7 +161,7 @@ class _ChoseOfActionState extends State<ChoseOfAction> {
                           DateFormat(
                             'yyyy-MM-dd KK:mm:ss',
                           ).format(
-                            _categories[widget.index].listMessages.first.time,
+                            categories[index].listMessages.first.time,
                           ),
                         ),
                 ),

@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_wtf/pages/entity/message.dart';
-import '../entity/category.dart';
 
+import '../entity/category.dart';
+import '../entity/message.dart';
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
@@ -83,9 +83,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     state.categories[categoryIndex].listMessages.insert(
       0,
       Message(
-        1,
-        DateTime.now(),
-        state.category.listMessages[index].text,
+        id: 1,
+        time: DateTime.now(),
+        text: state.category.listMessages[index].text,
       ),
     );
     state.category.listMessages.removeAt(index);

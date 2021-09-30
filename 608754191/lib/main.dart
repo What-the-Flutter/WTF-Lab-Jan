@@ -11,9 +11,9 @@ import 'util/theme_bloc/theme_cubit.dart';
 import 'util/theme_inherited/application_theme.dart';
 
 List<Category> initialCategories = [
-  Category('Travel', Icons.airport_shuttle_sharp, []),
-  Category('Family', Icons.family_restroom_sharp, []),
-  Category('Sports', Icons.directions_bike, []),
+  Category(title: 'Travel', iconData: Icons.airport_shuttle_sharp, listMessages: []),
+  Category(title: 'Family', iconData: Icons.family_restroom_sharp, listMessages: []),
+  Category(title: 'Sports', iconData: Icons.directions_bike, listMessages: []),
 ];
 
 List<IconData> initialIcons = [
@@ -53,29 +53,37 @@ void main() => runApp(
 class ChatJournal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AddPageCubit(),
-      child: BlocProvider(
-        create: (context) => HomePageCubit(initialCategories),
-        child: BlocProvider<ThemeCubit>(
-          create: (context) => ThemeCubit(true),
-          child: BlocBuilder<ThemeCubit, ThemeState>(
-            builder: (context, state) {
-              return MaterialApp(
-                title: 'Home Page',
-                themeMode: state.isLight ? ThemeMode.light : ThemeMode.dark,
-                theme: lightTheme,
-                darkTheme: darkTheme,
-                routes: {
-                  '/home_page': (_) => ChatJournalHomePage(initialCategories),
-                  '/add_page': (_) => AddPage.add(),
-                  '/timeline_page': (_) => TimelinePage(categories: initialCategories),
-                },
-                initialRoute: '/home_page',
-              );
-            },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AddPageCubit(),
+        ),
+        BlocProvider(
+          create: (context) => HomePageCubit(
+            initialCategories,
           ),
         ),
+        BlocProvider<ThemeCubit>(
+          create: (context) => ThemeCubit(
+            true,
+          ),
+        ),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Home Page',
+            themeMode: state.isLight ? ThemeMode.light : ThemeMode.dark,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            routes: {
+              '/home_page': (_) => ChatJournalHomePage(initialCategories),
+              '/add_page': (_) => AddPage.add(),
+              '/timeline_page': (_) => TimelinePage(categories: initialCategories),
+            },
+            initialRoute: '/home_page',
+          );
+        },
       ),
     );
   }

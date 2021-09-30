@@ -11,6 +11,7 @@ import 'chat_page_state.dart';
 class ChatPage extends StatefulWidget {
   final Category category;
   final List<Category> categories;
+
   const ChatPage({
     Key? key,
     required this.category,
@@ -293,9 +294,9 @@ class _ChatPage extends State<ChatPage> {
                 } else {
                   BlocProvider.of<ChatPageCubit>(blocContext).addMessage(
                     Message(
-                      0,
-                      DateTime.now(),
-                      _textEditingController.text,
+                      id: 0,
+                      time: DateTime.now(),
+                      text: _textEditingController.text,
                     ),
                   );
                   _textEditingController.clear();
@@ -313,9 +314,9 @@ class _ChatPage extends State<ChatPage> {
     state.category.listMessages.insert(
       state.category.listMessages.length,
       Message(
-        1,
-        DateTime.now(),
-        _textEditingController.text,
+        id: 1,
+        time: DateTime.now(),
+        text: _textEditingController.text,
       ),
     );
     _textEditingController.clear();

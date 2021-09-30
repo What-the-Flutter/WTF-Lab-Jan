@@ -68,9 +68,9 @@ class _AddPageState extends State<AddPage> {
   void _create(AddPageState state, BuildContext context) {
     Navigator.of(context).pop(
       Category(
-        _textEditingController.text,
-        widget.icons[state.selectedIconIndex],
-        [],
+        title: _textEditingController.text,
+        iconData: widget.icons[state.selectedIconIndex],
+        listMessages: [],
       ),
     );
     _textEditingController.clear();

@@ -8,7 +8,6 @@ import 'home_page_cubit.dart';
 
 class ChatJournalHomePage extends StatefulWidget {
   List<Category> categories;
-
   ChatJournalHomePage(this.categories);
 
   @override
@@ -36,7 +35,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     return BlocProvider(
       create: (context) => HomePageCubit(widget.categories),
       child: BlocBuilder<HomePageCubit, HomePageState>(
-        builder: (blocContext, state) {
+        builder: (context, state) {
           return Scaffold(
             backgroundColor: Colors.blueGrey[100],
             appBar: _appBars[_selectedIndex],

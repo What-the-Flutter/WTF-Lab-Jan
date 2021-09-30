@@ -1,10 +1,10 @@
 part of 'add_page_cubit.dart';
 
 class AddPageState {
-  final int selectedIconIndex;
+  int selectedIconIndex;
 
-  const AddPageState({required this.selectedIconIndex});
+  AddPageState({required this.selectedIconIndex});
 
-  AddPageState updateSelectedIconIndex(final int selectedIconIndex) =>
+  AddPageState copyWith(int selectedIconIndex) =>
       AddPageState(selectedIconIndex: selectedIconIndex);
 }
