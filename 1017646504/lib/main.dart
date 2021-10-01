@@ -24,7 +24,7 @@ void main() async {
           create: (context) => ColorThemeCubit(),
         ),
         BlocProvider(
-          create: (context) => SettingsCubit(SettingsState(false, false)),
+          create: (context) => SettingsCubit(SettingsState(false, false, 0)),
         ),
       ],
       child: MyApp(),

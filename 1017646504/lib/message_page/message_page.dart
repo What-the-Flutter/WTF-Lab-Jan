@@ -4,6 +4,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/hashtagable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -58,7 +59,10 @@ class _MessagePageState extends State<MessagePage> {
               cubit.state.page.title,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                  fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyText2!.color),
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.bodyText2!.color,
+                fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
+              ),
             ),
           ),
         ],
@@ -83,6 +87,7 @@ class _MessagePageState extends State<MessagePage> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).textTheme.bodyText2!.color,
+            fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
           ),
         ),
       ),
@@ -127,6 +132,7 @@ class _MessagePageState extends State<MessagePage> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).textTheme.bodyText2!.color,
+                            fontSize: SettingsCubit.calculateSize(context, 15, 18, 25),
                           ),
                         ),
                       )
@@ -225,6 +231,7 @@ class _MessagePageState extends State<MessagePage> {
         style: TextStyle(
           fontWeight: FontWeight.bold,
           color: Theme.of(context).textTheme.bodyText2!.color,
+          fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
         ),
       ),
       leading: _closeButton(),
@@ -262,8 +269,11 @@ class _MessagePageState extends State<MessagePage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
               child: Text(
                 DateFormat('MMM d, yyyy').format(_displayed[i].creationTime),
-                style: Theme.of(context).textTheme.bodyText1,
-                textAlign: BlocProvider.of<SettingsCubit>(context).state.isDateCentered
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyText1!.color,
+                  fontSize: SettingsCubit.calculateSize(context, 15, 18, 25),
+                ),
+                textAlign: cubit.state.isDateCentered
                     ? TextAlign.center
                     : BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
                         ? TextAlign.end
@@ -288,6 +298,7 @@ class _MessagePageState extends State<MessagePage> {
           'No events yet...',
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyText1!.color!.withOpacity(0.5),
+            fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
           ),
         ),
       );
@@ -309,6 +320,7 @@ class _MessagePageState extends State<MessagePage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.bodyText2!.color,
+                fontSize: SettingsCubit.calculateSize(context, 15, 20, 30),
               ),
             ),
           )
@@ -318,12 +330,20 @@ class _MessagePageState extends State<MessagePage> {
 
     Widget _content(Event event) {
       return event.imagePath.isEmpty
-          ? Text(
-              event.description,
-              style: TextStyle(
-                fontSize: 15,
+          ? HashTagText(
+              text: event.description,
+              basicStyle: TextStyle(
                 color: Theme.of(context).textTheme.bodyText2!.color,
+                fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
               ),
+              decoratedStyle: TextStyle(
+                color: Colors.lightBlueAccent,
+                fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+              ),
+              onTap: (text) {
+                cubit.setOnSearch(true);
+                controller.text = text;
+              },
             )
           : Image.memory(File(event.imagePath).readAsBytesSync());
     }
@@ -339,19 +359,15 @@ class _MessagePageState extends State<MessagePage> {
         cubit.selectEvent(event);
       },
       child: Container(
-        margin: BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
+        margin: cubit.state.isRightToLeft
             ? const EdgeInsets.only(top: 2, bottom: 2, left: 100, right: 5)
             : const EdgeInsets.only(top: 2, bottom: 2, left: 5, right: 100),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(10),
-            bottomLeft: BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
-                ? const Radius.circular(10)
-                : Radius.zero,
+            bottomLeft: cubit.state.isRightToLeft ? const Radius.circular(10) : Radius.zero,
             topRight: const Radius.circular(10),
-            bottomRight: BlocProvider.of<SettingsCubit>(context).state.isRightToLeft
-                ? Radius.zero
-                : const Radius.circular(10),
+            bottomRight: cubit.state.isRightToLeft ? Radius.zero : const Radius.circular(10),
           ),
           color: cubit.state.selected.contains(event)
               ? Theme.of(context).shadowColor
@@ -388,7 +404,7 @@ class _MessagePageState extends State<MessagePage> {
                 Text(
                   DateFormat('HH:mm').format(event.creationTime),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: SettingsCubit.calculateSize(context, 10, 12, 20),
                     color: Theme.of(context).textTheme.bodyText2!.color,
                     fontWeight: FontWeight.normal,
                     fontStyle: FontStyle.italic,
@@ -417,7 +433,10 @@ class _MessagePageState extends State<MessagePage> {
                 ),
                 title: Text(
                   'Take a photo',
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyText1!.color,
+                    fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+                  ),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -434,7 +453,10 @@ class _MessagePageState extends State<MessagePage> {
                 ),
                 title: Text(
                   'Pick from gallery',
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyText1!.color,
+                    fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+                  ),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -482,7 +504,10 @@ class _MessagePageState extends State<MessagePage> {
 
   Widget get _textField {
     return TextField(
-      style: Theme.of(context).textTheme.bodyText1,
+      style: TextStyle(
+        color: Theme.of(context).textTheme.bodyText1!.color,
+        fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
+      ),
       onChanged: (text) {
         if (cubit.state.isSearching) {
           cubit.setOnSearch(true);
@@ -496,6 +521,7 @@ class _MessagePageState extends State<MessagePage> {
         hintText: 'Write event description...',
         hintStyle: TextStyle(
           color: Theme.of(context).textTheme.bodyText1!.color!.withOpacity(0.5),
+          fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
         ),
         border: InputBorder.none,
       ),
@@ -534,7 +560,7 @@ class _MessagePageState extends State<MessagePage> {
                             eventStringList[index],
                             style: TextStyle(
                               color: Theme.of(context).textTheme.bodyText1!.color,
-                              fontSize: 12,
+                              fontSize: SettingsCubit.calculateSize(context, 12, 15, 20),
                             ),
                           ),
                         ),

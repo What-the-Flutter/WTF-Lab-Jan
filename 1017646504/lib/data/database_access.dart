@@ -104,7 +104,7 @@ class DatabaseAccess {
   }
 
   Future<void> insertPage(JournalPage page) async {
-    await _db.insert(
+    _db.insert(
       'pages',
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -112,7 +112,7 @@ class DatabaseAccess {
   }
 
   Future<void> updatePage(JournalPage page) async {
-    await _db.update(
+    _db.update(
       'pages',
       page.toMap(),
       where: 'id = ?',
@@ -121,7 +121,7 @@ class DatabaseAccess {
   }
 
   Future<void> deletePage(JournalPage page) async {
-    await _db.delete(
+    _db.delete(
       'pages',
       where: 'id = ?',
       whereArgs: [page.id],
@@ -137,7 +137,7 @@ class DatabaseAccess {
   }
 
   Future<void> updateEvent(Event event) async {
-    await _db.update(
+    _db.update(
       'events',
       event.toMap(),
       where: 'id = ?',
@@ -146,7 +146,7 @@ class DatabaseAccess {
   }
 
   Future<void> deleteEvent(Event event) async {
-    await _db.delete(
+    _db.delete(
       'events',
       where: 'id = ?',
       whereArgs: [event.id],
