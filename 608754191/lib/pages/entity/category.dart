@@ -14,8 +14,12 @@ class Category extends Equatable {
     required this.listMessages,
   });
 
-  Category copyWith(
-      {String? title, String? subtitle, IconData? iconData, List<Message>? listMessages}) {
+  Category copyWith({
+    String? title,
+    String? subtitle,
+    IconData? iconData,
+    List<Message>? listMessages,
+  }) {
     return Category(
       title: title ?? this.title,
       iconData: iconData ?? this.iconData,

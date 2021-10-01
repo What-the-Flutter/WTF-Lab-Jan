@@ -20,13 +20,17 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void changeIndexOfSelectedElement(int index) {
     emit(
-      state.copyWith(indexOfSelectedElement: index),
+      state.copyWith(
+        indexOfSelectedElement: index,
+      ),
     );
   }
 
   void swapAppBar() {
     emit(
-      state.copyWith(eventSelected: !state.eventSelected),
+      state.copyWith(
+        eventSelected: !state.eventSelected,
+      ),
     );
   }
 

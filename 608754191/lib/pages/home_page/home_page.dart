@@ -42,7 +42,9 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
             body: _bodyOfHomePageChat(state),
             floatingActionButton: FloatingActionButton(
               backgroundColor: Colors.black,
-              onPressed: () => BlocProvider.of<HomePageCubit>(context).addCategory(context),
+              onPressed: () => BlocProvider.of<HomePageCubit>(context).addCategory(
+                context,
+              ),
               child: const Icon(
                 Icons.add_sharp,
                 color: Colors.yellow,
@@ -68,7 +70,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       ),
       actions: [
         IconButton(
-          onPressed: () => BlocProvider.of<ThemeCubit>(context).changeTheme(),
+          onPressed: () => context.read<ThemeCubit>().changeTheme(),
           icon: const Icon(
             Icons.invert_colors,
           ),
@@ -125,7 +127,9 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       title: const Center(
         child: Text(
           'Timeline',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+          ),
         ),
       ),
       actions: [
@@ -182,7 +186,12 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                 return _firstConditionPadding();
               }
               return Padding(
-                padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
+                padding: const EdgeInsets.fromLTRB(
+                  5,
+                  2,
+                  5,
+                  1,
+                ),
                 child: Card(
                   child: ListTile(
                     title: Text(
@@ -320,5 +329,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  void _onItemTapped(int index) => setState(() => _selectedIndex = index);
+  void _onItemTapped(int index) => setState(
+        () => _selectedIndex = index,
+      );
 }

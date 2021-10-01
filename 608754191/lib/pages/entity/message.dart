@@ -6,9 +6,17 @@ class Message {
   DateTime time;
 
   @required
-  Message({required this.id, required this.time, required this.text});
+  Message({
+    required this.id,
+    required this.time,
+    required this.text,
+  });
 
-  Message copyWith({int? id, String? text, DateTime? dateTime}) {
-    return Message(id: id ?? this.id, time: dateTime ?? this.time, text: text ?? this.text);
+  Message copyWith({int? id, String? text, DateTime? time}) {
+    return Message(
+      id: id ?? this.id,
+      time: time ?? this.time,
+      text: text ?? this.text,
+    );
   }
 }

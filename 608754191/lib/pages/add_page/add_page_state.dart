@@ -5,6 +5,7 @@ class AddPageState {
 
   AddPageState({required this.selectedIconIndex});
 
-  AddPageState copyWith(int selectedIconIndex) =>
-      AddPageState(selectedIconIndex: selectedIconIndex);
+  AddPageState copyWith(int selectedIconIndex) => AddPageState(
+        selectedIconIndex: selectedIconIndex,
+      );
 }

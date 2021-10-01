@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
@@ -46,11 +47,31 @@ List<IconData> initialIcons = [
   Icons.gesture,
   Icons.train_outlined
 ];
-void main() => runApp(
-      ChatJournal(),
-    );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    ChatJournal(
+      preferences: await SharedPreferences.getInstance(),
+    ),
+  );
+}
 
 class ChatJournal extends StatelessWidget {
+  final SharedPreferences preferences;
+
+  const ChatJournal({Key? key, required this.preferences}) : super(key: key);
+
+  ThemeMode _themeModeFromString(String? string) {
+    switch (string) {
+      case 'dark':
+        return ThemeMode.dark;
+      case 'light':
+        return ThemeMode.light;
+      default:
+        return ThemeMode.light;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -65,7 +86,12 @@ class ChatJournal extends StatelessWidget {
         ),
         BlocProvider<ThemeCubit>(
           create: (context) => ThemeCubit(
-            true,
+            _themeModeFromString(
+              preferences.getString(
+                'themeMode',
+              ),
+            ),
+            preferences: preferences,
           ),
         ),
       ],
@@ -73,7 +99,7 @@ class ChatJournal extends StatelessWidget {
         builder: (context, state) {
           return MaterialApp(
             title: 'Home Page',
-            themeMode: state.isLight ? ThemeMode.light : ThemeMode.dark,
+            themeMode: state.themeMode,
             theme: lightTheme,
             darkTheme: darkTheme,
             routes: {

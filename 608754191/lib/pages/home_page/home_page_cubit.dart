@@ -42,7 +42,9 @@ class HomePageCubit extends Cubit<HomePageState> {
           state.categories,
           index - 1,
         ),
-        value: BlocProvider.of<HomePageCubit>(context),
+        value: BlocProvider.of<HomePageCubit>(
+          context,
+        ),
       ),
     );
   }
@@ -63,21 +65,30 @@ class HomePageCubit extends Cubit<HomePageState> {
 
   void removeCategory(int index) {
     final newState = HomePageState(
-      categories: state.categories..removeAt(index),
+      categories: state.categories
+        ..removeAt(
+          index,
+        ),
     );
-    emit(newState);
+    emit(
+      newState,
+    );
   }
 
   void update(BuildContext context, List<Category> categories, int index) async {
     final newCategory = await Navigator.of(context).pushNamed('/add_page') as Category;
     // newCategory.listMessages = categories[index].listMessages;
 
-    state.categories.removeAt(index);
+    state.categories.removeAt(
+      index,
+    );
     state.categories.insert(
       index,
       newCategory,
     );
     categoryListRedrawing();
-    Navigator.pop(context);
+    Navigator.pop(
+      context,
+    );
   }
 }

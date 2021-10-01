@@ -25,11 +25,12 @@ class ChatPageState {
     final List<Category>? categories,
   }) {
     return ChatPageState(
-        eventSelected: eventSelected ?? this.eventSelected,
-        indexOfSelectedElement: indexOfSelectedElement ?? this.indexOfSelectedElement,
-        isEditing: isEditing ?? this.isEditing,
-        category: category ?? this.category,
-        isSending: isSending ?? this.isSending,
-        categories: categories ?? this.categories);
+      eventSelected: eventSelected ?? this.eventSelected,
+      indexOfSelectedElement: indexOfSelectedElement ?? this.indexOfSelectedElement,
+      isEditing: isEditing ?? this.isEditing,
+      category: category ?? this.category,
+      isSending: isSending ?? this.isSending,
+      categories: categories ?? this.categories,
+    );
   }
 }

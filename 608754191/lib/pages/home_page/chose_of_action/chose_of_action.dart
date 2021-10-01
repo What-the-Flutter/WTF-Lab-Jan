@@ -49,7 +49,9 @@ class ChoseOfAction extends StatelessWidget {
             color: Colors.red,
           ),
           onTap: () {
-            BlocProvider.of<HomePageCubit>(context).removeCategory(index);
+            BlocProvider.of<HomePageCubit>(context).removeCategory(
+              index,
+            );
             Navigator.pop(
               context,
             );
@@ -63,7 +65,11 @@ class ChoseOfAction extends StatelessWidget {
             color: Colors.blue,
           ),
           onTap: () {
-            BlocProvider.of<HomePageCubit>(context).update(context, categories, index);
+            BlocProvider.of<HomePageCubit>(context).update(
+              context,
+              categories,
+              index,
+            );
             Navigator.pop(
               context,
             );
@@ -87,7 +93,10 @@ class ChoseOfAction extends StatelessWidget {
 
         _buildAction(
           text: 'pin/unpin',
-          icon: const Icon(Icons.attach_file, color: Colors.green),
+          icon: const Icon(
+            Icons.attach_file,
+            color: Colors.green,
+          ),
           onTap: () => Navigator.pop(
             context,
           ),
@@ -113,7 +122,11 @@ class ChoseOfAction extends StatelessWidget {
     required Widget icon,
     VoidCallback? onTap,
   }) {
-    return ListTile(title: Text(text), leading: icon, onTap: onTap);
+    return ListTile(
+      title: Text(text),
+      leading: icon,
+      onTap: onTap,
+    );
   }
 
   void _showInfoDialog(BuildContext context) {
@@ -173,7 +186,9 @@ class ChoseOfAction extends StatelessWidget {
                     height: 40.0,
                     width: 50.0,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(infoDialogContext),
+                      onPressed: () => Navigator.pop(
+                        infoDialogContext,
+                      ),
                       child: const Text(
                         'Ok',
                       ),
