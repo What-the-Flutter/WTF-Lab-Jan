@@ -41,7 +41,7 @@ class JournalPage {
     };
   }
 
-  int? get id => _id;
+  int? get id => _id; /////////////////////////////////////////убрать get
 }
 
 class Event {
