@@ -24,7 +24,23 @@ class _AddPageState extends State<AddPage> {
     Icons.delete_rounded,
     Icons.wash_rounded,
     Icons.wine_bar_rounded,
-    Icons.widgets_rounded
+    Icons.widgets_rounded,
+    Icons.stars_rounded,
+    Icons.query_builder_rounded,
+    Icons.fastfood,
+    Icons.headset_rounded,
+    Icons.local_movies_rounded,
+    Icons.outlet_rounded,
+    Icons.offline_bolt_rounded,
+    Icons.local_printshop,
+    Icons.weekend_rounded,
+    Icons.nightlight_round,
+    Icons.create_rounded,
+    Icons.videogame_asset_rounded,
+    Icons.toys_rounded,
+    Icons.camera_alt_rounded,
+    Icons.train_rounded,
+    Icons.text_snippet_rounded,
   ];
 
   var _selectedIconIndex;
@@ -71,11 +87,15 @@ class _AddPageState extends State<AddPage> {
               ),
             ),
             floatingActionButton: FloatingActionButton(
-              onPressed: widget.needsEditing
-                  ? () => _addPageCubit.edit(context, widget.selectedPageIndex,
-                      _controller, _iconsList)
-                  : () =>
-                      _addPageCubit.addPage(context, _controller, _iconsList),
+              onPressed: () {
+                _addPageCubit.returnToHomePage(
+                  widget.needsEditing,
+                  widget.selectedPageIndex,
+                  _controller.text,
+                  _iconsList,
+                );
+                Navigator.of(context).pop();
+              },
               backgroundColor: Theme.of(context).colorScheme.primary,
               child: Icon(
                 Icons.add,
@@ -131,13 +151,16 @@ class _AddPageState extends State<AddPage> {
   }
 
   Widget _icons(_addPageCubit, state) {
-    return GridView.builder(
-      itemCount: _iconsList.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: GridView.builder(
+        itemCount: _iconsList.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+        ),
+        itemBuilder: (context, i) =>
+            _icon(_iconsList[i], i, state, _addPageCubit),
       ),
-      itemBuilder: (context, i) =>
-          _icon(_iconsList[i], i, state, _addPageCubit),
     );
   }
 

@@ -31,9 +31,13 @@ dependencies:
   jiffy: ^4.1.0
   image_picker: ^0.8.2
   shared_preferences: ^2.0.7
-  equatable: ^ 2.0.2
+  equatable: ^2.0.2
   flutter_bloc: ^7.0.0
   bloc: ^7.0.0
+  sqflite: ^2.0.0
+  path: ^1.8.0
+  path_provider: ^2.0.0
+
 
 dev_dependencies:
   flutter_test:

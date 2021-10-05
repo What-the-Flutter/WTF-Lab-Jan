@@ -9,7 +9,7 @@ final ThemeData lightTheme = ThemeData(
     primaryVariant: Color(0xFFF0F4FA), //page icons
 
     background: Color(0xFF173E47), //selected icons, text
-    onBackground: Color(0xFFE5E0EF), //icons
+    onBackground: Color(0xFFEDE6F5), //icons
 
     //background gradient
     secondary: Color(0xFFDAEDF2),
