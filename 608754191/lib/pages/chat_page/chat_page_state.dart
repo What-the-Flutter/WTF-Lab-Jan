@@ -1,6 +1,5 @@
-import 'package:task_wtf/pages/entity/message.dart';
-
 import '../entity/category.dart';
+import '../entity/message.dart';
 
 class ChatPageState {
   final bool? messageSelected;
@@ -9,8 +8,9 @@ class ChatPageState {
   final Category? category;
   final bool? isSending;
   final List<Category>? categories;
-  final List<Message>? messageList;
+  final List<Message> messageList;
   final Message? message;
+  final bool? isWriting;
   final int? iconIndex;
   ChatPageState({
     this.messageSelected,
@@ -20,8 +20,9 @@ class ChatPageState {
     this.isSending,
     this.categories,
     this.message,
-    this.messageList,
+    this.messageList = const [],
     this.iconIndex,
+    this.isWriting,
   });
 
   ChatPageState copyWith({
@@ -34,6 +35,7 @@ class ChatPageState {
     final List<Message>? messageList,
     final Message? message,
     final int? iconIndex,
+    final bool? isWriting,
   }) {
     return ChatPageState(
       messageSelected: messageSelected ?? this.messageSelected,
@@ -45,6 +47,7 @@ class ChatPageState {
       messageList: messageList ?? this.messageList,
       message: message ?? this.message,
       iconIndex: iconIndex,
+      isWriting: isWriting ?? this.isWriting,
     );
   }
 }

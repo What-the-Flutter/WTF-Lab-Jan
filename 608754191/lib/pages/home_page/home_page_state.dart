@@ -2,23 +2,25 @@ part of 'home_page_cubit.dart';
 
 class HomePageState extends Equatable {
   final List<Category> categories;
-  final Category? category;
-  // List<Message> messageList = [];
-  HomePageState({
-    required this.category,
-    required this.categories,
-    // required this.messageList,
-  });
 
-  HomePageState copyWith(
-      {List<Category>? categories, Category? category, List<Message>? messageList}) {
-    return HomePageState(
-      categories: categories ?? this.categories,
-      category: category ?? this.category,
-      // messageList: messageList ?? this.messageList,
-    );
+  HomePageState([List<Category>? categories]) : categories = categories ?? [];
+
+  HomePageState copyWith({List<Category>? categories}) {
+    return HomePageState(categories ?? this.categories);
   }
 
   @override
   List<Object?> get props => [categories];
+}
+
+class CategoryAddedSuccess extends HomePageState {
+  final Category addedCategory;
+
+  CategoryAddedSuccess(
+    this.addedCategory,
+    List<Category> categories,
+  ) : super(categories);
+
+  @override
+  List<Object?> get props => [categories, addedCategory];
 }

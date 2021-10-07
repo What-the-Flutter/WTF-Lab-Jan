@@ -2,8 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_wtf/pages/entity/message.dart';
-import 'package:task_wtf/util/database.dart';
+import '../../util/database.dart';
 import '../add_page/add_page.dart';
 import '../chat_page/chat_page.dart';
 import '../entity/category.dart';
@@ -13,10 +12,7 @@ part 'home_page_state.dart';
 class HomePageCubit extends Cubit<HomePageState> {
   HomePageCubit()
       : super(
-          HomePageState(
-            category: null,
-            categories: [],
-          ),
+          HomePageState(),
         );
   final DatabaseProvider _databaseProvider = DatabaseProvider();
 
@@ -33,17 +29,6 @@ class HomePageCubit extends Cubit<HomePageState> {
     );
   }
 
-  void updateCategory(Category category) {
-    emit(
-      state.copyWith(
-        category: category,
-      ),
-    );
-    _databaseProvider.updateCategory(
-      category,
-    );
-  }
-
   void updateList(List<Category> categories) => emit(
         state.copyWith(categories: categories),
       );
@@ -53,7 +38,7 @@ class HomePageCubit extends Cubit<HomePageState> {
       categories[index],
     );
     _databaseProvider.deleteAllMessagesFromCategory(
-      categories[index].categoryId,
+      categories[index].categoryId!,
     );
     categories.removeAt(index);
     emit(
@@ -72,14 +57,12 @@ class HomePageCubit extends Cubit<HomePageState> {
       ),
     );
     if (newCategory is Category) {
-      state.categories.add(newCategory);
+      // state.categories.add(newCategory);
       state.categories.insert(0, newCategory);
       newCategory.categoryId = await _databaseProvider.insertCategory(newCategory);
     }
     emit(
-      state.copyWith(
-        categories: state.categories,
-      ),
+      CategoryAddedSuccess(newCategory, state.categories),
     );
   }
 
@@ -112,29 +95,21 @@ class HomePageCubit extends Cubit<HomePageState> {
     );
   }
 
-  void removeCategory(int index) {
-    final newState = HomePageState(
-      categories: state.categories
-        ..removeAt(
-          index,
-        ),
-      category: state.category,
-    );
-    emit(
-      newState,
-    );
-  }
-
   void update(BuildContext context, List<Category> categories, int index) async {
-    final newCategory = await Navigator.of(context).pushNamed('/add_page') as Category;
-    // newCategory.listMessages = categories[index].listMessages;
-
+    final newCategory = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AddPage.add(),
+      ),
+    );
     state.categories.removeAt(
       index,
     );
     state.categories.insert(
       index,
       newCategory,
+    );
+    _databaseProvider.updateCategory(
+      categories[index],
     );
     categoryListRedrawing();
     Navigator.pop(

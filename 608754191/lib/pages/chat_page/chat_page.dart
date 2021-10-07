@@ -24,6 +24,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPage extends State<ChatPage> {
+  late ChatPageCubit _cubit;
   final Category _category;
   final List<Category> _categories;
   final TextEditingController _textEditingController = TextEditingController();
@@ -33,8 +34,13 @@ class _ChatPage extends State<ChatPage> {
   _ChatPage(this._category, this._categories);
   @override
   void initState() {
-    BlocProvider.of<ChatPageCubit>(context).init(_category);
+    _cubit = ChatPageCubit()..init(_category);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   @override
@@ -45,11 +51,11 @@ class _ChatPage extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ChatPageCubit(),
+      create: (context) => _cubit,
       child: BlocBuilder<ChatPageCubit, ChatPageState>(
         builder: (blocContext, state) {
           return Scaffold(
-            appBar: state.messageSelected!
+            appBar: !state.messageSelected!
                 ? _appBarFromChatPage(state)
                 : _appBarWhenSelectedFromChatPage(
                     state,
@@ -58,7 +64,7 @@ class _ChatPage extends State<ChatPage> {
                   ),
             body: Column(
               children: [
-                if (state.messageList!.isEmpty) _eventPage(),
+                if (state.messageList.isEmpty) _eventPage(),
                 _bodyForInput(state),
                 _inputInsideChatPage(state, blocContext),
               ],
@@ -82,12 +88,12 @@ class _ChatPage extends State<ChatPage> {
         IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {
-            // showSearch(
-            //   context: context,
-            //   delegate: SearchEventDelegate(
-            //     category: widget.category,
-            //   ),
-            // );
+            showSearch(
+              context: context,
+              delegate: SearchEventDelegate(
+                category: widget.category,
+              ),
+            );
           },
         ),
         IconButton(
@@ -107,7 +113,10 @@ class _ChatPage extends State<ChatPage> {
         icon: const Icon(
           Icons.clear,
         ),
-        onPressed: () => BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar(),
+        onPressed: () {
+          BlocProvider.of<ChatPageCubit>(blocContext).setWritingState(false);
+          BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
+        },
       ),
       actions: <Widget>[
         IconButton(
@@ -115,7 +124,7 @@ class _ChatPage extends State<ChatPage> {
             Icons.edit,
           ),
           onPressed: () {
-            BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
+            _cubit.swapAppBar();
             _editMessage(index, blocContext);
           },
         ),
@@ -124,8 +133,8 @@ class _ChatPage extends State<ChatPage> {
             Icons.copy,
           ),
           onPressed: () {
-            BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
-            // BlocProvider.of<ChatPageCubit>(blocContext).copyMessages(); todo copy messages!!
+            _cubit.swapAppBar();
+            _cubit.copyMessage(state.messageList[index]);
           },
         ),
         IconButton(
@@ -140,7 +149,7 @@ class _ChatPage extends State<ChatPage> {
           ),
           onPressed: () => showDialog(
             context: context,
-            builder: (context) => _deleteAlertDialog(
+            builder: (blocContext) => _deleteAlertDialog(
               index,
               state.message!,
               blocContext,
@@ -208,7 +217,7 @@ class _ChatPage extends State<ChatPage> {
     return Expanded(
       child: ListView.builder(
         scrollDirection: Axis.vertical,
-        itemCount: state.messageList!.length,
+        itemCount: state.messageList.length,
         itemBuilder: (context, index) => Container(
           padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
           width: 40,
@@ -221,23 +230,22 @@ class _ChatPage extends State<ChatPage> {
                 title: Align(
                   alignment: Alignment.bottomLeft,
                   child: Text(
-                    state.messageList![index].text,
+                    state.messageList[index].text,
                     style: const TextStyle(fontSize: 20, color: Colors.black),
                   ),
                 ),
-                subtitle: Text('todo'),
-                // DateFormat('yyyy-MM-dd kk:mm').format(state.message.time),
-                // style: TextStyle(
-                //   color: Colors.blueGrey[200],
-                //   fontSize: 12,
-                // ),
-
+                subtitle: Text(
+                  '${DateTime.now()}',
+                  style: TextStyle(
+                    color: Colors.blueGrey[200],
+                    fontSize: 12,
+                  ),
+                ),
                 onLongPress: () {
-                  // state.indexOfSelectedElement = index;
+                  _cubit.swapAppBar();
                   BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
                     index,
                   );
-                  BlocProvider.of<ChatPageCubit>(context).swapAppBar();
                 },
               ),
             ),
@@ -303,8 +311,6 @@ class _ChatPage extends State<ChatPage> {
                     state.message!,
                     _textEditingController.text,
                   );
-                  _textEditingController.clear();
-                  BlocProvider.of<ChatPageCubit>(blocContext).setEditState(false);
                 } else {
                   BlocProvider.of<ChatPageCubit>(blocContext)
                       .addMessage(_textEditingController.text);
@@ -320,21 +326,20 @@ class _ChatPage extends State<ChatPage> {
   }
 
   void _sendMessage(ChatPageState state) {
-    state.messageList!.insert(
-      state.messageList!.length,
+    state.messageList.insert(
+      state.messageList.length,
       Message(
         messageId: 1,
         time: DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now()),
         text: _textEditingController.text,
-        currentCategoryId: state.category!.categoryId,
-        iconIndex: state.iconIndex!,
+        currentCategoryId: state.category!.categoryId!,
       ),
     );
     _textEditingController.clear();
   }
 
   Dialog _migrateEventDialog(
-      int eventIndex, BuildContext blocContext, BuildContext dialogContext, ChatPageState state) {
+      int messageIndex, BuildContext blocContext, BuildContext dialogContext, ChatPageState state) {
     return Dialog(
       elevation: 16,
       child: Container(
@@ -354,8 +359,8 @@ class _ChatPage extends State<ChatPage> {
               onTap: () {
                 BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
                 Navigator.pop(dialogContext);
-                // BlocProvider.of<ChatPageCubit>(blocContext)
-                //     .changeMessageCategory(eventIndex, index - 1); //todo change message category
+                BlocProvider.of<ChatPageCubit>(blocContext)
+                    .changeMessageCategory(messageIndex, index - 1);
               },
             );
           },
@@ -375,12 +380,12 @@ class _ChatPage extends State<ChatPage> {
 
   void _editMessage(int index, BuildContext blocContext) {
     BlocProvider.of<ChatPageCubit>(blocContext).setEditState(true);
-    // _textEditingController.text = widget.category.listMessages[index].text;
     _textEditingController.selection = TextSelection.fromPosition(
       TextPosition(
         offset: _textEditingController.text.length,
       ),
     );
+    BlocProvider.of<ChatPageCubit>(blocContext).setEditState(true);
     _focusNode.requestFocus();
   }
 
@@ -416,102 +421,103 @@ class _ChatPage extends State<ChatPage> {
   }
 }
 
-// class SearchEventDelegate extends SearchDelegate {
-//   final Category category;
-//
-//   SearchEventDelegate({required this.category});
-//
-//   @override
-//   ThemeData appBarTheme(BuildContext context) {
-//     return Theme.of(context);
-//   }
-//
-//   @override
-//   List<Widget> buildActions(BuildContext context) {
-//     return [
-//       IconButton(
-//         icon: const Icon(Icons.cleaning_services_rounded),
-//         onPressed: () {
-//           query = '';
-//         },
-//       ),
-//     ];
-//   }
-//
-//   @override
-//   Widget buildLeading(BuildContext context) {
-//     return IconButton(
-//       icon: const Icon(Icons.arrow_back),
-//       onPressed: () {
-//         query = '';
-//         close(context, null);
-//       },
-//     );
-//   }
-//
-//   @override
-//   Widget buildResults(BuildContext context) {
-//     return Container();
-//   }
-//
-//   @override
-//   Widget buildSuggestions(BuildContext context) {
-//     return category.listMessages
-//             .where(
-//               (element) => element.text.contains(
-//                 query,
-//               ),
-//             )
-//             .isEmpty
-//         ? const Center(
-//             child: Text(
-//               'No matches!',
-//             ),
-//           )
-//         : ListView.builder(
-//             scrollDirection: Axis.vertical,
-//             reverse: true,
-//             itemCount: category.listMessages
-//                 .where(
-//                   (element) => element.text.contains(
-//                     query,
-//                   ),
-//                 )
-//                 .length,
-//             itemBuilder: (context, index) {
-//               final message = category.listMessages
-//                   .where(
-//                     (element) => element.text.contains(
-//                       query,
-//                     ),
-//                   )
-//                   .toList()[index];
-//               return Container(
-//                 padding: const EdgeInsets.symmetric(
-//                   vertical: 5.0,
-//                   horizontal: 20.0,
-//                 ),
-//                 width: 200,
-//                 constraints: const BoxConstraints(),
-//                 child: ClipRRect(
-//                   borderRadius: BorderRadius.circular(
-//                     50,
-//                   ),
-//                   child: Card(
-//                     elevation: 3,
-//                     child: ListTile(
-//                       title: Text(
-//                         message.text,
-//                       ),
-//                       subtitle: Text(
-//                         '${DateFormat('yyyy-MM-dd kk:mm').format(message.time)}\n${category.title}',
-//                       ),
-//                       isThreeLine: true,
-//                     ),
-//                   ),
-//                 ),
-//               );
-//             },
-//           );
-//   }
-// }
+class SearchEventDelegate extends SearchDelegate {
+  final Category? category;
+  final List<Message>? messagesList;
+
+  SearchEventDelegate({this.messagesList, this.category});
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return Theme.of(context);
+  }
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.cleaning_services_rounded),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        query = '';
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return Container();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return messagesList!
+            .where(
+              (element) => element.text.contains(
+                query,
+              ),
+            )
+            .isEmpty
+        ? const Center(
+            child: Text(
+              'No matches!',
+            ),
+          )
+        : ListView.builder(
+            scrollDirection: Axis.vertical,
+            reverse: true,
+            itemCount: messagesList!
+                .where(
+                  (element) => element.text.contains(
+                    query,
+                  ),
+                )
+                .length,
+            itemBuilder: (context, index) {
+              final message = messagesList!
+                  .where(
+                    (element) => element.text.contains(
+                      query,
+                    ),
+                  )
+                  .toList()[index];
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 5.0,
+                  horizontal: 20.0,
+                ),
+                width: 200,
+                constraints: const BoxConstraints(),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    50,
+                  ),
+                  child: Card(
+                    elevation: 3,
+                    child: ListTile(
+                      title: Text(
+                        message.text,
+                      ),
+                      subtitle: Text(
+                        '${message.time}\n${category!.title}',
+                      ),
+                      isThreeLine: true,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+  }
+}

@@ -67,7 +67,7 @@ class ChoseOfAction extends StatelessWidget {
             color: Colors.blue,
           ),
           onTap: () {
-            BlocProvider.of<HomePageCubit>(context).updateCategory(categories[index]);
+            BlocProvider.of<HomePageCubit>(context).update(context, categories, index);
             Navigator.pop(
               context,
             );
@@ -160,22 +160,22 @@ class ChoseOfAction extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                // ListTile(
-                //   title: const Text(
-                //     'Last message',
-                //   ),
-                //   subtitle: categories[index].listMessages.isEmpty
-                //       ? const Text(
-                //     'No messages',
-                //   )
-                //       : Text(
-                //     DateFormat(
-                //       'yyyy-MM-dd KK:mm:ss',
-                //     ).format(
-                //       categories[index].listMessages.first.time,
-                //     ),
-                //   ),
-                // ),
+                ListTile(
+                  title: const Text(
+                    'Last message',
+                  ),
+                  subtitle: categories[index].subTitleMessage.isEmpty
+                      ? const Text(
+                          'No messages',
+                        )
+                      : Text(
+                          DateFormat(
+                            'yyyy-MM-dd KK:mm:ss',
+                          ).format(
+                            DateTime.now(),
+                          ),
+                        ),
+                ),
                 const SizedBox(
                   height: 20,
                 ),

@@ -1,16 +1,12 @@
-import 'package:flutter/material.dart';
-
 class Message {
-  int messageId;
+  int? messageId;
   int currentCategoryId;
-  int iconIndex;
   String text;
   String time;
 
   Message({
-    required this.messageId,
+    this.messageId,
     required this.currentCategoryId,
-    required this.iconIndex,
     required this.time,
     required this.text,
   });
@@ -20,7 +16,6 @@ class Message {
       'current_category_id': currentCategoryId,
       'text': text,
       'time': time,
-      'message_icon_index': iconIndex,
     };
   }
 
@@ -30,7 +25,6 @@ class Message {
       'current_category_id': currentCategoryId,
       'text': text,
       'time': time,
-      'message_icon_index': iconIndex,
     };
   }
 
@@ -40,7 +34,6 @@ class Message {
       currentCategoryId: map['current_category_id'],
       text: map['text'],
       time: map['time'],
-      iconIndex: map['message_icon_index'],
     );
   }
 }

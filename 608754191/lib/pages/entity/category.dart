@@ -1,13 +1,13 @@
 import 'package:equatable/equatable.dart';
 
 class Category extends Equatable {
-  int categoryId;
+  int? categoryId;
   int iconIndex;
   String title;
   String subTitleMessage;
 
   Category({
-    required this.categoryId,
+    this.categoryId,
     required this.iconIndex,
     required this.title,
     required this.subTitleMessage,
@@ -17,7 +17,7 @@ class Category extends Equatable {
     return {
       'category_id': categoryId,
       'title': title,
-      'icon_index': iconIndex,
+      'category_icon_index': iconIndex,
       'sub_tittle_name': subTitleMessage,
     };
   }
@@ -25,7 +25,7 @@ class Category extends Equatable {
   Map<String, dynamic> convertCategoryToMap() {
     return {
       'title': title,
-      'icon_index': iconIndex,
+      'category_icon_index': iconIndex,
       'sub_tittle_name': subTitleMessage,
     };
   }
@@ -34,7 +34,7 @@ class Category extends Equatable {
     return Category(
       categoryId: map['category_id'],
       title: map['title'],
-      iconIndex: map['icon_index'],
+      iconIndex: map['category_icon_index'],
       subTitleMessage: map['sub_tittle_name'],
     );
   }

@@ -83,12 +83,14 @@ class _AddPageState extends State<AddPage> {
     if (category != null) {
       category!.title = _textEditingController.text;
       category!.iconIndex = state.selectedIconIndex;
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(category);
     } else {
       Navigator.pop(
         context,
-        MaterialPageRoute(
-          builder: (context) => AddPage.add(),
+        Category(
+          title: _textEditingController.text,
+          iconIndex: 1,
+          subTitleMessage: '',
         ),
       );
     }

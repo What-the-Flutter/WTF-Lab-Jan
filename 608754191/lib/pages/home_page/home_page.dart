@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_wtf/pages/add_page/add_page.dart';
 
 import '../../main.dart';
 import '../../util/theme_bloc/theme_cubit.dart';
@@ -198,8 +197,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                 child: Card(
                   child: ListTile(
                     title: Text(
-                      state.categories[index - 1]
-                          .title, //todo  может из-за state. не обновляется моментально состояние
+                      state.categories[index - 1].title,
                     ),
                     subtitle: Text(
                       state.categories[index - 1].subTitleMessage.isEmpty
@@ -208,7 +206,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                     ),
                     leading: CircleAvatar(
                       child: Icon(
-                        initialIcons[state.categories[index].iconIndex],
+                        initialIcons[state.categories[index - 1].iconIndex],
                       ),
                       backgroundColor: Colors.black,
                     ),

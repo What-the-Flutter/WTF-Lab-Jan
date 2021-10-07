@@ -15,7 +15,6 @@ const String columnMessageId = 'message_id';
 const String columnCurrentCategoryId = 'current_category_id';
 const String columnText = 'text';
 const String columnTime = 'time';
-const String columnMessageIconIndex = 'category_icon_index';
 
 class DatabaseProvider {
   static DatabaseProvider? _databaseProvider;
@@ -24,14 +23,14 @@ class DatabaseProvider {
   DatabaseProvider._createInstance();
 
   Future<Database> get database async {
-    return _database ?? await initDB();
+    return _database ?? await _initDB();
   }
 
   factory DatabaseProvider() {
     return _databaseProvider ?? DatabaseProvider._createInstance();
   }
 
-  Future<Database> initDB() async {
+  Future<Database> _initDB() async {
     final database = openDatabase(
       join(
         await getDatabasesPath(),
@@ -41,7 +40,7 @@ class DatabaseProvider {
       onCreate: (db, version) {
         db.execute('''
      create table $categoryTable (
-	   $columnCategoryId integer primary key autoincrement,
+	    $columnCategoryId integer primary key autoincrement,
       $columnTitle text not null,
       $columnNameOfSubTittle text not null,
       $columnCategoryIconIndex integer
@@ -52,8 +51,8 @@ class DatabaseProvider {
       $columnMessageId integer primary key autoincrement,
       $columnCurrentCategoryId integer,
       $columnText text not null,
-      $columnTime text not null,
-      $columnMessageIconIndex integer
+      $columnTime text not null
+     
       )
       ''');
       },
@@ -63,7 +62,6 @@ class DatabaseProvider {
 
   Future<int> insertCategory(Category category) async {
     final db = await database;
-    print('1');
     return db.insert(
       categoryTable,
       category.convertCategoryToMapWithId(),
@@ -71,7 +69,6 @@ class DatabaseProvider {
   }
 
   Future<int> deleteCategory(Category category) async {
-    print('2');
     final db = await database;
     return db.delete(
       categoryTable,
@@ -81,7 +78,6 @@ class DatabaseProvider {
   }
 
   Future<int> updateCategory(Category category) async {
-    print('3');
     final db = await database;
     return await db.update(
       categoryTable,
@@ -92,7 +88,6 @@ class DatabaseProvider {
   }
 
   Future<List<Category>> downloadCategoryList() async {
-    print('4');
     final db = await database;
     final categoryList = <Category>[];
     final dbCategoryList = await db.query(categoryTable);
@@ -104,7 +99,6 @@ class DatabaseProvider {
   }
 
   Future<int> insertMessage(Message message) async {
-    print('5');
     final db = await database;
     return db.insert(
       messageTable,
@@ -113,7 +107,6 @@ class DatabaseProvider {
   }
 
   Future<int> deleteMessage(Message message) async {
-    print('6');
     final db = await database;
     return await db.delete(
       messageTable,
@@ -123,7 +116,6 @@ class DatabaseProvider {
   }
 
   Future<int> updateMessage(Message message) async {
-    print('7');
     final db = await database;
     return await db.update(
       messageTable,
@@ -134,7 +126,6 @@ class DatabaseProvider {
   }
 
   Future<List<Message>> downloadMessageList(int categoryId) async {
-    print('8');
     final db = await database;
     final messageList = <Message>[];
     var dbMessageList = await db.rawQuery(
@@ -149,7 +140,6 @@ class DatabaseProvider {
   }
 
   Future<int> deleteAllMessagesFromCategory(int categoryId) async {
-    print('9');
     final db = await database;
     return await db.delete(
       categoryTable,
