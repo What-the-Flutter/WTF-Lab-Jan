@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:task_wtf/main.dart';
 
 import '../../entity/category.dart';
 import '../home_page_cubit.dart';
@@ -49,7 +50,8 @@ class ChoseOfAction extends StatelessWidget {
             color: Colors.red,
           ),
           onTap: () {
-            BlocProvider.of<HomePageCubit>(context).removeCategory(
+            BlocProvider.of<HomePageCubit>(context).deleteCategory(
+              categories,
               index,
             );
             Navigator.pop(
@@ -65,11 +67,7 @@ class ChoseOfAction extends StatelessWidget {
             color: Colors.blue,
           ),
           onTap: () {
-            BlocProvider.of<HomePageCubit>(context).update(
-              context,
-              categories,
-              index,
-            );
+            BlocProvider.of<HomePageCubit>(context).updateCategory(categories[index]);
             Navigator.pop(
               context,
             );
@@ -152,7 +150,7 @@ class ChoseOfAction extends StatelessWidget {
                   leading: CircleAvatar(
                     foregroundColor: Colors.black54,
                     child: Icon(
-                      categories[index].iconData,
+                      initialIcons[categories[index].iconIndex],
                     ),
                   ),
                   title: Text(
@@ -162,22 +160,22 @@ class ChoseOfAction extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                ListTile(
-                  title: const Text(
-                    'Last message',
-                  ),
-                  subtitle: categories[index].listMessages.isEmpty
-                      ? const Text(
-                          'No messages',
-                        )
-                      : Text(
-                          DateFormat(
-                            'yyyy-MM-dd KK:mm:ss',
-                          ).format(
-                            categories[index].listMessages.first.time,
-                          ),
-                        ),
-                ),
+                // ListTile(
+                //   title: const Text(
+                //     'Last message',
+                //   ),
+                //   subtitle: categories[index].listMessages.isEmpty
+                //       ? const Text(
+                //     'No messages',
+                //   )
+                //       : Text(
+                //     DateFormat(
+                //       'yyyy-MM-dd KK:mm:ss',
+                //     ).format(
+                //       categories[index].listMessages.first.time,
+                //     ),
+                //   ),
+                // ),
                 const SizedBox(
                   height: 20,
                 ),

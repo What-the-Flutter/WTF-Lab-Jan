@@ -1,11 +1,20 @@
 part of 'add_page_cubit.dart';
 
 class AddPageState {
-  int selectedIconIndex;
+  final List<Category> categories;
+  final Category? category;
+  final int selectedIconIndex;
 
-  AddPageState({required this.selectedIconIndex});
+  const AddPageState({
+    required this.selectedIconIndex,
+    required this.categories,
+    this.category,
+  });
 
-  AddPageState copyWith(int selectedIconIndex) => AddPageState(
-        selectedIconIndex: selectedIconIndex,
+  AddPageState copyWith({int? selectedIconIndex, List<Category>? categories, Category? category}) =>
+      AddPageState(
+        selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
+        categories: categories ?? this.categories,
+        category: category ?? this.category,
       );
 }

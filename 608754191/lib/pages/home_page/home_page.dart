@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_wtf/pages/add_page/add_page.dart';
 
 import '../../main.dart';
 import '../../util/theme_bloc/theme_cubit.dart';
@@ -7,8 +8,7 @@ import '../entity/category.dart';
 import 'home_page_cubit.dart';
 
 class ChatJournalHomePage extends StatefulWidget {
-  List<Category> categories;
-  ChatJournalHomePage(this.categories);
+  ChatJournalHomePage();
 
   @override
   _ChatJournalHomePageState createState() => _ChatJournalHomePageState();
@@ -20,7 +20,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
 
   @override
   void initState() {
-    BlocProvider.of<HomePageCubit>(context).init(initialCategories);
+    BlocProvider.of<HomePageCubit>(context).init();
     _appBars = [
       _appBarFromHomePage(),
       _appBarFromDailyPage(),
@@ -32,28 +32,31 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HomePageCubit(widget.categories),
-      child: BlocBuilder<HomePageCubit, HomePageState>(
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: Colors.blueGrey[100],
-            appBar: _appBars[_selectedIndex],
-            body: _bodyOfHomePageChat(state),
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: Colors.black,
-              onPressed: () => BlocProvider.of<HomePageCubit>(context).addCategory(
+    return BlocBuilder<HomePageCubit, HomePageState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Colors.blueGrey[100],
+          appBar: _appBars[_selectedIndex],
+          body: _bodyOfHomePageChat(state),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.black,
+            onPressed: () {
+              print('len ${state.categories.length}');
+              BlocProvider.of<HomePageCubit>(context).addCategory(
                 context,
-              ),
-              child: const Icon(
-                Icons.add_sharp,
-                color: Colors.yellow,
-              ),
+              );
+              BlocProvider.of<HomePageCubit>(context).updateList(
+                state.categories,
+              );
+            },
+            child: const Icon(
+              Icons.add_sharp,
+              color: Colors.yellow,
             ),
-            bottomNavigationBar: _chatBottomNavigationBar(),
-          );
-        },
-      ),
+          ),
+          bottomNavigationBar: _chatBottomNavigationBar(),
+        );
+      },
     );
   }
 
@@ -195,16 +198,17 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                 child: Card(
                   child: ListTile(
                     title: Text(
-                      state.categories[index - 1].title,
+                      state.categories[index - 1]
+                          .title, //todo  может из-за state. не обновляется моментально состояние
                     ),
                     subtitle: Text(
-                      state.categories[index - 1].listMessages.isEmpty
+                      state.categories[index - 1].subTitleMessage.isEmpty
                           ? 'No events. Click to create one.'
-                          : state.categories[index - 1].listMessages.first.text,
+                          : state.categories[index - 1].subTitleMessage,
                     ),
                     leading: CircleAvatar(
                       child: Icon(
-                        state.categories[index - 1].iconData,
+                        initialIcons[state.categories[index].iconIndex],
                       ),
                       backgroundColor: Colors.black,
                     ),

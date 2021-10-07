@@ -1,22 +1,46 @@
 import 'package:flutter/material.dart';
 
 class Message {
-  int id;
+  int messageId;
+  int currentCategoryId;
+  int iconIndex;
   String text;
-  DateTime time;
+  String time;
 
-  @required
   Message({
-    required this.id,
+    required this.messageId,
+    required this.currentCategoryId,
+    required this.iconIndex,
     required this.time,
     required this.text,
   });
 
-  Message copyWith({int? id, String? text, DateTime? time}) {
+  Map<String, dynamic> convertMessageToMap() {
+    return {
+      'current_category_id': currentCategoryId,
+      'text': text,
+      'time': time,
+      'message_icon_index': iconIndex,
+    };
+  }
+
+  Map<String, dynamic> convertMessageToMapWithId() {
+    return {
+      'message_id': messageId,
+      'current_category_id': currentCategoryId,
+      'text': text,
+      'time': time,
+      'message_icon_index': iconIndex,
+    };
+  }
+
+  factory Message.fromMap(Map<String, dynamic> map) {
     return Message(
-      id: id ?? this.id,
-      time: time ?? this.time,
-      text: text ?? this.text,
+      messageId: map['message_id'],
+      currentCategoryId: map['current_category_id'],
+      text: map['text'],
+      time: map['time'],
+      iconIndex: map['message_icon_index'],
     );
   }
 }

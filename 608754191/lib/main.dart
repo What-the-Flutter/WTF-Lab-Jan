@@ -12,9 +12,21 @@ import 'util/theme_bloc/theme_cubit.dart';
 import 'util/theme_inherited/application_theme.dart';
 
 List<Category> initialCategories = [
-  Category(title: 'Travel', iconData: Icons.airport_shuttle_sharp, listMessages: []),
-  Category(title: 'Family', iconData: Icons.family_restroom_sharp, listMessages: []),
-  Category(title: 'Sports', iconData: Icons.directions_bike, listMessages: []),
+  Category(
+      title: 'Travel',
+      categoryId: 0,
+      iconIndex: initialCategories.first.iconIndex,
+      subTitleMessage: ''),
+  Category(
+      title: 'Family',
+      categoryId: 1,
+      iconIndex: initialCategories.first.iconIndex + 1,
+      subTitleMessage: ''),
+  Category(
+      title: 'Sports',
+      categoryId: 2,
+      iconIndex: initialCategories.first.iconIndex + 2,
+      subTitleMessage: ''),
 ];
 
 List<IconData> initialIcons = [
@@ -80,9 +92,7 @@ class ChatJournal extends StatelessWidget {
           create: (context) => AddPageCubit(),
         ),
         BlocProvider(
-          create: (context) => HomePageCubit(
-            initialCategories,
-          ),
+          create: (context) => HomePageCubit(),
         ),
         BlocProvider<ThemeCubit>(
           create: (context) => ThemeCubit(
@@ -103,7 +113,7 @@ class ChatJournal extends StatelessWidget {
             theme: lightTheme,
             darkTheme: darkTheme,
             routes: {
-              '/home_page': (_) => ChatJournalHomePage(initialCategories),
+              '/home_page': (__) => ChatJournalHomePage(),
               '/add_page': (_) => AddPage.add(),
               '/timeline_page': (_) => TimelinePage(categories: initialCategories),
             },
