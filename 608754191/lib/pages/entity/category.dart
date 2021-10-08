@@ -1,24 +1,51 @@
-import 'package:flutter/material.dart';
+import 'package:equatable/equatable.dart';
 
-import 'message.dart';
+class Category extends Equatable {
+  int? categoryId;
+  int iconIndex;
+  String title;
+  String subTitleMessage;
 
-class Category {
-  late final String title;
-  late final IconData iconData;
-  List<Message> listMessages;
+  Category({
+    this.categoryId,
+    required this.iconIndex,
+    required this.title,
+    required this.subTitleMessage,
+  });
 
-  Category(
-    this.title,
-    this.iconData,
-    this.listMessages,
-  );
+  Map<String, dynamic> convertCategoryToMapWithId() {
+    return {
+      'category_id': categoryId,
+      'title': title,
+      'category_icon_index': iconIndex,
+      'sub_tittle_name': subTitleMessage,
+    };
+  }
 
-  Category copyWith(
-      {String? title, String? subtitle, IconData? iconData, List<Message>? listMessages}) {
+  Map<String, dynamic> convertCategoryToMap() {
+    return {
+      'title': title,
+      'category_icon_index': iconIndex,
+      'sub_tittle_name': subTitleMessage,
+    };
+  }
+
+  factory Category.fromMap(
+    Map<String, dynamic> map,
+  ) {
     return Category(
-      title ?? this.title,
-      iconData ?? this.iconData,
-      listMessages ?? this.listMessages,
+      categoryId: map['category_id'],
+      title: map['title'],
+      iconIndex: map['category_icon_index'],
+      subTitleMessage: map['sub_tittle_name'],
     );
   }
+
+  @override
+  List<Object?> get props => [
+        title,
+        iconIndex,
+        categoryId,
+        subTitleMessage,
+      ];
 }

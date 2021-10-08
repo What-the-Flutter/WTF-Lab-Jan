@@ -1,96 +1,219 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_wtf/pages/entity/message.dart';
-import '../entity/category.dart';
+import 'package:intl/intl.dart';
+import '../../util/database.dart';
 
+import '../entity/category.dart';
+import '../entity/message.dart';
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
-  ChatPageCubit(Category category, List<Category> categories)
+  final DatabaseProvider _databaseProvider = DatabaseProvider();
+  ChatPageCubit()
       : super(
-          ChatPageState(
-            eventSelected: true,
-            indexOfSelectedElement: 0,
-            isEditing: false,
-            category: category,
-            isSending: false,
-            categories: categories,
-          ),
+          ChatPageState(),
         );
 
-  void changeIndexOfSelectedElement(int index) {
+  void init(Category category) {
+    setNote(category);
+    setCategoryListState(<Category>[]);
+    setSending(false);
+    setEditState(false);
+    setWritingState(false);
+    setMessageSelected(false);
+    setIndexOfSelection(0);
+    setIconIndex(0);
+    initMessageList();
+  }
+
+  void setCategoryListState(List<Category> categories) {
     emit(
-      state.copyWith(indexOfSelectedElement: index),
+      state.copyWith(
+        categories: categories,
+      ),
     );
   }
 
-  void swapAppBar() {
+  void setNote(Category category) {
     emit(
-      state.copyWith(eventSelected: !state.eventSelected),
+      state.copyWith(
+        category: category,
+      ),
     );
   }
 
-  void deleteMessage(int index) {
-    state.category.listMessages.removeAt(index);
+  void setEditState(bool isEditing) {
     emit(
-      state.copyWith(category: state.category),
-    );
-  }
-
-  void copyMessages(int index) {
-    Clipboard.setData(
-      ClipboardData(text: state.category.listMessages[index].text),
-    );
-    emit(
-      state.copyWith(category: state.category),
-    );
-  }
-
-  void setEditMessage(bool isEditing) {
-    emit(
-      state.copyWith(isEditing: isEditing),
-    );
-  }
-
-  void addMessage(Message message) {
-    state.category.listMessages.insert(0, message);
-    emit(
-      state.copyWith(category: state.category),
-    );
-  }
-
-  void editText(int index, String text) {
-    state.category.listMessages[index].text = text;
-    emit(
-      state.copyWith(category: state.category),
-    );
-  }
-
-  void setMessageText(int index, String text) {
-    state.category.listMessages[index].text = text;
-    emit(
-      state.copyWith(category: state.category),
+      state.copyWith(
+        isEditing: isEditing,
+      ),
     );
   }
 
   void setSending(bool isSending) {
     emit(
-      state.copyWith(isSending: isSending),
+      state.copyWith(
+        isSending: isSending,
+      ),
     );
   }
 
-  void changeMessageCategory(int index, int categoryIndex) {
-    state.categories[categoryIndex].listMessages.insert(
-      0,
-      Message(
-        1,
-        DateTime.now(),
-        state.category.listMessages[index].text,
+  void setMessageSelected(bool isSelected) {
+    emit(
+      state.copyWith(
+        messageSelected: isSelected,
       ),
     );
-    state.category.listMessages.removeAt(index);
+  }
+
+  void setIndexOfSelection(int indexOfSelection) {
     emit(
-      state.copyWith(category: state.category, categories: state.categories),
+      state.copyWith(
+        indexOfSelectedElement: indexOfSelection,
+      ),
+    );
+  }
+
+  void setIconIndex(int iconIndex) {
+    emit(
+      state.copyWith(
+        iconIndex: iconIndex,
+      ),
+    );
+  }
+
+  void setWritingState(bool isWriting) {
+    emit(
+      state.copyWith(
+        isWriting: isWriting,
+      ),
+    );
+  }
+
+  void initMessageList() async {
+    emit(
+      state.copyWith(
+        messageList: await _databaseProvider.downloadMessageList(
+          state.category!.categoryId!,
+        ),
+      ),
+    );
+  }
+
+  void setEventState(Message message) {
+    var messageStateSelected = state.messageSelected!;
+    emit(
+      state.copyWith(
+        messageSelected: !messageStateSelected,
+      ),
+    );
+  }
+
+  void changeIndexOfSelectedElement(int index) {
+    emit(
+      state.copyWith(
+        indexOfSelectedElement: index,
+      ),
+    );
+  }
+
+  void swapAppBar() {
+    emit(
+      state.copyWith(
+        messageSelected: !state.messageSelected!,
+      ),
+    );
+  }
+
+  void deleteMessage(Message message) {
+    _databaseProvider.deleteMessage(message);
+    state.messageList.remove(message);
+    if (state.messageList.isEmpty) {
+      state.category!.subTitleMessage = 'add new message';
+    } else {
+      state.category!.subTitleMessage = state.messageList[0].text;
+    }
+    emit(
+      state.copyWith(
+        messageList: state.messageList,
+      ),
+    );
+  }
+
+  void copyMessage(Message message) {
+    Clipboard.setData(
+      ClipboardData(text: state.message!.text),
+    );
+    emit(
+      state.copyWith(
+        category: state.category,
+      ),
+    );
+  }
+
+  void addMessage(String text) async {
+    final message = Message(
+      currentCategoryId: state.category!.categoryId!,
+      time: DateFormat.yMMMd().format(
+        DateTime.now(),
+      ),
+      text: text,
+    );
+    state.messageList.add(message);
+    message.messageId = await _databaseProvider.insertMessage(message);
+    state.category!.subTitleMessage = state.messageList[0].text;
+    emit(
+      state.copyWith(
+        messageList: state.messageList,
+      ),
+    );
+  }
+
+  void editText(
+    Message message,
+    String text,
+  ) {
+    message.text = text;
+    _databaseProvider.updateMessage(message);
+    emit(
+      state.copyWith(
+        category: state.category,
+      ),
+    );
+  }
+
+  void setMessageText(
+    Message message,
+    String text,
+  ) {
+    message.text = text;
+    emit(
+      state.copyWith(
+        category: state.category,
+      ),
+    );
+  }
+
+  void changeMessageCategory(
+    int index,
+    int categoryIndex,
+  ) async {
+    final message = Message(
+      messageId: -1,
+      time: DateFormat('yyyy-MM-dd kk:mm').format(
+        DateTime.now(),
+      ),
+      text: state.messageList[index].text,
+      currentCategoryId: state.category!.categoryId!,
+    );
+    deleteMessage(message);
+    state.messageList.removeAt(index);
+    message.messageId = await _databaseProvider.insertMessage(message);
+    emit(
+      state.copyWith(
+        category: state.category,
+        categories: state.categories,
+      ),
     );
   }
 }

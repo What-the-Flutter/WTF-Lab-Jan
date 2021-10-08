@@ -11,9 +11,13 @@ environment:
 dependencies:
   flutter:
    sdk: flutter
+  sqflite: ^2.0.0+4
+  path: ^1.8.0
+  path_provider: ^2.0.1
   intl: ^0.17.0
   flutter_bloc: ^7.3.0
-
+  shared_preferences: ^2.0.6
+  equatable: ^2.0.3
   cupertino_icons: ^1.0.2
 
 dev_dependencies:

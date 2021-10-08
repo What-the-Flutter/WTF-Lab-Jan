@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
@@ -9,12 +10,6 @@ import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
 import 'util/theme_bloc/theme_cubit.dart';
 import 'util/theme_inherited/application_theme.dart';
-
-List<Category> initialCategories = [
-  Category('Travel', Icons.airport_shuttle_sharp, []),
-  Category('Family', Icons.family_restroom_sharp, []),
-  Category('Sports', Icons.directions_bike, []),
-];
 
 List<IconData> initialIcons = [
   Icons.theater_comedy,
@@ -46,36 +41,67 @@ List<IconData> initialIcons = [
   Icons.gesture,
   Icons.train_outlined
 ];
-void main() => runApp(
-      ChatJournal(),
-    );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    ChatJournal(
+      preferences: await SharedPreferences.getInstance(),
+    ),
+  );
+}
 
 class ChatJournal extends StatelessWidget {
+  final SharedPreferences preferences;
+
+  const ChatJournal({Key? key, required this.preferences}) : super(key: key);
+
+  ThemeMode _themeModeFromString(String? string) {
+    switch (string) {
+      case 'dark':
+        return ThemeMode.dark;
+      case 'light':
+        return ThemeMode.light;
+      default:
+        return ThemeMode.light;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AddPageCubit(),
-      child: BlocProvider(
-        create: (context) => HomePageCubit(initialCategories),
-        child: BlocProvider<ThemeCubit>(
-          create: (context) => ThemeCubit(true),
-          child: BlocBuilder<ThemeCubit, ThemeState>(
-            builder: (context, state) {
-              return MaterialApp(
-                title: 'Home Page',
-                themeMode: state.isLight ? ThemeMode.light : ThemeMode.dark,
-                theme: lightTheme,
-                darkTheme: darkTheme,
-                routes: {
-                  '/home_page': (_) => ChatJournalHomePage(initialCategories),
-                  '/add_page': (_) => AddPage.add(),
-                  '/timeline_page': (_) => TimelinePage(categories: initialCategories),
-                },
-                initialRoute: '/home_page',
-              );
-            },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AddPageCubit(),
+        ),
+        BlocProvider(
+          create: (context) => HomePageCubit(),
+        ),
+        BlocProvider<ThemeCubit>(
+          create: (context) => ThemeCubit(
+            _themeModeFromString(
+              preferences.getString(
+                'themeMode',
+              ),
+            ),
+            preferences: preferences,
           ),
         ),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Home Page',
+            themeMode: state.themeMode,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            routes: {
+              '/home_page': (__) => ChatJournalHomePage(),
+              '/add_page': (_) => AddPage.add(),
+              '/timeline_page': (_) => TimelinePage(categories: []),
+            },
+            initialRoute: '/home_page',
+          );
+        },
       ),
     );
   }

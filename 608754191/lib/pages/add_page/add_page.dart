@@ -6,26 +6,57 @@ import '../entity/category.dart';
 import 'add_page_cubit.dart';
 
 class AddPage extends StatefulWidget {
-  final List<Category> categories;
+  final List<Category>? categories;
+  final Category? category;
   final List<IconData> icons = initialIcons;
   final int indexOfCategory;
 
-  AddPage({Key? key, required this.categories, required this.indexOfCategory}) : super(key: key);
+  AddPage({
+    Key? key,
+    required this.categories,
+    required this.indexOfCategory,
+    this.category,
+  }) : super(key: key);
 
-  AddPage.add({this.categories = const <Category>[], this.indexOfCategory = 0});
+  AddPage.add({
+    this.categories = const <Category>[],
+    this.indexOfCategory = 0,
+    this.category,
+  });
 
   @override
-  _AddPageState createState() => _AddPageState();
+  _AddPageState createState() => _AddPageState(
+        category: category,
+        categories: categories,
+      );
 }
 
 class _AddPageState extends State<AddPage> {
-  late final TextEditingController _textEditingController;
+  final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final Category? category;
+  final List<Category>? categories;
+
+  _AddPageState({
+    this.category,
+    this.categories,
+  });
 
   @override
   void initState() {
-    _textEditingController = TextEditingController();
-    _focusNode.requestFocus();
+    if (category != null) {
+      BlocProvider.of<AddPageCubit>(context).setSelectedIconIndex(
+        category!.iconIndex,
+      );
+      _textEditingController.text = category!.title;
+      _focusNode.requestFocus();
+    } else {
+      BlocProvider.of<AddPageCubit>(context).setSelectedIconIndex(0);
+    }
+    BlocProvider.of<AddPageCubit>(context).init(
+      category,
+      categories,
+    );
     super.initState();
   }
 
@@ -66,13 +97,20 @@ class _AddPageState extends State<AddPage> {
   }
 
   void _create(AddPageState state, BuildContext context) {
-    Navigator.of(context).pop(
-      Category(
-        _textEditingController.text,
-        widget.icons[state.selectedIconIndex],
-        [],
-      ),
-    );
+    if (category != null) {
+      category!.title = _textEditingController.text;
+      category!.iconIndex = state.selectedIconIndex;
+      Navigator.of(context).pop(category);
+    } else {
+      Navigator.pop(
+        context,
+        Category(
+          title: _textEditingController.text,
+          iconIndex: 1,
+          subTitleMessage: '',
+        ),
+      );
+    }
     _textEditingController.clear();
   }
 
