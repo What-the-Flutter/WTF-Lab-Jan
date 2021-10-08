@@ -28,7 +28,9 @@ class Message {
     };
   }
 
-  factory Message.fromMap(Map<String, dynamic> map) {
+  factory Message.fromMap(
+    Map<String, dynamic> map,
+  ) {
     return Message(
       messageId: map['message_id'],
       currentCategoryId: map['current_category_id'],

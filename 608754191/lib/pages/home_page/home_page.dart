@@ -239,12 +239,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
             Colors.white,
           ),
           padding: MaterialStateProperty.all(
-            const EdgeInsets.fromLTRB(
-              1,
-              1,
-              1,
-              1,
-            ),
+            const EdgeInsets.fromLTRB(1, 1, 1, 1),
           ),
           overlayColor: MaterialStateProperty.all(
             Colors.blueGrey[100],

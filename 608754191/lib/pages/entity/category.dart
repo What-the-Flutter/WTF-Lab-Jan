@@ -30,7 +30,9 @@ class Category extends Equatable {
     };
   }
 
-  factory Category.fromMap(Map<String, dynamic> map) {
+  factory Category.fromMap(
+    Map<String, dynamic> map,
+  ) {
     return Category(
       categoryId: map['category_id'],
       title: map['title'],
@@ -40,5 +42,10 @@ class Category extends Equatable {
   }
 
   @override
-  List<Object?> get props => [title, iconIndex, categoryId, subTitleMessage];
+  List<Object?> get props => [
+        title,
+        iconIndex,
+        categoryId,
+        subTitleMessage,
+      ];
 }

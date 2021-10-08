@@ -5,8 +5,12 @@ class HomePageState extends Equatable {
 
   HomePageState([List<Category>? categories]) : categories = categories ?? [];
 
-  HomePageState copyWith({List<Category>? categories}) {
-    return HomePageState(categories ?? this.categories);
+  HomePageState copyWith({
+    List<Category>? categories,
+  }) {
+    return HomePageState(
+      categories ?? this.categories,
+    );
   }
 
   @override

@@ -11,13 +11,24 @@ class AddPage extends StatefulWidget {
   final List<IconData> icons = initialIcons;
   final int indexOfCategory;
 
-  AddPage({Key? key, required this.categories, required this.indexOfCategory, this.category})
-      : super(key: key);
+  AddPage({
+    Key? key,
+    required this.categories,
+    required this.indexOfCategory,
+    this.category,
+  }) : super(key: key);
 
-  AddPage.add({this.categories = const <Category>[], this.indexOfCategory = 0, this.category});
+  AddPage.add({
+    this.categories = const <Category>[],
+    this.indexOfCategory = 0,
+    this.category,
+  });
 
   @override
-  _AddPageState createState() => _AddPageState(category: category, categories: categories);
+  _AddPageState createState() => _AddPageState(
+        category: category,
+        categories: categories,
+      );
 }
 
 class _AddPageState extends State<AddPage> {
@@ -26,7 +37,10 @@ class _AddPageState extends State<AddPage> {
   final Category? category;
   final List<Category>? categories;
 
-  _AddPageState({this.category, this.categories});
+  _AddPageState({
+    this.category,
+    this.categories,
+  });
 
   @override
   void initState() {
@@ -39,7 +53,10 @@ class _AddPageState extends State<AddPage> {
     } else {
       BlocProvider.of<AddPageCubit>(context).setSelectedIconIndex(0);
     }
-    BlocProvider.of<AddPageCubit>(context).init(category, categories);
+    BlocProvider.of<AddPageCubit>(context).init(
+      category,
+      categories,
+    );
     super.initState();
   }
 

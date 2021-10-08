@@ -67,7 +67,11 @@ class ChoseOfAction extends StatelessWidget {
             color: Colors.blue,
           ),
           onTap: () {
-            BlocProvider.of<HomePageCubit>(context).update(context, categories, index);
+            BlocProvider.of<HomePageCubit>(context).update(
+              context,
+              categories,
+              index,
+            );
             Navigator.pop(
               context,
             );

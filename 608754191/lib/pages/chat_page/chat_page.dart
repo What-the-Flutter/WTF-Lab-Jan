@@ -20,7 +20,10 @@ class ChatPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _ChatPage(category, categories);
+  State<StatefulWidget> createState() => _ChatPage(
+        category,
+        categories,
+      );
 }
 
 class _ChatPage extends State<ChatPage> {
@@ -31,7 +34,11 @@ class _ChatPage extends State<ChatPage> {
   final FocusNode _focusNode = FocusNode();
 
   @required
-  _ChatPage(this._category, this._categories);
+  _ChatPage(
+    this._category,
+    this._categories,
+  );
+
   @override
   void initState() {
     _cubit = ChatPageCubit()..init(_category);
@@ -66,7 +73,10 @@ class _ChatPage extends State<ChatPage> {
               children: [
                 if (state.messageList.isEmpty) _eventPage(),
                 _bodyForInput(state),
-                _inputInsideChatPage(state, blocContext),
+                _inputInsideChatPage(
+                  state,
+                  blocContext,
+                ),
               ],
             ),
           );
@@ -106,7 +116,11 @@ class _ChatPage extends State<ChatPage> {
     );
   }
 
-  AppBar _appBarWhenSelectedFromChatPage(ChatPageState state, int index, BuildContext blocContext) {
+  AppBar _appBarWhenSelectedFromChatPage(
+    ChatPageState state,
+    int index,
+    BuildContext blocContext,
+  ) {
     return AppBar(
       backgroundColor: Colors.blueGrey,
       leading: IconButton(
@@ -339,7 +353,11 @@ class _ChatPage extends State<ChatPage> {
   }
 
   Dialog _migrateEventDialog(
-      int messageIndex, BuildContext blocContext, BuildContext dialogContext, ChatPageState state) {
+    int messageIndex,
+    BuildContext blocContext,
+    BuildContext dialogContext,
+    ChatPageState state,
+  ) {
     return Dialog(
       elevation: 16,
       child: Container(
@@ -389,7 +407,11 @@ class _ChatPage extends State<ChatPage> {
     _focusNode.requestFocus();
   }
 
-  AlertDialog _deleteAlertDialog(int index, Message message, BuildContext blocContext) {
+  AlertDialog _deleteAlertDialog(
+    int index,
+    Message message,
+    BuildContext blocContext,
+  ) {
     return AlertDialog(
       title: const Text(
         'Delete this  message?',
@@ -425,7 +447,10 @@ class SearchEventDelegate extends SearchDelegate {
   final Category? category;
   final List<Message>? messagesList;
 
-  SearchEventDelegate({this.messagesList, this.category});
+  SearchEventDelegate({
+    this.messagesList,
+    this.category,
+  });
 
   @override
   ThemeData appBarTheme(BuildContext context) {

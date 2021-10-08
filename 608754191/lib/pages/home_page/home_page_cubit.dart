@@ -57,7 +57,6 @@ class HomePageCubit extends Cubit<HomePageState> {
       ),
     );
     if (newCategory is Category) {
-      // state.categories.add(newCategory);
       state.categories.insert(0, newCategory);
       newCategory.categoryId = await _databaseProvider.insertCategory(newCategory);
     }

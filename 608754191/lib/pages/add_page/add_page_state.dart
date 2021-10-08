@@ -11,10 +11,15 @@ class AddPageState {
     this.category,
   });
 
-  AddPageState copyWith({int? selectedIconIndex, List<Category>? categories, Category? category}) =>
-      AddPageState(
-        selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
-        categories: categories ?? this.categories,
-        category: category ?? this.category,
-      );
+  AddPageState copyWith({
+    int? selectedIconIndex,
+    List<Category>? categories,
+    Category? category,
+  }) {
+    return AddPageState(
+      selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
+      categories: categories ?? this.categories,
+      category: category ?? this.category,
+    );
+  }
 }

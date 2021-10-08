@@ -26,54 +26,87 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     initMessageList();
   }
 
-  void setCategoryListState(List<Category> categories) =>
-      emit(state.copyWith(categories: categories));
+  void setCategoryListState(List<Category> categories) {
+    emit(
+      state.copyWith(
+        categories: categories,
+      ),
+    );
+  }
 
-  void setNote(Category category) => emit(state.copyWith(category: category));
+  void setNote(Category category) {
+    emit(
+      state.copyWith(
+        category: category,
+      ),
+    );
+  }
 
   void setEditState(bool isEditing) {
     emit(
-      state.copyWith(isEditing: isEditing),
+      state.copyWith(
+        isEditing: isEditing,
+      ),
     );
   }
 
   void setSending(bool isSending) {
     emit(
-      state.copyWith(isSending: isSending),
+      state.copyWith(
+        isSending: isSending,
+      ),
     );
   }
 
   void setMessageSelected(bool isSelected) {
     emit(
-      state.copyWith(messageSelected: isSelected),
+      state.copyWith(
+        messageSelected: isSelected,
+      ),
     );
   }
 
   void setIndexOfSelection(int indexOfSelection) {
     emit(
-      state.copyWith(indexOfSelectedElement: indexOfSelection),
+      state.copyWith(
+        indexOfSelectedElement: indexOfSelection,
+      ),
     );
   }
 
   void setIconIndex(int iconIndex) {
     emit(
-      state.copyWith(iconIndex: iconIndex),
+      state.copyWith(
+        iconIndex: iconIndex,
+      ),
     );
   }
 
-  void setWritingState(bool isWriting) => emit(state.copyWith(isWriting: isWriting));
+  void setWritingState(bool isWriting) {
+    emit(
+      state.copyWith(
+        isWriting: isWriting,
+      ),
+    );
+  }
 
   void initMessageList() async {
     emit(
       state.copyWith(
-        messageList: await _databaseProvider.downloadMessageList(state.category!.categoryId!),
+        messageList: await _databaseProvider.downloadMessageList(
+          state.category!.categoryId!,
+        ),
       ),
     );
   }
 
   void setEventState(Message message) {
     var messageStateSelected = state.messageSelected!;
-    emit(state.copyWith(messageSelected: !messageStateSelected));
+    emit(
+      state.copyWith(
+        messageSelected: !messageStateSelected,
+      ),
+    );
   }
 
   void changeIndexOfSelectedElement(int index) {
@@ -101,7 +134,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       state.category!.subTitleMessage = state.messageList[0].text;
     }
     emit(
-      state.copyWith(messageList: state.messageList),
+      state.copyWith(
+        messageList: state.messageList,
+      ),
     );
   }
 
@@ -110,40 +145,59 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       ClipboardData(text: state.message!.text),
     );
     emit(
-      state.copyWith(category: state.category),
+      state.copyWith(
+        category: state.category,
+      ),
     );
   }
 
   void addMessage(String text) async {
     final message = Message(
       currentCategoryId: state.category!.categoryId!,
-      time: DateFormat.yMMMd().format(DateTime.now()),
+      time: DateFormat.yMMMd().format(
+        DateTime.now(),
+      ),
       text: text,
     );
     state.messageList.add(message);
     message.messageId = await _databaseProvider.insertMessage(message);
     state.category!.subTitleMessage = state.messageList[0].text;
     emit(
-      state.copyWith(messageList: state.messageList),
+      state.copyWith(
+        messageList: state.messageList,
+      ),
     );
   }
 
-  void editText(Message message, String text) {
+  void editText(
+    Message message,
+    String text,
+  ) {
     message.text = text;
     _databaseProvider.updateMessage(message);
     emit(
-      state.copyWith(category: state.category),
+      state.copyWith(
+        category: state.category,
+      ),
     );
   }
 
-  void setMessageText(Message message, String text) {
+  void setMessageText(
+    Message message,
+    String text,
+  ) {
     message.text = text;
     emit(
-      state.copyWith(category: state.category),
+      state.copyWith(
+        category: state.category,
+      ),
     );
   }
 
-  void changeMessageCategory(int index, int categoryIndex) async {
+  void changeMessageCategory(
+    int index,
+    int categoryIndex,
+  ) async {
     final message = Message(
       messageId: -1,
       time: DateFormat('yyyy-MM-dd kk:mm').format(
@@ -156,7 +210,10 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     state.messageList.removeAt(index);
     message.messageId = await _databaseProvider.insertMessage(message);
     emit(
-      state.copyWith(category: state.category, categories: state.categories),
+      state.copyWith(
+        category: state.category,
+        categories: state.categories,
+      ),
     );
   }
 }

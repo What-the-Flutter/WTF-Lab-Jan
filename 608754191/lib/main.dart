@@ -11,24 +11,6 @@ import 'pages/navbar_pages/timeline_page/timeline_page.dart';
 import 'util/theme_bloc/theme_cubit.dart';
 import 'util/theme_inherited/application_theme.dart';
 
-List<Category> initialCategories = [
-  Category(
-      title: 'Travel',
-      categoryId: 0,
-      iconIndex: initialCategories.first.iconIndex,
-      subTitleMessage: ''),
-  Category(
-      title: 'Family',
-      categoryId: 1,
-      iconIndex: initialCategories.first.iconIndex + 1,
-      subTitleMessage: ''),
-  Category(
-      title: 'Sports',
-      categoryId: 2,
-      iconIndex: initialCategories.first.iconIndex + 2,
-      subTitleMessage: ''),
-];
-
 List<IconData> initialIcons = [
   Icons.theater_comedy,
   Icons.family_restroom,
@@ -115,7 +97,7 @@ class ChatJournal extends StatelessWidget {
             routes: {
               '/home_page': (__) => ChatJournalHomePage(),
               '/add_page': (_) => AddPage.add(),
-              '/timeline_page': (_) => TimelinePage(categories: initialCategories),
+              '/timeline_page': (_) => TimelinePage(categories: []),
             },
             initialRoute: '/home_page',
           );
