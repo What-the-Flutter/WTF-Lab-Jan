@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../util/database.dart';
+import '../../repositories/database.dart';
 import '../add_page/add_page.dart';
 import '../chat_page/chat_page.dart';
 import '../entity/category.dart';
@@ -17,21 +17,21 @@ class HomePageCubit extends Cubit<HomePageState> {
   final DatabaseProvider _databaseProvider = DatabaseProvider();
 
   void init() async {
-    emit(
-      state.copyWith(
-        categories: <Category>[],
-      ),
+    updateList(
+      [],
     );
     emit(
       state.copyWith(
-        categories: await _databaseProvider.downloadCategoryList(),
+        categories: await _databaseProvider.fetchCategoryList(),
       ),
     );
   }
 
-  void updateList(List<Category> categories) => emit(
-        state.copyWith(categories: categories),
-      );
+  void updateList(List<Category> categories) {
+    emit(
+      state.copyWith(categories: categories),
+    );
+  }
 
   void deleteCategory(List<Category> categories, int index) {
     _databaseProvider.deleteCategory(
@@ -51,6 +51,7 @@ class HomePageCubit extends Cubit<HomePageState> {
       );
 
   void addCategory(BuildContext context) async {
+    // вместо обращения к контексту, лучше сделать в стэйте поле навигации новой категори goCreationPage = false,  в  методе делать true.
     final newCategory = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AddPage.add(),
@@ -66,6 +67,7 @@ class HomePageCubit extends Cubit<HomePageState> {
   }
 
   void choseOfAction(int index, BuildContext context) async {
+    // remove Context
     await showDialog(
       context: context,
       builder: (context) => BlocProvider.value(

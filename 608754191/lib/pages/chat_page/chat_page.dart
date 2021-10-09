@@ -101,6 +101,7 @@ class _ChatPage extends State<ChatPage> {
             showSearch(
               context: context,
               delegate: SearchEventDelegate(
+                messagesList: state.messageList,
                 category: widget.category,
               ),
             );
@@ -165,7 +166,7 @@ class _ChatPage extends State<ChatPage> {
             context: context,
             builder: (blocContext) => _deleteAlertDialog(
               index,
-              state.message!,
+              state.messageList[state.indexOfSelectedElement!],
               blocContext,
             ),
           ),
@@ -249,7 +250,7 @@ class _ChatPage extends State<ChatPage> {
                   ),
                 ),
                 subtitle: Text(
-                  '${DateTime.now()}',
+                  state.messageList[state.indexOfSelectedElement!].time,
                   style: TextStyle(
                     color: Colors.blueGrey[200],
                     fontSize: 12,
@@ -322,9 +323,10 @@ class _ChatPage extends State<ChatPage> {
               onPressed: () {
                 if (state.isEditing!) {
                   BlocProvider.of<ChatPageCubit>(blocContext).editText(
-                    state.message!,
+                    state.messageList[state.indexOfSelectedElement!],
                     _textEditingController.text,
                   );
+                  _textEditingController.clear();
                 } else {
                   BlocProvider.of<ChatPageCubit>(blocContext)
                       .addMessage(_textEditingController.text);
@@ -343,7 +345,6 @@ class _ChatPage extends State<ChatPage> {
     state.messageList.insert(
       state.messageList.length,
       Message(
-        messageId: 1,
         time: DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now()),
         text: _textEditingController.text,
         currentCategoryId: state.category!.categoryId!,
@@ -431,8 +432,8 @@ class _ChatPage extends State<ChatPage> {
               context,
               'Yes',
             );
-            BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
-            BlocProvider.of<ChatPageCubit>(blocContext).deleteMessage(message);
+            _cubit.swapAppBar();
+            _cubit.deleteMessage(message);
           },
           child: const Text(
             'Yes',
@@ -445,10 +446,10 @@ class _ChatPage extends State<ChatPage> {
 
 class SearchEventDelegate extends SearchDelegate {
   final Category? category;
-  final List<Message>? messagesList;
+  final List<Message> messagesList;
 
   SearchEventDelegate({
-    this.messagesList,
+    required this.messagesList,
     this.category,
   });
 
@@ -487,7 +488,7 @@ class SearchEventDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return messagesList!
+    return messagesList
             .where(
               (element) => element.text.contains(
                 query,
@@ -502,7 +503,7 @@ class SearchEventDelegate extends SearchDelegate {
         : ListView.builder(
             scrollDirection: Axis.vertical,
             reverse: true,
-            itemCount: messagesList!
+            itemCount: messagesList
                 .where(
                   (element) => element.text.contains(
                     query,
@@ -510,7 +511,7 @@ class SearchEventDelegate extends SearchDelegate {
                 )
                 .length,
             itemBuilder: (context, index) {
-              final message = messagesList!
+              final message = messagesList
                   .where(
                     (element) => element.text.contains(
                       query,

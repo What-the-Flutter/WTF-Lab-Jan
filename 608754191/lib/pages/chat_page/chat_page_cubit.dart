@@ -1,8 +1,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../../util/database.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
+import '../../repositories/database.dart';
 import '../entity/category.dart';
 import '../entity/message.dart';
 import 'chat_page_state.dart';
@@ -15,12 +17,13 @@ class ChatPageCubit extends Cubit<ChatPageState> {
         );
 
   void init(Category category) {
-    setNote(category);
+    setCategory(category);
     setCategoryListState(<Category>[]);
     setSending(false);
     setEditState(false);
     setWritingState(false);
     setMessageSelected(false);
+    setEditingPhotoState(false);
     setIndexOfSelection(0);
     setIconIndex(0);
     initMessageList();
@@ -34,7 +37,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     );
   }
 
-  void setNote(Category category) {
+  void setCategory(Category category) {
     emit(
       state.copyWith(
         category: category,
@@ -101,11 +104,17 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   }
 
   void setEventState(Message message) {
-    var messageStateSelected = state.messageSelected!;
+    final messageStateSelected = state.messageSelected!;
     emit(
       state.copyWith(
         messageSelected: !messageStateSelected,
       ),
+    );
+  }
+
+  void setEditingPhotoState(bool isSendingPhoto) {
+    emit(
+      state.copyWith(isSendingPhoto: isSendingPhoto),
     );
   }
 
@@ -126,35 +135,34 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   }
 
   void deleteMessage(Message message) {
-    _databaseProvider.deleteMessage(message);
+    _databaseProvider.deleteMessage(message); //todo доставать, менять , обновлять
     state.messageList.remove(message);
+    final currentCategory = state.category;
     if (state.messageList.isEmpty) {
-      state.category!.subTitleMessage = 'add new message';
+      currentCategory!.subTitleMessage = 'Add new  message';
+      // нежелательно образаться к внутренним полям стэйта
     } else {
-      state.category!.subTitleMessage = state.messageList[0].text;
-    }
+      currentCategory!.subTitleMessage =
+          state.messageList[0].text; //тоже.  поля файнал вообще-то было бы неплохо.
+    } //current = state.category/  copyWith обновить в emit
     emit(
       state.copyWith(
         messageList: state.messageList,
+        category: currentCategory,
       ),
     );
   }
 
   void copyMessage(Message message) {
     Clipboard.setData(
-      ClipboardData(text: state.message!.text),
-    );
-    emit(
-      state.copyWith(
-        category: state.category,
-      ),
+      ClipboardData(text: state.messageList[state.indexOfSelectedElement!].text),
     );
   }
 
   void addMessage(String text) async {
     final message = Message(
       currentCategoryId: state.category!.categoryId!,
-      time: DateFormat.yMMMd().format(
+      time: DateFormat('yyyy-MM-dd kk:mm').format(
         DateTime.now(),
       ),
       text: text,
@@ -176,14 +184,12 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     message.text = text;
     _databaseProvider.updateMessage(message);
     emit(
-      state.copyWith(
-        category: state.category,
-      ),
+      state.copyWith(messageList: state.messageList),
     );
   }
 
   void setMessageText(
-    Message message,
+    Message message, //todo передавать проще к АйДи, а не целиком на уровне кьюбита
     String text,
   ) {
     message.text = text;

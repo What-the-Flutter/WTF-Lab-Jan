@@ -4,17 +4,18 @@ import 'package:sqflite/sqflite.dart';
 import '../pages/entity/category.dart';
 import '../pages/entity/message.dart';
 
-const String categoryTable = 'category';
-const String columnCategoryId = 'category_id';
-const String columnTitle = 'title';
-const String columnCategoryIconIndex = 'category_icon_index';
-const String columnNameOfSubTittle = 'sub_tittle_name';
+const String _categoryTable = 'category';
+const String _columnCategoryId = 'category_id';
+const String _columnTitle = 'title';
+const String _columnCategoryIconIndex = 'category_icon_index';
+const String _columnNameOfSubTittle = 'sub_tittle_name';
 
-const String messageTable = 'message';
-const String columnMessageId = 'message_id';
-const String columnCurrentCategoryId = 'current_category_id';
-const String columnText = 'text';
-const String columnTime = 'time';
+const String _messageTable = 'message';
+const String _columnMessageId = 'message_id';
+const String _columnCurrentCategoryId = 'current_category_id';
+const String _columnText = 'text';
+const String _columnTime = 'time';
+const String columnImagePath = 'image_path';
 
 class DatabaseProvider {
   static DatabaseProvider? _databaseProvider;
@@ -39,20 +40,19 @@ class DatabaseProvider {
       version: 1,
       onCreate: (db, version) {
         db.execute('''
-     create table $categoryTable (
-	    $columnCategoryId integer primary key autoincrement,
-      $columnTitle text not null,
-      $columnNameOfSubTittle text not null,
-      $columnCategoryIconIndex integer
+     create table $_categoryTable (
+	    $_columnCategoryId integer primary key autoincrement,
+      $_columnTitle text not null,
+      $_columnNameOfSubTittle text not null,
+      $_columnCategoryIconIndex integer
 );
       ''');
         db.execute('''
-     create table $messageTable(
-      $columnMessageId integer primary key autoincrement,
-      $columnCurrentCategoryId integer,
-      $columnText text not null,
-      $columnTime text not null
-     
+     create table $_messageTable(
+      $_columnMessageId integer primary key autoincrement,
+      $_columnCurrentCategoryId integer,
+      $_columnText text not null,
+      $_columnTime text not null,    
       )
       ''');
       },
@@ -63,7 +63,7 @@ class DatabaseProvider {
   Future<int> insertCategory(Category category) async {
     final db = await database;
     return db.insert(
-      categoryTable,
+      _categoryTable,
       category.convertCategoryToMapWithId(),
     );
   }
@@ -71,8 +71,8 @@ class DatabaseProvider {
   Future<int> deleteCategory(Category category) async {
     final db = await database;
     return db.delete(
-      categoryTable,
-      where: '$columnCategoryId = ?',
+      _categoryTable,
+      where: '$_columnCategoryId = ?',
       whereArgs: [category.categoryId],
     );
   }
@@ -80,17 +80,17 @@ class DatabaseProvider {
   Future<int> updateCategory(Category category) async {
     final db = await database;
     return await db.update(
-      categoryTable,
+      _categoryTable,
       category.convertCategoryToMap(),
-      where: '$columnCategoryId = ?',
+      where: '$_columnCategoryId = ?',
       whereArgs: [category.categoryId],
     );
   }
 
-  Future<List<Category>> downloadCategoryList() async {
+  Future<List<Category>> fetchCategoryList() async {
     final db = await database;
     final categoryList = <Category>[];
-    final dbCategoryList = await db.query(categoryTable);
+    final dbCategoryList = await db.query(_categoryTable);
     for (final item in dbCategoryList) {
       final category = Category.fromMap(item);
       categoryList.insert(0, category);
@@ -101,7 +101,7 @@ class DatabaseProvider {
   Future<int> insertMessage(Message message) async {
     final db = await database;
     return db.insert(
-      messageTable,
+      _messageTable,
       message.convertMessageToMapWithId(),
     );
   }
@@ -109,8 +109,8 @@ class DatabaseProvider {
   Future<int> deleteMessage(Message message) async {
     final db = await database;
     return await db.delete(
-      messageTable,
-      where: '$columnMessageId = ?',
+      _messageTable,
+      where: '$_columnMessageId = ?',
       whereArgs: [message.messageId],
     );
   }
@@ -118,9 +118,9 @@ class DatabaseProvider {
   Future<int> updateMessage(Message message) async {
     final db = await database;
     return await db.update(
-      messageTable,
+      _messageTable,
       message.convertMessageToMap(),
-      where: '$columnMessageId = ?',
+      where: '$_columnMessageId = ?',
       whereArgs: [message.messageId],
     );
   }
@@ -129,7 +129,7 @@ class DatabaseProvider {
     final db = await database;
     final messageList = <Message>[];
     var dbMessageList = await db.rawQuery(
-      'SELECT * FROM $messageTable WHERE $columnCurrentCategoryId = ?',
+      'SELECT * FROM $_messageTable WHERE $_columnCurrentCategoryId = ?',
       [categoryId],
     );
     for (final item in dbMessageList) {
@@ -142,8 +142,8 @@ class DatabaseProvider {
   Future<int> deleteAllMessagesFromCategory(int categoryId) async {
     final db = await database;
     return await db.delete(
-      categoryTable,
-      where: '$columnCategoryId = ?',
+      _categoryTable,
+      where: '$_columnCategoryId = ?',
       whereArgs: [categoryId],
     );
   }

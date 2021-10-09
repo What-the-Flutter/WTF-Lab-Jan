@@ -59,7 +59,6 @@ class ChoseOfAction extends StatelessWidget {
             );
           },
         ),
-        // _delete(),
         _buildAction(
           text: 'update',
           icon: const Icon(
@@ -87,12 +86,9 @@ class ChoseOfAction extends StatelessWidget {
             _showInfoDialog(
               context,
             );
-            Navigator.pop(
-              context,
-            );
+            Navigator.of(context).pop();
           },
         ),
-
         _buildAction(
           text: 'pin/unpin',
           icon: const Icon(
@@ -132,6 +128,7 @@ class ChoseOfAction extends StatelessWidget {
   }
 
   void _showInfoDialog(BuildContext context) {
+    print('11');
     showDialog(
       context: context,
       builder: (infoDialogContext) {

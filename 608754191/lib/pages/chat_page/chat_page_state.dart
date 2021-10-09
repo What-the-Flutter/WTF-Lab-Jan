@@ -9,9 +9,10 @@ class ChatPageState {
   final bool? isSending;
   final List<Category>? categories;
   final List<Message> messageList;
-  final Message? message;
+
   final bool? isWriting;
   final int? iconIndex;
+  final bool? isSendingPhoto;
   ChatPageState({
     this.messageSelected,
     this.indexOfSelectedElement,
@@ -19,10 +20,10 @@ class ChatPageState {
     this.category,
     this.isSending,
     this.categories,
-    this.message,
     this.messageList = const [],
     this.iconIndex,
     this.isWriting,
+    this.isSendingPhoto,
   });
 
   ChatPageState copyWith({
@@ -33,9 +34,9 @@ class ChatPageState {
     final bool? isSending,
     final List<Category>? categories,
     final List<Message>? messageList,
-    final Message? message,
     final int? iconIndex,
     final bool? isWriting,
+    final bool? isSendingPhoto,
   }) {
     return ChatPageState(
       messageSelected: messageSelected ?? this.messageSelected,
@@ -45,9 +46,9 @@ class ChatPageState {
       isSending: isSending ?? this.isSending,
       categories: categories ?? this.categories,
       messageList: messageList ?? this.messageList,
-      message: message ?? this.message,
       iconIndex: iconIndex,
       isWriting: isWriting ?? this.isWriting,
+      isSendingPhoto: isSendingPhoto ?? this.isSendingPhoto,
     );
   }
 }

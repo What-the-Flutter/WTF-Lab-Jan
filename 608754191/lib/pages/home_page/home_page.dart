@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../main.dart';
 import '../../util/theme_bloc/theme_cubit.dart';
-import '../entity/category.dart';
 import 'home_page_cubit.dart';
 
 class ChatJournalHomePage extends StatefulWidget {
@@ -40,7 +39,6 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
           floatingActionButton: FloatingActionButton(
             backgroundColor: Colors.black,
             onPressed: () {
-              print('len ${state.categories.length}');
               BlocProvider.of<HomePageCubit>(context).addCategory(
                 context,
               );
