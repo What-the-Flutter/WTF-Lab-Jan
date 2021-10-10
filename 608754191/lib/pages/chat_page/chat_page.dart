@@ -281,7 +281,10 @@ class _ChatPage extends State<ChatPage> {
         child: Row(
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                _cubit.setSendingPhotoState(false);
+                _cubit.getImage();
+              },
               icon: const Icon(
                 Icons.camera_alt_outlined,
               ),

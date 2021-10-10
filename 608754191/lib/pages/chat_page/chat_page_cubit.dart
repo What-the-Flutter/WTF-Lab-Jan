@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-
+import 'package:image_picker/image_picker.dart';
 import '../../repositories/database.dart';
 import '../entity/category.dart';
 import '../entity/message.dart';
@@ -23,7 +25,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     setEditState(false);
     setWritingState(false);
     setMessageSelected(false);
-    setEditingPhotoState(false);
+    setSendingPhotoState(false);
     setIndexOfSelection(0);
     setIconIndex(0);
     initMessageList();
@@ -96,7 +98,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   void initMessageList() async {
     emit(
       state.copyWith(
-        messageList: await _databaseProvider.downloadMessageList(
+        messageList: await _databaseProvider.fetchMessageList(
           state.category!.categoryId!,
         ),
       ),
@@ -109,12 +111,6 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       state.copyWith(
         messageSelected: !messageStateSelected,
       ),
-    );
-  }
-
-  void setEditingPhotoState(bool isSendingPhoto) {
-    emit(
-      state.copyWith(isSendingPhoto: isSendingPhoto),
     );
   }
 
@@ -167,7 +163,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       ),
       text: text,
     );
-    state.messageList.add(message);
+    state.messageList.insert(0, message);
     message.messageId = await _databaseProvider.insertMessage(message);
     state.category!.subTitleMessage = state.messageList[0].text;
     emit(
@@ -219,6 +215,34 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       state.copyWith(
         category: state.category,
         categories: state.categories,
+      ),
+    );
+  }
+
+  void setSendingPhotoState(bool isSendingPhoto) {
+    emit(
+      state.copyWith(
+        isSendingPhoto: isSendingPhoto,
+      ),
+    );
+  }
+
+  Future<void> getImage() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
+    final imagePath = image == null ? null : (image.path);
+    final message = Message(
+        currentCategoryId: state.category!.categoryId!,
+        time: DateFormat('hh:mm a').format(
+          DateTime.now(),
+        ),
+        text: '',
+        imagePath: imagePath);
+    setSendingPhotoState(false);
+    message.messageId = await _databaseProvider.insertMessage(message); //нет таблицы такой
+    emit(
+      state.copyWith(
+        messageList: state.messageList,
       ),
     );
   }

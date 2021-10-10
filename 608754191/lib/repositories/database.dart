@@ -15,7 +15,7 @@ const String _columnMessageId = 'message_id';
 const String _columnCurrentCategoryId = 'current_category_id';
 const String _columnText = 'text';
 const String _columnTime = 'time';
-const String columnImagePath = 'image_path';
+const String _columnImagePath = 'image_path';
 
 class DatabaseProvider {
   static DatabaseProvider? _databaseProvider;
@@ -52,7 +52,8 @@ class DatabaseProvider {
       $_columnMessageId integer primary key autoincrement,
       $_columnCurrentCategoryId integer,
       $_columnText text not null,
-      $_columnTime text not null,    
+      $_columnTime text not null,   
+      $_columnImagePath text  
       )
       ''');
       },
@@ -125,7 +126,7 @@ class DatabaseProvider {
     );
   }
 
-  Future<List<Message>> downloadMessageList(int categoryId) async {
+  Future<List<Message>> fetchMessageList(int categoryId) async {
     final db = await database;
     final messageList = <Message>[];
     var dbMessageList = await db.rawQuery(

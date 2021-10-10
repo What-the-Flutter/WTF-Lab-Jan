@@ -8,8 +8,7 @@ class ChatPageState {
   final Category? category;
   final bool? isSending;
   final List<Category>? categories;
-  final List<Message> messageList;
-
+  List<Message> messageList;
   final bool? isWriting;
   final int? iconIndex;
   final bool? isSendingPhoto;
