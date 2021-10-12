@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../main.dart';
 import '../../util/theme_bloc/theme_cubit.dart';
+import 'drawer_pages/settings_page/settings_page.dart';
 import 'home_page_cubit.dart';
 
 class ChatJournalHomePage extends StatefulWidget {
@@ -52,6 +53,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
             ),
           ),
           bottomNavigationBar: _chatBottomNavigationBar(),
+          drawer: _navigationDrawerWidget(),
         );
       },
     );
@@ -77,7 +79,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         ),
       ],
       leading: IconButton(
-        onPressed: () {},
+        onPressed: _navigationDrawerWidget,
         icon: const Icon(
           Icons.list,
         ),
@@ -161,7 +163,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         ),
       ),
       leading: IconButton(
-        onPressed: () {},
+        onPressed: _navigationDrawerWidget,
         icon: const Icon(
           Icons.list,
         ),
@@ -327,4 +329,57 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
   void _onItemTapped(int index) => setState(
         () => _selectedIndex = index,
       );
+
+  Widget _navigationDrawerWidget() {
+    return Drawer(
+      child: Material(
+        color: Colors.yellow,
+        child: ListView(
+          children: <Widget>[
+            const SizedBox(
+              height: 50,
+            ),
+            _buildMenuItem(
+              text: 'settings',
+              icon: Icons.settings,
+              onClicked: () => _selectedItem(context, 0),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required String text,
+    required IconData icon,
+    VoidCallback? onClicked,
+  }) {
+    final color = Colors.black;
+
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: color,
+      ),
+      title: Text(
+        text,
+        style: TextStyle(color: color),
+      ),
+      onTap: onClicked,
+    );
+  }
+
+  void _selectedItem(BuildContext context, int index) {
+    Navigator.of(context).pop();
+    switch (index) {
+      case 0:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => SettingsPage(),
+          ),
+        );
+        break;
+    }
+  }
 }
