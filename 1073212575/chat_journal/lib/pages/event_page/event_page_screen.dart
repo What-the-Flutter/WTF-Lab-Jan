@@ -3,16 +3,20 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jiffy/jiffy.dart';
 
-import '../../models/events.dart';
+import '../../models/events_model.dart';
 import '../../theme/themes.dart';
 import 'event_page_cubit.dart';
 import 'event_page_state.dart';
 
 class EventPage extends StatefulWidget {
-  final int eventPageIndex;
+  final EventPages eventPage;
+  final bool isCategoryPanelVisible;
 
-  const EventPage({Key? key, required this.eventPageIndex}) : super(key: key);
+  const EventPage(
+      {Key? key, required this.eventPage, required this.isCategoryPanelVisible})
+      : super(key: key);
 
   @override
   _EventPageState createState() => _EventPageState();
@@ -26,13 +30,6 @@ class _EventPageState extends State<EventPage> {
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    BlocProvider.of<EventPageCubit>(context)
-        .showMessages(widget.eventPageIndex);
   }
 
   @override
@@ -55,9 +52,9 @@ class _EventPageState extends State<EventPage> {
           child: Scaffold(
             backgroundColor: Colors.transparent,
             appBar: state.isSearchGoing
-                ? _searchAppBar(_eventPageCubit)
+                ? _searchAppBar(state, _eventPageCubit)
                 : state.isSelected
-                    ? _editingAppBar(_eventPageCubit)
+                    ? _editingAppBar(state, _eventPageCubit)
                     : _defaultAppBar(state, _eventPageCubit),
             body: Stack(
               children: <Widget>[
@@ -72,7 +69,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  PreferredSizeWidget _editingAppBar(_eventPageCubit) {
+  PreferredSizeWidget _editingAppBar(state, _eventPageCubit) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       shape: const RoundedRectangleBorder(
@@ -88,20 +85,20 @@ class _EventPageState extends State<EventPage> {
       actions: [
         IconButton(
           icon: const Icon(Icons.reply_rounded),
-          onPressed: () => _choosePage(_eventPageCubit),
+          onPressed: () => _choosePage(state, _eventPageCubit),
         ),
         IconButton(
           icon: const Icon(Icons.delete_rounded),
-          onPressed: () => _eventPageCubit.delete(widget.eventPageIndex),
+          onPressed: () => _eventPageCubit.delete(),
         ),
         IconButton(
           icon: const Icon(Icons.copy_rounded),
-          onPressed: () => _eventPageCubit.copy(widget.eventPageIndex),
+          onPressed: () => _eventPageCubit.copy(),
         ),
         IconButton(
           icon: const Icon(Icons.edit_rounded),
           onPressed: () =>
-              _eventPageCubit.edit(widget.eventPageIndex, _controller),
+              _controller.text = _eventPageCubit.edit(widget.eventPage.id),
         ),
       ],
     );
@@ -122,10 +119,10 @@ class _EventPageState extends State<EventPage> {
       title: const Text(''),
       actions: [
         IconButton(
-          icon: state.onlyMarked
+          icon: !state.onlyMarked
               ? const Icon(Icons.bookmark_border_rounded)
               : const Icon(Icons.bookmark_rounded),
-          onPressed: () => _eventPageCubit.showMarked(widget.eventPageIndex),
+          onPressed: () => _eventPageCubit.showMarked(widget.eventPage.id),
         ),
         IconButton(
           icon: const Icon(Icons.search_rounded),
@@ -135,7 +132,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  PreferredSizeWidget _searchAppBar(_homePageCubit) {
+  PreferredSizeWidget _searchAppBar(state, _homePageCubit) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       shape: const RoundedRectangleBorder(
@@ -144,10 +141,13 @@ class _EventPageState extends State<EventPage> {
         ),
       ),
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_rounded),
-        onPressed: () => _homePageCubit.endSearching(
-            widget.eventPageIndex, _searchController),
-      ),
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            _homePageCubit.endSearching(
+              widget.eventPage.id,
+            );
+            _searchController.clear();
+          }),
       title: const Text(''),
       actions: [
         Expanded(
@@ -156,7 +156,7 @@ class _EventPageState extends State<EventPage> {
             child: TextField(
               controller: _searchController,
               onChanged: _homePageCubit.searchMessages(
-                  widget.eventPageIndex, _searchController.text),
+                  widget.eventPage.id, _searchController.text),
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
@@ -187,16 +187,20 @@ class _EventPageState extends State<EventPage> {
             color: Theme.of(context).colorScheme.onPrimary,
             child: Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.stars_rounded),
-                  color: Theme.of(context).colorScheme.background,
-                  onPressed: () => _eventPageCubit.openCategoryPanel(),
+                Visibility(
+                  visible: widget.isCategoryPanelVisible,
+                  child: IconButton(
+                      icon: const Icon(Icons.stars_rounded),
+                      color: Theme.of(context).colorScheme.background,
+                      onPressed: () {
+                        _eventPageCubit.openCategoryPanel();
+                      }),
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_a_photo_rounded),
                   color: Theme.of(context).colorScheme.background,
                   onPressed: () =>
-                      _eventPageCubit.addImage(widget.eventPageIndex),
+                      _eventPageCubit.addImage(widget.eventPage.id),
                 ),
                 Expanded(
                   child: TextField(
@@ -209,11 +213,13 @@ class _EventPageState extends State<EventPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send_rounded),
-                  color: Theme.of(context).colorScheme.background,
-                  onPressed: () => _eventPageCubit.addMessage(
-                      context, widget.eventPageIndex, _controller),
-                ),
+                    icon: const Icon(Icons.send_rounded),
+                    color: Theme.of(context).colorScheme.background,
+                    onPressed: () {
+                      _eventPageCubit.addMessage(
+                          widget.eventPage.id, _controller.text);
+                      _controller.clear();
+                    }),
               ],
             ),
           ),
@@ -225,10 +231,14 @@ class _EventPageState extends State<EventPage> {
   Widget _eventMessagesList(state, _eventPageCubit) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 20, 60, 70),
-      child: ListView.builder(
-        itemCount: state.messages.length,
-        itemBuilder: (context, i) => _message(i, state, _eventPageCubit),
-      ),
+      child: StreamBuilder(
+          stream: _eventPageCubit.showMessages(widget.eventPage.id),
+          builder: (context, projectSnap) {
+            return ListView.builder(
+              itemCount: state.messages.length,
+              itemBuilder: (context, i) => _message(i, state, _eventPageCubit),
+            );
+          }),
     );
   }
 
@@ -237,10 +247,10 @@ class _EventPageState extends State<EventPage> {
       confirmDismiss: (direction) async {
         if (!state.isSelected) {
           if (direction == DismissDirection.startToEnd) {
-            _eventPageCubit.edit(widget.eventPageIndex, _controller, i);
+            _controller.text = _eventPageCubit.edit(widget.eventPage.id, i);
             return false;
           } else if (direction == DismissDirection.endToStart) {
-            _eventPageCubit.delete(widget.eventPageIndex, i);
+            _eventPageCubit.delete(widget.eventPage.id, i);
             return false;
           }
         }
@@ -255,66 +265,86 @@ class _EventPageState extends State<EventPage> {
       ),
       key: Key(i.toString()),
       child: GestureDetector(
-        onTap: () => _eventPageCubit.mark(i, widget.eventPageIndex),
+        onTap: () => _eventPageCubit.mark(i),
         onLongPress: () => _eventPageCubit.select(i),
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: state.messages[i].isMarked == true
+            color: i == state.selectedMessageIndex && state.isSelected
                 ? Theme.of(context).colorScheme.surface
                 : Theme.of(context).colorScheme.onPrimary,
             borderRadius: const BorderRadius.all(
               Radius.circular(radiusValue),
             ),
           ),
-          child: _messageContent(state, i),
+          child: _messageContent(state, i, _eventPageCubit),
         ),
       ),
     );
   }
 
-  Widget _messageContent(state, i) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 5),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(right: 5),
+  Widget _messageContent(state, i, _eventPageCubit) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 5),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(right: 5),
+              child: Icon(
+                _eventPageCubit.categoryIcon(
+                  widget.isCategoryPanelVisible,
+                  i,
+                ),
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            Text(
+              Jiffy(DateTime.fromMillisecondsSinceEpoch(state.messages[i].date))
+                  .format('d/M/y h:mm a'),
+              style: TextStyle(
+                  fontSize: 10, color: Theme.of(context).colorScheme.onSurface),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
                 child: Icon(
-                  state.messages[i].icon,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  Icons.book_rounded,
+                  color: state.messages[i].isMarked
+                      ? Theme.of(context).colorScheme.primaryVariant
+                      : Colors.transparent,
+                  size: 20,
                 ),
               ),
-              Text(
-                state.messages[i].date,
-                style: TextStyle(
-                    fontSize: 10,
-                    color: Theme.of(context).colorScheme.onSurface),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        state.messages[i].content.toString() == "Instance of 'XFile'"
-            ? Image.file(
-                File((state.messages[i].content).path),
-                height: 300,
-              )
-            : Container(
-                padding: const EdgeInsets.only(left: 25),
-                child: Text(
-                  state.messages[i].content.toString(),
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.background),
-                ),
-              ),
-      ],
-    );
+      ),
+      FutureBuilder(
+        future: _eventPageCubit.isImage(state.messages[i].content),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return snapshot.data == true
+                ? Image.file(
+                    File(state.messages[i].content),
+                    height: 300,
+                  )
+                : Container(
+                    padding: const EdgeInsets.only(left: 25),
+                    child: Text(
+                      state.messages[i].content,
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.background),
+                    ),
+                  );
+          }
+          return const Text('');
+        },
+      )
+    ]);
   }
 
   Widget _categories(state, _eventPageCubit) {
@@ -337,9 +367,7 @@ class _EventPageState extends State<EventPage> {
             itemCount: _icons.length,
             itemBuilder: (context, i) {
               return GestureDetector(
-                onTap: i == 0
-                    ? () => _eventPageCubit.closeCategoryPanel()
-                    : () => _eventPageCubit.setCategory(_icons[i]),
+                onTap: () => _eventPageCubit.chooseCategory(i, _icons[i]),
                 child: Container(
                   margin: const EdgeInsets.all(10),
                   child: Column(
@@ -366,7 +394,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Future _choosePage(_eventPageCubit) {
+  Future _choosePage(state, _eventPageCubit) {
     var _chosenPageIndex;
     return showDialog(
         context: context,
@@ -379,10 +407,10 @@ class _EventPageState extends State<EventPage> {
                 height: 300, // Change as per your requirement
                 width: 300, // Change as per your requirement
                 child: ListView.builder(
-                  itemCount: eventPages.length,
+                  itemCount: state.eventPages.length,
                   itemBuilder: (context, i) {
                     return RadioListTile(
-                      title: Text(eventPages[i].name),
+                      title: Text(state.eventPages[i].name),
                       value: i,
                       groupValue: _chosenPageIndex,
                       onChanged: (index) =>
@@ -394,10 +422,13 @@ class _EventPageState extends State<EventPage> {
             }),
             actions: <Widget>[
               TextButton(
-                child: const Text('Ok'),
-                onPressed: () => _eventPageCubit.moveMessage(
-                    _chosenPageIndex, widget.eventPageIndex, context),
-              ),
+                  child: const Text('Ok'),
+                  onPressed: () {
+                    _eventPageCubit.moveMessage(
+                      state.eventPages[_chosenPageIndex].id,
+                    );
+                    Navigator.of(context).pop();
+                  }),
             ],
           );
         });

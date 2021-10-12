@@ -1,9 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jiffy/jiffy.dart';
 
-import '../../models/events.dart';
-import '../add_page/add_page_screen.dart';
+import '../../database.dart';
 import 'home_page_state.dart';
 
 class HomePageCubit extends Cubit<HomePageState> {
@@ -12,58 +11,75 @@ class HomePageCubit extends Cubit<HomePageState> {
           HomePageState(
             isSelected: false,
             selectedPageIndex: 0,
+            eventPages: [],
           ),
         );
 
+  Stream<List> showPages() async* {
+    final pages = await DBProvider.db.eventPagesList();
+    emit(
+      state.copyWith(
+        eventPages: pages,
+      ),
+    );
+    yield pages;
+  }
+
   void select(int i) {
-    emit(state.copyWith(
-      selectedPageIndex: i,
-      isSelected: true,
-    ));
+    emit(
+      state.copyWith(
+        selectedPageIndex: i,
+        isSelected: true,
+      ),
+    );
   }
 
   void unselect() {
-    emit(state.copyWith(
-      selectedPageIndex: state.selectedPageIndex,
-      isSelected: false,
-    ));
+    emit(
+      state.copyWith(
+        isSelected: false,
+      ),
+    );
   }
 
   void delete() {
-    eventPages.removeAt(state.selectedPageIndex);
-    emit(state.copyWith(
-      selectedPageIndex: state.selectedPageIndex,
-      isSelected: false,
-    ));
+    DBProvider.db.deletePage(state.eventPages[state.selectedPageIndex].id);
+    emit(
+      state.copyWith(
+        selectedPageIndex: state.selectedPageIndex,
+        isSelected: false,
+      ),
+    );
+    showPages();
   }
 
-  void edit(BuildContext context) {
-    emit(state.copyWith(
-      selectedPageIndex: state.selectedPageIndex,
-      isSelected: false,
-    ));
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddPage(
-          needsEditing: true,
-          selectedPageIndex: state.selectedPageIndex,
-        ),
+  void edit() {
+    emit(
+      state.copyWith(
+        isSelected: false,
       ),
     );
   }
 
   void fix() {
-    eventPages[state.selectedPageIndex].isFixed =
-        !eventPages[state.selectedPageIndex].isFixed;
-    emit(state.copyWith(
-      selectedPageIndex: state.selectedPageIndex,
-      isSelected: false,
-    ));
-    _sortPages();
+    final selectedPage = state.eventPages[state.selectedPageIndex];
+    final tempEventPage = selectedPage.copyWith(
+      isFixed: !selectedPage.isFixed,
+    );
+    DBProvider.db.updatePage(tempEventPage);
+
+    emit(
+      state.copyWith(
+        isSelected: false,
+      ),
+    );
   }
 
-  void _sortPages() {
-    eventPages.sort((a, b) => b.isFixed ? 1 : -1);
+  String latestEventDate() {
+    return state.eventPages[state.selectedPageIndex].eventMessages.isEmpty
+        ? 'no messages'
+        : Jiffy(state
+                .eventPages[state.selectedPageIndex].eventMessages.last.date)
+            .format('d/M/y h:mm a');
   }
 }

@@ -8,7 +8,8 @@ class EventPageState {
   final bool isCategoryPanelOpened;
   final bool needsEditing;
   final int selectedMessageIndex;
-  final IconData? categoryIcon;
+  final IconData categoryIcon;
+  final List eventPages;
 
   EventPageState({
     required this.messages,
@@ -19,6 +20,7 @@ class EventPageState {
     required this.needsEditing,
     required this.selectedMessageIndex,
     required this.categoryIcon,
+    required this.eventPages,
   });
 
   EventPageState copyWith({
@@ -30,6 +32,7 @@ class EventPageState {
     bool? needsEditing,
     int? selectedMessageIndex,
     IconData? categoryIcon,
+    List? eventPages,
   }) {
     return EventPageState(
       messages: messages ?? this.messages,
@@ -41,6 +44,7 @@ class EventPageState {
       needsEditing: needsEditing ?? this.needsEditing,
       selectedMessageIndex: selectedMessageIndex ?? this.selectedMessageIndex,
       categoryIcon: categoryIcon ?? this.categoryIcon,
+      eventPages: eventPages ?? this.eventPages,
     );
   }
 }

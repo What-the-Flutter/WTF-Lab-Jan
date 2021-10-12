@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'themes.dart';
 
 class _CustomTheme extends InheritedWidget {
@@ -17,6 +19,7 @@ class _CustomTheme extends InheritedWidget {
 class CustomTheme extends StatefulWidget {
   final Widget child;
   final ThemeData themeData;
+
   const CustomTheme({
     Key? key,
     required this.themeData,
@@ -40,22 +43,36 @@ class CustomTheme extends StatefulWidget {
 }
 
 class CustomThemeState extends State<CustomTheme> {
-  late ThemeData _themeData;
+  ThemeData _themeData = lightTheme;
+  var _savedTheme;
 
   ThemeData get theme => _themeData;
 
   @override
   void initState() {
-    _themeData = lightTheme;
     super.initState();
+    getSharedPrefs();
   }
 
-  void changeTheme() {
+  Future<void> getSharedPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    _savedTheme = prefs.getString('theme') ?? 'light';
+    _themeData = (_savedTheme == 'light' ? lightTheme : darkTheme);
+    //_themeData = lightTheme;
+  }
+
+  Future<void> changeTheme() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _themeData == lightTheme
-          ? _themeData = darkTheme
-          : _themeData = lightTheme;
+      if (_themeData == lightTheme) {
+        _themeData = darkTheme;
+        _savedTheme = 'dark';
+      } else {
+        _themeData = lightTheme;
+        _savedTheme = 'light';
+      }
     });
+    prefs.setString('theme', _savedTheme);
   }
 
   @override

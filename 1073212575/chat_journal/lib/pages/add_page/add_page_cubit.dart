@@ -1,68 +1,47 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jiffy/jiffy.dart';
 
-import '../../models/events.dart';
-import '../home_page/home_page_screen.dart';
+import '../../database.dart';
+import '../../models/events_model.dart';
 import 'add_page_state.dart';
-
-
 
 class AddPageCubit extends Cubit<AddPageState> {
   AddPageCubit()
       : super(
-          AddPageState(selectedIconIndex: 0),
+          AddPageState(selectedIconIndex: 0, eventPages: []),
         );
 
-  void addPage(
-    BuildContext context,
-    TextEditingController controller,
+  Future<void> addPage(
+    String text,
     List iconsList,
-  ) {
-    eventPages.add(
-      EventPages(
-        controller.text,
-        iconsList[state.selectedIconIndex],
-        [],
-        Jiffy(DateTime.now()).format('d/M/y h:mm a'),
-      ),
+  ) async {
+    final page = EventPages(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: text,
+      date: DateTime.now().millisecondsSinceEpoch,
+      icon: iconsList[state.selectedIconIndex],
+      isFixed: false,
     );
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HomePage(),
+    await DBProvider.db.insertPage(page);
+  }
+
+  Future<void> init() async {
+    emit(
+      state.copyWith(
+        eventPages: await DBProvider.db.eventPagesList(),
       ),
     );
   }
 
   void edit(
-    BuildContext context,
     int selectedPageIndex,
-    TextEditingController controller,
+    String text,
     List iconsList,
   ) {
-    final tempMessages = eventPages[selectedPageIndex].eventMessages;
-    var tempDate = eventPages[selectedPageIndex].date;
-    var tempName = controller.text;
-    var tempIcon = iconsList[state.selectedIconIndex];
-    var tempEventPages = EventPages(
-      tempName,
-      tempIcon,
-      tempMessages,
-      tempDate,
+    final tempEventPage = state.eventPages[selectedPageIndex].copyWith(
+      name: text,
+      icon: iconsList[state.selectedIconIndex],
     );
-    eventPages.removeAt(selectedPageIndex);
-    eventPages.insert(
-      selectedPageIndex,
-      tempEventPages,
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HomePage(),
-      ),
-    );
+    DBProvider.db.updatePage(tempEventPage);
   }
 
   void setIconIndex(int i) {
@@ -71,5 +50,17 @@ class AddPageCubit extends Cubit<AddPageState> {
     );
   }
 
-  void selectIcon(int i) {}
+  void returnToHomePage(
+    bool needsEditing,
+    int selectedPageIndex,
+    String text,
+    List iconsList,
+  ) {
+    if (needsEditing) {
+      init();
+      edit(selectedPageIndex, text, iconsList);
+    } else {
+      addPage(text, iconsList);
+    }
+  }
 }

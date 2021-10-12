@@ -1,13 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jiffy/jiffy.dart';
 
-import '../../models/events.dart';
 import '../../theme/custom_theme.dart';
 import '../../theme/themes.dart';
+import '../add_page/add_page_cubit.dart';
 import '../add_page/add_page_screen.dart';
+import '../event_page/event_page_cubit.dart';
 import '../event_page/event_page_screen.dart';
 import 'home_page_cubit.dart';
 import 'home_page_state.dart';
+
+Widget startApp() {
+  return MultiBlocProvider(
+    providers: [
+      BlocProvider<HomePageCubit>(
+        create: (context) => HomePageCubit(),
+      ),
+      BlocProvider<EventPageCubit>(
+        create: (context) => EventPageCubit(),
+      ),
+      BlocProvider<AddPageCubit>(
+        create: (context) => AddPageCubit(),
+      ),
+    ],
+    child: CustomTheme(
+      themeData: lightTheme,
+      child: MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -26,10 +48,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // var _isSelected = false;
-  // var _selectedPageIndex;
-
-  //List _unsortedPages = eventPages;
+  bool _isCategoryPanelVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +145,16 @@ class _HomePageState extends State<HomePage> {
           bottom: Radius.circular(radiusValue),
         ),
       ),
-      leading: const Icon(Icons.menu_rounded),
+      leading: Switch(
+        value: _isCategoryPanelVisible,
+        onChanged: (value) {
+          setState(() {
+            _isCategoryPanelVisible = value;
+          });
+        },
+        activeTrackColor: Theme.of(context).colorScheme.onSecondary,
+        activeColor: Theme.of(context).colorScheme.secondaryVariant,
+      ),
       title: const Text('Home'),
       actions: [
         IconButton(
@@ -156,12 +184,22 @@ class _HomePageState extends State<HomePage> {
         ),
         IconButton(
           icon: const Icon(Icons.book_rounded),
-          onPressed: _homePageCubit.fix,
+          onPressed: () => _homePageCubit.fix(),
         ),
         IconButton(
-          icon: const Icon(Icons.edit_rounded),
-          onPressed: _homePageCubit.edit,
-        ),
+            icon: const Icon(Icons.edit_rounded),
+            onPressed: () {
+              _homePageCubit.edit();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddPage(
+                    needsEditing: true,
+                    selectedPageIndex: state.selectedPageIndex,
+                  ),
+                ),
+              );
+            }),
         IconButton(
           icon: const Icon(Icons.info_rounded),
           onPressed: () => simpleDialog(context, state, _homePageCubit),
@@ -203,9 +241,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _eventsList(state, _homePageCubit) {
-    return ListView.builder(
-      itemCount: eventPages.length,
-      itemBuilder: (context, i) => _event(i, state, _homePageCubit),
+    return StreamBuilder(
+      builder: (context, projectSnap) {
+        return ListView.builder(
+          itemCount: state.eventPages.length,
+          itemBuilder: (context, i) => _event(i, state, _homePageCubit),
+        );
+      },
+      stream: _homePageCubit.showPages(),
     );
   }
 
@@ -234,29 +277,32 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EventPage(eventPageIndex: i),
+                builder: (context) => EventPage(
+                  eventPage: state.eventPages[i],
+                  isCategoryPanelVisible: _isCategoryPanelVisible,
+                ),
               ),
             );
           },
-          child: _eventContent(i),
+          child: _eventContent(i, state),
         ),
       ),
     );
   }
 
-  Widget _eventContent(int i) {
+  Widget _eventContent(int i, state) {
     return Row(
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 20, right: 20),
           child: Icon(
-            eventPages[i].icon,
+            state.eventPages[i].icon,
             color: Theme.of(context).colorScheme.primaryVariant,
             size: 40,
           ),
         ),
         Text(
-          eventPages[i].name,
+          state.eventPages[i].name,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.background,
@@ -269,7 +315,7 @@ class _HomePageState extends State<HomePage> {
             child: Icon(
               Icons.book_rounded,
               // color: Theme.of(context).buttonColor,
-              color: eventPages[i].isFixed
+              color: state.eventPages[i].isFixed
                   ? Theme.of(context).colorScheme.primaryVariant
                   : Colors.transparent,
               size: 20,
@@ -291,22 +337,22 @@ class _HomePageState extends State<HomePage> {
             child: AlertDialog(
               title: Row(
                 children: [
-                  Icon(eventPages[state.selectedPageIndex].icon),
-                  Text(eventPages[state.selectedPageIndex].name),
+                  Icon(state.eventPages[state.selectedPageIndex].icon),
+                  Text(state.eventPages[state.selectedPageIndex].name),
                 ],
               ),
               content: Column(
                 children: [
                   const Text('Created'),
-                  Text(eventPages[state.selectedPageIndex].date),
+                  Text(
+                    Jiffy(
+                      DateTime.fromMillisecondsSinceEpoch(
+                          state.eventPages[state.selectedPageIndex].date),
+                    ).format('d/M/y h:mm a'),
+                  ),
                   const Text('Latest Event'),
                   Text(
-                    eventPages[state.selectedPageIndex].eventMessages.isEmpty
-                        ? 'no messages'
-                        : eventPages[state.selectedPageIndex]
-                            .eventMessages
-                            .last
-                            .date,
+                    _homePageCubit.latestEventDate(),
                   ),
                 ],
               ),

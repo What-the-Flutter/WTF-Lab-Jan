@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:jiffy/jiffy.dart';
 
-import '../../models/events.dart';
+import '../../database.dart';
+import '../../models/events_model.dart';
 import 'event_page_state.dart';
 
 class EventPageCubit extends Cubit<EventPageState> {
@@ -19,45 +21,60 @@ class EventPageCubit extends Cubit<EventPageState> {
             isCategoryPanelOpened: false,
             needsEditing: false,
             selectedMessageIndex: -1,
-            categoryIcon: null,
+            categoryIcon: Icons.remove_rounded,
+            eventPages: [],
           ),
         );
+  var _searchText;
+
+  Stream<List> showMessages(
+    String eventPageId,
+  ) async* {
+    final List messages;
+    if (state.onlyMarked && !state.isSearchGoing) {
+      messages = await DBProvider.db.markedMessagesList(eventPageId);
+    } else if (state.isSearchGoing) {
+      final tempMessages =
+          await DBProvider.db.searchMessagesList(eventPageId, _searchText);
+      messages = tempMessages
+          .where((message) => !File(message.content).existsSync())
+          .toList();
+    } else if (!state.onlyMarked && !state.isSearchGoing) {
+      messages = await DBProvider.db.messagesList(eventPageId);
+    } else {
+      messages = [];
+    }
+    final pages = await DBProvider.db.eventPagesList();
+    emit(
+      state.copyWith(
+        messages: messages,
+        eventPages: pages,
+      ),
+    );
+    yield messages;
+  }
 
   void startSearching() {
     emit(
       state.copyWith(
-        messages: [],
         isSearchGoing: true,
       ),
     );
   }
 
   void endSearching(
-    int eventPageIndex,
-    TextEditingController searchController,
+    String eventPageId,
   ) {
     emit(
       state.copyWith(
-        messages: eventPages[eventPageIndex].eventMessages,
         isSearchGoing: false,
-        categoryIcon: null,
       ),
     );
-    searchController.clear();
+    showMessages(eventPageId);
   }
 
-  void searchMessages(int eventPageIndex, String text) {
-    text.toLowerCase();
-    emit(
-      state.copyWith(
-        messages: eventPages[eventPageIndex]
-            .eventMessages
-            .where((message) =>
-                message.content.toString().toLowerCase().contains(text) &&
-                message.content.toString() != "Instance of 'XFile'")
-            .toList(),
-      ),
-    );
+  void searchMessages(String eventPageId, String text) {
+    _searchText = text;
   }
 
   void unselect() {
@@ -68,84 +85,55 @@ class EventPageCubit extends Cubit<EventPageState> {
     );
   }
 
-  void mark(int i, int eventPageIndex) {
-    if (eventPages[eventPageIndex].eventMessages[i].isMarked == false) {
-      eventPages[eventPageIndex].eventMessages[i].isMarked = true;
-    } else {
-      eventPages[eventPageIndex].eventMessages[i].isMarked = false;
-    }
+  void mark(int i) {
+    final message = state.messages[i].copyWith(
+      isMarked: !state.messages[i].isMarked,
+    );
+    DBProvider.db.updateMessage(message);
   }
 
-  void showMarked(int eventPageIndex) {
-    if (state.onlyMarked) {
-      emit(
-        state.copyWith(
-          messages: eventPages[eventPageIndex]
-              .eventMessages
-              .where((message) => message.isMarked == true)
-              .toList(),
-          onlyMarked: false,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          messages: eventPages[eventPageIndex].eventMessages,
-          onlyMarked: true,
-        ),
-      );
-    }
-  }
-
-  void showMessages(int eventPageIndex) {
+  void showMarked(String eventPageId) {
     emit(
       state.copyWith(
-        messages: eventPages[eventPageIndex].eventMessages,
-        onlyMarked: false,
+        onlyMarked: !state.onlyMarked,
       ),
     );
+    showMessages(eventPageId);
   }
 
-  void delete(int eventPageIndex, [int messageIndex = -1]) {
+  void delete([int messageIndex = -1]) {
     if (messageIndex == -1) {
       messageIndex = state.selectedMessageIndex;
     }
-    eventPages[eventPageIndex].eventMessages.removeAt(messageIndex);
+    DBProvider.db.deleteMessage(state.messages[messageIndex].id);
     emit(
       state.copyWith(
-        messages: eventPages[eventPageIndex].eventMessages,
         isSelected: false,
       ),
     );
   }
 
-  void edit(int eventPageIndex, TextEditingController controller,
-      [int messageIndex = -1]) {
+  String edit(String eventPageId, [int messageIndex = -1]) {
     if (messageIndex == -1) {
       messageIndex = state.selectedMessageIndex;
     }
-    if (eventPages[eventPageIndex]
-            .eventMessages[messageIndex]
-            .content
-            .toString() ==
-        "Instance of 'XFile'") {
-      addImage(eventPageIndex);
+    emit(
+      state.copyWith(
+        needsEditing: true,
+        selectedMessageIndex: messageIndex,
+      ),
+    );
+    if (File(state.messages[messageIndex].content).existsSync()) {
+      addImage(eventPageId);
+      return '';
     } else {
-      controller.text =
-          eventPages[eventPageIndex].eventMessages[messageIndex].content;
+      return state.messages[messageIndex].content;
     }
-    emit(state.copyWith(
-      needsEditing: true,
-      selectedMessageIndex: messageIndex,
-    ));
   }
 
-  void copy(int eventPageIndex) {
+  void copy() {
     Clipboard.setData(
-      ClipboardData(
-          text: eventPages[eventPageIndex]
-              .eventMessages[state.selectedMessageIndex]
-              .content),
+      ClipboardData(text: state.messages[state.selectedMessageIndex].content),
     );
     emit(
       state.copyWith(
@@ -163,129 +151,123 @@ class EventPageCubit extends Cubit<EventPageState> {
     );
   }
 
-  void addImage(int eventPageIndex) async {
+  Future<void> addImage(String eventPageId) async {
     final _picker = ImagePicker();
     final image = await _picker.pickImage(source: ImageSource.gallery);
-    var message;
     if (state.isSelected) {
-      var tempDate = eventPages[eventPageIndex]
-          .eventMessages[state.selectedMessageIndex]
-          .date;
-      delete(eventPageIndex);
-      message = EventMessage(image, tempDate);
-      eventPages[eventPageIndex]
-          .eventMessages
-          .insert(state.selectedMessageIndex, message);
-      emit(
-        state.copyWith(
-          messages: eventPages[eventPageIndex].eventMessages,
-          categoryIcon: null,
-        ),
+      final message = state.messages[state.selectedMessageIndex].copyWith(
+        content: image!.path,
       );
+      DBProvider.db.updateMessage(message);
     } else {
-      message = EventMessage(
-        image,
-        Jiffy(DateTime.now()).format('d/M/y h:mm a'),
+      final message = EventMessage(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        pageId: eventPageId,
+        content: image!.path,
+        date: DateTime.now().millisecondsSinceEpoch,
+        icon: state.categoryIcon,
+        isMarked: false,
       );
-      eventPages[eventPageIndex].eventMessages.add(message);
+      DBProvider.db.insertMessage(message);
     }
-    emit(
-      state.copyWith(
-        messages: eventPages[eventPageIndex].eventMessages,
-        categoryIcon: null,
-      ),
-    );
+    showMessages(eventPageId);
+  }
+
+  Future<bool> isImage(String content) {
+    return File(content).exists();
   }
 
   void _addEdited(
-    int eventPageIndex,
-    TextEditingController controller,
+    String eventPageId,
+    String text,
   ) {
-    var tempDate = eventPages[eventPageIndex]
-        .eventMessages[state.selectedMessageIndex]
-        .date;
-    var message;
-    if (state.isCategoryPanelOpened) {
-      message = EventMessage(
-        controller.text,
-        tempDate,
-        icon: state.categoryIcon,
-      );
-    } else {
-      message = EventMessage(controller.text, tempDate);
-    }
-    delete(eventPageIndex);
-    eventPages[eventPageIndex]
-        .eventMessages
-        .insert(state.selectedMessageIndex, message);
+    final message = state.messages[state.selectedMessageIndex].copyWith(
+      content: text,
+      icon: state.categoryIcon,
+    );
+    DBProvider.db.updateMessage(message);
+
     emit(
       state.copyWith(
-        messages: eventPages[eventPageIndex].eventMessages,
         isSelected: false,
-        categoryIcon: null,
+        categoryIcon: Icons.remove_rounded,
         needsEditing: false,
       ),
     );
   }
 
-  void addMessage(BuildContext context, int eventPageIndex,
-      TextEditingController controller) {
+  void addMessage(String eventPageId, String text) {
     if (state.needsEditing) {
       _addEdited(
-        eventPageIndex,
-        controller,
+        eventPageId,
+        text,
       );
     } else {
-      var message;
-      if (state.isCategoryPanelOpened) {
-        message = EventMessage(
-            controller.text, Jiffy(DateTime.now()).format('d/M/y h:mm a'),
-            icon: state.categoryIcon);
-      } else {
-        message = EventMessage(
-          controller.text,
-          Jiffy(DateTime.now()).format('d/M/y h:mm a'),
-        );
-      }
-      eventPages[eventPageIndex].eventMessages.add(message);
+      final message = EventMessage(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        pageId: eventPageId,
+        content: text,
+        date: DateTime.now().millisecondsSinceEpoch,
+        icon: state.categoryIcon,
+        isMarked: false,
+      );
+      DBProvider.db.insertMessage(message);
       emit(
         state.copyWith(
-          messages: eventPages[eventPageIndex].eventMessages,
           categoryIcon: null,
         ),
       );
     }
-    controller.clear();
   }
 
   void moveMessage(
-    int chosenPageIndex,
-    int eventPageIndex,
-    BuildContext context,
+    String nextPageId,
   ) {
-    var message =
-        eventPages[eventPageIndex].eventMessages[state.selectedMessageIndex];
-    eventPages[chosenPageIndex].eventMessages.add(message);
-    delete(eventPageIndex);
-    Navigator.of(context).pop();
+    final delMessage = state.messages[state.selectedMessageIndex];
+    final message = state.messages[state.selectedMessageIndex].copyWith(
+      pageId: nextPageId,
+    );
+    DBProvider.db.deleteMessage(delMessage.id);
+    DBProvider.db.insertMessage(message);
+    emit(
+      state.copyWith(
+        isSelected: false,
+      ),
+    );
   }
 
   void openCategoryPanel() {
-    emit(state.copyWith(
-      isCategoryPanelOpened: true,
-    ));
+    emit(
+      state.copyWith(
+        isCategoryPanelOpened: true,
+      ),
+    );
   }
 
   void closeCategoryPanel() {
-    emit(state.copyWith(
-      isCategoryPanelOpened: false,
-      categoryIcon: null,
-    ));
+    emit(
+      state.copyWith(
+        isCategoryPanelOpened: false,
+        categoryIcon: Icons.remove_rounded,
+      ),
+    );
   }
 
   void setCategory(IconData categoryIcon) {
-    emit(state.copyWith(
-      categoryIcon: categoryIcon,
-    ));
+    emit(
+      state.copyWith(
+        categoryIcon: categoryIcon,
+      ),
+    );
+  }
+
+  void chooseCategory(int i, IconData icon) {
+    i == 0 ? closeCategoryPanel() : setCategory(icon);
+  }
+
+  IconData categoryIcon(bool isCategoryPanelVisible, int i) {
+    return isCategoryPanelVisible
+        ? state.messages[i].icon
+        : Icons.remove_rounded;
   }
 }
