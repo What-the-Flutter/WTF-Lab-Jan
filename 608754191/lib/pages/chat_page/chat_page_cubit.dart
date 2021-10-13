@@ -131,16 +131,12 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   }
 
   void deleteMessage(Message message) {
-    _databaseProvider.deleteMessage(message); //todo доставать, менять , обновлять
+    _databaseProvider.deleteMessage(message);
     state.messageList.remove(message);
     final currentCategory = state.category;
-    if (state.messageList.isEmpty) {
-      currentCategory!.subTitleMessage = 'Add new  message';
-      // нежелательно образаться к внутренним полям стэйта
-    } else {
-      currentCategory!.subTitleMessage =
-          state.messageList[0].text; //тоже.  поля файнал вообще-то было бы неплохо.
-    } //current = state.category/  copyWith обновить в emit
+    if (state.messageList.isNotEmpty) {
+      currentCategory!.subTitleMessage = state.messageList[0].text;
+    }
     emit(
       state.copyWith(
         messageList: state.messageList,
@@ -185,7 +181,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   }
 
   void setMessageText(
-    Message message, //todo передавать проще к АйДи, а не целиком на уровне кьюбита
+    Message message,
     String text,
   ) {
     message.text = text;
@@ -232,14 +228,15 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     final image = await picker.pickImage(source: ImageSource.gallery);
     final imagePath = image == null ? null : (image.path);
     final message = Message(
-        currentCategoryId: state.category!.categoryId!,
-        time: DateFormat('hh:mm a').format(
-          DateTime.now(),
-        ),
-        text: '',
-        imagePath: imagePath);
+      currentCategoryId: state.category!.categoryId!,
+      time: DateFormat('hh:mm a').format(
+        DateTime.now(),
+      ),
+      text: '',
+      imagePath: imagePath,
+    );
     setSendingPhotoState(false);
-    message.messageId = await _databaseProvider.insertMessage(message); //нет таблицы такой
+    message.messageId = await _databaseProvider.insertMessage(message);
     emit(
       state.copyWith(
         messageList: state.messageList,

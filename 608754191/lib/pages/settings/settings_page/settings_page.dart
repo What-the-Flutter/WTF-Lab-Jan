@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:task_wtf/pages/home_page/drawer_pages/settings_page/general_settings/general_settings_page.dart';
+
+import 'general_settings/general_settings_page.dart';
 
 class SettingsPage extends StatelessWidget {
   @override

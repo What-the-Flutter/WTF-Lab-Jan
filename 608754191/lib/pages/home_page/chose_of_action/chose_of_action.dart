@@ -128,7 +128,6 @@ class ChoseOfAction extends StatelessWidget {
   }
 
   void _showInfoDialog(BuildContext context) {
-    print('11');
     showDialog(
       context: context,
       builder: (infoDialogContext) {

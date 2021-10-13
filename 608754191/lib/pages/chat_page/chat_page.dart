@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,7 +34,6 @@ class _ChatPage extends State<ChatPage> {
   final List<Category> _categories;
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
   @required
   _ChatPage(
     this._category,
@@ -233,39 +234,45 @@ class _ChatPage extends State<ChatPage> {
       child: ListView.builder(
         scrollDirection: Axis.vertical,
         itemCount: state.messageList.length,
-        itemBuilder: (context, index) => Container(
-          padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
-          width: 40,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Card(
-              elevation: 5,
-              color: Colors.blueGrey[600],
-              child: ListTile(
-                title: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    state.messageList[index].text,
-                    style: const TextStyle(fontSize: 20, color: Colors.black),
-                  ),
-                ),
-                subtitle: Text(
-                  state.messageList[state.indexOfSelectedElement!].time,
-                  style: TextStyle(
-                    color: Colors.blueGrey[200],
-                    fontSize: 12,
-                  ),
-                ),
-                onLongPress: () {
-                  _cubit.swapAppBar();
-                  BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
-                    index,
-                  );
-                },
+        itemBuilder: (context, index) {
+          return Container(
+            padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
+            width: 40,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Card(
+                elevation: 5,
+                color: Colors.blueGrey[600],
+                child: state.messageList[index].imagePath?.isEmpty ?? true
+                    ? ListTile(
+                        title: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Text(
+                            state.messageList[index].text,
+                            style: const TextStyle(fontSize: 20, color: Colors.black),
+                          ),
+                        ),
+                        subtitle: Text(
+                          state.messageList[state.indexOfSelectedElement!].time,
+                          style: TextStyle(
+                            color: Colors.blueGrey[200],
+                            fontSize: 12,
+                          ),
+                        ),
+                        onLongPress: () {
+                          _cubit.swapAppBar();
+                          BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
+                            index,
+                          );
+                        },
+                      )
+                    : Image.file(
+                        File(state.messageList[index].imagePath!),
+                      ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -351,6 +358,7 @@ class _ChatPage extends State<ChatPage> {
         time: DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now()),
         text: _textEditingController.text,
         currentCategoryId: state.category!.categoryId!,
+        imagePath: '',
       ),
     );
     _textEditingController.clear();

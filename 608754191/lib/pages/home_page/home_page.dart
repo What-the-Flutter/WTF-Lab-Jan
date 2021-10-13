@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../main.dart';
 import '../../util/theme_bloc/theme_cubit.dart';
-import 'drawer_pages/settings_page/settings_page.dart';
+import '../settings/settings_page/settings_page.dart';
 import 'home_page_cubit.dart';
 
 class ChatJournalHomePage extends StatefulWidget {
