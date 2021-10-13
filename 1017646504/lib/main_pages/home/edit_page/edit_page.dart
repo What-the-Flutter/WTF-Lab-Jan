@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../data/icons.dart';
+import '../../../entity/page.dart';
 
-import '../data/icons.dart';
-import '../entity/page.dart';
 import 'edit_cubit.dart';
 import 'edit_state.dart';
 
@@ -46,37 +46,35 @@ class _EditPageState extends State<EditPage> {
     );
   }
 
-  PreferredSizeWidget get _appBar {
-    return AppBar(
-      leading: IconButton(
-        onPressed: () => Navigator.pop(context, _cubit.state),
-        icon: Icon(
-          Icons.arrow_back,
-          color: Theme.of(context).textTheme.bodyText2!.color,
-        ),
-      ),
-      backgroundColor: Theme.of(context).accentColor,
-      actions: [
-        IconButton(
-          onPressed: () {
-            _cubit.renamePage(_controller.text);
-            Navigator.pop(context, _cubit.state);
-          },
+  PreferredSizeWidget get _appBar => AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context, _cubit.state),
           icon: Icon(
-            _cubit.state.isAllowedToSave ? Icons.check : Icons.close,
+            Icons.arrow_back,
             color: Theme.of(context).textTheme.bodyText2!.color,
           ),
         ),
-      ],
-      title: Text(
-        _title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).textTheme.bodyText2!.color,
+        backgroundColor: Theme.of(context).accentColor,
+        actions: [
+          IconButton(
+            onPressed: () {
+              _cubit.renamePage(_controller.text);
+              Navigator.pop(context, _cubit.state);
+            },
+            icon: Icon(
+              _cubit.state.isAllowedToSave ? Icons.check : Icons.close,
+              color: Theme.of(context).textTheme.bodyText2!.color,
+            ),
+          ),
+        ],
+        title: Text(
+          _title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.bodyText2!.color,
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget get _body {
     return Container(
@@ -100,8 +98,7 @@ class _EditPageState extends State<EditPage> {
                       child: CircleAvatar(
                         maxRadius: 30,
                         backgroundColor: Theme.of(context).accentColor,
-                        foregroundColor:
-                        Theme.of(context).textTheme.bodyText2!.color,
+                        foregroundColor: Theme.of(context).textTheme.bodyText2!.color,
                         child: Icon(e),
                       ),
                     ),

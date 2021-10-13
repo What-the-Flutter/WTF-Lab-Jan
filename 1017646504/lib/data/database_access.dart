@@ -14,7 +14,7 @@ class DatabaseAccess {
 
   DatabaseAccess._internal();
 
-  static void initialize() async {
+  static Future<void> initialize() async {
     _db = await openDatabase(
       join(await getDatabasesPath(), 'database.db'),
       onCreate: (db, version) {
@@ -43,18 +43,20 @@ class DatabaseAccess {
     );
   }
 
-  Future<List<JournalPage>> fetchPages() async {
-    List<Map<String, dynamic>> pagesMap = await _db.query('pages');
 
-    final pages = List<JournalPage>.generate(pagesMap.length, (i) {
-      return JournalPage.fromDb(
+  Future<List<JournalPage>> fetchPages() async {
+    final List<Map<String, dynamic>> pagesMap = await _db.query('pages');
+
+    final pages = List<JournalPage>.generate(
+    pagesMap.length,
+    (i) => JournalPage.fromDb(
         pagesMap[i]['id'],
         pagesMap[i]['title'],
         pagesMap[i]['iconIndex'],
         pagesMap[i]['isPinned'] == 0 ? false : true,
         DateTime.fromMillisecondsSinceEpoch(pagesMap[i]['creationTime'] * 1000),
-      );
-    });
+      ),
+    );
 
     for (var i = 0; i < pagesMap.length; i++) {
       _fetchLastEvent(pages[i]);
@@ -64,7 +66,7 @@ class DatabaseAccess {
   }
 
   void _fetchLastEvent(JournalPage page) async {
-    List<Map<String, dynamic>> eventMap = await _db.rawQuery(
+    final List<Map<String, dynamic>> eventMap = await _db.rawQuery(
       'SELECT * FROM events WHERE creationTime = ( SELECT MAX ( creationTime )'
       ' FROM ( SELECT * FROM events WHERE pageId = ? ) )',
       [page.id],
@@ -86,7 +88,7 @@ class DatabaseAccess {
   }
 
   Future<List<Event>> fetchEvents(int? pageId) async {
-    List<Map<String, dynamic>> eventsMap =
+    final List<Map<String, dynamic>> eventsMap =
         await _db.rawQuery('SELECT * FROM events WHERE pageId = ?', [pageId]);
     final events = List.generate(eventsMap.length, (i) {
       return Event.fromDb(
@@ -103,8 +105,27 @@ class DatabaseAccess {
     return events;
   }
 
-  Future<void> insertPage(JournalPage page) async {
-    _db.insert(
+  Future<List<Event>> fetchAllEvents() async {
+    final List<Map<String, dynamic>> eventsMap =
+    await _db.rawQuery('SELECT * FROM events');
+    final events = List.generate(eventsMap.length, (i) {
+      return Event.fromDb(
+        eventsMap[i]['id'],
+        eventsMap[i]['pageId'],
+        eventsMap[i]['iconIndex'],
+        eventsMap[i]['isFavourite'] == 0 ? false : true,
+        eventsMap[i]['description'],
+        DateTime.fromMillisecondsSinceEpoch(
+            eventsMap[i]['creationTime'] * 1000),
+        eventsMap[i]['imagePath'],
+      );
+    });
+    events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
+    return events;
+  }
+
+  Future<int> insertPage(JournalPage page) async {
+    return _db.insert(
       'pages',
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -152,4 +173,5 @@ class DatabaseAccess {
       whereArgs: [event.id],
     );
   }
+
 }
