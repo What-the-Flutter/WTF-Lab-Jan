@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../data/database_access.dart';
-import '../entity/page.dart';
+import '../../data/database_access.dart';
+import '../../entity/page.dart';
 
 class PagesCubit extends Cubit<List<JournalPage>> {
   DatabaseAccess db = DatabaseAccess();
@@ -14,9 +14,8 @@ class PagesCubit extends Cubit<List<JournalPage>> {
   }
 
   void addPage(JournalPage page) async {
-    db.insertPage(page);
-    final updatedPages = await db.fetchPages();
-    emit(sortPageList(updatedPages));
+    page.id = await db.insertPage(page);
+    emit(sortPageList(state..add(page)));
   }
 
   void pinPage(JournalPage page) async {
@@ -28,8 +27,7 @@ class PagesCubit extends Cubit<List<JournalPage>> {
     } else {
       updatedPages.add(page);
     }
-    sortPageList(updatedPages);
-    emit(updatedPages);
+    emit(sortPageList(updatedPages));
   }
 
   void editPage(JournalPage page, JournalPage editedPage) async {

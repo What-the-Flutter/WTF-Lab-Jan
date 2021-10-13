@@ -1,4 +1,4 @@
-import '../entity/page.dart';
+import '../../../entity/page.dart';
 
 class MessagesState {
   int selectedIconIndex = 0;

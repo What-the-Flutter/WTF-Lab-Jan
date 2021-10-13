@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/preferences_access.dart';
 
-import '../data/preferences_access.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
@@ -10,11 +10,13 @@ class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit(SettingsState state) : super(state);
 
   void initialize() async {
-    emit(state.copyWith(
-      isRightToLeft: _preferencesAccess.fetchRightToLeft(),
-      isDateCentered: _preferencesAccess.fetchDateCentered(),
-      fontSizeIndex: _preferencesAccess.fetchFontSize(),
-    ));
+    emit(
+      state.copyWith(
+        isRightToLeft: _preferencesAccess.fetchRightToLeft(),
+        isDateCentered: _preferencesAccess.fetchDateCentered(),
+        fontSizeIndex: _preferencesAccess.fetchFontSize(),
+      ),
+    );
   }
 
   void changeRightToLeft(bool isRightToLeft) {

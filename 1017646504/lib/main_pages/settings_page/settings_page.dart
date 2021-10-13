@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
 
-import '../color_theme_cubit.dart';
+import '../../color_theme_cubit.dart';
 import 'settings_cubit.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -78,7 +78,7 @@ class SettingsPage extends StatelessWidget {
           'Light/Dark',
           BlocProvider.of<ColorThemeCubit>(context).changeTheme,
         ),
-        Divider(color: Theme.of(context).dividerColor),
+        _divider(context),
         _header('General'),
         _tile(
           Icons.date_range_outlined,
@@ -89,7 +89,7 @@ class SettingsPage extends StatelessWidget {
           },
           trailing: dateSwitch,
         ),
-        Divider(color: Theme.of(context).dividerColor),
+        _divider(context),
         _tile(
           Icons.format_align_right,
           'Bubble alignment',
@@ -99,7 +99,7 @@ class SettingsPage extends StatelessWidget {
           },
           trailing: bubbleSwitch,
         ),
-        Divider(color: Theme.of(context).dividerColor),
+        _divider(context),
         _tile(
           Icons.sort_by_alpha,
           'Font size',
@@ -108,7 +108,6 @@ class SettingsPage extends StatelessWidget {
             BlocProvider.of<SettingsCubit>(context).changeFontSize();
           },
         ),
-        Divider(color: Theme.of(context).dividerColor),
         _header('Other'),
         _tile(
           Icons.settings_backup_restore_outlined,
@@ -121,7 +120,7 @@ class SettingsPage extends StatelessWidget {
             }
           },
         ),
-        Divider(color: Theme.of(context).dividerColor),
+        _divider(context),
         _tile(
           Icons.share,
           'Share app',
@@ -133,6 +132,9 @@ class SettingsPage extends StatelessWidget {
       ],
     );
   }
+
+  Divider _divider(BuildContext context) =>
+      Divider(color: Theme.of(context).dividerColor.withOpacity(0.2));
 
   PreferredSizeWidget _appBar(BuildContext context) {
     return AppBar(
