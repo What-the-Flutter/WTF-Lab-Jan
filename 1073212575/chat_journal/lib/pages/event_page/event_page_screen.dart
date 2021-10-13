@@ -2,21 +2,24 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jiffy/jiffy.dart';
 
 import '../../models/events_model.dart';
 import '../../theme/themes.dart';
+import '../settings/settings_cubit.dart';
+import '../settings/settings_state.dart';
 import 'event_page_cubit.dart';
 import 'event_page_state.dart';
 
 class EventPage extends StatefulWidget {
   final EventPages eventPage;
-  final bool isCategoryPanelVisible;
 
-  const EventPage(
-      {Key? key, required this.eventPage, required this.isCategoryPanelVisible})
-      : super(key: key);
+  const EventPage({
+    Key? key,
+    required this.eventPage,
+  }) : super(key: key);
 
   @override
   _EventPageState createState() => _EventPageState();
@@ -25,6 +28,13 @@ class EventPage extends StatefulWidget {
 class _EventPageState extends State<EventPage> {
   final _controller = TextEditingController();
   final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<EventPageCubit>(context).setPageId(widget.eventPage.id);
+    BlocProvider.of<EventPageCubit>(context).showMessages();
+  }
 
   @override
   void dispose() {
@@ -97,8 +107,7 @@ class _EventPageState extends State<EventPage> {
         ),
         IconButton(
           icon: const Icon(Icons.edit_rounded),
-          onPressed: () =>
-              _controller.text = _eventPageCubit.edit(widget.eventPage.id),
+          onPressed: () => _controller.text = _eventPageCubit.edit(),
         ),
       ],
     );
@@ -122,7 +131,7 @@ class _EventPageState extends State<EventPage> {
           icon: !state.onlyMarked
               ? const Icon(Icons.bookmark_border_rounded)
               : const Icon(Icons.bookmark_rounded),
-          onPressed: () => _eventPageCubit.showMarked(widget.eventPage.id),
+          onPressed: () => _eventPageCubit.showMarked(),
         ),
         IconButton(
           icon: const Icon(Icons.search_rounded),
@@ -143,9 +152,7 @@ class _EventPageState extends State<EventPage> {
       leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
-            _homePageCubit.endSearching(
-              widget.eventPage.id,
-            );
+            _homePageCubit.endSearching();
             _searchController.clear();
           }),
       title: const Text(''),
@@ -155,8 +162,7 @@ class _EventPageState extends State<EventPage> {
             padding: const EdgeInsets.only(left: 40),
             child: TextField(
               controller: _searchController,
-              onChanged: _homePageCubit.searchMessages(
-                  widget.eventPage.id, _searchController.text),
+              onChanged: _homePageCubit.searchMessages(_searchController.text),
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
@@ -185,42 +191,72 @@ class _EventPageState extends State<EventPage> {
           child: Container(
             height: 50,
             color: Theme.of(context).colorScheme.onPrimary,
-            child: Row(
-              children: [
-                Visibility(
-                  visible: widget.isCategoryPanelVisible,
-                  child: IconButton(
-                      icon: const Icon(Icons.stars_rounded),
+            child: BlocBuilder<SettingsCubit, SettingsState>(
+              builder: (blocContext, settingsState) {
+                return Row(
+                  children: [
+                    Visibility(
+                        visible: settingsState.isCategoryPanelVisible,
+                        child: IconButton(
+                            icon: const Icon(Icons.stars_rounded),
+                            color: Theme.of(context).colorScheme.background,
+                            onPressed: () {
+                              _eventPageCubit.openCategoryPanel();
+                            })),
+                    IconButton(
+                      icon: const Icon(Icons.add_a_photo_rounded),
                       color: Theme.of(context).colorScheme.background,
-                      onPressed: () {
-                        _eventPageCubit.openCategoryPanel();
-                      }),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add_a_photo_rounded),
-                  color: Theme.of(context).colorScheme.background,
-                  onPressed: () =>
-                      _eventPageCubit.addImage(widget.eventPage.id),
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(10),
-                      border: InputBorder.none,
-                      hintText: 'Enter event',
+                      onPressed: () => _eventPageCubit.addImage(),
                     ),
-                  ),
-                ),
-                IconButton(
-                    icon: const Icon(Icons.send_rounded),
-                    color: Theme.of(context).colorScheme.background,
-                    onPressed: () {
-                      _eventPageCubit.addMessage(
-                          widget.eventPage.id, _controller.text);
-                      _controller.clear();
-                    }),
-              ],
+                    Visibility(
+                      visible: settingsState.isCustomDateUsed,
+                      child: IconButton(
+                        icon: const Icon(Icons.date_range_rounded),
+                        color: Theme.of(context).colorScheme.background,
+                        onPressed: () {
+                          _selectTime();
+                          _selectDate(context);
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Visibility(
+                            visible: state.isDateTimeSelected,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                child: Text(
+                                  Jiffy(_eventPageCubit.selectedDateTime())
+                                      .format('d/M/y h:mm a'),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(10),
+                                border: InputBorder.none,
+                                hintText: 'Enter event',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                        icon: const Icon(Icons.send_rounded),
+                        color: Theme.of(context).colorScheme.background,
+                        onPressed: () {
+                          _eventPageCubit.addMessage(_controller.text);
+                          _controller.clear();
+                        }),
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -230,24 +266,57 @@ class _EventPageState extends State<EventPage> {
 
   Widget _eventMessagesList(state, _eventPageCubit) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 60, 70),
-      child: StreamBuilder(
-          stream: _eventPageCubit.showMessages(widget.eventPage.id),
-          builder: (context, projectSnap) {
-            return ListView.builder(
-              itemCount: state.messages.length,
-              itemBuilder: (context, i) => _message(i, state, _eventPageCubit),
-            );
-          }),
+      margin: const EdgeInsets.fromLTRB(20, 20, 20, 70),
+      child: ListView.separated(
+        itemCount: state.messages.length + 1,
+        separatorBuilder: (context, i) => _message(i, state, _eventPageCubit),
+        itemBuilder: (context, i) {
+          if (i < state.messages.length) {
+            return _day(i, state, _eventPageCubit);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
-  Widget _message(int i, state, _eventPageCubit) {
+  Widget _day(i, state, _eventPageCubit) {
+    return Visibility(
+      visible: _eventPageCubit.isSeparatorVisible(i),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (blocContext, settingsState) {
+          return Align(
+            alignment: settingsState.dateAlignment,
+            child: Container(
+              width: 100,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(radiusValue),
+                ),
+              ),
+              child: Text(
+                Jiffy(state.messages[i].date).format('d/M/y'),
+                style: TextStyle(
+                    fontSize: 10,
+                    color: Theme.of(context).colorScheme.onSurface),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _message(int i, eventState, _eventPageCubit) {
     return Dismissible(
       confirmDismiss: (direction) async {
-        if (!state.isSelected) {
+        if (!eventState.isSelected) {
           if (direction == DismissDirection.startToEnd) {
-            _controller.text = _eventPageCubit.edit(widget.eventPage.id, i);
+            _controller.text = _eventPageCubit.edit(i);
             return false;
           } else if (direction == DismissDirection.endToStart) {
             _eventPageCubit.delete(widget.eventPage.id, i);
@@ -267,18 +336,27 @@ class _EventPageState extends State<EventPage> {
       child: GestureDetector(
         onTap: () => _eventPageCubit.mark(i),
         onLongPress: () => _eventPageCubit.select(i),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: i == state.selectedMessageIndex && state.isSelected
-                ? Theme.of(context).colorScheme.surface
-                : Theme.of(context).colorScheme.onPrimary,
-            borderRadius: const BorderRadius.all(
-              Radius.circular(radiusValue),
-            ),
-          ),
-          child: _messageContent(state, i, _eventPageCubit),
+        child: BlocBuilder<SettingsCubit, SettingsState>(
+          builder: (blocContext, settingsState) {
+            return Align(
+              alignment: settingsState.messageAlignment,
+              child: Container(
+                width: 250,
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: i == eventState.selectedMessageIndex &&
+                          eventState.isSelected
+                      ? Theme.of(context).colorScheme.surface
+                      : Theme.of(context).colorScheme.onPrimary,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(radiusValue),
+                  ),
+                ),
+                child: _messageContent(eventState, i, _eventPageCubit),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -292,18 +370,20 @@ class _EventPageState extends State<EventPage> {
           children: [
             Container(
               padding: const EdgeInsets.only(right: 5),
-              child: Icon(
-                _eventPageCubit.categoryIcon(
-                  widget.isCategoryPanelVisible,
-                  i,
-                ),
-                size: 16,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              child: BlocBuilder<SettingsCubit, SettingsState>(
+                  builder: (blocContext, state) {
+                return Icon(
+                  _eventPageCubit.categoryIcon(
+                    state.isCategoryPanelVisible,
+                    i,
+                  ),
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurface,
+                );
+              }),
             ),
             Text(
-              Jiffy(DateTime.fromMillisecondsSinceEpoch(state.messages[i].date))
-                  .format('d/M/y h:mm a'),
+              Jiffy(state.messages[i].date).format('h:mm a'),
               style: TextStyle(
                   fontSize: 10, color: Theme.of(context).colorScheme.onSurface),
             ),
@@ -322,27 +402,27 @@ class _EventPageState extends State<EventPage> {
           ],
         ),
       ),
-      FutureBuilder(
-        future: _eventPageCubit.isImage(state.messages[i].content),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return snapshot.data == true
-                ? Image.file(
-                    File(state.messages[i].content),
-                    height: 300,
-                  )
-                : Container(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: Text(
-                      state.messages[i].content,
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).colorScheme.background),
-                    ),
-                  );
-          }
-          return const Text('');
-        },
+      Column(
+        children: [
+          Visibility(
+            visible: state.messages[i].imagePath != '',
+            child: Image.file(
+              File(state.messages[i].imagePath),
+              height: 300,
+            ),
+          ),
+          Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 25),
+            child: Text(
+              state.messages[i].text,
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.background,
+              ),
+            ),
+          )
+        ],
       )
     ]);
   }
@@ -397,40 +477,59 @@ class _EventPageState extends State<EventPage> {
   Future _choosePage(state, _eventPageCubit) {
     var _chosenPageIndex;
     return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text(
-                'Select the page you want to migrate the selected event(s) to'),
-            content: StatefulBuilder(builder: (context, setState) {
-              return Container(
-                height: 300, // Change as per your requirement
-                width: 300, // Change as per your requirement
-                child: ListView.builder(
-                  itemCount: state.eventPages.length,
-                  itemBuilder: (context, i) {
-                    return RadioListTile(
-                      title: Text(state.eventPages[i].name),
-                      value: i,
-                      groupValue: _chosenPageIndex,
-                      onChanged: (index) =>
-                          setState(() => _chosenPageIndex = index),
-                    );
-                  },
-                ),
-              );
-            }),
-            actions: <Widget>[
-              TextButton(
-                  child: const Text('Ok'),
-                  onPressed: () {
-                    _eventPageCubit.moveMessage(
-                      state.eventPages[_chosenPageIndex].id,
-                    );
-                    Navigator.of(context).pop();
-                  }),
-            ],
-          );
-        });
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+              'Select the page you want to migrate the selected event(s) to'),
+          content: StatefulBuilder(builder: (context, setState) {
+            return Container(
+              height: 300,
+              width: 300,
+              child: ListView.builder(
+                itemCount: state.eventPages.length,
+                itemBuilder: (context, i) {
+                  return RadioListTile(
+                    title: Text(state.eventPages[i].name),
+                    value: i,
+                    groupValue: _chosenPageIndex,
+                    onChanged: (index) =>
+                        setState(() => _chosenPageIndex = index),
+                  );
+                },
+              ),
+            );
+          }),
+          actions: <Widget>[
+            TextButton(
+                child: const Text('Ok'),
+                onPressed: () {
+                  _eventPageCubit.moveMessage(
+                    state.eventPages[_chosenPageIndex].id,
+                  );
+                  Navigator.of(context).pop();
+                }),
+          ],
+        );
+      },
+    );
+  }
+
+  void _selectTime() async {
+    final newTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    BlocProvider.of<EventPageCubit>(context).setTime(newTime);
+  }
+
+  void _selectDate(BuildContext context) async {
+    final newDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2025),
+    );
+    BlocProvider.of<EventPageCubit>(context).setDate(newDate);
   }
 }

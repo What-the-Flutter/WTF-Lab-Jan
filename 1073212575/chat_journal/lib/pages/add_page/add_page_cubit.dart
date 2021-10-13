@@ -1,33 +1,34 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../database.dart';
 import '../../models/events_model.dart';
+import '../../repository/pages_repository.dart';
 import 'add_page_state.dart';
 
 class AddPageCubit extends Cubit<AddPageState> {
-  AddPageCubit()
+  final PagesRepository pagesRepository;
+  AddPageCubit(this.pagesRepository)
       : super(
           AddPageState(selectedIconIndex: 0, eventPages: []),
         );
 
-  Future<void> addPage(
+  void addPage(
     String text,
-    List iconsList,
-  ) async {
+    List iconsList
+  )  {
     final page = EventPages(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: text,
-      date: DateTime.now().millisecondsSinceEpoch,
+      date: DateTime.now(),
       icon: iconsList[state.selectedIconIndex],
       isFixed: false,
     );
-    await DBProvider.db.insertPage(page);
+    pagesRepository.insertPage(page);
   }
 
   Future<void> init() async {
     emit(
       state.copyWith(
-        eventPages: await DBProvider.db.eventPagesList(),
+        eventPages: await pagesRepository.eventPagesList(),
       ),
     );
   }
@@ -41,7 +42,7 @@ class AddPageCubit extends Cubit<AddPageState> {
       name: text,
       icon: iconsList[state.selectedIconIndex],
     );
-    DBProvider.db.updatePage(tempEventPage);
+    pagesRepository.updatePage(tempEventPage);
   }
 
   void setIconIndex(int i) {

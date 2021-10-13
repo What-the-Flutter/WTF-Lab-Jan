@@ -7,9 +7,11 @@ class EventPageState {
   final bool isSearchGoing;
   final bool isCategoryPanelOpened;
   final bool needsEditing;
+  final bool isDateTimeSelected;
   final int selectedMessageIndex;
   final IconData categoryIcon;
-  final List eventPages;
+  final String eventPageId;
+  final String selectedImagePath;
 
   EventPageState({
     required this.messages,
@@ -18,9 +20,11 @@ class EventPageState {
     required this.isSearchGoing,
     required this.isCategoryPanelOpened,
     required this.needsEditing,
+    required this.isDateTimeSelected,
     required this.selectedMessageIndex,
     required this.categoryIcon,
-    required this.eventPages,
+    required this.eventPageId,
+    required this.selectedImagePath,
   });
 
   EventPageState copyWith({
@@ -30,9 +34,11 @@ class EventPageState {
     bool? isSearchGoing,
     bool? isCategoryPanelOpened,
     bool? needsEditing,
+    bool? isDateTimeSelected,
     int? selectedMessageIndex,
     IconData? categoryIcon,
-    List? eventPages,
+    String? eventPageId,
+    String? selectedImagePath,
   }) {
     return EventPageState(
       messages: messages ?? this.messages,
@@ -42,9 +48,11 @@ class EventPageState {
       isCategoryPanelOpened:
           isCategoryPanelOpened ?? this.isCategoryPanelOpened,
       needsEditing: needsEditing ?? this.needsEditing,
+      isDateTimeSelected: isDateTimeSelected ?? this.isDateTimeSelected,
       selectedMessageIndex: selectedMessageIndex ?? this.selectedMessageIndex,
       categoryIcon: categoryIcon ?? this.categoryIcon,
-      eventPages: eventPages ?? this.eventPages,
+      eventPageId: eventPageId ?? this.eventPageId,
+      selectedImagePath: selectedImagePath ?? this.selectedImagePath,
     );
   }
 }
