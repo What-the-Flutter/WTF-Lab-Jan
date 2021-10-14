@@ -12,18 +12,19 @@ class ChatPageState {
   final bool? isWriting;
   final int? iconIndex;
   final bool? isSendingPhoto;
-  ChatPageState({
-    this.messageSelected,
-    this.indexOfSelectedElement,
-    this.isEditing,
-    this.category,
-    this.isSending,
-    this.categories,
-    this.messageList = const [],
-    this.iconIndex,
-    this.isWriting,
-    this.isSendingPhoto,
-  });
+  final bool? isBubbleAlignment;
+  ChatPageState(
+      {this.messageSelected,
+      this.indexOfSelectedElement,
+      this.isEditing,
+      this.category,
+      this.isSending,
+      this.categories,
+      this.messageList = const [],
+      this.iconIndex,
+      this.isWriting,
+      this.isSendingPhoto,
+      this.isBubbleAlignment});
 
   ChatPageState copyWith({
     final bool? messageSelected,
@@ -36,6 +37,7 @@ class ChatPageState {
     final int? iconIndex,
     final bool? isWriting,
     final bool? isSendingPhoto,
+    final bool? isBubbleAlignment,
   }) {
     return ChatPageState(
       messageSelected: messageSelected ?? this.messageSelected,
@@ -48,6 +50,7 @@ class ChatPageState {
       iconIndex: iconIndex,
       isWriting: isWriting ?? this.isWriting,
       isSendingPhoto: isSendingPhoto ?? this.isSendingPhoto,
+      isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,
     );
   }
 }

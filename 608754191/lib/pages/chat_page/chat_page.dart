@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import '../../util/domain.dart';
 
-import '../../main.dart';
 import '../entity/category.dart';
 import '../entity/message.dart';
 import 'chat_page_cubit.dart';
@@ -236,6 +236,8 @@ class _ChatPage extends State<ChatPage> {
         itemCount: state.messageList.length,
         itemBuilder: (context, index) {
           return Container(
+            alignment:
+                state.isBubbleAlignment ?? true ? Alignment.bottomLeft : Alignment.bottomRight,
             padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
             width: 40,
             child: ClipRRect(
@@ -245,12 +247,9 @@ class _ChatPage extends State<ChatPage> {
                 color: Colors.blueGrey[600],
                 child: state.messageList[index].imagePath?.isEmpty ?? true
                     ? ListTile(
-                        title: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Text(
-                            state.messageList[index].text,
-                            style: const TextStyle(fontSize: 20, color: Colors.black),
-                          ),
+                        title: Text(
+                          state.messageList[index].text,
+                          style: const TextStyle(fontSize: 20, color: Colors.black),
                         ),
                         subtitle: Text(
                           state.messageList[state.indexOfSelectedElement!].time,

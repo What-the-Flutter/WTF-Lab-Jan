@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../util/theme_bloc/theme_cubit.dart';
+import '../../../../util/shared_preferences/shared_preferences_cubit.dart';
 
 class GeneralSettingPage extends StatefulWidget {
   @override
@@ -19,7 +19,7 @@ class _GeneralSettingPageState extends State<GeneralSettingPage> {
   AppBar _appBarFromGeneralSettingsPage() {
     return AppBar(
       title: const Text(
-        'general settings',
+        'General Settings',
         style: TextStyle(color: Colors.yellow),
       ),
       centerTitle: true,
@@ -28,30 +28,31 @@ class _GeneralSettingPageState extends State<GeneralSettingPage> {
   }
 
   Widget _bodyFromGeneralSettingPage() {
-    return Column(
+    return ListView(
       children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: 1,
-            itemBuilder: (
-              context,
-              index,
-            ) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(4, 15, 6, 5),
-                child: Card(
-                  child: ListTile(
-                    title: const Text('Theme'),
-                    subtitle: const Text('Light/Dark'),
-                    leading: const Icon(
-                      Icons.invert_colors,
-                      size: 35,
-                    ),
-                    onTap: () => context.read<ThemeCubit>().changeTheme(),
-                  ),
-                ),
-              );
-            },
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 15, 6, 5),
+          child: Card(
+            child: ListTile(
+              title: const Text('Theme'),
+              subtitle: const Text('Light/Dark'),
+              leading: const Icon(
+                Icons.invert_colors,
+                size: 35,
+              ),
+              onTap: () => context.read<SharedPreferencesCubit>().changeTheme(),
+            ),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: const Text('Bubble Alignment'),
+            subtitle: const Text('force right-to-left bubble alignment'),
+            leading: const Icon(
+              Icons.format_align_left,
+              size: 35,
+            ),
+            onTap: () => context.read<SharedPreferencesCubit>().changeBubbleAlignment(),
           ),
         ),
       ],

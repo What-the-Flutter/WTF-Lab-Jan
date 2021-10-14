@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../main.dart';
-import '../../util/theme_bloc/theme_cubit.dart';
+import '../../util/domain.dart';
+import '../../util/shared_preferences/shared_preferences_cubit.dart';
 import '../settings/settings_page/settings_page.dart';
 import 'home_page_cubit.dart';
 
@@ -72,7 +72,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       ),
       actions: [
         IconButton(
-          onPressed: () => context.read<ThemeCubit>().changeTheme(),
+          onPressed: () => context.read<SharedPreferencesCubit>().changeTheme(),
           icon: const Icon(
             Icons.invert_colors,
           ),

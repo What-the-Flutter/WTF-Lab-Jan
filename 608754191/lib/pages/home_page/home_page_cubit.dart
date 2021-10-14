@@ -51,7 +51,8 @@ class HomePageCubit extends Cubit<HomePageState> {
       );
 
   void addCategory(BuildContext context) async {
-    // вместо обращения к контексту, лучше сделать в стэйте поле навигации новой категори goCreationPage = false,  в  методе делать true.
+    // вместо обращения к контексту, лучше сделать в стэйте поле навигации новой категори goCreationPage = false,
+    // в  методе делать true при переходе.
     final newCategory = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AddPage.add(),

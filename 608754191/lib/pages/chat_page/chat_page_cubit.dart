@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../repositories/database.dart';
 import '../entity/category.dart';
@@ -29,6 +25,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     setIndexOfSelection(0);
     setIconIndex(0);
     initMessageList();
+    initSharedPreferences();
   }
 
   void setCategoryListState(List<Category> categories) {
@@ -243,4 +240,6 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       ),
     );
   }
+
+  void initSharedPreferences() => emit(state.copyWith(isBubbleAlignment: false));
 }

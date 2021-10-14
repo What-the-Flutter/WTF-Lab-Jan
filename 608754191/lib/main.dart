@@ -1,47 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:task_wtf/repositories/database.dart';
 
 import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
-import 'pages/entity/category.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
-import 'util/theme_bloc/theme_cubit.dart';
+import 'pages/settings/settings_page/settings_page.dart';
+import 'util/shared_preferences/shared_preferences_cubit.dart';
 import 'util/theme_inherited/application_theme.dart';
 
-List<IconData> initialIcons = [
-  Icons.theater_comedy,
-  Icons.family_restroom,
-  Icons.work,
-  Icons.local_shipping,
-  Icons.sports_basketball,
-  Icons.wine_bar,
-  Icons.face_unlock_sharp,
-  Icons.photo_camera,
-  Icons.mode_edit,
-  Icons.circle,
-  Icons.volunteer_activism,
-  Icons.square_foot_rounded,
-  Icons.visibility_rounded,
-  Icons.accessibility,
-  Icons.agriculture,
-  Icons.anchor,
-  Icons.category,
-  Icons.title,
-  Icons.airline_seat_flat_rounded,
-  Icons.attach_money,
-  Icons.attach_file_outlined,
-  Icons.auto_fix_high,
-  Icons.airplanemode_active,
-  Icons.radar,
-  Icons.library_music_outlined,
-  Icons.wb_sunny,
-  Icons.gesture,
-  Icons.train_outlined
-];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
@@ -77,18 +46,19 @@ class ChatJournal extends StatelessWidget {
         BlocProvider(
           create: (context) => HomePageCubit(),
         ),
-        BlocProvider<ThemeCubit>(
-          create: (context) => ThemeCubit(
+        BlocProvider<SharedPreferencesCubit>(
+          create: (context) => SharedPreferencesCubit(
             _themeModeFromString(
               preferences.getString(
                 'themeMode',
               ),
             ),
+            true,
             preferences: preferences,
           ),
         ),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeState>(
+      child: BlocBuilder<SharedPreferencesCubit, SharedPreferencesState>(
         builder: (context, state) {
           return MaterialApp(
             title: 'Home Page',
@@ -99,6 +69,7 @@ class ChatJournal extends StatelessWidget {
               '/home_page': (__) => ChatJournalHomePage(),
               '/add_page': (_) => AddPage.add(),
               '/timeline_page': (_) => TimelinePage(categories: []),
+              '/settings_page': (_) => SettingsPage(),
             },
             initialRoute: '/home_page',
           );
