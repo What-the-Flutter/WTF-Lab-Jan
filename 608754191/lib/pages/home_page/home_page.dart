@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_wtf/pages/authorization/authorization_cubit.dart';
 
 import '../../util/domain.dart';
 import '../../util/shared_preferences/shared_preferences_cubit.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task_wtf/pages/authorization/authorization_page.dart';
+import '../../authorization/authorization_page.dart';
 
 import 'general_settings/general_settings_page.dart';
 
