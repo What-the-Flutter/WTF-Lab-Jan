@@ -33,29 +33,49 @@ class _GeneralSettingPageState extends State<GeneralSettingPage> {
         Padding(
           padding: const EdgeInsets.fromLTRB(4, 15, 6, 5),
           child: Card(
-            child: ListTile(
-              title: const Text('Theme'),
-              subtitle: const Text('Light/Dark'),
-              leading: const Icon(
-                Icons.invert_colors,
-                size: 35,
-              ),
-              onTap: () => context.read<SharedPreferencesCubit>().changeTheme(),
+            child: _buildSettingsItem(
+              title: 'Theme',
+              subtitle: 'Light/Dark',
+              icon: Icons.invert_colors,
+              onClicked: () => context.read<SharedPreferencesCubit>().changeTheme(),
             ),
           ),
         ),
         Card(
-          child: ListTile(
-            title: const Text('Bubble Alignment'),
-            subtitle: const Text('force right-to-left bubble alignment'),
-            leading: const Icon(
-              Icons.format_align_left,
-              size: 35,
-            ),
-            onTap: () => context.read<SharedPreferencesCubit>().changeBubbleAlignment(),
+          child: _buildSettingsItem(
+            title: 'Bubble Alignment',
+            subtitle: 'force right-to-left bubble alignment',
+            icon: Icons.format_align_left,
+            onClicked: () => context.read<SharedPreferencesCubit>().changeBubbleAlignment(),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSettingsItem({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onClicked,
+  }) {
+    final color = Colors.black;
+
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: color,
+        size: 35,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(color: color),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(color: color),
+      ),
+      onTap: onClicked,
     );
   }
 }

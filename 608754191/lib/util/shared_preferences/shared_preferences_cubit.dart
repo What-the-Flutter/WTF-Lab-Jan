@@ -54,7 +54,7 @@ class SharedPreferencesCubit extends Cubit<SharedPreferencesState> {
     );
   }
 
-  void resetAllPreferences() {
+  void resetPreferences() {
     changeBubbleAlignmentWithParams(false);
     updateState();
   }

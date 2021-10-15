@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../repositories/database.dart';
 import '../add_page/add_page.dart';
-import '../chat_page/chat_page.dart';
 import '../entity/category.dart';
-import 'chose_of_action/chose_of_action.dart';
 part 'home_page_state.dart';
 
 class HomePageCubit extends Cubit<HomePageState> {
@@ -64,36 +62,6 @@ class HomePageCubit extends Cubit<HomePageState> {
     }
     emit(
       CategoryAddedSuccess(newCategory, state.categories),
-    );
-  }
-
-  void choseOfAction(int index, BuildContext context) async {
-    // remove Context
-    await showDialog(
-      context: context,
-      builder: (context) => BlocProvider.value(
-        child: ChoseOfAction(
-          state.categories,
-          index - 1,
-        ),
-        value: BlocProvider.of<HomePageCubit>(
-          context,
-        ),
-      ),
-    );
-  }
-
-  void openChat(int index, BuildContext context) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ChatPage(
-          category: state.categories[index],
-          categories: state.categories,
-        ),
-      ),
-    );
-    emit(
-      state.copyWith(categories: state.categories),
     );
   }
 

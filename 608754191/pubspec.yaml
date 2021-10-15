@@ -20,6 +20,7 @@ dependencies:
   equatable: ^2.0.3
   cupertino_icons: ^1.0.2
   image_picker: ^0.8.4
+  local_auth: ^1.1.7
 
 dev_dependencies:
   flutter_test:

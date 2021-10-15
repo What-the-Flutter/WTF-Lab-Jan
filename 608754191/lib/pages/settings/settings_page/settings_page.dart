@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_wtf/pages/authorization/authorization_page.dart';
 
 import 'general_settings/general_settings_page.dart';
 
@@ -27,23 +28,45 @@ class SettingsPage extends StatelessWidget {
       children: [
         Expanded(
           child: ListView.builder(
-              itemCount: 1,
-              itemBuilder: (
-                context,
-                index,
-              ) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
-                  child: Card(
-                    child: _buildSettingsItem(
-                      title: 'General',
-                      subtitle: 'Themes & Interfaces',
-                      icon: Icons.clear,
-                      onClicked: () => _selectedSetting(context, 0),
-                    ),
+            itemCount: 1,
+            itemBuilder: (
+              context,
+              index,
+            ) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
+                child: Card(
+                  child: _buildSettingsItem(
+                    title: 'General',
+                    subtitle: 'Themes & Interfaces',
+                    icon: Icons.clear,
+                    onClicked: () => _selectedSetting(context, 0),
                   ),
-                );
-              }),
+                ),
+              );
+            },
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 1,
+            itemBuilder: (
+              context,
+              index,
+            ) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
+                child: Card(
+                  child: _buildSettingsItem(
+                    title: 'Authorization',
+                    subtitle: 'Themes & Interfaces',
+                    icon: Icons.accessibility_new,
+                    onClicked: () => _selectedSetting(context, 1),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ],
     );
@@ -81,6 +104,13 @@ class SettingsPage extends StatelessWidget {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => GeneralSettingPage(),
+          ),
+        );
+        break;
+      case 1:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AuthorizationPage(),
           ),
         );
         break;

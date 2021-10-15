@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
+import 'pages/authorization/authorization_cubit.dart';
+import 'pages/authorization/authorization_page.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
@@ -46,6 +48,9 @@ class ChatJournal extends StatelessWidget {
         BlocProvider(
           create: (context) => HomePageCubit(),
         ),
+        BlocProvider(
+          create: (context) => AuthenticationCubit(isAuthenticated: true),
+        ),
         BlocProvider<SharedPreferencesCubit>(
           create: (context) => SharedPreferencesCubit(
             _themeModeFromString(
@@ -59,21 +64,28 @@ class ChatJournal extends StatelessWidget {
         ),
       ],
       child: BlocBuilder<SharedPreferencesCubit, SharedPreferencesState>(
-        builder: (context, state) {
-          return MaterialApp(
-            title: 'Home Page',
-            themeMode: state.themeMode,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            routes: {
-              '/home_page': (__) => ChatJournalHomePage(),
-              '/add_page': (_) => AddPage.add(),
-              '/timeline_page': (_) => TimelinePage(categories: []),
-              '/settings_page': (_) => SettingsPage(),
-            },
-            initialRoute: '/home_page',
-          );
-        },
+        builder: (context, state) => BlocBuilder<AuthenticationCubit, AuthenticationState>(
+          builder: (context, authState) {
+            return BlocProvider(
+              create: (context) =>
+                  AuthenticationCubit(isAuthenticated: !authState.isAuthenticated)..authenticate(),
+              child: MaterialApp(
+                title: 'Home Page',
+                themeMode: state.themeMode,
+                theme: lightTheme,
+                darkTheme: darkTheme,
+                routes: {
+                  '/home_page': (__) => ChatJournalHomePage(),
+                  '/add_page': (_) => AddPage.add(),
+                  '/timeline_page': (_) => TimelinePage(categories: []),
+                  '/settings_page': (_) => SettingsPage(),
+                  '/authentication': (_) => AuthorizationPage(),
+                },
+                initialRoute: '/home_page',
+              ),
+            );
+          },
+        ),
       ),
     );
   }
