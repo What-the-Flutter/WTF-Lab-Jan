@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:task_wtf/main.dart';
+import '../../../util/domain.dart';
 
 import '../../entity/category.dart';
 import '../home_page_cubit.dart';
@@ -59,7 +59,6 @@ class ChoseOfAction extends StatelessWidget {
             );
           },
         ),
-        // _delete(),
         _buildAction(
           text: 'update',
           icon: const Icon(
@@ -87,12 +86,9 @@ class ChoseOfAction extends StatelessWidget {
             _showInfoDialog(
               context,
             );
-            Navigator.pop(
-              context,
-            );
+            Navigator.of(context).pop();
           },
         ),
-
         _buildAction(
           text: 'pin/unpin',
           icon: const Icon(

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../main.dart';
-import '../../util/theme_bloc/theme_cubit.dart';
-import '../entity/category.dart';
+import '../../util/domain.dart';
+import '../../util/shared_preferences/shared_preferences_cubit.dart';
+import '../chat_page/chat_page.dart';
+import '../settings/settings_page/settings_page.dart';
+import 'chose_of_action/chose_of_action.dart';
 import 'home_page_cubit.dart';
 
 class ChatJournalHomePage extends StatefulWidget {
@@ -40,7 +42,6 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
           floatingActionButton: FloatingActionButton(
             backgroundColor: Colors.black,
             onPressed: () {
-              print('len ${state.categories.length}');
               BlocProvider.of<HomePageCubit>(context).addCategory(
                 context,
               );
@@ -54,6 +55,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
             ),
           ),
           bottomNavigationBar: _chatBottomNavigationBar(),
+          drawer: _navigationDrawerWidget(),
         );
       },
     );
@@ -72,14 +74,14 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       ),
       actions: [
         IconButton(
-          onPressed: () => context.read<ThemeCubit>().changeTheme(),
+          onPressed: () => context.read<SharedPreferencesCubit>().changeTheme(),
           icon: const Icon(
             Icons.invert_colors,
           ),
         ),
       ],
       leading: IconButton(
-        onPressed: () {},
+        onPressed: _navigationDrawerWidget,
         icon: const Icon(
           Icons.list,
         ),
@@ -163,7 +165,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         ),
       ),
       leading: IconButton(
-        onPressed: () {},
+        onPressed: _navigationDrawerWidget,
         icon: const Icon(
           Icons.list,
         ),
@@ -210,14 +212,30 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                       ),
                       backgroundColor: Colors.black,
                     ),
-                    onLongPress: () => BlocProvider.of<HomePageCubit>(context).choseOfAction(
-                      index,
-                      context,
-                    ),
-                    onTap: () => BlocProvider.of<HomePageCubit>(context).openChat(
-                      index - 1,
-                      context,
-                    ),
+                    onLongPress: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => BlocProvider.value(
+                          child: ChoseOfAction(
+                            state.categories,
+                            index - 1,
+                          ),
+                          value: BlocProvider.of<HomePageCubit>(
+                            context,
+                          ),
+                        ),
+                      );
+                    },
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ChatPage(
+                            category: state.categories[index - 1],
+                            categories: state.categories,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               );
@@ -329,4 +347,57 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
   void _onItemTapped(int index) => setState(
         () => _selectedIndex = index,
       );
+
+  Widget _navigationDrawerWidget() {
+    return Drawer(
+      child: Material(
+        color: Colors.yellow,
+        child: ListView(
+          children: <Widget>[
+            const SizedBox(
+              height: 50,
+            ),
+            _buildMenuItem(
+              text: 'settings',
+              icon: Icons.settings,
+              onClicked: () => _selectedItem(context, 0),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required String text,
+    required IconData icon,
+    VoidCallback? onClicked,
+  }) {
+    final color = Colors.black;
+
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: color,
+      ),
+      title: Text(
+        text,
+        style: TextStyle(color: color),
+      ),
+      onTap: onClicked,
+    );
+  }
+
+  void _selectedItem(BuildContext context, int index) {
+    Navigator.of(context).pop();
+    switch (index) {
+      case 0:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => SettingsPage(),
+          ),
+        );
+        break;
+    }
+  }
 }
