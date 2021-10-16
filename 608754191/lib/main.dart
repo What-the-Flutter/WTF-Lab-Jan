@@ -9,7 +9,7 @@ import 'pages/authorization/authorization_page.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
-import 'pages/settings/settings_page/general_settings/settings_cubit.dart';
+import 'pages/settings/settings_page/settings_cubit.dart';
 import 'pages/settings/settings_page/settings_page.dart';
 import 'util/theme/application_theme.dart';
 

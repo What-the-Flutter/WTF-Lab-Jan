@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'settings_cubit.dart';
+import '../settings_cubit.dart';
 
 class GeneralSettingPage extends StatefulWidget {
   @override
@@ -30,15 +30,12 @@ class _GeneralSettingPageState extends State<GeneralSettingPage> {
   Widget _bodyFromGeneralSettingPage() {
     return ListView(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 15, 6, 5),
-          child: Card(
-            child: _settingsItem(
-              title: 'Theme',
-              subtitle: 'Light/Dark',
-              icon: Icons.invert_colors,
-              onClicked: () => context.read<SettingsCubit>().changeTheme(),
-            ),
+        Card(
+          child: _settingsItem(
+            title: 'Theme',
+            subtitle: 'Light/Dark',
+            icon: Icons.invert_colors,
+            onClicked: () => context.read<SettingsCubit>().changeTheme(),
           ),
         ),
         Card(
