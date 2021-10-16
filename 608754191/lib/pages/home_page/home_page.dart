@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../util/domain.dart';
-import '../../util/shared_preferences/shared_preferences_cubit.dart';
 import '../chat_page/chat_page.dart';
+import '../settings/settings_page/general_settings/settings_cubit.dart';
 import '../settings/settings_page/settings_page.dart';
 import 'chose_of_action/chose_of_action.dart';
 import 'home_page_cubit.dart';
@@ -74,7 +74,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       ),
       actions: [
         IconButton(
-          onPressed: () => context.read<SharedPreferencesCubit>().changeTheme(),
+          onPressed: () => context.read<SettingsCubit>().changeTheme(),
           icon: const Icon(
             Icons.invert_colors,
           ),
@@ -357,7 +357,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
             const SizedBox(
               height: 50,
             ),
-            _buildMenuItem(
+            _menuItem(
               text: 'settings',
               icon: Icons.settings,
               onClicked: () => _selectedItem(context, 0),
@@ -368,12 +368,12 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  Widget _buildMenuItem({
+  Widget _menuItem({
     required String text,
     required IconData icon,
     VoidCallback? onClicked,
   }) {
-    final color = Colors.black;
+    final color = ThemeData.dark().backgroundColor; //из темы
 
     return ListTile(
       leading: Icon(

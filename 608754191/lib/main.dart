@@ -9,9 +9,9 @@ import 'pages/authorization/authorization_page.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
+import 'pages/settings/settings_page/general_settings/settings_cubit.dart';
 import 'pages/settings/settings_page/settings_page.dart';
-import 'util/shared_preferences/shared_preferences_cubit.dart';
-import 'util/theme_inherited/application_theme.dart';
+import 'util/theme/application_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,17 +27,6 @@ class ChatJournal extends StatelessWidget {
 
   const ChatJournal({Key? key, required this.preferences}) : super(key: key);
 
-  ThemeMode _themeModeFromString(String? string) {
-    switch (string) {
-      case 'dark':
-        return ThemeMode.dark;
-      case 'light':
-        return ThemeMode.light;
-      default:
-        return ThemeMode.light;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -51,19 +40,13 @@ class ChatJournal extends StatelessWidget {
         BlocProvider(
           create: (context) => AuthenticationCubit(isAuthenticated: true),
         ),
-        BlocProvider<SharedPreferencesCubit>(
-          create: (context) => SharedPreferencesCubit(
-            _themeModeFromString(
-              preferences.getString(
-                'themeMode',
-              ),
-            ),
-            true,
+        BlocProvider<SettingsCubit>(
+          create: (context) => SettingsCubit(
             preferences: preferences,
           ),
         ),
       ],
-      child: BlocBuilder<SharedPreferencesCubit, SharedPreferencesState>(
+      child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) => BlocBuilder<AuthenticationCubit, AuthenticationState>(
           builder: (context, authState) {
             return BlocProvider(

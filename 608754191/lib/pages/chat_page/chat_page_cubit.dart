@@ -241,7 +241,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     );
   }
 
-  void initSharedPreferences() => emit(
-        state.copyWith(isBubbleAlignment: false),
-      );
+  void initSharedPreferences() {
+    emit(
+      state.copyWith(isBubbleAlignment: false),
+    );
+  }
 }

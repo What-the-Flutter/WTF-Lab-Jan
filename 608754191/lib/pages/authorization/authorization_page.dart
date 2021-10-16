@@ -28,9 +28,7 @@ class AuthorizationPage extends StatelessWidget {
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.yellow),
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
               ),
-              onPressed: () {
-                BlocProvider.of<AuthenticationCubit>(context).authenticate();
-              },
+              onPressed: () => BlocProvider.of<AuthenticationCubit>(context).authenticate(),
             ),
           ),
         );
