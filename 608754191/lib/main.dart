@@ -1,3 +1,4 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,6 +54,13 @@ class ChatJournal extends StatelessWidget {
                   AuthenticationCubit(isAuthenticated: !authState.isAuthenticated)..authenticate(),
               child: MaterialApp(
                 title: 'Home Page',
+                home: AnimatedSplashScreen(
+                  splash: Icons.home,
+                  splashTransition: SplashTransition.fadeTransition,
+                  duration: 3000,
+                  backgroundColor: Colors.yellow,
+                  nextScreen: ChatJournalHomePage(),
+                ),
                 theme: ThemeData.light().copyWith(
                   textTheme: state.textTheme.apply(
                     displayColor: Colors.black,
@@ -75,7 +83,6 @@ class ChatJournal extends StatelessWidget {
                   '/settings_page': (_) => SettingsPage(),
                   '/authentication': (_) => AuthorizationPage(),
                 },
-                initialRoute: '/home_page',
               ),
             );
           },

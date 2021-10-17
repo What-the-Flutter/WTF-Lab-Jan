@@ -365,7 +365,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                 Share.share(
                     'Keep track of your life with this application, a simple and elegant'
                     'chat-based journal/notes application'
-                    'that makes journaling/note-taking fun,'
+                    ' that makes journaling/note-taking fun,'
                     'easy, quick and effortless! '
                     'Developer is https://instagram.com/__egorko__',
                     subject: 'have a good day!');

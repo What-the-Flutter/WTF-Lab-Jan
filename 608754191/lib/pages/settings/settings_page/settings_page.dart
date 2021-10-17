@@ -39,7 +39,7 @@ class SettingsPage extends StatelessWidget {
                   child: _settingsItem(
                     title: 'General',
                     subtitle: 'Themes & Interfaces',
-                    icon: Icons.clear,
+                    icon: Icons.settings_display,
                     onClicked: () => _selectedSetting(context, 0),
                   ),
                 ),
@@ -83,6 +83,7 @@ class SettingsPage extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
+        size: 40,
         color: color,
       ),
       title: Text(

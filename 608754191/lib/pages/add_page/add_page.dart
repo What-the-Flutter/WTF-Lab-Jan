@@ -106,7 +106,7 @@ class _AddPageState extends State<AddPage> {
         context,
         Category(
           title: _textEditingController.text,
-          iconIndex: 1,
+          iconIndex: state.selectedIconIndex!,
           subTitleMessage: '',
         ),
       );

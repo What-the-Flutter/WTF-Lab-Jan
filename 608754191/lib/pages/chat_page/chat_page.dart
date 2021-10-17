@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,15 +71,23 @@ class _ChatPage extends State<ChatPage> {
                     state.indexOfSelectedElement!,
                     blocContext,
                   ),
-            body: Column(
-              children: [
-                if (state.messageList.isEmpty) _eventPage(),
-                _bodyForInput(state),
-                _inputInsideChatPage(
-                  state,
-                  blocContext,
+            body: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('image/oboi6.jpg'),
+                  fit: BoxFit.fill,
                 ),
-              ],
+              ),
+              child: Column(
+                children: [
+                  if (state.messageList.isEmpty) _eventPage(),
+                  _bodyForInput(state),
+                  _inputInsideChatPage(
+                    state,
+                    blocContext,
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -89,10 +98,10 @@ class _ChatPage extends State<ChatPage> {
   AppBar _appBarFromChatPage(ChatPageState state) {
     return AppBar(
       backgroundColor: Colors.black,
-      leading: const BackButton(),
       title: Center(
         child: Text(
-          widget.category.title,
+          state.category!.title,
+          style: const TextStyle(color: Colors.yellow),
         ),
       ),
       actions: [
@@ -194,7 +203,7 @@ class _ChatPage extends State<ChatPage> {
         20,
       ),
       child: Container(
-        color: Colors.green[200],
+        color: Colors.yellowAccent,
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 25,
@@ -244,7 +253,7 @@ class _ChatPage extends State<ChatPage> {
               borderRadius: BorderRadius.circular(20),
               child: Card(
                 elevation: 5,
-                color: Colors.blueGrey[600],
+                color: Colors.yellow[400],
                 child: state.messageList[index].imagePath?.isEmpty ?? true
                     ? ListTile(
                         title: Text(
@@ -282,7 +291,7 @@ class _ChatPage extends State<ChatPage> {
         horizontal: 7.5,
         vertical: 8,
       ),
-      decoration: const BoxDecoration(),
+      decoration: const BoxDecoration(color: Colors.yellow),
       child: SafeArea(
         child: Row(
           children: [
@@ -465,14 +474,17 @@ class SearchEventDelegate extends SearchDelegate {
 
   @override
   ThemeData appBarTheme(BuildContext context) {
-    return Theme.of(context);
+    return ThemeData.dark().copyWith(primaryColorDark: Colors.yellow);
   }
 
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: const Icon(Icons.cleaning_services_rounded),
+        icon: const Icon(
+          Icons.cleaning_services_rounded,
+          color: Colors.yellow,
+        ),
         onPressed: () {
           query = '';
         },
@@ -508,6 +520,7 @@ class SearchEventDelegate extends SearchDelegate {
         ? const Center(
             child: Text(
               'No matches!',
+              style: TextStyle(color: Colors.yellow),
             ),
           )
         : ListView.builder(

@@ -41,7 +41,7 @@ class _GeneralSettingPageState extends State<GeneralSettingPage> {
         Card(
           child: _settingsItem(
             title: 'Bubble Alignment',
-            subtitle: 'force right-to-left bubble alignment',
+            subtitle: 'Force right-to-left bubble alignment',
             icon: Icons.format_align_left,
             onClicked: () => context.read<SettingsCubit>().changeBubbleAlignment(),
           ),
@@ -50,7 +50,7 @@ class _GeneralSettingPageState extends State<GeneralSettingPage> {
           child: _settingsItem(
             title: 'Font size',
             subtitle: 'Choose app font size',
-            icon: Icons.text_format,
+            icon: Icons.format_size,
             onClicked: () {
               showDialog(
                 context: context,
@@ -100,9 +100,9 @@ class _GeneralSettingPageState extends State<GeneralSettingPage> {
         ),
         Card(
           child: _settingsItem(
-            title: 'reset',
-            subtitle: 'default settings',
-            icon: Icons.disabled_by_default_outlined,
+            title: 'Reset',
+            subtitle: 'Return to default settings',
+            icon: Icons.app_settings_alt_outlined,
             onClicked: () => context.read<SettingsCubit>().reset(),
           ),
         )
