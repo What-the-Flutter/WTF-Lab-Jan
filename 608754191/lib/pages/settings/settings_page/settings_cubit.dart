@@ -17,9 +17,28 @@ class SettingsCubit extends Cubit<SettingsState> {
             bubbleAlignment: _bubbleAlignmentFromString(
               preferences.getString('bubbleAlignment'),
             ),
-            textTheme: _textThemeFromString(preferences.getString('textTheme')),
+            textTheme: _textThemeFromString(
+              preferences.getString('textTheme'),
+            ),
           ),
         );
+  void reset() {
+    final initialState = SettingsState();
+    preferences
+      ..setString(
+        'themeMode',
+        _stringFromThemeMode(initialState.themeMode),
+      )
+      ..setString(
+        'bubbleAlignment',
+        _stringFromBubbleAlignment(initialState.bubbleAlignment),
+      )
+      ..setString(
+        'textTheme',
+        _stringFromTextTheme(initialState.textTheme),
+      );
+    emit(initialState);
+  }
 
   void setTextTheme(String textThemeName) {
     preferences.setString('textTheme', textThemeName);

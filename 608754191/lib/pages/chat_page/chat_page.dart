@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import '../../entity/category.dart';
+import '../../entity/message.dart';
 import '../../util/domain.dart';
 
-import '../entity/category.dart';
-import '../entity/message.dart';
 import 'chat_page_cubit.dart';
 import 'chat_page_state.dart';
 

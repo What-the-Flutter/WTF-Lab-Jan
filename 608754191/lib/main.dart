@@ -11,7 +11,6 @@ import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
 import 'pages/settings/settings_page/settings_cubit.dart';
 import 'pages/settings/settings_page/settings_page.dart';
-import 'util/theme/application_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,9 +53,21 @@ class ChatJournal extends StatelessWidget {
                   AuthenticationCubit(isAuthenticated: !authState.isAuthenticated)..authenticate(),
               child: MaterialApp(
                 title: 'Home Page',
+                theme: ThemeData.light().copyWith(
+                  textTheme: state.textTheme.apply(
+                    displayColor: Colors.black,
+                    bodyColor: Colors.black,
+                    decorationColor: Colors.black,
+                  ),
+                ),
+                darkTheme: ThemeData.dark().copyWith(
+                  textTheme: state.textTheme.apply(
+                    displayColor: Colors.white,
+                    bodyColor: Colors.white,
+                    decorationColor: Colors.white,
+                  ),
+                ),
                 themeMode: state.themeMode,
-                theme: lightTheme,
-                darkTheme: darkTheme,
                 routes: {
                   '/home_page': (__) => ChatJournalHomePage(),
                   '/add_page': (_) => AddPage.add(),

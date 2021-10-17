@@ -98,6 +98,14 @@ class _GeneralSettingPageState extends State<GeneralSettingPage> {
             },
           ),
         ),
+        Card(
+          child: _settingsItem(
+            title: 'reset',
+            subtitle: 'default settings',
+            icon: Icons.disabled_by_default_outlined,
+            onClicked: () => context.read<SettingsCubit>().reset(),
+          ),
+        )
       ],
     );
   }

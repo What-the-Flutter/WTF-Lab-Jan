@@ -1,5 +1,5 @@
-import '../entity/category.dart';
-import '../entity/message.dart';
+import '../../entity/category.dart';
+import '../../entity/message.dart';
 
 class ChatPageState {
   final bool? messageSelected;
@@ -48,7 +48,7 @@ class ChatPageState {
       isSending: isSending ?? this.isSending,
       categories: categories ?? this.categories,
       messageList: messageList ?? this.messageList,
-      iconIndex: iconIndex,
+      iconIndex: iconIndex ?? this.iconIndex,
       isWriting: isWriting ?? this.isWriting,
       isSendingPhoto: isSendingPhoto ?? this.isSendingPhoto,
       isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,

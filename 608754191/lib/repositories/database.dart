@@ -1,8 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
-import '../pages/entity/category.dart';
-import '../pages/entity/message.dart';
+import '../entity/category.dart';
+import '../entity/message.dart';
 
 const String _categoryTable = 'category';
 const String _columnCategoryId = 'category_id';

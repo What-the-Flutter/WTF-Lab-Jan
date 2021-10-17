@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../entity/category.dart';
+import '../../../entity/category.dart';
 
 class ExplorePage extends StatefulWidget {
   final List<Category> categories;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../entity/category.dart';
+import '../../../entity/category.dart';
 
 class TimelinePage extends StatefulWidget {
   final List<Category> categories;

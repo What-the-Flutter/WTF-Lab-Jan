@@ -191,12 +191,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                 return _firstConditionPadding();
               }
               return Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  5,
-                  2,
-                  5,
-                  1,
-                ),
+                padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
                 child: Card(
                   child: ListTile(
                     title: Text(

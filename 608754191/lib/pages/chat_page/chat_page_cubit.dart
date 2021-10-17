@@ -2,9 +2,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../entity/category.dart';
+import '../../entity/message.dart';
 import '../../repositories/database.dart';
-import '../entity/category.dart';
-import '../entity/message.dart';
+
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
