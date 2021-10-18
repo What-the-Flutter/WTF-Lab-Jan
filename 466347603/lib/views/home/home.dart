@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../modules/page_info.dart';
 import '../../theme/theme_cubit.dart';
+import '../../utils/data.dart';
 import 'home_cubit.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,7 +13,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(context),
-      drawer: const Drawer(),
+      drawer: _drawer(context),
       body: _pageList(context),
       floatingActionButton: _floatingActionButton(context),
       bottomNavigationBar: _bottomNavigationBar(context),
@@ -20,19 +21,76 @@ class HomeScreen extends StatelessWidget {
   }
 
   AppBar _appBar(BuildContext context) {
-    final themeCubit = context.read<ThemeCubit>();
     return AppBar(
       title: const Center(
         child: Text('Home'),
       ),
       actions: <Widget>[
         IconButton(
-          icon: themeCubit.isDarkMode
+          icon: context.read<ThemeCubit>().isDarkMode
               ? const Icon(Icons.dark_mode)
               : const Icon(Icons.dark_mode_outlined),
-          onPressed: themeCubit.changeTheme,
+          onPressed: context.read<ThemeCubit>().changeTheme,
         ),
       ],
+    );
+  }
+
+  Widget _drawer(BuildContext context) {
+    final now = DateTime.now();
+    return Drawer(
+      child: Column(
+        children: [
+          Container(
+            color: Theme.of(context).appBarTheme.backgroundColor,
+            alignment: Alignment.bottomLeft,
+            height: 200,
+            padding: const EdgeInsets.all(25),
+            child: Text(
+              '${months[now.month - 1]} ${now.day}, ${now.year}',
+              style: const TextStyle(fontSize: 24, color: Colors.white),
+            ),
+          ),
+          _drawerList(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _drawerList(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(
+                context,
+                '/settings-screen',
+              );
+            },
+            child: _drawerListElement(
+              name: 'Settings',
+              icon: Icons.settings,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _drawerListElement({required IconData icon, required String name}) {
+    return Container(
+      margin: const EdgeInsets.all(7),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Icon(icon, size: 22),
+          const SizedBox(width: 22),
+          Text(name, style: const TextStyle(fontSize: 18)),
+        ],
+      ),
     );
   }
 
@@ -46,12 +104,13 @@ class HomeScreen extends StatelessWidget {
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
             return GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(
+              onTap: () async {
+                var lastEvent = await Navigator.pushNamed(
                   context,
                   '/events-screen',
                   arguments: state.pages[index],
-                );
+                ) as List;
+                context.read<HomeCubit>().updateLastEvent(lastEvent);
               },
               onLongPress: () => _showPageOptions(context, index),
               child: _pageListElement(context, state.pages[index]),
@@ -62,7 +121,11 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  ListTile _pageListElement(BuildContext context, PageInfo page) {
+  Widget _pageListElement(BuildContext context, PageInfo page) {
+    final state = context.read<HomeCubit>().state;
+    final lastMessage = state.lastMessagePageId == page.id
+        ? state.lastMessageEvent
+        : page.lastMessage;
     return ListTile(
       leading: Stack(
         alignment: Alignment.bottomRight,
@@ -84,7 +147,7 @@ class HomeScreen extends StatelessWidget {
         page.title,
         style: const TextStyle(fontSize: 25),
       ),
-      subtitle: Text(page.lastMessage),
+      subtitle: Text(lastMessage),
     );
   }
 
@@ -111,7 +174,7 @@ class HomeScreen extends StatelessWidget {
               title: const Text('Pin/Unpin page'),
             ),
             ListTile(
-              onTap: () => _editPage(context, index),
+              onTap: () => _updatePage(context, index),
               leading: const Icon(
                 Icons.edit,
                 color: Colors.blue,
@@ -133,8 +196,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showPageInfo(BuildContext context, int index) {
-    final pagesCubit = context.read<HomeCubit>();
-    final pages = pagesCubit.state.pages;
+    final pages = context.read<HomeCubit>().state.pages;
     Navigator.of(context).pop();
     showDialog(
       context: context,
@@ -164,21 +226,11 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 15),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 17),
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Created'),
-                    Text(pages[index].createDate),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 17),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Latest Event'),
-                    Text(pages[index].lastEditDate),
+                    const Text('Created at '),
+                    Text(pages[index].createDate!),
                   ],
                 ),
               ),
@@ -216,16 +268,14 @@ class HomeScreen extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void _editPage(BuildContext context, int index) async {
-    final pagesCubit = context.read<HomeCubit>();
-    final pages = pagesCubit.state.pages;
+  void _updatePage(BuildContext context, int index) async {
+    final homeCubit = context.read<HomeCubit>();
+    final pages = homeCubit.state.pages;
     final page = await Navigator.of(context).popAndPushNamed(
       '/create-screen',
       arguments: pages[index],
     );
-    if (page is PageInfo) {
-      pagesCubit.editPage(index, page);
-    }
+    homeCubit.updatePage(index, page as PageInfo, pages[index].id!);
   }
 
   void _deletePage(BuildContext context, int index) {
@@ -275,7 +325,7 @@ class HomeScreen extends StatelessWidget {
               label: 'Explore',
             ),
           ],
-          onTap: (index) => context.read<HomeCubit>().setNavBarItem(index),
+          onTap: (index) => context.read<HomeCubit>().changeNavBarItem(index),
         );
       },
     );
