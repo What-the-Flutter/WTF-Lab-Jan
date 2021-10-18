@@ -28,33 +28,43 @@ class DatabaseProvider {
             'pageId INTEGER,'
             'categoryId INTEGER,'
             'message TEXT,'
-            'imagePath TEXT,'
-            'formattedSendTime TEXT,'
-            'sendTime INTEGER,'
-            'isBookmarked INTEGER'
+            'imageString TEXT,'
+            'sendTime TEXT,'
+            'isBookmarked INTEGER,'
+            'isEdited INTEGER'
             ');');
       },
       version: 1,
     );
+    if ((await fetchPages()).isEmpty) {
+      initPages.forEach(insertPage);
+    }
   }
 
   static Future<List<PageInfo>> fetchPages() async {
     final List<Map<String, dynamic>> maps = await database.query('pages');
-    return List.generate(maps.length, (i) {
-      return PageInfo(
-        id: maps[i]['id'],
-        iconIndex: maps[i]['iconIndex'],
-        icon: Icon(
-          defaultIcons[maps[i]['iconIndex']],
-          color: Colors.white,
-        ),
-        title: maps[i]['title'],
-        lastMessage: maps[i]['lastMessage'],
-        lastEditDate: maps[i]['lastEditDate'],
-        createDate: maps[i]['createDate'],
-        isPinned: maps[i]['isPinned'] == 1 ? true : false,
-      );
-    });
+    var pages = List<PageInfo>.generate(
+      maps.length,
+      (i) {
+        return PageInfo(
+          id: maps[i]['id'],
+          icon: Icon(
+            defaultIcons[maps[i]['iconIndex']],
+            color: Colors.white,
+          ),
+          title: maps[i]['title'],
+          lastMessage: maps[i]['lastMessage'],
+          lastEditDate: maps[i]['lastEditDate'],
+          createDate: maps[i]['createDate'],
+          isPinned: maps[i]['isPinned'] == 1 ? true : false,
+        );
+      },
+    );
+
+    for (var i = 0; i < pages.length; i += 1) {
+      pages[i].lastMessage = await getPageLastEvent(pages[i].id!);
+    }
+    return pages;
   }
 
   static Future<void> insertPage(PageInfo page) async {
@@ -64,12 +74,12 @@ class DatabaseProvider {
     );
   }
 
-  static Future<void> updatePage(PageInfo page) async {
+  static Future<void> updatePage(PageInfo page, [int? id]) async {
     await database.update(
       'pages',
       page.toMap(),
       where: 'id = ?',
-      whereArgs: [page.id],
+      whereArgs: [id ?? page.id],
     );
   }
 
@@ -85,18 +95,19 @@ class DatabaseProvider {
     final List<Map<String, dynamic>> maps = await database.query(
       'events',
       where: 'pageId = ?',
-      orderBy: 'pageId',
       whereArgs: [pageId],
+      orderBy: 'sendTime',
     );
     return List.generate(maps.length, (i) {
       return Event(
+        id: maps[i]['id'],
         pageId: maps[i]['pageId'],
-        // categoryId: maps[i]['categoryId'],
+        categoryId: maps[i]['categoryId'],
         message: maps[i]['message'],
-        imagePath: maps[i]['imagePath'],
+        imageString: maps[i]['imageString'],
         isBookmarked: maps[i]['isBookmarked'] == 1 ? true : false,
-        formattedSendTime: maps[i]['formattedSendTime'],
-        sendTime: maps[i]['sendTime'],
+        isEdited: maps[i]['isEdited'] == 1 ? true : false,
+        sendTime: DateTime.parse(maps[i]['sendTime']),
       );
     }).reversed.toList();
   }
@@ -123,5 +134,27 @@ class DatabaseProvider {
       where: 'id = ?',
       whereArgs: [event.id],
     );
+  }
+
+  static Future<String> getPageLastEvent(int pageId) async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'events',
+      where: 'pageId = ?',
+      whereArgs: [pageId],
+      orderBy: 'sendTime',
+    );
+    if (maps.isNotEmpty) {
+      final String message = maps.last['message'];
+      final String imageString = maps.last['imageString'];
+      return message != ''
+          ? message.length > 35
+              ? '${message.substring(0, 35)}..'
+              : message
+          : imageString != ''
+              ? 'Image Event'
+              : 'No Events. Click to create one.';
+    } else {
+      return 'No Events. Click to create one.';
+    }
   }
 }

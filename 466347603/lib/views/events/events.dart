@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,7 +26,7 @@ class EventsScreen extends StatelessWidget {
     return BlocBuilder<EventsCubit, EventsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: _appBar(context),
+          appBar: _appBar(state, context),
           body: GestureDetector(
             onTap: () {
               context.read<EventsCubit>()
@@ -36,12 +34,23 @@ class EventsScreen extends StatelessWidget {
                 ..unselectEvents();
               FocusScope.of(context).unfocus();
             },
-            child: Column(
+            child: Stack(
+              alignment:
+                  context.read<EventsCubit>().state.isBubbleAlignmentRight
+                      ? Alignment.topLeft
+                      : Alignment.topRight,
               children: [
-                context.read<EventsCubit>().state.showEvents.isEmpty
-                    ? _hintMessageBox(context)
-                    : _eventList(context),
-                _messageBar(context),
+                Column(
+                  children: [
+                    state.showEvents.isEmpty
+                        ? _hintMessageBox(context)
+                        : _eventList(context),
+                    _messageBar(context),
+                  ],
+                ),
+                if (context.read<EventsCubit>().state.showEvents.isNotEmpty &&
+                    context.read<EventsCubit>().state.isDateModifiable)
+                  _datePicker(context),
               ],
             ),
           ),
@@ -50,16 +59,25 @@ class EventsScreen extends StatelessWidget {
     );
   }
 
-  AppBar _appBar(BuildContext context) {
-    final state = context.read<EventsCubit>().state;
+  AppBar _appBar(EventsState state, BuildContext context) {
     return AppBar(
       leading: state.isSearchMode
           ? IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () =>
-                  context.read<EventsCubit>()..changeSearchMode(false),
-            )
-          : const BackButton(),
+                  context.read<EventsCubit>().changeSearchMode(false))
+          : BackButton(
+              onPressed: () {
+                context.read<EventsCubit>().unselectEvents();
+                Navigator.pop(
+                  context,
+                  [
+                    context.read<EventsCubit>().state.lastEventMessage,
+                    context.read<EventsCubit>().state.pageId,
+                  ],
+                );
+              },
+            ),
       title: state.isSearchMode
           ? TextField(
               onChanged: (query) =>
@@ -76,7 +94,9 @@ class EventsScreen extends StatelessWidget {
                 ),
               ),
             )
-          : Center(child: Text(state.page!.title)),
+          : Center(
+              child: Text(context.read<EventsCubit>().state.page?.title ?? ''),
+            ),
       actions: _appBarActions(context),
     );
   }
@@ -90,7 +110,7 @@ class EventsScreen extends StatelessWidget {
           onPressed: () => _replyEvents(context),
         ),
         if (state.selectedEvents.length == 1 &&
-            state.showEvents[state.selectedEvents[0]].message != '')
+            state.showEvents[state.selectedEvents[0]].message != null)
           Row(
             children: [
               IconButton(
@@ -104,9 +124,11 @@ class EventsScreen extends StatelessWidget {
             ],
           ),
         IconButton(
-          icon: state.showEvents[state.selectedEvents[0]].isBookmarked
-              ? const Icon(Icons.bookmark)
-              : const Icon(Icons.bookmark_border),
+          icon: state.selectedEvents.isEmpty
+              ? const Icon(Icons.bookmark_border)
+              : state.showEvents[state.selectedEvents[0]].isBookmarked
+                  ? const Icon(Icons.bookmark)
+                  : const Icon(Icons.bookmark_border),
           onPressed: () => _bookmarkEvent(context),
         ),
         IconButton(
@@ -140,6 +162,54 @@ class EventsScreen extends StatelessWidget {
     }
   }
 
+  Widget _datePicker(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _pickDate(context),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(12),
+          ),
+          color: Theme.of(context).selectedRowColor,
+        ),
+        margin: const EdgeInsets.all(15),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 5,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.date_range_outlined),
+            const SizedBox(
+              width: 5,
+            ),
+            Text(
+              context.read<EventsCubit>().state.formattedEventDate,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickDate(BuildContext context) async {
+    TimeOfDay? time = TimeOfDay.now();
+    var date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year - 5),
+      lastDate: DateTime.now(),
+    );
+    if (date != null) {
+      time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+    }
+    context.read<EventsCubit>().saveEventDate(date, time);
+  }
+
   void _replyEvents(BuildContext context) {
     showDialog(
       context: context,
@@ -170,7 +240,6 @@ class EventsScreen extends StatelessWidget {
                             Container(
                               width: 80,
                               child: RadioListTile<int>(
-                                activeColor: Theme.of(context).accentColor,
                                 value: index,
                                 groupValue: context
                                     .read<EventsCubit>()
@@ -181,9 +250,16 @@ class EventsScreen extends StatelessWidget {
                                       .read<HomeCubit>()
                                       .state
                                       .pages[index];
-                                  context
-                                      .read<EventsCubit>()
-                                      .changeReplyPage(page, value as int);
+                                  if (page.id !=
+                                      context
+                                          .read<EventsCubit>()
+                                          .state
+                                          .page!
+                                          .id) {
+                                    context
+                                        .read<EventsCubit>()
+                                        .changeReplyPage(page, value as int);
+                                  }
                                 },
                               ),
                             ),
@@ -222,7 +298,7 @@ class EventsScreen extends StatelessWidget {
                   primary: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 onPressed: () {
-                  context.read<EventsCubit>().replyEvents(context);
+                  context.read<EventsCubit>().replyEvents();
                   Navigator.of(context).pop();
                 },
               ),
@@ -236,7 +312,8 @@ class EventsScreen extends StatelessWidget {
   void _editEvent(BuildContext context) {
     final state = context.read<EventsCubit>().state;
     _messageFocusNode.requestFocus();
-    _messageController.text = state.showEvents[state.selectedEvents[0]].message;
+    _messageController.text =
+        state.showEvents[state.selectedEvents[0]].message!;
     _messageController.selection = TextSelection.fromPosition(
       TextPosition(offset: _messageController.text.length),
     );
@@ -314,12 +391,12 @@ class EventsScreen extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: 'This is the page where you can track '
-                              'everything about "${state.page!.title}"!\n\n',
+                              'everything about "${state.page?.title}"!\n\n',
                           style: Theme.of(context).primaryTextTheme.bodyText1,
                         ),
                         TextSpan(
                           text:
-                              'Add you first event to "${state.page!.title}" page by '
+                              'Add you first event to "${state.page?.title}" page by '
                               'entering some text in the text box below '
                               'and hitting the send button. Tap on the '
                               'bookmark icon on the top right corner to '
@@ -343,13 +420,21 @@ class EventsScreen extends StatelessWidget {
         itemCount: state.showEvents.length,
         itemBuilder: (context, index) {
           return GestureDetector(
-            onTap: () => context.read<EventsCubit>().selectEvent(index),
+            onTap: () {
+              if (state.isEditMode) {
+                context.read<EventsCubit>().selectEvent(index);
+              }
+            },
             onLongPress: () {
               context.read<EventsCubit>()
                 ..changeEditMode(true)
                 ..selectEvent(index);
             },
             child: Row(
+              mainAxisAlignment:
+                  context.read<EventsCubit>().state.isBubbleAlignmentRight
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
               children: [
                 _eventListElement(index, context),
               ],
@@ -382,31 +467,31 @@ class EventsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (event.categoryId != 0)
+          if (event.category != null)
             Row(
               children: [
-                Icon(state.categories[event.categoryId].icon),
+                Icon(event.category!.icon),
                 const SizedBox(
                   width: 15,
                 ),
                 Text(
-                  state.categories[event.categoryId].title,
+                  event.category!.title,
                   style: const TextStyle(fontSize: 18),
                 ),
               ],
             ),
           const SizedBox(height: 5),
-          event.message != ''
-              ? LimitedBox(
-                  maxWidth: 320,
-                  child: Text(
-                    event.message,
-                  ),
-                )
-              : Container(
+          event.imageString != ''
+              ? Container(
                   width: 150,
                   height: 150,
-                  child: Image.file(File(event.imagePath)),
+                  child: event.image!,
+                )
+              : LimitedBox(
+                  maxWidth: 320,
+                  child: Text(
+                    event.message!,
+                  ),
                 ),
           const SizedBox(height: 5),
           Row(
@@ -418,7 +503,7 @@ class EventsScreen extends StatelessWidget {
                   size: 15,
                 ),
               const SizedBox(width: 5),
-              Text(event.formattedSendTime),
+              Text(event.formattedSendTime!),
             ],
           ),
         ],
@@ -427,22 +512,19 @@ class EventsScreen extends StatelessWidget {
   }
 
   Widget _messageBar(BuildContext context) {
-    final state = context.read<EventsCubit>().state;
     return Container(
       margin: const EdgeInsets.all(7),
       child: Row(
         children: [
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.attach_file,
-              color: Theme.of(context).accentIconTheme.color,
             ),
             onPressed: () => _addImageEvent(context),
           ),
           IconButton(
             icon: Icon(
-              state.categories[state.categoryIndex].icon,
-              color: Theme.of(context).accentIconTheme.color,
+              context.read<EventsCubit>().state.selectedCategory.icon,
             ),
             onPressed: () {
               _showCategoryList(context);
@@ -463,9 +545,8 @@ class EventsScreen extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.send,
-              color: Theme.of(context).accentIconTheme.color,
             ),
             onPressed: () => _addMessageEvent(context),
           ),
@@ -489,7 +570,8 @@ class EventsScreen extends StatelessWidget {
                 width: 70,
                 child: GestureDetector(
                   onTap: () {
-                    context.read<EventsCubit>().changeCategory(index);
+                    context.read<EventsCubit>().changeCategory(
+                        context.read<EventsCubit>().state.categories[index]);
                     Navigator.of(context).pop();
                   },
                   child: Column(

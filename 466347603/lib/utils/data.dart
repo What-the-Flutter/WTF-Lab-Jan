@@ -37,10 +37,13 @@ final List<IconData> defaultIcons = const <IconData>[
   Icons.block,
   Icons.brightness_1,
   Icons.bug_report,
-  Icons.bubble_chart,
   Icons.call_merge,
   Icons.camera,
   Icons.change_history,
+  Icons.my_library_books,
+  Icons.book,
+  Icons.text_fields,
+  Icons.favorite,
 ];
 
 final List<String> defaultIconsNames = const <String>[
@@ -52,4 +55,43 @@ final List<String> defaultIconsNames = const <String>[
   'car',
   'food',
   'navigation',
+];
+
+final List<PageInfo> initPages = <PageInfo>[
+  PageInfo(
+    title: 'Journal',
+    icon: const Icon(
+      Icons.book,
+      color: Colors.white,
+    ),
+  ),
+  PageInfo(
+    title: 'Notes',
+    icon: const Icon(
+      Icons.my_library_books,
+      color: Colors.white,
+    ),
+  ),
+  PageInfo(
+    title: 'Text',
+    icon: const Icon(
+      Icons.text_fields,
+      color: Colors.white,
+    ),
+  ),
+];
+
+List<String> months = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec'
 ];

@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../modules/page_info.dart';
-import '../../utils/database.dart';
+import '../../utils/database_provider.dart';
 
 part 'home_state.dart';
 
@@ -10,40 +10,38 @@ class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(const HomeState());
 
   void init() async {
-    emit(state.copyWith(pages: await DatabaseProvider.fetchPages()));
+    final pages = await DatabaseProvider.fetchPages();
+    emit(state.copyWith(pages: pages));
   }
 
   void addPage(PageInfo page) {
-    final pages = List<PageInfo>.from(state.pages)..add(page);
     DatabaseProvider.insertPage(page);
-    final s = state;
-    emit(state.copyWith(pages: pages));
-    print(s == state);
+    init();
   }
 
   void deletePage(int index) {
-    final pages = List<PageInfo>.from(state.pages)..removeAt(index);
     DatabaseProvider.deletePage(state.pages[index]);
-    emit(state.copyWith(pages: pages));
+    init();
   }
 
   void addEvents(List<Event> events, PageInfo page) {
-    final pages = List<PageInfo>.from(state.pages);
-    final index = pages.indexOf(page);
     for (var event in events) {
-      pages[index].events.add(event);
-      DatabaseProvider.insertEvent(event);
+      event.pageId = page.id;
+      DatabaseProvider.updateEvent(event);
     }
-    pages[index].sortEvents();
-    DatabaseProvider.updatePage(pages[index]);
-    emit(state.copyWith(pages: pages));
   }
 
-  void updatePage(int index, PageInfo page) {
-    final pages = List<PageInfo>.from(state.pages)
-      ..[index] = PageInfo.from(page);
-    DatabaseProvider.updatePage(page);
-    emit(state.copyWith(pages: pages));
+  void updatePage(int index, PageInfo page, int id) {
+    DatabaseProvider.updatePage(page, id);
+    init();
+  }
+
+  void updateLastEvent(List lastEvent) {
+    state.pages[lastEvent[1] - 1].lastMessage = lastEvent[0];
+    emit(state.copyWith(
+      lastMessageEvent: lastEvent[0],
+      lastMessagePageId: lastEvent[1],
+    ));
   }
 
   void pinPage(int index) {

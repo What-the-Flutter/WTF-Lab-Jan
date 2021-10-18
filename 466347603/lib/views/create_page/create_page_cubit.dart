@@ -8,13 +8,15 @@ import '../../utils/data.dart';
 part 'create_page_state.dart';
 
 class CreatePageCubit extends Cubit<CreatePageState> {
+  final List<IconData> _icons = defaultIcons;
+
   CreatePageCubit() : super(CreatePageState());
 
   void loadIcons() {
     emit(
       CreatePageState(
-        icons: defaultIcons,
-        selectedIcon: defaultIcons[0],
+        icons: _icons,
+        selectedIcon: _icons[0],
       ),
     );
   }
@@ -33,7 +35,6 @@ class CreatePageCubit extends Cubit<CreatePageState> {
       updatedPage = PageInfo(
         title: title,
         icon: Icon(state.selectedIcon, color: Colors.white),
-        iconIndex: state.icons.indexOf(state.selectedIcon!),
       );
     }
     emit(state.copyWith(editPage: updatedPage));
@@ -47,11 +48,11 @@ class CreatePageCubit extends Cubit<CreatePageState> {
       ));
     } else {
       final icons = List<IconData>.from(state.icons);
-      final index = icons.indexOf(page.icon.icon!);
+      final index = icons.indexOf(page.icon!.icon!);
       if (index != -1) {
         icons.insert(0, icons.removeAt(index));
       } else {
-        icons.insert(0, page.icon.icon!);
+        icons.insert(0, page.icon!.icon!);
       }
       emit(state.copyWith(
         icons: icons,

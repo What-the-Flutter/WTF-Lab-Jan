@@ -44,11 +44,11 @@ class CreatePageScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Name of the Page',
-                    style: TextStyle(color: Theme.of(context).accentColor),
+                    style: TextStyle(color: Theme.of(context).highlightColor),
                   ),
                   TextField(
                     autofocus: true,
-                    cursorColor: Theme.of(context).accentColor,
+                    cursorColor: Theme.of(context).highlightColor,
                     controller: _pageNameController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
@@ -75,6 +75,7 @@ class CreatePageScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createPage(context),
+        backgroundColor: const Color(0xFFFFD741),
         child: const Icon(
           Icons.check,
           color: Colors.black,

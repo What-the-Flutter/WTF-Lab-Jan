@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../utils/data.dart';
+import '../utils/decoder.dart';
+
 class Category {
   final String title;
   final IconData icon;
 
-  Category({
+  const Category({
     this.icon = Icons.favorite,
     this.title = '',
   });
@@ -12,38 +15,63 @@ class Category {
 
 class Event {
   int? id;
-  int pageId;
-  int categoryId;
-  String message;
-  String imagePath;
+  int? pageId;
+  int? categoryId;
+  String? message;
+  String? imageString;
+  Image? image;
+  Category? category;
   bool isBookmarked;
-  String formattedSendTime;
-  int sendTime;
+  bool isEdited;
+  String? formattedSendTime;
+  DateTime? sendTime;
 
   Event({
     this.id,
-    this.message = '',
-    this.imagePath = '',
-    this.categoryId = 0,
     this.pageId = -1,
+    this.categoryId,
+    this.message = '',
+    this.category,
+    this.image,
+    this.imageString = '',
     this.isBookmarked = false,
-    this.formattedSendTime = '',
-    this.sendTime = 0,
-  });
+    this.isEdited = false,
+    this.sendTime,
+    this.formattedSendTime,
+  }) {
+    sendTime ??= DateTime.now();
+    var hour = '${sendTime!.hour}';
+    hour = hour.length == 2 ? hour : '0$hour';
+    var minute = '${sendTime!.minute}';
+    minute = minute.length == 2 ? minute : '0$minute';
+    formattedSendTime ??= '$hour:$minute';
+
+    if (imageString != '') {
+      image = Decoder.imageFromBase64String(imageString!);
+    }
+
+    if (categoryId != null && categoryId != -1) {
+      category = initCategories[categoryId!];
+    }
+
+    if (isEdited) {
+      formattedSendTime = 'edited $formattedSendTime';
+    }
+  }
 
   Event copyWith({
-    int? categoryId,
+    int? id,
+    Category? category,
     String? formattedSendTime,
-    String? imagePath,
     bool? isBookmarked,
     String? message,
     int? pageId,
-    int? sendTime,
+    DateTime? sendTime,
   }) {
     return Event(
-      categoryId: categoryId ?? this.categoryId,
+      id: id ?? this.id,
+      category: category ?? this.category,
       formattedSendTime: formattedSendTime ?? this.formattedSendTime,
-      imagePath: imagePath ?? this.imagePath,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       message: message ?? this.message,
       pageId: pageId ?? this.pageId,
@@ -51,98 +79,74 @@ class Event {
     );
   }
 
-  int compareTo(Event other) {
-    return sendTime < other.sendTime ? -1 : 1;
+  void updateSendTime() {
+    sendTime ??= DateTime.now();
+    var hour = '${sendTime!.hour.toString().padLeft(2, '0')}';
+    // hour = hour.length == 2 ? hour : '0$hour';
+    var minute = '${sendTime!.minute.toString().padLeft(2, '0')}';
+    // minute = minute.length == 2 ? minute : '0$minute';
+    formattedSendTime = 'edited $hour:$minute';
+    isEdited = true;
   }
 
   Map<String, dynamic> toMap() {
     return {
       'pageId': pageId,
+      'categoryId': category != null ? initCategories.indexOf(category!) : -1,
       'message': message,
-      'imagePath': imagePath,
-      'formattedSendTime': formattedSendTime,
-      'sendTime': sendTime,
+      'imageString': imageString ?? '',
+      'sendTime': sendTime.toString(),
       'isBookmarked': isBookmarked ? 1 : 0,
+      'isEdited': isEdited ? 1 : 0,
     };
-  }
-
-  void updateSendTime() {
-    final now = DateTime.now();
-    sendTime = now.microsecondsSinceEpoch;
-    formattedSendTime = 'edited ${now.hour}:${now.minute}';
   }
 }
 
 class PageInfo {
   int? id;
-  int iconIndex;
+  Icon? icon;
   String title;
   String lastMessage;
-  String lastEditDate;
-  String createDate;
+  String? lastEditDate;
+  String? createDate;
   bool isPinned;
-  Icon icon;
-  List<Event> events;
+  List<Event> events = <Event>[];
 
   PageInfo({
     this.id,
-    this.iconIndex = 0,
     this.title = '',
-    this.icon = const Icon(
-      Icons.favorite,
-      color: Colors.white,
-    ),
-    this.lastMessage = 'No Events. Click to create one.',
-    this.isPinned = false,
-    this.createDate = '',
     this.lastEditDate = '',
-    this.events = const <Event>[],
-  });
-  // })  : lastEditDate = '${DateTime.now().day}/${DateTime.now().month}'
-  //           '/${DateTime.now().year} at ${DateTime.now().hour}:'
-  //           '${DateTime.now().minute}',
-  //       createDate = '${DateTime.now().day}/${DateTime.now().month}'
-  //           '/${DateTime.now().year} at ${DateTime.now().hour}:'
-  //           '${DateTime.now().minute}';
+    this.lastMessage = 'No Events. Click to create one.',
+    this.createDate,
+    this.isPinned = false,
+    this.events = const [],
+    this.icon,
+  }) {
+    final now = DateTime.now();
+    createDate ??= '${months[now.month - 1]} ${now.day}, ${now.year}';
+  }
 
   PageInfo copyWith({
     int? id,
-    int? iconIndex,
     String? title,
     String? lastMessage,
-    String? lastEditDate,
-    String? createDate,
     bool? isPinned,
     Icon? icon,
     List<Event>? events,
   }) {
     return PageInfo(
       id: id ?? this.id,
-      iconIndex: iconIndex ?? this.iconIndex,
       title: title ?? this.title,
       lastMessage: lastMessage ?? this.lastMessage,
-      lastEditDate: lastEditDate ?? this.lastEditDate,
-      createDate: createDate ?? this.createDate,
       isPinned: isPinned ?? this.isPinned,
       icon: icon ?? this.icon,
       events: events ?? this.events,
     );
   }
 
-  PageInfo.from(PageInfo page)
-      : id = page.id,
-        iconIndex = page.iconIndex,
-        events = page.events,
-        lastMessage = page.lastMessage,
-        title = page.title,
-        lastEditDate = page.lastEditDate,
-        createDate = page.createDate,
-        isPinned = page.isPinned,
-        icon = page.icon;
-
   Map<String, dynamic> toMap() {
     return {
-      'iconIndex': iconIndex,
+      'iconIndex': defaultIcons.indexOf(icon!.icon!),
       'title': title,
       'lastMessage': lastMessage,
       'lastEditDate': lastEditDate,
@@ -151,13 +155,12 @@ class PageInfo {
     };
   }
 
-  List<Event> sortEvents() {
-    events.sort((a, b) => a.compareTo(b));
-    return events;
-  }
-
-  @override
-  String toString() {
-    return '{$title id: $id, iconIndex: $iconIndex, isPinned: $isPinned}';
-  }
+  PageInfo.from(PageInfo page)
+      : events = page.events,
+        lastMessage = page.lastMessage,
+        title = page.title,
+        lastEditDate = page.lastEditDate,
+        createDate = page.createDate,
+        isPinned = page.isPinned,
+        icon = page.icon;
 }
