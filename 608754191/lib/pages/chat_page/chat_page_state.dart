@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../../entity/category.dart';
 import '../../entity/message.dart';
 
@@ -12,7 +14,7 @@ class ChatPageState {
   final bool? isWriting;
   final int? iconIndex;
   final bool? isSendingPhoto;
-  final bool? isBubbleAlignment;
+  final Alignment? isBubbleAlignment;
   ChatPageState({
     this.messageSelected,
     this.indexOfSelectedElement,
@@ -38,7 +40,7 @@ class ChatPageState {
     final int? iconIndex,
     final bool? isWriting,
     final bool? isSendingPhoto,
-    final bool? isBubbleAlignment,
+    final Alignment? isBubbleAlignment,
   }) {
     return ChatPageState(
       messageSelected: messageSelected ?? this.messageSelected,

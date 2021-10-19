@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+
 import '../../entity/category.dart';
 import '../../entity/message.dart';
 import '../../util/domain.dart';
-
+import '../settings/settings_page/settings_cubit.dart';
 import 'chat_page_cubit.dart';
 import 'chat_page_state.dart';
 
@@ -30,6 +31,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPage extends State<ChatPage> {
+  int _numberOfImageOfScreen = 0;
   late ChatPageCubit _cubit;
   final Category _category;
   final List<Category> _categories;
@@ -72,12 +74,9 @@ class _ChatPage extends State<ChatPage> {
                     blocContext,
                   ),
             body: Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('image/oboi6.jpg'),
-                  fit: BoxFit.fill,
-                ),
-              ),
+              decoration: _numberOfImageOfScreen != 0
+                  ? _pictureOnScreen(_numberOfImageOfScreen)
+                  : const BoxDecoration(),
               child: Column(
                 children: [
                   if (state.messageList.isEmpty) _eventPage(),
@@ -118,9 +117,16 @@ class _ChatPage extends State<ChatPage> {
           },
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (newContext) {
+                return _dialogOfPictureOnScreen();
+              },
+            );
+          },
           icon: const Icon(
-            Icons.bookmark_border_outlined,
+            Icons.image_outlined,
           ),
         ),
       ],
@@ -240,45 +246,60 @@ class _ChatPage extends State<ChatPage> {
 
   Widget _bodyForInput(ChatPageState state) {
     return Expanded(
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        itemCount: state.messageList.length,
-        itemBuilder: (context, index) {
-          return Container(
-            alignment:
-                state.isBubbleAlignment ?? true ? Alignment.bottomLeft : Alignment.bottomRight,
-            padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
-            width: 40,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Card(
-                elevation: 5,
-                color: Colors.yellow[400],
-                child: state.messageList[index].imagePath?.isEmpty ?? true
-                    ? ListTile(
-                        title: Text(
-                          state.messageList[index].text,
-                          style: const TextStyle(fontSize: 20, color: Colors.black),
-                        ),
-                        subtitle: Text(
-                          state.messageList[state.indexOfSelectedElement!].time,
-                          style: TextStyle(
-                            color: Colors.blueGrey[200],
-                            fontSize: 12,
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settingsState) {
+          return ListView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: state.messageList.length,
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: settingsState.bubbleAlignment == Alignment.centerRight
+                      ? const EdgeInsets.fromLTRB(5, 5, 170, 5)
+                      : const EdgeInsets.fromLTRB(170, 5, 5, 5),
+                  alignment: settingsState.bubbleAlignment == Alignment.centerRight
+                      ? AlignmentDirectional.topStart
+                      : AlignmentDirectional.topEnd,
+                  child: Card(
+                    elevation: 5,
+                    color: Colors.yellow[400],
+                    child: state.messageList[index].imagePath?.isEmpty ?? true
+                        ? ListTile(
+                            title: Text(
+                              state.messageList[index].text,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                              ),
+                              textAlign: settingsState.bubbleAlignment == Alignment.centerRight
+                                  ? TextAlign.start
+                                  : TextAlign.end,
+                            ),
+                            subtitle: Text(
+                              state.messageList[state.indexOfSelectedElement!].time,
+                              style: TextStyle(
+                                color: Colors.blueGrey[200],
+                                fontSize: 12,
+                              ),
+                              textAlign: settingsState.bubbleAlignment == Alignment.centerRight
+                                  ? TextAlign.start
+                                  : TextAlign.end,
+                            ),
+                            onLongPress: () {
+                              _cubit.swapAppBar();
+                              BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
+                                index,
+                              );
+                            },
+                          )
+                        : Image.file(
+                            File(state.messageList[index].imagePath!),
                           ),
-                        ),
-                        onLongPress: () {
-                          _cubit.swapAppBar();
-                          BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
-                            index,
-                          );
-                        },
-                      )
-                    : Image.file(
-                        File(state.messageList[index].imagePath!),
-                      ),
-              ),
-            ),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -457,6 +478,93 @@ class _ChatPage extends State<ChatPage> {
           child: const Text(
             'Yes',
           ),
+        ),
+      ],
+    );
+  }
+
+  BoxDecoration _pictureOnScreen(int number) {
+    return BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage('image/oboi$number.jpg'),
+        fit: BoxFit.fill,
+      ),
+    );
+  }
+
+  Widget _dialogOfPictureOnScreen() {
+    return SimpleDialog(
+      backgroundColor: Colors.yellow,
+      title: const Text(
+        'what wallpaper do you prefer?',
+        style: TextStyle(fontSize: 20),
+      ),
+      children: [
+        SimpleDialogOption(
+          child: const Text(
+            '1 -  simpson in nirvana',
+            style: TextStyle(fontSize: 22),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 1;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '2 -  return of the turtle',
+            style: TextStyle(fontSize: 22),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 2;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '3 -  astronauts fishing',
+            style: TextStyle(fontSize: 22),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 3;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '4 -  palette!',
+            style: TextStyle(fontSize: 22),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 4;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '5 -  pastila zdorovogo cheloveka',
+            style: TextStyle(fontSize: 22),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 5;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '6 - send in black',
+            style: TextStyle(fontSize: 22),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 6;
+            });
+          },
         ),
       ],
     );

@@ -55,9 +55,9 @@ class ChatJournal extends StatelessWidget {
               child: MaterialApp(
                 title: 'Home Page',
                 home: AnimatedSplashScreen(
-                  splash: Icons.home,
+                  splash: Icons.emoji_people,
                   splashTransition: SplashTransition.fadeTransition,
-                  duration: 3000,
+                  duration: 1000,
                   backgroundColor: Colors.yellow,
                   nextScreen: ChatJournalHomePage(),
                 ),
