@@ -22,6 +22,7 @@ class SettingsCubit extends Cubit<SettingsState> {
             ),
           ),
         );
+  //стэтик методы вверх
   void reset() {
     final initialState = SettingsState();
     preferences

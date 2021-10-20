@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 
 import '../../entity/category.dart';
 import '../../entity/message.dart';
-import '../../entity/tag_model.dart';
 
 class ChatPageState {
   final bool? messageSelected;
@@ -16,7 +15,6 @@ class ChatPageState {
   final int? iconIndex;
   final bool? isSendingPhoto;
   final Alignment? isBubbleAlignment;
-  List<Tag> tags;
   ChatPageState({
     this.messageSelected,
     this.indexOfSelectedElement,
@@ -29,7 +27,6 @@ class ChatPageState {
     this.isWriting,
     this.isSendingPhoto,
     this.isBubbleAlignment,
-    this.tags = const [],
   });
 
   ChatPageState copyWith({
@@ -44,7 +41,6 @@ class ChatPageState {
     final bool? isWriting,
     final bool? isSendingPhoto,
     final Alignment? isBubbleAlignment,
-    final List<Tag>? tags,
   }) {
     return ChatPageState(
       messageSelected: messageSelected ?? this.messageSelected,
@@ -58,7 +54,6 @@ class ChatPageState {
       isWriting: isWriting ?? this.isWriting,
       isSendingPhoto: isSendingPhoto ?? this.isSendingPhoto,
       isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,
-      tags: tags ?? this.tags,
     );
   }
 }

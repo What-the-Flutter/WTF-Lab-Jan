@@ -38,9 +38,6 @@ class HomePageCubit extends Cubit<HomePageState> {
     _databaseProvider.deleteAllMessagesFromCategory(
       categories[index].categoryId!,
     );
-    _databaseProvider.deleteAllTagsFromCategory(
-      categories[index].categoryId!,
-    );
     categories.removeAt(index);
     emit(
       state.copyWith(categories: categories),

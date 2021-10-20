@@ -26,9 +26,7 @@ class SearchMessageDelegate extends SearchDelegate {
           Icons.cleaning_services_rounded,
           color: Colors.yellow,
         ),
-        onPressed: () {
-          query = '';
-        },
+        onPressed: () => query = '',
       ),
     ];
   }
@@ -51,7 +49,7 @@ class SearchMessageDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return messagesList
+    return messagesList // ифами написать вместо тернарника и разбить
             .where(
               (element) => element.text.contains(
                 query,
