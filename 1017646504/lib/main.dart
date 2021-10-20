@@ -5,15 +5,21 @@ import 'color_theme_cubit.dart';
 import 'color_theme_state.dart';
 import 'data/database_access.dart';
 import 'data/preferences_access.dart';
-import 'main_page/main_page.dart';
-import 'main_page/pages_cubit.dart';
-import 'settings_page/settings_cubit.dart';
-import 'settings_page/settings_state.dart';
+import 'entity/page.dart';
+import 'main_pages/home/message_page/messages_cubit.dart';
+import 'main_pages/home/message_page/messages_state.dart';
+import 'main_pages/home/pages_cubit.dart';
+import 'main_pages/settings_page/settings_cubit.dart';
+import 'main_pages/settings_page/settings_state.dart';
+import 'main_pages/tab_cubit.dart';
+import 'main_pages/tab_page.dart';
+import 'main_pages/timeline/timeline_cubit.dart';
+import 'main_pages/timeline/timeline_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  PreferencesAccess.initialize();
-  DatabaseAccess.initialize();
+  await PreferencesAccess.initialize();
+  await DatabaseAccess.initialize();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -25,6 +31,24 @@ void main() async {
         ),
         BlocProvider(
           create: (context) => SettingsCubit(SettingsState(false, false, 0)),
+        ),
+        BlocProvider(
+          create: (context) => TabCubit(0),
+        ),
+        BlocProvider(
+          create: (context) => MessageCubit(MessagesState(JournalPage('Page', 0, creationTime: DateTime.now()))),
+        ),
+        BlocProvider(
+          create: (context) => TimelineCubit(
+            TimelineState(
+              false,
+              false,
+              false,
+              false,
+              '',
+              [],
+            ),
+          ),
         ),
       ],
       child: MyApp(),
@@ -44,7 +68,9 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             return MaterialApp(
               theme: state.theme,
-              home: MainPage(),
+              home: BlocBuilder<TabCubit, int>(
+                builder: (context, state) => TabPage(),
+              ),
             );
           },
         );

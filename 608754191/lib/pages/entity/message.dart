@@ -3,12 +3,14 @@ class Message {
   int currentCategoryId;
   String text;
   String time;
+  String? imagePath;
 
   Message({
     this.messageId,
     required this.currentCategoryId,
     required this.time,
     required this.text,
+    this.imagePath,
   });
 
   Map<String, dynamic> convertMessageToMap() {
@@ -16,6 +18,7 @@ class Message {
       'current_category_id': currentCategoryId,
       'text': text,
       'time': time,
+      'image_path': imagePath,
     };
   }
 
@@ -25,6 +28,7 @@ class Message {
       'current_category_id': currentCategoryId,
       'text': text,
       'time': time,
+      'image_path': imagePath,
     };
   }
 
@@ -36,6 +40,7 @@ class Message {
       currentCategoryId: map['current_category_id'],
       text: map['text'],
       time: map['time'],
+      imagePath: map['image_path'],
     );
   }
 }

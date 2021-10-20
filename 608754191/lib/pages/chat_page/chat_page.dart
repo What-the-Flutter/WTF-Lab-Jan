@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import '../../util/domain.dart';
 
-import '../../main.dart';
 import '../entity/category.dart';
 import '../entity/message.dart';
 import 'chat_page_cubit.dart';
@@ -32,7 +34,6 @@ class _ChatPage extends State<ChatPage> {
   final List<Category> _categories;
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
   @required
   _ChatPage(
     this._category,
@@ -101,6 +102,7 @@ class _ChatPage extends State<ChatPage> {
             showSearch(
               context: context,
               delegate: SearchEventDelegate(
+                messagesList: state.messageList,
                 category: widget.category,
               ),
             );
@@ -165,7 +167,7 @@ class _ChatPage extends State<ChatPage> {
             context: context,
             builder: (blocContext) => _deleteAlertDialog(
               index,
-              state.message!,
+              state.messageList[state.indexOfSelectedElement!],
               blocContext,
             ),
           ),
@@ -232,39 +234,44 @@ class _ChatPage extends State<ChatPage> {
       child: ListView.builder(
         scrollDirection: Axis.vertical,
         itemCount: state.messageList.length,
-        itemBuilder: (context, index) => Container(
-          padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
-          width: 40,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Card(
-              elevation: 5,
-              color: Colors.blueGrey[600],
-              child: ListTile(
-                title: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    state.messageList[index].text,
-                    style: const TextStyle(fontSize: 20, color: Colors.black),
-                  ),
-                ),
-                subtitle: Text(
-                  '${DateTime.now()}',
-                  style: TextStyle(
-                    color: Colors.blueGrey[200],
-                    fontSize: 12,
-                  ),
-                ),
-                onLongPress: () {
-                  _cubit.swapAppBar();
-                  BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
-                    index,
-                  );
-                },
+        itemBuilder: (context, index) {
+          return Container(
+            alignment:
+                state.isBubbleAlignment ?? true ? Alignment.bottomLeft : Alignment.bottomRight,
+            padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
+            width: 40,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Card(
+                elevation: 5,
+                color: Colors.blueGrey[600],
+                child: state.messageList[index].imagePath?.isEmpty ?? true
+                    ? ListTile(
+                        title: Text(
+                          state.messageList[index].text,
+                          style: const TextStyle(fontSize: 20, color: Colors.black),
+                        ),
+                        subtitle: Text(
+                          state.messageList[state.indexOfSelectedElement!].time,
+                          style: TextStyle(
+                            color: Colors.blueGrey[200],
+                            fontSize: 12,
+                          ),
+                        ),
+                        onLongPress: () {
+                          _cubit.swapAppBar();
+                          BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
+                            index,
+                          );
+                        },
+                      )
+                    : Image.file(
+                        File(state.messageList[index].imagePath!),
+                      ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -280,7 +287,10 @@ class _ChatPage extends State<ChatPage> {
         child: Row(
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                _cubit.setSendingPhotoState(false);
+                _cubit.getImage();
+              },
               icon: const Icon(
                 Icons.camera_alt_outlined,
               ),
@@ -322,9 +332,10 @@ class _ChatPage extends State<ChatPage> {
               onPressed: () {
                 if (state.isEditing!) {
                   BlocProvider.of<ChatPageCubit>(blocContext).editText(
-                    state.message!,
+                    state.messageList[state.indexOfSelectedElement!],
                     _textEditingController.text,
                   );
+                  _textEditingController.clear();
                 } else {
                   BlocProvider.of<ChatPageCubit>(blocContext)
                       .addMessage(_textEditingController.text);
@@ -343,10 +354,10 @@ class _ChatPage extends State<ChatPage> {
     state.messageList.insert(
       state.messageList.length,
       Message(
-        messageId: 1,
         time: DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now()),
         text: _textEditingController.text,
         currentCategoryId: state.category!.categoryId!,
+        imagePath: '',
       ),
     );
     _textEditingController.clear();
@@ -431,8 +442,8 @@ class _ChatPage extends State<ChatPage> {
               context,
               'Yes',
             );
-            BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
-            BlocProvider.of<ChatPageCubit>(blocContext).deleteMessage(message);
+            _cubit.swapAppBar();
+            _cubit.deleteMessage(message);
           },
           child: const Text(
             'Yes',
@@ -445,10 +456,10 @@ class _ChatPage extends State<ChatPage> {
 
 class SearchEventDelegate extends SearchDelegate {
   final Category? category;
-  final List<Message>? messagesList;
+  final List<Message> messagesList;
 
   SearchEventDelegate({
-    this.messagesList,
+    required this.messagesList,
     this.category,
   });
 
@@ -487,7 +498,7 @@ class SearchEventDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return messagesList!
+    return messagesList
             .where(
               (element) => element.text.contains(
                 query,
@@ -502,7 +513,7 @@ class SearchEventDelegate extends SearchDelegate {
         : ListView.builder(
             scrollDirection: Axis.vertical,
             reverse: true,
-            itemCount: messagesList!
+            itemCount: messagesList
                 .where(
                   (element) => element.text.contains(
                     query,
@@ -510,7 +521,7 @@ class SearchEventDelegate extends SearchDelegate {
                 )
                 .length,
             itemBuilder: (context, index) {
-              final message = messagesList!
+              final message = messagesList
                   .where(
                     (element) => element.text.contains(
                       query,

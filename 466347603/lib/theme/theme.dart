@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: const Color(0xFF006766),
-  accentColor: const Color(0xFFFFD741),
+  appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF006766)),
   cardColor: const Color(0xFF78909C),
+  highlightColor: const Color(0xFFFFD741),
   selectedRowColor: const Color(0xFFBCE3C6),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: Color(0xFFFAFAFA),
@@ -26,9 +27,8 @@ final ThemeData lightTheme = ThemeData(
   primaryIconTheme: const IconThemeData(
     color: Color(0xFFFDFFFE),
   ),
-  accentIconTheme: const IconThemeData(
-    color: Color(0xFF006766),
-  ),
+  buttonTheme: const ButtonThemeData(buttonColor: Color(0xFFFFD741)),
+  iconTheme: const IconThemeData(color: Color(0xFF006766)),
   backgroundColor: const Color(0xFFF5F5F5),
   scaffoldBackgroundColor: const Color(0xFFFAFAFA),
   dialogBackgroundColor: const Color(0xFFE4F2E3),
@@ -36,8 +36,8 @@ final ThemeData lightTheme = ThemeData(
 
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
+  appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF2E3540)),
   primaryColor: const Color(0xFF213244),
-  accentColor: const Color(0xFFFFD741),
   cardColor: const Color(0xFF2E353F),
   selectedRowColor: const Color(0xFF3D4753),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -60,9 +60,8 @@ final ThemeData darkTheme = ThemeData(
   primaryIconTheme: const IconThemeData(
     color: Color(0xFFFDFFFE),
   ),
-  accentIconTheme: const IconThemeData(
-    color: Color(0xFFFDFFFE),
-  ),
+  iconTheme: const IconThemeData(color: Color(0xFFFDFFFE)),
+  buttonTheme: const ButtonThemeData(buttonColor: Color(0xFFFFD741)),
   backgroundColor: const Color(0xFF343E48),
   scaffoldBackgroundColor: const Color(0xFF1E2832),
   dialogBackgroundColor: const Color(0xFF2C353E),

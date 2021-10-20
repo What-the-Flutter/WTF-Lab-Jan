@@ -10,7 +10,7 @@ class PreferencesAccess {
 
   PreferencesAccess._internal();
 
-  static void initialize() async {
+  static Future<void> initialize() async {
     _prefs = await SharedPreferences.getInstance();
   }
 

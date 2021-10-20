@@ -1,7 +1,6 @@
 import 'package:chat_journal/models/chat_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
-
 import '../chat_detail_page.dart';
 
 class Home extends StatefulWidget {

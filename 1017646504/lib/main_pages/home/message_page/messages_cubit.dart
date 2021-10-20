@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import '../../../data/database_access.dart';
+import '../../../data/preferences_access.dart';
+import '../../../entity/page.dart';
 
-import '../data/database_access.dart';
-import '../data/preferences_access.dart';
-import '../entity/page.dart';
+
 import 'messages_state.dart';
 
 class MessageCubit extends Cubit<MessagesState> {
@@ -40,11 +41,19 @@ class MessageCubit extends Cubit<MessagesState> {
   }
 
   void setOnEdit(bool isOnEdit) {
-    emit(state.copyWith(isOnEdit: isOnEdit));
+    emit(state.copyWith(
+      isOnEdit: isOnEdit,
+      canSelectImage: false,
+    ));
   }
 
   void setOnSearch(bool isSearching) {
     emit(state.copyWith(isSearching: isSearching));
+  }
+
+  void deleteSingle(Event event) {
+    db.deleteEvent(event);
+    emit(state.copyWith(events: state.events..remove(event)));
   }
 
   void deleteEvents() async {
@@ -87,10 +96,11 @@ class MessageCubit extends Cubit<MessagesState> {
       event.creationTime = state.date;
     }
     event.id = await db.insertEvent(event);
-    state.events..insert(0, event);
     emit(
       state.copyWith(
-          events: state.events..sort((a, b) => b.creationTime.compareTo(a.creationTime))),
+          events: state.events
+            ..insert(0, event)
+            ..sort((a, b) => b.creationTime.compareTo(a.creationTime))),
     );
   }
 
@@ -112,9 +122,9 @@ class MessageCubit extends Cubit<MessagesState> {
     );
   }
 
-  Future<void> editEvent(String description) async {
-    state.selected.first.description = description;
-    db.updateEvent(state.selected.first);
+  Future<void> editEvent(String description, Event event) async {
+    event.description = description;
+    db.updateEvent(event);
     setOnEdit(false);
     setSelectionMode(false);
     emit(state.copyWith());

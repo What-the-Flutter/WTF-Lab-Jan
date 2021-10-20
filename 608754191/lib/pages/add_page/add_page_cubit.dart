@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../util/database.dart';
+import '../../repositories/database.dart';
 import '../entity/category.dart';
 
 part 'add_page_state.dart';

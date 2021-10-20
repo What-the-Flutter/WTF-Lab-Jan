@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../util/domain.dart';
 
-import '../../main.dart';
 import '../entity/category.dart';
 import 'add_page_cubit.dart';
 
