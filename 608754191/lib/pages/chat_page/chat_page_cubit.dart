@@ -1,13 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:task_wtf/pages/settings/settings_page/settings_cubit.dart';
+import 'package:intl/intl.dart';
+
 import '../../entity/category.dart';
 import '../../entity/message.dart';
+import '../../entity/tag_model.dart';
 import '../../repositories/database.dart';
-
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
@@ -20,6 +19,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   void init(Category category) {
     setCategory(category);
     setCategoryListState(<Category>[]);
+    setTags(<Tag>[]);
     setSending(false);
     setEditState(false);
     setWritingState(false);
@@ -28,6 +28,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     setIndexOfSelection(0);
     setIconIndex(0);
     initMessageList();
+    initTags();
   }
 
   void setCategoryListState(List<Category> categories) {
@@ -104,6 +105,16 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     );
   }
 
+  void initTags() async {
+    emit(
+      state.copyWith(
+        tags: await _databaseProvider.fetchTags(
+          state.category!.categoryId!,
+        ),
+      ),
+    );
+  }
+
   void setEventState(Message message) {
     final messageStateSelected = state.messageSelected!;
     emit(
@@ -147,6 +158,17 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   void copyMessage(Message message) {
     Clipboard.setData(
       ClipboardData(text: state.messageList[state.indexOfSelectedElement!].text),
+    );
+  }
+
+  void addTag(String text) async {
+    final tag = Tag(text: '#$text', currentCategoryId: state.category!.categoryId!);
+    state.tags.insert(0, tag);
+    tag.id = await _databaseProvider.insertTag(tag);
+    emit(
+      state.copyWith(
+        tags: state.tags,
+      ),
     );
   }
 
@@ -239,6 +261,14 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     emit(
       state.copyWith(
         messageList: state.messageList,
+      ),
+    );
+  }
+
+  void setTags(List<Tag> tags) {
+    emit(
+      state.copyWith(
+        tags: tags,
       ),
     );
   }

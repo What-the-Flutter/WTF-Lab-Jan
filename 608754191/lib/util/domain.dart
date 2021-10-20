@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../entity/category.dart';
 
-import '../entity/tag_model.dart';
-
 final List<IconData> initialIcons = [
   Icons.theater_comedy,
   Icons.family_restroom,
@@ -32,19 +30,6 @@ final List<IconData> initialIcons = [
   Icons.wb_sunny,
   Icons.gesture,
   Icons.train_outlined
-];
-
-final List<TagModel> tagsToSelect = [
-  TagModel(id: '1', title: 'urgently'),
-  TagModel(id: '2', title: 'important'),
-  TagModel(id: '3', title: 'instruct'),
-  TagModel(id: '4', title: 'recreation'),
-  TagModel(id: '5', title: 'education'),
-  TagModel(id: '6', title: 'studies'),
-  TagModel(id: '7', title: 'family'),
-  TagModel(id: '8', title: 'sport'),
-  TagModel(id: '9', title: 'yourself'),
-  TagModel(id: '10', title: 'fun'),
 ];
 
 List<Category> initialCategories = [
