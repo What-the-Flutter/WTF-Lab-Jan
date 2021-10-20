@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: Colors.yellow,
+        primaryColor: Colors.yellow[800]
         colorScheme: ColorScheme.fromSwatch().copyWith(
           secondary: const Color(0XFFFEF9EB),
         ),

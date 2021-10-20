@@ -37,6 +37,7 @@ dependencies:
   intl: ^0.17.0
 #  flutter_svg: ^0.20.0-nullsafety.3
   flutter_svg_provider: ^0.1.10
+  jiffy: ^4.1.0
 
 dev_dependencies:
   flutter_test:

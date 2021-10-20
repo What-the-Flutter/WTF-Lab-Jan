@@ -21,9 +21,7 @@ class NavigatorDrawer extends StatelessWidget {
               Icons.card_giftcard,
             ),
             title: const Text('Help spread the word'),
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
           ),
         ],
       ),

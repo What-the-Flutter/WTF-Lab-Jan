@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: const NavigatorDrawer(),
       appBar: AppBar(
-        backgroundColor: Colors.yellow,
+        backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
         title: Text(
           _title,
