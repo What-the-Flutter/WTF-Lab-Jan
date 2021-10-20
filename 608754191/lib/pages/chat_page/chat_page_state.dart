@@ -1,5 +1,8 @@
-import '../entity/category.dart';
-import '../entity/message.dart';
+import 'package:flutter/cupertino.dart';
+
+import '../../entity/category.dart';
+import '../../entity/message.dart';
+import '../../entity/tag_model.dart';
 
 class ChatPageState {
   final bool? messageSelected;
@@ -12,19 +15,22 @@ class ChatPageState {
   final bool? isWriting;
   final int? iconIndex;
   final bool? isSendingPhoto;
-  final bool? isBubbleAlignment;
-  ChatPageState(
-      {this.messageSelected,
-      this.indexOfSelectedElement,
-      this.isEditing,
-      this.category,
-      this.isSending,
-      this.categories,
-      this.messageList = const [],
-      this.iconIndex,
-      this.isWriting,
-      this.isSendingPhoto,
-      this.isBubbleAlignment});
+  final Alignment? isBubbleAlignment;
+  List<Tag> tags;
+  ChatPageState({
+    this.messageSelected,
+    this.indexOfSelectedElement,
+    this.isEditing,
+    this.category,
+    this.isSending,
+    this.categories,
+    this.messageList = const [],
+    this.iconIndex,
+    this.isWriting,
+    this.isSendingPhoto,
+    this.isBubbleAlignment,
+    this.tags = const [],
+  });
 
   ChatPageState copyWith({
     final bool? messageSelected,
@@ -37,7 +43,8 @@ class ChatPageState {
     final int? iconIndex,
     final bool? isWriting,
     final bool? isSendingPhoto,
-    final bool? isBubbleAlignment,
+    final Alignment? isBubbleAlignment,
+    final List<Tag>? tags,
   }) {
     return ChatPageState(
       messageSelected: messageSelected ?? this.messageSelected,
@@ -47,10 +54,11 @@ class ChatPageState {
       isSending: isSending ?? this.isSending,
       categories: categories ?? this.categories,
       messageList: messageList ?? this.messageList,
-      iconIndex: iconIndex,
+      iconIndex: iconIndex ?? this.iconIndex,
       isWriting: isWriting ?? this.isWriting,
       isSendingPhoto: isSendingPhoto ?? this.isSendingPhoto,
       isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,
+      tags: tags ?? this.tags,
     );
   }
 }

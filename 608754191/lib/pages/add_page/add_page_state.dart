@@ -3,10 +3,10 @@ part of 'add_page_cubit.dart';
 class AddPageState {
   final List<Category> categories;
   final Category? category;
-  final int selectedIconIndex;
+  final int? selectedIconIndex;
 
   const AddPageState({
-    required this.selectedIconIndex,
+    this.selectedIconIndex,
     required this.categories,
     this.category,
   });

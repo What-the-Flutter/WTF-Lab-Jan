@@ -1,3 +1,4 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,9 +10,8 @@ import 'pages/authorization/authorization_page.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
+import 'pages/settings/settings_page/settings_cubit.dart';
 import 'pages/settings/settings_page/settings_page.dart';
-import 'util/shared_preferences/shared_preferences_cubit.dart';
-import 'util/theme_inherited/application_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,17 +27,6 @@ class ChatJournal extends StatelessWidget {
 
   const ChatJournal({Key? key, required this.preferences}) : super(key: key);
 
-  ThemeMode _themeModeFromString(String? string) {
-    switch (string) {
-      case 'dark':
-        return ThemeMode.dark;
-      case 'light':
-        return ThemeMode.light;
-      default:
-        return ThemeMode.light;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -51,19 +40,13 @@ class ChatJournal extends StatelessWidget {
         BlocProvider(
           create: (context) => AuthenticationCubit(isAuthenticated: true),
         ),
-        BlocProvider<SharedPreferencesCubit>(
-          create: (context) => SharedPreferencesCubit(
-            _themeModeFromString(
-              preferences.getString(
-                'themeMode',
-              ),
-            ),
-            true,
+        BlocProvider<SettingsCubit>(
+          create: (context) => SettingsCubit(
             preferences: preferences,
           ),
         ),
       ],
-      child: BlocBuilder<SharedPreferencesCubit, SharedPreferencesState>(
+      child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) => BlocBuilder<AuthenticationCubit, AuthenticationState>(
           builder: (context, authState) {
             return BlocProvider(
@@ -71,9 +54,28 @@ class ChatJournal extends StatelessWidget {
                   AuthenticationCubit(isAuthenticated: !authState.isAuthenticated)..authenticate(),
               child: MaterialApp(
                 title: 'Home Page',
+                home: AnimatedSplashScreen(
+                  splash: Icons.emoji_people,
+                  splashTransition: SplashTransition.rotationTransition,
+                  duration: 445,
+                  backgroundColor: Colors.yellow,
+                  nextScreen: ChatJournalHomePage(),
+                ),
+                theme: ThemeData.light().copyWith(
+                  textTheme: state.textTheme.apply(
+                    displayColor: Colors.black,
+                    bodyColor: Colors.black,
+                    decorationColor: Colors.black,
+                  ),
+                ),
+                darkTheme: ThemeData.dark().copyWith(
+                  textTheme: state.textTheme.apply(
+                    displayColor: Colors.white,
+                    bodyColor: Colors.white,
+                    decorationColor: Colors.white,
+                  ),
+                ),
                 themeMode: state.themeMode,
-                theme: lightTheme,
-                darkTheme: darkTheme,
                 routes: {
                   '/home_page': (__) => ChatJournalHomePage(),
                   '/add_page': (_) => AddPage.add(),
@@ -81,7 +83,6 @@ class ChatJournal extends StatelessWidget {
                   '/settings_page': (_) => SettingsPage(),
                   '/authentication': (_) => AuthorizationPage(),
                 },
-                initialRoute: '/home_page',
               ),
             );
           },

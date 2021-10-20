@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../entity/category.dart';
 import '../../util/domain.dart';
 
-import '../entity/category.dart';
 import 'add_page_cubit.dart';
 
 class AddPage extends StatefulWidget {
@@ -99,14 +99,14 @@ class _AddPageState extends State<AddPage> {
   void _create(AddPageState state, BuildContext context) {
     if (category != null) {
       category!.title = _textEditingController.text;
-      category!.iconIndex = state.selectedIconIndex;
+      category!.iconIndex = state.selectedIconIndex!;
       Navigator.of(context).pop(category);
     } else {
       Navigator.pop(
         context,
         Category(
           title: _textEditingController.text,
-          iconIndex: 1,
+          iconIndex: state.selectedIconIndex!,
           subTitleMessage: '',
         ),
       );

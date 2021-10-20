@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../entity/category.dart';
 
-List<IconData> initialIcons = [
+final List<IconData> initialIcons = [
   Icons.theater_comedy,
   Icons.family_restroom,
   Icons.work,
@@ -29,4 +30,10 @@ List<IconData> initialIcons = [
   Icons.wb_sunny,
   Icons.gesture,
   Icons.train_outlined
+];
+
+List<Category> initialCategories = [
+  Category(iconIndex: 1, title: 'Family', subTitleMessage: ''),
+  Category(iconIndex: 4, title: 'Sport', subTitleMessage: ''),
+  Category(iconIndex: 27, title: 'Travel', subTitleMessage: ''),
 ];

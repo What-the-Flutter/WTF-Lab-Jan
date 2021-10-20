@@ -36,10 +36,10 @@ class SettingsPage extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
                 child: Card(
-                  child: _buildSettingsItem(
+                  child: _settingsItem(
                     title: 'General',
                     subtitle: 'Themes & Interfaces',
-                    icon: Icons.clear,
+                    icon: Icons.settings_display,
                     onClicked: () => _selectedSetting(context, 0),
                   ),
                 ),
@@ -57,7 +57,7 @@ class SettingsPage extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
                 child: Card(
-                  child: _buildSettingsItem(
+                  child: _settingsItem(
                     title: 'Authorization',
                     subtitle: 'Themes & Interfaces',
                     icon: Icons.accessibility_new,
@@ -72,17 +72,18 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsItem({
+  Widget _settingsItem({
     required String title,
     required String subtitle,
     required IconData icon,
     required VoidCallback onClicked,
   }) {
-    final color = Colors.black;
+    final color = ThemeData.dark().backgroundColor;
 
     return ListTile(
       leading: Icon(
         icon,
+        size: 40,
         color: color,
       ),
       title: Text(

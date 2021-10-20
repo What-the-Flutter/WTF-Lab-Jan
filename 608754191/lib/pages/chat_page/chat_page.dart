@@ -1,21 +1,25 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../../util/domain.dart';
 
-import '../entity/category.dart';
-import '../entity/message.dart';
+import '../../entity/category.dart';
+import '../../entity/message.dart';
+import '../../entity/tag_model.dart';
+import '../../util/domain.dart';
+import '../settings/settings_page/settings_cubit.dart';
 import 'chat_page_cubit.dart';
 import 'chat_page_state.dart';
+import 'widgets/search_messages.dart';
 
 class ChatPage extends StatefulWidget {
   final Category category;
   final List<Category> categories;
 
-  const ChatPage({
+  ChatPage({
     Key? key,
     required this.category,
     required this.categories,
@@ -29,11 +33,14 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPage extends State<ChatPage> {
+  int _numberOfImageOfScreen = 0;
+  bool conditional = false;
   late ChatPageCubit _cubit;
   final Category _category;
   final List<Category> _categories;
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+
   @required
   _ChatPage(
     this._category,
@@ -43,6 +50,11 @@ class _ChatPage extends State<ChatPage> {
   @override
   void initState() {
     _cubit = ChatPageCubit()..init(_category);
+    _textEditingController.addListener(() {
+      setState(() {
+        conditional = _textEditingController.text.isEmpty ? false : true;
+      });
+    });
     super.initState();
   }
 
@@ -53,6 +65,7 @@ class _ChatPage extends State<ChatPage> {
 
   @override
   void dispose() {
+    _textEditingController.dispose();
     super.dispose();
   }
 
@@ -70,15 +83,20 @@ class _ChatPage extends State<ChatPage> {
                     state.indexOfSelectedElement!,
                     blocContext,
                   ),
-            body: Column(
-              children: [
-                if (state.messageList.isEmpty) _eventPage(),
-                _bodyForInput(state),
-                _inputInsideChatPage(
-                  state,
-                  blocContext,
-                ),
-              ],
+            body: Container(
+              decoration: _numberOfImageOfScreen != 0
+                  ? _pictureOnScreen(_numberOfImageOfScreen)
+                  : const BoxDecoration(),
+              child: Column(
+                children: [
+                  if (state.messageList.isEmpty && state.tags.isEmpty) _eventPage(),
+                  _bodyForInput(state),
+                  _inputInsideChatPage(
+                    state,
+                    blocContext,
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -89,10 +107,10 @@ class _ChatPage extends State<ChatPage> {
   AppBar _appBarFromChatPage(ChatPageState state) {
     return AppBar(
       backgroundColor: Colors.black,
-      leading: const BackButton(),
       title: Center(
         child: Text(
-          widget.category.title,
+          state.category!.title,
+          style: const TextStyle(color: Colors.yellow),
         ),
       ),
       actions: [
@@ -101,7 +119,7 @@ class _ChatPage extends State<ChatPage> {
           onPressed: () {
             showSearch(
               context: context,
-              delegate: SearchEventDelegate(
+              delegate: SearchMessageDelegate(
                 messagesList: state.messageList,
                 category: widget.category,
               ),
@@ -109,9 +127,16 @@ class _ChatPage extends State<ChatPage> {
           },
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (newContext) {
+                return _dialogOfPictureOnScreen();
+              },
+            );
+          },
           icon: const Icon(
-            Icons.bookmark_border_outlined,
+            Icons.image_outlined,
           ),
         ),
       ],
@@ -150,7 +175,9 @@ class _ChatPage extends State<ChatPage> {
           ),
           onPressed: () {
             _cubit.swapAppBar();
-            _cubit.copyMessage(state.messageList[index]);
+            _cubit.copyMessage(
+              state.messageList[index],
+            );
           },
         ),
         IconButton(
@@ -194,7 +221,7 @@ class _ChatPage extends State<ChatPage> {
         20,
       ),
       child: Container(
-        color: Colors.green[200],
+        color: Colors.yellowAccent,
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 25,
@@ -231,70 +258,144 @@ class _ChatPage extends State<ChatPage> {
 
   Widget _bodyForInput(ChatPageState state) {
     return Expanded(
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        itemCount: state.messageList.length,
-        itemBuilder: (context, index) {
-          return Container(
-            alignment:
-                state.isBubbleAlignment ?? true ? Alignment.bottomLeft : Alignment.bottomRight,
-            padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
-            width: 40,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Card(
-                elevation: 5,
-                color: Colors.blueGrey[600],
-                child: state.messageList[index].imagePath?.isEmpty ?? true
-                    ? ListTile(
-                        title: Text(
-                          state.messageList[index].text,
-                          style: const TextStyle(fontSize: 20, color: Colors.black),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settingsState) {
+          return state.tags.isEmpty
+              ? ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: state.messageList.length + state.tags.length,
+                  itemBuilder: (context, index) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: settingsState.bubbleAlignment == Alignment.centerRight
+                            ? const EdgeInsets.fromLTRB(5, 5, 170, 5)
+                            : const EdgeInsets.fromLTRB(170, 5, 5, 5),
+                        alignment: settingsState.bubbleAlignment == Alignment.centerRight
+                            ? AlignmentDirectional.topStart
+                            : AlignmentDirectional.topEnd,
+                        child: Card(
+                          elevation: 5,
+                          color: Colors.yellow[400],
+                          child: state.messageList[index].imagePath?.isEmpty ?? true
+                              ? ListTile(
+                                  title: Text(
+                                    state.messageList[index].text,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                    ),
+                                    textAlign:
+                                        settingsState.bubbleAlignment == Alignment.centerRight
+                                            ? TextAlign.start
+                                            : TextAlign.end,
+                                  ),
+                                  subtitle: Text(
+                                    state.messageList[state.indexOfSelectedElement!].time,
+                                    style: TextStyle(
+                                      color: Colors.blueGrey[200],
+                                      fontSize: 12,
+                                    ),
+                                    textAlign:
+                                        settingsState.bubbleAlignment == Alignment.centerRight
+                                            ? TextAlign.start
+                                            : TextAlign.end,
+                                  ),
+                                  onLongPress: () {
+                                    _cubit.swapAppBar();
+                                    BlocProvider.of<ChatPageCubit>(context)
+                                        .changeIndexOfSelectedElement(
+                                      index,
+                                    );
+                                  },
+                                )
+                              : Image.file(
+                                  File(state.messageList[index].imagePath!),
+                                ),
                         ),
-                        subtitle: Text(
-                          state.messageList[state.indexOfSelectedElement!].time,
-                          style: TextStyle(
-                            color: Colors.blueGrey[200],
-                            fontSize: 12,
-                          ),
-                        ),
-                        onLongPress: () {
-                          _cubit.swapAppBar();
-                          BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
-                            index,
-                          );
-                        },
-                      )
-                    : Image.file(
-                        File(state.messageList[index].imagePath!),
                       ),
-              ),
-            ),
-          );
+                    );
+                  },
+                )
+              : ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: state.tags.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 160,
+                        vertical: 5,
+                      ),
+                      child: Container(
+                        color: Colors.black,
+                        child: ListTile(
+                          title: Text(
+                            state.tags[index].text,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.yellow,
+                            ),
+                            textAlign: settingsState.bubbleAlignment == Alignment.centerRight
+                                ? TextAlign.start
+                                : TextAlign.end,
+                          ),
+                          onTap: () => showDialog(
+                            context: context,
+                            builder: (context) => _tagsAlertDialog(
+                              index,
+                              state.tags[state.indexOfSelectedElement!],
+                              context,
+                            ),
+                          ),
+                          onLongPress: () {
+                            _cubit.swapAppBar();
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                );
         },
       ),
     );
   }
 
-  Widget _inputInsideChatPage(ChatPageState state, BuildContext blocContext) {
+  Widget _inputInsideChatPage(
+    ChatPageState state,
+    BuildContext blocContext,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 7.5,
         vertical: 8,
       ),
-      decoration: const BoxDecoration(),
+      decoration: const BoxDecoration(color: Colors.yellow),
       child: SafeArea(
         child: Row(
           children: [
-            IconButton(
-              onPressed: () {
-                _cubit.setSendingPhotoState(false);
-                _cubit.getImage();
-              },
-              icon: const Icon(
-                Icons.camera_alt_outlined,
-              ),
-            ),
+            !conditional
+                ? IconButton(
+                    onPressed: () {
+                      _cubit.setSendingPhotoState(false);
+                      _cubit.getImage();
+                    },
+                    icon: const Icon(
+                      Icons.camera_alt_outlined,
+                    ),
+                  )
+                : IconButton(
+                    onPressed: () {
+                      print('tags');
+                      _tagsFromChatPage();
+                      BlocProvider.of<ChatPageCubit>(blocContext)
+                          .addTag(_textEditingController.text);
+                      _textEditingController.clear();
+                      BlocProvider.of<ChatPageCubit>(blocContext).setSending(true);
+                    },
+                    icon: const Icon(
+                      Icons.message,
+                    ),
+                  ),
             const SizedBox(
               width: 10,
             ),
@@ -354,7 +455,9 @@ class _ChatPage extends State<ChatPage> {
     state.messageList.insert(
       state.messageList.length,
       Message(
-        time: DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now()),
+        time: DateFormat('yyyy-MM-dd kk:mm').format(
+          DateTime.now(),
+        ),
         text: _textEditingController.text,
         currentCategoryId: state.category!.categoryId!,
         imagePath: '',
@@ -376,7 +479,10 @@ class _ChatPage extends State<ChatPage> {
         width: 220,
         child: ListView.separated(
           itemCount: state.categories!.length + 1,
-          itemBuilder: (context, index) {
+          itemBuilder: (
+            context,
+            index,
+          ) {
             if (index == 0) {
               return const Center(
                 child: Text('select the page you want to forward the message to!'),
@@ -399,7 +505,10 @@ class _ChatPage extends State<ChatPage> {
     );
   }
 
-  void _editText(Message message, BuildContext blocContext) {
+  void _editText(
+    Message message,
+    BuildContext blocContext,
+  ) {
     BlocProvider.of<ChatPageCubit>(blocContext)
         .setMessageText(message, _textEditingController.text);
 
@@ -452,108 +561,159 @@ class _ChatPage extends State<ChatPage> {
       ],
     );
   }
-}
 
-class SearchEventDelegate extends SearchDelegate {
-  final Category? category;
-  final List<Message> messagesList;
-
-  SearchEventDelegate({
-    required this.messagesList,
-    this.category,
-  });
-
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return Theme.of(context);
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.cleaning_services_rounded),
-        onPressed: () {
-          query = '';
-        },
+  BoxDecoration _pictureOnScreen(int number) {
+    return BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage(
+          'image/oboi$number.jpg',
+        ),
+        fit: BoxFit.fill,
       ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        query = '';
-        close(context, null);
-      },
     );
   }
 
-  @override
-  Widget buildResults(BuildContext context) {
-    return Container();
+  Widget _dialogOfPictureOnScreen() {
+    return SimpleDialog(
+      backgroundColor: Colors.yellow,
+      title: const Text(
+        'what wallpaper do you prefer?',
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      ),
+      children: [
+        SimpleDialogOption(
+          child: const Text(
+            '1 -  simpson in nirvana',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 1;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '2 -  return of the turtle',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 2;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '3 -  astronauts fishing',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 3;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '4 -  palette!',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 4;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '5 -  pastila zdorovogo cheloveka',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 5;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '6 - send in black',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 6;
+            });
+          },
+        ),
+      ],
+    );
   }
 
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return messagesList
-            .where(
-              (element) => element.text.contains(
-                query,
-              ),
-            )
-            .isEmpty
-        ? const Center(
-            child: Text(
-              'No matches!',
+  Widget _tagsFromChatPage() {
+    return Card(
+      color: Colors.red,
+      child: ListTile(
+        title: Text(_textEditingController.text),
+      ),
+    );
+  }
+
+  AlertDialog _tagsAlertDialog(
+    int index,
+    Tag tag,
+    BuildContext context,
+  ) {
+    return AlertDialog(
+      backgroundColor: Colors.yellow,
+      contentPadding: const EdgeInsets.fromLTRB(100, 20.0, 50.0, 25.0),
+      title: const Text(
+        'Search this tag in chat?',
+      ),
+      elevation: 10,
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.pop(
+              context,
+              'Yes',
+            );
+          },
+          child: const Text(
+            'Yes',
+            style: TextStyle(
+              color: Colors.black,
             ),
-          )
-        : ListView.builder(
-            scrollDirection: Axis.vertical,
-            reverse: true,
-            itemCount: messagesList
-                .where(
-                  (element) => element.text.contains(
-                    query,
-                  ),
-                )
-                .length,
-            itemBuilder: (context, index) {
-              final message = messagesList
-                  .where(
-                    (element) => element.text.contains(
-                      query,
-                    ),
-                  )
-                  .toList()[index];
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 5.0,
-                  horizontal: 20.0,
-                ),
-                width: 200,
-                constraints: const BoxConstraints(),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(
-                    50,
-                  ),
-                  child: Card(
-                    elevation: 3,
-                    child: ListTile(
-                      title: Text(
-                        message.text,
-                      ),
-                      subtitle: Text(
-                        '${message.time}\n${category!.title}',
-                      ),
-                      isThreeLine: true,
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(
+            context,
+            'Cancel',
+          ),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(
+              color: Colors.red,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
