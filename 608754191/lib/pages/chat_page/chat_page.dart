@@ -175,7 +175,9 @@ class _ChatPage extends State<ChatPage> {
           ),
           onPressed: () {
             _cubit.swapAppBar();
-            _cubit.copyMessage(state.messageList[index]);
+            _cubit.copyMessage(
+              state.messageList[index],
+            );
           },
         ),
         IconButton(
@@ -261,7 +263,7 @@ class _ChatPage extends State<ChatPage> {
           return state.tags.isEmpty
               ? ListView.builder(
                   scrollDirection: Axis.vertical,
-                  itemCount: state.messageList.length,
+                  itemCount: state.messageList.length + state.tags.length,
                   itemBuilder: (context, index) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(20),
@@ -320,7 +322,10 @@ class _ChatPage extends State<ChatPage> {
                   itemCount: state.tags.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 160, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 160,
+                        vertical: 5,
+                      ),
                       child: Container(
                         color: Colors.black,
                         child: ListTile(
@@ -337,7 +342,10 @@ class _ChatPage extends State<ChatPage> {
                           onTap: () => showDialog(
                             context: context,
                             builder: (context) => _tagsAlertDialog(
-                                index, state.tags[state.indexOfSelectedElement!], context),
+                              index,
+                              state.tags[state.indexOfSelectedElement!],
+                              context,
+                            ),
                           ),
                           onLongPress: () {
                             _cubit.swapAppBar();
@@ -352,7 +360,10 @@ class _ChatPage extends State<ChatPage> {
     );
   }
 
-  Widget _inputInsideChatPage(ChatPageState state, BuildContext blocContext) {
+  Widget _inputInsideChatPage(
+    ChatPageState state,
+    BuildContext blocContext,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 7.5,
@@ -444,7 +455,9 @@ class _ChatPage extends State<ChatPage> {
     state.messageList.insert(
       state.messageList.length,
       Message(
-        time: DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now()),
+        time: DateFormat('yyyy-MM-dd kk:mm').format(
+          DateTime.now(),
+        ),
         text: _textEditingController.text,
         currentCategoryId: state.category!.categoryId!,
         imagePath: '',
@@ -466,7 +479,10 @@ class _ChatPage extends State<ChatPage> {
         width: 220,
         child: ListView.separated(
           itemCount: state.categories!.length + 1,
-          itemBuilder: (context, index) {
+          itemBuilder: (
+            context,
+            index,
+          ) {
             if (index == 0) {
               return const Center(
                 child: Text('select the page you want to forward the message to!'),
@@ -489,7 +505,10 @@ class _ChatPage extends State<ChatPage> {
     );
   }
 
-  void _editText(Message message, BuildContext blocContext) {
+  void _editText(
+    Message message,
+    BuildContext blocContext,
+  ) {
     BlocProvider.of<ChatPageCubit>(blocContext)
         .setMessageText(message, _textEditingController.text);
 
@@ -546,7 +565,9 @@ class _ChatPage extends State<ChatPage> {
   BoxDecoration _pictureOnScreen(int number) {
     return BoxDecoration(
       image: DecorationImage(
-        image: AssetImage('image/oboi$number.jpg'),
+        image: AssetImage(
+          'image/oboi$number.jpg',
+        ),
         fit: BoxFit.fill,
       ),
     );
@@ -557,13 +578,17 @@ class _ChatPage extends State<ChatPage> {
       backgroundColor: Colors.yellow,
       title: const Text(
         'what wallpaper do you prefer?',
-        style: TextStyle(fontSize: 20),
+        style: TextStyle(
+          fontSize: 20,
+        ),
       ),
       children: [
         SimpleDialogOption(
           child: const Text(
             '1 -  simpson in nirvana',
-            style: TextStyle(fontSize: 22),
+            style: TextStyle(
+              fontSize: 22,
+            ),
           ),
           onPressed: () {
             setState(() {
@@ -574,7 +599,9 @@ class _ChatPage extends State<ChatPage> {
         SimpleDialogOption(
           child: const Text(
             '2 -  return of the turtle',
-            style: TextStyle(fontSize: 22),
+            style: TextStyle(
+              fontSize: 22,
+            ),
           ),
           onPressed: () {
             setState(() {
@@ -585,7 +612,9 @@ class _ChatPage extends State<ChatPage> {
         SimpleDialogOption(
           child: const Text(
             '3 -  astronauts fishing',
-            style: TextStyle(fontSize: 22),
+            style: TextStyle(
+              fontSize: 22,
+            ),
           ),
           onPressed: () {
             setState(() {
@@ -596,7 +625,9 @@ class _ChatPage extends State<ChatPage> {
         SimpleDialogOption(
           child: const Text(
             '4 -  palette!',
-            style: TextStyle(fontSize: 22),
+            style: TextStyle(
+              fontSize: 22,
+            ),
           ),
           onPressed: () {
             setState(() {
@@ -607,7 +638,9 @@ class _ChatPage extends State<ChatPage> {
         SimpleDialogOption(
           child: const Text(
             '5 -  pastila zdorovogo cheloveka',
-            style: TextStyle(fontSize: 22),
+            style: TextStyle(
+              fontSize: 22,
+            ),
           ),
           onPressed: () {
             setState(() {
@@ -618,7 +651,9 @@ class _ChatPage extends State<ChatPage> {
         SimpleDialogOption(
           child: const Text(
             '6 - send in black',
-            style: TextStyle(fontSize: 22),
+            style: TextStyle(
+              fontSize: 22,
+            ),
           ),
           onPressed: () {
             setState(() {
@@ -661,7 +696,9 @@ class _ChatPage extends State<ChatPage> {
           },
           child: const Text(
             'Yes',
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(
+              color: Colors.black,
+            ),
           ),
         ),
         TextButton(
@@ -671,7 +708,9 @@ class _ChatPage extends State<ChatPage> {
           ),
           child: const Text(
             'Cancel',
-            style: TextStyle(color: Colors.red),
+            style: TextStyle(
+              color: Colors.red,
+            ),
           ),
         ),
       ],

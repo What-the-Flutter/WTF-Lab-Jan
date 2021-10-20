@@ -13,7 +13,9 @@ class SearchMessageDelegate extends SearchDelegate {
 
   @override
   ThemeData appBarTheme(BuildContext context) {
-    return ThemeData.dark().copyWith(primaryColorDark: Colors.yellow);
+    return ThemeData.dark().copyWith(
+      primaryColorDark: Colors.yellow,
+    );
   }
 
   @override

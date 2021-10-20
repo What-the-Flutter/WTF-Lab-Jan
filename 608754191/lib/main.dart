@@ -57,7 +57,7 @@ class ChatJournal extends StatelessWidget {
                 home: AnimatedSplashScreen(
                   splash: Icons.emoji_people,
                   splashTransition: SplashTransition.rotationTransition,
-                  duration: 345,
+                  duration: 445,
                   backgroundColor: Colors.yellow,
                   nextScreen: ChatJournalHomePage(),
                 ),

@@ -20,6 +20,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     setCategory(category);
     setCategoryListState(<Category>[]);
     setTags(<Tag>[]);
+    setMessageList(<Message>[]);
     setSending(false);
     setEditState(false);
     setWritingState(false);
@@ -269,6 +270,14 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     emit(
       state.copyWith(
         tags: tags,
+      ),
+    );
+  }
+
+  void setMessageList(List<Message> messageList) {
+    emit(
+      state.copyWith(
+        messageList: messageList,
       ),
     );
   }
