@@ -130,6 +130,28 @@ class _ChatPage extends State<ChatPage> {
         ),
         IconButton(
           onPressed: () {
+            state.messageList[state.indexOfSelectedElement!].bookmarkIndex != 0
+                ? showSearch(
+                    context: context,
+                    delegate: SearchMessageDelegate(
+                      messagesList: state.messageList
+                        ..where((element) => state.messageList[1].bookmarkIndex == 1),
+                      category: widget.category,
+                    ),
+                  )
+                : showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return _bookmarkedDialog(context);
+                    },
+                  );
+          },
+          icon: const Icon(
+            Icons.bookmark_border,
+          ),
+        ),
+        IconButton(
+          onPressed: () {
             showDialog(
               context: context,
               builder: (newContext) {
@@ -151,7 +173,7 @@ class _ChatPage extends State<ChatPage> {
     BuildContext blocContext,
   ) {
     return AppBar(
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: Colors.yellow[800],
       leading: IconButton(
         icon: const Icon(
           Icons.clear,
@@ -183,10 +205,12 @@ class _ChatPage extends State<ChatPage> {
           },
         ),
         IconButton(
+          onPressed: () {
+            _cubit.updateBookmark(state.indexOfSelectedElement!);
+          },
           icon: const Icon(
-            Icons.bookmark_border,
+            Icons.bookmark,
           ),
-          onPressed: () => BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar(),
         ),
         IconButton(
           icon: const Icon(
@@ -311,6 +335,19 @@ class _ChatPage extends State<ChatPage> {
                                 index,
                               );
                             },
+                            onTap: () {
+                              BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
+                                index,
+                              );
+                              _cubit.updateBookmark(state.indexOfSelectedElement!);
+                            },
+                            trailing: state.messageList[index].bookmarkIndex == 1
+                                ? const Icon(
+                                    Icons.bookmark_border,
+                                    size: 30,
+                                    color: Colors.white,
+                                  )
+                                : null,
                           )
                         : Image.file(
                             File(state.messageList[index].imagePath!),
@@ -625,12 +662,29 @@ class _ChatPage extends State<ChatPage> {
     );
   }
 
-  Widget _tagsFromChatPage() {
-    return Card(
-      color: Colors.red,
-      child: ListTile(
-        title: Text(_textEditingController.text),
+  AlertDialog _bookmarkedDialog(
+    BuildContext context,
+  ) {
+    return AlertDialog(
+      backgroundColor: Colors.yellow,
+      title: const Text(
+        'No bookmarks',
       ),
+      elevation: 6,
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(
+            context,
+            'Ok',
+          ),
+          child: const Text(
+            'Ok',
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

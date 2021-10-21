@@ -16,6 +16,7 @@ const String _columnCurrentCategoryId = 'current_category_id';
 const String _columnText = 'text';
 const String _columnTime = 'time';
 const String _columnImagePath = 'image_path';
+const String _columnEventBookmarkIndex = 'bookmark_index';
 
 class DatabaseProvider {
   static DatabaseProvider? _databaseProvider;
@@ -52,7 +53,8 @@ class DatabaseProvider {
       $_columnMessageId integer primary key autoincrement,
       $_columnCurrentCategoryId integer,
       $_columnText text not null,
-      $_columnTime text not null,   
+      $_columnTime text not null,  
+      $_columnEventBookmarkIndex integer, 
       $_columnImagePath text  
       )
       ''');
@@ -148,4 +150,27 @@ class DatabaseProvider {
     }
     return messageList;
   }
+
+  Future<List<Message>> fetchFullMessageList() async {
+    final db = await database;
+    final messageList = <Message>[];
+    final dbCategoryList = await db.query(_messageTable);
+    for (final element in dbCategoryList) {
+      final message = Message.fromMap(element);
+      messageList.insert(0, message);
+    }
+    return messageList;
+  }
 }
+/*
+*  Future<List<Category>> fetchCategoryList() async {
+    final db = await database;
+    final categoryList = <Category>[];
+    final dbCategoryList = await db.query(_categoryTable);
+    for (final item in dbCategoryList) {
+      final category = Category.fromMap(item);
+      categoryList.insert(0, category);
+    }
+    return categoryList;
+  }
+* */

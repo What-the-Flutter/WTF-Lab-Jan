@@ -23,6 +23,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     setWritingState(false);
     setMessageSelected(false);
     setSendingPhotoState(false);
+    setSortedByBookmarksState(false);
     setIndexOfSelection(0);
     setIconIndex(0);
     initMessageList();
@@ -155,6 +156,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
         DateTime.now(),
       ),
       text: text,
+      bookmarkIndex: 0,
     );
     state.messageList.insert(0, message);
     message.messageId = await _databaseProvider.insertMessage(message);
@@ -200,6 +202,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       ),
       text: state.messageList[index].text,
       currentCategoryId: state.category!.categoryId!,
+      bookmarkIndex: state.messageList[index].bookmarkIndex,
     );
     deleteMessage(message);
     state.messageList.removeAt(index);
@@ -246,6 +249,24 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       state.copyWith(
         messageList: messageList,
       ),
+    );
+  }
+
+  void setSortedByBookmarksState(bool isSortedByBookmark) {
+    emit(
+      state.copyWith(
+        isSortedByBookmarks: isSortedByBookmark,
+      ),
+    );
+  }
+
+  void updateBookmark(int index) {
+    state.messageList[index].bookmarkIndex == 0
+        ? state.messageList[index].bookmarkIndex = 1
+        : state.messageList[index].bookmarkIndex = 0;
+    setMessageList(state.messageList);
+    _databaseProvider.updateMessage(
+      state.messageList[index],
     );
   }
 }
