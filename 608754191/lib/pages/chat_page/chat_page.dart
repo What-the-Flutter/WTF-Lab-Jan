@@ -173,7 +173,7 @@ class _ChatPage extends State<ChatPage> {
     BuildContext blocContext,
   ) {
     return AppBar(
-      backgroundColor: Colors.yellow[800],
+      backgroundColor: Colors.black87,
       leading: IconButton(
         icon: const Icon(
           Icons.clear,
@@ -320,10 +320,10 @@ class _ChatPage extends State<ChatPage> {
                                   : TextAlign.end,
                             ),
                             subtitle: Text(
-                              state.messageList[state.indexOfSelectedElement!].time,
-                              style: TextStyle(
-                                color: Colors.blueGrey[200],
-                                fontSize: 12,
+                              state.messageList[index].time,
+                              style: const TextStyle(
+                                color: Colors.black54,
+                                fontSize: 13,
                               ),
                               textAlign: settingsState.bubbleAlignment == Alignment.centerRight
                                   ? TextAlign.start
@@ -486,8 +486,12 @@ class _ChatPage extends State<ChatPage> {
               );
             }
             return ListTile(
-              title: Text(state.categories![index - 1].title),
-              leading: Icon(initialIcons[state.categories![index - 1].iconIndex]),
+              title: Text(
+                state.categories![index - 1].title,
+              ),
+              leading: Icon(
+                initialIcons[state.categories![index - 1].iconIndex],
+              ),
               onTap: () {
                 BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
                 Navigator.pop(dialogContext);

@@ -63,25 +63,20 @@ class HomePageCubit extends Cubit<HomePageState> {
     );
   }
 
-  void update(BuildContext context, List<Category> categories, int index) async {
+  void update(BuildContext context, int index) async {
     final newCategory = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AddPage.add(),
       ),
     );
-    state.categories.removeAt(
-      index,
-    );
-    state.categories.insert(
-      index,
-      newCategory,
-    );
-    _databaseProvider.updateCategory(
-      categories[index],
-    );
+    if (newCategory is Category) {
+      state.categories.removeAt(index);
+      state.categories.insert(
+        index,
+        newCategory,
+      );
+    }
+
     categoryListRedrawing();
-    Navigator.pop(
-      context,
-    );
   }
 }

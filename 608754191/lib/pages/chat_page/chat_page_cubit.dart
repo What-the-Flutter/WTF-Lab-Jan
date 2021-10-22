@@ -24,6 +24,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     setMessageSelected(false);
     setSendingPhotoState(false);
     setSortedByBookmarksState(false);
+    setSelectedTime('');
     setIndexOfSelection(0);
     setIconIndex(0);
     initMessageList();
@@ -152,9 +153,11 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   void addMessage(String text) async {
     final message = Message(
       currentCategoryId: state.category!.categoryId!,
-      time: DateFormat('yyyy-MM-dd kk:mm').format(
-        DateTime.now(),
-      ),
+      time: state.selectedTime != ''
+          ? state.selectedTime!
+          : DateFormat('dd.MM   hh:mm a').format(
+              DateTime.now(),
+            ),
       text: text,
       bookmarkIndex: 0,
     );
@@ -197,7 +200,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   ) async {
     final message = Message(
       messageId: -1,
-      time: DateFormat('yyyy-MM-dd kk:mm').format(
+      time: DateFormat('dd.MM kk:mm').format(
         DateTime.now(),
       ),
       text: state.messageList[index].text,
@@ -229,9 +232,11 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     final imagePath = image == null ? null : (image.path);
     final message = Message(
       currentCategoryId: state.category!.categoryId!,
-      time: DateFormat('hh:mm a').format(
-        DateTime.now(),
-      ),
+      time: state.selectedTime != ''
+          ? state.selectedTime!
+          : DateFormat('hh:mm a').format(
+              DateTime.now(),
+            ),
       text: '',
       imagePath: imagePath,
     );
@@ -267,6 +272,14 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     setMessageList(state.messageList);
     _databaseProvider.updateMessage(
       state.messageList[index],
+    );
+  }
+
+  void setSelectedTime(String selectedTime) {
+    emit(
+      state.copyWith(
+        selectedTime: selectedTime,
+      ),
     );
   }
 }

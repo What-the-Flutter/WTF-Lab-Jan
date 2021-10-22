@@ -16,6 +16,7 @@ class ChatPageState {
   final bool? isSendingPhoto;
   final Alignment? isBubbleAlignment;
   final bool? isSortedByBookmarks;
+  final String? selectedTime;
   ChatPageState({
     this.messageSelected,
     this.indexOfSelectedElement,
@@ -29,6 +30,7 @@ class ChatPageState {
     this.isSendingPhoto,
     this.isBubbleAlignment,
     this.isSortedByBookmarks,
+    this.selectedTime,
   });
 
   ChatPageState copyWith({
@@ -44,6 +46,7 @@ class ChatPageState {
     final bool? isSendingPhoto,
     final Alignment? isBubbleAlignment,
     final bool? isSortedByBookmarks,
+    final String? selectedTime,
   }) {
     return ChatPageState(
       messageSelected: messageSelected ?? this.messageSelected,
@@ -58,6 +61,7 @@ class ChatPageState {
       isSendingPhoto: isSendingPhoto ?? this.isSendingPhoto,
       isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,
       isSortedByBookmarks: isSortedByBookmarks ?? this.isSortedByBookmarks,
+      selectedTime: selectedTime ?? this.selectedTime,
     );
   }
 }
