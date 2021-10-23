@@ -49,7 +49,7 @@ class SearchMessageDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return messagesList // ифами написать вместо тернарника и разбить
+    return messagesList
             .where(
               (element) => element.text.contains(
                 query,
@@ -97,9 +97,7 @@ class SearchMessageDelegate extends SearchDelegate {
                       title: Text(
                         message.text,
                       ),
-                      subtitle: Text(
-                        '${message.time}\n${category!.title}',
-                      ),
+                      subtitle: Text('${message.time}'),
                       isThreeLine: true,
                     ),
                   ),

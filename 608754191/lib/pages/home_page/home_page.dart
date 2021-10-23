@@ -4,6 +4,9 @@ import 'package:share/share.dart';
 
 import '../../util/domain.dart';
 import '../chat_page/chat_page.dart';
+import '../chat_page/widgets/search_messages.dart';
+import '../navbar_pages/timeline_page/timeline_page.dart';
+import '../navbar_pages/timeline_page/timeline_page_cubit.dart';
 import '../settings/settings_page/settings_cubit.dart';
 import '../settings/settings_page/settings_page.dart';
 import 'chose_of_action/chose_of_action.dart';
@@ -39,7 +42,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         return Scaffold(
           backgroundColor: Colors.blueGrey[100],
           appBar: _appBars[_selectedIndex],
-          body: _bodyOfHomePageChat(state),
+          body: _selectedIndex != 2 ? _bodyOfHomePageChat(state) : TimelinePage(),
           floatingActionButton: FloatingActionButton(
             backgroundColor: Colors.black,
             onPressed: () {
@@ -139,13 +142,24 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            showSearch(
+              context: context,
+              delegate: SearchMessageDelegate(
+                messagesList: TimelinePageState().messageList!,
+              ),
+            );
+          },
           icon: const Icon(
             Icons.search,
           ),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            BlocProvider.of<TimelinePageCubit>(context).setSortedByBookmarksState(
+              !TimelinePageState().isSortedByBookmarks!,
+            );
+          },
           icon: const Icon(
             Icons.bookmark_border_outlined,
           ),

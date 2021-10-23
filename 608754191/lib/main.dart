@@ -7,9 +7,11 @@ import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
 import 'pages/authorization/authorization_cubit.dart';
 import 'pages/authorization/authorization_page.dart';
+import 'pages/chat_page/chat_page_cubit.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
+import 'pages/navbar_pages/timeline_page/timeline_page_cubit.dart';
 import 'pages/settings/settings_page/settings_cubit.dart';
 import 'pages/settings/settings_page/settings_page.dart';
 
@@ -39,6 +41,12 @@ class ChatJournal extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => AuthenticationCubit(isAuthenticated: true),
+        ),
+        BlocProvider<ChatPageCubit>(
+          create: (context) => ChatPageCubit(),
+        ),
+        BlocProvider<TimelinePageCubit>(
+          create: (context) => TimelinePageCubit(),
         ),
         BlocProvider<SettingsCubit>(
           create: (context) => SettingsCubit(
@@ -79,7 +87,7 @@ class ChatJournal extends StatelessWidget {
                 routes: {
                   '/home_page': (__) => ChatJournalHomePage(),
                   '/add_page': (_) => AddPage.add(),
-                  '/timeline_page': (_) => TimelinePage(categories: []),
+                  '/timeline_page': (_) => TimelinePage(),
                   '/settings_page': (_) => SettingsPage(),
                   '/authentication': (_) => AuthorizationPage(),
                 },

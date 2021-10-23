@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
-
-import '../../entity/category.dart';
-import '../../entity/message.dart';
+part of 'chat_page_cubit.dart';
 
 class ChatPageState {
   final bool? messageSelected;

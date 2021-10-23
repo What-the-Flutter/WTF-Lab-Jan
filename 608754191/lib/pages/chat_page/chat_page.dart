@@ -12,7 +12,6 @@ import '../../entity/message.dart';
 import '../../util/domain.dart';
 import '../settings/settings_page/settings_cubit.dart';
 import 'chat_page_cubit.dart';
-import 'chat_page_state.dart';
 import 'widgets/search_messages.dart';
 
 class ChatPage extends StatefulWidget {
@@ -130,21 +129,25 @@ class _ChatPage extends State<ChatPage> {
         ),
         IconButton(
           onPressed: () {
-            state.messageList[state.indexOfSelectedElement!].bookmarkIndex != 0
-                ? showSearch(
-                    context: context,
-                    delegate: SearchMessageDelegate(
-                      messagesList: state.messageList
-                        ..where((element) => state.messageList[1].bookmarkIndex == 1),
-                      category: widget.category,
-                    ),
-                  )
-                : showDialog(
-                    context: context,
-                    builder: (newContext) {
-                      return _bookmarkedDialog(context);
-                    },
-                  );
+            // state.messageList[state.indexOfSelectedElement!].bookmarkIndex != 0
+            //     ?
+            BlocProvider.of<ChatPageCubit>(context)
+                .setSortedByBookmarksState(!state.isSortedByBookmarks!);
+            // ? showSearch(
+            //     context: context,
+            //     delegate: SearchMessageDelegate(
+            //       messagesList: state.messageList
+            //         ..where((element) => state.messageList[1].bookmarkIndex == 1),
+            //       category: widget.category,
+            //     ),
+            //   )
+
+            // : showDialog(
+            //     context: context,
+            //     builder: (newContext) {
+            //       return _bookmarkedDialog(context);
+            //     },
+            //   );
           },
           icon: const Icon(
             Icons.bookmark_border,
