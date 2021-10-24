@@ -1,6 +1,7 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/add_page/add_page.dart';
@@ -63,10 +64,12 @@ class ChatJournal extends StatelessWidget {
               child: MaterialApp(
                 title: 'Home Page',
                 home: AnimatedSplashScreen(
-                  splash: Icons.emoji_people,
-                  splashTransition: SplashTransition.rotationTransition,
-                  duration: 445,
-                  backgroundColor: Colors.yellow,
+                  splash: Lottie.network(
+                    'https://assets8.lottiefiles.com/packages/lf20_hjmgkfru.json',
+                  ),
+                  splashTransition: SplashTransition.scaleTransition,
+                  duration: 1000,
+                  backgroundColor: Colors.black,
                   nextScreen: ChatJournalHomePage(),
                 ),
                 theme: ThemeData.light().copyWith(

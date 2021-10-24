@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
+import 'package:task_wtf/util/animation/bouncy_page_route.dart';
 
 import '../../util/domain.dart';
 import '../chat_page/chat_page.dart';
+
 import '../chat_page/widgets/search_messages.dart';
 import '../navbar_pages/timeline_page/timeline_page.dart';
 import '../navbar_pages/timeline_page/timeline_page_cubit.dart';
@@ -40,21 +42,23 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                   ? _appBarFromHomePage()
                   : _appBarFromTimelinePage(timelineState),
               body: _selectedIndex != 2 ? _bodyOfHomePageChat(state) : TimelinePage(),
-              floatingActionButton: FloatingActionButton(
-                backgroundColor: Colors.black,
-                onPressed: () {
-                  BlocProvider.of<HomePageCubit>(context).addCategory(
-                    context,
-                  );
-                  BlocProvider.of<HomePageCubit>(context).updateList(
-                    state.categories,
-                  );
-                },
-                child: const Icon(
-                  Icons.add_sharp,
-                  color: Colors.yellow,
-                ),
-              ),
+              floatingActionButton: _selectedIndex == 0
+                  ? FloatingActionButton(
+                      backgroundColor: Colors.black,
+                      onPressed: () {
+                        BlocProvider.of<HomePageCubit>(context).addCategory(
+                          context,
+                        );
+                        BlocProvider.of<HomePageCubit>(context).updateList(
+                          state.categories,
+                        );
+                      },
+                      child: const Icon(
+                        Icons.add_sharp,
+                        color: Colors.yellow,
+                      ),
+                    )
+                  : Container(),
               bottomNavigationBar: _chatBottomNavigationBar(),
               drawer: _navigationDrawerWidget(),
             );
@@ -237,9 +241,10 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                       );
                     },
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ChatPage(
+                      Navigator.push(
+                        context,
+                        BouncyPageRoute(
+                          widget: ChatPage(
                             category: state.categories[index - 1],
                             categories: state.categories,
                           ),

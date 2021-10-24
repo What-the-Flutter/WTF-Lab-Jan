@@ -297,7 +297,10 @@ class _ChatPage extends State<ChatPage> {
             itemBuilder: (context, index) {
               return ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Container(
+                child: AnimatedContainer(
+                  //todo привести в порядок AnimatedContainer
+                  curve: Curves.bounceIn,
+                  duration: const Duration(milliseconds: 300),
                   padding: settingsState.bubbleAlignment == Alignment.centerRight
                       ? const EdgeInsets.fromLTRB(5, 5, 170, 5)
                       : const EdgeInsets.fromLTRB(170, 5, 5, 5),
@@ -539,8 +542,12 @@ class _ChatPage extends State<ChatPage> {
     BuildContext blocContext,
   ) {
     return AlertDialog(
+      backgroundColor: Colors.yellow,
       title: const Text(
         'Delete this  message?',
+        style: TextStyle(
+          color: Colors.black,
+        ),
       ),
       elevation: 6,
       actions: <Widget>[
@@ -549,7 +556,12 @@ class _ChatPage extends State<ChatPage> {
             context,
             'Cancel',
           ),
-          child: const Text('Cancel'),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
         ),
         TextButton(
           onPressed: () {
@@ -562,6 +574,9 @@ class _ChatPage extends State<ChatPage> {
           },
           child: const Text(
             'Yes',
+            style: TextStyle(
+              color: Colors.red,
+            ),
           ),
         ),
       ],
