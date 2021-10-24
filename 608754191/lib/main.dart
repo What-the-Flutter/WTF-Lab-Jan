@@ -75,6 +75,7 @@ class ChatJournal extends StatelessWidget {
                     bodyColor: Colors.black,
                     decorationColor: Colors.black,
                   ),
+                  backgroundColor: Colors.grey[400],
                 ),
                 darkTheme: ThemeData.dark().copyWith(
                   textTheme: state.textTheme.apply(

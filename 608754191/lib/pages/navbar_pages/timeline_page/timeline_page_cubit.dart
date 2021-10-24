@@ -16,12 +16,35 @@ class TimelinePageCubit extends Cubit<TimelinePageState> {
     setMessageList(await _databaseProvider.fetchFullMessageList());
   }
 
-  void setSortedByBookmarksState(bool isSortedByBookmarks) =>
-      emit(state.copyWith(isSortedByBookmarks: isSortedByBookmarks));
+  void setSortedByBookmarksState(bool isSortedByBookmarks) {
+    emit(
+      state.copyWith(
+        isSortedByBookmarks: isSortedByBookmarks,
+      ),
+    );
+  }
 
-  void setTextSearchState(bool isSearch) => emit(state.copyWith(isSearch: isSearch));
+  void setTextSearchState(bool isSearch) {
+    emit(
+      state.copyWith(
+        isSearch: isSearch,
+      ),
+    );
+  }
 
-  void setSearchState(bool isSearch) => emit(state.copyWith(isSearch: isSearch));
+  void setSearchState(bool isSearch) {
+    emit(
+      state.copyWith(
+        isSearch: isSearch,
+      ),
+    );
+  }
 
-  void setMessageList(List<Message> messageList) => emit(state.copyWith(messageList: messageList));
+  void setMessageList(List<Message> messageList) {
+    emit(
+      state.copyWith(
+        messageList: messageList,
+      ),
+    );
+  }
 }

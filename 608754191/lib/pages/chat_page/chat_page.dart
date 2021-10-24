@@ -129,25 +129,27 @@ class _ChatPage extends State<ChatPage> {
         ),
         IconButton(
           onPressed: () {
-            // state.messageList[state.indexOfSelectedElement!].bookmarkIndex != 0
-            //     ?
-            BlocProvider.of<ChatPageCubit>(context)
-                .setSortedByBookmarksState(!state.isSortedByBookmarks!);
-            // ? showSearch(
-            //     context: context,
-            //     delegate: SearchMessageDelegate(
-            //       messagesList: state.messageList
-            //         ..where((element) => state.messageList[1].bookmarkIndex == 1),
-            //       category: widget.category,
-            //     ),
-            //   )
+            BlocProvider.of<ChatPageCubit>(context).setSortedByBookmarksState(
+              !state.isSortedByBookmarks!,
+            );
 
-            // : showDialog(
-            //     context: context,
-            //     builder: (newContext) {
-            //       return _bookmarkedDialog(context);
-            //     },
-            //   );
+            state.messageList[state.indexOfSelectedElement!].bookmarkIndex != 0
+                ? showSearch(
+                    context: context,
+                    delegate: SearchMessageDelegate(
+                      messagesList: state.messageList
+                        ..where(
+                          (element) => state.messageList[1].bookmarkIndex == 1,
+                        ),
+                      category: widget.category,
+                    ),
+                  )
+                : showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return _bookmarkedDialog(context);
+                    },
+                  );
           },
           icon: const Icon(
             Icons.bookmark_border,

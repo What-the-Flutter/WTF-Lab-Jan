@@ -20,46 +20,45 @@ class ChatJournalHomePage extends StatefulWidget {
 }
 
 class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
-  late final _appBars;
   int _selectedIndex = 0;
 
   @override
   void initState() {
     BlocProvider.of<HomePageCubit>(context).init();
-    _appBars = [
-      _appBarFromHomePage(),
-      _appBarFromDailyPage(),
-      _appBarFromTimelinePage(),
-      _appBarFromExplorePage()
-    ];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomePageCubit, HomePageState>(
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: Colors.blueGrey[100],
-          appBar: _appBars[_selectedIndex],
-          body: _selectedIndex != 2 ? _bodyOfHomePageChat(state) : TimelinePage(),
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.black,
-            onPressed: () {
-              BlocProvider.of<HomePageCubit>(context).addCategory(
-                context,
-              );
-              BlocProvider.of<HomePageCubit>(context).updateList(
-                state.categories,
-              );
-            },
-            child: const Icon(
-              Icons.add_sharp,
-              color: Colors.yellow,
-            ),
-          ),
-          bottomNavigationBar: _chatBottomNavigationBar(),
-          drawer: _navigationDrawerWidget(),
+    return BlocBuilder<TimelinePageCubit, TimelinePageState>(
+      builder: (context, timelineState) {
+        return BlocBuilder<HomePageCubit, HomePageState>(
+          builder: (context, state) {
+            return Scaffold(
+              backgroundColor: Theme.of(context).backgroundColor,
+              appBar: _selectedIndex != 2
+                  ? _appBarFromHomePage()
+                  : _appBarFromTimelinePage(timelineState),
+              body: _selectedIndex != 2 ? _bodyOfHomePageChat(state) : TimelinePage(),
+              floatingActionButton: FloatingActionButton(
+                backgroundColor: Colors.black,
+                onPressed: () {
+                  BlocProvider.of<HomePageCubit>(context).addCategory(
+                    context,
+                  );
+                  BlocProvider.of<HomePageCubit>(context).updateList(
+                    state.categories,
+                  );
+                },
+                child: const Icon(
+                  Icons.add_sharp,
+                  color: Colors.yellow,
+                ),
+              ),
+              bottomNavigationBar: _chatBottomNavigationBar(),
+              drawer: _navigationDrawerWidget(),
+            );
+          },
         );
       },
     );
@@ -123,7 +122,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  AppBar _appBarFromTimelinePage() {
+  AppBar _appBarFromTimelinePage(TimelinePageState timelinePageState) {
     return AppBar(
       backgroundColor: Colors.black,
       leading: IconButton(
@@ -146,7 +145,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
             showSearch(
               context: context,
               delegate: SearchMessageDelegate(
-                messagesList: TimelinePageState().messageList!,
+                messagesList: timelinePageState.messageList!,
               ),
             );
           },
@@ -157,7 +156,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         IconButton(
           onPressed: () {
             BlocProvider.of<TimelinePageCubit>(context).setSortedByBookmarksState(
-              !TimelinePageState().isSortedByBookmarks!,
+              !timelinePageState.isSortedByBookmarks!,
             );
           },
           icon: const Icon(
@@ -207,6 +206,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
                 child: Card(
+                  color: Colors.yellow[400],
                   child: ListTile(
                     title: Text(
                       state.categories[index - 1].title,
@@ -264,13 +264,13 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       child: ElevatedButton(
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(
-            Colors.white,
+            Colors.yellow[400],
           ),
           padding: MaterialStateProperty.all(
             const EdgeInsets.fromLTRB(1, 1, 1, 1),
           ),
           overlayColor: MaterialStateProperty.all(
-            Colors.blueGrey[100],
+            Colors.black,
           ),
           shadowColor: MaterialStateProperty.all(
             Colors.black,
@@ -299,11 +299,11 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               width: 50,
               color: Colors.black,
             ),
-            Text(
+            const Text(
               'Questionnaire Bot',
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.blueGrey[800],
+                color: Colors.black,
                 fontFamily: 'Times New Roman',
                 fontWeight: FontWeight.bold,
               ),
