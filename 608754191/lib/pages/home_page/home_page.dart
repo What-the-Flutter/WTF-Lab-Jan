@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
-import 'package:task_wtf/util/animation/bouncy_page_route.dart';
+import '../../util/animation/bouncy_page_route.dart';
 
 import '../../util/domain.dart';
 import '../chat_page/chat_page.dart';

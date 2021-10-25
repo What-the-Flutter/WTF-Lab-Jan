@@ -297,10 +297,7 @@ class _ChatPage extends State<ChatPage> {
             itemBuilder: (context, index) {
               return ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: AnimatedContainer(
-                  //todo привести в порядок AnimatedContainer
-                  curve: Curves.bounceIn,
-                  duration: const Duration(milliseconds: 300),
+                child: Container(
                   padding: settingsState.bubbleAlignment == Alignment.centerRight
                       ? const EdgeInsets.fromLTRB(5, 5, 170, 5)
                       : const EdgeInsets.fromLTRB(170, 5, 5, 5),
@@ -353,7 +350,7 @@ class _ChatPage extends State<ChatPage> {
                                 ? const Icon(
                                     Icons.bookmark_border,
                                     size: 30,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   )
                                 : null,
                           )
