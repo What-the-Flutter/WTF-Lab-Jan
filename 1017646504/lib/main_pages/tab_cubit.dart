@@ -1,7 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class TabCubit extends Cubit<int> {
-  TabCubit(int state) : super(state);
+import 'tab_state.dart';
 
-  void setSelected(int selected) => emit(selected);
+class TabCubit extends Cubit<TabState> {
+  TabCubit(TabState state) : super(state);
+
+  void setSelected(int selected) => emit(
+        state.copyWith(prevIndex: state.currIndex, currIndex: selected),
+      );
 }

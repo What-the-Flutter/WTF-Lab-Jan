@@ -9,13 +9,13 @@ class TimelineState {
   List<Event> events = [];
 
   TimelineState(
-      this.showingFavourites,
-      this.isOnSearch,
-      this.isDateCentered,
-      this.isRightToLeft,
-      this.filter,
-      this.events,
-      );
+    this.showingFavourites,
+    this.isOnSearch,
+    this.isDateCentered,
+    this.isRightToLeft,
+    this.filter,
+    this.events,
+  );
 
   TimelineState copyWith({
     bool? showingFavourites,

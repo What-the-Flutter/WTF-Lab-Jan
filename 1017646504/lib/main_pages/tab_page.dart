@@ -11,6 +11,7 @@ import 'home/main_page.dart';
 import 'home/pages_cubit.dart';
 import 'settings_page/settings_cubit.dart';
 import 'settings_page/settings_page.dart';
+import 'statistics/statistics_body.dart';
 import 'tab_cubit.dart';
 import 'timeline/timeline_body.dart';
 import 'timeline/timeline_cubit.dart';
@@ -23,26 +24,6 @@ class TabPage extends StatefulWidget {
 
 class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
   final _controller = TextEditingController();
-  late AnimationController _animationController;
-  late Animation<Offset> _offsetAnimation;
-
-  @override
-  void initState() {
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _offsetAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(-1.0, 0.0),
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInBack,
-      ),
-    );
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +38,7 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
           appBar: AppBar(
             backgroundColor: Theme.of(context).accentColor,
             title: BlocProvider.of<TimelineCubit>(context).state.isOnSearch &&
-                    BlocProvider.of<TabCubit>(context).state == 1
+                    BlocProvider.of<TabCubit>(context).state.currIndex == 1
                 ? TextField(
                     cursorColor: Theme.of(context).textTheme.bodyText2!.color,
                     style: TextStyle(
@@ -76,7 +57,11 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
                     ),
                   )
                 : Text(
-                    BlocProvider.of<TabCubit>(context).state == 0 ? 'Home' : 'Timeline',
+                    BlocProvider.of<TabCubit>(context).state.currIndex == 0
+                        ? 'Home'
+                        : BlocProvider.of<TabCubit>(context).state.currIndex == 1
+                            ? 'Timeline'
+                            : 'Statistics',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).textTheme.bodyText2!.color,
@@ -85,8 +70,9 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
                   ),
             iconTheme: Theme.of(context).accentIconTheme,
             actions: [
-              if (BlocProvider.of<TabCubit>(context).state == 1) _searchButton(context),
-              if (BlocProvider.of<TabCubit>(context).state == 1) _showFavouritesButton(context),
+              if (BlocProvider.of<TabCubit>(context).state.currIndex == 1) _searchButton(context),
+              if (BlocProvider.of<TabCubit>(context).state.currIndex == 1)
+                _showFavouritesButton(context),
               if (!BlocProvider.of<TimelineCubit>(context).state.isOnSearch)
                 _themeChangeButton(context),
             ],
@@ -98,7 +84,13 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
             repeats: 1,
             resetAnimationOnRebuild: true,
             tween: Tween<Offset>(
-              begin: Offset(BlocProvider.of<TabCubit>(context).state == 0 ? -1 : 1, 0.0),
+              begin: Offset(
+                  BlocProvider.of<TabCubit>(context).state.currIndex -
+                              BlocProvider.of<TabCubit>(context).state.prevIndex <
+                          0
+                      ? -1
+                      : 1,
+                  0.0),
               end: Offset.zero,
             ),
             curve: Curves.easeOutExpo,
@@ -113,6 +105,7 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
   }
 
   Widget _showFavouritesButton(BuildContext context) {
+    //////////////без "button"
     return BlocBuilder<TimelineCubit, TimelineState>(
       builder: (context, state) => IconButton(
         icon: Icon(
@@ -202,8 +195,12 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
           icon: Icon(Icons.timeline),
           label: 'Timeline',
         ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.analytics),
+          label: 'Statistics',
+        ),
       ],
-      currentIndex: BlocProvider.of<TabCubit>(context).state,
+      currentIndex: BlocProvider.of<TabCubit>(context).state.currIndex,
       onTap: BlocProvider.of<TabCubit>(context).setSelected,
       backgroundColor: Theme.of(context).accentColor,
       selectedItemColor: Theme.of(context).textTheme.bodyText2!.color,
@@ -212,6 +209,7 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
   }
 
   Widget _floatingActionButton(BuildContext context) => FloatingActionButton(
+        ////////////без стрелки
         foregroundColor: Theme.of(context).textTheme.bodyText2!.color,
         onPressed: () async {
           final pageInfo = await Navigator.push(
@@ -232,10 +230,12 @@ class _TabPageState extends State<TabPage> with SingleTickerProviderStateMixin {
         child: const Icon(Icons.add),
       );
 
-  Widget _body(BuildContext context) => BlocProvider.of<TabCubit>(context).state == 0
+  Widget _body(BuildContext context) => BlocProvider.of<TabCubit>(context).state.currIndex == 0
       ? MainPage()
-      : Align(
-          child: TimelineBody(),
-          alignment: Alignment.bottomCenter,
-        );
+      : BlocProvider.of<TabCubit>(context).state.currIndex == 1
+          ? Align(
+              child: TimelineBody(),
+              alignment: Alignment.bottomCenter,
+            )
+          : StatisticsPage();
 }

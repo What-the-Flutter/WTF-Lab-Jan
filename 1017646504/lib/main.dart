@@ -11,8 +11,11 @@ import 'main_pages/home/message_page/messages_state.dart';
 import 'main_pages/home/pages_cubit.dart';
 import 'main_pages/settings_page/settings_cubit.dart';
 import 'main_pages/settings_page/settings_state.dart';
+import 'main_pages/statistics/statistics_cubit.dart';
+import 'main_pages/statistics/statistics_state.dart';
 import 'main_pages/tab_cubit.dart';
 import 'main_pages/tab_page.dart';
+import 'main_pages/tab_state.dart';
 import 'main_pages/timeline/timeline_cubit.dart';
 import 'main_pages/timeline/timeline_state.dart';
 
@@ -33,10 +36,16 @@ void main() async {
           create: (context) => SettingsCubit(SettingsState(false, false, 0)),
         ),
         BlocProvider(
-          create: (context) => TabCubit(0),
+          create: (context) => TabCubit(
+            TabState(-1, 0),
+          ),
         ),
         BlocProvider(
-          create: (context) => MessageCubit(MessagesState(JournalPage('Page', 0, creationTime: DateTime.now()))),
+          create: (context) =>
+              MessageCubit(MessagesState(JournalPage('Page', 0, creationTime: DateTime.now()))),
+        ),
+        BlocProvider(
+          create: (context) => StatisticsCubit(StatisticsState('Today', [], [])),
         ),
         BlocProvider(
           create: (context) => TimelineCubit(
@@ -56,19 +65,32 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  void initData() async {
     BlocProvider.of<ColorThemeCubit>(context).initialize();
     BlocProvider.of<SettingsCubit>(context).initialize();
+  }
 
+  @override
+  void initState() {
+    initData();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, state) {
         return BlocBuilder<ColorThemeCubit, ColorThemeState>(
           builder: (context, state) {
             return MaterialApp(
               theme: state.theme,
-              home: BlocBuilder<TabCubit, int>(
+              home: BlocBuilder<TabCubit, TabState>(
                 builder: (context, state) => TabPage(),
               ),
             );
