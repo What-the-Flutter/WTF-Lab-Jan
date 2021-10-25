@@ -7,17 +7,16 @@ import '../../../data/database_access.dart';
 import '../../../data/preferences_access.dart';
 import '../../../entity/page.dart';
 
-
 import 'messages_state.dart';
 
 class MessageCubit extends Cubit<MessagesState> {
-  DatabaseAccess db = DatabaseAccess();
+  final _db = DatabaseAccess.instance();
 
   MessageCubit(MessagesState state) : super(state);
 
   void initialize(JournalPage page) async {
     final prefs = PreferencesAccess();
-    final events = await db.fetchEvents(page.id);
+    final events = await _db.fetchEvents(page.id);
     events.sort((a, b) => b.creationTime.compareTo(a.creationTime));
     emit(
       state.copyWith(
@@ -52,7 +51,7 @@ class MessageCubit extends Cubit<MessagesState> {
   }
 
   void deleteSingle(Event event) {
-    db.deleteEvent(event);
+    _db.deleteEvent(event);
     emit(state.copyWith(events: state.events..remove(event)));
   }
 
@@ -60,7 +59,7 @@ class MessageCubit extends Cubit<MessagesState> {
     state.selected
       ..forEach((event) async {
         state.events.remove(event);
-        db.deleteEvent(event);
+        _db.deleteEvent(event);
       });
     emit(state.copyWith(selected: {}));
   }
@@ -70,7 +69,7 @@ class MessageCubit extends Cubit<MessagesState> {
     state.selected
       ..forEach((event) async {
         event.isFavourite = allFavourites ? false : true;
-        db.updateEvent(event);
+        _db.updateEvent(event);
       });
     emit(state.copyWith(selected: {}));
   }
@@ -95,7 +94,7 @@ class MessageCubit extends Cubit<MessagesState> {
     if (state.isDateSelected) {
       event.creationTime = state.date;
     }
-    event.id = await db.insertEvent(event);
+    event.id = await _db.insertEvent(event);
     emit(
       state.copyWith(
           events: state.events
@@ -114,7 +113,7 @@ class MessageCubit extends Cubit<MessagesState> {
     if (state.isDateSelected) {
       event.creationTime = state.date;
     }
-    event.id = await db.insertEvent(event);
+    event.id = await _db.insertEvent(event);
     state.events..insert(0, event);
     emit(
       state.copyWith(
@@ -124,7 +123,7 @@ class MessageCubit extends Cubit<MessagesState> {
 
   Future<void> editEvent(String description, Event event) async {
     event.description = description;
-    db.updateEvent(event);
+    _db.updateEvent(event);
     setOnEdit(false);
     setSelectionMode(false);
     emit(state.copyWith());
@@ -134,10 +133,10 @@ class MessageCubit extends Cubit<MessagesState> {
     List forwardedList = state.selected.toList();
     for (final forwardedEvent in forwardedList) {
       forwardedEvent.pageId = page.id;
-      db.updateEvent(forwardedEvent);
+      _db.updateEvent(forwardedEvent);
     }
     setSelectionMode(false);
-    emit(state.copyWith(events: await db.fetchEvents(state.page.id)));
+    emit(state.copyWith(events: await _db.fetchEvents(state.page.id)));
   }
 
   void selectIcon(int selectedIndex) {

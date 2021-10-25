@@ -8,9 +8,7 @@ class DatabaseAccess {
 
   static late Database _db;
 
-  factory DatabaseAccess() {
-    return _databaseAccess;
-  }
+  factory DatabaseAccess.instance() => _databaseAccess;
 
   DatabaseAccess._internal();
 
@@ -43,13 +41,12 @@ class DatabaseAccess {
     );
   }
 
-
   Future<List<JournalPage>> fetchPages() async {
     final List<Map<String, dynamic>> pagesMap = await _db.query('pages');
 
     final pages = List<JournalPage>.generate(
-    pagesMap.length,
-    (i) => JournalPage.fromDb(
+      pagesMap.length,
+      (i) => JournalPage.fromDb(
         pagesMap[i]['id'],
         pagesMap[i]['title'],
         pagesMap[i]['iconIndex'],
@@ -106,8 +103,7 @@ class DatabaseAccess {
   }
 
   Future<List<Event>> fetchAllEvents() async {
-    final List<Map<String, dynamic>> eventsMap =
-    await _db.rawQuery('SELECT * FROM events');
+    final List<Map<String, dynamic>> eventsMap = await _db.rawQuery('SELECT * FROM events');
     final events = List.generate(eventsMap.length, (i) {
       return Event.fromDb(
         eventsMap[i]['id'],
@@ -115,8 +111,7 @@ class DatabaseAccess {
         eventsMap[i]['iconIndex'],
         eventsMap[i]['isFavourite'] == 0 ? false : true,
         eventsMap[i]['description'],
-        DateTime.fromMillisecondsSinceEpoch(
-            eventsMap[i]['creationTime'] * 1000),
+        DateTime.fromMillisecondsSinceEpoch(eventsMap[i]['creationTime'] * 1000),
         eventsMap[i]['imagePath'],
       );
     });
@@ -173,5 +168,4 @@ class DatabaseAccess {
       whereArgs: [event.id],
     );
   }
-
 }

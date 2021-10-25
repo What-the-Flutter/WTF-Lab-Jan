@@ -5,18 +5,7 @@ const List<IconData> iconList = [
   Icons.wifi_outlined,
   Icons.weekend,
   Icons.airplanemode_on_rounded,
-  Icons.work_outlined,
-  Icons.wifi_outlined,
-  Icons.weekend,
-  Icons.airplanemode_on_rounded,
-  Icons.work_outlined,
-  Icons.wifi_outlined,
-  Icons.weekend,
-  Icons.airplanemode_on_rounded,
-  Icons.work_outlined,
-  Icons.wifi_outlined,
-  Icons.weekend,
-  Icons.airplanemode_on_rounded,
+  Icons.wb_sunny,
 ];
 
 const List<String> stringList = [
@@ -24,18 +13,7 @@ const List<String> stringList = [
   'Internet',
   'Weekend',
   'Travel',
-  'Work',
-  'Internet',
-  'Weekend',
-  'Travel',
-  'Work',
-  'Internet',
-  'Weekend',
-  'Travel',
-  'Work',
-  'Internet',
-  'Weekend',
-  'Travel',
+  'Weather',
 ];
 
 final List<IconData> eventIconList = [

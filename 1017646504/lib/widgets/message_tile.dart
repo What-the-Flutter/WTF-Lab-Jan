@@ -57,7 +57,7 @@ class _MessageTileState extends State<MessageTile> with SingleTickerProviderStat
   final Function()? onTap;
   final Function()? onLongPress;
   final Function(Event)? onDelete;
-  final Function(Event)? onEdit;
+  final Function(Event)? onEdit; ////////////////////////////////////////////убрать функции
 
   _MessageTileState(
     this._event,

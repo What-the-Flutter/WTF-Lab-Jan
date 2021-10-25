@@ -4,24 +4,24 @@ import '../../data/database_access.dart';
 import '../../entity/page.dart';
 
 class PagesCubit extends Cubit<List<JournalPage>> {
-  DatabaseAccess db = DatabaseAccess();
+  final _db = DatabaseAccess.instance();
 
   PagesCubit(List<JournalPage> state) : super(state);
 
   void initialize() async {
-    final pages = await db.fetchPages();
+    final pages = await _db.fetchPages();
     emit(sortPageList(pages));
   }
 
   void addPage(JournalPage page) async {
-    page.id = await db.insertPage(page);
+    page.id = await _db.insertPage(page);
     emit(sortPageList(state..add(page)));
   }
 
   void pinPage(JournalPage page) async {
     final updatedPages = List<JournalPage>.from(state..remove(page));
     page.isPinned = !page.isPinned;
-    db.updatePage(page);
+    _db.updatePage(page);
     if (page.isPinned) {
       updatedPages.insert(0, page);
     } else {
@@ -33,19 +33,19 @@ class PagesCubit extends Cubit<List<JournalPage>> {
   void editPage(JournalPage page, JournalPage editedPage) async {
     page.title = editedPage.title;
     page.iconIndex = editedPage.iconIndex;
-    db.updatePage(page);
+    _db.updatePage(page);
     final updatedPages = List<JournalPage>.from(state);
     emit(updatedPages);
   }
 
   void deletePage(JournalPage page) async {
     final updatedPages = List<JournalPage>.from(state..remove(page));
-    db.deletePage(page);
+    _db.deletePage(page);
     emit(updatedPages);
   }
 
   void updatePages() async {
-    final updatedPages = await db.fetchPages();
+    final updatedPages = await _db.fetchPages();
     emit(sortPageList(updatedPages));
   }
 
