@@ -209,49 +209,66 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               }
               return Padding(
                 padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
-                child: Card(
-                  color: Colors.yellow[400],
-                  child: ListTile(
-                    title: Text(
-                      state.categories[index - 1].title,
-                    ),
-                    subtitle: Text(
-                      state.categories[index - 1].subTitleMessage.isEmpty
-                          ? 'No events. Click to create one.'
-                          : state.categories[index - 1].subTitleMessage,
-                    ),
-                    leading: CircleAvatar(
-                      child: Icon(
-                        initialIcons[state.categories[index - 1].iconIndex],
-                      ),
-                      backgroundColor: Colors.black,
-                    ),
-                    onLongPress: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => BlocProvider.value(
-                          child: ChoseOfAction(
-                            state.categories,
-                            index - 1,
-                          ),
-                          value: BlocProvider.of<HomePageCubit>(
-                            context,
-                          ),
-                        ),
-                      );
-                    },
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        BouncyPageRoute(
-                          widget: ChatPage(
-                            category: state.categories[index - 1],
-                            categories: state.categories,
-                          ),
-                        ),
-                      );
-                    },
+                child: TweenAnimationBuilder(
+                  duration: const Duration(
+                    seconds: 2,
                   ),
+                  tween: ColorTween(
+                    begin: Colors.white,
+                    end: Colors.yellow,
+                  ),
+                  child: Card(
+                    child: ListTile(
+                      title: Text(
+                        state.categories[index - 1].title,
+                      ),
+                      subtitle: Text(
+                        state.categories[index - 1].subTitleMessage.isEmpty
+                            ? 'No events. Click to create one.'
+                            : state.categories[index - 1].subTitleMessage,
+                      ),
+                      leading: CircleAvatar(
+                        child: Icon(
+                          initialIcons[state.categories[index - 1].iconIndex],
+                        ),
+                        backgroundColor: Colors.black,
+                      ),
+                      onLongPress: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => BlocProvider.value(
+                            child: ChoseOfAction(
+                              state.categories,
+                              index - 1,
+                            ),
+                            value: BlocProvider.of<HomePageCubit>(
+                              context,
+                            ),
+                          ),
+                        );
+                      },
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          BouncyPageRoute(
+                            widget: ChatPage(
+                              category: state.categories[index - 1],
+                              categories: state.categories,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  builder: (_, Color? color, myChild) {
+                    return ColorFiltered(
+                      colorFilter: ColorFilter.mode(
+                        color!,
+                        BlendMode.modulate,
+                      ),
+                      child: myChild,
+                    );
+                  },
                 ),
               );
             },

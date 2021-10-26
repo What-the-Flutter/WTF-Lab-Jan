@@ -403,8 +403,14 @@ class _ChatPage extends State<ChatPage> {
               child: Container(
                 height: 40,
                 child: HashTagTextField(
-                  decoratedStyle: const TextStyle(fontSize: 20, color: Colors.blue),
-                  basicStyle: const TextStyle(fontSize: 20, color: Colors.black),
+                  decoratedStyle: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.blue,
+                  ),
+                  basicStyle: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                  ),
                   controller: _textEditingController,
                   focusNode: _focusNode,
                   decoration: const InputDecoration(

@@ -17,10 +17,12 @@ class TimelinePage extends StatefulWidget {
 class _TimelinePageState extends State<TimelinePage> {
   final TextEditingController _textEditingController = TextEditingController();
   late List<Message> _messageList;
+  late Color _color;
 
   @override
   void initState() {
     BlocProvider.of<TimelinePageCubit>(context).init();
+    _color = Colors.yellow;
     super.initState();
   }
 
@@ -70,51 +72,61 @@ class _TimelinePageState extends State<TimelinePage> {
                       20.0,
                     ),
                     child: Card(
-                      color: Colors.yellow,
                       elevation: 3,
-                      child: ListTile(
-                        title: message.imagePath != null
-                            ? Image.file(
-                                File(message.imagePath!),
-                              )
-                            : HashTagText(
-                                text: message.text,
-                                basicStyle: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                ),
-                                textAlign: settingsState.bubbleAlignment == Alignment.centerRight
-                                    ? TextAlign.start
-                                    : TextAlign.end,
-                                decoratedStyle: const TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 19,
-                                ),
-                                onTap: (text) {
-                                  BlocProvider.of<TimelinePageCubit>(context).setTextSearchState(
-                                    !state.isSearch!,
-                                  );
-                                  _textEditingController.text = text;
-                                },
-                              ),
-                        subtitle: Text(
-                          message.time,
-                          style: TextStyle(
-                            color: Theme.of(context).floatingActionButtonTheme.foregroundColor,
-                            fontSize: 12,
-                          ),
-                          textAlign: settingsState.bubbleAlignment == Alignment.centerRight
-                              ? TextAlign.start
-                              : TextAlign.end,
+                      child: AnimatedContainer(
+                        color: _color,
+                        duration: const Duration(
+                          seconds: 3,
                         ),
-                        trailing: message.bookmarkIndex == 1
-                            ? const Icon(
-                                Icons.bookmark_border,
-                                size: 25,
-                                color: Colors.black,
-                              )
-                            : null,
-                        onTap: () {},
+                        child: ListTile(
+                          title: message.imagePath != null
+                              ? Image.file(
+                                  File(message.imagePath!),
+                                )
+                              : HashTagText(
+                                  text: message.text,
+                                  basicStyle: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                  ),
+                                  textAlign: settingsState.bubbleAlignment == Alignment.centerRight
+                                      ? TextAlign.start
+                                      : TextAlign.end,
+                                  decoratedStyle: const TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 19,
+                                  ),
+                                  onTap: (text) {
+                                    BlocProvider.of<TimelinePageCubit>(context).setTextSearchState(
+                                      !state.isSearch!,
+                                    );
+                                    _textEditingController.text = text;
+                                  },
+                                ),
+                          subtitle: Text(
+                            message.time,
+                            style: TextStyle(
+                              color: Theme.of(context).floatingActionButtonTheme.foregroundColor,
+                              fontSize: 12,
+                            ),
+                            textAlign: settingsState.bubbleAlignment == Alignment.centerRight
+                                ? TextAlign.start
+                                : TextAlign.end,
+                          ),
+                          trailing: message.bookmarkIndex == 1
+                              ? const Icon(
+                                  Icons.bookmark_border,
+                                  size: 25,
+                                  color: Colors.black,
+                                )
+                              : null,
+                          onTap: () {},
+                          onLongPress: () {
+                            setState(() {
+                              _color = Colors.deepOrangeAccent;
+                            });
+                          },
+                        ),
                       ),
                     ),
                   ),
