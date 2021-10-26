@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'bottom_navigation.dart';
+import 'list_with_activities.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -13,17 +16,23 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
+      initialRoute: '/',
+      routes: {
+        '/daily': (context) => DailyScreen(),
+        '/timeline': (context) => TimelineScreen(),
+        '/explore': (context) => ExploreScreen(),
+      },
       home: Scaffold(
         appBar: AppBar(
           title: _createAppBarTitle(),
           leading: _buildAppBarLeftButton(),
           actions: <Widget> [
-           _buildAppBarRightButton(),
+            _buildAppBarRightButton(),
           ],
         ),
         body: _bodyStructure(),
         floatingActionButton: _createFloatingActionButton(),
-        bottomNavigationBar: _buildBottomNavigationBar(),
+        bottomNavigationBar: BottomNavigation(),
       ),
     );
   }
@@ -57,20 +66,20 @@ Widget _buildAppBarRightButton(){
 Widget _buildContainer() {
   return Center(
     child: Container(
-        padding: const EdgeInsets.all(15),
-        margin: const EdgeInsets.fromLTRB(40, 6, 40, 0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
+      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.fromLTRB(20, 6, 20, 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
           const Icon(
-            Icons.android_sharp
+              Icons.adb
           ),
-          const Text('Questionnaire Bot'),
+          const Text('   Questionnaire Bot'),
         ],),
-        decoration: BoxDecoration(
-            color: Colors.blueGrey,
-            borderRadius: BorderRadius.circular(15)
-        ),
+      decoration: BoxDecoration(
+          color: Colors.blueGrey,
+          borderRadius: BorderRadius.circular(10)
+      ),
     ),
   );
 }
@@ -85,44 +94,11 @@ Widget _bodyStructure(){
             ),
           ]
       ),
+      const Divider(height: 1),
       Expanded(
-        child:
-        _buildList(),
-      )
-    ],
-  );
-}
-
-Widget _buildList() {
-  return ListView(
-    children: [
-      const Divider(),
-      _tile('Travel', 'No events. Click to create one', Icons.airplane_ticket),
-      const Divider(),
-      _tile('Family', 'No events. Click to create one', Icons.weekend),
-      const Divider(),
-      _tile('Sports', 'No events. Click to create one', Icons.sports_baseball_sharp),
-      const Divider(),
-    ],
-  );
-}
-
-ListTile _tile(String title, String subtitle, IconData icon) {
-  return ListTile(
-    title: Text(title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 20,
-        )),
-    subtitle: Text(subtitle),
-    leading: CircleAvatar(
-      backgroundColor: Colors.grey,
-      radius: 30,
-      child: Icon(
-        icon,
-        color: Colors.white,
+        child: ChangeListViewBGColor(),
       ),
-    ),
+    ],
   );
 }
 
@@ -135,34 +111,5 @@ Widget _createFloatingActionButton(){
         Icons.add,
         color: Colors.brown),
     backgroundColor: Colors.amberAccent,
-  );
-}
-
-
-Widget _buildBottomNavigationBar(){
-  return BottomNavigationBar(
-    type: BottomNavigationBarType.fixed,
-    //currentIndex: this.selectedIndex,
-    items: [
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.home),
-        label: ('Home'),
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.assignment),
-        label: ('Daily'),
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.exposure),
-        label: ('Timeline'),
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.api),
-        label: ('Explore'),
-      )
-    ],
-    onTap: (index) {
-      //this.onTapHandler(index);
-    },
   );
 }

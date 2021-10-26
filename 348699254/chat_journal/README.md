@@ -1,6 +1,6 @@
 # chat_journal
 
-A new Flutter project.
+Chat Journal Application.
 
 ## Getting Started
 
