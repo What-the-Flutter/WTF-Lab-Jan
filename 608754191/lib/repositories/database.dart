@@ -3,7 +3,6 @@ import 'package:sqflite/sqflite.dart';
 
 import '../entity/category.dart';
 import '../entity/message.dart';
-import '../entity/tag_model.dart';
 
 const String _categoryTable = 'category';
 const String _columnCategoryId = 'category_id';
@@ -17,11 +16,7 @@ const String _columnCurrentCategoryId = 'current_category_id';
 const String _columnText = 'text';
 const String _columnTime = 'time';
 const String _columnImagePath = 'image_path';
-
-const String _tableTag = 'tag';
-const String _columnIdTag = 'tag_id';
-const String _columnTagText = 'tag_text';
-const String _columnCurrentCategoryIdFromTag = 'current_category_id_from_tag';
+const String _columnEventBookmarkIndex = 'bookmark_index';
 
 class DatabaseProvider {
   static DatabaseProvider? _databaseProvider;
@@ -58,15 +53,10 @@ class DatabaseProvider {
       $_columnMessageId integer primary key autoincrement,
       $_columnCurrentCategoryId integer,
       $_columnText text not null,
-      $_columnTime text not null,   
+      $_columnTime text not null,  
+      $_columnEventBookmarkIndex integer, 
       $_columnImagePath text  
       )
-      ''');
-        db.execute('''
-      create table $_tableTag(
-      $_columnIdTag integer primary key autoincrement,
-      $_columnCurrentCategoryIdFromTag integer,
-      $_columnTagText text)
       ''');
       },
     );
@@ -161,43 +151,14 @@ class DatabaseProvider {
     return messageList;
   }
 
-  Future<List<Tag>> fetchTags(int categoryId) async {
+  Future<List<Message>> fetchFullMessageList() async {
     final db = await database;
-    final tagList = <Tag>[];
-    var dbTagList = await db.rawQuery(
-      'SELECT * FROM $_tableTag WHERE $_columnCurrentCategoryIdFromTag = ?',
-      [categoryId],
-    );
-    for (final item in dbTagList) {
-      final tag = Tag.fromMap(item);
-      tagList.insert(0, tag);
+    final messageList = <Message>[];
+    final dbCategoryList = await db.query(_messageTable);
+    for (final element in dbCategoryList) {
+      final message = Message.fromMap(element);
+      messageList.insert(0, message);
     }
-    return tagList;
-  }
-
-  Future<int> insertTag(Tag tag) async {
-    final db = await database;
-    return db.insert(
-      _tableTag,
-      tag.convertTagsToMap(),
-    );
-  }
-
-  Future<int> deleteTag(Tag tag) async {
-    final db = await database;
-    return await db.delete(
-      _tableTag,
-      where: '$_columnIdTag = ?',
-      whereArgs: [tag.id],
-    );
-  }
-
-  Future<int> deleteAllTagsFromCategory(int categoryId) async {
-    final db = await database;
-    return await db.delete(
-      _categoryTable,
-      where: '$_columnCategoryId = ?',
-      whereArgs: [categoryId],
-    );
+    return messageList;
   }
 }

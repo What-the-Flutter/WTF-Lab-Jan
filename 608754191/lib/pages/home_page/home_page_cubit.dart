@@ -38,9 +38,6 @@ class HomePageCubit extends Cubit<HomePageState> {
     _databaseProvider.deleteAllMessagesFromCategory(
       categories[index].categoryId!,
     );
-    _databaseProvider.deleteAllTagsFromCategory(
-      categories[index].categoryId!,
-    );
     categories.removeAt(index);
     emit(
       state.copyWith(categories: categories),
@@ -62,29 +59,28 @@ class HomePageCubit extends Cubit<HomePageState> {
       newCategory.categoryId = await _databaseProvider.insertCategory(newCategory);
     }
     emit(
-      CategoryAddedSuccess(newCategory, state.categories),
+      newCategory != null
+          ? CategoryAddedSuccess(newCategory, state.categories)
+          : state.copyWith(
+              categories: state.categories,
+            ),
     );
   }
 
-  void update(BuildContext context, List<Category> categories, int index) async {
+  void update(BuildContext context, int index) async {
     final newCategory = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AddPage.add(),
       ),
     );
-    state.categories.removeAt(
-      index,
-    );
-    state.categories.insert(
-      index,
-      newCategory,
-    );
-    _databaseProvider.updateCategory(
-      categories[index],
-    );
+    if (newCategory is Category) {
+      state.categories.removeAt(index);
+      state.categories.insert(
+        index,
+        newCategory,
+      );
+    }
+
     categoryListRedrawing();
-    Navigator.pop(
-      context,
-    );
   }
 }

@@ -68,7 +68,6 @@ class ChoseOfAction extends StatelessWidget {
           onTap: () {
             BlocProvider.of<HomePageCubit>(context).update(
               context,
-              categories,
               index,
             );
             Navigator.pop(
@@ -86,7 +85,6 @@ class ChoseOfAction extends StatelessWidget {
             _showInfoDialog(
               context,
             );
-            Navigator.of(context).pop();
           },
         ),
         _buildAction(

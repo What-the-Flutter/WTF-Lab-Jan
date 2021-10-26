@@ -1,15 +1,18 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
 import 'pages/authorization/authorization_cubit.dart';
 import 'pages/authorization/authorization_page.dart';
+import 'pages/chat_page/chat_page_cubit.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
+import 'pages/navbar_pages/timeline_page/timeline_page_cubit.dart';
 import 'pages/settings/settings_page/settings_cubit.dart';
 import 'pages/settings/settings_page/settings_page.dart';
 
@@ -40,6 +43,12 @@ class ChatJournal extends StatelessWidget {
         BlocProvider(
           create: (context) => AuthenticationCubit(isAuthenticated: true),
         ),
+        BlocProvider<ChatPageCubit>(
+          create: (context) => ChatPageCubit(),
+        ),
+        BlocProvider<TimelinePageCubit>(
+          create: (context) => TimelinePageCubit(),
+        ),
         BlocProvider<SettingsCubit>(
           create: (context) => SettingsCubit(
             preferences: preferences,
@@ -55,10 +64,12 @@ class ChatJournal extends StatelessWidget {
               child: MaterialApp(
                 title: 'Home Page',
                 home: AnimatedSplashScreen(
-                  splash: Icons.emoji_people,
-                  splashTransition: SplashTransition.rotationTransition,
-                  duration: 445,
-                  backgroundColor: Colors.yellow,
+                  splash: Lottie.network(
+                    'https://assets8.lottiefiles.com/packages/lf20_hjmgkfru.json',
+                  ),
+                  splashTransition: SplashTransition.scaleTransition,
+                  duration: 1000,
+                  backgroundColor: Colors.black,
                   nextScreen: ChatJournalHomePage(),
                 ),
                 theme: ThemeData.light().copyWith(
@@ -67,6 +78,7 @@ class ChatJournal extends StatelessWidget {
                     bodyColor: Colors.black,
                     decorationColor: Colors.black,
                   ),
+                  backgroundColor: Colors.grey[400],
                 ),
                 darkTheme: ThemeData.dark().copyWith(
                   textTheme: state.textTheme.apply(
@@ -79,7 +91,7 @@ class ChatJournal extends StatelessWidget {
                 routes: {
                   '/home_page': (__) => ChatJournalHomePage(),
                   '/add_page': (_) => AddPage.add(),
-                  '/timeline_page': (_) => TimelinePage(categories: []),
+                  '/timeline_page': (_) => TimelinePage(),
                   '/settings_page': (_) => SettingsPage(),
                   '/authentication': (_) => AuthorizationPage(),
                 },

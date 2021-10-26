@@ -22,32 +22,6 @@ class SettingsCubit extends Cubit<SettingsState> {
             ),
           ),
         );
-  void reset() {
-    final initialState = SettingsState();
-    preferences
-      ..setString(
-        'themeMode',
-        _stringFromThemeMode(initialState.themeMode),
-      )
-      ..setString(
-        'bubbleAlignment',
-        _stringFromBubbleAlignment(initialState.bubbleAlignment),
-      )
-      ..setString(
-        'textTheme',
-        _stringFromTextTheme(initialState.textTheme),
-      );
-    emit(initialState);
-  }
-
-  void setTextTheme(String textThemeName) {
-    preferences.setString('textTheme', textThemeName);
-    emit(
-      state.copyWith(
-        textTheme: _textThemeFromString(textThemeName),
-      ),
-    );
-  }
 
   static TextTheme _textThemeFromString(String? string) {
     switch (string) {
@@ -64,34 +38,6 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (textTheme == smallTextTheme) return 'small';
     if (textTheme == largeTextTheme) return 'large';
     return 'default';
-  }
-
-  void changeBubbleAlignment() async {
-    if (state.bubbleAlignment == Alignment.centerRight) {
-      preferences.setString('bubbleAlignment', 'left');
-      emit(
-        state.copyWith(
-          bubbleAlignment: Alignment.centerLeft,
-        ),
-      );
-    } else if (state.bubbleAlignment == Alignment.centerLeft) {
-      preferences.setString('bubbleAlignment', 'right');
-      emit(
-        state.copyWith(
-          bubbleAlignment: Alignment.centerRight,
-        ),
-      );
-    }
-  }
-
-  void changeTheme() async {
-    if (state.themeMode == ThemeMode.light) {
-      preferences.setString('themeMode', 'dark');
-      emit(state.copyWith(themeMode: ThemeMode.dark));
-    } else if (state.themeMode == ThemeMode.dark) {
-      preferences.setString('themeMode', 'light');
-      emit(state.copyWith(themeMode: ThemeMode.light));
-    }
   }
 
   static ThemeMode _themeModeFromString(String? string) {
@@ -121,5 +67,60 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (alignment == Alignment.centerRight) return 'right';
     if (alignment == Alignment.centerLeft) return 'left';
     return 'right';
+  }
+
+  void reset() {
+    final initialState = SettingsState();
+    preferences
+      ..setString(
+        'themeMode',
+        _stringFromThemeMode(initialState.themeMode),
+      )
+      ..setString(
+        'bubbleAlignment',
+        _stringFromBubbleAlignment(initialState.bubbleAlignment),
+      )
+      ..setString(
+        'textTheme',
+        _stringFromTextTheme(initialState.textTheme),
+      );
+    emit(initialState);
+  }
+
+  void setTextTheme(String textThemeName) {
+    preferences.setString('textTheme', textThemeName);
+    emit(
+      state.copyWith(
+        textTheme: _textThemeFromString(textThemeName),
+      ),
+    );
+  }
+
+  void changeBubbleAlignment() async {
+    if (state.bubbleAlignment == Alignment.centerRight) {
+      preferences.setString('bubbleAlignment', 'left');
+      emit(
+        state.copyWith(
+          bubbleAlignment: Alignment.centerLeft,
+        ),
+      );
+    } else if (state.bubbleAlignment == Alignment.centerLeft) {
+      preferences.setString('bubbleAlignment', 'right');
+      emit(
+        state.copyWith(
+          bubbleAlignment: Alignment.centerRight,
+        ),
+      );
+    }
+  }
+
+  void changeTheme() async {
+    if (state.themeMode == ThemeMode.light) {
+      preferences.setString('themeMode', 'dark');
+      emit(state.copyWith(themeMode: ThemeMode.dark));
+    } else if (state.themeMode == ThemeMode.dark) {
+      preferences.setString('themeMode', 'light');
+      emit(state.copyWith(themeMode: ThemeMode.light));
+    }
   }
 }
