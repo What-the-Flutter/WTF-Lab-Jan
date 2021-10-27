@@ -1,15 +1,12 @@
+import 'package:chat_journal/models/globals.dart';
 import 'package:chat_journal/models/message_model.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:flutter/services.dart';
 
-List<Msg>? _messages = <Msg>[];
-List<Msg>? _selected = <Msg>[];
-bool? _isAnySelected = false;
-
 class ChatDetailPage extends StatefulWidget {
-  const ChatDetailPage({Key? key, this.title}) : super(key: key);
-  final String? title;
+  const ChatDetailPage({Key? key, this.chatIndex}) : super(key: key);
+  final int? chatIndex;
 
   @override
   _ChatDetailPageState createState() => _ChatDetailPageState();
@@ -17,29 +14,24 @@ class ChatDetailPage extends StatefulWidget {
 
 class _ChatDetailPageState extends State<ChatDetailPage>
     with TickerProviderStateMixin {
-  bool? _isWriting;
-  bool? _isNew;
-  bool? _isShowFav;
-  List<Msg>? _favourites = <Msg>[];
-
+  bool? _isWriting = false;
+  bool? _isNew = true;
   final TextEditingController _textController = TextEditingController();
 
   @override
   void initState() {
-    _isWriting = false;
-    _isNew = true;
-    _isShowFav = false;
+    setState(() {});
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _isAnySelected!
+      appBar: isAnySelected!
           ? AppBar(
               elevation: 0,
               automaticallyImplyLeading: false,
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               leading: IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -49,8 +41,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 onPressed: _clearAll,
               ),
               title: Text(
-                _selected!.length.toString(),
-                style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                selected!.length.toString(),
+                style:
+                    const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
               actions: <Widget>[
                 Transform.rotate(
@@ -64,10 +57,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     onPressed: () {},
                   ),
                 ),
-               const SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
-                if (_selected!.length == 1) ...[
+                if (selected!.length == 1) ...[
                   IconButton(
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -76,7 +69,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     color: Colors.white,
                     onPressed: _editMsg,
                   ),
-                const SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                 ],
@@ -119,11 +112,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               elevation: 0,
               automaticallyImplyLeading: false,
               centerTitle: true,
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               leading: IconButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  _isShowFav = false;
+                  isShowFav = false;
                 },
                 icon: const Icon(
                   Icons.arrow_back,
@@ -131,7 +124,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 ),
               ),
               title: Text(
-                widget.title!,
+                chats[widget.chatIndex!].title,
                 style: const TextStyle(
                   fontFamily: 'Merriweather',
                   fontSize: 28.0,
@@ -146,7 +139,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   onPressed: () {},
                 ),
                 IconButton(
-                  icon: _isShowFav!
+                  icon: isShowFav!
                       ? const Icon(Icons.favorite)
                       : const Icon(Icons.favorite_outline),
                   iconSize: 30.0,
@@ -158,11 +151,16 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       body: Column(
         children: <Widget>[
           Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              reverse: true,
-              itemCount: _isShowFav! ? _favourites!.length : _messages!.length,
-              itemBuilder: (context, index) => _msgWidget(index),
+            child: Container(
+              color: Theme.of(context).primaryColor,
+              child: ListView.builder(
+                shrinkWrap: true,
+                reverse: true,
+                itemCount: isShowFav!
+                    ? favourites!.length
+                    : chats[widget.chatIndex!].messageBase!.length,
+                itemBuilder: _msgWidget,
+              ),
             ),
           ),
           Align(
@@ -170,7 +168,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             child: Container(
               height: 60,
               width: double.infinity,
-              color: Colors.white,
+              color: Theme.of(context).primaryColor,
               child: Row(
                 children: <Widget>[
                   IconButton(
@@ -184,6 +182,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   ),
                   Expanded(
                     child: TextField(
+                      enabled: true,
                       controller: _textController,
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
@@ -198,7 +197,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                           _isWriting = text.isNotEmpty;
                         });
                       },
-                      onSubmitted: _submitMsg,
+                      onSubmitted: isAnySelected! ? null : _submitMsg,
                     ),
                   ),
                   const SizedBox(
@@ -242,10 +241,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   void _showFavourites() {
     if (mounted) {
       setState(() {
-        _isShowFav = true;
-        _favourites =
-            _messages!.where((element) => element.message.isFavourite == true)
-                .toList();
+        favourites = chats[widget.chatIndex!]
+            .messageBase!
+            .where((element) => element.isFavourite == true)
+            .toList();
+        isShowFav = !isShowFav!;
       });
     }
   }
@@ -253,9 +253,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   void _addToFavourite() {
     if (mounted) {
       setState(() {
-        for (var element in _messages!) {
-          if (element.message.isSelected == true) {
-            element.message.isFavourite = !element.message.isFavourite;
+        for (var element in chats[widget.chatIndex!].messageBase!) {
+          if (element.isSelected == true) {
+            element.isFavourite = !element.isFavourite;
           }
         }
       });
@@ -266,8 +266,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   void _copyMsg() {
     var buffer = '';
-    for (var element in _selected!) {
-      buffer += element.message.message;
+    for (var element in selected!) {
+      buffer += element.message;
       buffer += '\n';
     }
     Clipboard.setData(ClipboardData(text: buffer));
@@ -276,10 +276,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   void _deleteMsg() {
     if (mounted) {
       setState(() {
-        _messages!.removeWhere((element) => element.message.isSelected == true);
-        _selected!.clear();
-        _selected!.isNotEmpty ? _isAnySelected = true : _isAnySelected = false;
-        _selected!.isNotEmpty ? _isNew = true : _isNew = true;
+        chats[widget.chatIndex!]
+            .messageBase!
+            .removeWhere((element) => element.isSelected == true);
+        selected!.clear();
+        selected!.isNotEmpty ? isAnySelected = true : isAnySelected = false;
+        selected!.isNotEmpty ? _isNew = true : _isNew = true;
       });
     }
   }
@@ -287,21 +289,21 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   void _clearAll() {
     if (mounted) {
       setState(() {
-        for (var element in _messages!) {
-          if (element.message.isSelected == true) {
-            element.message.isSelected = false;
+        for (var element in chats[widget.chatIndex!].messageBase!) {
+          if (element.isSelected == true) {
+            element.isSelected = false;
           }
         }
-        _selected!.clear();
-        _selected!.isNotEmpty ? _isAnySelected = true : _isAnySelected = false;
-        _selected!.isNotEmpty ? _isNew = true : _isNew = true;
+        selected!.clear();
+        selected!.isNotEmpty ? isAnySelected = true : isAnySelected = false;
+        selected!.isNotEmpty ? _isNew = true : _isNew = true;
       });
     }
   }
 
   void _editMsg() {
     if (mounted) {
-      _textController.text = _selected!.elementAt(0).message.message;
+      _textController.text = selected!.elementAt(0).message;
       _isNew = false;
     }
   }
@@ -310,49 +312,52 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     if (_isNew == true) {
       _textController.clear();
 
+      Message _currentMessage =
+          Message(txt, Jiffy(DateTime.now()), false, false);
       if (mounted) {
         setState(() {
+          chats[widget.chatIndex!].messageBase!.insert(0, _currentMessage);
           _isWriting = false;
         });
       }
-
-      Message _currentMessage =
-          Message(txt, Jiffy(DateTime.now()), false, false);
-
-      Msg msg = Msg(
-        message: _currentMessage,
-        animationController: AnimationController(
-            vsync: this, duration: const Duration(milliseconds: 800)),
-        notifyParent: refresh,
-      );
-
-      setState(() {
-        _messages!.insert(0, msg);
-      });
-
-      msg.animationController!.forward();
     } else {
-      setState(() {
-        Msg editingMessage = _messages!
-            .firstWhere((element) => element.message.isSelected == true);
-        editingMessage.message.message = _textController.text;
-        editingMessage.message.isSelected = false;
-        _selected!.clear();
-        _selected!.isNotEmpty ? _isAnySelected = true : _isAnySelected = false;
-        _selected!.isNotEmpty ? _isNew = true : _isNew = true;
-        _textController.clear();
-      });
+      if (mounted) {
+        setState(() {
+          Message editingMessage = chats[widget.chatIndex!]
+              .messageBase!
+              .firstWhere((element) => element.isSelected == true);
+          editingMessage.message = _textController.text;
+          editingMessage.isSelected = false;
+          selected!.clear();
+          selected!.isNotEmpty ? isAnySelected = true : isAnySelected = false;
+          selected!.isNotEmpty ? _isNew = true : _isNew = true;
+          _textController.clear();
+        });
+      }
     }
 
     if (mounted) {
       setState(() {
-        _isShowFav = false;
+        isShowFav = false;
       });
     }
   }
 
   refresh() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Widget _msgWidget(BuildContext context, int index) {
+    var msg = Msg(
+      message: isShowFav!
+          ? favourites![index]
+          : chats[widget.chatIndex!].messageBase![index],
+      chatIndex: widget.chatIndex!,
+      notifyParent: refresh,
+    );
+    return msg;
   }
 
   @override
@@ -364,13 +369,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 class Msg extends StatefulWidget {
   const Msg(
       {Key? key,
+      required this.chatIndex,
       required this.message,
-      this.animationController,
       required this.notifyParent})
       : super(key: key);
 
+  final int chatIndex;
   final Message message;
-  final AnimationController? animationController;
   final Function() notifyParent;
 
   @override
@@ -380,75 +385,77 @@ class Msg extends StatefulWidget {
 class _MsgState extends State<Msg> {
   @override
   Widget build(BuildContext ctx) {
-    return SizeTransition(
-      sizeFactor: CurvedAnimation(
-          parent: widget.animationController!, curve: Curves.easeOut),
-      axisAlignment: 0.0,
-      child: GestureDetector(
-        onLongPress: _messageTools,
-        onTap: _addToFavourite,
-        child: Container(
-          key: UniqueKey(),
-          margin: const EdgeInsets.symmetric(vertical: 5.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.lightGreenAccent,
-          ),
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Flexible(
-                    child: Text(widget.message.message,
-                        style: const TextStyle(fontSize: 18)),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 7,
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  if (widget.message.isSelected == true) ...[
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: const Icon(Icons.check_circle),
-                      color: Colors.black,
-                      iconSize: 12,
-                      onPressed: () {},
-                    ),
-                    const SizedBox(
-                      width: 7,
+    return Flex(
+      direction: Axis.horizontal,
+      children: [
+        GestureDetector(
+          onLongPress: _messageTools,
+          onTap: _addToFavourite,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            margin: const EdgeInsets.symmetric(vertical: 5.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.lightGreenAccent,
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Flexible(
+                      child: Text(widget.message.message,
+                          style: const TextStyle(fontSize: 18)),
                     ),
                   ],
-                  Text(widget.message.time.Hm,
-                      style:
-                          const TextStyle(fontSize: 16, color: Colors.black54)),
-                  if (widget.message.isFavourite == true) ...[
-                    const SizedBox(
-                      width: 7,
-                    ),
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: const Icon(Icons.favorite),
-                      color: Colors.red,
-                      iconSize: 12,
-                      onPressed: () {},
-                    ),
-                  ]
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(
+                  height: 7,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    if (widget.message.isSelected == true) ...[
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(Icons.check_circle),
+                        color: Colors.black,
+                        iconSize: 12,
+                        onPressed: () {},
+                      ),
+                      const SizedBox(
+                        width: 7,
+                      ),
+                    ],
+                    Text(widget.message.time.Hm,
+                        style: const TextStyle(
+                            fontSize: 16, color: Colors.black54)),
+                    if (widget.message.isFavourite == true) ...[
+                      const SizedBox(
+                        width: 7,
+                      ),
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(Icons.favorite),
+                        color: Colors.red,
+                        iconSize: 12,
+                        onPressed: () {},
+                      ),
+                    ]
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -456,14 +463,15 @@ class _MsgState extends State<Msg> {
     if (mounted) {
       setState(() {
         widget.message.isSelected = !widget.message.isSelected;
-        _selected!.clear();
-        _selected = _messages!
-            .where((element) => element.message.isSelected == true)
+        selected!.clear();
+        selected = chats[widget.chatIndex]
+            .messageBase!
+            .where((element) => element.isSelected == true)
             .toList();
-        _selected!.isNotEmpty ? _isAnySelected = true : _isAnySelected = false;
-      });
+        selected!.isNotEmpty ? isAnySelected = true : isAnySelected = false;
 
-      widget.notifyParent();
+        widget.notifyParent();
+      });
     }
   }
 
@@ -507,12 +515,4 @@ class MsgTime extends StatelessWidget {
       ),
     );
   }
-}
-
-Msg _msgWidget(int index) {
-  return Msg(
-    message: _messages![index].message,
-    animationController: _messages![index].animationController,
-    notifyParent: _messages![index].notifyParent,
-  );
 }
