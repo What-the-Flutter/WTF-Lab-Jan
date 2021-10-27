@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'package:task_wtf/pages/statistic_page/statistic_page_state.dart';
+//import 'package:fl_chart/fl_chart.dart';
+
+import '../settings/settings_page/settings_cubit.dart';
 import 'statistic_page_cubit.dart';
+import 'statistic_page_state.dart';
 
 class TestingStatisticPage extends StatefulWidget {
   @override
@@ -44,24 +47,42 @@ class _StatisticPageState extends State<TestingStatisticPage> {
           ),
         ),
       ),
-      leading: BackButton(
+      leading: const BackButton(
         color: Colors.black,
       ),
+      actions: [
+        IconButton(
+          onPressed: () => context.read<SettingsCubit>().changeTheme(),
+          icon: const Icon(
+            Icons.invert_colors,
+            color: Colors.black,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _defaultBody() {
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 50,
         ),
-        const Center(
-          child: Text(
-            'statistic',
-            style: TextStyle(
-              fontSize: 30,
+        Center(
+          child: TextButton(
+            child: const Text(
+              'statistic',
+              style: TextStyle(
+                fontSize: 30,
+                color: Colors.black,
+              ),
             ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (blocContext) => _alertDialog(),
+              );
+            },
           ),
         ),
         Center(
@@ -84,6 +105,9 @@ class _StatisticPageState extends State<TestingStatisticPage> {
             fontSize: 16,
           ),
         ),
+      ),
+      leading: const BackButton(
+        color: Colors.black,
       ),
       actions: [
         Padding(
@@ -130,35 +154,33 @@ class _StatisticPageState extends State<TestingStatisticPage> {
 
   Widget _messageStatistic(StatisticPageState state) {
     return Padding(
-      padding: const EdgeInsets.all(30),
+      padding: const EdgeInsets.all(55),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(
-          20.0,
+          55.0,
         ),
         child: Container(
-          height: 120,
+          height: 80,
           color: Colors.yellow,
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 35.0,
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    '${state.countOfMessagesInThePeriod ?? '-'}',
-                    style: const TextStyle(
-                      color: Colors.black,
-                    ),
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 15,
+                ),
+                Text(
+                  '${state.countOfMessagesInThePeriod ?? '-'}',
+                  style: const TextStyle(
+                    color: Colors.black,
                   ),
-                  const Text(
-                    'Messages',
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
+                ),
+                const Text(
+                  'Messages',
+                  style: TextStyle(
+                    color: Colors.black,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -168,37 +190,35 @@ class _StatisticPageState extends State<TestingStatisticPage> {
 
   Padding _bookmarkedMessageStatistic(StatisticPageState state) {
     return Padding(
-      padding: const EdgeInsets.all(30),
+      padding: const EdgeInsets.all(55),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(
-          20.0,
+          55.0,
         ),
         child: Container(
-          height: 120,
+          height: 80,
           width: MediaQuery.of(context).size.width,
-          color: Colors.orangeAccent,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 35.0,
+          color: Colors.yellow,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 15,
               ),
-              child: Column(
-                children: [
-                  Text(
-                    '${state.countOfBookmarkedMessagesInThePeriod ?? '-'}',
-                    style: const TextStyle(
-                      color: Colors.black,
-                    ),
+              Center(
+                child: Text(
+                  '${state.countOfBookmarkedMessagesInThePeriod ?? '-'}',
+                  style: const TextStyle(
+                    color: Colors.black,
                   ),
-                  const Text(
-                    'Bookmarked messages',
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              const Text(
+                'Bookmarked messages',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -243,4 +263,34 @@ class _StatisticPageState extends State<TestingStatisticPage> {
   void _onItemTapped(int index) => setState(
         () => _selectedIndex = index,
       );
+
+  AlertDialog _alertDialog() {
+    return AlertDialog(
+      backgroundColor: Colors.yellow,
+      title: const Text(
+        'This is statistic of application\n\n  you may see  all statistic here',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 14,
+        ),
+      ),
+      elevation: 6,
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.pop(
+              context,
+              'Ok',
+            );
+          },
+          child: const Text(
+            'Ok',
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
