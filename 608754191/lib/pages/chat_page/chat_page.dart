@@ -463,9 +463,9 @@ class _ChatPage extends State<ChatPage> {
     state.messageList.insert(
       state.messageList.length,
       Message(
-        time: DateFormat('yyyy-MM-dd kk:mm').format(
-          DateTime.now(),
-        ),
+        time: DateFormat.yMd().add_jm().format(
+              DateTime.now(),
+            ),
         text: _textEditingController.text,
         currentCategoryId: state.category!.categoryId!,
         imagePath: '',

@@ -156,9 +156,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       currentCategoryId: state.category!.categoryId!,
       time: state.selectedTime != ''
           ? state.selectedTime!
-          : DateFormat('dd.MM   hh:mm a').format(
-              DateTime.now(),
-            ),
+          : DateFormat.yMd().add_jm().format(
+                DateTime.now(),
+              ),
       text: text,
       bookmarkIndex: 0,
     );
@@ -201,9 +201,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   ) async {
     final message = Message(
       messageId: -1,
-      time: DateFormat('dd.MM kk:mm').format(
-        DateTime.now(),
-      ),
+      time: DateFormat.yMd().add_jm().format(
+            DateTime.now(),
+          ),
       text: state.messageList[index].text,
       currentCategoryId: state.category!.categoryId!,
       bookmarkIndex: state.messageList[index].bookmarkIndex,
@@ -235,9 +235,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       currentCategoryId: state.category!.categoryId!,
       time: state.selectedTime != ''
           ? state.selectedTime!
-          : DateFormat('hh:mm a').format(
-              DateTime.now(),
-            ),
+          : DateFormat.yMd().add_jm().format(
+                DateTime.now(),
+              ),
       text: '',
       imagePath: imagePath,
     );
