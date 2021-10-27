@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class EventPageState {
   final List messages;
@@ -12,6 +13,9 @@ class EventPageState {
   final IconData categoryIcon;
   final String eventPageId;
   final String selectedImagePath;
+  final String searchText;
+  final TimeOfDay selectedTime;
+  final DateTime selectedDate;
 
   EventPageState({
     required this.messages,
@@ -25,6 +29,9 @@ class EventPageState {
     required this.categoryIcon,
     required this.eventPageId,
     required this.selectedImagePath,
+    required this.searchText,
+    required this.selectedTime,
+    required this.selectedDate,
   });
 
   EventPageState copyWith({
@@ -39,6 +46,9 @@ class EventPageState {
     IconData? categoryIcon,
     String? eventPageId,
     String? selectedImagePath,
+    String? searchText,
+    TimeOfDay? selectedTime,
+    DateTime? selectedDate,
   }) {
     return EventPageState(
       messages: messages ?? this.messages,
@@ -53,6 +63,9 @@ class EventPageState {
       categoryIcon: categoryIcon ?? this.categoryIcon,
       eventPageId: eventPageId ?? this.eventPageId,
       selectedImagePath: selectedImagePath ?? this.selectedImagePath,
+      searchText: searchText ?? this.searchText,
+      selectedTime: selectedTime ?? this.selectedTime,
+      selectedDate: selectedDate ?? this.selectedDate,
     );
   }
 }

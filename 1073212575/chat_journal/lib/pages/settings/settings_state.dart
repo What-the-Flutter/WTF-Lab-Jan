@@ -9,6 +9,10 @@ class SettingsState {
   final bool useBiometrics;
   final Alignment messageAlignment;
   final Alignment dateAlignment;
+  final int smallFontSize;
+  final int mediumFontSize;
+  final int largeFontSize;
+  final int fontSize;
 
   SettingsState({
     required this.theme,
@@ -19,6 +23,10 @@ class SettingsState {
     required this.useBiometrics,
     required this.messageAlignment,
     required this.dateAlignment,
+    required this.smallFontSize,
+    required this.mediumFontSize,
+    required this.largeFontSize,
+    required this.fontSize,
   });
 
   SettingsState copyWith({
@@ -30,6 +38,10 @@ class SettingsState {
     bool? useBiometrics,
     Alignment? messageAlignment,
     Alignment? dateAlignment,
+    int? smallFontSize,
+    int? mediumFontSize,
+    int? largeFontSize,
+    int? fontSize,
   }) {
     return SettingsState(
       theme: theme ?? this.theme,
@@ -41,6 +53,10 @@ class SettingsState {
       useBiometrics: useBiometrics ?? this.useBiometrics,
       messageAlignment: messageAlignment ?? this.messageAlignment,
       dateAlignment: dateAlignment ?? this.dateAlignment,
+      smallFontSize: smallFontSize ?? this.smallFontSize,
+      mediumFontSize: mediumFontSize ?? this.mediumFontSize,
+      largeFontSize: largeFontSize ?? this.largeFontSize,
+      fontSize: fontSize ?? this.fontSize,
     );
   }
 }

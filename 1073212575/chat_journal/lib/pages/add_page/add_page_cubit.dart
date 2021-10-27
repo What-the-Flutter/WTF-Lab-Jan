@@ -6,15 +6,16 @@ import 'add_page_state.dart';
 
 class AddPageCubit extends Cubit<AddPageState> {
   final PagesRepository pagesRepository;
+
   AddPageCubit(this.pagesRepository)
       : super(
-          AddPageState(selectedIconIndex: 0, eventPages: []),
+          AddPageState(
+            selectedIconIndex: 0,
+            eventPages: [],
+          ),
         );
 
-  void addPage(
-    String text,
-    List iconsList
-  )  {
+  void addPage(String text, List iconsList) {
     final page = EventPages(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: text,

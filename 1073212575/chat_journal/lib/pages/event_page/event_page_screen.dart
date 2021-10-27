@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:linkfy_text/linkfy_text.dart';
 
 import '../../models/events_model.dart';
 import '../../theme/themes.dart';
+import '../background_image/background_image_cubit.dart';
 import '../settings/settings_cubit.dart';
 import '../settings/settings_state.dart';
 import 'event_page_cubit.dart';
@@ -46,40 +48,71 @@ class _EventPageState extends State<EventPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<EventPageCubit, EventPageState>(
       builder: (blocContext, state) {
-        final _eventPageCubit = BlocProvider.of<EventPageCubit>(context);
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(context).colorScheme.secondary,
-                Theme.of(context).colorScheme.onSecondary,
-                Theme.of(context).colorScheme.secondaryVariant,
-              ],
+        if (BlocProvider.of<BackgroundImageCubit>(context)
+            .state
+            .isImageSetted) {
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: FileImage(
+                  File(BlocProvider.of<BackgroundImageCubit>(context)
+                      .state
+                      .imagePath),
+                ),
+              ),
             ),
-          ),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: state.isSearchGoing
-                ? _searchAppBar(state, _eventPageCubit)
-                : state.isSelected
-                    ? _editingAppBar(state, _eventPageCubit)
-                    : _defaultAppBar(state, _eventPageCubit),
-            body: Stack(
-              children: <Widget>[
-                _eventMessagesList(state, _eventPageCubit),
-                _categories(state, _eventPageCubit),
-                _messageBottomBar(state, _eventPageCubit),
-              ],
+            child: _scaffold(state),
+          );
+        } else {
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).colorScheme.secondary,
+                  Theme.of(context).colorScheme.onSecondary,
+                  Theme.of(context).colorScheme.secondaryVariant,
+                ],
+              ),
             ),
-          ),
-        );
+            child: _scaffold(state),
+          );
+        }
       },
     );
   }
 
-  PreferredSizeWidget _editingAppBar(state, _eventPageCubit) {
+  Widget _scaffold(state) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: state.isSearchGoing
+          ? _searchAppBar(state)
+          : state.isSelected
+              ? _editingAppBar(
+                  state,
+                )
+              : _defaultAppBar(
+                  state,
+                ),
+      body: Stack(
+        children: <Widget>[
+          _eventMessagesList(
+            state,
+          ),
+          _categories(
+            state,
+          ),
+          _messageBottomBar(
+            state,
+          ),
+        ],
+      ),
+    );
+  }
+
+  PreferredSizeWidget _editingAppBar(state) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       shape: const RoundedRectangleBorder(
@@ -89,31 +122,32 @@ class _EventPageState extends State<EventPage> {
       ),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_rounded),
-        onPressed: () => _eventPageCubit.unselect(),
+        onPressed: () => BlocProvider.of<EventPageCubit>(context).unselect(),
       ),
       title: const Text(''),
       actions: [
         IconButton(
           icon: const Icon(Icons.reply_rounded),
-          onPressed: () => _choosePage(state, _eventPageCubit),
+          onPressed: () => _choosePage(state),
         ),
         IconButton(
           icon: const Icon(Icons.delete_rounded),
-          onPressed: () => _eventPageCubit.delete(),
+          onPressed: () => BlocProvider.of<EventPageCubit>(context).delete(),
         ),
         IconButton(
           icon: const Icon(Icons.copy_rounded),
-          onPressed: () => _eventPageCubit.copy(),
+          onPressed: () => BlocProvider.of<EventPageCubit>(context).copy(),
         ),
         IconButton(
           icon: const Icon(Icons.edit_rounded),
-          onPressed: () => _controller.text = _eventPageCubit.edit(),
+          onPressed: () => _controller.text =
+              BlocProvider.of<EventPageCubit>(context).edit(),
         ),
       ],
     );
   }
 
-  PreferredSizeWidget _defaultAppBar(state, _eventPageCubit) {
+  PreferredSizeWidget _defaultAppBar(state) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       shape: const RoundedRectangleBorder(
@@ -131,17 +165,19 @@ class _EventPageState extends State<EventPage> {
           icon: !state.onlyMarked
               ? const Icon(Icons.bookmark_border_rounded)
               : const Icon(Icons.bookmark_rounded),
-          onPressed: () => _eventPageCubit.showMarked(),
+          onPressed: () =>
+              BlocProvider.of<EventPageCubit>(context).showMarked(),
         ),
         IconButton(
           icon: const Icon(Icons.search_rounded),
-          onPressed: () => _eventPageCubit.startSearching(),
+          onPressed: () =>
+              BlocProvider.of<EventPageCubit>(context).startSearching(),
         ),
       ],
     );
   }
 
-  PreferredSizeWidget _searchAppBar(state, _homePageCubit) {
+  PreferredSizeWidget _searchAppBar(state) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       shape: const RoundedRectangleBorder(
@@ -150,11 +186,12 @@ class _EventPageState extends State<EventPage> {
         ),
       ),
       leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () {
-            _homePageCubit.endSearching();
-            _searchController.clear();
-          }),
+        icon: const Icon(Icons.arrow_back_rounded),
+        onPressed: () {
+          BlocProvider.of<EventPageCubit>(context).endSearching();
+          _searchController.clear();
+        },
+      ),
       title: const Text(''),
       actions: [
         Expanded(
@@ -162,7 +199,8 @@ class _EventPageState extends State<EventPage> {
             padding: const EdgeInsets.only(left: 40),
             child: TextField(
               controller: _searchController,
-              onChanged: _homePageCubit.searchMessages(_searchController.text),
+              onChanged: (text) => BlocProvider.of<EventPageCubit>(context)
+                  .searchMessages(_searchController.text),
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
@@ -179,7 +217,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Widget _messageBottomBar(state, _eventPageCubit) {
+  Widget _messageBottomBar(state) {
     return Visibility(
       visible: !state.isSearchGoing,
       child: Align(
@@ -196,17 +234,21 @@ class _EventPageState extends State<EventPage> {
                 return Row(
                   children: [
                     Visibility(
-                        visible: settingsState.isCategoryPanelVisible,
-                        child: IconButton(
-                            icon: const Icon(Icons.stars_rounded),
-                            color: Theme.of(context).colorScheme.background,
-                            onPressed: () {
-                              _eventPageCubit.openCategoryPanel();
-                            })),
+                      visible: settingsState.isCategoryPanelVisible,
+                      child: IconButton(
+                        icon: const Icon(Icons.stars_rounded),
+                        color: Theme.of(context).colorScheme.background,
+                        onPressed: () {
+                          BlocProvider.of<EventPageCubit>(context)
+                              .openCategoryPanel();
+                        },
+                      ),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.add_a_photo_rounded),
                       color: Theme.of(context).colorScheme.background,
-                      onPressed: () => _eventPageCubit.addImage(),
+                      onPressed: () =>
+                          BlocProvider.of<EventPageCubit>(context).addImage(),
                     ),
                     Visibility(
                       visible: settingsState.isCustomDateUsed,
@@ -228,7 +270,8 @@ class _EventPageState extends State<EventPage> {
                               alignment: Alignment.centerLeft,
                               child: Container(
                                 child: Text(
-                                  Jiffy(_eventPageCubit.selectedDateTime())
+                                  Jiffy(BlocProvider.of<EventPageCubit>(context)
+                                          .selectedDateTime())
                                       .format('d/M/y h:mm a'),
                                 ),
                               ),
@@ -251,7 +294,8 @@ class _EventPageState extends State<EventPage> {
                         icon: const Icon(Icons.send_rounded),
                         color: Theme.of(context).colorScheme.background,
                         onPressed: () {
-                          _eventPageCubit.addMessage(_controller.text);
+                          BlocProvider.of<EventPageCubit>(context)
+                              .addMessage(_controller.text);
                           _controller.clear();
                         }),
                   ],
@@ -264,15 +308,15 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Widget _eventMessagesList(state, _eventPageCubit) {
+  Widget _eventMessagesList(state) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 20, 20, 70),
       child: ListView.separated(
         itemCount: state.messages.length + 1,
-        separatorBuilder: (context, i) => _message(i, state, _eventPageCubit),
+        separatorBuilder: (context, i) => _message(i, state),
         itemBuilder: (context, i) {
           if (i < state.messages.length) {
-            return _day(i, state, _eventPageCubit);
+            return _day(i, state);
           }
           return const SizedBox.shrink();
         },
@@ -280,9 +324,9 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Widget _day(i, state, _eventPageCubit) {
+  Widget _day(i, state) {
     return Visibility(
-      visible: _eventPageCubit.isSeparatorVisible(i),
+      visible: BlocProvider.of<EventPageCubit>(context).isSeparatorVisible(i),
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (blocContext, settingsState) {
           return Align(
@@ -300,7 +344,7 @@ class _EventPageState extends State<EventPage> {
               child: Text(
                 Jiffy(state.messages[i].date).format('d/M/y'),
                 style: TextStyle(
-                    fontSize: 10,
+                    fontSize: settingsState.fontSize.toDouble() - 4,
                     color: Theme.of(context).colorScheme.onSurface),
                 textAlign: TextAlign.center,
               ),
@@ -311,15 +355,15 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Widget _message(int i, eventState, _eventPageCubit) {
+  Widget _message(int i, eventState) {
     return Dismissible(
       confirmDismiss: (direction) async {
         if (!eventState.isSelected) {
           if (direction == DismissDirection.startToEnd) {
-            _controller.text = _eventPageCubit.edit(i);
+            _controller.text = BlocProvider.of<EventPageCubit>(context).edit(i);
             return false;
           } else if (direction == DismissDirection.endToStart) {
-            _eventPageCubit.delete(widget.eventPage.id, i);
+            BlocProvider.of<EventPageCubit>(context).delete(i);
             return false;
           }
         }
@@ -334,8 +378,8 @@ class _EventPageState extends State<EventPage> {
       ),
       key: Key(i.toString()),
       child: GestureDetector(
-        onTap: () => _eventPageCubit.mark(i),
-        onLongPress: () => _eventPageCubit.select(i),
+        onTap: () => BlocProvider.of<EventPageCubit>(context).mark(i),
+        onLongPress: () => BlocProvider.of<EventPageCubit>(context).select(i),
         child: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (blocContext, settingsState) {
             return Align(
@@ -353,7 +397,7 @@ class _EventPageState extends State<EventPage> {
                     Radius.circular(radiusValue),
                   ),
                 ),
-                child: _messageContent(eventState, i, _eventPageCubit),
+                child: _messageContent(eventState, i),
               ),
             );
           },
@@ -362,7 +406,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Widget _messageContent(state, i, _eventPageCubit) {
+  Widget _messageContent(state, i) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
         padding: const EdgeInsets.only(bottom: 5),
@@ -371,21 +415,27 @@ class _EventPageState extends State<EventPage> {
             Container(
               padding: const EdgeInsets.only(right: 5),
               child: BlocBuilder<SettingsCubit, SettingsState>(
-                  builder: (blocContext, state) {
-                return Icon(
-                  _eventPageCubit.categoryIcon(
-                    state.isCategoryPanelVisible,
-                    i,
-                  ),
-                  size: 16,
-                  color: Theme.of(context).colorScheme.onSurface,
-                );
-              }),
+                builder: (blocContext, state) {
+                  return Icon(
+                    BlocProvider.of<EventPageCubit>(context).categoryIcon(
+                      state.isCategoryPanelVisible,
+                      i,
+                    ),
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  );
+                },
+              ),
             ),
             Text(
               Jiffy(state.messages[i].date).format('h:mm a'),
               style: TextStyle(
-                  fontSize: 10, color: Theme.of(context).colorScheme.onSurface),
+                  fontSize: BlocProvider.of<SettingsCubit>(context)
+                          .state
+                          .fontSize
+                          .toDouble() -
+                      4,
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
             Expanded(
               child: Align(
@@ -414,11 +464,14 @@ class _EventPageState extends State<EventPage> {
           Container(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.only(left: 25),
-            child: Text(
+            child: LinkifyText(
               state.messages[i].text,
-              style: TextStyle(
-                fontSize: 16,
+              linkTypes: [LinkType.hashTag],
+              textStyle: TextStyle(
                 color: Theme.of(context).colorScheme.background,
+              ),
+              linkStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           )
@@ -427,7 +480,7 @@ class _EventPageState extends State<EventPage> {
     ]);
   }
 
-  Widget _categories(state, _eventPageCubit) {
+  Widget _categories(state) {
     var _icons = [
       Icons.highlight_remove_rounded,
       Icons.airplanemode_active_rounded,
@@ -447,7 +500,8 @@ class _EventPageState extends State<EventPage> {
             itemCount: _icons.length,
             itemBuilder: (context, i) {
               return GestureDetector(
-                onTap: () => _eventPageCubit.chooseCategory(i, _icons[i]),
+                onTap: () => BlocProvider.of<EventPageCubit>(context)
+                    .chooseCategory(i, _icons[i]),
                 child: Container(
                   margin: const EdgeInsets.all(10),
                   child: Column(
@@ -474,7 +528,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Future _choosePage(state, _eventPageCubit) {
+  Future _choosePage(state) {
     var _chosenPageIndex;
     return showDialog(
       context: context,
@@ -482,33 +536,36 @@ class _EventPageState extends State<EventPage> {
         return AlertDialog(
           title: const Text(
               'Select the page you want to migrate the selected event(s) to'),
-          content: StatefulBuilder(builder: (context, setState) {
-            return Container(
-              height: 300,
-              width: 300,
-              child: ListView.builder(
-                itemCount: state.eventPages.length,
-                itemBuilder: (context, i) {
-                  return RadioListTile(
-                    title: Text(state.eventPages[i].name),
-                    value: i,
-                    groupValue: _chosenPageIndex,
-                    onChanged: (index) =>
-                        setState(() => _chosenPageIndex = index),
-                  );
-                },
-              ),
-            );
-          }),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return Container(
+                height: 300,
+                width: 300,
+                child: ListView.builder(
+                  itemCount: state.eventPages.length,
+                  itemBuilder: (context, i) {
+                    return RadioListTile(
+                      title: Text(state.eventPages[i].name),
+                      value: i,
+                      groupValue: _chosenPageIndex,
+                      onChanged: (index) =>
+                          setState(() => _chosenPageIndex = index),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
           actions: <Widget>[
             TextButton(
-                child: const Text('Ok'),
-                onPressed: () {
-                  _eventPageCubit.moveMessage(
-                    state.eventPages[_chosenPageIndex].id,
-                  );
-                  Navigator.of(context).pop();
-                }),
+              child: const Text('Ok'),
+              onPressed: () {
+                BlocProvider.of<EventPageCubit>(context).moveMessage(
+                  state.eventPages[_chosenPageIndex].id,
+                );
+                Navigator.of(context).pop();
+              },
+            ),
           ],
         );
       },

@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 
 class EventMessage {
@@ -13,8 +12,8 @@ class EventMessage {
   EventMessage({
     required this.id,
     required this.pageId,
-  required this.text,
-  required this.imagePath,
+    required this.text,
+    required this.imagePath,
     required this.date,
     required this.icon,
     required this.isMarked,
@@ -32,8 +31,8 @@ class EventMessage {
       EventMessage(
         id: id ?? this.id,
         pageId: pageId ?? this.pageId,
-        text: text??this.text,
-        imagePath: imagePath??this.imagePath,
+        text: text ?? this.text,
+        imagePath: imagePath ?? this.imagePath,
         date: date ?? this.date,
         icon: icon ?? this.icon,
         isMarked: isMarked ?? this.isMarked,
@@ -42,8 +41,8 @@ class EventMessage {
   factory EventMessage.fromMap(Map<String, dynamic> map) => EventMessage(
         id: map['message_id'],
         pageId: map['page_id'],
-    text: map['text'],
-      imagePath: map['image_path'],
+        text: map['text'],
+        imagePath: map['image_path'],
         date: DateTime.parse(map['date']),
         icon: IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
         isMarked: map['is_marked'] == 1 ? true : false,
@@ -53,7 +52,7 @@ class EventMessage {
         'message_id': id,
         'page_id': pageId,
         'text': text,
-    'image_path': imagePath,
+        'image_path': imagePath,
         'date': date.toString(),
         'icon': icon.codePoint,
         'is_marked': isMarked ? 1 : 0,

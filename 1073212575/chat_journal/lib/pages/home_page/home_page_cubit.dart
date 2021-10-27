@@ -11,7 +11,6 @@ import 'home_page_state.dart';
 class HomePageCubit extends Cubit<HomePageState> {
   final PagesRepository pagesRepository;
   final LocalAuthentication _localAuthentication = LocalAuthentication();
-  String _message = 'Not Authorized';
 
   HomePageCubit(this.pagesRepository)
       : super(
@@ -29,28 +28,27 @@ class HomePageCubit extends Cubit<HomePageState> {
   }
 
   Future<bool> checkingForBioMetrics() async {
-    var canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
+    final canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
     print(canCheckBiometrics);
     return canCheckBiometrics;
   }
 
   Future<void> authenticateMe() async {
-    var authenticated = false;
     try {
-      authenticated = await _localAuthentication.authenticate(
+      await _localAuthentication.authenticate(
         biometricOnly: true,
         localizedReason: 'Authenticate, please', // message for dialog
         useErrorDialogs: true, // show error in dialog
         stickyAuth: true, // native process
       );
-
-      _message = authenticated ? 'Authorized' : 'Not Authorized';
     } catch (e) {
       print(e);
     }
-    //if (!mounted) return;
   }
 
+// void setState(){
+//   emit(LoadingState());
+// }
   void showPages() async {
     final pages = await pagesRepository.eventPagesList();
     emit(

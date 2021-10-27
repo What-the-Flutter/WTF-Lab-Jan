@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import '../background_image/background_image_cubit.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:page_transition/page_transition.dart';
 
 import '../../database.dart';
 import '../../repository/messages_repository.dart';
@@ -34,6 +37,9 @@ Widget startApp() {
         BlocProvider<SettingsCubit>(
           create: (context) => SettingsCubit(),
         ),
+        BlocProvider<BackgroundImageCubit>(
+          create: (context) => BackgroundImageCubit(),
+        ),
         BlocProvider<HomePageCubit>(
           create: (context) => HomePageCubit(
             RepositoryProvider.of<PagesRepository>(context),
@@ -61,13 +67,27 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     BlocProvider.of<SettingsCubit>(context).setSettings();
     return BlocBuilder<SettingsCubit, SettingsState>(
-        builder: (context, settingsState) {
-      return MaterialApp(
-        theme: settingsState.theme,
-        title: 'Flutter Demo',
-        home: HomePage(),
-      );
-    });
+      builder: (context, settingsState) {
+        return MaterialApp(
+          theme: settingsState.theme.copyWith(
+            textTheme: TextTheme(
+              bodyText2: TextStyle(
+                fontSize: settingsState.fontSize.toDouble(),
+              ),
+            ),
+          ),
+          title: 'Flutter Demo',
+          home: AnimatedSplashScreen(
+              duration: 3000,
+              splash: const Text('Chat Journal',style: TextStyle(fontSize: 25),),
+              nextScreen: HomePage(),
+              splashTransition: SplashTransition.sizeTransition,
+              pageTransitionType: PageTransitionType.leftToRight,
+              backgroundColor: const Color(0xFF173E47),
+          ),
+        );
+      },
+    );
   }
 }
 

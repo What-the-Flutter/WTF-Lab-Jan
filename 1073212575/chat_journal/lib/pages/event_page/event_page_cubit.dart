@@ -29,11 +29,11 @@ class EventPageCubit extends Cubit<EventPageState> {
             categoryIcon: Icons.remove_rounded,
             eventPageId: '',
             selectedImagePath: '',
+            searchText: '',
+            selectedTime: TimeOfDay.now(),
+            selectedDate: DateTime.now(),
           ),
         );
-  var _searchText;
-  TimeOfDay _selectedTime = TimeOfDay.now();
-  DateTime _selectedDate = DateTime.now();
 
   void showMessages() async {
     final List messages;
@@ -41,7 +41,7 @@ class EventPageCubit extends Cubit<EventPageState> {
       messages = await messagesRepository.markedMessagesList(state.eventPageId);
     } else if (state.isSearchGoing) {
       final tempMessages = await messagesRepository.searchMessagesList(
-          state.eventPageId, _searchText);
+          state.eventPageId, state.searchText);
       messages = tempMessages
           .where((message) => !File(message.imagePath).existsSync())
           .toList();
@@ -86,7 +86,11 @@ class EventPageCubit extends Cubit<EventPageState> {
   }
 
   void searchMessages(String text) {
-    _searchText = text;
+    emit(
+      state.copyWith(
+        searchText: text,
+      ),
+    );
     showMessages();
   }
 
@@ -208,7 +212,7 @@ class EventPageCubit extends Cubit<EventPageState> {
 
   void addMessage(String text) {
     final dateTime = state.isDateTimeSelected
-        ? convertToDateTime(_selectedTime, _selectedDate)
+        ? convertToDateTime(state.selectedTime, state.selectedDate)
         : DateTime.now();
     if (state.needsEditing) {
       _addEdited(
@@ -267,7 +271,9 @@ class EventPageCubit extends Cubit<EventPageState> {
     if (i == 0) {
       return true;
     } else if ((!areDaysEqual(
-        state.messages[i - 1].date, state.messages[i].date))) {
+      state.messages[i - 1].date,
+      state.messages[i].date,
+    ))) {
       return true;
     } else {
       return false;
@@ -279,25 +285,25 @@ class EventPageCubit extends Cubit<EventPageState> {
       emit(
         state.copyWith(
           isDateTimeSelected: true,
+          selectedTime: newTime,
         ),
       );
-      _selectedTime = newTime;
     }
   }
 
   void setDate(DateTime? newDate) {
-    if (newDate != null && newDate != _selectedDate) {
+    if (newDate != null && newDate != state.selectedDate) {
       emit(
         state.copyWith(
           isDateTimeSelected: true,
+          selectedDate: newDate,
         ),
       );
-      _selectedDate = newDate;
     }
   }
 
   DateTime selectedDateTime() {
-    return convertToDateTime(_selectedTime, _selectedDate);
+    return convertToDateTime(state.selectedTime, state.selectedDate);
   }
 
   bool areDaysEqual(DateTime day1, DateTime day2) {
