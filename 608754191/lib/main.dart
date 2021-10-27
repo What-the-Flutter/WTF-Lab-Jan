@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task_wtf/pages/statistic_page/statistic_page_cubit.dart';
 
 import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
@@ -42,6 +43,9 @@ class ChatJournal extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => AuthenticationCubit(isAuthenticated: true),
+        ),
+        BlocProvider<StatisticPageCubit>(
+          create: (context) => StatisticPageCubit(),
         ),
         BlocProvider<ChatPageCubit>(
           create: (context) => ChatPageCubit(),

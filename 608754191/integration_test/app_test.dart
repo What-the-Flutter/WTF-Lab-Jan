@@ -20,6 +20,16 @@ void main() {
           expect(addPageButton, findsOneWidget);
         },
       );
+      testWidgets(
+        'text test',
+        (tester) async {
+          app.main();
+          await tester.pumpAndSettle();
+          final text = find.text('Questionnaire Bot');
+          await tester.pumpAndSettle();
+          expect(text, findsOneWidget);
+        },
+      );
     },
   );
 }

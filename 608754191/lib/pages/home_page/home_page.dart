@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
+import 'package:task_wtf/pages/statistic_page/stat_page.dart';
 import '../../util/animation/bouncy_page_route.dart';
 
 import '../../util/domain.dart';
@@ -395,6 +396,11 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               onClicked: () => _selectedItem(context, 0),
             ),
             _menuItem(
+              text: 'statistic',
+              icon: Icons.analytics_outlined,
+              onClicked: () => _selectedItem(context, 1),
+            ),
+            _menuItem(
               text: 'Help spread the word',
               icon: Icons.share,
               onClicked: () {
@@ -440,6 +446,13 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => SettingsPage(),
+          ),
+        );
+        break;
+      case 1:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => TestingStatisticPage(),
           ),
         );
         break;
