@@ -1,19 +1,24 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/hashtagable.dart';
 import 'package:intl/intl.dart';
 
-import '../../main.dart';
-import '../entity/category.dart';
-import '../entity/message.dart';
+import '../../entity/category.dart';
+import '../../entity/message.dart';
+import '../../util/domain.dart';
+import '../settings/settings_page/settings_cubit.dart';
 import 'chat_page_cubit.dart';
-import 'chat_page_state.dart';
+import 'widgets/search_messages.dart';
 
 class ChatPage extends StatefulWidget {
   final Category category;
   final List<Category> categories;
 
-  const ChatPage({
+  ChatPage({
     Key? key,
     required this.category,
     required this.categories,
@@ -27,6 +32,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPage extends State<ChatPage> {
+  int _numberOfImageOfScreen = 0;
+  bool conditional = false;
   late ChatPageCubit _cubit;
   final Category _category;
   final List<Category> _categories;
@@ -42,6 +49,11 @@ class _ChatPage extends State<ChatPage> {
   @override
   void initState() {
     _cubit = ChatPageCubit()..init(_category);
+    _textEditingController.addListener(() {
+      setState(() {
+        conditional = _textEditingController.text.isEmpty ? false : true;
+      });
+    });
     super.initState();
   }
 
@@ -52,6 +64,7 @@ class _ChatPage extends State<ChatPage> {
 
   @override
   void dispose() {
+    _textEditingController.dispose();
     super.dispose();
   }
 
@@ -69,15 +82,20 @@ class _ChatPage extends State<ChatPage> {
                     state.indexOfSelectedElement!,
                     blocContext,
                   ),
-            body: Column(
-              children: [
-                if (state.messageList.isEmpty) _eventPage(),
-                _bodyForInput(state),
-                _inputInsideChatPage(
-                  state,
-                  blocContext,
-                ),
-              ],
+            body: Container(
+              decoration: _numberOfImageOfScreen != 0
+                  ? _pictureOnScreen(_numberOfImageOfScreen)
+                  : const BoxDecoration(),
+              child: Column(
+                children: [
+                  if (state.messageList.isEmpty) _eventPage(),
+                  _bodyForInput(state),
+                  _inputInsideChatPage(
+                    state,
+                    blocContext,
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -88,28 +106,66 @@ class _ChatPage extends State<ChatPage> {
   AppBar _appBarFromChatPage(ChatPageState state) {
     return AppBar(
       backgroundColor: Colors.black,
-      leading: const BackButton(),
       title: Center(
         child: Text(
-          widget.category.title,
+          state.category!.title,
+          style: const TextStyle(color: Colors.yellow),
         ),
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.search),
+          icon: const Icon(
+            Icons.search,
+          ),
           onPressed: () {
             showSearch(
               context: context,
-              delegate: SearchEventDelegate(
+              delegate: SearchMessageDelegate(
+                messagesList: state.messageList,
                 category: widget.category,
               ),
             );
           },
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            BlocProvider.of<ChatPageCubit>(context).setSortedByBookmarksState(
+              !state.isSortedByBookmarks!,
+            );
+
+            state.messageList[state.indexOfSelectedElement!].bookmarkIndex != 0
+                ? showSearch(
+                    context: context,
+                    delegate: SearchMessageDelegate(
+                      messagesList: state.messageList
+                        ..where(
+                          (element) => state.messageList[1].bookmarkIndex == 1,
+                        ),
+                      category: widget.category,
+                    ),
+                  )
+                : showDialog(
+                    context: context,
+                    builder: (newContext) {
+                      return _bookmarkedDialog(context);
+                    },
+                  );
+          },
           icon: const Icon(
-            Icons.bookmark_border_outlined,
+            Icons.bookmark_border,
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (newContext) {
+                return _dialogOfPictureOnScreen();
+              },
+            );
+          },
+          icon: const Icon(
+            Icons.image_outlined,
           ),
         ),
       ],
@@ -122,7 +178,7 @@ class _ChatPage extends State<ChatPage> {
     BuildContext blocContext,
   ) {
     return AppBar(
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: Colors.black87,
       leading: IconButton(
         icon: const Icon(
           Icons.clear,
@@ -148,14 +204,18 @@ class _ChatPage extends State<ChatPage> {
           ),
           onPressed: () {
             _cubit.swapAppBar();
-            _cubit.copyMessage(state.messageList[index]);
+            _cubit.copyMessage(
+              state.messageList[index],
+            );
           },
         ),
         IconButton(
+          onPressed: () {
+            _cubit.updateBookmark(state.indexOfSelectedElement!);
+          },
           icon: const Icon(
-            Icons.bookmark_border,
+            Icons.bookmark,
           ),
-          onPressed: () => BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar(),
         ),
         IconButton(
           icon: const Icon(
@@ -165,7 +225,7 @@ class _ChatPage extends State<ChatPage> {
             context: context,
             builder: (blocContext) => _deleteAlertDialog(
               index,
-              state.message!,
+              state.messageList[state.indexOfSelectedElement!],
               blocContext,
             ),
           ),
@@ -192,7 +252,7 @@ class _ChatPage extends State<ChatPage> {
         20,
       ),
       child: Container(
-        color: Colors.green[200],
+        color: Colors.yellowAccent,
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 25,
@@ -229,69 +289,128 @@ class _ChatPage extends State<ChatPage> {
 
   Widget _bodyForInput(ChatPageState state) {
     return Expanded(
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        itemCount: state.messageList.length,
-        itemBuilder: (context, index) => Container(
-          padding: const EdgeInsets.only(right: 100, top: 5, left: 5),
-          width: 40,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Card(
-              elevation: 5,
-              color: Colors.blueGrey[600],
-              child: ListTile(
-                title: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    state.messageList[index].text,
-                    style: const TextStyle(fontSize: 20, color: Colors.black),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settingsState) {
+          return ListView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: state.messageList.length,
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: settingsState.bubbleAlignment == Alignment.centerRight
+                      ? const EdgeInsets.fromLTRB(5, 5, 170, 5)
+                      : const EdgeInsets.fromLTRB(170, 5, 5, 5),
+                  alignment: settingsState.bubbleAlignment == Alignment.centerRight
+                      ? AlignmentDirectional.topStart
+                      : AlignmentDirectional.topEnd,
+                  child: Card(
+                    elevation: 5,
+                    color: Colors.yellow[400],
+                    child: state.messageList[index].imagePath?.isEmpty ?? true
+                        ? ListTile(
+                            title: HashTagText(
+                              decoratedStyle: const TextStyle(
+                                color: Colors.blue,
+                                fontSize: 20,
+                                fontStyle: FontStyle.italic,
+                              ),
+                              text: state.messageList[index].text,
+                              basicStyle: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                              ),
+                              textAlign: settingsState.bubbleAlignment == Alignment.centerRight
+                                  ? TextAlign.start
+                                  : TextAlign.end,
+                            ),
+                            subtitle: Text(
+                              state.messageList[index].time,
+                              style: const TextStyle(
+                                color: Colors.black54,
+                                fontSize: 13,
+                              ),
+                              textAlign: settingsState.bubbleAlignment == Alignment.centerRight
+                                  ? TextAlign.start
+                                  : TextAlign.end,
+                            ),
+                            onLongPress: () {
+                              _cubit.swapAppBar();
+                              BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
+                                index,
+                              );
+                            },
+                            onTap: () {
+                              BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
+                                index,
+                              );
+                              _cubit.updateBookmark(state.indexOfSelectedElement!);
+                            },
+                            trailing: state.messageList[index].bookmarkIndex == 1
+                                ? const Icon(
+                                    Icons.bookmark_border,
+                                    size: 30,
+                                    color: Colors.black,
+                                  )
+                                : null,
+                          )
+                        : Image.file(
+                            File(state.messageList[index].imagePath!),
+                          ),
                   ),
                 ),
-                subtitle: Text(
-                  '${DateTime.now()}',
-                  style: TextStyle(
-                    color: Colors.blueGrey[200],
-                    fontSize: 12,
-                  ),
-                ),
-                onLongPress: () {
-                  _cubit.swapAppBar();
-                  BlocProvider.of<ChatPageCubit>(context).changeIndexOfSelectedElement(
-                    index,
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _inputInsideChatPage(ChatPageState state, BuildContext blocContext) {
+  Widget _inputInsideChatPage(
+    ChatPageState state,
+    BuildContext blocContext,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 7.5,
         vertical: 8,
       ),
-      decoration: const BoxDecoration(),
+      decoration: const BoxDecoration(color: Colors.yellow),
       child: SafeArea(
         child: Row(
           children: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.camera_alt_outlined,
-              ),
-            ),
+            !conditional
+                ? IconButton(
+                    onPressed: () {
+                      _cubit.setSendingPhotoState(false);
+                      _cubit.getImage();
+                    },
+                    icon: const Icon(
+                      Icons.camera_alt_outlined,
+                    ),
+                  )
+                : IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.message,
+                    ),
+                  ),
             const SizedBox(
               width: 10,
             ),
             Expanded(
               child: Container(
                 height: 40,
-                child: TextField(
+                child: HashTagTextField(
+                  decoratedStyle: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.blue,
+                  ),
+                  basicStyle: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                  ),
                   controller: _textEditingController,
                   focusNode: _focusNode,
                   decoration: const InputDecoration(
@@ -322,9 +441,10 @@ class _ChatPage extends State<ChatPage> {
               onPressed: () {
                 if (state.isEditing!) {
                   BlocProvider.of<ChatPageCubit>(blocContext).editText(
-                    state.message!,
+                    state.messageList[state.indexOfSelectedElement!],
                     _textEditingController.text,
                   );
+                  _textEditingController.clear();
                 } else {
                   BlocProvider.of<ChatPageCubit>(blocContext)
                       .addMessage(_textEditingController.text);
@@ -343,10 +463,12 @@ class _ChatPage extends State<ChatPage> {
     state.messageList.insert(
       state.messageList.length,
       Message(
-        messageId: 1,
-        time: DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now()),
+        time: DateFormat('yyyy-MM-dd kk:mm').format(
+          DateTime.now(),
+        ),
         text: _textEditingController.text,
         currentCategoryId: state.category!.categoryId!,
+        imagePath: '',
       ),
     );
     _textEditingController.clear();
@@ -365,15 +487,22 @@ class _ChatPage extends State<ChatPage> {
         width: 220,
         child: ListView.separated(
           itemCount: state.categories!.length + 1,
-          itemBuilder: (context, index) {
+          itemBuilder: (
+            context,
+            index,
+          ) {
             if (index == 0) {
               return const Center(
                 child: Text('select the page you want to forward the message to!'),
               );
             }
             return ListTile(
-              title: Text(state.categories![index - 1].title),
-              leading: Icon(initialIcons[state.categories![index - 1].iconIndex]),
+              title: Text(
+                state.categories![index - 1].title,
+              ),
+              leading: Icon(
+                initialIcons[state.categories![index - 1].iconIndex],
+              ),
               onTap: () {
                 BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
                 Navigator.pop(dialogContext);
@@ -388,7 +517,10 @@ class _ChatPage extends State<ChatPage> {
     );
   }
 
-  void _editText(Message message, BuildContext blocContext) {
+  void _editText(
+    Message message,
+    BuildContext blocContext,
+  ) {
     BlocProvider.of<ChatPageCubit>(blocContext)
         .setMessageText(message, _textEditingController.text);
 
@@ -413,8 +545,12 @@ class _ChatPage extends State<ChatPage> {
     BuildContext blocContext,
   ) {
     return AlertDialog(
+      backgroundColor: Colors.yellow,
       title: const Text(
         'Delete this  message?',
+        style: TextStyle(
+          color: Colors.black,
+        ),
       ),
       elevation: 6,
       actions: <Widget>[
@@ -423,7 +559,12 @@ class _ChatPage extends State<ChatPage> {
             context,
             'Cancel',
           ),
-          child: const Text('Cancel'),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
         ),
         TextButton(
           onPressed: () {
@@ -431,118 +572,146 @@ class _ChatPage extends State<ChatPage> {
               context,
               'Yes',
             );
-            BlocProvider.of<ChatPageCubit>(blocContext).swapAppBar();
-            BlocProvider.of<ChatPageCubit>(blocContext).deleteMessage(message);
+            _cubit.swapAppBar();
+            _cubit.deleteMessage(message);
           },
           child: const Text(
             'Yes',
+            style: TextStyle(
+              color: Colors.red,
+            ),
           ),
         ),
       ],
     );
   }
-}
 
-class SearchEventDelegate extends SearchDelegate {
-  final Category? category;
-  final List<Message>? messagesList;
-
-  SearchEventDelegate({
-    this.messagesList,
-    this.category,
-  });
-
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return Theme.of(context);
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.cleaning_services_rounded),
-        onPressed: () {
-          query = '';
-        },
+  BoxDecoration _pictureOnScreen(int number) {
+    return BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage(
+          'image/oboi$number.jpg',
+        ),
+        fit: BoxFit.fill,
       ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        query = '';
-        close(context, null);
-      },
     );
   }
 
-  @override
-  Widget buildResults(BuildContext context) {
-    return Container();
+  Widget _dialogOfPictureOnScreen() {
+    return SimpleDialog(
+      backgroundColor: Colors.yellow,
+      title: const Text(
+        'what wallpaper do you prefer?',
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      ),
+      children: [
+        SimpleDialogOption(
+          child: const Text(
+            '1 -  simpson in nirvana',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 1;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '2 -  return of the turtle',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 2;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '3 -  astronauts fishing',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 3;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '4 -  palette!',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 4;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '5 -  pastila zdorovogo cheloveka',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 5;
+            });
+          },
+        ),
+        SimpleDialogOption(
+          child: const Text(
+            '6 - send in black',
+            style: TextStyle(
+              fontSize: 22,
+            ),
+          ),
+          onPressed: () {
+            setState(() {
+              _numberOfImageOfScreen = 6;
+            });
+          },
+        ),
+      ],
+    );
   }
 
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return messagesList!
-            .where(
-              (element) => element.text.contains(
-                query,
-              ),
-            )
-            .isEmpty
-        ? const Center(
-            child: Text(
-              'No matches!',
+  AlertDialog _bookmarkedDialog(
+    BuildContext context,
+  ) {
+    return AlertDialog(
+      backgroundColor: Colors.yellow,
+      title: const Text(
+        'No bookmarks',
+      ),
+      elevation: 6,
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(
+            context,
+            'Ok',
+          ),
+          child: const Text(
+            'Ok',
+            style: TextStyle(
+              color: Colors.black,
             ),
-          )
-        : ListView.builder(
-            scrollDirection: Axis.vertical,
-            reverse: true,
-            itemCount: messagesList!
-                .where(
-                  (element) => element.text.contains(
-                    query,
-                  ),
-                )
-                .length,
-            itemBuilder: (context, index) {
-              final message = messagesList!
-                  .where(
-                    (element) => element.text.contains(
-                      query,
-                    ),
-                  )
-                  .toList()[index];
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 5.0,
-                  horizontal: 20.0,
-                ),
-                width: 200,
-                constraints: const BoxConstraints(),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(
-                    50,
-                  ),
-                  child: Card(
-                    elevation: 3,
-                    child: ListTile(
-                      title: Text(
-                        message.text,
-                      ),
-                      subtitle: Text(
-                        '${message.time}\n${category!.title}',
-                      ),
-                      isThreeLine: true,
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
+          ),
+        ),
+      ],
+    );
   }
 }
