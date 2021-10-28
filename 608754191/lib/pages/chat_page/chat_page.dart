@@ -232,15 +232,17 @@ class _ChatPage extends State<ChatPage> {
         ),
         IconButton(
           icon: const Icon(Icons.arrow_forward),
-          onPressed: () => showDialog(
-            context: context,
-            builder: (dialogContext) => _migrateEventDialog(
-              index,
-              blocContext,
-              dialogContext,
-              state,
-            ),
-          ),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (dialogContext) => _migrateEventDialog(
+                index,
+                blocContext,
+                dialogContext,
+                state,
+              ),
+            );
+          },
         ),
       ],
     );

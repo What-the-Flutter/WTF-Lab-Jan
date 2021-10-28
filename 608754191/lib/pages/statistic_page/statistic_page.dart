@@ -114,7 +114,7 @@ class _StatisticPageState extends State<StatisticPage> {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(11.1),
           child: DropdownButton<String>(
             style: const TextStyle(
               color: Colors.black,
@@ -234,7 +234,7 @@ class _StatisticPageState extends State<StatisticPage> {
     );
   }
 
-  Column _statisticsBody(StatisticPageState state) {
+  Widget _statisticsBody(StatisticPageState state) {
     return Column(
       children: <Widget>[
         _messageStatistic(state),
@@ -248,6 +248,7 @@ class _StatisticPageState extends State<StatisticPage> {
                     : createYearStatistics(),
             barGroupingType: charts.BarGroupingType.stacked,
             animate: true,
+            animationDuration: const Duration(seconds: 3),
             domainAxis: const charts.OrdinalAxisSpec(
               renderSpec: charts.SmallTickRendererSpec(
                 labelRotation: 60,

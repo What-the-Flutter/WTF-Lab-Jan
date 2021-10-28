@@ -65,7 +65,7 @@ class _AddPageState extends State<AddPage> {
     return BlocBuilder<AddPageCubit, AddPageState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.blueGrey[100],
+          backgroundColor: Colors.blueGrey[300],
           appBar: _appBarFromAddingPage(),
           body: _bodyFromAddingPage(state),
           floatingActionButton: FloatingActionButton(

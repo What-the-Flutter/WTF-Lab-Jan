@@ -364,9 +364,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  void _onItemTapped(int index) => setState(
-        () => _selectedIndex = index,
-      );
+  void _onItemTapped(int index) => setState(() => _selectedIndex = index);
 
   Widget _navigationDrawerWidget() {
     return Drawer(

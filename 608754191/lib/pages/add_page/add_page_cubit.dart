@@ -24,9 +24,11 @@ class AddPageCubit extends Cubit<AddPageState> {
     );
   }
 
-  void setSelectedIconIndex(int selectedIconIndex) => emit(
-        state.copyWith(
-          selectedIconIndex: selectedIconIndex,
-        ),
-      );
+  void setSelectedIconIndex(int selectedIconIndex) {
+    emit(
+      state.copyWith(
+        selectedIconIndex: selectedIconIndex,
+      ),
+    );
+  }
 }

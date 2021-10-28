@@ -40,8 +40,12 @@ class AuthorizationPage extends StatelessWidget {
                     ),
                   ),
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(Colors.yellow),
-                    foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                      Colors.yellow,
+                    ),
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                      Colors.black,
+                    ),
                   ),
                   onPressed: () => BlocProvider.of<AuthenticationCubit>(context).authenticate(),
                 ),
