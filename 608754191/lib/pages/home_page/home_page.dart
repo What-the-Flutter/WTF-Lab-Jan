@@ -10,7 +10,7 @@ import '../navbar_pages/timeline_page/timeline_page.dart';
 import '../navbar_pages/timeline_page/timeline_page_cubit.dart';
 import '../settings/settings_page/settings_cubit.dart';
 import '../settings/settings_page/settings_page.dart';
-import '../statistic_page/stat_page.dart';
+import '../statistic_page/statistic_page.dart';
 import 'chose_of_action/chose_of_action.dart';
 import 'home_page_cubit.dart';
 
@@ -451,7 +451,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       case 1:
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => TestingStatisticPage(),
+            builder: (context) => StatisticPage(),
           ),
         );
         break;
