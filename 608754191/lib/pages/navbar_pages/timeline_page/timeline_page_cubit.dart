@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../entity/message.dart';
 import '../../../repositories/database.dart';
+
 part 'timeline_page_state.dart';
 
 class TimelinePageCubit extends Cubit<TimelinePageState> {

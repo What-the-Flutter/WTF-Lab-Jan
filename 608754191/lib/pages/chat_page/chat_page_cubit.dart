@@ -7,10 +7,12 @@ import 'package:intl/intl.dart';
 import '../../entity/category.dart';
 import '../../entity/message.dart';
 import '../../repositories/database.dart';
+
 part 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
   final DatabaseProvider _databaseProvider = DatabaseProvider();
+
   ChatPageCubit()
       : super(
           ChatPageState(),

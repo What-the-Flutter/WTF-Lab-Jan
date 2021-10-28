@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
+import 'package:task_wtf/pages/statistic_page/statistic_page.dart';
 
 import '../../util/animation/bouncy_page_route.dart';
 import '../../util/domain.dart';
@@ -10,7 +11,6 @@ import '../navbar_pages/timeline_page/timeline_page.dart';
 import '../navbar_pages/timeline_page/timeline_page_cubit.dart';
 import '../settings/settings_page/settings_cubit.dart';
 import '../settings/settings_page/settings_page.dart';
-import '../statistic_page/statistic_page.dart';
 import 'chose_of_action/chose_of_action.dart';
 import 'home_page_cubit.dart';
 

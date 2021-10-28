@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../entity/category.dart';
 
 class DailyPage extends StatefulWidget {

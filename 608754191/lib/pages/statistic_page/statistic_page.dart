@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import '../../entity/statistic.dart';
+import 'package:task_wtf/pages/statistic_page/statistic_page_state.dart';
 
+import '../../entity/statistic.dart';
 import '../settings/settings_page/settings_cubit.dart';
 import 'statistic_page_cubit.dart';
-import 'statistic_page_state.dart';
 
 class StatisticPage extends StatefulWidget {
   @override
@@ -114,7 +114,7 @@ class _StatisticPageState extends State<StatisticPage> {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(10.0),
           child: DropdownButton<String>(
             style: const TextStyle(
               color: Colors.black,
@@ -483,7 +483,8 @@ class _StatisticPageState extends State<StatisticPage> {
             height: 15,
           ),
           const Text(
-            'at the moment, only the statistics of messages is available, including their total number and the number of bookmarked messages',
+            'at the moment, only the statistics of messages is available, '
+            'including their total number and the number of bookmarked messages',
             style: TextStyle(
               fontSize: 12,
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../settings_cubit.dart';
 
 class GeneralSettingPage extends StatefulWidget {

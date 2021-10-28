@@ -483,6 +483,7 @@ class _ChatPage extends State<ChatPage> {
     return Dialog(
       elevation: 16,
       child: Container(
+        color: Colors.yellow[300],
         height: 300,
         width: 220,
         child: ListView.separated(
@@ -493,7 +494,12 @@ class _ChatPage extends State<ChatPage> {
           ) {
             if (index == 0) {
               return const Center(
-                child: Text('select the page you want to forward the message to!'),
+                child: Text(
+                  'select the page you want to forward the message to!',
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
               );
             }
             return ListTile(
