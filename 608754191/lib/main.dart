@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:task_wtf/pages/statistic_page/statistic_page_cubit.dart';
 
 import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
@@ -16,6 +15,7 @@ import 'pages/navbar_pages/timeline_page/timeline_page.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page_cubit.dart';
 import 'pages/settings/settings_page/settings_cubit.dart';
 import 'pages/settings/settings_page/settings_page.dart';
+import 'pages/statistic_page/statistic_page_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

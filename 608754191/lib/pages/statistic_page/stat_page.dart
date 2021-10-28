@@ -1,7 +1,7 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-//import 'package:fl_chart/fl_chart.dart';
 
 import '../settings/settings_page/settings_cubit.dart';
 import 'statistic_page_cubit.dart';
@@ -65,15 +65,16 @@ class _StatisticPageState extends State<TestingStatisticPage> {
   Widget _defaultBody() {
     return Column(
       children: [
-        const SizedBox(
-          height: 50,
-        ),
-        Center(
+        Padding(
+          padding: const EdgeInsets.only(
+            right: 220,
+            top: 20,
+          ),
           child: TextButton(
             child: const Text(
-              'statistic',
+              'click from info',
               style: TextStyle(
-                fontSize: 30,
+                fontSize: 20,
                 color: Colors.black,
               ),
             ),
@@ -99,7 +100,7 @@ class _StatisticPageState extends State<TestingStatisticPage> {
       backgroundColor: Colors.yellow,
       title: const Center(
         child: Text(
-          'Statistics',
+          'Message statistics',
           style: TextStyle(
             color: Colors.black,
             fontSize: 16,
@@ -154,7 +155,7 @@ class _StatisticPageState extends State<TestingStatisticPage> {
 
   Widget _messageStatistic(StatisticPageState state) {
     return Padding(
-      padding: const EdgeInsets.all(55),
+      padding: const EdgeInsets.all(50),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(
           55.0,
@@ -172,10 +173,11 @@ class _StatisticPageState extends State<TestingStatisticPage> {
                   '${state.countOfMessagesInThePeriod ?? '-'}',
                   style: const TextStyle(
                     color: Colors.black,
+                    fontSize: 28,
                   ),
                 ),
                 const Text(
-                  'Messages',
+                  'Total',
                   style: TextStyle(
                     color: Colors.black,
                   ),
@@ -188,9 +190,13 @@ class _StatisticPageState extends State<TestingStatisticPage> {
     );
   }
 
-  Padding _bookmarkedMessageStatistic(StatisticPageState state) {
+  Widget _bookmarkedMessageStatistic(StatisticPageState state) {
     return Padding(
-      padding: const EdgeInsets.all(55),
+      padding: const EdgeInsets.only(
+        left: 50,
+        right: 50,
+        bottom: 20,
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(
           55.0,
@@ -209,11 +215,12 @@ class _StatisticPageState extends State<TestingStatisticPage> {
                   '${state.countOfBookmarkedMessagesInThePeriod ?? '-'}',
                   style: const TextStyle(
                     color: Colors.black,
+                    fontSize: 28,
                   ),
                 ),
               ),
               const Text(
-                'Bookmarked messages',
+                'Bookmarks',
                 style: TextStyle(
                   color: Colors.black,
                 ),
@@ -236,7 +243,7 @@ class _StatisticPageState extends State<TestingStatisticPage> {
 
   Widget _statBottomNavigationBar() {
     return BottomNavigationBar(
-      backgroundColor: Colors.grey[400],
+      backgroundColor: Colors.yellow,
       items: [
         const BottomNavigationBarItem(
           icon: Icon(
@@ -267,12 +274,34 @@ class _StatisticPageState extends State<TestingStatisticPage> {
   AlertDialog _alertDialog() {
     return AlertDialog(
       backgroundColor: Colors.yellow,
-      title: const Text(
-        'This is statistic of application\n\n  you may see  all statistic here',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 14,
-        ),
+      title: Column(
+        children: [
+          const Text(
+            'This is statistic of application',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(
+            height: 12,
+          ),
+          const Text(
+            'you may see  all statistic here',
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          const Text(
+            'at the moment, only the statistics of messages is available, including their total number and the number of bookmarked messages',
+            style: TextStyle(
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
       elevation: 6,
       actions: <Widget>[
