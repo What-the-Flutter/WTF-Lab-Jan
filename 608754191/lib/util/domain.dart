@@ -32,9 +32,3 @@ final List<IconData> initialIcons = [
   Icons.gesture,
   Icons.train_outlined
 ];
-
-List<Category> initialCategories = [
-  Category(iconIndex: 1, title: 'Family', subTitleMessage: ''),
-  Category(iconIndex: 4, title: 'Sport', subTitleMessage: ''),
-  Category(iconIndex: 27, title: 'Travel', subTitleMessage: ''),
-];
