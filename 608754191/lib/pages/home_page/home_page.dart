@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
+import 'package:task_wtf/pages/home_page/widgets/category_list_tile.dart';
 import 'package:task_wtf/pages/statistic_page/statistic_page.dart';
 
 import '../../util/animation/bouncy_page_route.dart';
@@ -218,21 +219,8 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
                     end: Colors.yellow,
                   ),
                   child: Card(
-                    child: ListTile(
-                      title: Text(
-                        state.categories[index - 1].title,
-                      ),
-                      subtitle: Text(
-                        state.categories[index - 1].subTitleMessage.isEmpty
-                            ? 'No events. Click to create one.'
-                            : state.categories[index - 1].subTitleMessage,
-                      ),
-                      leading: CircleAvatar(
-                        child: Icon(
-                          initialIcons[state.categories[index - 1].iconIndex],
-                        ),
-                        backgroundColor: Colors.black,
-                      ),
+                    child: CategoryListTile(
+                      category: state.categories[index - 1],
                       onLongPress: () {
                         showDialog(
                           context: context,
