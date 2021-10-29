@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
-import 'package:task_wtf/pages/home_page/widgets/category_list_tile.dart';
-import 'package:task_wtf/pages/statistic_page/statistic_page.dart';
 
 import '../../util/animation/bouncy_page_route.dart';
-import '../../util/domain.dart';
 import '../chat_page/chat_page.dart';
 import '../chat_page/widgets/search_messages.dart';
 import '../navbar_pages/timeline_page/timeline_page.dart';
 import '../navbar_pages/timeline_page/timeline_page_cubit.dart';
 import '../settings/settings_page/settings_cubit.dart';
 import '../settings/settings_page/settings_page.dart';
+import '../statistic_page/statistic_page.dart';
 import 'chose_of_action/chose_of_action.dart';
 import 'home_page_cubit.dart';
+import 'widgets/category_list_tile.dart';
 
-class ChatJournalHomePage extends StatefulWidget {
-  ChatJournalHomePage();
+class HomePage extends StatefulWidget {
+  HomePage();
 
   @override
-  _ChatJournalHomePageState createState() => _ChatJournalHomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
+class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   @override
@@ -206,7 +205,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               index,
             ) {
               if (index == 0) {
-                return _firstConditionPadding();
+                return _questionnaireBot();
               }
               return Padding(
                 padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
@@ -266,7 +265,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  Padding _firstConditionPadding() {
+  Padding _questionnaireBot() {
     return Padding(
       padding: const EdgeInsets.all(
         10.0,
@@ -438,6 +437,13 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => StatisticPage(),
+          ),
+        );
+        break;
+      default:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
           ),
         );
         break;

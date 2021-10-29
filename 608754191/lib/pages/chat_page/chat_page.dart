@@ -235,7 +235,7 @@ class _ChatPage extends State<ChatPage> {
           onPressed: () {
             showDialog(
               context: context,
-              builder: (dialogContext) => _migrateEventDialog(
+              builder: (dialogContext) => _migrationDialog(
                 index,
                 blocContext,
                 dialogContext,
@@ -476,7 +476,7 @@ class _ChatPage extends State<ChatPage> {
     _textEditingController.clear();
   }
 
-  Dialog _migrateEventDialog(
+  Dialog _migrationDialog(
     int messageIndex,
     BuildContext blocContext,
     BuildContext dialogContext,

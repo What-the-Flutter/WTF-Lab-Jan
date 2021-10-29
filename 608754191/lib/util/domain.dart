@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../entity/category.dart';
-
 final List<IconData> initialIcons = [
   Icons.theater_comedy,
   Icons.family_restroom,

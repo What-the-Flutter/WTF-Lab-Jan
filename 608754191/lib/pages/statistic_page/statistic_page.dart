@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:task_wtf/pages/statistic_page/statistic_page_state.dart';
 
 import '../../entity/statistic.dart';
 import '../settings/settings_page/settings_cubit.dart';
 import 'statistic_page_cubit.dart';
+import 'statistic_page_state.dart';
 
 class StatisticPage extends StatefulWidget {
   @override

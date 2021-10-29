@@ -104,7 +104,7 @@ class SettingsPage extends StatelessWidget {
       case 0:
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => GeneralSettingPage(),
+            builder: (context) => GeneralSettingsPage(),
           ),
         );
         break;

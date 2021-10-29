@@ -67,11 +67,11 @@ class StatisticPageCubit extends Cubit<StatisticPageState> {
         )
         .length;
 
-    final countOfBookmarkedEvents =
+    final countOfBookmarkedMessages =
         state.listMessages!.where((element) => element.bookmarkIndex == 1).length;
 
     setCountOfMessages(countOfMessages);
-    setCountOfBookmarkedMessages(countOfBookmarkedEvents);
+    setCountOfBookmarkedMessages(countOfBookmarkedMessages);
   }
 
   void setCountOfMessages(int count) {

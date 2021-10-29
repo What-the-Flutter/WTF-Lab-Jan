@@ -42,7 +42,9 @@ class ChatJournal extends StatelessWidget {
           create: (context) => HomePageCubit(),
         ),
         BlocProvider(
-          create: (context) => AuthenticationCubit(isAuthenticated: true),
+          create: (context) => AuthenticationCubit(
+            isAuthenticated: true,
+          ),
         ),
         BlocProvider<StatisticPageCubit>(
           create: (context) => StatisticPageCubit(),
@@ -60,7 +62,7 @@ class ChatJournal extends StatelessWidget {
         ),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
-        builder: (context, state) => BlocBuilder<AuthenticationCubit, AuthenticationState>(
+        builder: (context, settingsState) => BlocBuilder<AuthenticationCubit, AuthenticationState>(
           builder: (context, authState) {
             return BlocProvider(
               create: (context) =>
@@ -74,10 +76,10 @@ class ChatJournal extends StatelessWidget {
                   splashTransition: SplashTransition.scaleTransition,
                   duration: 1000,
                   backgroundColor: Colors.black,
-                  nextScreen: ChatJournalHomePage(),
+                  nextScreen: HomePage(),
                 ),
                 theme: ThemeData.light().copyWith(
-                  textTheme: state.textTheme.apply(
+                  textTheme: settingsState.textTheme.apply(
                     displayColor: Colors.black,
                     bodyColor: Colors.black,
                     decorationColor: Colors.black,
@@ -85,15 +87,15 @@ class ChatJournal extends StatelessWidget {
                   backgroundColor: Colors.grey[400],
                 ),
                 darkTheme: ThemeData.dark().copyWith(
-                  textTheme: state.textTheme.apply(
+                  textTheme: settingsState.textTheme.apply(
                     displayColor: Colors.white,
                     bodyColor: Colors.white,
                     decorationColor: Colors.white,
                   ),
                 ),
-                themeMode: state.themeMode,
+                themeMode: settingsState.themeMode,
                 routes: {
-                  '/home_page': (__) => ChatJournalHomePage(),
+                  '/home_page': (__) => HomePage(),
                   '/add_page': (_) => AddPage.add(),
                   '/timeline_page': (_) => TimelinePage(),
                   '/settings_page': (_) => SettingsPage(),
