@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../entity/category.dart';
 import '../../util/domain.dart';
-
 import 'add_page_cubit.dart';
 
 class AddPage extends StatefulWidget {
@@ -65,7 +65,7 @@ class _AddPageState extends State<AddPage> {
     return BlocBuilder<AddPageCubit, AddPageState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.blueGrey[100],
+          backgroundColor: Colors.blueGrey[300],
           appBar: _appBarFromAddingPage(),
           body: _bodyFromAddingPage(state),
           floatingActionButton: FloatingActionButton(
@@ -149,12 +149,12 @@ class _AddPageState extends State<AddPage> {
               return GridTile(
                 child: Padding(
                   padding: index == state.selectedIconIndex
-                      ? const EdgeInsets.all(10.0)
+                      ? const EdgeInsets.all(11.0)
                       : const EdgeInsets.all(22.0),
                   child: CircleAvatar(
                     foregroundColor: Colors.white,
                     backgroundColor:
-                        index == state.selectedIconIndex ? (Colors.red) : (Colors.black),
+                        index == state.selectedIconIndex ? (Colors.yellow) : (Colors.black),
                     child: IconButton(
                       onPressed: () {
                         BlocProvider.of<AddPageCubit>(context).setSelectedIconIndex(index);

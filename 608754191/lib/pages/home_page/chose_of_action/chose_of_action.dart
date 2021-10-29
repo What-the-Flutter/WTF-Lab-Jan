@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+
 import '../../../entity/category.dart';
 import '../../../util/domain.dart';
-
 import '../home_page_cubit.dart';
 
 class ChoseOfAction extends StatelessWidget {
@@ -137,6 +136,7 @@ class ChoseOfAction extends StatelessWidget {
           ),
           elevation: 16,
           child: Container(
+            color: Colors.yellow[400],
             height: 300.0,
             width: 220.0,
             child: ListView(
@@ -146,7 +146,7 @@ class ChoseOfAction extends StatelessWidget {
                 ),
                 ListTile(
                   leading: CircleAvatar(
-                    foregroundColor: Colors.black54,
+                    foregroundColor: Colors.yellow,
                     child: Icon(
                       initialIcons[categories[index].iconIndex],
                     ),
@@ -160,18 +160,14 @@ class ChoseOfAction extends StatelessWidget {
                 ),
                 ListTile(
                   title: const Text(
-                    'Last message',
+                    'Last message is ',
                   ),
                   subtitle: categories[index].subTitleMessage.isEmpty
                       ? const Text(
                           'No messages',
                         )
                       : Text(
-                          DateFormat(
-                            'yyyy-MM-dd KK:mm:ss',
-                          ).format(
-                            DateTime.now(),
-                          ),
+                          categories[index].subTitleMessage,
                         ),
                 ),
                 const SizedBox(

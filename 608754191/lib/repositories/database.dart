@@ -28,7 +28,8 @@ class DatabaseProvider {
     return _database ?? await _initDB();
   }
 
-  factory DatabaseProvider() {
+  factory DatabaseProvider({Database? database}) {
+    _database = database;
     return _databaseProvider ?? DatabaseProvider._createInstance();
   }
 

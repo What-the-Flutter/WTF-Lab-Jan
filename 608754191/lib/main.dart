@@ -15,6 +15,7 @@ import 'pages/navbar_pages/timeline_page/timeline_page.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page_cubit.dart';
 import 'pages/settings/settings_page/settings_cubit.dart';
 import 'pages/settings/settings_page/settings_page.dart';
+import 'pages/statistic_page/statistic_page_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +42,12 @@ class ChatJournal extends StatelessWidget {
           create: (context) => HomePageCubit(),
         ),
         BlocProvider(
-          create: (context) => AuthenticationCubit(isAuthenticated: true),
+          create: (context) => AuthenticationCubit(
+            isAuthenticated: true,
+          ),
+        ),
+        BlocProvider<StatisticPageCubit>(
+          create: (context) => StatisticPageCubit(),
         ),
         BlocProvider<ChatPageCubit>(
           create: (context) => ChatPageCubit(),
@@ -56,7 +62,7 @@ class ChatJournal extends StatelessWidget {
         ),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
-        builder: (context, state) => BlocBuilder<AuthenticationCubit, AuthenticationState>(
+        builder: (context, settingsState) => BlocBuilder<AuthenticationCubit, AuthenticationState>(
           builder: (context, authState) {
             return BlocProvider(
               create: (context) =>
@@ -70,10 +76,10 @@ class ChatJournal extends StatelessWidget {
                   splashTransition: SplashTransition.scaleTransition,
                   duration: 1000,
                   backgroundColor: Colors.black,
-                  nextScreen: ChatJournalHomePage(),
+                  nextScreen: HomePage(),
                 ),
                 theme: ThemeData.light().copyWith(
-                  textTheme: state.textTheme.apply(
+                  textTheme: settingsState.textTheme.apply(
                     displayColor: Colors.black,
                     bodyColor: Colors.black,
                     decorationColor: Colors.black,
@@ -81,15 +87,15 @@ class ChatJournal extends StatelessWidget {
                   backgroundColor: Colors.grey[400],
                 ),
                 darkTheme: ThemeData.dark().copyWith(
-                  textTheme: state.textTheme.apply(
+                  textTheme: settingsState.textTheme.apply(
                     displayColor: Colors.white,
                     bodyColor: Colors.white,
                     decorationColor: Colors.white,
                   ),
                 ),
-                themeMode: state.themeMode,
+                themeMode: settingsState.themeMode,
                 routes: {
-                  '/home_page': (__) => ChatJournalHomePage(),
+                  '/home_page': (__) => HomePage(),
                   '/add_page': (_) => AddPage.add(),
                   '/timeline_page': (_) => TimelinePage(),
                   '/settings_page': (_) => SettingsPage(),

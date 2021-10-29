@@ -1,7 +1,7 @@
 analyzer:
   exclude:
     - build/**
-    - test/**
+
   errors:
     unused_field: ignore
     unused_element: ignore

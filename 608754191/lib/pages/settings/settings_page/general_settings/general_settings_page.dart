@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../settings_cubit.dart';
 
-class GeneralSettingPage extends StatefulWidget {
+class GeneralSettingsPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _GeneralSettingPageState();
+  State<StatefulWidget> createState() => _GeneralSettingsPageState();
 }
 
-class _GeneralSettingPageState extends State<GeneralSettingPage> {
+class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

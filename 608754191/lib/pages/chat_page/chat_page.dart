@@ -232,15 +232,17 @@ class _ChatPage extends State<ChatPage> {
         ),
         IconButton(
           icon: const Icon(Icons.arrow_forward),
-          onPressed: () => showDialog(
-            context: context,
-            builder: (dialogContext) => _migrateEventDialog(
-              index,
-              blocContext,
-              dialogContext,
-              state,
-            ),
-          ),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (dialogContext) => _migrationDialog(
+                index,
+                blocContext,
+                dialogContext,
+                state,
+              ),
+            );
+          },
         ),
       ],
     );
@@ -463,9 +465,9 @@ class _ChatPage extends State<ChatPage> {
     state.messageList.insert(
       state.messageList.length,
       Message(
-        time: DateFormat('yyyy-MM-dd kk:mm').format(
-          DateTime.now(),
-        ),
+        time: DateFormat.yMd().add_jm().format(
+              DateTime.now(),
+            ),
         text: _textEditingController.text,
         currentCategoryId: state.category!.categoryId!,
         imagePath: '',
@@ -474,7 +476,7 @@ class _ChatPage extends State<ChatPage> {
     _textEditingController.clear();
   }
 
-  Dialog _migrateEventDialog(
+  Dialog _migrationDialog(
     int messageIndex,
     BuildContext blocContext,
     BuildContext dialogContext,
@@ -483,6 +485,7 @@ class _ChatPage extends State<ChatPage> {
     return Dialog(
       elevation: 16,
       child: Container(
+        color: Colors.yellow[300],
         height: 300,
         width: 220,
         child: ListView.separated(
@@ -493,7 +496,12 @@ class _ChatPage extends State<ChatPage> {
           ) {
             if (index == 0) {
               return const Center(
-                child: Text('select the page you want to forward the message to!'),
+                child: Text(
+                  'select the page you want to forward the message to!',
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
               );
             }
             return ListTile(

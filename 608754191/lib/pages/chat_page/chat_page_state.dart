@@ -14,6 +14,7 @@ class ChatPageState {
   final Alignment? isBubbleAlignment;
   final bool? isSortedByBookmarks;
   final String? selectedTime;
+
   ChatPageState({
     this.messageSelected,
     this.indexOfSelectedElement,

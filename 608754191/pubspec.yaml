@@ -1,5 +1,5 @@
 name: task_wtf
-description: A new Flutter project.
+description: A Flutter project (Chat Journal) for WTF laboratory, student Egor Korshun, ID 608754191.
 
 publish_to: 'none'
 
@@ -24,13 +24,22 @@ dependencies:
   share: ^2.0.1
   animated_splash_screen: ^1.1.0
   splashscreen: ^1.3.5
+  fl_chart: ^0.40.2
+  charts_flutter: ^0.11.0
   lottie: ^1.2.1
+  http: ^0.13.4
   hashtagable:
     path: D:\Flutter\hashtagable-master\hashtagable-master
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
+  mockito: ^5.0.16
+  test: ^1.16.8
+
+  build_runner: ^2.0.0
 
 flutter:
   uses-material-design: true
