@@ -1,7 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class EventScreen extends StatefulWidget {
   @override
@@ -10,8 +11,8 @@ class EventScreen extends StatefulWidget {
 
 class _EventScreenState extends State<EventScreen> {
   final _myController = TextEditingController();
-  final bool _isEnable = false;
   final List<String> _events = [];
+  final List<String> _currentTime = [];
   bool _isSelected = false;
   int _selectedIndex = -1;
 
@@ -21,22 +22,25 @@ class _EventScreenState extends State<EventScreen> {
       resizeToAvoidBottomInset: true,
       appBar: _isSelected == false
           ? AppBar(
-              title: _createAppBarTitle(),
-              actions: <Widget>[
-                _buildAppBarButtons(),
-              ],
-            )
+        title: _createAppBarTitle(),
+        actions: <Widget>[
+          _buildAppBarButtons(),
+        ],
+      )
           : AppBar(
-              leading: _buildAppBarLeftButton(),
-              actions: <Widget>[
-                _buildAppBarSelectedButtons(),
-              ],
-            ),
+        leading: _buildAppBarLeftButton(),
+        actions: <Widget>[
+          _buildAppBarSelectedButtons(),
+        ],
+      ),
       body: _bodyStructure(context),
       bottomNavigationBar: Padding(
         child: _buildBottomAppBar(context),
         padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        EdgeInsets.only(bottom: MediaQuery
+            .of(context)
+            .viewInsets
+            .bottom),
       ),
     );
   }
@@ -108,17 +112,28 @@ class _EventScreenState extends State<EventScreen> {
     );
   }
 
-  Future<bool?> _createClipBoard() async {
-    return Clipboard.setData(ClipboardData(text: _events[_selectedIndex])).then(
-      (value) => Fluttertoast.showToast(
-          msg: 'Copied to a clipboard!',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.black54,
-          textColor: Colors.white,
-          fontSize: 16.0),
-    );
+  Future<void> _createClipBoard() async {
+    Clipboard.setData(ClipboardData(text: _events[_selectedIndex]));
+    await _showClipBoardToast();
+    await _returnToInitialState();
+  }
+
+  Future<bool?> _showClipBoardToast() {
+    return Fluttertoast.showToast(
+        msg: 'Copied to a clipboard!',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
+  Future<void> _returnToInitialState() async {
+    setState(() {
+      _selectedIndex = -1;
+      _isSelected = false;
+    });
   }
 
   void _openMyAlertDialog(BuildContext context) {
@@ -133,7 +148,9 @@ class _EventScreenState extends State<EventScreen> {
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () {
               _events.removeAt(_selectedIndex);
-              Navigator.of(context).pop(true); // Return true
+              _showDeleteToast();
+              Navigator.of(context).pop(true);
+              // Return true
             },
           ),
           const Text('Delete'),
@@ -164,6 +181,17 @@ class _EventScreenState extends State<EventScreen> {
     });
   }
 
+  Future<bool?> _showDeleteToast() {
+    return Fluttertoast.showToast(
+        msg: 'Delete selected event',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
   Widget _buildAppBarNoteButton() {
     return IconButton(
       icon: const Icon(Icons.bookmark_border_outlined),
@@ -172,35 +200,39 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   Widget _bodyStructure(BuildContext context) {
-    final timeFormat = DateFormat('h:m a');
-    final now = DateTime.now();
-    final todayTimeInString = timeFormat.format(now);
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(5),
-            reverse: true, //To keep the latest messages at the bottom
-            itemBuilder: (_, index) => Container(
-              margin: const EdgeInsets.only(top: 5),
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                color: Colors.greenAccent,
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(5),
-                  bottomRight: Radius.circular(5),
+    return ListView.builder(
+      //padding: const EdgeInsets.only(top: 8.0, left: 15.0, right: 15.0),
+      padding: const EdgeInsets.all(5),
+      reverse: true,
+      itemCount: _events.length, //To keep the latest messages at the bottom
+      itemBuilder: (_, index) =>
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Flex(
+              direction: Axis.horizontal,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.only(top: 5),
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.87,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.greenAccent,
+                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                  ),
+                  child: _tile(_events[index], _currentTime[index], index),
                 ),
-              ),
-              child: _tile(_events[index], todayTimeInString, index),
+              ],
             ),
-            itemCount: _events.length,
           ),
-        ),
-      ],
     );
   }
 
-  ListTile _tile(String title, String subtitle, int index) {
+  Widget _tile(String title, String subtitle, int index) {
     return ListTile(
       title: Text(
         title,
@@ -288,6 +320,9 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   Widget _createTextFormField() {
+    final timeFormat = DateFormat('h:m a');
+    final now = DateTime.now();
+    final todayTimeInString = timeFormat.format(now);
     return TextFormField(
         decoration: const InputDecoration(
           border: InputBorder.none,
@@ -304,10 +339,13 @@ class _EventScreenState extends State<EventScreen> {
         controller: _myController,
         onFieldSubmitted: (text) {
           if (_selectedIndex == -1) {
-            _events.add(text);
+            _events.insert(0, text);
+            _currentTime.insert(0, todayTimeInString);
           } else {
             _events.removeAt(_selectedIndex);
             _events.insert(_selectedIndex, text);
+            _selectedIndex = -1;
+            _isSelected = false;
           }
           _myController.clear();
           print(_events);
