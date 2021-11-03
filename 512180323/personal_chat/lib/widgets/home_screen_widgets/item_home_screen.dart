@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
-import '../../screens/event_screen.dart';
+import '../../screens/events_screen.dart';
 
 class MyItem extends StatefulWidget {
   final String title;

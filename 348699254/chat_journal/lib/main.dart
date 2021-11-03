@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'bottom_navigation.dart';
+import 'events_screen.dart';
 import 'list_with_activities.dart';
 
 void main() {
@@ -8,7 +9,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,15 +18,16 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/daily': (context) => DailyScreen(),
+        '/events': (context) => EventScreen(),
+        /*'/daily': (context) => DailyScreen(),
         '/timeline': (context) => TimelineScreen(),
-        '/explore': (context) => ExploreScreen(),
+        '/explore': (context) => ExploreScreen(),*/
       },
       home: Scaffold(
         appBar: AppBar(
           title: _createAppBarTitle(),
           leading: _buildAppBarLeftButton(),
-          actions: <Widget> [
+          actions: <Widget>[
             _buildAppBarRightButton(),
           ],
         ),
@@ -38,28 +39,24 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Widget _createAppBarTitle(){
+Widget _createAppBarTitle() {
   return const Align(
     child: Text('Home'),
     alignment: Alignment.center,
   );
 }
 
-Widget _buildAppBarLeftButton(){
+Widget _buildAppBarLeftButton() {
   return IconButton(
-      icon: const Icon(Icons.menu_outlined),
-      onPressed: () {
-        print('Click on menu outlined button');
-      }
+    icon: const Icon(Icons.menu_outlined),
+    onPressed: () => print('Click on menu outlined button'),
   );
 }
 
-Widget _buildAppBarRightButton(){
+Widget _buildAppBarRightButton() {
   return IconButton(
     icon: const Icon(Icons.wb_incandescent_outlined),
-    onPressed: () => {
-      print('Click on incandescent outlined button')
-    },
+    onPressed: () => print('Click on incandescent outlined button'),
   );
 }
 
@@ -71,29 +68,24 @@ Widget _buildContainer() {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-              Icons.adb
-          ),
+          const Icon(Icons.adb),
           const Text('   Questionnaire Bot'),
-        ],),
-      decoration: BoxDecoration(
-          color: Colors.blueGrey,
-          borderRadius: BorderRadius.circular(10)
+        ],
       ),
+      decoration: BoxDecoration(
+          color: Colors.blueGrey, borderRadius: BorderRadius.circular(10)),
     ),
   );
 }
 
-Widget _bodyStructure(){
+Widget _bodyStructure() {
   return Column(
     children: <Widget>[
-      Row(
-          children: <Widget>[
-            Expanded(
-              child: _buildContainer(),
-            ),
-          ]
-      ),
+      Row(children: <Widget>[
+        Expanded(
+          child: _buildContainer(),
+        ),
+      ]),
       const Divider(height: 1),
       Expanded(
         child: ChangeListViewBGColor(),
@@ -102,14 +94,12 @@ Widget _bodyStructure(){
   );
 }
 
-Widget _createFloatingActionButton(){
+Widget _createFloatingActionButton() {
   return FloatingActionButton(
     onPressed: () {
       // Add your onPressed code here!
     },
-    child: const Icon(
-        Icons.add,
-        color: Colors.brown),
+    child: const Icon(Icons.add, color: Colors.brown),
     backgroundColor: Colors.amberAccent,
   );
 }
