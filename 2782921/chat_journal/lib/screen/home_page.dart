@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '../navigation/fluro_router.dart';
 import 'appbar.dart';
-
 import 'bottom_nv_bar.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -34,7 +34,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 350,
                 height: 40,
                 child: const Align(
-                  child: Text('Questionary Bot'),
+                  child: Text(
+                    'Questionary Bot',
+                  ),
                 ),
               ),
             ),
@@ -51,11 +53,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 ListviewItems(
                   title: 'Family',
-                  iconc: const Icon(Icons.living_rounded, size: 40),
+                  iconc: const Icon(
+                    Icons.living_rounded,
+                    size: 40,
+                  ),
                 ),
                 ListviewItems(
                   title: 'Sports',
-                  iconc: const Icon(Icons.sports_mma, size: 40),
+                  iconc: const Icon(
+                    Icons.sports_mma,
+                    size: 40,
+                  ),
                 ),
               ],
             ),
@@ -90,46 +98,54 @@ class ListviewItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 0,
+        vertical: 10,
+      ),
       child: Container(
         width: 390,
-        height: 40,
-        child: Material(
-          child: ListTile(
-            title: Row(
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                  child: Container(child: iconc),
+        height: 50,
+        child: ListTile(
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 0,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$title',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                child: Container(child: iconc),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$title',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
                     ),
-                    const Text(
-                      'No Events. Click to create one.',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w100,
-                      ),
+                  ),
+                  const Text(
+                    'No Events. Click to create one.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w100,
                     ),
-                  ],
-                ),
-                // const Divider(
-                //   thickness: 12,
-                //   color: Colors.black,
-                // )
-              ],
-            ),
-            hoverColor: Colors.red,
-            enabled: true,
-            onTap: () {},
+                  ),
+                ],
+              ),
+              // const Divider(
+              //   thickness: 12,
+              //   color: Colors.black,
+              // )
+            ],
           ),
+          hoverColor: Colors.red,
+          enabled: true,
+          onTap: () {
+            fluroRouter.router.navigateTo(
+              context,
+              '/chat/$title',
+            );
+          },
         ),
       ),
     );

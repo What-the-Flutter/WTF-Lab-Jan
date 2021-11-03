@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'screen/home_page.dart';
+import 'navigation/fluro_router.dart';
 
 void main() {
+  fluroRouter.setupRouter();
   runApp(const MyApp());
 }
 
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.indigo,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
