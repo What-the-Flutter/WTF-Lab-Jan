@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 
-class BottomNavigation extends StatefulWidget{
-
+class BottomNavigation extends StatefulWidget {
   @override
   _BottomNavigationState createState() => _BottomNavigationState();
-
 }
 
-class _BottomNavigationState extends State<BottomNavigation>{
-  int selectedIndex = 0;
+class _BottomNavigationState extends State<BottomNavigation> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      currentIndex: selectedIndex,
+      currentIndex: _selectedIndex,
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -34,46 +32,43 @@ class _BottomNavigationState extends State<BottomNavigation>{
         )
       ],
       onTap: (index) {
-        setState((){
-          selectedIndex = index;
-          _navigateToMenuScreen();
+        setState(() {
+          _selectedIndex = index;
+          // _navigateToMenuScreen();
         });
       },
     );
   }
 
-  void _navigateToMenuScreen()  {
-    if(selectedIndex == 0) {
+  void _navigateToMenuScreen() {
+    if (_selectedIndex == 0) {
       Navigator.pushNamed(context, '/');
-    } else if(selectedIndex==1) {
+    } else if (_selectedIndex == 1) {
       Navigator.pushNamed(context, '/daily');
-    } else if(selectedIndex==2){
+    } else if (_selectedIndex == 2) {
       Navigator.pushNamed(context, '/timeline');
-    } else if(selectedIndex==3){
+    } else if (_selectedIndex == 3) {
       Navigator.pushNamed(context, '/explore');
     }
   }
 }
 
-
-Widget _buildAppBarLeftButton(){
+Widget _buildAppBarLeftButton() {
   return IconButton(
       icon: const Icon(Icons.menu_outlined),
       onPressed: () {
         print('Click on menu outlined button');
-      }
-  );
+      });
 }
 
-class DailyScreen extends StatelessWidget{
-
+class DailyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: _createAppBarTitle(),
         leading: _buildAppBarLeftButton(),
-        actions: <Widget> [
+        actions: <Widget>[
           _buildAppBarRightButton(),
         ],
       ),
@@ -81,32 +76,28 @@ class DailyScreen extends StatelessWidget{
     );
   }
 
-  Widget _createAppBarTitle(){
+  Widget _createAppBarTitle() {
     return const Align(
       child: Text('Daily'),
       alignment: Alignment.center,
     );
   }
 
-  Widget _buildAppBarRightButton(){
+  Widget _buildAppBarRightButton() {
     return IconButton(
-      icon: const Icon(Icons.menu_open),
-      onPressed: () => {
-        print('Click on open menu button')
-      },
-    );
+        icon: const Icon(Icons.menu_open),
+        onPressed: () => print('Click on open menu button'));
   }
-
 }
 
-class TimelineScreen extends StatelessWidget{
+class TimelineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: _createAppBarTitle(),
         leading: _buildAppBarLeftButton(),
-        actions: <Widget> [
+        actions: <Widget>[
           _buildAppBarSearchButton(),
           _buildAppBarNoteButton(),
         ],
@@ -115,34 +106,29 @@ class TimelineScreen extends StatelessWidget{
     );
   }
 
-  Widget _buildAppBarSearchButton(){
+  Widget _buildAppBarSearchButton() {
     return IconButton(
       icon: const Icon(Icons.search),
-      onPressed: () => {
-        print('Click on open menu button')
-      },
+      onPressed: () => {print('Click on open menu button')},
     );
   }
 
-  Widget _buildAppBarNoteButton(){
+  Widget _buildAppBarNoteButton() {
     return IconButton(
       icon: const Icon(Icons.note),
-      onPressed: () => {
-        print('Click on note button')
-      },
+      onPressed: () => print('Click on note button'),
     );
   }
 
-  Widget _createAppBarTitle(){
+  Widget _createAppBarTitle() {
     return const Align(
       child: Text('Timeline'),
       alignment: Alignment.center,
     );
   }
-
 }
 
-class ExploreScreen extends StatelessWidget{
+class ExploreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,11 +140,10 @@ class ExploreScreen extends StatelessWidget{
     );
   }
 
-  Widget _createAppBarTitle(){
+  Widget _createAppBarTitle() {
     return const Align(
       child: Text('Explore'),
       alignment: Alignment.topLeft,
     );
   }
-
 }
