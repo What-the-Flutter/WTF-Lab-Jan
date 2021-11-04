@@ -1,46 +1,22 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/add_page/add_page.dart';
 import 'pages/add_page/add_page_cubit.dart';
-import 'pages/entity/category.dart';
+import 'pages/authorization/authorization_cubit.dart';
+import 'pages/authorization/authorization_page.dart';
+import 'pages/chat_page/chat_page_cubit.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/navbar_pages/timeline_page/timeline_page.dart';
-import 'util/theme_bloc/theme_cubit.dart';
-import 'util/theme_inherited/application_theme.dart';
+import 'pages/navbar_pages/timeline_page/timeline_page_cubit.dart';
+import 'pages/settings/settings_page/settings_cubit.dart';
+import 'pages/settings/settings_page/settings_page.dart';
+import 'pages/statistic_page/statistic_page_cubit.dart';
 
-List<IconData> initialIcons = [
-  Icons.theater_comedy,
-  Icons.family_restroom,
-  Icons.work,
-  Icons.local_shipping,
-  Icons.sports_basketball,
-  Icons.wine_bar,
-  Icons.face_unlock_sharp,
-  Icons.photo_camera,
-  Icons.mode_edit,
-  Icons.circle,
-  Icons.volunteer_activism,
-  Icons.square_foot_rounded,
-  Icons.visibility_rounded,
-  Icons.accessibility,
-  Icons.agriculture,
-  Icons.anchor,
-  Icons.category,
-  Icons.title,
-  Icons.airline_seat_flat_rounded,
-  Icons.attach_money,
-  Icons.attach_file_outlined,
-  Icons.auto_fix_high,
-  Icons.airplanemode_active,
-  Icons.radar,
-  Icons.library_music_outlined,
-  Icons.wb_sunny,
-  Icons.gesture,
-  Icons.train_outlined
-];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
@@ -55,17 +31,6 @@ class ChatJournal extends StatelessWidget {
 
   const ChatJournal({Key? key, required this.preferences}) : super(key: key);
 
-  ThemeMode _themeModeFromString(String? string) {
-    switch (string) {
-      case 'dark':
-        return ThemeMode.dark;
-      case 'light':
-        return ThemeMode.light;
-      default:
-        return ThemeMode.light;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -76,32 +41,70 @@ class ChatJournal extends StatelessWidget {
         BlocProvider(
           create: (context) => HomePageCubit(),
         ),
-        BlocProvider<ThemeCubit>(
-          create: (context) => ThemeCubit(
-            _themeModeFromString(
-              preferences.getString(
-                'themeMode',
-              ),
-            ),
+        BlocProvider(
+          create: (context) => AuthenticationCubit(
+            isAuthenticated: true,
+          ),
+        ),
+        BlocProvider<StatisticPageCubit>(
+          create: (context) => StatisticPageCubit(),
+        ),
+        BlocProvider<ChatPageCubit>(
+          create: (context) => ChatPageCubit(),
+        ),
+        BlocProvider<TimelinePageCubit>(
+          create: (context) => TimelinePageCubit(),
+        ),
+        BlocProvider<SettingsCubit>(
+          create: (context) => SettingsCubit(
             preferences: preferences,
           ),
         ),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, state) {
-          return MaterialApp(
-            title: 'Home Page',
-            themeMode: state.themeMode,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            routes: {
-              '/home_page': (__) => ChatJournalHomePage(),
-              '/add_page': (_) => AddPage.add(),
-              '/timeline_page': (_) => TimelinePage(categories: []),
-            },
-            initialRoute: '/home_page',
-          );
-        },
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settingsState) => BlocBuilder<AuthenticationCubit, AuthenticationState>(
+          builder: (context, authState) {
+            return BlocProvider(
+              create: (context) =>
+                  AuthenticationCubit(isAuthenticated: !authState.isAuthenticated)..authenticate(),
+              child: MaterialApp(
+                title: 'Home Page',
+                home: AnimatedSplashScreen(
+                  splash: Lottie.network(
+                    'https://assets8.lottiefiles.com/packages/lf20_hjmgkfru.json',
+                  ),
+                  splashTransition: SplashTransition.scaleTransition,
+                  duration: 1000,
+                  backgroundColor: Colors.black,
+                  nextScreen: HomePage(),
+                ),
+                theme: ThemeData.light().copyWith(
+                  textTheme: settingsState.textTheme.apply(
+                    displayColor: Colors.black,
+                    bodyColor: Colors.black,
+                    decorationColor: Colors.black,
+                  ),
+                  backgroundColor: Colors.grey[400],
+                ),
+                darkTheme: ThemeData.dark().copyWith(
+                  textTheme: settingsState.textTheme.apply(
+                    displayColor: Colors.white,
+                    bodyColor: Colors.white,
+                    decorationColor: Colors.white,
+                  ),
+                ),
+                themeMode: settingsState.themeMode,
+                routes: {
+                  '/home_page': (__) => HomePage(),
+                  '/add_page': (_) => AddPage.add(),
+                  '/timeline_page': (_) => TimelinePage(),
+                  '/settings_page': (_) => SettingsPage(),
+                  '/authentication': (_) => AuthorizationPage(),
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }

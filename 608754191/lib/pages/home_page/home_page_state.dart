@@ -28,3 +28,15 @@ class CategoryAddedSuccess extends HomePageState {
   @override
   List<Object?> get props => [categories, addedCategory];
 }
+
+class CategoryDeleteSuccess extends HomePageState {
+  final Category deletedCategory;
+
+  CategoryDeleteSuccess(
+    List<Category> categories,
+    this.deletedCategory,
+  ) : super(categories);
+
+  @override
+  List<Object> get props => [categories, deletedCategory];
+}
