@@ -64,11 +64,9 @@ class _HomeState extends State<Home> {
             label: 'Explore',
           ),
         ],
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: (index) => setState(
+          () => _currentIndex = index,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.sandPurple,

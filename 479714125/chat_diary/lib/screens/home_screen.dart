@@ -25,9 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: listOfChats.length,
-        itemBuilder: (context, index) {
-          return listOfChats[index];
-        });
+      itemCount: listOfChats.length,
+      itemBuilder: (context, index) {
+        return listOfChats[index];
+      },
+    );
   }
 }
