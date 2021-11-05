@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-class MessageCard extends StatefulWidget {
+class ChatCard extends StatefulWidget {
   final IconData icon;
   final String title;
-  const MessageCard({
+  const ChatCard({
     Key? key,
     required this.icon,
     required this.title,
   }) : super(key: key);
 
   @override
-  State<MessageCard> createState() => _MessageCardState();
+  State<ChatCard> createState() => _ChatCardState();
 }
 
-class _MessageCardState extends State<MessageCard> {
+class _ChatCardState extends State<ChatCard> {
   final _description = 'No Events. Click to create one.';
   bool _isHover = false;
 
