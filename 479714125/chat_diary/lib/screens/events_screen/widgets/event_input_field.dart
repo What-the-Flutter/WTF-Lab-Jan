@@ -72,11 +72,17 @@ class _EventInputFieldState extends State<EventInputField> {
               ),
               _keyboardIsVisible
                   ? IconButton(
-                      icon: const Icon(Icons.send),
+                      icon: const Icon(
+                        Icons.send,
+                        color: AppColors.bluePurple,
+                      ),
                       onPressed: _addEventModel,
                     )
                   : IconButton(
-                      icon: const Icon(Icons.image),
+                      icon: const Icon(
+                        Icons.image,
+                        color: AppColors.bluePurple,
+                      ),
                       onPressed: () {},
                     ),
             ],
