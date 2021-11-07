@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/home_screen/home_screen.dart';
 import 'theme/app_colors.dart';
 
 class App extends StatelessWidget {
