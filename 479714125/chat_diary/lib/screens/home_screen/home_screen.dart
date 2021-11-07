@@ -22,17 +22,13 @@ class _HomeScreenState extends State<HomeScreen> {
     ChatCard(icon: Icons.leave_bags_at_home, title: 'No bags'),
   ];
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return ListView.builder(
-  //     itemCount: listOfChats.length,
-  //     itemBuilder: (context, index) {
-  //       return listOfChats[index];
-  //     },
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return ListView.builder(
+      itemCount: listOfChats.length,
+      itemBuilder: (context, index) {
+        return listOfChats[index];
+      },
+    );
   }
 }

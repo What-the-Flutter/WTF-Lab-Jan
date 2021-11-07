@@ -4,6 +4,7 @@ import '../../../theme/app_colors.dart';
 class ChatCard extends StatefulWidget {
   final IconData icon;
   final String title;
+
   const ChatCard({
     Key? key,
     required this.icon,
@@ -42,7 +43,7 @@ class _ChatCardState extends State<ChatCard> {
                   radius: 25,
                   child: Icon(
                     widget.icon,
-                    color: Colors.black,
+                    color: AppColors.black,
                   ),
                   backgroundColor: AppColors.sandPurple,
                 ),

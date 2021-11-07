@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/events_screen/event_screen.dart';
 import 'screens/home_screen/home_screen.dart';
 import 'theme/app_colors.dart';
 
@@ -9,7 +10,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Chat Diary',
-      home: Home(),
+      //home: Home(),
+      home: EventScreen(title: 'Travel'),
     );
   }
 }
