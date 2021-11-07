@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../theme/app_colors.dart';
 import 'models/event_model.dart';
 import 'widgets/event_input_field.dart';
@@ -15,38 +14,7 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
-  final _events = <EventModel>[
-    EventModel(
-      text: 'Hello, I am Maks',
-      date: DateFormat.Hm().format(
-        DateTime.now(),
-      ),
-    ),
-    EventModel(
-      text: 'Do homework',
-      date: DateFormat.Hm().format(
-        DateTime.now(),
-      ),
-    ),
-    EventModel(
-      text: ' djasjdfdsbb skfdsfn askjsdwdmdd djdjdjdjdjd jdjdjd ',
-      date: DateFormat.Hm().format(
-        DateTime.now(),
-      ),
-    ),
-    EventModel(
-      text: 'dmddmmw',
-      date: DateFormat.Hm().format(
-        DateTime.now(),
-      ),
-    ),
-    EventModel(
-      text: 'dmddmmw',
-      date: DateFormat.Hm().format(
-        DateTime.now(),
-      ),
-    ),
-  ];
+  final _events = <EventModel>[];
 
   @override
   Widget build(BuildContext context) {
