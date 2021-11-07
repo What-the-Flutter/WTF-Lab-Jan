@@ -1,17 +1,59 @@
-import 'package:chat_diary/screens/events_screen/widgets/event_list.dart';
-import 'package:chat_diary/screens/events_screen/widgets/event_message.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../theme/app_colors.dart';
+import 'models/event_model.dart';
+import 'widgets/event_input_field.dart';
+import 'widgets/event_list.dart';
 
-class EventScreen extends StatelessWidget {
+class EventScreen extends StatefulWidget {
   final String title;
 
   const EventScreen({Key? key, required this.title}) : super(key: key);
+
+  @override
+  State<EventScreen> createState() => _EventScreenState();
+}
+
+class _EventScreenState extends State<EventScreen> {
+  final _events = <EventModel>[
+    EventModel(
+      text: 'Hello, I am Maks',
+      date: DateFormat.Hm().format(
+        DateTime.now(),
+      ),
+    ),
+    EventModel(
+      text: 'Do homework',
+      date: DateFormat.Hm().format(
+        DateTime.now(),
+      ),
+    ),
+    EventModel(
+      text: ' djasjdfdsbb skfdsfn askjsdwdmdd djdjdjdjdjd jdjdjd ',
+      date: DateFormat.Hm().format(
+        DateTime.now(),
+      ),
+    ),
+    EventModel(
+      text: 'dmddmmw',
+      date: DateFormat.Hm().format(
+        DateTime.now(),
+      ),
+    ),
+    EventModel(
+      text: 'dmddmmw',
+      date: DateFormat.Hm().format(
+        DateTime.now(),
+      ),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
         centerTitle: true,
         backgroundColor: AppColors.bluePurple,
         actions: [
@@ -25,7 +67,23 @@ class EventScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const EventList(),
+      body: Column(
+        children: [
+          Expanded(
+            child: EventList(
+              events: _events,
+            ),
+          ),
+          EventInputField(
+            addEvent: addEvent,
+          ),
+        ],
+      ),
     );
+  }
+
+  void addEvent(EventModel model) {
+    _events.insert(0, model);
+    setState(() {});
   }
 }
