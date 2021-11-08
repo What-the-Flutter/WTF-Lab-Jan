@@ -36,7 +36,7 @@ class MessageClickedAppBar extends StatelessWidget
   Widget build(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      backgroundColor: AppColors.bluePurple,
+      backgroundColor: AppColors.lightBlue,
       actions: [
         IconButton(
           onPressed: () {},

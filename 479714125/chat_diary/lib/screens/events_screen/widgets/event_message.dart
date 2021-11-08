@@ -4,11 +4,15 @@ import '../../../theme/app_colors.dart';
 class EventMessage extends StatefulWidget {
   final String text;
   final String date;
+  final int index;
+  final void Function(int, bool) toggleAppBar;
 
   const EventMessage({
     Key? key,
     required this.text,
     required this.date,
+    required this.index,
+    required this.toggleAppBar,
   }) : super(key: key);
 
   @override
@@ -35,14 +39,17 @@ class _EventMessageState extends State<EventMessage> {
       child: Align(
         alignment: Alignment.bottomLeft,
         child: GestureDetector(
-          onLongPress: () => setState(() {
-            _isSelected = !_isSelected;
-          }),
+          onLongPress: () => setState(_toggleSelection),
 
-          onTap: () {},
+          onTap: () {
+            if (_isSelected) {
+              setState(_toggleSelection);
+            }
+          },
+          //   }},
           // onLongPress: () => setState(() {
-          //   isSelected = !isSelected;
-          //if (_isSelected) showPopupMenu(context);
+          //   _isSelected = !_isSelected;
+          //   if (_isSelected) showPopupMenu(context);
           // }),
           // onTap: () {
           //   if (_isSelected) {
@@ -77,6 +84,11 @@ class _EventMessageState extends State<EventMessage> {
         ),
       ),
     );
+  }
+
+  void _toggleSelection() {
+    _isSelected = !_isSelected;
+    widget.toggleAppBar(widget.index, _isSelected);
   }
 
   // void showPopupMenu(BuildContext context) {

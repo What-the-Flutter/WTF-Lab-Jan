@@ -6,10 +6,12 @@ import '../models/event_model.dart';
 
 class EventInputField extends StatefulWidget {
   final void Function(EventModel) addEvent;
+  final bool isSelected;
 
   const EventInputField({
     Key? key,
     required this.addEvent,
+    required this.isSelected,
   }) : super(key: key);
 
   @override
@@ -48,6 +50,7 @@ class _EventInputFieldState extends State<EventInputField> {
             children: [
               Flexible(
                 child: TextField(
+                  enabled: !widget.isSelected,
                   controller: _inputController,
                   maxLines: null,
                   decoration: const InputDecoration(

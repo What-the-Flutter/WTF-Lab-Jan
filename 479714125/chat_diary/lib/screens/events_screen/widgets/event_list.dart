@@ -5,10 +5,12 @@ import 'event_message.dart';
 
 class EventList extends StatefulWidget {
   final List<EventModel> events;
+  final void Function(int, bool) toggleAppBar;
 
   const EventList({
     Key? key,
     required this.events,
+    required this.toggleAppBar,
   }) : super(key: key);
 
   @override
@@ -23,9 +25,10 @@ class _EventListState extends State<EventList> {
       itemCount: widget.events.length,
       itemBuilder: (context, index) {
         return EventMessage(
-          key: UniqueKey(),
+          index: index,
           text: widget.events[index].text,
           date: widget.events[index].date,
+          toggleAppBar: widget.toggleAppBar,
         );
       },
     );
