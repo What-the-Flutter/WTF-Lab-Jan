@@ -35,23 +35,25 @@ class _EventScreenState extends State<EventScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: EventList(
-              events: _events,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+        child: Column(
+          children: [
+            Expanded(
+              child: EventList(
+                events: _events,
+              ),
             ),
-          ),
-          EventInputField(
-            addEvent: addEvent,
-          ),
-        ],
+            EventInputField(
+              addEvent: _addEvent,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void addEvent(EventModel model) {
-    _events.insert(0, model);
-    setState(() {});
-  }
+  void _addEvent(EventModel model) => setState(
+        () => _events.insert(0, model),
+      );
 }

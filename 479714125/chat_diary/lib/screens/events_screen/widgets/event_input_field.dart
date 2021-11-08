@@ -49,7 +49,6 @@ class _EventInputFieldState extends State<EventInputField> {
               Flexible(
                 child: TextField(
                   controller: _inputController,
-                  textInputAction: TextInputAction.done,
                   maxLines: null,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
@@ -96,9 +95,9 @@ class _EventInputFieldState extends State<EventInputField> {
     if (_inputController.text.isNotEmpty) {
       final model = EventModel(
         text: _inputController.text,
-        date: DateFormat.Hm().format(
-          DateTime.now(),
-        ),
+        date: DateFormat('dd.MM.yy').add_Hm().format(
+              DateTime.now(),
+            ),
       );
       widget.addEvent(model);
       _inputController.clear();

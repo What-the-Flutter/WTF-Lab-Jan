@@ -6,7 +6,10 @@ import 'event_message.dart';
 class EventList extends StatefulWidget {
   final List<EventModel> events;
 
-  const EventList({Key? key, required this.events}) : super(key: key);
+  const EventList({
+    Key? key,
+    required this.events,
+  }) : super(key: key);
 
   @override
   _EventListState createState() => _EventListState();
@@ -20,6 +23,7 @@ class _EventListState extends State<EventList> {
       itemCount: widget.events.length,
       itemBuilder: (context, index) {
         return EventMessage(
+          key: UniqueKey(),
           text: widget.events[index].text,
           date: widget.events[index].date,
         );
