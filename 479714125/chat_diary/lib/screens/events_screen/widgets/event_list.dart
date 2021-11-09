@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/event_model.dart';
 import 'event_message.dart';
 
-class EventList extends StatefulWidget {
+class EventList extends StatelessWidget {
   final List<EventModel> events;
   final void Function(int, bool) toggleAppBar;
 
@@ -14,23 +14,35 @@ class EventList extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _EventListState createState() => _EventListState();
-}
-
-class _EventListState extends State<EventList> {
-  @override
   Widget build(BuildContext context) {
     return ListView.builder(
       reverse: true,
-      itemCount: widget.events.length,
-      itemBuilder: (context, index) {
-        return EventMessage(
-          index: index,
-          text: widget.events[index].text,
-          date: widget.events[index].date,
-          toggleAppBar: widget.toggleAppBar,
-        );
-      },
+      itemCount: events.length,
+      itemBuilder: (context, index) => EventMessage(
+        isSelected: events[index].isSelected,
+        text: events[index].text,
+        date: events[index].date,
+        index: index,
+        toggleAppBar: toggleAppBar,
+      ),
     );
+  }
+
+  List<EventMessage> mapToEventMessage(List<EventModel> events) {
+    final eventMessages = <EventMessage>[];
+    for (var i = 0; i < events.length; i += 1) {
+      final element = events[i];
+      eventMessages.add(
+        EventMessage(
+          isSelected: element.isSelected,
+          text: element.text,
+          date: element.date,
+          index: i,
+          toggleAppBar: toggleAppBar,
+        ),
+      );
+    }
+
+    return eventMessages;
   }
 }

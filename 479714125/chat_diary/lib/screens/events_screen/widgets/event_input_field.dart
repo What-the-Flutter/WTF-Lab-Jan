@@ -7,11 +7,19 @@ import '../models/event_model.dart';
 class EventInputField extends StatefulWidget {
   final void Function(EventModel) addEvent;
   final bool isSelected;
+  final bool isEditing;
+  final FocusNode inputNode;
+  final TextEditingController inputController;
+  final Function(String) editEvent;
 
   const EventInputField({
     Key? key,
     required this.addEvent,
     required this.isSelected,
+    required this.isEditing,
+    required this.inputNode,
+    required this.inputController,
+    required this.editEvent,
   }) : super(key: key);
 
   @override
@@ -19,20 +27,7 @@ class EventInputField extends StatefulWidget {
 }
 
 class _EventInputFieldState extends State<EventInputField> {
-  late final TextEditingController _inputController;
   bool _keyboardIsVisible = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _inputController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _inputController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +45,9 @@ class _EventInputFieldState extends State<EventInputField> {
             children: [
               Flexible(
                 child: TextField(
+                  focusNode: widget.inputNode,
                   enabled: !widget.isSelected,
-                  controller: _inputController,
+                  controller: widget.inputController,
                   maxLines: null,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
@@ -95,15 +91,20 @@ class _EventInputFieldState extends State<EventInputField> {
   }
 
   void _addEventModel() {
-    if (_inputController.text.isNotEmpty) {
-      final model = EventModel(
-        text: _inputController.text,
-        date: DateFormat('dd.MM.yy').add_Hm().format(
-              DateTime.now(),
-            ),
-      );
-      widget.addEvent(model);
-      _inputController.clear();
+    if (widget.inputController.text.isNotEmpty) {
+      if (!widget.isEditing) {
+        final model = EventModel(
+          text: widget.inputController.text,
+          date: DateFormat('dd.MM.yy').add_Hm().format(
+                DateTime.now(),
+              ),
+        );
+        widget.addEvent(model);
+        widget.inputController.clear();
+      } else {
+        widget.editEvent(widget.inputController.text);
+        widget.inputController.clear();
+      }
     }
   }
 }

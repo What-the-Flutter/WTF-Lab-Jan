@@ -5,6 +5,7 @@ class EventMessage extends StatefulWidget {
   final String text;
   final String date;
   final int index;
+  final bool isSelected;
   final void Function(int, bool) toggleAppBar;
 
   const EventMessage({
@@ -13,6 +14,7 @@ class EventMessage extends StatefulWidget {
     required this.date,
     required this.index,
     required this.toggleAppBar,
+    required this.isSelected,
   }) : super(key: key);
 
   @override
@@ -20,13 +22,6 @@ class EventMessage extends StatefulWidget {
 }
 
 class _EventMessageState extends State<EventMessage> {
-  bool _isSelected = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -40,28 +35,15 @@ class _EventMessageState extends State<EventMessage> {
         alignment: Alignment.bottomLeft,
         child: GestureDetector(
           onLongPress: () => setState(_toggleSelection),
-
           onTap: () {
-            if (_isSelected) {
+            if (widget.isSelected) {
               setState(_toggleSelection);
             }
           },
-          //   }},
-          // onLongPress: () => setState(() {
-          //   _isSelected = !_isSelected;
-          //   if (_isSelected) showPopupMenu(context);
-          // }),
-          // onTap: () {
-          //   if (_isSelected) {
-          //     setState(
-          //       () => _isSelected = !_isSelected,
-          //     );
-          //   }
-          // },
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
-              color: _isSelected ? AppColors.blue400 : AppColors.blue200,
+              color: widget.isSelected ? AppColors.blue400 : AppColors.blue200,
             ),
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -87,34 +69,6 @@ class _EventMessageState extends State<EventMessage> {
   }
 
   void _toggleSelection() {
-    _isSelected = !_isSelected;
-    widget.toggleAppBar(widget.index, _isSelected);
+    widget.toggleAppBar(widget.index, widget.isSelected);
   }
-
-  // void showPopupMenu(BuildContext context) {
-  //   showMenu<String>(
-  //     context: context,
-  //     position: const RelativeRect.fromLTRB(25.0, 25.0, 0.0, 0.0),
-  //     items: [
-  //       const PopupMenuItem<String>(child: Text('menu option 1'), value: '1'),
-  //       const PopupMenuItem<String>(child: Text('menu option 2'), value: '2'),
-  //       const PopupMenuItem<String>(child: Text('menu option 3'), value: '3'),
-  //     ],
-  //     elevation: 8.0,
-  //   ).then<void>((itemSelected) {
-  //     if (itemSelected == null) {
-  //       _isSelected = !_isSelected;
-  //       return;
-  //     }
-
-  //     if (itemSelected == '1') {
-  //       //code here
-  //     } else if (itemSelected == '2') {
-  //       //code here
-  //     } else {
-  //       //code here
-  //     }
-  //     _isSelected = !_isSelected;
-  //   });
-  // }
 }

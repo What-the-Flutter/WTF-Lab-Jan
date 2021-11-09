@@ -8,4 +8,7 @@ class EventModel {
     required this.date,
     this.isSelected = false,
   });
+
+  @override
+  String toString() => '$text $isSelected';
 }
