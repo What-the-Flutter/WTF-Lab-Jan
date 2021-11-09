@@ -1,4 +1,3 @@
-import 'package:chat_diary/screens/events_screen/models/event_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_colors.dart';
@@ -35,9 +34,11 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
 class MessageClickedAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   final bool containsMoreThanOneSelected;
+  final bool isImageSelected;
   final void Function() deleteSelectedEvents;
   final void Function() copySelectedEvents;
   final void Function() findEventToEdit;
+  final void Function() addToFavorites;
 
   const MessageClickedAppBar({
     Key? key,
@@ -45,6 +46,8 @@ class MessageClickedAppBar extends StatelessWidget
     required this.deleteSelectedEvents,
     required this.copySelectedEvents,
     required this.findEventToEdit,
+    required this.isImageSelected,
+    required this.addToFavorites,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -52,7 +55,7 @@ class MessageClickedAppBar extends StatelessWidget
       centerTitle: true,
       backgroundColor: AppColors.bluePurple,
       actions: [
-        if (!containsMoreThanOneSelected)
+        if (!containsMoreThanOneSelected && !isImageSelected)
           IconButton(
             onPressed: findEventToEdit,
             icon: const Icon(Icons.edit),
@@ -62,7 +65,7 @@ class MessageClickedAppBar extends StatelessWidget
           icon: const Icon(Icons.copy),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: addToFavorites,
           icon: const Icon(Icons.bookmark_outline),
         ),
         IconButton(

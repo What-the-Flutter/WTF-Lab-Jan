@@ -21,28 +21,11 @@ class EventList extends StatelessWidget {
       itemBuilder: (context, index) => EventMessage(
         isSelected: events[index].isSelected,
         text: events[index].text,
+        imageFile: events[index].image,
         date: events[index].date,
         index: index,
         toggleAppBar: toggleAppBar,
       ),
     );
-  }
-
-  List<EventMessage> mapToEventMessage(List<EventModel> events) {
-    final eventMessages = <EventMessage>[];
-    for (var i = 0; i < events.length; i += 1) {
-      final element = events[i];
-      eventMessages.add(
-        EventMessage(
-          isSelected: element.isSelected,
-          text: element.text,
-          date: element.date,
-          index: i,
-          toggleAppBar: toggleAppBar,
-        ),
-      );
-    }
-
-    return eventMessages;
   }
 }

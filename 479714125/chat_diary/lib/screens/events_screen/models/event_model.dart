@@ -1,10 +1,15 @@
+import 'dart:io';
+
 class EventModel {
-  String text;
+  String? text;
+  File? image;
   bool isSelected;
+
   final String date;
 
   EventModel({
-    required this.text,
+    this.text,
+    this.image,
     required this.date,
     this.isSelected = false,
   });

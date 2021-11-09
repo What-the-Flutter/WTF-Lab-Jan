@@ -17,11 +17,13 @@ class EventScreen extends StatefulWidget {
 
 class _EventScreenState extends State<EventScreen> {
   final _events = <EventModel>[];
+  final _favoriteEvents = <EventModel>[];
   final FocusNode _inputNode = FocusNode();
   final TextEditingController _inputController = TextEditingController();
 
   int _countOfSelected = 0;
   bool _isEditing = false;
+  bool _isImageSelected = false;
 
   bool get _containsSelected => _countOfSelected > 0;
 
@@ -40,6 +42,8 @@ class _EventScreenState extends State<EventScreen> {
       resizeToAvoidBottomInset: false,
       appBar: _containsSelected
           ? MessageClickedAppBar(
+              addToFavorites: _addToFavorites,
+              isImageSelected: _isImageSelected,
               findEventToEdit: _findEventToEdit,
               copySelectedEvents: _copySelectedEvents,
               deleteSelectedEvents: _deleteSelectedEvents,
@@ -77,8 +81,14 @@ class _EventScreenState extends State<EventScreen> {
   void _toggleAppBar(int indexOfEvent, bool isSelected) {
     isSelected = !isSelected;
     _events[indexOfEvent].isSelected = isSelected;
-
-    setState(() => _countOfSelected = _countSelectedEvents(_events));
+    if (_events[indexOfEvent].image == null) {
+      setState(() => _countOfSelected = _countSelectedEvents(_events));
+    } else {
+      setState(() {
+        _isImageSelected = !_isImageSelected;
+        _countOfSelected = _countSelectedEvents(_events);
+      });
+    }
   }
 
   int _countSelectedEvents(List<EventModel> events) {
@@ -97,6 +107,8 @@ class _EventScreenState extends State<EventScreen> {
         event.isSelected = false;
       }
     }
+    _countOfSelected = 0;
+    _isImageSelected = false;
   }
 
   void _deleteSelectedEvents() {
@@ -104,24 +116,33 @@ class _EventScreenState extends State<EventScreen> {
       (element) => element.isSelected,
     );
     _countOfSelected = 0;
+    _isImageSelected = false;
     setState(() {});
   }
 
   void _copySelectedEvents() async {
     final selectedEvents = _events.where((element) => element.isSelected);
     var eventsToCopy = '';
+    var isEveryEventImage = true;
     for (final event in selectedEvents) {
-      eventsToCopy += event.text;
-      if (event != selectedEvents.last) eventsToCopy += '\n';
+      if (event.text != null) {
+        isEveryEventImage = false;
+        eventsToCopy += event.text!;
+        if (event != selectedEvents.last && selectedEvents.last.text != null) {
+          eventsToCopy += '\n';
+        }
+      }
     }
-    await Clipboard.setData(ClipboardData(text: eventsToCopy));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        duration: Duration(seconds: 1),
-        content: Text('Text copied to clipboard'),
-      ),
-    );
-    _countOfSelected = 0;
+    if (!isEveryEventImage) {
+      await Clipboard.setData(ClipboardData(text: eventsToCopy));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 1),
+          content: Text('Text copied to clipboard'),
+        ),
+      );
+    }
+
     _toggleSelected();
     setState(() {});
   }
@@ -130,7 +151,7 @@ class _EventScreenState extends State<EventScreen> {
     final index = _events.indexWhere((element) => element.isSelected);
     _showKeyboard();
     _isEditing = true;
-    _inputController.text = _events[index].text;
+    _inputController.text = _events[index].text!;
 
     setState(() {});
   }
@@ -143,6 +164,14 @@ class _EventScreenState extends State<EventScreen> {
     _countOfSelected = 0;
     _isEditing = false;
     setState(() {});
+  }
+
+  void _addToFavorites() {
+    final selectedEvents = _events.where((element) => element.isSelected);
+    _favoriteEvents.addAll(selectedEvents);
+    _toggleSelected();
+    setState(() {});
+    _favoriteEvents.forEach(print);
   }
 
   void _showKeyboard() {

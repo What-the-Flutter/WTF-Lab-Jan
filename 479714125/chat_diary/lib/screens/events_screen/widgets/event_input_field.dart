@@ -1,4 +1,8 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../theme/app_colors.dart';
@@ -28,6 +32,7 @@ class EventInputField extends StatefulWidget {
 
 class _EventInputFieldState extends State<EventInputField> {
   bool _keyboardIsVisible = false;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +86,7 @@ class _EventInputFieldState extends State<EventInputField> {
                         Icons.image,
                         color: AppColors.bluePurple,
                       ),
-                      onPressed: () {},
+                      onPressed: _pickImage,
                     ),
             ],
           ),
@@ -95,9 +100,7 @@ class _EventInputFieldState extends State<EventInputField> {
       if (!widget.isEditing) {
         final model = EventModel(
           text: widget.inputController.text,
-          date: DateFormat('dd.MM.yy').add_Hm().format(
-                DateTime.now(),
-              ),
+          date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
         );
         widget.addEvent(model);
         widget.inputController.clear();
@@ -105,6 +108,24 @@ class _EventInputFieldState extends State<EventInputField> {
         widget.editEvent(widget.inputController.text);
         widget.inputController.clear();
       }
+    }
+  }
+
+  void _pickImage() async {
+    try {
+      final nativeImagePath =
+          await _picker.pickImage(source: ImageSource.gallery);
+      if (nativeImagePath != null) {
+        final imagePath = File(nativeImagePath.path);
+
+        final model = EventModel(
+          image: imagePath,
+          date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
+        );
+        widget.addEvent(model);
+      }
+    } catch (e) {
+      log(e.toString());
     }
   }
 }

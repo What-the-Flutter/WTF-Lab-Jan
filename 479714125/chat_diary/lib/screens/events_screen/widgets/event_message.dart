@@ -1,27 +1,26 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
 
-class EventMessage extends StatefulWidget {
-  final String text;
+class EventMessage extends StatelessWidget {
+  final String? text;
   final String date;
   final int index;
+  final File? imageFile;
   final bool isSelected;
   final void Function(int, bool) toggleAppBar;
 
   const EventMessage({
     Key? key,
-    required this.text,
     required this.date,
     required this.index,
     required this.toggleAppBar,
     required this.isSelected,
+    this.text,
+    this.imageFile,
   }) : super(key: key);
 
-  @override
-  State<EventMessage> createState() => _EventMessageState();
-}
-
-class _EventMessageState extends State<EventMessage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -34,16 +33,16 @@ class _EventMessageState extends State<EventMessage> {
       child: Align(
         alignment: Alignment.bottomLeft,
         child: GestureDetector(
-          onLongPress: () => setState(_toggleSelection),
+          onLongPress: _toggleSelection,
           onTap: () {
-            if (widget.isSelected) {
-              setState(_toggleSelection);
+            if (isSelected) {
+              _toggleSelection();
             }
           },
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
-              color: widget.isSelected ? AppColors.blue400 : AppColors.blue200,
+              color: isSelected ? AppColors.blue400 : AppColors.blue200,
             ),
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -51,12 +50,22 @@ class _EventMessageState extends State<EventMessage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  (imageFile == null && text != null)
+                      ? Text(
+                          text!,
+                          style: const TextStyle(fontSize: 16),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Image.file(
+                            imageFile!,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height / 2,
+                            fit: BoxFit.scaleDown,
+                          ),
+                        ),
                   Text(
-                    widget.text,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    widget.date,
+                    date,
                     style: const TextStyle(color: AppColors.grey600),
                   ),
                 ],
@@ -69,6 +78,6 @@ class _EventMessageState extends State<EventMessage> {
   }
 
   void _toggleSelection() {
-    widget.toggleAppBar(widget.index, widget.isSelected);
+    toggleAppBar(index, isSelected);
   }
 }
