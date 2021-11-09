@@ -1,4 +1,4 @@
-# wft_chat
+# diary
 
 A new Flutter project.
 
