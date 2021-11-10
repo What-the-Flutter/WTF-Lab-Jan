@@ -73,6 +73,7 @@ class _BottomNavigationBarCustomState extends State<BottomNavigationBarCustom> {
       currentIndex: _selectedIndex,
       selectedItemColor: Colors.white,
       onTap: onItemTapped,
+      unselectedItemColor: Colors.white,
     );
   }
 }
