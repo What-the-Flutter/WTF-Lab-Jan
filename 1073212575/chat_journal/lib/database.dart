@@ -8,7 +8,8 @@ import 'models/events_model.dart';
 const String tableMessages = 'event_message';
 const String columnMessageId = 'message_id';
 const String columnPageId = 'page_id';
-const String columnContent = 'content';
+const String columnText = 'text';
+const String columnImagePath = 'image_path';
 const String columnDate = 'date';
 const String columnIcon = 'icon';
 const String columnIsMarked = 'is_marked';
@@ -16,13 +17,9 @@ const String columnIsMarked = 'is_marked';
 const String tablePages = 'event_pages';
 const String columnName = 'name';
 const String columnIsFixed = 'is_fixed';
-const String rowId = 'rowid';
 
 class DBProvider {
-  DBProvider._();
-
-  static final DBProvider db = DBProvider._();
-  static Database? _database;
+  Database? _database;
 
   Future<Database?> get database async {
     if (_database != null) {
@@ -34,23 +31,22 @@ class DBProvider {
 
   Future<Database> initDB() async {
     final path = join(await getDatabasesPath(), 'chat_journal_db.db');
+    //await deleteDatabase(path);
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (db, version) async {
-      await db.execute(
-          //'PRAGMA foreign_keys=on;'
-          'CREATE TABLE $tablePages('
+      await db.execute('CREATE TABLE $tablePages('
           '$columnPageId TEXT PRIMARY KEY,'
           '$columnName TEXT,'
-          '$columnDate INTEGER,'
+          '$columnDate TEXT,'
           '$columnIcon TEXT,'
           '$columnIsFixed INTEGER'
           ');');
       await db.execute('CREATE TABLE $tableMessages('
           '$columnMessageId TEXT PRIMARY KEY,'
           '$columnPageId TEXT, '
-          //'FOREIGN KEY ($columnPageId) REFERENCES $tablePages($columnPageId),'
-          '$columnContent TEXT,'
-          '$columnDate INTEGER,'
+          '$columnText TEXT,'
+          '$columnImagePath TEXT,'
+          '$columnDate TEXT,'
           '$columnIcon TEXT,'
           '$columnIsMarked INTEGER'
           ');');
@@ -84,21 +80,12 @@ class DBProvider {
     );
   }
 
-  Future<int?> messageRowId(EventPages eventPage) async {
-    final db = await database;
-    final result = await db!.rawQuery(
-        'SELECT rowid FROM $tablePages where $columnDate = "${eventPage.date}"');
-    final id = Sqflite.firstIntValue(result);
-    print('id = $id');
-    return id;
-  }
-
   Future<List<EventMessage>> messagesList(String eventPageId) async {
     final db = await database;
     db!.execute('VACUUM;');
     var messageList = <EventMessage>[];
-    final messagesList =
-        await db.query('$tableMessages where $columnPageId = $eventPageId');
+    final messagesList = await db.query(
+        '$tableMessages where $columnPageId = $eventPageId order by $columnDate');
     for (final element in messagesList) {
       final note = EventMessage.fromMap(element);
       messageList.insert(0, note);
@@ -127,7 +114,7 @@ class DBProvider {
     db!.execute('VACUUM;');
     var messageList = <EventMessage>[];
     final messagesList = await db.query(
-        '$tableMessages where $columnPageId = $eventPageId and $columnContent like "%$searchText%"');
+        '$tableMessages where $columnPageId = $eventPageId and $columnText like "%$searchText%"');
     for (final element in messagesList) {
       final note = EventMessage.fromMap(element);
       messageList.insert(0, note);
@@ -182,6 +169,4 @@ class DBProvider {
     }
     return eventList;
   }
-
-
 }

@@ -5,7 +5,7 @@ import '../../modules/page_info.dart';
 import 'create_page_cubit.dart';
 
 class CreatePageScreen extends StatelessWidget {
-  final _pageNameController = TextEditingController();
+  final TextEditingController _pageNameController = TextEditingController();
 
   CreatePageScreen({Key? key}) : super(key: key);
 
@@ -14,7 +14,7 @@ class CreatePageScreen extends StatelessWidget {
     final createPageCubit = context.read<CreatePageCubit>();
     createPageCubit.loadIcons();
     createPageCubit
-        .setEditPage(ModalRoute.of(context)!.settings.arguments as PageInfo?);
+        .initEditPage(ModalRoute.of(context)!.settings.arguments as PageInfo?);
     _pageNameController.text = createPageCubit.state.editPage?.title ?? '';
 
     return Scaffold(
@@ -44,11 +44,11 @@ class CreatePageScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Name of the Page',
-                    style: TextStyle(color: Theme.of(context).accentColor),
+                    style: TextStyle(color: Theme.of(context).highlightColor),
                   ),
                   TextField(
                     autofocus: true,
-                    cursorColor: Theme.of(context).accentColor,
+                    cursorColor: Theme.of(context).highlightColor,
                     controller: _pageNameController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
@@ -75,6 +75,7 @@ class CreatePageScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createPage(context),
+        backgroundColor: const Color(0xFFFFD741),
         child: const Icon(
           Icons.check,
           color: Colors.black,
@@ -84,9 +85,8 @@ class CreatePageScreen extends StatelessWidget {
   }
 
   void _createPage(BuildContext context) {
-    Navigator.of(context).pop(
-      context.read<CreatePageCubit>().createPage(_pageNameController.text),
-    );
+    context.read<CreatePageCubit>().createPage(_pageNameController.text);
+    Navigator.of(context).pop(context.read<CreatePageCubit>().state.editPage);
   }
 
   List<Widget> _iconList(BuildContext context) {

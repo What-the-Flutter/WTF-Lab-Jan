@@ -1,31 +1,62 @@
+import 'dart:async';
+
+import '../background_image/background_image_cubit.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:page_transition/page_transition.dart';
 
-import '../../theme/custom_theme.dart';
+import '../../database.dart';
+import '../../repository/messages_repository.dart';
+import '../../repository/pages_repository.dart';
 import '../../theme/themes.dart';
 import '../add_page/add_page_cubit.dart';
 import '../add_page/add_page_screen.dart';
 import '../event_page/event_page_cubit.dart';
 import '../event_page/event_page_screen.dart';
+import '../settings/settings_cubit.dart';
+import '../settings/settings_screen.dart';
+import '../settings/settings_state.dart';
 import 'home_page_cubit.dart';
 import 'home_page_state.dart';
 
 Widget startApp() {
-  return MultiBlocProvider(
+  final db = DBProvider();
+  return MultiRepositoryProvider(
     providers: [
-      BlocProvider<HomePageCubit>(
-        create: (context) => HomePageCubit(),
+      RepositoryProvider<PagesRepository>(
+        create: (context) => PagesRepository(db),
       ),
-      BlocProvider<EventPageCubit>(
-        create: (context) => EventPageCubit(),
-      ),
-      BlocProvider<AddPageCubit>(
-        create: (context) => AddPageCubit(),
+      RepositoryProvider<MessagesRepository>(
+        create: (context) => MessagesRepository(db),
       ),
     ],
-    child: CustomTheme(
-      themeData: lightTheme,
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider<SettingsCubit>(
+          create: (context) => SettingsCubit(),
+        ),
+        BlocProvider<BackgroundImageCubit>(
+          create: (context) => BackgroundImageCubit(),
+        ),
+        BlocProvider<HomePageCubit>(
+          create: (context) => HomePageCubit(
+            RepositoryProvider.of<PagesRepository>(context),
+          ),
+        ),
+        BlocProvider<EventPageCubit>(
+          create: (context) => EventPageCubit(
+            RepositoryProvider.of<MessagesRepository>(context),
+            RepositoryProvider.of<PagesRepository>(context),
+          ),
+        ),
+        BlocProvider<AddPageCubit>(
+          create: (context) => AddPageCubit(
+            RepositoryProvider.of<PagesRepository>(context),
+          ),
+        ),
+      ],
       child: MyApp(),
     ),
   );
@@ -34,10 +65,28 @@ Widget startApp() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: CustomTheme.of(context),
-      title: 'Flutter Demo',
-      home: HomePage(),
+    BlocProvider.of<SettingsCubit>(context).setSettings();
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, settingsState) {
+        return MaterialApp(
+          theme: settingsState.theme.copyWith(
+            textTheme: TextTheme(
+              bodyText2: TextStyle(
+                fontSize: settingsState.fontSize.toDouble(),
+              ),
+            ),
+          ),
+          title: 'Flutter Demo',
+          home: AnimatedSplashScreen(
+              duration: 3000,
+              splash: const Text('Chat Journal',style: TextStyle(fontSize: 25),),
+              nextScreen: HomePage(),
+              splashTransition: SplashTransition.sizeTransition,
+              pageTransitionType: PageTransitionType.leftToRight,
+              backgroundColor: const Color(0xFF173E47),
+          ),
+        );
+      },
     );
   }
 }
@@ -48,7 +97,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isCategoryPanelVisible = true;
+  @override
+  void initState() {
+    super.initState();
+    authentication();
+    BlocProvider.of<HomePageCubit>(context).showPages();
+  }
+
+  Future<void> authentication() async {
+    if (await BlocProvider.of<SettingsCubit>(context).useBiometrics()) {
+      BlocProvider.of<HomePageCubit>(context).authentication();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +132,7 @@ class _HomePageState extends State<HomePage> {
             appBar: state.isSelected
                 ? _editingAppBar(state, _homePageCubit)
                 : _defaultAppBar(),
-            floatingActionButton: floatingActionButton(),
+            floatingActionButton: floatingActionButton(_homePageCubit),
             body: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -95,7 +155,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget floatingActionButton() {
+  Widget floatingActionButton(HomePageCubit _homePageCubit) {
     return FloatingActionButton(
       onPressed: () {
         Navigator.push(
@@ -106,7 +166,7 @@ class _HomePageState extends State<HomePage> {
               selectedPageIndex: -1,
             ),
           ),
-        );
+        ).then(_homePageCubit.onGoBack);
       },
       backgroundColor: Theme.of(context).colorScheme.primary,
       child: Icon(
@@ -145,23 +205,18 @@ class _HomePageState extends State<HomePage> {
           bottom: Radius.circular(radiusValue),
         ),
       ),
-      leading: Switch(
-        value: _isCategoryPanelVisible,
-        onChanged: (value) {
-          setState(() {
-            _isCategoryPanelVisible = value;
-          });
-        },
-        activeTrackColor: Theme.of(context).colorScheme.onSecondary,
-        activeColor: Theme.of(context).colorScheme.secondaryVariant,
+      leading: IconButton(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SettingsPage(),
+          ),
+        ),
+        icon: const Icon(
+          Icons.settings,
+        ),
       ),
       title: const Text('Home'),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.wb_sunny_rounded),
-          onPressed: CustomTheme.instanceOf(context).changeTheme,
-        )
-      ],
     );
   }
 
@@ -241,14 +296,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _eventsList(state, _homePageCubit) {
-    return StreamBuilder(
-      builder: (context, projectSnap) {
-        return ListView.builder(
-          itemCount: state.eventPages.length,
-          itemBuilder: (context, i) => _event(i, state, _homePageCubit),
-        );
-      },
-      stream: _homePageCubit.showPages(),
+    return ListView.builder(
+      itemCount: state.eventPages.length,
+      itemBuilder: (context, i) => _event(i, state, _homePageCubit),
     );
   }
 
@@ -279,7 +329,6 @@ class _HomePageState extends State<HomePage> {
               MaterialPageRoute(
                 builder: (context) => EventPage(
                   eventPage: state.eventPages[i],
-                  isCategoryPanelVisible: _isCategoryPanelVisible,
                 ),
               ),
             );
@@ -345,10 +394,8 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const Text('Created'),
                   Text(
-                    Jiffy(
-                      DateTime.fromMillisecondsSinceEpoch(
-                          state.eventPages[state.selectedPageIndex].date),
-                    ).format('d/M/y h:mm a'),
+                    Jiffy(state.eventPages[state.selectedPageIndex]._date)
+                        .format('d/M/y h:mm a'),
                   ),
                   const Text('Latest Event'),
                   Text(
