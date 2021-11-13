@@ -8,9 +8,9 @@ class EventModel {
   final String date;
 
   EventModel({
+    required this.date,
     this.text,
     this.image,
-    required this.date,
     this.isSelected = false,
   });
 
