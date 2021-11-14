@@ -21,6 +21,8 @@ class EventMessage extends StatelessWidget {
     this.imageFile,
   }) : super(key: key);
 
+  bool get isTextEvent => (imageFile == null && text != null);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -50,19 +52,19 @@ class EventMessage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  (imageFile == null && text != null)
+                  isTextEvent
                       ? Text(
                           text!,
                           style: const TextStyle(fontSize: 16),
                         )
                       : Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: Image.file(
-                            imageFile!,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height / 2,
-                            fit: BoxFit
-                                .scaleDown, //maybe another or change padding for image
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              imageFile!,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                   Text(
