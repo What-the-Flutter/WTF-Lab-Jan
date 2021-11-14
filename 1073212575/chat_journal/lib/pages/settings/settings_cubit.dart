@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:chat_journal/repository/settings_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share/share.dart';
@@ -8,7 +9,9 @@ import '../../theme/themes.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit()
+  final SettingsRepository settingsRepository;
+
+  SettingsCubit(this.settingsRepository)
       : super(
           SettingsState(
             theme: lightTheme,
@@ -22,7 +25,7 @@ class SettingsCubit extends Cubit<SettingsState> {
             smallFontSize: 14,
             mediumFontSize: 16,
             largeFontSize: 18,
-            fontSize: 15,
+            fontSize: 16,
           ),
         );
 
@@ -43,136 +46,134 @@ class SettingsCubit extends Cubit<SettingsState> {
         fontSize: state.mediumFontSize,
       ),
     );
+    settingsRepository.resetSettings();
   }
 
-  void setSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    _setTheme(prefs);
-    _setFontSize(prefs);
-    _setBiometricsUsage(prefs);
-    _setCategoryPanelVisibility(prefs);
-    _setCustomDateUsage(prefs);
-    _setMessageAlignment(prefs);
-    _setDateAlignment(prefs);
+  void setSettings() {
+    _setTheme();
+    _setFontSize();
+    _setBiometricsUsage();
+    _setCategoryPanelVisibility();
+    _setCustomDateUsage();
+    _setMessageAlignment();
+    _setDateAlignment();
   }
 
-  void _setTheme(SharedPreferences prefs) {
-    final _savedTheme = prefs.getString('theme') ?? 'light';
-    final _themeData = (_savedTheme == 'light' ? lightTheme : darkTheme);
+  Future<void> _setTheme() async {
+    final savedTheme = await settingsRepository.theme();
+    final themeData = (savedTheme == 'light' ? lightTheme : darkTheme);
     emit(
-      state.copyWith(theme: _themeData),
+      state.copyWith(theme: themeData),
     );
   }
 
-  void _setFontSize(SharedPreferences prefs) {
-    final _fontSize = prefs.getInt('fontSize') ?? state.mediumFontSize;
-    emit(
-      state.copyWith(fontSize: _fontSize),
-    );
-  }
-
-  void _setBiometricsUsage(SharedPreferences prefs) {
-    final _useBiometrics = prefs.getBool('useBiometrics') ?? false;
-    emit(
-      state.copyWith(useBiometrics: _useBiometrics),
-    );
-  }
-
-  void _setCategoryPanelVisibility(SharedPreferences prefs) {
-    final _categoryPanelVisibility =
-        prefs.getBool('categoryPanelVisibility') ?? true;
-    emit(
-      state.copyWith(isCategoryPanelVisible: _categoryPanelVisibility),
-    );
-  }
-
-  void _setCustomDateUsage(SharedPreferences prefs) {
-    final _customDateUsage = prefs.getBool('isCustomDateUsed') ?? true;
-    emit(
-      state.copyWith(isCustomDateUsed: _customDateUsage),
-    );
-  }
-
-  void _setMessageAlignment(SharedPreferences prefs) {
-    final _savedMessageAlignment =
-        prefs.getString('messageAlignment') ?? 'left';
-    final _messageAlignment = (_savedMessageAlignment == 'left'
-        ? Alignment.centerLeft
-        : Alignment.centerRight);
+  void _setFontSize() async {
     emit(
       state.copyWith(
-        messageAlignment: _messageAlignment,
-        isMessageSwitchOn: _messageAlignment == Alignment.centerRight,
+        fontSize: await settingsRepository.fontSize(),
       ),
     );
   }
 
-  void _setDateAlignment(SharedPreferences prefs) {
-    final _savedDateAlignment = prefs.getString('dateAlignment') ?? 'left';
-    final _dateAlignment = (_savedDateAlignment == 'left'
+  void _setBiometricsUsage() async {
+    emit(
+      state.copyWith(
+        useBiometrics: await settingsRepository.biometricsUsage(),
+      ),
+    );
+  }
+
+  void _setCategoryPanelVisibility() async {
+    final isCategoryPanelVisible =
+        await settingsRepository.categoryPanelVisibility();
+    emit(
+      state.copyWith(
+        isCategoryPanelVisible: isCategoryPanelVisible,
+      ),
+    );
+  }
+
+  void _setCustomDateUsage() async {
+    emit(
+      state.copyWith(
+        isCustomDateUsed: await settingsRepository.customDateUsage(),
+      ),
+    );
+  }
+
+  void _setMessageAlignment() async {
+    final savedMessageAlignment = await settingsRepository.messageAlignment();
+    final messageAlignment = (savedMessageAlignment == 'left'
+        ? Alignment.centerLeft
+        : Alignment.centerRight);
+    emit(
+      state.copyWith(
+        messageAlignment: messageAlignment,
+        isMessageSwitchOn: messageAlignment == Alignment.centerRight,
+      ),
+    );
+  }
+
+  void _setDateAlignment() async {
+    final dateAlignment = (await settingsRepository.dateAlignment() == 'left'
         ? Alignment.centerLeft
         : Alignment.center);
     emit(
       state.copyWith(
-          dateAlignment: _dateAlignment,
-          isDateSwitchOn: _dateAlignment == Alignment.center),
+          dateAlignment: dateAlignment,
+          isDateSwitchOn: state.dateAlignment == Alignment.center),
     );
   }
 
-  Future<void> changeTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final _savedTheme;
-    final _themeData;
+  void changeTheme() {
+    final savedTheme;
+    final themeData;
     if (state.theme == lightTheme) {
-      _themeData = darkTheme;
-      _savedTheme = 'dark';
+      themeData = darkTheme;
+      savedTheme = 'dark';
     } else {
-      _themeData = lightTheme;
-      _savedTheme = 'light';
+      themeData = lightTheme;
+      savedTheme = 'light';
     }
     emit(
-      state.copyWith(theme: _themeData),
+      state.copyWith(theme: themeData),
     );
-    prefs.setString('theme', _savedTheme);
+    settingsRepository.changeTheme(savedTheme);
   }
 
-  void changeFontSize(int chosenFontSize) async {
-    final prefs = await SharedPreferences.getInstance();
+  void changeFontSize(int chosenFontSize) {
     emit(
       state.copyWith(fontSize: chosenFontSize),
     );
-    prefs.setInt('fontSize', chosenFontSize);
+    settingsRepository.changeFontSize(chosenFontSize);
   }
 
-  Future<void> changeCategoryPanelVisibility() async {
-    final prefs = await SharedPreferences.getInstance();
+  void changeCategoryPanelVisibility() {
     emit(
       state.copyWith(isCategoryPanelVisible: !state.isCategoryPanelVisible),
     );
-    prefs.setBool('categoryPanelVisibility', state.isCategoryPanelVisible);
+    settingsRepository
+        .changeCategoryPanelVisibility(state.isCategoryPanelVisible);
   }
 
-  Future<void> changeBiometricsUsage() async {
-    final prefs = await SharedPreferences.getInstance();
+  void changeBiometricsUsage() {
     emit(
       state.copyWith(useBiometrics: !state.useBiometrics),
     );
-    prefs.setBool('useBiometrics', state.useBiometrics);
+    settingsRepository.changeBiometricsUsage(state.useBiometrics);
   }
 
-  Future<void> changeCustomDateUsage() async {
-    final prefs = await SharedPreferences.getInstance();
+  void changeCustomDateUsage() {
     emit(
       state.copyWith(isCustomDateUsed: !state.isCustomDateUsed),
     );
-    prefs.setBool('isCustomDateUsed', state.isCustomDateUsed);
+    settingsRepository.changeCustomDateUsage(state.isCustomDateUsed);
   }
 
-  Future<void> changeMessageAlignment() async {
-    final prefs = await SharedPreferences.getInstance();
-    final _savedMessageAlignment;
+  void changeMessageAlignment() {
+    final messageAlignment;
     if (state.messageAlignment == Alignment.centerLeft) {
-      _savedMessageAlignment = 'right';
+      messageAlignment = 'right';
       emit(
         state.copyWith(
           messageAlignment: Alignment.centerRight,
@@ -180,7 +181,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         ),
       );
     } else {
-      _savedMessageAlignment = 'left';
+      messageAlignment = 'left';
       emit(
         state.copyWith(
           messageAlignment: Alignment.centerLeft,
@@ -188,14 +189,13 @@ class SettingsCubit extends Cubit<SettingsState> {
         ),
       );
     }
-    prefs.setString('messageAlignment', _savedMessageAlignment);
+    settingsRepository.changeMessageAlignment(messageAlignment);
   }
 
-  Future<void> changeDateAlignment() async {
-    final prefs = await SharedPreferences.getInstance();
-    final _savedDateAlignment;
+  void changeDateAlignment() {
+    final savedDateAlignment;
     if (state.dateAlignment == Alignment.centerLeft) {
-      _savedDateAlignment = 'center';
+      savedDateAlignment = 'center';
       emit(
         state.copyWith(
           dateAlignment: Alignment.center,
@@ -203,7 +203,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         ),
       );
     } else {
-      _savedDateAlignment = 'left';
+      savedDateAlignment = 'left';
       emit(
         state.copyWith(
           dateAlignment: Alignment.centerLeft,
@@ -211,12 +211,11 @@ class SettingsCubit extends Cubit<SettingsState> {
         ),
       );
     }
-    prefs.setString('dateAlignment', _savedDateAlignment);
+    settingsRepository.changeDateAlignment(savedDateAlignment);
   }
 
-  Future<bool> useBiometrics() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('useBiometrics') ?? false;
+  bool useBiometrics() {
+    return settingsRepository.useBiometrics();
   }
 
   void onShareData() async {

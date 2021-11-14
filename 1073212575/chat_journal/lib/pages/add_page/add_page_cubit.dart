@@ -12,6 +12,7 @@ class AddPageCubit extends Cubit<AddPageState> {
           AddPageState(
             selectedIconIndex: 0,
             eventPages: [],
+            isColorChanged: false,
           ),
         );
 
@@ -64,5 +65,15 @@ class AddPageCubit extends Cubit<AddPageState> {
     } else {
       addPage(text, iconsList);
     }
+  }
+
+  void gradientAnimation() async {
+    emit(
+      state.copyWith(isColorChanged: false),
+    );
+    await Future.delayed(const Duration(milliseconds: 60));
+    emit(
+      state.copyWith(isColorChanged: true),
+    );
   }
 }

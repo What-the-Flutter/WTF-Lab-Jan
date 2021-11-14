@@ -6,6 +6,7 @@ import 'package:chat_journal/screens/home_screen/home_cubit.dart';
 import 'package:chat_journal/screens/home_screen/home_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:icons_helper/icons_helper.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -89,7 +90,7 @@ class _HomeState extends State<Home> {
               backgroundColor: Colors.grey,
               radius: 30.0,
               child: Icon(
-                chat.icon,
+                getIconUsingPrefix(name: chat.chatIcon!.iconTitle),
                 color: Colors.white,
                 size: 30.0,
               ),
@@ -114,9 +115,9 @@ class _HomeState extends State<Home> {
               Theme.of(context).textTheme.bodyText1?.copyWith(fontSize: 20.0),
         ),
         subtitle: Text(
-          chat.messageBase!.isEmpty
+          chat.messageBase.isEmpty
               ? 'No events. Click to create one'
-              : chat.messageBase!.first.message,
+              : chat.messageBase.first.message,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -126,9 +127,7 @@ class _HomeState extends State<Home> {
           ),
         ),
         trailing: Text(
-          chat.messageBase!.isEmpty
-              ? ''
-              : chat.messageBase!.first.time.fromNow(),
+          chat.messageBase.isEmpty ? '' : chat.messageBase.first.time.fromNow(),
           style:
               Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: 14.0),
         ),
@@ -141,7 +140,8 @@ class _HomeState extends State<Home> {
                       currentChat: chat,
                       chatIndex: index,
                     )),
-          ).then((value) => setState(() {}));
+          ).then(
+              (value) => BlocProvider.of<HomeCubit>(context).updateChatsList());
         },
         onLongPress: () {
           _functionsWithChat(index, chat);
@@ -183,7 +183,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _agreeToDelete(int index) {
+  void _agreeToDelete(int index, Chat chat) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -200,7 +200,9 @@ class _HomeState extends State<Home> {
                 'Delete Page?',
                 style: Theme.of(context).textTheme.bodyText1,
               ),
-              const SizedBox(height: 10.0,),
+              const SizedBox(
+                height: 10.0,
+              ),
               Flexible(
                 child: Text(
                   'Are you sure you want to delete this page? Entries of this page will be accessable in the timeline',
@@ -209,10 +211,12 @@ class _HomeState extends State<Home> {
                       ),
                 ),
               ),
-              const SizedBox(height: 10.0,),
+              const SizedBox(
+                height: 10.0,
+              ),
               GestureDetector(
                 onTap: () {
-                  _deleteChat(index);
+                  _deleteChat(chat);
                   Navigator.pop(context);
                 },
                 child: Row(
@@ -232,7 +236,9 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
-              const SizedBox(height: 10.0,),
+              const SizedBox(
+                height: 10.0,
+              ),
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
@@ -261,12 +267,12 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _pinChat(int index) {
-    BlocProvider.of<HomeCubit>(context).pinChat(index);
+  void _pinChat(Chat chat) {
+    BlocProvider.of<HomeCubit>(context).pinChat(chat);
   }
 
-  void _deleteChat(int index) {
-    BlocProvider.of<HomeCubit>(context).deleteChat(index);
+  void _deleteChat(Chat chat) {
+    BlocProvider.of<HomeCubit>(context).deleteChat(chat);
   }
 
   void _functionsWithChat(int index, Chat chat) {
@@ -289,7 +295,7 @@ class _HomeState extends State<Home> {
                   style: Theme.of(context).textTheme.bodyText1,
                 ),
                 onTap: () {
-                  _pinChat(index);
+                  _pinChat(chat);
                   Navigator.pop(context);
                 },
               ),
@@ -310,8 +316,7 @@ class _HomeState extends State<Home> {
                                 editingChat: chat,
                               )));
                   if (editChat is Chat && mounted) {
-                    BlocProvider.of<HomeCubit>(context)
-                        .editChat(index, editChat);
+                    BlocProvider.of<HomeCubit>(context).editChat(chat);
                   }
                   Navigator.of(context).pop();
                 },
@@ -327,7 +332,7 @@ class _HomeState extends State<Home> {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  _agreeToDelete(index);
+                  _agreeToDelete(index, chat);
                 },
               ),
               ListTile(
@@ -367,7 +372,7 @@ class _HomeState extends State<Home> {
                   backgroundColor: Colors.grey,
                   radius: 30.0,
                   child: Icon(
-                    chat.icon,
+                    getIconUsingPrefix(name: chat.chatIcon!.iconTitle),
                     color: Colors.white,
                     size: 30.0,
                   ),
@@ -413,9 +418,9 @@ class _HomeState extends State<Home> {
                   .copyWith(fontSize: 14.0),
             ),
             Text(
-              chat.messageBase!.isEmpty
+              chat.messageBase.isEmpty
                   ? chat.time!.yMMMMd
-                  : chat.messageBase!.first.time.yMMMMd,
+                  : chat.messageBase.first.time.yMMMMd,
               style: Theme.of(context)
                   .textTheme
                   .bodyText1!

@@ -78,10 +78,12 @@ class _SettingsState extends State<SettingsPage> {
               style: TextStyle(color: Theme.of(context).colorScheme.background),
             ),
             IconButton(
-              icon: Icon(Icons.wb_sunny_rounded,
-                  color: Theme.of(context).colorScheme.background),
+              icon: Icon(
+                Icons.wb_sunny_rounded,
+                color: Theme.of(context).colorScheme.background,
+              ),
               onPressed: BlocProvider.of<SettingsCubit>(context).changeTheme,
-            )
+            ),
           ],
         ),
         Container(
@@ -96,12 +98,14 @@ class _SettingsState extends State<SettingsPage> {
                   Text(
                     'Font size',
                     style: TextStyle(
-                        color: Theme.of(context).colorScheme.background),
+                      color: Theme.of(context).colorScheme.background,
+                    ),
                   ),
                   Text(
                     'Small/Medium/Large',
                     style: TextStyle(
-                        color: Theme.of(context).colorScheme.background),
+                      color: Theme.of(context).colorScheme.background,
+                    ),
                   ),
                 ],
               ),
@@ -267,52 +271,60 @@ class _SettingsState extends State<SettingsPage> {
   }
 
   Future _fontSizeChoose(SettingsState state) {
-    var _chosenFontSize;
+    var _chosenFontSize = state.fontSize;
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           content: StatefulBuilder(
             builder: (context, setState) {
-              return Container(
-                height: 300,
-                width: 300,
-                child: ListView(
-                  children: [
-                    RadioListTile(
-                      title: Text(
-                        'Small',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.background),
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(radiusValue),
+                child: Container(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  height: 300,
+                  width: 300,
+                  child: ListView(
+                    children: [
+                      RadioListTile(
+                        selected: true,
+                        title: Text(
+                          'Small',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.background),
+                        ),
+                        value: state.smallFontSize,
+                        groupValue: _chosenFontSize,
+                        onChanged: (index) => setState(
+                          () => _chosenFontSize = int.parse(index.toString()),
+                        ),
                       ),
-                      value: state.smallFontSize,
-                      groupValue: _chosenFontSize,
-                      onChanged: (index) =>
-                          setState(() => _chosenFontSize = index),
-                    ),
-                    RadioListTile(
-                      title: Text(
-                        'Medium',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.background),
+                      RadioListTile(
+                        title: Text(
+                          'Medium',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.background),
+                        ),
+                        value: state.mediumFontSize,
+                        groupValue: _chosenFontSize,
+                        onChanged: (index) => setState(
+                          () => _chosenFontSize = int.parse(index.toString()),
+                        ),
                       ),
-                      value: state.mediumFontSize,
-                      groupValue: _chosenFontSize,
-                      onChanged: (index) =>
-                          setState(() => _chosenFontSize = index),
-                    ),
-                    RadioListTile(
-                      title: Text(
-                        'Large',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.background),
+                      RadioListTile(
+                        title: Text(
+                          'Large',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.background),
+                        ),
+                        value: state.largeFontSize,
+                        groupValue: _chosenFontSize,
+                        onChanged: (index) => setState(
+                          () => _chosenFontSize = int.parse(index.toString()),
+                        ),
                       ),
-                      value: state.largeFontSize,
-                      groupValue: _chosenFontSize,
-                      onChanged: (value) =>
-                          setState(() => _chosenFontSize = value),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

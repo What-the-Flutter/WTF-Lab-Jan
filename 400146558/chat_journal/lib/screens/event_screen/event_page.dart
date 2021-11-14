@@ -1,9 +1,11 @@
 import 'package:chat_journal/models/chat_model.dart';
 import 'package:chat_journal/models/message_model.dart';
+import 'package:chat_journal/models/sectionicon_model.dart';
 import 'package:chat_journal/screens/event_screen/event_cubit.dart';
 import 'package:chat_journal/screens/home_screen/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:icons_helper/icons_helper.dart';
 import 'package:jiffy/jiffy.dart';
 import 'event_state.dart';
 
@@ -12,7 +14,7 @@ class ChatDetailPage extends StatefulWidget {
       {Key? key, required this.chatIndex, required this.currentChat})
       : super(key: key);
   final int chatIndex;
-  final Chat? currentChat;
+  final Chat currentChat;
 
   @override
   _ChatDetailPageState createState() => _ChatDetailPageState();
@@ -22,11 +24,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     with TickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
+  late Chat currentChat;
 
   @override
   void initState() {
-    BlocProvider.of<EventCubit>(context).init();
-    BlocProvider.of<EventCubit>(context).myInit(widget.currentChat);
+    currentChat = widget.currentChat;
+    BlocProvider.of<EventCubit>(context).init(currentChat);
     super.initState();
   }
 
@@ -59,7 +62,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           ),
         ),
         title: Text(
-          widget.currentChat!.title,
+          widget.currentChat.title,
           style: const TextStyle(
             fontFamily: 'Merriweather',
             fontSize: 28.0,
@@ -153,7 +156,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         onPressed: _clearAll,
       ),
       title: Text(
-        state.selected!.length.toString(),
+        state.selected.length.toString(),
         style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
       ),
       actions: <Widget>[
@@ -173,7 +176,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         const SizedBox(
           width: 10,
         ),
-        if (state.selected!.length == 1) ...[
+        if (state.selected.length == 1) ...[
           IconButton(
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
@@ -235,8 +238,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 shrinkWrap: true,
                 reverse: true,
                 itemCount: state.isShowFav!
-                    ? state.favourites!.length
-                    : state.currentChat?.messageBase?.length,
+                    ? state.favourites.length
+                    : state.currentChat?.messageBase.length,
                 itemBuilder: (BuildContext context, int index) {
                   return _msgWidget(index, state);
                 },
@@ -257,7 +260,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
-                      itemCount: state.sectionsList!.length,
+                      itemCount: state.sectionsList.length,
                       itemBuilder: (BuildContext context, int index) {
                         return _sectionPanel(index, state);
                       },
@@ -276,7 +279,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: _sectionIcon(state),
+                    icon: Icon(getIconUsingPrefix(
+                        name: state.selectedSection!.iconTitle)),
                     iconSize: 30.0,
                     color: Colors.green,
                     onPressed: () {
@@ -362,7 +366,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
-                      itemCount: state.sectionsList!.length,
+                      itemCount: state.sectionsList.length,
                       itemBuilder: (BuildContext context, int index) {
                         return _sectionPanel(index, state);
                       },
@@ -382,7 +386,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 child: Row(
                   children: <Widget>[
                     IconButton(
-                      icon: _sectionIcon(state),
+                      icon: Icon(getIconUsingPrefix(
+                          name: state.selectedSection!.iconTitle)),
                       iconSize: 30.0,
                       color: Colors.green,
                       onPressed: () {
@@ -450,21 +455,21 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   Widget _searchResult(EventState state) {
-    if (state.foundList!.isNotEmpty && _searchController.text.isNotEmpty) {
+    if (state.foundList.isNotEmpty && _searchController.text.isNotEmpty) {
       return Expanded(
         child: Container(
           color: Theme.of(context).primaryColor,
           child: ListView.builder(
             shrinkWrap: true,
             reverse: true,
-            itemCount: state.foundList!.length,
+            itemCount: state.foundList.length,
             itemBuilder: (BuildContext context, int index) {
               return _msgWidget(index, state);
             },
           ),
         ),
       );
-    } else if (state.foundList!.isEmpty && _searchController.text.isNotEmpty) {
+    } else if (state.foundList.isEmpty && _searchController.text.isNotEmpty) {
       return Container(
         color: Theme.of(context).cardColor,
         margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 50.0),
@@ -615,16 +620,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     BlocProvider.of<EventCubit>(context).searchMsg(txt);
   }
 
-  Widget _sectionIcon(EventState state) {
-    var secIconIndex =
-        state.sectionsList!.indexWhere((element) => element.isSelected == true);
-    if (secIconIndex == -1) {
-      return const Icon(Icons.workspaces_filled);
-    } else {
-      return Icon(state.sectionsList![secIconIndex].icon);
-    }
-  }
-
   void _showFavourites() {
     BlocProvider.of<EventCubit>(context).showFavourites();
   }
@@ -652,30 +647,23 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   void _editMsg(EventState state) {
     BlocProvider.of<EventCubit>(context).setEditMode(true);
-
-    _textController.text = state.selected!.elementAt(0).message;
-    var _secIcoEditingIndex = state.sectionsList!.indexWhere(
-        (element) => element == state.selected!.elementAt(0).section);
-    if (_secIcoEditingIndex != -1) {
-      BlocProvider.of<EventCubit>(context).check(_secIcoEditingIndex);
-    }
+    _textController.text = state.selected.elementAt(0).message;
+    BlocProvider.of<EventCubit>(context)
+        .setSelectedSection(state.selected.elementAt(0).sectionIcon);
     BlocProvider.of<EventCubit>(context).setIsNew(false);
   }
 
   void _submitMsg(String txt, EventState state) {
     if (state.isNew == true) {
       _textController.clear();
-      Message _currentMessage;
-
-      var _secIconIndex = state.sectionsList!
-          .indexWhere((element) => element.isSelected == true);
-      if (_secIconIndex == -1) {
-        _currentMessage =
-            Message(txt, Jiffy(DateTime.now()), false, false, null);
-      } else {
-        _currentMessage = Message(txt, Jiffy(DateTime.now()), false, false,
-            state.sectionsList![_secIconIndex]);
-      }
+      Message _currentMessage = Message(
+          id: -1,
+          isFavourite: false,
+          chatId: state.currentChat!.id,
+          sectionIconId: state.selectedSection!.id == -1 ? null : state.selectedSection!.id,
+          message: txt,
+          time: Jiffy(DateTime.now()),
+          sectionIcon: null);
 
       BlocProvider.of<EventCubit>(context).addMsg(_currentMessage);
       BlocProvider.of<EventCubit>(context).setIsWriting(false);
@@ -686,7 +674,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     }
 
     BlocProvider.of<EventCubit>(context).setShowFav(false);
-    BlocProvider.of<EventCubit>(context).uncheck();
+    BlocProvider.of<EventCubit>(context).setSelectedSection(const SectionIcon(
+        iconTitle: 'workspaces_filled', title: 'workspaces_filled', id: -1));
     BlocProvider.of<EventCubit>(context).setShowPanel(false);
     BlocProvider.of<EventCubit>(context).setEditMode(false);
   }
@@ -700,15 +689,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   Widget _msgWidget(int index, EventState state) {
     if (state.searchMode == true) {
       return Msg(
-        message: state.foundList![index],
+        message: state.foundList[index],
         chatIndex: widget.chatIndex,
         notifyParent: refresh,
       );
     } else {
       return Msg(
         message: state.isShowFav!
-            ? state.favourites![index]
-            : state.currentChat!.messageBase![index],
+            ? state.favourites[index]
+            : state.currentChat!.messageBase[index],
         chatIndex: widget.chatIndex,
         notifyParent: refresh,
       );
@@ -719,7 +708,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     if (index == 0) {
       BlocProvider.of<EventCubit>(context).setShowPanel(!state.showPanel!);
     } else {
-      BlocProvider.of<EventCubit>(context).check(index);
+      BlocProvider.of<EventCubit>(context)
+          .setSelectedSection(state.sectionsList[index]);
     }
   }
 
@@ -736,13 +726,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 backgroundColor: index == 0 ? Colors.red : Colors.grey,
                 radius: index == 0 ? 10.0 : 20.0,
                 child: Icon(
-                  state.sectionsList![index].icon,
+                  getIconUsingPrefix(name: state.sectionsList[index].iconTitle),
                   color: Colors.white,
                   size: index == 0 ? 10.0 : 20.0,
                 ),
               ),
               Text(
-                state.sectionsList![index].title,
+                state.sectionsList[index].title,
                 style: Theme.of(context).textTheme.bodyText1!.copyWith(
                       fontSize: 14.0,
                       fontWeight: FontWeight.normal,
@@ -783,106 +773,113 @@ class Msg extends StatefulWidget {
 class _MsgState extends State<Msg> {
   @override
   Widget build(BuildContext ctx) {
-    return Flex(
-      direction: Axis.horizontal,
-      children: [
-        GestureDetector(
-          onPanUpdate: (details) {
-            // Swiping in right direction.
-            if (details.delta.dx > 0) {}
+    return BlocBuilder<EventCubit, EventState>(
+      builder: (context, state) {
+        return Flex(
+          direction: Axis.horizontal,
+          children: [
+            GestureDetector(
+              onPanUpdate: (details) {
+                // Swiping in right direction.
+                if (details.delta.dx > 0) {}
 
-            // Swiping in left direction.
-            if (details.delta.dx < 0) {}
-          },
-          onLongPress: _messageTools,
-          onTap: _addToFavourite,
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.7,
-            ),
-            margin: const EdgeInsets.symmetric(vertical: 5.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.lightGreenAccent,
-            ),
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (widget.message.section != null) ...[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Icon(
-                        widget.message.section!.icon,
-                        color: Colors.black,
-                        size: 30.0,
+                // Swiping in left direction.
+                if (details.delta.dx < 0) {}
+              },
+              onLongPress: _messageTools,
+              onDoubleTap: _addToFavourite,
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                ),
+                margin: const EdgeInsets.symmetric(vertical: 5.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.lightGreenAccent,
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    if (widget.message.sectionIconId != null) ...[
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(
+                            getIconUsingPrefix(
+                                name: widget.message.sectionIcon!.iconTitle),
+                            color: Colors.black,
+                            size: 30.0,
+                          ),
+                          const SizedBox(
+                            width: 10.0,
+                          ),
+                          Flexible(
+                            child: Text(widget.message.sectionIcon!.title,
+                                style: const TextStyle(fontSize: 20)),
+                          ),
+                        ],
                       ),
                       const SizedBox(
-                        width: 10.0,
-                      ),
-                      Flexible(
-                        child: Text(widget.message.section!.title,
-                            style: const TextStyle(fontSize: 20)),
+                        height: 12.0,
                       ),
                     ],
-                  ),
-                  const SizedBox(
-                    height: 12.0,
-                  ),
-                ],
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Flexible(
-                      child: Text(widget.message.message,
-                          style: const TextStyle(fontSize: 18)),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Flexible(
+                          child: Text(widget.message.message,
+                              style: const TextStyle(fontSize: 18)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 7,
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        for (var sel in state.selected) ...[
+                          if (widget.message == sel) ...[
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: const Icon(Icons.check_circle),
+                              color: Colors.black,
+                              iconSize: 12,
+                              onPressed: () {},
+                            ),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                          ],
+                        ],
+                        Text(widget.message.time.Hm,
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.black54)),
+                        if (widget.message.isFavourite == true) ...[
+                          const SizedBox(
+                            width: 7,
+                          ),
+                          IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            icon: const Icon(Icons.favorite),
+                            color: Colors.red,
+                            iconSize: 12,
+                            onPressed: () {},
+                          ),
+                        ]
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 7,
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    if (widget.message.isSelected == true) ...[
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        icon: const Icon(Icons.check_circle),
-                        color: Colors.black,
-                        iconSize: 12,
-                        onPressed: () {},
-                      ),
-                      const SizedBox(
-                        width: 7,
-                      ),
-                    ],
-                    Text(widget.message.time.Hm,
-                        style: const TextStyle(
-                            fontSize: 16, color: Colors.black54)),
-                    if (widget.message.isFavourite == true) ...[
-                      const SizedBox(
-                        width: 7,
-                      ),
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        icon: const Icon(Icons.favorite),
-                        color: Colors.red,
-                        iconSize: 12,
-                        onPressed: () {},
-                      ),
-                    ]
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 

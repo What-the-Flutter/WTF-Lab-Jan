@@ -3,10 +3,10 @@ import 'package:chat_journal/models/message_model.dart';
 import 'package:chat_journal/models/sectionicon_model.dart';
 
 class EventState {
-  final List<Message>? selected;
-  final List<Message>? favourites;
-  final List<SectionIcon>? sectionsList;
-  final List<Message>? foundList;
+  final List<Message> selected;
+  final List<Message> favourites;
+  final List<SectionIcon> sectionsList;
+  final List<Message> foundList;
   final Chat? currentChat;
   final bool? isAnySelected;
   final bool? isShowFav;
@@ -17,6 +17,7 @@ class EventState {
   final bool? isWriting;
   final bool? isNew;
   final bool? showPanel;
+  final SectionIcon? selectedSection;
 
   EventState({
     this.searchMode = false,
@@ -33,6 +34,8 @@ class EventState {
     this.isNew = true,
     this.isWriting = false,
     this.showPanel = false,
+    this.selectedSection = const SectionIcon(
+        iconTitle: 'work', title: 'workspaces_filled', id: -1),
   });
 
   EventState copyWith({
@@ -50,6 +53,7 @@ class EventState {
     bool? isWriting,
     bool? isNew,
     bool? showPanel,
+    SectionIcon? selectedSection,
   }) {
     return EventState(
       foundList: foundList ?? this.foundList,
@@ -66,6 +70,7 @@ class EventState {
       isNew: isNew ?? this.isNew,
       isWriting: isWriting ?? this.isWriting,
       showPanel: showPanel ?? this.showPanel,
+      selectedSection: selectedSection ?? this.selectedSection,
     );
   }
 }

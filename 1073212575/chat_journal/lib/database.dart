@@ -13,6 +13,7 @@ const String columnImagePath = 'image_path';
 const String columnDate = 'date';
 const String columnIcon = 'icon';
 const String columnIsMarked = 'is_marked';
+const String columnIsChecked = 'is_checked';
 
 const String tablePages = 'event_pages';
 const String columnName = 'name';
@@ -48,7 +49,8 @@ class DBProvider {
           '$columnImagePath TEXT,'
           '$columnDate TEXT,'
           '$columnIcon TEXT,'
-          '$columnIsMarked INTEGER'
+          '$columnIsMarked INTEGER,'
+          '$columnIsChecked INTEGER'
           ');');
     });
   }
@@ -93,12 +95,37 @@ class DBProvider {
     return messageList.reversed.toList();
   }
 
+  Future<List<EventMessage>> allMessagesList() async {
+    final db = await database;
+    db!.execute('VACUUM;');
+    var messageList = <EventMessage>[];
+    final messagesList = await db.query('$tableMessages order by $columnDate');
+    for (final element in messagesList) {
+      final note = EventMessage.fromMap(element);
+      messageList.insert(0, note);
+    }
+    return messageList.reversed.toList();
+  }
+
   Future<List<EventMessage>> markedMessagesList(String eventPageId) async {
     final db = await database;
     db!.execute('VACUUM;');
     var messageList = <EventMessage>[];
     final messagesList = await db.query(
         '$tableMessages where $columnPageId = $eventPageId and $columnIsMarked = 1');
+    for (final element in messagesList) {
+      final note = EventMessage.fromMap(element);
+      messageList.insert(0, note);
+    }
+    return messageList.reversed.toList();
+  }
+
+  Future<List<EventMessage>> allMarkedMessagesList() async {
+    final db = await database;
+    db!.execute('VACUUM;');
+    var messageList = <EventMessage>[];
+    final messagesList =
+        await db.query('$tableMessages where $columnIsMarked = 1');
     for (final element in messagesList) {
       final note = EventMessage.fromMap(element);
       messageList.insert(0, note);
@@ -122,6 +149,30 @@ class DBProvider {
     return messageList.reversed.toList();
   }
 
+  Future<List<EventMessage>> allSearchMessagesList(String searchText) async {
+    final db = await database;
+    db!.execute('VACUUM;');
+    var messageList = <EventMessage>[];
+    final messagesList =
+        await db.query('$tableMessages and $columnText like "%$searchText%"');
+    for (final element in messagesList) {
+      final note = EventMessage.fromMap(element);
+      messageList.insert(0, note);
+    }
+    return messageList.reversed.toList();
+  }
+  Future<List<EventMessage>> messagesListByPages(String searchText) async {
+    final db = await database;
+    db!.execute('VACUUM;');
+    var messageList = <EventMessage>[];
+    final messagesList =
+    await db.query('$tableMessages and $columnText like "%$searchText%"');
+    for (final element in messagesList) {
+      final note = EventMessage.fromMap(element);
+      messageList.insert(0, note);
+    }
+    return messageList.reversed.toList();
+  }
   Future<int> insertPage(EventPages eventPage) async {
     final db = await database;
     final insertedPageId = await db!.insert(

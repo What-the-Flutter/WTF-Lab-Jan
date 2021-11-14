@@ -53,7 +53,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
   }
 }
 
-Widget _buildAppBarLeftButton() {
+Widget _appBarMenuButton() {
   return IconButton(
       icon: const Icon(Icons.menu_outlined),
       onPressed: () {
@@ -66,27 +66,25 @@ class DailyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _createAppBarTitle(),
-        leading: _buildAppBarLeftButton(),
+        title: _appBarDailyTitle(),
+        leading: _appBarMenuButton(),
         actions: <Widget>[
-          _buildAppBarRightButton(),
+          //_appBarRightButton(),
         ],
       ),
       bottomNavigationBar: BottomNavigation(),
     );
   }
 
-  Widget _createAppBarTitle() {
+  Widget _appBarDailyTitle() {
     return const Align(
       child: Text('Daily'),
       alignment: Alignment.center,
     );
   }
 
-  Widget _buildAppBarRightButton() {
-    return IconButton(
-        icon: const Icon(Icons.menu_open),
-        onPressed: () => print('Click on open menu button'));
+  Widget _appBarMenuButton() {
+    return IconButton(icon: const Icon(Icons.menu_open), onPressed: () {});
   }
 }
 
@@ -95,35 +93,35 @@ class TimelineScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _createAppBarTitle(),
-        leading: _buildAppBarLeftButton(),
+        title: _appBarTimelineTitle(),
+        leading: _appBarMenuButton(),
         actions: <Widget>[
-          _buildAppBarSearchButton(),
-          _buildAppBarNoteButton(),
+          _appBarSearchButton(),
+          _appBarNoteButton(),
         ],
       ),
       bottomNavigationBar: BottomNavigation(),
     );
   }
 
-  Widget _buildAppBarSearchButton() {
-    return IconButton(
-      icon: const Icon(Icons.search),
-      onPressed: () => {print('Click on open menu button')},
-    );
-  }
-
-  Widget _buildAppBarNoteButton() {
-    return IconButton(
-      icon: const Icon(Icons.note),
-      onPressed: () => print('Click on note button'),
-    );
-  }
-
-  Widget _createAppBarTitle() {
+  Widget _appBarTimelineTitle() {
     return const Align(
       child: Text('Timeline'),
       alignment: Alignment.center,
+    );
+  }
+
+  Widget _appBarSearchButton() {
+    return IconButton(
+      icon: const Icon(Icons.search),
+      onPressed: () {},
+    );
+  }
+
+  Widget _appBarNoteButton() {
+    return IconButton(
+      icon: const Icon(Icons.note),
+      onPressed: () {},
     );
   }
 }
@@ -133,14 +131,14 @@ class ExploreScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _createAppBarTitle(),
-        leading: _buildAppBarLeftButton(),
+        title: _appBarExploreTitle(),
+        leading: _appBarMenuButton(),
       ),
       bottomNavigationBar: BottomNavigation(),
     );
   }
 
-  Widget _createAppBarTitle() {
+  Widget _appBarExploreTitle() {
     return const Align(
       child: Text('Explore'),
       alignment: Alignment.topLeft,
