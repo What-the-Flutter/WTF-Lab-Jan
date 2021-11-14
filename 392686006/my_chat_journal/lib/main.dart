@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ui/widgets/app.dart';
+import 'presentation/pages/app.dart';
 
 void main() {
   const app = App();

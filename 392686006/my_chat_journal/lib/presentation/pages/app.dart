@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'home.dart';
+import 'event/screens/event.dart';
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
@@ -9,11 +8,18 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MyChatJournal',
-      theme: ThemeData(
-        bottomNavigationBarTheme: _buildBottomNavigationBarThemeData(),
-        primarySwatch: Colors.blue,
-      ),
-      home: const Home(),
+      theme: _theme(),
+      home: const EventScreen(),
+    );
+  }
+
+  ThemeData _theme() {
+    return ThemeData(
+      bottomNavigationBarTheme: _buildBottomNavigationBarThemeData(),
+      primarySwatch: Colors.blue,
+      primaryColor: Color.lerp(Colors.green, Colors.blue, 0.4),
+      dialogBackgroundColor: Colors.green[100],
+      selectedRowColor: Colors.green[300],
     );
   }
 
