@@ -14,7 +14,6 @@ class App extends StatelessWidget {
     return const MaterialApp(
       title: 'Chat Diary',
       home: Home(),
-      //home: EventScreen(title: 'Travel'),
     );
   }
 }

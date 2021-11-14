@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../../theme/app_colors.dart';
+import '../../events_screen/event_screen.dart';
 
 class ChatCard extends StatefulWidget {
   final IconData icon;
@@ -31,7 +33,14 @@ class _ChatCardState extends State<ChatCard> {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EventScreen(title: widget.title),
+              ),
+            );
+          },
           onHover: (value) => setState(
             () => _isHover = value,
           ),
