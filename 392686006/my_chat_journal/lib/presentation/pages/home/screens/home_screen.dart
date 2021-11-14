@@ -1,46 +1,60 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../navigator/router.dart';
 
-class Home extends StatelessWidget {
-  const Home({
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({
     Key? key,
   }) : super(key: key);
+
+  final List<Widget> _elements = const [
+    QuestionBotButton(),
+    ListTile(
+      leading: CircleIcon(icon: Icons.collections_bookmark),
+      title: Text('Journal'),
+      subtitle: Text('No Events. Click to create one.'),
+    ),
+    ListTile(
+      leading: CircleIcon(icon: Icons.menu_book_outlined),
+      title: Text('Notes'),
+      subtitle: Text('No Events. Click to create one.'),
+    ),
+    ListTile(
+      leading: CircleIcon(icon: Icons.thumb_up_alt_outlined),
+      title: Text('Gratitude'),
+      subtitle: Text('No Events. Click to create one.'),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: ListView(
-        children: const [
-          SizedBox(height: 8),
-          QuestionBotButton(),
-          Divider(),
-          ListTile(
-            leading: CircleIcon(icon: Icons.collections_bookmark),
-            title: Text('Journal'),
-            subtitle: Text('No Events. Click to create one.'),
-          ),
-          Divider(),
-          ListTile(
-            leading: CircleIcon(icon: Icons.menu_book_outlined),
-            title: Text('Notes'),
-            subtitle: Text('No Events. Click to create one.'),
-          ),
-          Divider(),
-          ListTile(
-            leading: CircleIcon(icon: Icons.thumb_up_alt_outlined),
-            title: Text('Gratitude'),
-            subtitle: Text('No Events. Click to create one.'),
-          ),
-          Divider(),
-        ],
-      ),
-      floatingActionButton: _buildFloatingActionButton(),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      appBar: _appBar(),
+      body: _body(),
+      floatingActionButton: _floatingActionButton(),
+      bottomNavigationBar: _bottomNavigationBar(),
     );
   }
 
-  BottomNavigationBar _buildBottomNavigationBar() {
+  Widget _body() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: ListView.separated(
+        separatorBuilder: (context, index) => const Divider(),
+        itemCount: _elements.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, Routs.event);
+            },
+            child: _element(index),
+          );
+        },
+      ),
+    );
+  }
+
+  BottomNavigationBar _bottomNavigationBar() {
     return BottomNavigationBar(
       showSelectedLabels: true,
       showUnselectedLabels: true,
@@ -53,7 +67,7 @@ class Home extends StatelessWidget {
     );
   }
 
-  FloatingActionButton _buildFloatingActionButton() {
+  FloatingActionButton _floatingActionButton() {
     return FloatingActionButton(
       elevation: 8,
       backgroundColor: Colors.yellow,
@@ -63,7 +77,7 @@ class Home extends StatelessWidget {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _appBar() {
     return AppBar(
       leading: IconButton(
         icon: const Icon(Icons.menu),
@@ -78,6 +92,10 @@ class Home extends StatelessWidget {
       centerTitle: true,
       title: const Text('Home'),
     );
+  }
+
+  Widget _element(int index) {
+    return _elements[index];
   }
 }
 

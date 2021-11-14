@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'event/screens/event.dart';
+import '../navigator/router.dart';
+import 'event/screens/event_screen.dart';
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
@@ -10,6 +11,8 @@ class App extends StatelessWidget {
       title: 'MyChatJournal',
       theme: _theme(),
       home: const EventScreen(),
+      routes: routes,
+      initialRoute: Routs.home,
     );
   }
 

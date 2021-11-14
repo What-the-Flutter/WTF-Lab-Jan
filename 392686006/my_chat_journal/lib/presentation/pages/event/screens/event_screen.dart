@@ -13,18 +13,25 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
-  final focusNode = FocusNode();
-  final events = <Event>[];
-  TextEditingController messageController = TextEditingController();
-  int selectedMessageIndex = -1;
-  bool isCRUDMode = false;
+  final _focusNode = FocusNode();
+  final _events = <Event>[];
+  final TextEditingController _messageController = TextEditingController();
+  int _selectedMessageIndex = -1;
+  bool _isCRUDMode = false;
 
   @override
   void initState() {
-    focusNode.addListener(() {
+    super.initState();
+    _focusNode.addListener(() {
       setState(() {});
     });
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _messageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -33,13 +40,13 @@ class _EventScreenState extends State<EventScreen> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: isCRUDMode == false ? const Text('Test') : Container(),
+          title: _isCRUDMode == false ? const Text('Test') : Container(),
           centerTitle: true,
           actions: _appBarActions,
         ),
         body: Column(
           children: [
-            events.isEmpty ? _hintMessageBox() : _eventList(),
+            _events.isEmpty ? _hintMessageBox() : _eventList(),
             _messageBar(),
           ],
         ),
@@ -48,7 +55,7 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   List<Widget> get _appBarActions {
-    if (isCRUDMode) {
+    if (_isCRUDMode) {
       return [
         IconButton(
           icon: const Icon(Icons.edit),
@@ -82,26 +89,26 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _editEvent() {
-    if (events[selectedMessageIndex].message == null) {
-      selectedMessageIndex = -1;
+    if (_events[_selectedMessageIndex].message == null) {
+      _selectedMessageIndex = -1;
     } else {
-      messageController.text = events[selectedMessageIndex].message!;
+      _messageController.text = _events[_selectedMessageIndex].message!;
     }
-    isCRUDMode = false;
+    _isCRUDMode = false;
   }
 
   void _copyEvent() {
-    if (events[selectedMessageIndex].message != null) {
+    if (_events[_selectedMessageIndex].message != null) {
       Clipboard.setData(
-        ClipboardData(text: events[selectedMessageIndex].message),
+        ClipboardData(text: _events[_selectedMessageIndex].message),
       );
     }
     unfocus();
   }
 
   void unfocus() {
-    isCRUDMode = false;
-    selectedMessageIndex = -1;
+    _isCRUDMode = false;
+    _selectedMessageIndex = -1;
     setState(() {});
   }
 
@@ -109,12 +116,12 @@ class _EventScreenState extends State<EventScreen> {
     // реализация переключения состояния (bookmarked/unbookmarked)
     // если true true или false false то 0
     // если true false или false ture то 1
-    events[selectedMessageIndex].isBookmarked ^= true;
+    _events[_selectedMessageIndex].isBookmarked ^= true;
     unfocus();
   }
 
   void _deleteEvent() {
-    events.removeAt(selectedMessageIndex);
+    _events.removeAt(_selectedMessageIndex);
     unfocus();
   }
 
@@ -164,13 +171,13 @@ class _EventScreenState extends State<EventScreen> {
     return Expanded(
       child: ListView.builder(
         reverse: true,
-        itemCount: events.length,
+        itemCount: _events.length,
         itemBuilder: (context, index) {
           return GestureDetector(
             onLongPress: () {
-              isCRUDMode ^= true;
+              _isCRUDMode ^= true;
               setState(() {});
-              selectedMessageIndex = isCRUDMode == true ? index : -1;
+              _selectedMessageIndex = _isCRUDMode == true ? index : -1;
             },
             child: Row(
               children: [
@@ -179,7 +186,7 @@ class _EventScreenState extends State<EventScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      color: selectedMessageIndex != index
+                      color: _selectedMessageIndex != index
                           ? Theme.of(context).dialogBackgroundColor
                           : Theme.of(context).selectedRowColor,
                     ),
@@ -187,28 +194,28 @@ class _EventScreenState extends State<EventScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        events[index].message != null
+                        _events[index].message != null
                             ? Text(
-                                events[index].message!,
+                                _events[index].message!,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(fontSize: 18),
                               )
                             : Container(
                                 width: 150,
                                 height: 150,
-                                child: Image.file(events[index].image!),
+                                child: Image.file(_events[index].image!),
                               ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             Text(
-                              events[index].sendTime,
+                              _events[index].sendTime,
                               style: TextStyle(
                                 color: Colors.black.withOpacity(0.5),
                               ),
                             ),
                             const SizedBox(width: 4),
-                            events[index].isBookmarked
+                            _events[index].isBookmarked
                                 ? Icon(
                               Icons.bookmark_add,
                               color: Colors.orange[800],
@@ -244,8 +251,8 @@ class _EventScreenState extends State<EventScreen> {
             child: Container(
               color: Colors.black.withOpacity(0.1),
               child: TextField(
-                focusNode: focusNode,
-                controller: messageController,
+                focusNode: _focusNode,
+                controller: _messageController,
                 decoration: const InputDecoration(
                   contentPadding: EdgeInsets.all(8),
                   border: InputBorder.none,
@@ -257,10 +264,10 @@ class _EventScreenState extends State<EventScreen> {
           IconButton(
             icon: Icon(
               //Icons.send,
-              focusNode.hasFocus ? Icons.send : Icons.add_a_photo,
+              _focusNode.hasFocus ? Icons.send : Icons.add_a_photo,
               color: Theme.of(context).primaryColor,
             ),
-            onPressed: focusNode.hasFocus ? _addMessageEvent : _addImageEvent,
+            onPressed: _focusNode.hasFocus ? _addMessageEvent : _addImageEvent,
           ),
         ],
       ),
@@ -272,29 +279,29 @@ class _EventScreenState extends State<EventScreen> {
     final xFile = await imagePicker.pickImage(source: ImageSource.gallery);
     if (xFile != null) {
       File? imageFile = File(xFile.path);
-      events.insert(0, Event(image: imageFile));
+      _events.insert(0, Event(image: imageFile));
       setState(() {});
     }
   }
 
   void _addMessageEvent() {
-    if (selectedMessageIndex != -1) {
-      if (messageController.text.isEmpty) {
-        events.removeAt(selectedMessageIndex);
+    if (_selectedMessageIndex != -1) {
+      if (_messageController.text.isEmpty) {
+        _events.removeAt(_selectedMessageIndex);
       } else {
-        events[selectedMessageIndex].message = messageController.text;
-        events[selectedMessageIndex].updateSendTime();
+        _events[_selectedMessageIndex].message = _messageController.text;
+        _events[_selectedMessageIndex].updateSendTime();
       }
-      selectedMessageIndex = -1;
-    } else if (messageController.text.isNotEmpty) {
-      events.insert(
+      _selectedMessageIndex = -1;
+    } else if (_messageController.text.isNotEmpty) {
+      _events.insert(
         0,
         Event(
-          message: messageController.text,
+          message: _messageController.text,
         ),
       );
     }
-    messageController.clear();
+    _messageController.clear();
     setState(() {});
   }
 }
