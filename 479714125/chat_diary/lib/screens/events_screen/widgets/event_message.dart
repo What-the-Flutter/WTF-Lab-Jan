@@ -61,7 +61,8 @@ class EventMessage extends StatelessWidget {
                             imageFile!,
                             width: MediaQuery.of(context).size.width,
                             height: MediaQuery.of(context).size.height / 2,
-                            fit: BoxFit.scaleDown,
+                            fit: BoxFit
+                                .scaleDown, //maybe another or change padding for image
                           ),
                         ),
                   Text(
