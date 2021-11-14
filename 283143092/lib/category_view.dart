@@ -1,7 +1,12 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'message.dart';
+import 'message_bubble.dart';
 import 'mockup.dart';
 
 class CategoryView extends StatefulWidget {
@@ -14,41 +19,83 @@ class CategoryView extends StatefulWidget {
 }
 
 class _CategoryViewState extends State<CategoryView> {
-  bool _eventsMenuStatus = false;
-  bool _addPhotoMenuStatus = false;
-
+  bool _isAddPhotoMenuChecked = false;
+  bool _isEventMenuChecked = false;
   bool _isFavouriteFilterChecked = false;
   bool _isSearchChecked = false;
+  bool _isMessageEdited = false;
 
   final _searchFieldFocusNode = FocusNode();
 
+  final _newMessageFieldController = TextEditingController();
   final _searchFieldController = TextEditingController();
-  final _newEntryFieldController = TextEditingController();
 
   final List<Message> _allMessages = Mockup.messages;
   final List<Message> _selectedMessages = [];
   late List<Message> _messages = _allMessages;
 
-  void _onCreateNewEntryPressed() {
-    if (_newEntryFieldController.text.isEmpty) {
-      setState(() => _addPhotoMenuStatus = !_addPhotoMenuStatus);
-      Mockup.mockup('Open "Add photo entry" menu', context);
-    } else {
-      setState(() => _allMessages
-          .add(Message(_newEntryFieldController.text, DateTime.now())));
-      _newEntryFieldController.clear();
+  MapEntry<String, IconData>? _currentEvent;
+  final Map<String, IconData> _events = {
+    'Sport': Icons.directions_run,
+    'Movie': Icons.local_movies,
+    'Music': Icons.music_note,
+    'Food': Icons.local_dining,
+  };
+
+  void _onEventsMenuButtonPress() {
+    setState(() {
+      _isEventMenuChecked = !_isEventMenuChecked;
+      _isAddPhotoMenuChecked = false;
+    });
+  }
+
+  void _onEventMenuItemPress(MapEntry<String, IconData> event) {
+    setState(() => _currentEvent = event);
+  }
+
+  void _onNewMessageButtonPress() {
+    var isFavourite = _isMessageEdited ? _selectedMessages[0].favourite : false;
+    var currentTime = _isMessageEdited ? _selectedMessages[0].date : DateTime.now();
+    setState(() => _allMessages.add(Message(_newMessageFieldController.text,
+        currentTime, isFavourite, _currentEvent)));
+    _newMessageFieldController.clear();
+    if(_isMessageEdited){
+      _isMessageEdited = false;
+      _onDeleteButtonPress();
+      _sortList();
+    }
+    _currentEvent = null;
+  }
+
+  void _onPhotoMenuItemPress(String button) async {
+    var source =
+        button.contains('Gallery') ? ImageSource.gallery : ImageSource.camera;
+    final pickedFile = await ImagePicker().pickImage(source: source);
+    if (pickedFile != null) {
+      setState(() {
+        _allMessages.add(
+            Message('', DateTime.now(), false, null, File(pickedFile.path)));
+      });
     }
   }
 
-  void _onEventsMenuButtonPress() {
-    setState(() => _eventsMenuStatus = !_eventsMenuStatus);
+  void _onPhotoMenuButtonPress() {
+    setState(() {
+      _isAddPhotoMenuChecked = !_isAddPhotoMenuChecked;
+      _isEventMenuChecked = false;
+    });
   }
 
-  void _onFavouriteFilterButtonPress() {
-    setState(() {
-      _isFavouriteFilterChecked = !_isFavouriteFilterChecked;
-      _runFilter(favourite: _isFavouriteFilterChecked);
-    });
+  void _onFavouriteButtonPress() {
+    if (_selectedMessages.isEmpty) {
+      setState(() => _isFavouriteFilterChecked = !_isFavouriteFilterChecked);
+      _updateList();
+    } else {
+      for (var message in _selectedMessages) {
+        _onMessagePress(message);
+      }
+      _exitEditingBar();
+    }
   }
 
   void _onSearchButtonPress() {
@@ -60,14 +107,18 @@ class _CategoryViewState extends State<CategoryView> {
     } else {
       _searchFieldFocusNode.requestFocus();
     }
-    _messages = Mockup.messages;
+    _updateList();
   }
 
   void _onMessagePress(Message message) {
-    setState(() => message.setFavourite());
+    _allMessages.add(Message(message.text, message.date, !message.favourite,
+        message.event, message.image));
+    _allMessages.remove(message);
+    _sortList();
+    _updateList();
   }
 
-  void _onSelectPress(Message message) {
+  void _onMessageLongPress(Message message) {
     setState(() {
       if (_selectedMessages.contains(message)) {
         _selectedMessages.remove(message);
@@ -77,52 +128,47 @@ class _CategoryViewState extends State<CategoryView> {
     });
   }
 
-  void _runFilter({String filter = '', bool favourite = false}) {
-    var result = _allMessages;
-    if (favourite) {
-      result = _allMessages.where((item) => item.favourite).toList();
-    } else if (filter != '') {
-      result =
-          _allMessages.where((item) => item.text.contains(filter)).toList();
-    }
-    setState(() {
-      _messages = result;
-    });
+  void _onEditButtonPress() {
+    setState((){_isMessageEdited = !_isMessageEdited;});
+    _newMessageFieldController.text = _selectedMessages[0].text;
+    _currentEvent = _selectedMessages[0].event;
   }
 
-  void _exitEditingBar(){
-    setState (_selectedMessages.clear);
-  }
-
-  void _editMessage() {
-    var message = _selectedMessages[0];
-    Mockup.mockup('Editing message ${message.text}', context);
-  }
-
-  void _copySelectedContent() {
+  void _onCopyButtonPress() {
     var copy = '';
     for (var message in _selectedMessages) {
       copy += '${message.text} ';
     }
-    print('hello');
-    _exitEditingBar();
     Clipboard.setData(ClipboardData(text: copy));
-  }
-
-  void _addSelectedToFavourite(){
-    for (var message in _selectedMessages) {
-      message.setFavourite();
-    }
     _exitEditingBar();
   }
 
-  void _deleteSelectedMessages(){
-    void _addSelectedToFavourite(){
-      for (var message in _selectedMessages) {
-        _allMessages.remove(message);
-      }
-      _exitEditingBar();
+  void _onDeleteButtonPress() {
+    for (var message in _selectedMessages) {
+      _allMessages.remove(message);
     }
+    _exitEditingBar();
+    _updateList();
+  }
+
+  void _exitEditingBar() {
+    setState(_selectedMessages.clear);
+  }
+
+  void _sortList(){
+    _allMessages.sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  void _updateList({String filter = ''}) {
+    var result = _allMessages;
+    if (_isFavouriteFilterChecked) {
+      result = result.where((item) => item.favourite).toList();
+    } else if (filter != '') {
+      result = result.where((item) => item.text.contains(filter)).toList();
+    }
+    setState(() {
+      _messages = result;
+    });
   }
 
   AppBar _appBarWithEditing() {
@@ -135,19 +181,19 @@ class _CategoryViewState extends State<CategoryView> {
         if (_selectedMessages.length == 1)
           IconButton(
             icon: const Icon(Icons.create),
-            onPressed: _editMessage,
+            onPressed: _onEditButtonPress,
           ),
         IconButton(
           icon: const Icon(Icons.copy),
-          onPressed: _copySelectedContent,
-        ),
-        IconButton(
-          icon: const Icon(Icons.bookmark),
-          onPressed: _addSelectedToFavourite,
+          onPressed: _onCopyButtonPress,
         ),
         IconButton(
           icon: const Icon(Icons.delete),
-          onPressed: _deleteSelectedMessages,
+          onPressed: _onDeleteButtonPress,
+        ),
+        IconButton(
+          icon: const Icon(Icons.bookmark),
+          onPressed: _onFavouriteButtonPress,
         ),
       ],
     );
@@ -167,7 +213,10 @@ class _CategoryViewState extends State<CategoryView> {
                   fillColor: Theme.of(context).backgroundColor,
                 ),
                 onChanged: (text) => {
-                  if (text.length > 2) {_runFilter(filter: text)}
+                  if (text.isNotEmpty)
+                    {_updateList(filter: text)}
+                  else
+                    {_updateList()}
                 },
               )
             : Text(widget.category),
@@ -179,7 +228,7 @@ class _CategoryViewState extends State<CategoryView> {
         ),
         IconButton(
           icon: const Icon(Icons.bookmark),
-          onPressed: _onFavouriteFilterButtonPress,
+          onPressed: _onFavouriteButtonPress,
         ),
       ],
     );
@@ -187,44 +236,119 @@ class _CategoryViewState extends State<CategoryView> {
 
   // TODO: add case for the first item
   Widget _chatBody() {
-    var _previousDate = Message('test', DateTime.now());
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: _messages.isNotEmpty
-          ? ListView.separated(
-              itemCount: _messages.length,
-              itemBuilder: (_, index) {
-                var _message = _messages[index];
-                var _isSelected =_selectedMessages.contains(_message);
-                var _color = _isSelected ? Colors.purpleAccent : Colors.grey;
-                var _tmp = GestureDetector(
-                  child: (_message.isEqual(_previousDate))
-                      ? _message.widget(_color)
-                      : _message.widgetWithDate(_color),
-                  onTap: () => _isSelected ? _onSelectPress(_message) : _onMessagePress(_message),
-                  onLongPress: () => _onSelectPress(_message),
-                );
-                _previousDate = _message;
-                return _tmp;
-              },
-              separatorBuilder: (_, __) => Container(height: 8),
-            )
-          : const Text('Can\'t find needed items'),
+    var _previousDate = Message('test', DateTime.now(), false);
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        child: _messages.isNotEmpty
+            ? ListView.separated(
+                itemCount: _messages.length,
+                itemBuilder: (_, index) {
+                  final _message = _messages[index];
+                  final _isSelected = _selectedMessages.contains(_message);
+                  final _listItem = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_message.formattedDate !=
+                          _previousDate.formattedDate) ...[
+                        Center(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 8),
+                              MessageBubble(_message, true, false),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+                      ],
+                      GestureDetector(
+                        child: MessageBubble(_message, false, _isSelected),
+                        onTap: () {
+                          if (_selectedMessages.isNotEmpty) {
+                            _onMessageLongPress(_message);
+                          } else {
+                            _onMessagePress(_message);
+                          }
+                        },
+                        onLongPress: () => _onMessageLongPress(_message),
+                      ),
+                    ],
+                  );
+                  _previousDate = _message;
+                  return _listItem;
+                },
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+              )
+            : const Text('Can\'t find needed items'),
+      ),
     );
   }
 
-  Widget _hiddenMenu() {
+  Widget _hiddenPhotoMenu() {
+    final _photoMenuItems = <String, IconData>{
+      'Open Gallery': Icons.camera_enhance,
+      'Open Camera': Icons.photo,
+    };
+
     return Visibility(
-      // TODO: change to expandable list from https://stackoverflow.com/questions/58771867/how-to-hide-minimize-a-listview-with-an-animation
       child: SizedBox(
-        height: 150,
-        child: ListView.builder(
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              return Text(['products', 'products', 'products'][index]);
-            }),
+        height: 100,
+        child: ListView.separated(
+          padding: const EdgeInsets.all(8),
+          scrollDirection: Axis.horizontal,
+          itemCount: _photoMenuItems.length,
+          itemBuilder: (_, index) {
+            final item = _photoMenuItems.entries.elementAt(index);
+            return GestureDetector(
+                  child: Container(
+                    color: Colors.grey,
+                    height: 80,
+                    width: (MediaQuery.of(context).size.width - 50) * 0.5,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(item.value),
+                        Text(item.key),
+                      ],
+                    ),
+                ),
+                onTap: () {
+                  _onPhotoMenuItemPress(item.key);
+                  _onPhotoMenuButtonPress();
+                });
+          },
+          separatorBuilder: (_, __) => const SizedBox(width: 30),
+        ),
       ),
-      visible: _eventsMenuStatus || _addPhotoMenuStatus,
+      visible: _isAddPhotoMenuChecked,
+    );
+  }
+
+  Widget _hiddenEventMenu() {
+    return Visibility(
+      child: SizedBox(
+        height: 60,
+        child: ListView.separated(
+          padding: const EdgeInsets.all(8),
+          scrollDirection: Axis.horizontal,
+          itemCount: _events.length,
+          itemBuilder: (context, index) {
+            final item = _events.entries.elementAt(index);
+            return GestureDetector(
+              child: Column(children: [
+                Icon(item.value),
+                Text(item.key),
+              ]),
+              onTap: () {
+                _onEventMenuItemPress(item);
+                _onEventsMenuButtonPress();
+              },
+            );
+          },
+          separatorBuilder: (_, __) => const SizedBox(width: 30),
+        ),
+      ),
+      visible: _isEventMenuChecked,
     );
   }
 
@@ -234,16 +358,15 @@ class _CategoryViewState extends State<CategoryView> {
       padding: const EdgeInsets.all(10),
       child: Row(
         children: [
-          InkWell(
-            child: const Icon(
-              Icons.dehaze,
+          IconButton(
+            icon: Icon(
+              _currentEvent == null ? Icons.dehaze : _currentEvent!.value,
             ),
-            onTap: _onEventsMenuButtonPress,
+            onPressed: _onEventsMenuButtonPress,
           ),
-          const SizedBox(width: 20),
           Expanded(
             child: TextField(
-              controller: _newEntryFieldController,
+              controller: _newMessageFieldController,
               maxLines: null,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -251,15 +374,16 @@ class _CategoryViewState extends State<CategoryView> {
               ),
             ),
           ),
-          const SizedBox(width: 20),
           ValueListenableBuilder<TextEditingValue>(
-            valueListenable: _newEntryFieldController,
+            valueListenable: _newMessageFieldController,
             builder: (context, value, child) {
-              return InkWell(
-                child: Icon(
+              return IconButton(
+                icon: Icon(
                   value.text.isEmpty ? Icons.add_a_photo : Icons.send,
                 ),
-                onTap: _onCreateNewEntryPressed,
+                onPressed: value.text.isEmpty
+                    ? _onPhotoMenuButtonPress
+                    : _onNewMessageButtonPress,
               );
             },
           ),
@@ -270,7 +394,7 @@ class _CategoryViewState extends State<CategoryView> {
 
   @override
   void dispose() {
-    _newEntryFieldController.dispose();
+    _newMessageFieldController.dispose();
     _searchFieldController.dispose();
     _searchFieldFocusNode.dispose();
     super.dispose();
@@ -284,10 +408,9 @@ class _CategoryViewState extends State<CategoryView> {
           : _appBarWithEditing(),
       body: Column(
         children: [
-          Expanded(
-            child: _chatBody(),
-          ),
-          //_hiddenMenu(),
+          _chatBody(),
+          _hiddenEventMenu(),
+          _hiddenPhotoMenu(),
           _newEntryField(),
         ],
       ),

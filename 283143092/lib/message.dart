@@ -1,74 +1,19 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 class Message {
-  String text;
-  final DateTime _date;
-  final String? _event;
-  bool favourite;
+  final String text;
+  final DateTime date;
+  final bool favourite;
+  final MapEntry<String, IconData>? event;
+  final File? image;
 
-  Message(this.text, this._date, [this._event, this.favourite = false]);
+  Message(this.text, this.date, this.favourite, [this.event, this.image]);
 
-  String get time => DateFormat('dd MMMM yyyy').format(_date);
+  String get formattedDate => DateFormat('dd MMMM yyyy').format(date);
 
-  String? get event => _event;
+  String get formattedTime => DateFormat('Hm').format(date);
 
-  void setFavourite() => favourite = !favourite;
-
-  bool isEqual(Message e) => time == e.time;
-
-  Widget widgetWithDate(Color color) {
-    return Column(
-      children: [
-        Center(
-          child: Text(
-            time,
-          ),
-        ),
-        const Divider(),
-        widget(color),
-      ],
-    );
-  }
-
-  Widget widget(Color color) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Text(
-              text,
-            ),
-            // TODO: figure out why every message block expands on whole screen width with commented code
-            // TODO: if previous solved - align bookmark icon to the right
-            // TODO: after that add optional widget to show event if not null
-            /*Row(
-              children: [
-                Text(
-                  DateFormat.Hm().format(_date),
-                ),
-                favourite
-                    ? const Align(
-                        alignment: Alignment.bottomRight,
-                        child: Icon(
-                          Icons.bookmark,
-                          size: 15,
-                        ),
-                      )
-                    : const SizedBox(),
-              ],
-            ),*/
-          ],
-        ),
-      ),
-    );
-  }
 }

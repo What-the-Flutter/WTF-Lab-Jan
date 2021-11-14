@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _onFloatingButtonTapped(){
+  void _onFloatingButtonTapped() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CategoryCreatorView()),

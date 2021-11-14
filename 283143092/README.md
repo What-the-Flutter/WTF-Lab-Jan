@@ -7,10 +7,7 @@ WTFlutter Lab graduation project
 ## Bugs & problems
 | Priority | Severity | Description                                                                                        |
 | -------- | -------- | -------------------------------------------------------------------------------------------------- |
-| Low      | Low      | Entry(Message) expands after adding children like time, event or favourite mark                    |
-| Medium   | Major    | Horizontal list throws exceptions at present state (presumably conflict of column + listView pair) |
 | Medium   | Low      | ThemeManager does not implement all colors (only primary + Brightness.dark overrides theme)        |
-| Low      | Low      | SearchTextField does not change List View content while deleting text out of it                    |
 
 ## Roadmap
 - Organize libraries (for easier project expansion)
