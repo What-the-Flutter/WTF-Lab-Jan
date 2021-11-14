@@ -58,7 +58,7 @@ class EventMessage extends StatelessWidget {
                           style: const TextStyle(fontSize: 16),
                         )
                       : Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.only(bottom: 4),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.file(
