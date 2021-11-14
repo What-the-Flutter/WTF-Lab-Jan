@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'screens/events_screen/event_screen.dart';
+import 'screens/daily_screen/daily_screen.dart';
+import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';
+import 'screens/timeline_screen/timeline_screen.dart';
 import 'theme/app_colors.dart';
 
 class App extends StatelessWidget {
@@ -11,8 +13,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Chat Diary',
-      //home: Home(),
-      home: EventScreen(title: 'Travel'),
+      home: Home(),
+      //home: EventScreen(title: 'Travel'),
     );
   }
 }
@@ -25,12 +27,20 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int _currentIndex = 0;
+  var _currentIndex = 0;
+  var _title = 'Home';
+
+  final _children = const <Widget>[
+    HomeScreen(),
+    DailyScreen(),
+    TimelineScreen(),
+    ExploreScreen(),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Text(_title),
         centerTitle: true,
         backgroundColor: AppColors.bluePurple,
         leading: IconButton(
@@ -67,9 +77,23 @@ class _HomeState extends State<Home> {
             label: 'Explore',
           ),
         ],
-        onTap: (index) => setState(
-          () => _currentIndex = index,
-        ),
+        onTap: (index) => setState(() {
+          _currentIndex = index;
+          switch (index) {
+            case 0:
+              _title = 'Home';
+              break;
+            case 1:
+              _title = 'Daily';
+              break;
+            case 2:
+              _title = 'Timeline';
+              break;
+            case 3:
+              _title = 'Explore';
+              break;
+          }
+        }),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.sandPurple,
@@ -81,7 +105,7 @@ class _HomeState extends State<Home> {
         onPressed: () {},
         child: const Icon(Icons.add, size: 50),
       ),
-      body: const HomeScreen(),
+      body: _children[_currentIndex],
     );
   }
 }
