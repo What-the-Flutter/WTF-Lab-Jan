@@ -23,13 +23,11 @@ class CustomThemeModelState extends State<CustomThemeModel> {
   ThemeData themeData = CustomTheme.light;
 
   void changeTheme() {
-    setState(
-      () {
-        themeData = themeData == CustomTheme.light ? CustomTheme.dark : CustomTheme.light;
-      },
-    );
+    setState(() {
+      themeData = themeData == CustomTheme.light ? CustomTheme.dark : CustomTheme.light;
+    });
   }
-
+// если в несколько строк то пишем {}
   @override
   Widget build(BuildContext context) => InheritedCustomTheme(
         themeData: widget.themeData,
