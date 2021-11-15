@@ -1,7 +1,9 @@
+import 'package:chat_journal/models/theme/custom_theme.dart';
+import 'package:chat_journal/models/theme/theme_constants.dart';
 import 'package:chat_journal/screens/home/home.dart';
 import 'package:flutter/material.dart';
 import '../config.dart';
-import 'navigator_drawer.dart';
+import 'home/navigator_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,6 +15,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _index = 0;
   String _title = '';
+  bool themeChange = false;
+  late CustomThemeMode themeMode;
+
+  void _changeTheme(BuildContext buildContext, CustomThemeMode key) {
+    CustomTheme.instanceOf(buildContext).changeTheme(key);
+  }
+
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
@@ -50,24 +59,42 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: const NavigatorDrawer(),
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         centerTitle: true,
         title: Text(
           _title,
           style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
             fontFamily: 'Merriweather',
             fontSize: 28.0,
-            fontWeight: FontWeight.bold,
           ),
         ),
         elevation: 0.0,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.brush_outlined),
-            iconSize: 30.0,
-            color: Colors.white,
-            onPressed: () {},
-          )
+            onPressed: () {
+              themeChange = !themeChange;
+              if (themeChange == true) {
+                themeMode = CustomThemeMode.light;
+              } else {
+                themeMode = CustomThemeMode.dark;
+              }
+
+              _changeTheme(context, themeMode);
+            },
+            icon: themeChange
+                ? const Icon(
+                    Icons.wb_incandescent,
+                    color: themeIconLight,
+                    size: 30,
+                  )
+                : const Icon(
+                    Icons.wb_incandescent_outlined,
+                    color: themeIconDark,
+                    size: 30,
+                  ),
+          ),
         ],
       ),
       body: _index == 0
@@ -78,16 +105,11 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
         type: Config.navigationBar.type,
-        fixedColor: Config.navigationBar.fixedColor,
+        selectedItemColor: floatingButtonColor,
+        unselectedItemColor: Theme.of(context).colorScheme.secondaryVariant,
+        backgroundColor: Theme.of(context).primaryColor,
         items: Config.navigationBar.items,
         onTap: _onTap,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add your onPressed code here!
-        },
-        child: const Icon(Icons.add),
-        backgroundColor: Colors.green,
       ),
     );
   }

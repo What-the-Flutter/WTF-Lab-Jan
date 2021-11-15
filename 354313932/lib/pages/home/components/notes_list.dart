@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
 import '../../../models/note.dart';
-import '../../event/event_screen.dart';
+import '../../event/events_screen.dart';
 
 class NotesList extends StatelessWidget {
   const NotesList({

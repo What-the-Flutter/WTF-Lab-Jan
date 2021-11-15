@@ -38,6 +38,12 @@ dependencies:
 #  flutter_svg: ^0.20.0-nullsafety.3
   flutter_svg_provider: ^0.1.10
   jiffy: ^4.1.0
+  shared_preferences: ^2.0.7
+  flutter_bloc: ^7.0.0
+  sqflite: ^2.0.0
+  path: ^1.8.0
+  path_provider: ^2.0.0
+  icons_helper: ^1.0.4
 
 dev_dependencies:
   flutter_test:

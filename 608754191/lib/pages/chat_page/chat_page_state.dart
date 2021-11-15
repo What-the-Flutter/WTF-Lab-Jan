@@ -1,8 +1,4 @@
-import 'package:flutter/cupertino.dart';
-
-import '../../entity/category.dart';
-import '../../entity/message.dart';
-import '../../entity/tag_model.dart';
+part of 'chat_page_cubit.dart';
 
 class ChatPageState {
   final bool? messageSelected;
@@ -16,7 +12,9 @@ class ChatPageState {
   final int? iconIndex;
   final bool? isSendingPhoto;
   final Alignment? isBubbleAlignment;
-  List<Tag> tags;
+  final bool? isSortedByBookmarks;
+  final String? selectedTime;
+
   ChatPageState({
     this.messageSelected,
     this.indexOfSelectedElement,
@@ -29,7 +27,8 @@ class ChatPageState {
     this.isWriting,
     this.isSendingPhoto,
     this.isBubbleAlignment,
-    this.tags = const [],
+    this.isSortedByBookmarks,
+    this.selectedTime,
   });
 
   ChatPageState copyWith({
@@ -44,7 +43,8 @@ class ChatPageState {
     final bool? isWriting,
     final bool? isSendingPhoto,
     final Alignment? isBubbleAlignment,
-    final List<Tag>? tags,
+    final bool? isSortedByBookmarks,
+    final String? selectedTime,
   }) {
     return ChatPageState(
       messageSelected: messageSelected ?? this.messageSelected,
@@ -58,7 +58,8 @@ class ChatPageState {
       isWriting: isWriting ?? this.isWriting,
       isSendingPhoto: isSendingPhoto ?? this.isSendingPhoto,
       isBubbleAlignment: isBubbleAlignment ?? this.isBubbleAlignment,
-      tags: tags ?? this.tags,
+      isSortedByBookmarks: isSortedByBookmarks ?? this.isSortedByBookmarks,
+      selectedTime: selectedTime ?? this.selectedTime,
     );
   }
 }

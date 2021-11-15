@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../authorization/authorization_page.dart';
 
+import '../../authorization/authorization_page.dart';
 import 'general_settings/general_settings_page.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -104,7 +104,7 @@ class SettingsPage extends StatelessWidget {
       case 0:
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => GeneralSettingPage(),
+            builder: (context) => GeneralSettingsPage(),
           ),
         );
         break;

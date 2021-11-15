@@ -23,6 +23,5 @@ class Config {
   static BottomNavigationBar navigationBar = BottomNavigationBar(
     items: navigationBarItems,
     type: BottomNavigationBarType.fixed,
-    fixedColor: Colors.green,
   );
 }

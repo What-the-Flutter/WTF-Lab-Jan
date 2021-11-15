@@ -2,61 +2,67 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
 
-import '../../util/domain.dart';
+import '../../util/animation/bouncy_page_route.dart';
 import '../chat_page/chat_page.dart';
+import '../chat_page/widgets/search_messages.dart';
+import '../navbar_pages/timeline_page/timeline_page.dart';
+import '../navbar_pages/timeline_page/timeline_page_cubit.dart';
 import '../settings/settings_page/settings_cubit.dart';
 import '../settings/settings_page/settings_page.dart';
+import '../statistic_page/statistic_page.dart';
 import 'chose_of_action/chose_of_action.dart';
 import 'home_page_cubit.dart';
+import 'widgets/category_list_tile.dart';
 
-class ChatJournalHomePage extends StatefulWidget {
-  ChatJournalHomePage();
+class HomePage extends StatefulWidget {
+  HomePage();
 
   @override
-  _ChatJournalHomePageState createState() => _ChatJournalHomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
-  late final _appBars;
+class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   @override
   void initState() {
     BlocProvider.of<HomePageCubit>(context).init();
-    _appBars = [
-      _appBarFromHomePage(),
-      _appBarFromDailyPage(),
-      _appBarFromTimelinePage(),
-      _appBarFromExplorePage()
-    ];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomePageCubit, HomePageState>(
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: Colors.blueGrey[100],
-          appBar: _appBars[_selectedIndex],
-          body: _bodyOfHomePageChat(state),
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.black,
-            onPressed: () {
-              BlocProvider.of<HomePageCubit>(context).addCategory(
-                context,
-              );
-              BlocProvider.of<HomePageCubit>(context).updateList(
-                state.categories,
-              );
-            },
-            child: const Icon(
-              Icons.add_sharp,
-              color: Colors.yellow,
-            ),
-          ),
-          bottomNavigationBar: _chatBottomNavigationBar(),
-          drawer: _navigationDrawerWidget(),
+    return BlocBuilder<TimelinePageCubit, TimelinePageState>(
+      builder: (context, timelineState) {
+        return BlocBuilder<HomePageCubit, HomePageState>(
+          builder: (context, state) {
+            return Scaffold(
+              backgroundColor: Theme.of(context).backgroundColor,
+              appBar: _selectedIndex != 2
+                  ? _appBarFromHomePage()
+                  : _appBarFromTimelinePage(timelineState),
+              body: _selectedIndex != 2 ? _bodyOfHomePageChat(state) : TimelinePage(),
+              floatingActionButton: _selectedIndex == 0
+                  ? FloatingActionButton(
+                      backgroundColor: Colors.black,
+                      onPressed: () {
+                        BlocProvider.of<HomePageCubit>(context).addCategory(
+                          context,
+                        );
+                        BlocProvider.of<HomePageCubit>(context).updateList(
+                          state.categories,
+                        );
+                      },
+                      child: const Icon(
+                        Icons.add_sharp,
+                        color: Colors.yellow,
+                      ),
+                    )
+                  : Container(),
+              bottomNavigationBar: _chatBottomNavigationBar(),
+              drawer: _navigationDrawerWidget(),
+            );
+          },
         );
       },
     );
@@ -120,7 +126,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  AppBar _appBarFromTimelinePage() {
+  AppBar _appBarFromTimelinePage(TimelinePageState timelinePageState) {
     return AppBar(
       backgroundColor: Colors.black,
       leading: IconButton(
@@ -139,13 +145,24 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            showSearch(
+              context: context,
+              delegate: SearchMessageDelegate(
+                messagesList: timelinePageState.messageList!,
+              ),
+            );
+          },
           icon: const Icon(
             Icons.search,
           ),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            BlocProvider.of<TimelinePageCubit>(context).setSortedByBookmarksState(
+              !timelinePageState.isSortedByBookmarks!,
+            );
+          },
           icon: const Icon(
             Icons.bookmark_border_outlined,
           ),
@@ -188,51 +205,57 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               index,
             ) {
               if (index == 0) {
-                return _firstConditionPadding();
+                return _questionnaireBot();
               }
               return Padding(
                 padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
-                child: Card(
-                  child: ListTile(
-                    title: Text(
-                      state.categories[index - 1].title,
-                    ),
-                    subtitle: Text(
-                      state.categories[index - 1].subTitleMessage.isEmpty
-                          ? 'No events. Click to create one.'
-                          : state.categories[index - 1].subTitleMessage,
-                    ),
-                    leading: CircleAvatar(
-                      child: Icon(
-                        initialIcons[state.categories[index - 1].iconIndex],
-                      ),
-                      backgroundColor: Colors.black,
-                    ),
-                    onLongPress: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => BlocProvider.value(
-                          child: ChoseOfAction(
-                            state.categories,
-                            index - 1,
-                          ),
-                          value: BlocProvider.of<HomePageCubit>(
-                            context,
-                          ),
-                        ),
-                      );
-                    },
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ChatPage(
-                            category: state.categories[index - 1],
-                            categories: state.categories,
-                          ),
-                        ),
-                      );
-                    },
+                child: TweenAnimationBuilder(
+                  duration: const Duration(
+                    seconds: 2,
                   ),
+                  tween: ColorTween(
+                    begin: Colors.white,
+                    end: Colors.yellow,
+                  ),
+                  child: Card(
+                    child: CategoryListTile(
+                      category: state.categories[index - 1],
+                      onLongPress: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => BlocProvider.value(
+                            child: ChoseOfAction(
+                              state.categories,
+                              index - 1,
+                            ),
+                            value: BlocProvider.of<HomePageCubit>(
+                              context,
+                            ),
+                          ),
+                        );
+                      },
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          BouncyPageRoute(
+                            widget: ChatPage(
+                              category: state.categories[index - 1],
+                              categories: state.categories,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  builder: (_, Color? color, myChild) {
+                    return ColorFiltered(
+                      colorFilter: ColorFilter.mode(
+                        color!,
+                        BlendMode.modulate,
+                      ),
+                      child: myChild,
+                    );
+                  },
                 ),
               );
             },
@@ -242,7 +265,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  Padding _firstConditionPadding() {
+  Padding _questionnaireBot() {
     return Padding(
       padding: const EdgeInsets.all(
         10.0,
@@ -250,13 +273,13 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
       child: ElevatedButton(
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(
-            Colors.white,
+            Colors.yellow[400],
           ),
           padding: MaterialStateProperty.all(
             const EdgeInsets.fromLTRB(1, 1, 1, 1),
           ),
           overlayColor: MaterialStateProperty.all(
-            Colors.blueGrey[100],
+            Colors.black,
           ),
           shadowColor: MaterialStateProperty.all(
             Colors.black,
@@ -285,11 +308,11 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               width: 50,
               color: Colors.black,
             ),
-            Text(
+            const Text(
               'Questionnaire Bot',
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.blueGrey[800],
+                color: Colors.black,
                 fontFamily: 'Times New Roman',
                 fontWeight: FontWeight.bold,
               ),
@@ -340,9 +363,7 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
     );
   }
 
-  void _onItemTapped(int index) => setState(
-        () => _selectedIndex = index,
-      );
+  void _onItemTapped(int index) => setState(() => _selectedIndex = index);
 
   Widget _navigationDrawerWidget() {
     return Drawer(
@@ -357,6 +378,11 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
               text: 'settings',
               icon: Icons.settings,
               onClicked: () => _selectedItem(context, 0),
+            ),
+            _menuItem(
+              text: 'statistic',
+              icon: Icons.analytics_outlined,
+              onClicked: () => _selectedItem(context, 1),
             ),
             _menuItem(
               text: 'Help spread the word',
@@ -404,6 +430,20 @@ class _ChatJournalHomePageState extends State<ChatJournalHomePage> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => SettingsPage(),
+          ),
+        );
+        break;
+      case 1:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => StatisticPage(),
+          ),
+        );
+        break;
+      default:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
           ),
         );
         break;

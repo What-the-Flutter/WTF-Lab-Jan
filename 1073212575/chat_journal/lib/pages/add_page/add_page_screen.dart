@@ -41,10 +41,20 @@ class _AddPageState extends State<AddPage> {
     Icons.camera_alt_rounded,
     Icons.train_rounded,
     Icons.text_snippet_rounded,
+    Icons.accessibility_rounded,
+    Icons.ac_unit_rounded,
+    Icons.add_box,
+    Icons.account_balance,
   ];
 
   var _selectedIconIndex;
   final _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<AddPageCubit>(context).gradientAnimation();
+  }
 
   @override
   void dispose() {
@@ -54,18 +64,21 @@ class _AddPageState extends State<AddPage> {
 
   @override
   Widget build(BuildContext context) {
+    var first = Theme.of(context).colorScheme.secondary;
+    var second = Theme.of(context).colorScheme.onSecondary;
+    var third = Theme.of(context).colorScheme.secondaryVariant;
     return BlocBuilder<AddPageCubit, AddPageState>(
       builder: (blocContext, state) {
-        final _addPageCubit = BlocProvider.of<AddPageCubit>(context);
-        return Container(
+        return AnimatedContainer(
+          duration: const Duration(seconds: 1),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Theme.of(context).colorScheme.secondary,
-                Theme.of(context).colorScheme.onSecondary,
-                Theme.of(context).colorScheme.secondaryVariant,
+                first,
+                state.isColorChanged ? second : first,
+                state.isColorChanged ? third : first,
               ],
             ),
           ),
@@ -78,17 +91,14 @@ class _AddPageState extends State<AddPage> {
                 children: [
                   _textField(),
                   Expanded(
-                    child: _icons(
-                      _addPageCubit,
-                      state,
-                    ),
+                    child: _icons(state),
                   ),
                 ],
               ),
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                _addPageCubit.returnToHomePage(
+                BlocProvider.of<AddPageCubit>(context).returnToHomePage(
                   widget.needsEditing,
                   widget.selectedPageIndex,
                   _controller.text,
@@ -150,7 +160,7 @@ class _AddPageState extends State<AddPage> {
     );
   }
 
-  Widget _icons(_addPageCubit, state) {
+  Widget _icons(state) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: GridView.builder(
@@ -158,13 +168,12 @@ class _AddPageState extends State<AddPage> {
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
         ),
-        itemBuilder: (context, i) =>
-            _icon(_iconsList[i], i, state, _addPageCubit),
+        itemBuilder: (context, i) => _icon(_iconsList[i], i, state),
       ),
     );
   }
 
-  Widget _icon(IconData iconData, int i, state, _addPageCubit) {
+  Widget _icon(IconData iconData, int i, state) {
     return Padding(
       padding: const EdgeInsets.all(5),
       child: ClipOval(
@@ -173,7 +182,7 @@ class _AddPageState extends State<AddPage> {
               ? Theme.of(context).colorScheme.onPrimary
               : Colors.transparent,
           child: GestureDetector(
-            onTap: () => _addPageCubit.setIconIndex(i),
+            onTap: () => BlocProvider.of<AddPageCubit>(context).setIconIndex(i),
             child: Icon(
               iconData,
               color: Theme.of(context).colorScheme.onBackground,
