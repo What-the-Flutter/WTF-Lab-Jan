@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'widgets/chat_card.dart';
+import 'widgets/page_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final List<PageCard> listOfChats;

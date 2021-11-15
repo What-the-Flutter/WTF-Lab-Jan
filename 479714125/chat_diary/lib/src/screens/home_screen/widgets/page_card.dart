@@ -8,12 +8,14 @@ class PageCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final Future<void> Function(Key) deletePage;
+  final Future<void> Function(Key, String) editPage;
 
   const PageCard({
-    Key? key,
+    required Key? key,
     required this.icon,
     required this.title,
     required this.deletePage,
+    required this.editPage,
   }) : super(key: key);
 
   @override
@@ -109,7 +111,10 @@ class _PageCardState extends State<PageCard> {
                 title: 'Edit Page',
                 icon: Icons.edit,
                 color: Colors.blue,
-                action: () {},
+                action: () async {
+                  await widget.editPage(_key, widget.title);
+                  Navigator.pop(context);
+                },
               ),
               BottomSheetCard(
                 title: 'Delete Page',

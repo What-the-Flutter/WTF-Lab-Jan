@@ -8,7 +8,12 @@ import 'widgets/icon_gridview.dart';
 
 class AddPageScreen extends StatefulWidget {
   final String title;
-  const AddPageScreen({Key? key, required this.title}) : super(key: key);
+  final String? titleOfPage;
+  const AddPageScreen({
+    Key? key,
+    required this.title,
+    this.titleOfPage,
+  }) : super(key: key);
 
   @override
   State<AddPageScreen> createState() => _AddPageScreenState();
@@ -27,6 +32,10 @@ class _AddPageScreenState extends State<AddPageScreen> {
       () => setState(() {}),
     );
     _inputController = TextEditingController();
+    var titleOfPage = widget.titleOfPage;
+    if (titleOfPage != null) {
+      _inputController.text = titleOfPage;
+    }
   }
 
   @override

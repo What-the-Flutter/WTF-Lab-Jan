@@ -6,7 +6,7 @@ import 'screens/add_page_screen/add_page_screen.dart';
 import 'screens/daily_screen/daily_screen.dart';
 import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';
-import 'screens/home_screen/widgets/chat_card.dart';
+import 'screens/home_screen/widgets/page_card.dart';
 import 'screens/timeline_screen/timeline_screen.dart';
 import 'theme/app_colors.dart';
 
@@ -43,18 +43,21 @@ class _HomeState extends State<Home> {
         title: 'Travel',
         key: UniqueKey(),
         deletePage: _deleteSelectedPage,
+        editPage: _editSelectedPage,
       ),
       PageCard(
         icon: Icons.bed,
         title: 'Hotel',
         key: UniqueKey(),
         deletePage: _deleteSelectedPage,
+        editPage: _editSelectedPage,
       ),
       PageCard(
         icon: Icons.sports_score,
         title: 'Sport',
         key: UniqueKey(),
         deletePage: _deleteSelectedPage,
+        editPage: _editSelectedPage,
       ),
     ]);
     super.initState();
@@ -121,7 +124,7 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: (_currentIndex == 0)
           ? AppFloatingActionButton(
-              onPressed: () => _navigateAndFetchResult(context),
+              onPressed: () => _navigateToAddPageAndFetchResult(context),
               child: const Icon(Icons.add, size: 50),
             )
           : null,
@@ -139,7 +142,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _navigateAndFetchResult(BuildContext context) async {
+  Future<void> _navigateToAddPageAndFetchResult(BuildContext context) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -155,13 +158,58 @@ class _HomeState extends State<Home> {
         icon: pageModel.icon,
         title: pageModel.name,
         deletePage: _deleteSelectedPage,
+        editPage: _editSelectedPage,
       );
       setState(() => _listOfChats.add(pageCard));
     }
   }
 
+  Future<void> _navigateToEditPageAndFetchResult({
+    required BuildContext context,
+    required String currentTitleOfPage,
+    required Key key,
+  }) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddPageScreen(
+          title: 'Edit Page',
+          titleOfPage: currentTitleOfPage,
+        ),
+      ),
+    );
+    if (result != null) {
+      int? index;
+      final pageModel = result as PageModel;
+      for (final value in _listOfChats) {
+        if (value.key == key) {
+          index = _listOfChats.indexOf(value);
+          break;
+        }
+      }
+      if (index != null) {
+        _listOfChats[index] = PageCard(
+          key: key,
+          icon: pageModel.icon,
+          title: pageModel.name,
+          deletePage: _deleteSelectedPage,
+          editPage: _editSelectedPage,
+        );
+      }
+    }
+  }
+
   Future<void> _deleteSelectedPage(Key key) async {
     await _showDeleteDialog(key);
+    setState(() {});
+  }
+
+  Future<void> _editSelectedPage(Key key, String titleOfPage) async {
+    await _navigateToEditPageAndFetchResult(
+      context: context,
+      currentTitleOfPage: titleOfPage,
+      key: key,
+    );
     setState(() {});
   }
 
