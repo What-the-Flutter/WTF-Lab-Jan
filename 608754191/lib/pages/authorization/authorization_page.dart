@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 import 'authorization_cubit.dart';
 
@@ -14,22 +15,42 @@ class AuthorizationPage extends StatelessWidget {
             backgroundColor: Colors.black,
             title: const Text(
               'Authorization Page',
-              style: TextStyle(color: Colors.yellow),
+              style: TextStyle(
+                color: Colors.yellow,
+              ),
             ),
             centerTitle: true,
           ),
-          body: Center(
-            child: ElevatedButton(
-              child: const Text(
-                'Authorize',
-                style: TextStyle(fontSize: 26),
+          body: Column(
+            children: [
+              Center(
+                child: Lottie.network(
+                  'https://assets10.lottiefiles.com/packages/lf20_pNx6yH.json',
+                ),
               ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.yellow),
-                foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+              const SizedBox(
+                height: 20,
               ),
-              onPressed: () => BlocProvider.of<AuthenticationCubit>(context).authenticate(),
-            ),
+              Center(
+                child: ElevatedButton(
+                  child: const Text(
+                    'Authorize',
+                    style: TextStyle(
+                      fontSize: 26,
+                    ),
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                      Colors.yellow,
+                    ),
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                      Colors.black,
+                    ),
+                  ),
+                  onPressed: () => BlocProvider.of<AuthenticationCubit>(context).authenticate(),
+                ),
+              ),
+            ],
           ),
         );
       },

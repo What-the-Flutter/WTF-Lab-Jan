@@ -26,9 +26,7 @@ class SearchMessageDelegate extends SearchDelegate {
           Icons.cleaning_services_rounded,
           color: Colors.yellow,
         ),
-        onPressed: () {
-          query = '';
-        },
+        onPressed: () => query = '',
       ),
     ];
   }
@@ -99,9 +97,7 @@ class SearchMessageDelegate extends SearchDelegate {
                       title: Text(
                         message.text,
                       ),
-                      subtitle: Text(
-                        '${message.time}\n${category!.title}',
-                      ),
+                      subtitle: Text('${message.time}'),
                       isThreeLine: true,
                     ),
                   ),

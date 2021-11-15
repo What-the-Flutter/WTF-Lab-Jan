@@ -1,41 +1,45 @@
-import 'package:flutter/material.dart';
-import 'message_model.dart';
+import 'package:chat_journal/models/message_model.dart';
+import 'package:jiffy/jiffy.dart';
+
+import 'chaticon_model.dart';
 
 class Chat {
-  final IconData icon;
-  final String title;
-  String? subtitle;
-  String? time;
-  List<Message>? messageBase;
+  int id;
+  int chatIconId;
+  String title;
+  bool? isPinned;
+  Jiffy? time;
+  ChatIcon? chatIcon;
+  List<Message> messageBase = [];
 
-  Chat({required this.icon, required this.title, List<Message>? messageBase}) {
-    // ignore: prefer_initializing_formals
-    this.messageBase = messageBase;
+  Chat({
+    required this.chatIconId,
+    required this.time,
+    required this.title,
+    required this.isPinned,
+    required this.id,
+    required this.chatIcon,
+    required this.messageBase,
+  });
 
-    if (messageBase != null) {
-      subtitle = messageBase.last.message;
-      time = messageBase.last.time.fromNow();
-    } else {
-     subtitle = 'No events. Click to create one';
-      time = '';
-    }
+  Map<String, dynamic> toMap() {
+    return {
+      'chatIconId': chatIconId,
+      'title': title,
+      'isPinned': isPinned! ? 1 : 0,
+      'time': time!.dateTime.toString(),
+    };
+  }
+
+  factory Chat.fromMap(Map<String, dynamic> map) {
+    return Chat(
+      id: map['id'],
+      chatIconId: map['chatIconId'],
+      title: map['title'],
+      isPinned: map['isPinned'] == 1 ? true : false,
+      time: Jiffy(map['time']),
+      messageBase: [],
+      chatIcon: null,
+    );
   }
 }
-
-List<Chat> chats = [
-  Chat(
-    icon: Icons.airplanemode_active,
-    title: 'Travel',
-    messageBase: travel,
-  ),
-  Chat(
-    icon: Icons.book_rounded,
-    title: 'Journal',
-    messageBase: null,
-  ),
-  Chat(
-    icon: Icons.nature_people,
-    title: 'Communication',
-    messageBase: null,
-  ),
-];

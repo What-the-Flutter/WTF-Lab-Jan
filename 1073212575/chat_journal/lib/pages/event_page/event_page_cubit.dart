@@ -6,52 +6,75 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../database.dart';
 import '../../models/events_model.dart';
+import '../../repository/messages_repository.dart';
+import '../../repository/pages_repository.dart';
 import 'event_page_state.dart';
 
 class EventPageCubit extends Cubit<EventPageState> {
-  EventPageCubit()
+  final MessagesRepository messagesRepository;
+  final PagesRepository pagesRepository;
+
+  EventPageCubit(this.messagesRepository, this.pagesRepository)
       : super(
           EventPageState(
+            hashTags: [],
             messages: [],
             onlyMarked: false,
             isSelected: false,
             isSearchGoing: false,
             isCategoryPanelOpened: false,
+            isHashTagPanelVisible: false,
             needsEditing: false,
+            isDateTimeSelected: false,
+            isColorChanged: false,
             selectedMessageIndex: -1,
             categoryIcon: Icons.remove_rounded,
-            eventPages: [],
+            eventPageId: '',
+            selectedImagePath: '',
+            searchText: '',
+            selectedTime: TimeOfDay.now(),
+            selectedDate: DateTime.now(),
           ),
         );
-  var _searchText;
 
-  Stream<List> showMessages(
-    String eventPageId,
-  ) async* {
+  void init(String eventPageId) {
+    setPageId(eventPageId);
+    gradientAnimation();
+    showMessages();
+    findHashTags();
+  }
+
+  void showMessages() async {
     final List messages;
     if (state.onlyMarked && !state.isSearchGoing) {
-      messages = await DBProvider.db.markedMessagesList(eventPageId);
+      messages = await messagesRepository.markedMessagesList(state.eventPageId);
     } else if (state.isSearchGoing) {
-      final tempMessages =
-          await DBProvider.db.searchMessagesList(eventPageId, _searchText);
+      final tempMessages = await messagesRepository.searchMessagesList(
+          state.eventPageId, state.searchText);
       messages = tempMessages
-          .where((message) => !File(message.content).existsSync())
+          .where((message) => !File(message.imagePath).existsSync())
           .toList();
     } else if (!state.onlyMarked && !state.isSearchGoing) {
-      messages = await DBProvider.db.messagesList(eventPageId);
+      messages = await messagesRepository.messagesList(state.eventPageId);
     } else {
       messages = [];
     }
-    final pages = await DBProvider.db.eventPagesList();
+    //final pages = await pagesRepository.eventPagesList();
     emit(
       state.copyWith(
         messages: messages,
-        eventPages: pages,
+        //eventPages: pages,
       ),
     );
-    yield messages;
+  }
+
+  void setPageId(String eventPageId) {
+    emit(
+      state.copyWith(
+        eventPageId: eventPageId,
+      ),
+    );
   }
 
   void startSearching() {
@@ -60,21 +83,25 @@ class EventPageCubit extends Cubit<EventPageState> {
         isSearchGoing: true,
       ),
     );
+    showMessages();
   }
 
-  void endSearching(
-    String eventPageId,
-  ) {
+  void endSearching() {
     emit(
       state.copyWith(
         isSearchGoing: false,
       ),
     );
-    showMessages(eventPageId);
+    showMessages();
   }
 
-  void searchMessages(String eventPageId, String text) {
-    _searchText = text;
+  void searchMessages(String text) {
+    emit(
+      state.copyWith(
+        searchText: text,
+      ),
+    );
+    showMessages();
   }
 
   void unselect() {
@@ -89,31 +116,33 @@ class EventPageCubit extends Cubit<EventPageState> {
     final message = state.messages[i].copyWith(
       isMarked: !state.messages[i].isMarked,
     );
-    DBProvider.db.updateMessage(message);
+    messagesRepository.updateMessage(message);
+    showMessages();
   }
 
-  void showMarked(String eventPageId) {
+  void showMarked() {
     emit(
       state.copyWith(
         onlyMarked: !state.onlyMarked,
       ),
     );
-    showMessages(eventPageId);
+    showMessages();
   }
 
   void delete([int messageIndex = -1]) {
     if (messageIndex == -1) {
       messageIndex = state.selectedMessageIndex;
     }
-    DBProvider.db.deleteMessage(state.messages[messageIndex].id);
+    messagesRepository.deleteMessage(state.messages[messageIndex].id);
     emit(
       state.copyWith(
         isSelected: false,
       ),
     );
+    showMessages();
   }
 
-  String edit(String eventPageId, [int messageIndex = -1]) {
+  String edit([int messageIndex = -1]) {
     if (messageIndex == -1) {
       messageIndex = state.selectedMessageIndex;
     }
@@ -123,12 +152,7 @@ class EventPageCubit extends Cubit<EventPageState> {
         selectedMessageIndex: messageIndex,
       ),
     );
-    if (File(state.messages[messageIndex].content).existsSync()) {
-      addImage(eventPageId);
-      return '';
-    } else {
-      return state.messages[messageIndex].content;
-    }
+    return state.messages[messageIndex].text;
   }
 
   void copy() {
@@ -142,6 +166,14 @@ class EventPageCubit extends Cubit<EventPageState> {
     );
   }
 
+  void check() {
+    final message = state.messages[state.selectedMessageIndex].copyWith(
+      isChecked: !state.messages[state.selectedMessageIndex].isChecked,
+    );
+    messagesRepository.updateMessage(message);
+    showMessages();
+  }
+
   void select(int i) {
     emit(
       state.copyWith(
@@ -151,41 +183,38 @@ class EventPageCubit extends Cubit<EventPageState> {
     );
   }
 
-  Future<void> addImage(String eventPageId) async {
+  Future<void> addImage() async {
     final _picker = ImagePicker();
     final image = await _picker.pickImage(source: ImageSource.gallery);
     if (state.isSelected) {
       final message = state.messages[state.selectedMessageIndex].copyWith(
-        content: image!.path,
+        imagePath: image!.path,
       );
-      DBProvider.db.updateMessage(message);
-    } else {
-      final message = EventMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        pageId: eventPageId,
-        content: image!.path,
-        date: DateTime.now().millisecondsSinceEpoch,
-        icon: state.categoryIcon,
-        isMarked: false,
-      );
-      DBProvider.db.insertMessage(message);
+      messagesRepository.updateMessage(message);
     }
-    showMessages(eventPageId);
-  }
-
-  Future<bool> isImage(String content) {
-    return File(content).exists();
-  }
-
-  void _addEdited(
-    String eventPageId,
-    String text,
-  ) {
-    final message = state.messages[state.selectedMessageIndex].copyWith(
-      content: text,
-      icon: state.categoryIcon,
+    emit(
+      state.copyWith(
+        selectedImagePath: image!.path,
+      ),
     );
-    DBProvider.db.updateMessage(message);
+  }
+
+  void _addEdited(String text) {
+    var message;
+    if (state.selectedImagePath == '') {
+      message = state.messages[state.selectedMessageIndex].copyWith(
+        text: text,
+        icon: state.categoryIcon,
+      );
+    } else {
+      message = state.messages[state.selectedMessageIndex].copyWith(
+        text: text,
+        icon: state.categoryIcon,
+        imagePath: state.selectedImagePath,
+      );
+    }
+
+    messagesRepository.updateMessage(message);
 
     emit(
       state.copyWith(
@@ -196,28 +225,45 @@ class EventPageCubit extends Cubit<EventPageState> {
     );
   }
 
-  void addMessage(String eventPageId, String text) {
+  void addMessage(String text) {
+    final dateTime = state.isDateTimeSelected
+        ? convertToDateTime(state.selectedTime, state.selectedDate)
+        : DateTime.now();
     if (state.needsEditing) {
       _addEdited(
-        eventPageId,
         text,
       );
     } else {
       final message = EventMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        pageId: eventPageId,
-        content: text,
-        date: DateTime.now().millisecondsSinceEpoch,
+        pageId: state.eventPageId,
+        text: text,
+        imagePath: state.selectedImagePath,
+        date: dateTime,
         icon: state.categoryIcon,
         isMarked: false,
+        isChecked: false,
       );
-      DBProvider.db.insertMessage(message);
+      messagesRepository.insertMessage(message);
       emit(
         state.copyWith(
           categoryIcon: null,
+          selectedImagePath: '',
+          isDateTimeSelected: false,
         ),
       );
     }
+    showMessages();
+  }
+
+  DateTime convertToDateTime(TimeOfDay time, DateTime date) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
   }
 
   void moveMessage(
@@ -227,13 +273,102 @@ class EventPageCubit extends Cubit<EventPageState> {
     final message = state.messages[state.selectedMessageIndex].copyWith(
       pageId: nextPageId,
     );
-    DBProvider.db.deleteMessage(delMessage.id);
-    DBProvider.db.insertMessage(message);
+    messagesRepository.deleteMessage(delMessage.id);
+    messagesRepository.insertMessage(message);
     emit(
       state.copyWith(
         isSelected: false,
       ),
     );
+    showMessages();
+  }
+
+  bool isSeparatorVisible(int i) {
+    if (i == 0) {
+      return true;
+    } else if ((!areDaysEqual(
+      state.messages[i - 1].date,
+      state.messages[i].date,
+    ))) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void findHashTags() {
+    final hashTags = [];
+    final exp = RegExp(
+      r'\B#[0-9a-zA-Zа-яёА-ЯЁ]+',
+    );
+    for (var message in state.messages) {
+      exp.allMatches(message.text).forEach((match) {
+        if (!hashTags.contains(match.group(0))) {
+          hashTags.add(match.group(0));
+        }
+      });
+    }
+    emit(
+      state.copyWith(
+        hashTags: hashTags,
+      ),
+    );
+  }
+
+  void findHashtagMatches(String text) {
+    findHashTags();
+    var hashTags = state.hashTags;
+    final exp = RegExp(r'\B#[0-9a-zA-Zа-яёА-ЯЁ]+$');
+    final match = exp.stringMatch(text);
+    final isVisible;
+    if (match == null) {
+      isVisible = false;
+    } else {
+      isVisible = true;
+      hashTags = hashTags.where((tag) => tag.contains(match)).toList();
+    }
+    emit(
+      state.copyWith(
+        hashTags: hashTags,
+        isHashTagPanelVisible: isVisible,
+      ),
+    );
+  }
+
+  void setTime(TimeOfDay? newTime) {
+    if (newTime != null) {
+      emit(
+        state.copyWith(
+          isDateTimeSelected: true,
+          selectedTime: newTime,
+        ),
+      );
+    }
+  }
+
+  void setDate(DateTime? newDate) {
+    if (newDate != null && newDate != state.selectedDate) {
+      emit(
+        state.copyWith(
+          isDateTimeSelected: true,
+          selectedDate: newDate,
+        ),
+      );
+    }
+  }
+
+  DateTime selectedDateTime() {
+    return convertToDateTime(state.selectedTime, state.selectedDate);
+  }
+
+  bool areDaysEqual(DateTime day1, DateTime day2) {
+    if (day1.year == day2.year &&
+        day1.month == day2.month &&
+        day1.day == day2.day) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void openCategoryPanel() {
@@ -269,5 +404,17 @@ class EventPageCubit extends Cubit<EventPageState> {
     return isCategoryPanelVisible
         ? state.messages[i].icon
         : Icons.remove_rounded;
+  }
+
+  void gradientAnimation() async {
+    emit(
+      state.copyWith(isColorChanged: false),
+    );
+    await Future.delayed(
+      const Duration(milliseconds: 30),
+    );
+    emit(
+      state.copyWith(isColorChanged: true),
+    );
   }
 }

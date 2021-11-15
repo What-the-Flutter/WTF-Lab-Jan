@@ -3,6 +3,7 @@ class Message {
   int currentCategoryId;
   String text;
   String time;
+  int? bookmarkIndex;
   String? imagePath;
 
   Message({
@@ -11,6 +12,7 @@ class Message {
     required this.time,
     required this.text,
     this.imagePath,
+    this.bookmarkIndex,
   });
 
   Map<String, dynamic> convertMessageToMap() {
@@ -19,6 +21,7 @@ class Message {
       'text': text,
       'time': time,
       'image_path': imagePath,
+      'bookmark_index': bookmarkIndex,
     };
   }
 
@@ -29,6 +32,7 @@ class Message {
       'text': text,
       'time': time,
       'image_path': imagePath,
+      'bookmark_index': bookmarkIndex,
     };
   }
 
@@ -41,6 +45,7 @@ class Message {
       text: map['text'],
       time: map['time'],
       imagePath: map['image_path'],
+      bookmarkIndex: map['bookmark_index'],
     );
   }
 }

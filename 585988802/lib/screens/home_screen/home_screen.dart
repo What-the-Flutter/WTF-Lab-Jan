@@ -11,7 +11,7 @@ import '../../models/suggestion.dart';
 import '../../theme/theme_bloc.dart';
 import '../../theme/theme_event.dart';
 import '../creating_suggestion_screen/creating_suggestion_screen.dart';
-import '../event_screen/event_screen.dart';
+import '../event_screen/events_screen.dart';
 import '../setting_screen/setting_screen_event.dart';
 import '../setting_screen/settings_screen_bloc.dart';
 import 'home_screen_app_bar.dart';

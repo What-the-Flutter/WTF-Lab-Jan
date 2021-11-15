@@ -1,37 +1,44 @@
+import 'package:chat_journal/models/sectionicon_model.dart';
 import 'package:jiffy/jiffy.dart';
 
 class Message {
+  late final int id;
+  int chatId;
   String message;
   final Jiffy time;
   bool isFavourite;
-  bool isSelected;
+  int? sectionIconId;
+  SectionIcon? sectionIcon;
 
-  Message(this.message, this.time, this.isFavourite, this.isSelected);
+  Message({
+    required this.message,
+    required this.time,
+    required this.isFavourite,
+    required this.sectionIconId,
+    required this.chatId,
+    required this.id,
+    required this.sectionIcon,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'chatId': chatId,
+      'message': message,
+      'time': time.dateTime.toString(),
+      'isFavourite': isFavourite ? 1 : 0,
+      'sectionIconId': sectionIconId,
+    };
+  }
+
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      id: map['id'],
+      chatId: map['chatId'],
+      message: map['message'],
+      time: Jiffy(map['time']),
+      isFavourite: map['isFavourite'] == 1 ? true : false,
+      sectionIconId: map['sectionIconId'],
+      sectionIcon: null,
+    );
+  }
 }
-
-List<Message> travel = [
-  Message(
-      "buy bread",
-      Jiffy({"year": 2021, "month": 9, "day": 20, "hour": 14, "minutes": 45}),
-      false, false),
-  Message(
-      "go to work",
-      Jiffy({"year": 2021, "month": 9, "day": 20, "hour": 14, "minutes": 50}),
-      false, false),
-  Message(
-      "go to work",
-      Jiffy({"year": 2021, "month": 9, "day": 20, "hour": 14, "minutes": 53}),
-      false, false),
-  Message(
-      "write a letter",
-      Jiffy({"year": 2021, "month": 10, "day": 18, "hour": 10, "minutes": 45}),
-      false, false),
-  Message(
-      "cook a dinner",
-      Jiffy({"year": 2021, "month": 10, "day": 18, "hour": 11, "minutes": 45}),
-      false, false),
-  Message(
-      "drink a water",
-      Jiffy({"year": 2021, "month": 10, "day": 18, "hour": 11, "minutes": 45}),
-      false, false),
-];

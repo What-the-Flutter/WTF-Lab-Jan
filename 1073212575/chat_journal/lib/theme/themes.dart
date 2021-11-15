@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 const double radiusValue = 10;
 
 final ThemeData lightTheme = ThemeData(
