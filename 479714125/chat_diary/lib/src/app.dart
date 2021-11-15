@@ -8,16 +8,33 @@ import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';
 import 'screens/home_screen/widgets/page_card.dart';
 import 'screens/timeline_screen/timeline_screen.dart';
-import 'theme/app_colors.dart';
+import 'theme/app_theme.dart';
+import 'theme/config.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
 
   @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+    appTheme.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: appTheme.currentTheme,
       title: 'Chat Diary',
-      home: Home(),
+      home: const Home(),
     );
   }
 }
@@ -69,22 +86,22 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(_title),
         centerTitle: true,
-        backgroundColor: AppColors.bluePurple,
+        //backgroundColor: AppColors.bluePurple,
         leading: IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () {},
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => appTheme.toggleTheme(),
             icon: const Icon(Icons.invert_colors),
           ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: AppColors.darkBluePurple,
-        unselectedItemColor: AppColors.darkSandPurple,
-        showUnselectedLabels: true,
+        //selectedItemColor: AppColors.darkBluePurple,
+        //unselectedItemColor: AppColors.darkSandPurple,
+        //showUnselectedLabels: true,
         currentIndex: _currentIndex,
         items: const [
           BottomNavigationBarItem(
@@ -164,7 +181,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future<void> _navigateToEditPageAndFetchResult({
+  Future<void> _navigateToEditPageAndEditPage({
     required BuildContext context,
     required String currentTitleOfPage,
     required Key key,
@@ -205,7 +222,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _editSelectedPage(Key key, String titleOfPage) async {
-    await _navigateToEditPageAndFetchResult(
+    await _navigateToEditPageAndEditPage(
       context: context,
       currentTitleOfPage: titleOfPage,
       key: key,

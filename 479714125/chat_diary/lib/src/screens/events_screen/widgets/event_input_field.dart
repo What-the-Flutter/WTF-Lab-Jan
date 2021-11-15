@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../../../theme/app_colors.dart';
 import '../models/event_model.dart';
 
 class EventInputField extends StatefulWidget {
@@ -54,20 +53,21 @@ class _EventInputFieldState extends State<EventInputField> {
                   enabled: !widget.isSelected,
                   controller: widget.inputController,
                   maxLines: null,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
                       vertical: 10,
                       horizontal: 10,
                     ),
                     hintText: 'Enter Event',
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderRadius: const BorderRadius.all(Radius.circular(12)),
                       borderSide: BorderSide(
-                        color: AppColors.bluePurple,
+                        //color: AppColors.bluePurple,
+                        color: Theme.of(context).primaryColor,
                         width: 2,
                       ),
                     ),
-                    border: OutlineInputBorder(
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
                   ),
@@ -75,16 +75,18 @@ class _EventInputFieldState extends State<EventInputField> {
               ),
               _keyboardIsVisible
                   ? IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.send,
-                        color: AppColors.bluePurple,
+                        //color: AppColors.bluePurple,
+                        color: Theme.of(context).primaryColor,
                       ),
                       onPressed: _addEventModel,
                     )
                   : IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.image,
-                        color: AppColors.bluePurple,
+                        //color: AppColors.bluePurple,
+                        color: Theme.of(context).primaryColor,
                       ),
                       onPressed: _pickImage,
                     ),

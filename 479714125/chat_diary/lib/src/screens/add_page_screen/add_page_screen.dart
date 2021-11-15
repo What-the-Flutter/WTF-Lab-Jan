@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../components/floating_action_button.dart';
 import '../../models/page_model.dart';
 import '../../resources/icon_list.dart';
-import '../../theme/app_colors.dart';
 import 'widgets/icon_gridview.dart';
 
 class AddPageScreen extends StatefulWidget {
@@ -68,18 +67,21 @@ class _AddPageScreenState extends State<AddPageScreen> {
                   decoration: InputDecoration(
                     labelText: 'Name of the Page',
                     labelStyle: TextStyle(
-                      color: _focusNode.hasFocus
-                          ? AppColors.bluePurple
-                          : AppColors.black,
-                    ),
+                        // color: _focusNode.hasFocus
+                        //     ? AppColors.bluePurple
+                        //     : AppColors.black,
+                        color: _focusNode.hasFocus
+                            ? Theme.of(context).primaryColor
+                            : Theme.of(context).colorScheme.onSecondary),
                     contentPadding: const EdgeInsets.symmetric(
                       vertical: 10,
                       horizontal: 10,
                     ),
                     border: const OutlineInputBorder(),
-                    focusedBorder: const OutlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: AppColors.bluePurple,
+                        //color: AppColors.bluePurple,
+                        color: Theme.of(context).primaryColor,
                         width: 2,
                       ),
                     ),

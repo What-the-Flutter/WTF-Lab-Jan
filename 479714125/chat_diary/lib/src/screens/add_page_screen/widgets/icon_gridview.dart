@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../resources/icon_list.dart';
-import '../../../theme/app_colors.dart';
 
 class IconsGridView extends StatefulWidget {
   final void Function(IconData) changeSelectedIcon;
@@ -35,8 +34,9 @@ class _IconsGridViewState extends State<IconsGridView> {
           },
           icon: Icon(
             _iconsOfPages[index],
-            color:
-                _selectedIcon == index ? AppColors.bluePurple : AppColors.black,
+            color: _selectedIcon == index
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).colorScheme.onSecondary,
           ),
         );
       },
