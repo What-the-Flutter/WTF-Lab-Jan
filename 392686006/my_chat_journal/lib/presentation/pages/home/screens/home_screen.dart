@@ -1,28 +1,37 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../../navigator/router.dart';
 
-class HomeScreen extends StatelessWidget {
+import '../../../../domain/entities/event_info.dart';
+import '../../../navigator/router.dart';
+import '../../../res/styles.dart';
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({
     Key? key,
   }) : super(key: key);
 
-  final List<Widget> _elements = const [
-    QuestionBotButton(),
-    ListTile(
-      leading: CircleIcon(icon: Icons.collections_bookmark),
-      title: Text('Journal'),
-      subtitle: Text('No Events. Click to create one.'),
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  var _isDarkMode = false;
+
+  final List<EventInfo> events = [
+    EventInfo(
+      title: 'Journal',
+      subtitle: 'No Events. Click to create one.',
+      leading: const CircleIcon(icon: Icons.collections_bookmark),
     ),
-    ListTile(
-      leading: CircleIcon(icon: Icons.menu_book_outlined),
-      title: Text('Notes'),
-      subtitle: Text('No Events. Click to create one.'),
+    EventInfo(
+      title: 'Notes',
+      subtitle: 'No Events. Click to create one.',
+      leading: const CircleIcon(icon: Icons.menu_book_outlined),
     ),
-    ListTile(
-      leading: CircleIcon(icon: Icons.thumb_up_alt_outlined),
-      title: Text('Gratitude'),
-      subtitle: Text('No Events. Click to create one.'),
+    EventInfo(
+      leading: const CircleIcon(icon: Icons.thumb_up_alt_outlined),
+      title: 'Gratitude',
+      subtitle: 'No Events. Click to create one.',
     ),
   ];
 
@@ -31,12 +40,21 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
+      drawer: const Drawer(),
       floatingActionButton: _floatingActionButton(),
       bottomNavigationBar: _bottomNavigationBar(),
     );
   }
 
   Widget _body() {
+    final _elements = <Widget>[
+      const QuestionBotButton(),
+      ...events.map((e) => ListTile(
+            title: Text(e.title),
+            leading: e.leading,
+            subtitle: Text(e.subtitle),
+          )),
+    ];
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: ListView.separated(
@@ -45,9 +63,15 @@ class HomeScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, Routs.event);
+              if (_elements[index] is ListTile) {
+                Navigator.pushNamed(
+                  context,
+                  Routs.event,
+                  arguments: events[index - 1].title,
+                );
+              }
             },
-            child: _element(index),
+            child: _elements[index],
           );
         },
       ),
@@ -79,14 +103,12 @@ class HomeScreen extends StatelessWidget {
 
   AppBar _appBar() {
     return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.menu),
-        onPressed: () {},
-      ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.invert_colors),
-          onPressed: () {},
+          icon: _isDarkMode
+              ? const Icon(Icons.invert_colors)
+              : const Icon(Icons.invert_colors_outlined),
+          onPressed: _changeTheme,
         ),
       ],
       centerTitle: true,
@@ -94,8 +116,11 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _element(int index) {
-    return _elements[index];
+  void _changeTheme() {
+    setState(() {
+      InheritedCustomTheme.of(context).changeTheme();
+      _isDarkMode ^= true;
+    });
   }
 }
 

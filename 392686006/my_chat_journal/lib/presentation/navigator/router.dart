@@ -13,20 +13,19 @@ class Routs{
 final routes = <String, WidgetBuilder>{
   // Routs.root: (_) => RootNavigation(),
   Routs.home: (_) => const HomeScreen(),
-  Routs.event: (_) => const EventScreen(),
 };
 
 /// Роуты, в которые необходимо передавать данные.
 /// Каждый MaterialPageRoute должен содержать параметр [settings], определяющий
 /// его назначение.
-// Route<dynamic> generateRoute(RouteSettings settings) {
-//   switch (settings.name) {
-//     case Routs.event:
-//       return MaterialPageRoute(
-//         builder: (_) => EventScreen(),
-//         settings: settings,
-//       );
-//     default:
-//       throw Exception("Route with name ${settings.name} doesn't exists");
-//   }
-// }
+Route<dynamic> generateRoute(RouteSettings settings) {
+  switch (settings.name) {
+    case Routs.event:
+      return MaterialPageRoute(
+        builder: (_) => EventScreen(title: settings.arguments as String),
+        settings: settings,
+      );
+    default:
+      throw Exception("Route with name ${settings.name} doesn't exists");
+  }
+}

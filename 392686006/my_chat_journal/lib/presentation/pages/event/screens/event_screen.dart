@@ -6,10 +6,12 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../domain/entities/event.dart';
 
 class EventScreen extends StatefulWidget {
-  const EventScreen({Key? key}) : super(key: key);
+  const EventScreen({Key? key, required this.title}) : super(key: key);
+
+  final String title;
 
   @override
-  _EventScreenState createState() => _EventScreenState();
+  _EventScreenState createState() => _EventScreenState(title);
 }
 
 class _EventScreenState extends State<EventScreen> {
@@ -18,6 +20,8 @@ class _EventScreenState extends State<EventScreen> {
   final TextEditingController _messageController = TextEditingController();
   int _selectedMessageIndex = -1;
   bool _isCRUDMode = false;
+
+  _EventScreenState(String title);
 
   @override
   void initState() {
@@ -40,7 +44,7 @@ class _EventScreenState extends State<EventScreen> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: _isCRUDMode == false ? const Text('Test') : Container(),
+          title: _isCRUDMode == false ? Text('${widget.title}') : Container(),
           centerTitle: true,
           actions: _appBarActions,
         ),
@@ -138,16 +142,16 @@ class _EventScreenState extends State<EventScreen> {
               ),
               child: RichText(
                 textAlign: TextAlign.center,
-                text: const TextSpan(
-                  style: TextStyle(
+                text: TextSpan(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black,
                   ),
                   children: [
                     TextSpan(
-                      text: 'This is the Test page!',
+                      text: 'This is the ${widget.title} page!',
                     ),
-                    TextSpan(
+                    const TextSpan(
                       text: '\n\nAdd you first event to "Test" page by '
                           'entering some text in the text box below '
                           'and hitting the send button. Long tap the '
@@ -217,9 +221,9 @@ class _EventScreenState extends State<EventScreen> {
                             const SizedBox(width: 4),
                             _events[index].isBookmarked
                                 ? Icon(
-                              Icons.bookmark_add,
-                              color: Colors.orange[800],
-                            )
+                                    Icons.bookmark_add,
+                                    color: Colors.orange[800],
+                                  )
                                 : const SizedBox(),
                           ],
                         ),
