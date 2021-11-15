@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  var _isDarkMode = false;
+  bool _isDarkMode = false;
 
   final List<EventInfo> events = [
     EventInfo(

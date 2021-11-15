@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import '../pages/event/screens/event_screen.dart';
 import '../pages/home/screens/home_screen.dart';
 
-/// Константы для страниц, здесь должны быть перечислены все страницы без исключений
+/// Constants for pages, all pages should be listed here without exceptions
 class Routs{
   static const root = '/';
   static const home = '/home';
   static const event = '/event';
 }
 
-/// Роуты, в которые не нужно передавать данные, они будут основаны на DI
+/// Routes to which you do not need to transfer data, they will be based on DI
 final routes = <String, WidgetBuilder>{
   // Routs.root: (_) => RootNavigation(),
   Routs.home: (_) => const HomeScreen(),
 };
+///Routes to which data must be transferred.
+// Each MaterialPageRoute must contain a [settings] parameter that defines
+// its purpose.
 
-/// Роуты, в которые необходимо передавать данные.
-/// Каждый MaterialPageRoute должен содержать параметр [settings], определяющий
-/// его назначение.
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case Routs.event:
