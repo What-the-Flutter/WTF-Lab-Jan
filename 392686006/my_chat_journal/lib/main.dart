@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:my_chat_journal/ui/widgets/app.dart';
+
+import 'presentation/pages/app.dart';
+import 'presentation/res/styles.dart';
 
 void main() {
-  const app = App();
+  final app = CustomThemeModel(
+    child: const App(),
+    themeData: CustomTheme.light,
+  );
   runApp(app);
 }
