@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/app_colors.dart';
 import '../../events_screen/event_screen.dart';
+import 'bottom_sheet_card.dart';
 
 class PageCard extends StatefulWidget {
   final IconData icon;
   final String title;
+  final Future<void> Function(Key) deletePage;
 
   const PageCard({
     Key? key,
     required this.icon,
     required this.title,
+    required this.deletePage,
   }) : super(key: key);
 
   @override
@@ -20,6 +23,13 @@ class PageCard extends StatefulWidget {
 class _PageCardState extends State<PageCard> {
   final _description = 'No Events. Click to create one.';
   bool _isHover = false;
+  late Key _key;
+
+  @override
+  void initState() {
+    super.initState();
+    _key = widget.key!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +54,7 @@ class _PageCardState extends State<PageCard> {
           onHover: (value) => setState(
             () => _isHover = value,
           ),
+          onLongPress: _showModalBottomSheet,
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Row(
@@ -81,6 +92,38 @@ class _PageCardState extends State<PageCard> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showModalBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (_) {
+        return SizedBox(
+          height: 200,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              BottomSheetCard(
+                title: 'Edit Page',
+                icon: Icons.edit,
+                color: Colors.blue,
+                action: () {},
+              ),
+              BottomSheetCard(
+                title: 'Delete Page',
+                icon: Icons.delete,
+                color: Colors.red,
+                action: () async {
+                  await widget.deletePage(_key);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

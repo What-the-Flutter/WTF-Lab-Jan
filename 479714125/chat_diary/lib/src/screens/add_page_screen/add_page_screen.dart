@@ -7,7 +7,8 @@ import '../../theme/app_colors.dart';
 import 'widgets/icon_gridview.dart';
 
 class AddPageScreen extends StatefulWidget {
-  const AddPageScreen({Key? key}) : super(key: key);
+  final String title;
+  const AddPageScreen({Key? key, required this.title}) : super(key: key);
 
   @override
   State<AddPageScreen> createState() => _AddPageScreenState();
@@ -44,9 +45,9 @@ class _AddPageScreenState extends State<AddPageScreen> {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 35),
             child: Column(
               children: [
-                const Text(
-                  'Create a new Page',
-                  style: TextStyle(
+                Text(
+                  widget.title,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 25,
                   ),

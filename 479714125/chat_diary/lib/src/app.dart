@@ -32,14 +32,31 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   var _currentIndex = 0;
   var _title = 'Home';
-  final _listOfChats = <PageCard>[
-    const PageCard(icon: Icons.travel_explore, title: 'Travel'),
-    const PageCard(icon: Icons.bed, title: 'Hotel'),
-    const PageCard(icon: Icons.sports_score, title: 'Sport'),
-  ];
+
+  final _listOfChats = <PageCard>[];
 
   @override
   void initState() {
+    _listOfChats.addAll([
+      PageCard(
+        icon: Icons.travel_explore,
+        title: 'Travel',
+        key: UniqueKey(),
+        deletePage: _deleteSelectedPage,
+      ),
+      PageCard(
+        icon: Icons.bed,
+        title: 'Hotel',
+        key: UniqueKey(),
+        deletePage: _deleteSelectedPage,
+      ),
+      PageCard(
+        icon: Icons.sports_score,
+        title: 'Sport',
+        key: UniqueKey(),
+        deletePage: _deleteSelectedPage,
+      ),
+    ]);
     super.initState();
   }
 
@@ -126,17 +143,59 @@ class _HomeState extends State<Home> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AddPageScreen(),
+        builder: (context) => const AddPageScreen(
+          title: 'Create a new Page',
+        ),
       ),
     );
     if (result != null) {
       final pageModel = result as PageModel;
       final pageCard = PageCard(
+        key: UniqueKey(),
         icon: pageModel.icon,
         title: pageModel.name,
+        deletePage: _deleteSelectedPage,
       );
-
       setState(() => _listOfChats.add(pageCard));
     }
+  }
+
+  Future<void> _deleteSelectedPage(Key key) async {
+    await _showDeleteDialog(key);
+    setState(() {});
+  }
+
+  Future<void> _showDeleteDialog(Key key) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete page?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Are you really sure you want to delete this page?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                _listOfChats.removeWhere((element) => element.key == key);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
