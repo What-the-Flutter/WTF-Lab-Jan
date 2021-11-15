@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'components/floating_action_button.dart';
+import 'models/page_model.dart';
+import 'screens/add_page_screen/add_page_screen.dart';
 import 'screens/daily_screen/daily_screen.dart';
 import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';
+import 'screens/home_screen/widgets/chat_card.dart';
 import 'screens/timeline_screen/timeline_screen.dart';
 import 'theme/app_colors.dart';
 
@@ -28,13 +32,17 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   var _currentIndex = 0;
   var _title = 'Home';
-
-  final _children = const <Widget>[
-    HomeScreen(),
-    DailyScreen(),
-    TimelineScreen(),
-    ExploreScreen(),
+  final _listOfChats = <PageCard>[
+    const PageCard(icon: Icons.travel_explore, title: 'Travel'),
+    const PageCard(icon: Icons.bed, title: 'Hotel'),
+    const PageCard(icon: Icons.sports_score, title: 'Sport'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,17 +102,41 @@ class _HomeState extends State<Home> {
           }
         }),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.sandPurple,
-        foregroundColor: AppColors.black,
-        splashColor: AppColors.darkSandPurple,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        onPressed: () {},
-        child: const Icon(Icons.add, size: 50),
+      floatingActionButton: (_currentIndex == 0)
+          ? AppFloatingActionButton(
+              onPressed: () => _navigateAndFetchResult(context),
+              child: const Icon(Icons.add, size: 50),
+            )
+          : null,
+      body: IndexedStack(
+        children: [
+          HomeScreen(
+            listOfChats: _listOfChats,
+          ),
+          const DailyScreen(),
+          const TimelineScreen(),
+          const ExploreScreen(),
+        ],
+        index: _currentIndex,
       ),
-      body: _children[_currentIndex],
     );
+  }
+
+  void _navigateAndFetchResult(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddPageScreen(),
+      ),
+    );
+    if (result != null) {
+      final pageModel = result as PageModel;
+      final pageCard = PageCard(
+        icon: pageModel.icon,
+        title: pageModel.name,
+      );
+
+      setState(() => _listOfChats.add(pageCard));
+    }
   }
 }

@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
 import '../../events_screen/event_screen.dart';
 
-class ChatCard extends StatefulWidget {
+class PageCard extends StatefulWidget {
   final IconData icon;
   final String title;
 
-  const ChatCard({
+  const PageCard({
     Key? key,
     required this.icon,
     required this.title,
   }) : super(key: key);
 
   @override
-  State<ChatCard> createState() => _ChatCardState();
+  State<PageCard> createState() => _PageCardState();
 }
 
-class _ChatCardState extends State<ChatCard> {
+class _PageCardState extends State<PageCard> {
   final _description = 'No Events. Click to create one.';
   bool _isHover = false;
 
