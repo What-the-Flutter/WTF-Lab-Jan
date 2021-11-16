@@ -8,6 +8,7 @@ import 'widgets/icon_gridview.dart';
 class AddPageScreen extends StatefulWidget {
   final String title;
   final String? titleOfPage;
+
   const AddPageScreen({
     Key? key,
     required this.title,
@@ -21,15 +22,13 @@ class AddPageScreen extends StatefulWidget {
 class _AddPageScreenState extends State<AddPageScreen> {
   late final FocusNode _focusNode;
   late final TextEditingController _inputController;
-  var _selectedIcon = IconList.iconList[0];
+  IconData _selectedIcon = IconList.iconList[0];
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
-    _focusNode.addListener(
-      () => setState(() {}),
-    );
+    _focusNode.addListener(() => setState(() {}));
     _inputController = TextEditingController();
     var titleOfPage = widget.titleOfPage;
     if (titleOfPage != null) {
@@ -67,9 +66,6 @@ class _AddPageScreenState extends State<AddPageScreen> {
                   decoration: InputDecoration(
                     labelText: 'Name of the Page',
                     labelStyle: TextStyle(
-                        // color: _focusNode.hasFocus
-                        //     ? AppColors.bluePurple
-                        //     : AppColors.black,
                         color: _focusNode.hasFocus
                             ? Theme.of(context).primaryColor
                             : Theme.of(context).colorScheme.onSecondary),
@@ -80,7 +76,6 @@ class _AddPageScreenState extends State<AddPageScreen> {
                     border: const OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        //color: AppColors.bluePurple,
                         color: Theme.of(context).primaryColor,
                         width: 2,
                       ),
@@ -111,8 +106,6 @@ class _AddPageScreenState extends State<AddPageScreen> {
     );
   }
 
-  // ignore: use_setters_to_change_properties
-  void _changeSelectedIcon(IconData icon) {
-    _selectedIcon = icon;
-  }
+  void _changeSelectedIcon(IconData icon) =>
+      setState(() => _selectedIcon = icon);
 }

@@ -23,7 +23,7 @@ class AppTheme extends ChangeNotifier {
       ),
       primaryColor: AppColors.bluePurple,
       scaffoldBackgroundColor: AppColors.grey50,
-      cardColor: AppColors.lightBlue, //background color for page chat
+      cardColor: AppColors.lightBlue,
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         selectedItemColor: AppColors.darkBluePurple,
         unselectedItemColor: AppColors.darkSandPurple,
@@ -41,9 +41,8 @@ class AppTheme extends ChangeNotifier {
     return ThemeData(
       canvasColor: AppColors.grey800,
       colorScheme: const ColorScheme.dark(
-        secondary:
-            AppColors.darkSandPurple, //background color of icon container
-        onSecondary: Colors.white, //icon color
+        secondary: AppColors.darkSandPurple,
+        onSecondary: Colors.white,
       ),
       appBarTheme: const AppBarTheme(
         color: AppColors.grey800,
@@ -51,7 +50,7 @@ class AppTheme extends ChangeNotifier {
       ),
       primaryColor: AppColors.bluePurple,
       scaffoldBackgroundColor: AppColors.darkGrey,
-      cardColor: AppColors.grey600, //background color for page chat
+      cardColor: AppColors.grey600,
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         selectedItemColor: AppColors.sandPurple,
         unselectedItemColor: AppColors.grey500,

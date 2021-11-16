@@ -22,7 +22,7 @@ class PageCard extends StatefulWidget {
 }
 
 class _PageCardState extends State<PageCard> {
-  final _description = 'No Events. Click to create one.';
+  final String _description = 'No Events. Click to create one.';
   bool _isHover = false;
   late Key _key;
 
@@ -38,7 +38,6 @@ class _PageCardState extends State<PageCard> {
       padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
       child: Ink(
         decoration: BoxDecoration(
-          //color: AppColors.lightBlue,
           color: Theme.of(context).cardColor,
           border: !_isHover ? Border.all() : Border.all(width: 3),
           borderRadius: BorderRadius.circular(12),
@@ -65,10 +64,8 @@ class _PageCardState extends State<PageCard> {
                   radius: 25,
                   child: Icon(
                     widget.icon,
-                    //color: AppColors.black,
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
-                  //backgroundColor: AppColors.sandPurple,
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
                 const SizedBox(width: 15),

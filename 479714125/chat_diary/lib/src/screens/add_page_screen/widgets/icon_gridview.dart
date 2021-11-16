@@ -15,7 +15,7 @@ class IconsGridView extends StatefulWidget {
 
 class _IconsGridViewState extends State<IconsGridView> {
   final List<IconData> _iconsOfPages = IconList.iconList;
-  var _selectedIcon = 0;
+  int _selectedIcon = 0;
 
   @override
   Widget build(BuildContext context) {

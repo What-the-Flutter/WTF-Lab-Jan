@@ -16,8 +16,8 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
-  final _events = <EventModel>[];
-  final _favoriteEvents = <EventModel>[];
+  final List<EventModel> _events = <EventModel>[];
+  final List<EventModel> _favoriteEvents = <EventModel>[];
   final FocusNode _inputNode = FocusNode();
   final TextEditingController _inputController = TextEditingController();
 
@@ -74,9 +74,9 @@ class _EventScreenState extends State<EventScreen> {
     );
   }
 
-  void _addEvent(EventModel model) => setState(
-        () => _events.insert(0, model),
-      );
+  void _addEvent(EventModel model) {
+    setState(() => _events.insert(0, model));
+  }
 
   void _toggleAppBar(int indexOfEvent, bool isSelected) {
     isSelected = !isSelected;

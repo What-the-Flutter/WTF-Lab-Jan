@@ -11,7 +11,6 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(title),
       centerTitle: true,
-      //backgroundColor: AppColors.bluePurple,
       actions: [
         IconButton(
           onPressed: () {},
@@ -51,7 +50,6 @@ class MessageClickedAppBar extends StatelessWidget
   Widget build(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      //backgroundColor: AppColors.bluePurple,
       actions: [
         if (!containsMoreThanOneSelected && !isImageSelected)
           IconButton(

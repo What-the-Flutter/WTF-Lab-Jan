@@ -62,7 +62,6 @@ class _EventInputFieldState extends State<EventInputField> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: const BorderRadius.all(Radius.circular(12)),
                       borderSide: BorderSide(
-                        //color: AppColors.bluePurple,
                         color: Theme.of(context).primaryColor,
                         width: 2,
                       ),
@@ -77,7 +76,6 @@ class _EventInputFieldState extends State<EventInputField> {
                   ? IconButton(
                       icon: Icon(
                         Icons.send,
-                        //color: AppColors.bluePurple,
                         color: Theme.of(context).primaryColor,
                       ),
                       onPressed: _addEventModel,
@@ -85,7 +83,6 @@ class _EventInputFieldState extends State<EventInputField> {
                   : IconButton(
                       icon: Icon(
                         Icons.image,
-                        //color: AppColors.bluePurple,
                         color: Theme.of(context).primaryColor,
                       ),
                       onPressed: _pickImage,

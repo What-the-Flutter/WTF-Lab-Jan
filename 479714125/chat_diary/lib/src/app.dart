@@ -47,10 +47,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  var _currentIndex = 0;
-  var _title = 'Home';
+  int _currentIndex = 0;
+  String _title = 'Home';
 
-  final _listOfChats = <PageCard>[];
+  final List<PageCard> _listOfChats = <PageCard>[];
 
   @override
   void initState() {
@@ -86,7 +86,6 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(_title),
         centerTitle: true,
-        //backgroundColor: AppColors.bluePurple,
         leading: IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () {},
@@ -99,9 +98,6 @@ class _HomeState extends State<Home> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        //selectedItemColor: AppColors.darkBluePurple,
-        //unselectedItemColor: AppColors.darkSandPurple,
-        //showUnselectedLabels: true,
         currentIndex: _currentIndex,
         items: const [
           BottomNavigationBarItem(

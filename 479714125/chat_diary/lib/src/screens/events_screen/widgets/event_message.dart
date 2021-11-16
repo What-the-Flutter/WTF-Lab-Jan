@@ -80,7 +80,5 @@ class EventMessage extends StatelessWidget {
     );
   }
 
-  void _toggleSelection() {
-    toggleAppBar(index, isSelected);
-  }
+  void _toggleSelection() => toggleAppBar(index, isSelected);
 }
