@@ -4,9 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:linkfy_text/linkfy_text.dart';
 
+import '../../models/categories.dart';
 import '../../models/events_model.dart';
 import '../../theme/themes.dart';
 import '../background_image/background_image_cubit.dart';
@@ -34,8 +36,7 @@ class _EventPageState extends State<EventPage> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<EventPageCubit>(context).setPageId(widget.eventPage.id);
-    BlocProvider.of<EventPageCubit>(context).showMessages();
+    BlocProvider.of<EventPageCubit>(context).init(widget.eventPage.id);
   }
 
   @override
@@ -46,6 +47,9 @@ class _EventPageState extends State<EventPage> {
 
   @override
   Widget build(BuildContext context) {
+    var first = Theme.of(context).colorScheme.secondary;
+    var second = Theme.of(context).colorScheme.onSecondary;
+    var third = Theme.of(context).colorScheme.secondaryVariant;
     return BlocBuilder<EventPageCubit, EventPageState>(
       builder: (blocContext, state) {
         if (BlocProvider.of<BackgroundImageCubit>(context)
@@ -65,15 +69,16 @@ class _EventPageState extends State<EventPage> {
             child: _scaffold(state),
           );
         } else {
-          return Container(
+          return AnimatedContainer(
+            duration: const Duration(seconds: 2),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Theme.of(context).colorScheme.secondary,
-                  Theme.of(context).colorScheme.onSecondary,
-                  Theme.of(context).colorScheme.secondaryVariant,
+                  first,
+                  state.isColorChanged ? second : first,
+                  state.isColorChanged ? third : first,
                 ],
               ),
             ),
@@ -104,6 +109,7 @@ class _EventPageState extends State<EventPage> {
           _categories(
             state,
           ),
+          _hashTags(state),
           _messageBottomBar(
             state,
           ),
@@ -126,6 +132,10 @@ class _EventPageState extends State<EventPage> {
       ),
       title: const Text(''),
       actions: [
+        IconButton(
+          icon: const Icon(Icons.check_rounded),
+          onPressed: () => BlocProvider.of<EventPageCubit>(context).check(),
+        ),
         IconButton(
           icon: const Icon(Icons.reply_rounded),
           onPressed: () => _choosePage(state),
@@ -268,18 +278,22 @@ class _EventPageState extends State<EventPage> {
                             visible: state.isDateTimeSelected,
                             child: Align(
                               alignment: Alignment.centerLeft,
-                              child: Container(
-                                child: Text(
-                                  Jiffy(BlocProvider.of<EventPageCubit>(context)
-                                          .selectedDateTime())
-                                      .format('d/M/y h:mm a'),
-                                ),
+                              child: Text(
+                                Jiffy(BlocProvider.of<EventPageCubit>(context)
+                                        .selectedDateTime())
+                                    .format('d/M/y h:mm a'),
                               ),
                             ),
                           ),
                           Expanded(
                             child: TextField(
                               controller: _controller,
+                              onChanged: (text) =>
+                                  BlocProvider.of<EventPageCubit>(context)
+                                      .findHashtagMatches(text),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.background,
+                              ),
                               decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.all(10),
                                 border: InputBorder.none,
@@ -311,15 +325,36 @@ class _EventPageState extends State<EventPage> {
   Widget _eventMessagesList(state) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 20, 20, 70),
-      child: ListView.separated(
-        itemCount: state.messages.length + 1,
-        separatorBuilder: (context, i) => _message(i, state),
-        itemBuilder: (context, i) {
-          if (i < state.messages.length) {
-            return _day(i, state);
-          }
-          return const SizedBox.shrink();
-        },
+      child: AnimationLimiter(
+        child: ListView.separated(
+          itemCount: state.messages.length + 1,
+          separatorBuilder: (context, i) =>
+              AnimationConfiguration.staggeredList(
+            position: i,
+            duration: const Duration(milliseconds: 500),
+            child: SlideAnimation(
+              verticalOffset: 20.0,
+              child: FadeInAnimation(
+                child: _message(i, state),
+              ),
+            ),
+          ),
+          itemBuilder: (context, i) {
+            if (i < state.messages.length) {
+              return AnimationConfiguration.staggeredList(
+                position: i,
+                duration: const Duration(milliseconds: 1000),
+                child: SlideAnimation(
+                  verticalOffset: 10.0,
+                  child: FadeInAnimation(
+                    child: _day(i, state),
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
@@ -407,87 +442,131 @@ class _EventPageState extends State<EventPage> {
   }
 
   Widget _messageContent(state, i) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Padding(
-        padding: const EdgeInsets.only(bottom: 5),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(right: 5),
-              child: BlocBuilder<SettingsCubit, SettingsState>(
-                builder: (blocContext, state) {
-                  return Icon(
-                    BlocProvider.of<EventPageCubit>(context).categoryIcon(
-                      state.isCategoryPanelVisible,
-                      i,
-                    ),
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  );
-                },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 5),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(right: 5),
+                child: BlocBuilder<SettingsCubit, SettingsState>(
+                  builder: (blocContext, state) {
+                    return Icon(
+                      BlocProvider.of<EventPageCubit>(context).categoryIcon(
+                        state.isCategoryPanelVisible,
+                        i,
+                      ),
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    );
+                  },
+                ),
               ),
-            ),
-            Text(
-              Jiffy(state.messages[i].date).format('h:mm a'),
-              style: TextStyle(
+              Text(
+                Jiffy(state.messages[i].date).format('h:mm a'),
+                style: TextStyle(
                   fontSize: BlocProvider.of<SettingsCubit>(context)
                           .state
                           .fontSize
                           .toDouble() -
                       4,
-                  color: Theme.of(context).colorScheme.onSurface),
-            ),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Icon(
-                  Icons.book_rounded,
-                  color: state.messages[i].isMarked
-                      ? Theme.of(context).colorScheme.primaryVariant
-                      : Colors.transparent,
-                  size: 20,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
+              const Spacer(),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check_rounded,
+                      color: state.messages[i].isChecked
+                          ? Theme.of(context).colorScheme.primaryVariant
+                          : Colors.transparent,
+                      size: 20,
+                    ),
+                    Icon(
+                      Icons.book_rounded,
+                      color: state.messages[i].isMarked
+                          ? Theme.of(context).colorScheme.primaryVariant
+                          : Colors.transparent,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Column(
+          children: [
+            Visibility(
+              visible: state.messages[i].imagePath != '',
+              child: Image.file(
+                File(state.messages[i].imagePath),
+                height: 300,
+              ),
             ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 25),
+              child: LinkifyText(
+                state.messages[i].text,
+                linkTypes: [LinkType.hashTag],
+                textStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.background,
+                ),
+                linkStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            )
           ],
+        )
+      ],
+    );
+  }
+
+  Widget _hashTags(EventPageState state) {
+    return Visibility(
+      visible: state.isHashTagPanelVisible,
+      child: Align(
+        alignment: Alignment.bottomLeft,
+        child: Container(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: state.hashTags.length,
+            itemBuilder: (context, i) {
+              return Container(
+                alignment: Alignment.topLeft,
+                margin: const EdgeInsets.all(10),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(radiusValue),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    child: Text(
+                      state.hashTags[i],
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.background,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
-      Column(
-        children: [
-          Visibility(
-            visible: state.messages[i].imagePath != '',
-            child: Image.file(
-              File(state.messages[i].imagePath),
-              height: 300,
-            ),
-          ),
-          Container(
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.only(left: 25),
-            child: LinkifyText(
-              state.messages[i].text,
-              linkTypes: [LinkType.hashTag],
-              textStyle: TextStyle(
-                color: Theme.of(context).colorScheme.background,
-              ),
-              linkStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          )
-        ],
-      )
-    ]);
+    );
   }
 
   Widget _categories(state) {
-    var _icons = [
-      Icons.highlight_remove_rounded,
-      Icons.airplanemode_active_rounded,
-      Icons.shopping_cart_rounded,
-      Icons.local_movies_rounded,
-    ];
-    var _names = ['Close', 'Travel', 'Shopping', 'Movies'];
     return Visibility(
       visible: state.isCategoryPanelOpened,
       child: Align(
@@ -497,11 +576,11 @@ class _EventPageState extends State<EventPage> {
           color: Theme.of(context).colorScheme.onPrimary,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: _icons.length,
+            itemCount: categories.length,
             itemBuilder: (context, i) {
               return GestureDetector(
                 onTap: () => BlocProvider.of<EventPageCubit>(context)
-                    .chooseCategory(i, _icons[i]),
+                    .chooseCategory(i, categories[i].icon),
                 child: Container(
                   margin: const EdgeInsets.all(10),
                   child: Column(
@@ -510,13 +589,13 @@ class _EventPageState extends State<EventPage> {
                         child: Container(
                           height: 50,
                           width: 50,
-                          color: _icons[i] == state.categoryIcon
+                          color: categories[i].icon == state.categoryIcon
                               ? Theme.of(context).colorScheme.surface
                               : Colors.transparent,
-                          child: Icon(_icons[i]),
+                          child: Icon(categories[i].icon),
                         ),
                       ),
-                      Text(_names[i]),
+                      Text(categories[i].name),
                     ],
                   ),
                 ),

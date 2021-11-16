@@ -8,6 +8,7 @@ class EventMessage {
   final DateTime date;
   final IconData icon;
   final bool isMarked;
+  final bool isChecked;
 
   EventMessage({
     required this.id,
@@ -17,6 +18,7 @@ class EventMessage {
     required this.date,
     required this.icon,
     required this.isMarked,
+    required this.isChecked,
   });
 
   EventMessage copyWith({
@@ -27,6 +29,7 @@ class EventMessage {
     DateTime? date,
     IconData? icon,
     bool? isMarked,
+    bool? isChecked,
   }) =>
       EventMessage(
         id: id ?? this.id,
@@ -36,6 +39,7 @@ class EventMessage {
         date: date ?? this.date,
         icon: icon ?? this.icon,
         isMarked: isMarked ?? this.isMarked,
+        isChecked: isChecked ?? this.isChecked,
       );
 
   factory EventMessage.fromMap(Map<String, dynamic> map) => EventMessage(
@@ -45,7 +49,8 @@ class EventMessage {
         imagePath: map['image_path'],
         date: DateTime.parse(map['date']),
         icon: IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
-        isMarked: map['is_marked'] == 1 ? true : false,
+    isMarked: map['is_marked'] == 1 ? true : false,
+    isChecked: map['is_checked'] == 1 ? true : false,
       );
 
   Map<String, dynamic> toMap() => {
@@ -55,7 +60,8 @@ class EventMessage {
         'image_path': imagePath,
         'date': date.toString(),
         'icon': icon.codePoint,
-        'is_marked': isMarked ? 1 : 0,
+    'is_marked': isMarked ? 1 : 0,
+        'is_checked': isChecked ? 1 : 0,
       };
 }
 
@@ -66,7 +72,6 @@ class EventPages {
   final IconData icon;
   final bool isFixed;
 
-  //final List<EventMessage> eventMessages;
 
   EventPages({
     required this.id,
@@ -74,7 +79,6 @@ class EventPages {
     required this.date,
     required this.icon,
     required this.isFixed,
-    //required this.eventMessages,
   });
 
   EventPages copyWith({
@@ -98,7 +102,6 @@ class EventPages {
         date: DateTime.parse(map['date']),
         icon: IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
         isFixed: map['is_fixed'] == 1 ? true : false,
-        //eventMessages: map['event_message'],
       );
 
   Map<String, dynamic> toMap() => {
@@ -107,6 +110,5 @@ class EventPages {
         'date': date.toString(),
         'icon': icon.codePoint,
         'is_fixed': isFixed ? 1 : 0,
-        //'event_messages': eventMessages,
       };
 }

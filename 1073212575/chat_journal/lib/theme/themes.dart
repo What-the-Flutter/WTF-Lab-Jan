@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-//set state
-//названия страниц
 const double radiusValue = 10;
 
 final ThemeData lightTheme = ThemeData(

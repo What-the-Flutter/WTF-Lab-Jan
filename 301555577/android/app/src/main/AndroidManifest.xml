@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.wolde.wft_chat">
+    package="com.wolde.diary">
    <application
-        android:label="wft_chat"
+        android:label="diary"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

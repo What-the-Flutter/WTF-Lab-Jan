@@ -18,13 +18,16 @@ class EventPageCubit extends Cubit<EventPageState> {
   EventPageCubit(this.messagesRepository, this.pagesRepository)
       : super(
           EventPageState(
+            hashTags: [],
             messages: [],
             onlyMarked: false,
             isSelected: false,
             isSearchGoing: false,
             isCategoryPanelOpened: false,
+            isHashTagPanelVisible: false,
             needsEditing: false,
             isDateTimeSelected: false,
+            isColorChanged: false,
             selectedMessageIndex: -1,
             categoryIcon: Icons.remove_rounded,
             eventPageId: '',
@@ -34,6 +37,13 @@ class EventPageCubit extends Cubit<EventPageState> {
             selectedDate: DateTime.now(),
           ),
         );
+
+  void init(String eventPageId) {
+    setPageId(eventPageId);
+    gradientAnimation();
+    showMessages();
+    findHashTags();
+  }
 
   void showMessages() async {
     final List messages;
@@ -142,9 +152,6 @@ class EventPageCubit extends Cubit<EventPageState> {
         selectedMessageIndex: messageIndex,
       ),
     );
-    // if (File(state.messages[messageIndex].imagePath).existsSync()) {
-    //   addImage();
-    // }
     return state.messages[messageIndex].text;
   }
 
@@ -157,6 +164,14 @@ class EventPageCubit extends Cubit<EventPageState> {
         isSelected: false,
       ),
     );
+  }
+
+  void check() {
+    final message = state.messages[state.selectedMessageIndex].copyWith(
+      isChecked: !state.messages[state.selectedMessageIndex].isChecked,
+    );
+    messagesRepository.updateMessage(message);
+    showMessages();
   }
 
   void select(int i) {
@@ -227,6 +242,7 @@ class EventPageCubit extends Cubit<EventPageState> {
         date: dateTime,
         icon: state.categoryIcon,
         isMarked: false,
+        isChecked: false,
       );
       messagesRepository.insertMessage(message);
       emit(
@@ -278,6 +294,45 @@ class EventPageCubit extends Cubit<EventPageState> {
     } else {
       return false;
     }
+  }
+
+  void findHashTags() {
+    final hashTags = [];
+    final exp = RegExp(
+      r'\B#[0-9a-zA-Zа-яёА-ЯЁ]+',
+    );
+    for (var message in state.messages) {
+      exp.allMatches(message.text).forEach((match) {
+        if (!hashTags.contains(match.group(0))) {
+          hashTags.add(match.group(0));
+        }
+      });
+    }
+    emit(
+      state.copyWith(
+        hashTags: hashTags,
+      ),
+    );
+  }
+
+  void findHashtagMatches(String text) {
+    findHashTags();
+    var hashTags = state.hashTags;
+    final exp = RegExp(r'\B#[0-9a-zA-Zа-яёА-ЯЁ]+$');
+    final match = exp.stringMatch(text);
+    final isVisible;
+    if (match == null) {
+      isVisible = false;
+    } else {
+      isVisible = true;
+      hashTags = hashTags.where((tag) => tag.contains(match)).toList();
+    }
+    emit(
+      state.copyWith(
+        hashTags: hashTags,
+        isHashTagPanelVisible: isVisible,
+      ),
+    );
   }
 
   void setTime(TimeOfDay? newTime) {
@@ -349,5 +404,17 @@ class EventPageCubit extends Cubit<EventPageState> {
     return isCategoryPanelVisible
         ? state.messages[i].icon
         : Icons.remove_rounded;
+  }
+
+  void gradientAnimation() async {
+    emit(
+      state.copyWith(isColorChanged: false),
+    );
+    await Future.delayed(
+      const Duration(milliseconds: 30),
+    );
+    emit(
+      state.copyWith(isColorChanged: true),
+    );
   }
 }

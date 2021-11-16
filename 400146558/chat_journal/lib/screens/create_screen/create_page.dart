@@ -1,8 +1,10 @@
 import 'package:chat_journal/models/chat_model.dart';
+import 'package:chat_journal/models/chaticon_model.dart';
 import 'package:chat_journal/screens/create_screen/create_state.dart';
 import 'package:chat_journal/theme/theme_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:icons_helper/icons_helper.dart';
 import 'package:jiffy/jiffy.dart';
 
 import 'create_cubit.dart';
@@ -26,8 +28,7 @@ class _AddChatState extends State<AddChat> {
       _textController.text = widget.editingChat!.title;
     }
     editingChat = widget.editingChat;
-    BlocProvider.of<CreatePageCubit>(context).init();
-    BlocProvider.of<CreatePageCubit>(context).myInit(editingChat);
+    BlocProvider.of<CreatePageCubit>(context).init(editingChat);
     super.initState();
   }
 
@@ -44,7 +45,9 @@ class _AddChatState extends State<AddChat> {
               child: Column(
                 children: [
                   Text(
-                    widget.editingChat == null ? 'Create a new Page' : 'Edit Page',
+                    widget.editingChat == null
+                        ? 'Create a new Page'
+                        : 'Edit Page',
                     style: Theme.of(context)
                         .textTheme
                         .bodyText1!
@@ -97,32 +100,32 @@ class _AddChatState extends State<AddChat> {
                   const SizedBox(
                     height: 25.0,
                   ),
-             _iconsGrid(state),
+                  _iconsGrid(state),
                 ],
               ),
             ),
           ),
           floatingActionButton: _isWriting
               ? FloatingActionButton(
-            onPressed: () {
-              editingChat == null ? _addChat(state) : _editChat(state);
-            },
-            child: const Icon(Icons.check),
-            backgroundColor: floatingButtonColor,
-          )
+                  onPressed: () {
+                    editingChat == null ? _addChat(state) : _editChat(state);
+                  },
+                  child: const Icon(Icons.check),
+                  backgroundColor: floatingButtonColor,
+                )
               : FloatingActionButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Icon(Icons.close),
-            backgroundColor: floatingButtonColor,
-          ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(Icons.close),
+                  backgroundColor: floatingButtonColor,
+                ),
         );
       },
     );
-}
+  }
 
-Expanded _iconsGrid(CreatePageState state) {
+  Expanded _iconsGrid(CreatePageState state) {
     return Expanded(
       child: GridView.builder(
         padding: const EdgeInsets.all(20.0),
@@ -134,19 +137,19 @@ Expanded _iconsGrid(CreatePageState state) {
         itemCount: state.iconsList.length,
         itemBuilder: (context, index) {
           return GestureDetector(
-            onTap: () => _check(index),
+            onTap: () => _check(state.iconsList[index]),
             child: Stack(
               children: [
                 CircleAvatar(
                   backgroundColor: Colors.grey,
                   radius: 30.0,
                   child: Icon(
-                    state.iconsList[index].icon,
+                    getIconUsingPrefix(name: state.iconsList[index].iconTitle),
                     color: Colors.white,
                     size: 30.0,
                   ),
                 ),
-                if ( state.iconsList[index].isSelected == true) ...[
+                if (state.iconsList[index] == state.selectedChatIcon) ...[
                   Positioned.fill(
                     child: Align(
                       alignment: Alignment.bottomRight,
@@ -173,31 +176,28 @@ Expanded _iconsGrid(CreatePageState state) {
         },
       ),
     );
-}
+  }
 
-void _check(int index) {
-  BlocProvider.of<CreatePageCubit>(context).check(index);
-}
+  void _check(ChatIcon chatIcon) {
+    BlocProvider.of<CreatePageCubit>(context).check(chatIcon);
+  }
 
-void _addChat(CreatePageState state) {
-    final _selectedIcon =
-    state.iconsList.firstWhere((element) => element.isSelected == true);
+  void _addChat(CreatePageState state) {
     Chat newChat = Chat(
-      icon: _selectedIcon.icon,
+      isPinned: false,
+      chatIconId: state.selectedChatIcon!.id,
       title: _textController.text,
-      messageBase: [],
-      myIndex: 0,
       time: Jiffy(DateTime.now()),
+      id: -1,
+      messageBase: [],
+      chatIcon: null,
     );
     Navigator.of(context).pop(newChat);
+  }
+
+  void _editChat(CreatePageState state) {
+    editingChat!.title = _textController.text;
+    editingChat!.chatIconId = state.selectedChatIcon!.id;
+    Navigator.of(context).pop(editingChat);
+  }
 }
-
-void _editChat(CreatePageState state) {
-  var _selectedIcon =
-  state.iconsList.firstWhere((element) => element.isSelected == true);
-  editingChat!.title = _textController.text;
-  editingChat!.icon = _selectedIcon.icon;
-  Navigator.of(context).pop(editingChat);
-}}
-
-

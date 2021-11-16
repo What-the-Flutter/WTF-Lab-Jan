@@ -1,30 +1,42 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import './screens/screens.dart';
+import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
+
+import 'page/pages.dart';
+import 'theme/theme.dart';
 
 void main() {
-  runApp(const DiaryApp());
+  runApp(const Diary());
 }
 
-class DiaryApp extends StatelessWidget {
-  const DiaryApp({Key? key}) : super(key: key);
+class Diary extends StatelessWidget {
+  const Diary({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = ThemeData();
-
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: theme.copyWith(
-        colorScheme: theme.colorScheme
-            .copyWith(secondary: Colors.white, primary: Colors.black),
-        highlightColor: Colors.white10,
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
+      title: 'Diary',
+      theme: Themes.light,
+      darkTheme: Themes.dark,
+      initialRoute: '/',
+      getPages: [
+        GetPage(
+          name: '/',
+          page: () => const DashboardView(),
+          binding: DashboardBinding(),
         ),
-      ),
-      home: const Home(),
+        GetPage(
+          name: '/add_chat_page',
+          page: () => const AddChatPageView(),
+          binding: AddChatPageBinding(),
+        ),
+        GetPage(
+          name: '/chat',
+          page: () => ChatView(),
+          binding: ChatBinding(),
+        ),
+      ],
     );
   }
 }

@@ -15,6 +15,7 @@ class HomePageCubit extends Cubit<HomePageState> {
   HomePageCubit(this.pagesRepository)
       : super(
           HomePageState(
+            isColorChanged: false,
             isSelected: false,
             selectedPageIndex: 0,
             eventPages: [],
@@ -46,9 +47,6 @@ class HomePageCubit extends Cubit<HomePageState> {
     }
   }
 
-// void setState(){
-//   emit(LoadingState());
-// }
   void showPages() async {
     final pages = await pagesRepository.eventPagesList();
     emit(
@@ -118,5 +116,15 @@ class HomePageCubit extends Cubit<HomePageState> {
 
   FutureOr onGoBack(dynamic value) {
     showPages();
+  }
+
+  void gradientAnimation() async {
+    emit(
+      state.copyWith(isColorChanged: false),
+    );
+    await Future.delayed(const Duration(milliseconds: 30));
+    emit(
+      state.copyWith(isColorChanged: true),
+    );
   }
 }

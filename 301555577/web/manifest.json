@@ -1,6 +1,6 @@
 {
-    "name": "wft_chat",
-    "short_name": "wft_chat",
+    "name": "diary",
+    "short_name": "diary",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
