@@ -2,15 +2,16 @@
 
 WTFlutter Lab graduation project
 
-## Getting Started
+#### Author : [Alexander Timofeev](https://www.github.com/alex-timof)
 
-This project is a starting point for a Flutter application.
+## Bugs & problems
+| Priority | Severity | Description                                                                                        |
+| -------- | -------- | -------------------------------------------------------------------------------------------------- |
+| Medium   | Low      | ThemeManager does not implement all colors (only primary + Brightness.dark overrides theme)        |
 
-A few resources to get you started if this is your first Flutter project:
+## Roadmap
+- Organize libraries (for easier project expansion)
+- Create View and Logic for floatingButton at home screen (to create new category)
+- Customise Drawer at HomePage
+- Create layout for two other screens at HomePage (Timeline and Daily)
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
