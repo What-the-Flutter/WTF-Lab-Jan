@@ -1,46 +1,84 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Home extends StatelessWidget {
-  const Home({
+import '../../../../domain/entities/event_info.dart';
+import '../../../navigator/router.dart';
+import '../../../res/styles.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isDarkMode = false;
+
+  final List<EventInfo> events = [
+    EventInfo(
+      title: 'Journal',
+      subtitle: 'No Events. Click to create one.',
+      leading: const CircleIcon(icon: Icons.collections_bookmark),
+    ),
+    EventInfo(
+      title: 'Notes',
+      subtitle: 'No Events. Click to create one.',
+      leading: const CircleIcon(icon: Icons.menu_book_outlined),
+    ),
+    EventInfo(
+      leading: const CircleIcon(icon: Icons.thumb_up_alt_outlined),
+      title: 'Gratitude',
+      subtitle: 'No Events. Click to create one.',
+    ),
+  ];
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: ListView(
-        children: const [
-          SizedBox(height: 8),
-          QuestionBotButton(),
-          Divider(),
-          ListTile(
-            leading: CircleIcon(icon: Icons.collections_bookmark),
-            title: Text('Journal'),
-            subtitle: Text('No Events. Click to create one.'),
-          ),
-          Divider(),
-          ListTile(
-            leading: CircleIcon(icon: Icons.menu_book_outlined),
-            title: Text('Notes'),
-            subtitle: Text('No Events. Click to create one.'),
-          ),
-          Divider(),
-          ListTile(
-            leading: CircleIcon(icon: Icons.thumb_up_alt_outlined),
-            title: Text('Gratitude'),
-            subtitle: Text('No Events. Click to create one.'),
-          ),
-          Divider(),
-        ],
-      ),
-      floatingActionButton: _buildFloatingActionButton(),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      appBar: _appBar(),
+      body: _body(),
+      drawer: const Drawer(),
+      floatingActionButton: _floatingActionButton(),
+      bottomNavigationBar: _bottomNavigationBar(),
     );
   }
 
-  BottomNavigationBar _buildBottomNavigationBar() {
+  Widget _body() {
+    final _elements = <Widget>[
+      const QuestionBotButton(),
+      ...events.map((e) => ListTile(
+            title: Text(e.title),
+            leading: e.leading,
+            subtitle: Text(e.subtitle),
+          )),
+    ];
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: ListView.separated(
+        separatorBuilder: (context, index) => const Divider(),
+        itemCount: _elements.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              if (_elements[index] is ListTile) {
+                Navigator.pushNamed(
+                  context,
+                  Routs.event,
+                  arguments: events[index - 1].title,
+                );
+              }
+            },
+            child: _elements[index],
+          );
+        },
+      ),
+    );
+  }
+
+  BottomNavigationBar _bottomNavigationBar() {
     return BottomNavigationBar(
       showSelectedLabels: true,
       showUnselectedLabels: true,
@@ -53,7 +91,7 @@ class Home extends StatelessWidget {
     );
   }
 
-  FloatingActionButton _buildFloatingActionButton() {
+  FloatingActionButton _floatingActionButton() {
     return FloatingActionButton(
       elevation: 8,
       backgroundColor: Colors.yellow,
@@ -63,21 +101,26 @@ class Home extends StatelessWidget {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _appBar() {
     return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.menu),
-        onPressed: () {},
-      ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.invert_colors),
-          onPressed: () {},
+          icon: _isDarkMode
+              ? const Icon(Icons.invert_colors)
+              : const Icon(Icons.invert_colors_outlined),
+          onPressed: _changeTheme,
         ),
       ],
       centerTitle: true,
       title: const Text('Home'),
     );
+  }
+
+  void _changeTheme() {
+    setState(() {
+      InheritedCustomTheme.of(context).changeTheme();
+      _isDarkMode ^= true;
+    });
   }
 }
 
