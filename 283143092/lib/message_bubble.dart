@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'message.dart';
+import 'Models/message.dart';
 
 class MessageBubble extends StatelessWidget {
   MessageBubble(this._message, this._isNewDate, this._isSelected, {Key? key})
@@ -62,9 +60,7 @@ class MessageBubble extends StatelessWidget {
             : WidgetSpan(
                 child: kIsWeb
                     ? Image.network(_message.image!.path)
-                    : Image.file(
-                        File(_message.image!.path),
-                      ),
+                    : Image.file(_message.image!),
               ),
         TextSpan(
           style: const TextStyle(

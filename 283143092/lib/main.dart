@@ -6,21 +6,18 @@ import 'home_page_view.dart';
 import 'theme_manager.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (context) => ThemeProvider(),
+        create: (_) => ThemeProvider(),
         builder: (context, __) {
-          //final themeProvider = Provider.of<ThemeProvider>(context);
+          final themeProvider = Provider.of<ThemeProvider>(context);
           return MaterialApp(
             title: 'Chat Journal',
-            //themeMode: themeProvider.theme,
-            themeMode: ThemeMode.system,
+            themeMode: themeProvider.theme,
             theme: Themes.lightTheme,
             darkTheme: Themes.darkTheme,
             home: const HomePage(title: 'Home'),

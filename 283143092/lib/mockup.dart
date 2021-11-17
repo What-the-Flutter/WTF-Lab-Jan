@@ -1,11 +1,39 @@
 import 'package:flutter/material.dart';
 
-import 'message.dart';
+import 'Models/message.dart';
+import 'models/category.dart';
 
 /// Class with temporary data and methods
 ///
 /// Will be removed in course of development
 class Mockup {
+  static List<Category> categories = [
+    Category(
+      'Travel',
+      Icons.flight_takeoff,
+      false,
+      DateTime.parse('2020-09-13 06:45:00'),
+    ),
+    Category(
+      'Work',
+      Icons.business_center,
+      false,
+      DateTime.parse('2021-04-26 14:14:00'),
+    ),
+    Category(
+      'Family',
+      Icons.weekend,
+      false,
+      DateTime.parse('2021-09-30 22:13:00'),
+    ),
+    Category(
+      'Sport',
+      Icons.directions_run,
+      false,
+      DateTime.parse('2021-11-05 01:59:00'),
+    ),
+  ];
+
   static List<Message> messages = [
     Message(
       'message1',
@@ -21,7 +49,7 @@ class Mockup {
       'message3',
       DateTime.parse('2021-11-05 04:48:00'),
       false,
-      const MapEntry('Food',Icons.local_dining),
+      const MapEntry('Food', Icons.local_dining),
     ),
     Message(
       'Long message number four (#4) to test adaptable size of the message block.',

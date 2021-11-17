@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 
-import 'category_creator_view.dart';
-import 'category_view.dart';
+import 'categories_view.dart';
 import 'theme_manager.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,28 +18,15 @@ class _HomePageState extends State<HomePage> {
   int _currentScreenIndex = 0;
 
   late final List<Widget> _currentScreenBody = [
-    _homeBody(),
+    const CategoriesListPage(),
     _dailyBody(),
     _timeLineBody()
-  ];
-
-  final _entries = <String>[
-    'Travel',
-    'Work',
-    'Family',
-    'Sport',
-  ];
-
-  final _icons = <IconData>[
-    Icons.flight_takeoff,
-    Icons.business_center,
-    Icons.weekend,
-    Icons.directions_run,
   ];
 
   void _changeTheme() {
     setState(() {
       _isDarkTheme = !_isDarkTheme;
+
       final provider = Provider.of<ThemeProvider>(context, listen: false);
       provider.toggleTheme(_isDarkTheme);
     });
@@ -49,20 +34,6 @@ class _HomePageState extends State<HomePage> {
 
   void _onBottomBarItemTapped(int index) {
     setState(() => _currentScreenIndex = index);
-  }
-
-  void _onListItemTapped(String category) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CategoryView(category: category)),
-    );
-  }
-
-  void _onFloatingButtonTapped() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CategoryCreatorView()),
-    );
   }
 
   AppBar _appBar() {
@@ -88,29 +59,6 @@ class _HomePageState extends State<HomePage> {
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 48),
       ),
-    );
-  }
-
-  Widget _homeBody() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(10),
-      itemCount: _entries.length,
-      itemBuilder: (_, index) {
-        return Container(
-          height: 60,
-          child: InkWell(
-            child: Row(
-              children: [
-                Icon(_icons[index]),
-                const SizedBox(width: 20),
-                Text(_entries[index]),
-              ],
-            ),
-            onTap: () => _onListItemTapped(_entries[index]),
-          ),
-        );
-      },
-      separatorBuilder: (_, __) => const Divider(),
     );
   }
 
@@ -152,17 +100,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext _) {
     return Scaffold(
       appBar: _appBar(),
       drawer: _drawer(),
       body: _currentScreenBody[_currentScreenIndex],
       bottomNavigationBar: _bottomBar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onFloatingButtonTapped,
-        tooltip: 'Add entry',
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }

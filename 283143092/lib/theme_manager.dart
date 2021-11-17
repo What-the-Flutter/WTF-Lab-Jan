@@ -17,7 +17,7 @@ class Themes {
   static final darkTheme = ThemeData(
     colorScheme: ColorScheme.fromSwatch(
         primarySwatch: const MaterialColor(0xFFD0BCFF, color))
-        //.copyWith(brightness: Brightness.dark)
+        .copyWith(brightness: Brightness.dark)
         .copyWith(primary: const Color(0xFFD0BCFF))
         .copyWith(onPrimary: const Color(0xFF381E72))
         .copyWith(primaryVariant: const Color(0xFFAD96D7))
@@ -35,7 +35,7 @@ class Themes {
   static final lightTheme = ThemeData(
     colorScheme: ColorScheme.fromSwatch(
         primarySwatch: const MaterialColor(0xFFB3261E, color))
-        //.copyWith(brightness: Brightness.light)
+        .copyWith(brightness: Brightness.light)
         .copyWith(primary: const Color(0xFF6750A4))
         .copyWith(onPrimary: const Color(0xFFFFFFFF))
         .copyWith(primaryVariant: const Color(0xFF563F95))
@@ -61,3 +61,21 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+/*
+class ThemeSwitcher extends InheritedWidget {
+
+  final bool isDarkThemeChecked;
+
+  const ThemeSwitcher({Key? key, required Widget child, required this.isDarkThemeChecked})
+      : super(key: key, child: child);
+
+  static ThemeSwitcher? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ThemeSwitcher>();
+  }
+
+  @override
+  bool updateShouldNotify(ThemeSwitcher oldWidget) =>
+      oldWidget.isDarkThemeChecked != isDarkThemeChecked;
+}
+*/
