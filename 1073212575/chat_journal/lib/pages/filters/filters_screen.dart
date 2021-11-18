@@ -24,9 +24,9 @@ class _FiltersPageState extends State<FiltersPage> {
 
   @override
   Widget build(BuildContext context) {
-    var first = Theme.of(context).colorScheme.secondary;
-    var second = Theme.of(context).colorScheme.onSecondary;
-    var third = Theme.of(context).colorScheme.secondaryVariant;
+    final first = Theme.of(context).colorScheme.secondary;
+    final second = Theme.of(context).colorScheme.onSecondary;
+    final third = Theme.of(context).colorScheme.secondaryVariant;
     return BlocBuilder<FiltersPageCubit, FiltersPageState>(
       builder: (blocContext, state) {
         return AnimatedContainer(
@@ -301,10 +301,11 @@ class _FiltersPageState extends State<FiltersPage> {
                 shadowColor:
                     MaterialStateProperty.all<Color>(Colors.transparent),
                 backgroundColor: MaterialStateProperty.all<Color>(
-                    (BlocProvider.of<FiltersPageCubit>(context)
-                            .isTagSelected(state.hashTags[i]))
-                        ? Theme.of(context).colorScheme.surface
-                        : Theme.of(context).colorScheme.onPrimary),
+                  (BlocProvider.of<FiltersPageCubit>(context)
+                          .isTagSelected(state.hashTags[i]))
+                      ? Theme.of(context).colorScheme.surface
+                      : Theme.of(context).colorScheme.onPrimary,
+                ),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
@@ -370,10 +371,11 @@ class _FiltersPageState extends State<FiltersPage> {
                 shadowColor:
                     MaterialStateProperty.all<Color>(Colors.transparent),
                 backgroundColor: MaterialStateProperty.all<Color>(
-                    (BlocProvider.of<FiltersPageCubit>(context)
-                            .isLabelSelected(categories[i]))
-                        ? Theme.of(context).colorScheme.surface
-                        : Theme.of(context).colorScheme.onPrimary),
+                  (BlocProvider.of<FiltersPageCubit>(context)
+                          .isLabelSelected(categories[i]))
+                      ? Theme.of(context).colorScheme.surface
+                      : Theme.of(context).colorScheme.onPrimary,
+                ),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(

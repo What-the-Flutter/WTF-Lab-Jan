@@ -1,25 +1,16 @@
+import 'package:chat_journal/theme/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../theme/themes.dart';
-import 'add_page_cubit.dart';
-import 'add_page_state.dart';
+import 'add_label_cubit.dart';
+import 'add_label_state.dart';
 
-class AddPage extends StatefulWidget {
-  final bool needsEditing;
-  final int selectedPageIndex;
-
-  const AddPage({
-    Key? key,
-    required this.needsEditing,
-    required this.selectedPageIndex,
-  }) : super(key: key);
-
+class LabelPage extends StatefulWidget {
   @override
-  _AddPageState createState() => _AddPageState();
+  _LabelPageState createState() => _LabelPageState();
 }
 
-class _AddPageState extends State<AddPage> {
+class _LabelPageState extends State<LabelPage> {
   final List _iconsList = [
     Icons.delete_rounded,
     Icons.wash_rounded,
@@ -53,7 +44,7 @@ class _AddPageState extends State<AddPage> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<AddPageCubit>(context).gradientAnimation();
+    BlocProvider.of<AddLabelPageCubit>(context).gradientAnimation();
   }
 
   @override
@@ -64,10 +55,10 @@ class _AddPageState extends State<AddPage> {
 
   @override
   Widget build(BuildContext context) {
-    final first = Theme.of(context).colorScheme.secondary;
-    final second = Theme.of(context).colorScheme.onSecondary;
-    final third = Theme.of(context).colorScheme.secondaryVariant;
-    return BlocBuilder<AddPageCubit, AddPageState>(
+    var first = Theme.of(context).colorScheme.secondary;
+    var second = Theme.of(context).colorScheme.onSecondary;
+    var third = Theme.of(context).colorScheme.secondaryVariant;
+    return BlocBuilder<AddLabelPageCubit, AddLabelState>(
       builder: (blocContext, state) {
         return AnimatedContainer(
           duration: const Duration(seconds: 1),
@@ -98,9 +89,7 @@ class _AddPageState extends State<AddPage> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                BlocProvider.of<AddPageCubit>(context).returnToHomePage(
-                  widget.needsEditing,
-                  widget.selectedPageIndex,
+                BlocProvider.of<AddLabelPageCubit>(context).addLabel(
                   _controller.text,
                   _iconsList,
                 );
@@ -130,7 +119,7 @@ class _AddPageState extends State<AddPage> {
         icon: const Icon(Icons.arrow_back_rounded),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text('Create a new page'),
+      title: const Text('Create a new label'),
     );
   }
 
@@ -182,7 +171,8 @@ class _AddPageState extends State<AddPage> {
               ? Theme.of(context).colorScheme.onPrimary
               : Colors.transparent,
           child: GestureDetector(
-            onTap: () => BlocProvider.of<AddPageCubit>(context).setIconIndex(i),
+            onTap: () =>
+                BlocProvider.of<AddLabelPageCubit>(context).setIconIndex(i),
             child: Icon(
               iconData,
               color: Theme.of(context).colorScheme.onBackground,

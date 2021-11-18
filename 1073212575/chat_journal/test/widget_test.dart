@@ -1,30 +1,89 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:mocktail/mocktail.dart';
 
-import 'package:chat_journal/main.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:chat_journal/pages/add_page/add_page_cubit.dart';
+import 'package:chat_journal/pages/add_page/add_page_state.dart';
+import 'package:chat_journal/pages/add_page/add_page_screen.dart';
+import 'package:chat_journal/pages/home_page/home_page_screen.dart';
+import 'package:chat_journal/pages/settings/settings_state.dart';
+import 'package:chat_journal/pages/settings/settings_cubit.dart';
+
+class MockAddPageCubit extends MockCubit<AddPageState> implements AddPageCubit {
+}
+
+class FakeAddPageState extends Fake implements AddPageState {}
+
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  setUpAll(() {
+    registerFallbackValue(FakeAddPageState());
+  });
+  group('AddPage', () {
+    late AddPageCubit cubit;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    setUp(() {
+      cubit = MockAddPageCubit();
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    testWidgets('loads TextField successfully', (WidgetTester tester) async {
+      when(() => cubit.state).thenReturn(
+        AddPageState(
+          selectedIconIndex: 0,
+          eventPages: [],
+          isColorChanged: false,
+        ),
+      );
+      final page = BlocProvider.value(
+        value: cubit,
+        child: MaterialApp(
+          home: AddPage(needsEditing: false, selectedPageIndex: 1),
+        ),
+      );
+      await tester.pumpWidget(page);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+    });
+
+    testWidgets('calls setIconIndex when icon is tapped',
+        (WidgetTester tester) async {
+      when(() => cubit.state).thenReturn(
+        AddPageState(
+          selectedIconIndex: 0,
+          eventPages: [],
+          isColorChanged: false,
+        ),
+      );
+      final page = BlocProvider.value(
+        value: cubit,
+        child: MaterialApp(
+          home: AddPage(needsEditing: false, selectedPageIndex: 1),
+        ),
+      );
+      await tester.pumpWidget(page);
+      await tester.tap(find.byIcon(Icons.headset_rounded));
+      verify(() => cubit.setIconIndex(7)).called(1);
+    });
+
+    testWidgets('enters text in TextField', (WidgetTester tester) async {
+      when(() => cubit.state).thenReturn(
+        AddPageState(
+          selectedIconIndex: 0,
+          eventPages: [],
+          isColorChanged: false,
+        ),
+      );
+      final page = BlocProvider.value(
+        value: cubit,
+        child: MaterialApp(
+          home: AddPage(needsEditing: false, selectedPageIndex: 1),
+        ),
+      );
+      await tester.pumpWidget(page);
+      await tester.enterText(find.byType(TextField), 'I want to sleep');
+      expect(find.text('I want to sleep'), findsOneWidget);
+    });
   });
 }

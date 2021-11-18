@@ -8,7 +8,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:linkfy_text/linkfy_text.dart';
 
-import '../../models/categories.dart';
 import '../../models/events_model.dart';
 import '../../theme/themes.dart';
 import '../background_image/background_image_cubit.dart';
@@ -47,9 +46,9 @@ class _EventPageState extends State<EventPage> {
 
   @override
   Widget build(BuildContext context) {
-    var first = Theme.of(context).colorScheme.secondary;
-    var second = Theme.of(context).colorScheme.onSecondary;
-    var third = Theme.of(context).colorScheme.secondaryVariant;
+    final first = Theme.of(context).colorScheme.secondary;
+    final second = Theme.of(context).colorScheme.onSecondary;
+    final third = Theme.of(context).colorScheme.secondaryVariant;
     return BlocBuilder<EventPageCubit, EventPageState>(
       builder: (blocContext, state) {
         if (BlocProvider.of<BackgroundImageCubit>(context)
@@ -279,9 +278,10 @@ class _EventPageState extends State<EventPage> {
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                Jiffy(BlocProvider.of<EventPageCubit>(context)
-                                        .selectedDateTime())
-                                    .format('d/M/y h:mm a'),
+                                Jiffy(
+                                  BlocProvider.of<EventPageCubit>(context)
+                                      .selectedDateTime(),
+                                ).format('d/M/y h:mm a'),
                               ),
                             ),
                           ),
@@ -454,7 +454,7 @@ class _EventPageState extends State<EventPage> {
                 child: BlocBuilder<SettingsCubit, SettingsState>(
                   builder: (blocContext, state) {
                     return Icon(
-                      BlocProvider.of<EventPageCubit>(context).categoryIcon(
+                      BlocProvider.of<EventPageCubit>(context).labelIcon(
                         state.isCategoryPanelVisible,
                         i,
                       ),
@@ -566,9 +566,9 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  Widget _categories(state) {
+  Widget _categories(EventPageState state) {
     return Visibility(
-      visible: state.isCategoryPanelOpened,
+      visible: state.isLabelPanelOpened,
       child: Align(
         alignment: Alignment.bottomLeft,
         child: Container(
@@ -576,11 +576,11 @@ class _EventPageState extends State<EventPage> {
           color: Theme.of(context).colorScheme.onPrimary,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
+            itemCount: state.labels.length,
             itemBuilder: (context, i) {
               return GestureDetector(
                 onTap: () => BlocProvider.of<EventPageCubit>(context)
-                    .chooseCategory(i, categories[i].icon),
+                    .chooseCategory(i, state.labels[i].icon),
                 child: Container(
                   margin: const EdgeInsets.all(10),
                   child: Column(
@@ -589,13 +589,13 @@ class _EventPageState extends State<EventPage> {
                         child: Container(
                           height: 50,
                           width: 50,
-                          color: categories[i].icon == state.categoryIcon
+                          color: state.labels[i].icon == state.selectedLabelIcon
                               ? Theme.of(context).colorScheme.surface
                               : Colors.transparent,
-                          child: Icon(categories[i].icon),
+                          child: Icon(state.labels[i].icon),
                         ),
                       ),
-                      Text(categories[i].name),
+                      Text(state.labels[i].name),
                     ],
                   ),
                 ),

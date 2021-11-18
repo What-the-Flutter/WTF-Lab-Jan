@@ -1,10 +1,9 @@
 import 'package:bloc/bloc.dart';
-import 'package:chat_journal/repository/settings_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share/share.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../repository/settings_repository.dart';
 import '../../theme/themes.dart';
 import 'settings_state.dart';
 
@@ -68,17 +67,19 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   void _setFontSize() async {
+    final fontSize = await settingsRepository.fontSize();
     emit(
       state.copyWith(
-        fontSize: await settingsRepository.fontSize(),
+        fontSize: fontSize,
       ),
     );
   }
 
   void _setBiometricsUsage() async {
+    final useBiometrics = await settingsRepository.biometricsUsage();
     emit(
       state.copyWith(
-        useBiometrics: await settingsRepository.biometricsUsage(),
+        useBiometrics: useBiometrics,
       ),
     );
   }
@@ -94,9 +95,10 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   void _setCustomDateUsage() async {
+    final isCustomDateUsed = await settingsRepository.customDateUsage();
     emit(
       state.copyWith(
-        isCustomDateUsed: await settingsRepository.customDateUsage(),
+        isCustomDateUsed: isCustomDateUsed,
       ),
     );
   }
