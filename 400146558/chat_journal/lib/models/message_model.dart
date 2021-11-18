@@ -1,44 +1,41 @@
-import 'package:chat_journal/models/sectionicon_model.dart';
 import 'package:jiffy/jiffy.dart';
 
 class Message {
-  late final int id;
-  int chatId;
+  late final String? id;
   String message;
   final Jiffy time;
   bool isFavourite;
-  int? sectionIconId;
-  SectionIcon? sectionIcon;
+  String? sectionIconTitle;
+  String? sectionName;
+  String imagePath;
 
   Message({
     required this.message,
     required this.time,
     required this.isFavourite,
-    required this.sectionIconId,
-    required this.chatId,
+    required this.sectionIconTitle,
     required this.id,
-    required this.sectionIcon,
+    required this.sectionName,
+    required this.imagePath,
   });
 
-  Map<String, dynamic> toMap() {
+  Message.fromMap(String key, Map<dynamic, dynamic> map)
+      : id = key,
+        message = map['message'],
+        time = Jiffy(map['time']),
+        isFavourite = map['isFavourite'] == 1 ? true : false,
+        sectionIconTitle = map['sectionIconTitle'],
+        sectionName = map['sectionName'],
+        imagePath = map['imagePath'];
+
+  toJson() {
     return {
-      'chatId': chatId,
       'message': message,
       'time': time.dateTime.toString(),
       'isFavourite': isFavourite ? 1 : 0,
-      'sectionIconId': sectionIconId,
+      'sectionIconTitle': sectionIconTitle,
+      'sectionName': sectionName,
+      'imagePath': imagePath,
     };
-  }
-
-  factory Message.fromMap(Map<String, dynamic> map) {
-    return Message(
-      id: map['id'],
-      chatId: map['chatId'],
-      message: map['message'],
-      time: Jiffy(map['time']),
-      isFavourite: map['isFavourite'] == 1 ? true : false,
-      sectionIconId: map['sectionIconId'],
-      sectionIcon: null,
-    );
   }
 }

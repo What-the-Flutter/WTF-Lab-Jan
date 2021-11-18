@@ -1,6 +1,7 @@
 import 'package:chat_journal/models/chat_model.dart';
 import 'package:chat_journal/screens/create_screen/create_page.dart';
 import 'package:chat_journal/screens/event_screen/event_page.dart';
+import 'package:firebase_database/firebase_database.dart';
 import '../theme/theme_constants.dart';
 import 'package:chat_journal/screens/home_screen/home_cubit.dart';
 import 'package:chat_journal/screens/home_screen/home_state.dart';
@@ -38,7 +39,23 @@ class _HomeState extends State<Home> {
                     children: <Widget>[
                       _questionnareBot(),
                       const Divider(),
-                      _chatsList(state),
+                      StreamBuilder(
+                        stream: state.streamChats,
+                        builder: (context, AsyncSnapshot<Event> snap) {
+                          if (snap.hasData && !snap.hasError) {
+                            DataSnapshot dataValues = snap.data!.snapshot;
+                            Map<dynamic, dynamic>? values = dataValues.value;
+                            if (values != null) {
+                              BlocProvider.of<HomeCubit>(context)
+                                  .updateChatsList(values);
+                            }
+                            return _chatsList(state);
+                          } else {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -90,7 +107,7 @@ class _HomeState extends State<Home> {
               backgroundColor: Colors.grey,
               radius: 30.0,
               child: Icon(
-                getIconUsingPrefix(name: chat.chatIcon!.iconTitle),
+                getIconUsingPrefix(name: chat.chatIconTitle!),
                 color: Colors.white,
                 size: 30.0,
               ),
@@ -115,9 +132,7 @@ class _HomeState extends State<Home> {
               Theme.of(context).textTheme.bodyText1?.copyWith(fontSize: 20.0),
         ),
         subtitle: Text(
-          chat.messageBase.isEmpty
-              ? 'No events. Click to create one'
-              : chat.messageBase.first.message,
+          chat.lastMessage!,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -127,7 +142,7 @@ class _HomeState extends State<Home> {
           ),
         ),
         trailing: Text(
-          chat.messageBase.isEmpty ? '' : chat.messageBase.first.time.fromNow(),
+          chat.lastMessageTime == null ? '' : chat.lastMessageTime!.fromNow(),
           style:
               Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: 14.0),
         ),
@@ -140,8 +155,7 @@ class _HomeState extends State<Home> {
                       currentChat: chat,
                       chatIndex: index,
                     )),
-          ).then(
-              (value) => BlocProvider.of<HomeCubit>(context).updateChatsList());
+          );
         },
         onLongPress: () {
           _functionsWithChat(index, chat);
@@ -372,7 +386,7 @@ class _HomeState extends State<Home> {
                   backgroundColor: Colors.grey,
                   radius: 30.0,
                   child: Icon(
-                    getIconUsingPrefix(name: chat.chatIcon!.iconTitle),
+                    getIconUsingPrefix(name: chat.chatIconTitle!),
                     color: Colors.white,
                     size: 30.0,
                   ),
@@ -418,9 +432,7 @@ class _HomeState extends State<Home> {
                   .copyWith(fontSize: 14.0),
             ),
             Text(
-              chat.messageBase.isEmpty
-                  ? chat.time!.yMMMMd
-                  : chat.messageBase.first.time.yMMMMd,
+              chat.lastMessageTime == null ? '' : chat.lastMessageTime!.yMMMMd,
               style: Theme.of(context)
                   .textTheme
                   .bodyText1!

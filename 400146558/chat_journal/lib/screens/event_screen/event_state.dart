@@ -8,6 +8,7 @@ class EventState {
   final List<SectionIcon> sectionsList;
   final List<Message> foundList;
   final Chat? currentChat;
+  final List<Message>? messageBase;
   final bool? isAnySelected;
   final bool? isShowFav;
   final bool? searchMode;
@@ -20,6 +21,7 @@ class EventState {
   final SectionIcon? selectedSection;
 
   EventState({
+    this.messageBase = const [],
     this.searchMode = false,
     this.editMode = false,
     this.foundList = const [],
@@ -34,8 +36,8 @@ class EventState {
     this.isNew = true,
     this.isWriting = false,
     this.showPanel = false,
-    this.selectedSection = const SectionIcon(
-        iconTitle: 'work', title: 'workspaces_filled', id: -1),
+    this.selectedSection =
+        const SectionIcon(iconTitle: 'work', title: 'Work', id: ''),
   });
 
   EventState copyWith({
@@ -54,6 +56,7 @@ class EventState {
     bool? isNew,
     bool? showPanel,
     SectionIcon? selectedSection,
+    List<Message>? messageBase,
   }) {
     return EventState(
       foundList: foundList ?? this.foundList,
@@ -71,6 +74,7 @@ class EventState {
       isWriting: isWriting ?? this.isWriting,
       showPanel: showPanel ?? this.showPanel,
       selectedSection: selectedSection ?? this.selectedSection,
+      messageBase: messageBase ?? this.messageBase,
     );
   }
 }

@@ -1,34 +1,32 @@
 class SectionIcon {
-  final int? id;
+  final String? id;
   final String iconTitle;
   final String title;
 
   const SectionIcon(
       {required this.iconTitle, required this.title, required this.id});
 
-  Map<String, dynamic> toMap() {
+  SectionIcon.fromMap(String key, Map<dynamic, dynamic> map)
+      : id = key,
+        iconTitle = map['iconTitle'],
+        title = map['title'];
+
+  toJson() {
     return {
       'iconTitle': iconTitle,
       'title': title,
     };
   }
-
-  factory SectionIcon.fromMap(Map<String, dynamic> map) {
-    return SectionIcon(
-      id: map['id'],
-      iconTitle: map['iconTitle'],
-      title: map['title'],
-    );
-  }
 }
 
 final List<SectionIcon> sectionIconsList = [
-  const SectionIcon(iconTitle: 'clear', title: 'Cancel', id: -1),
-  const SectionIcon(iconTitle: 'fastfood', title: 'FastFood', id: -1),
-  const SectionIcon(iconTitle: 'movie', title: 'Movie', id: -1),
-  const SectionIcon(iconTitle: 'local_laundry_service', title: 'Laundry', id: -1),
-  const SectionIcon(iconTitle: 'directions_run', title: 'Running', id: -1),
-  const SectionIcon(iconTitle: 'basketballBall', title: 'Sports', id: -1),
-  const SectionIcon(iconTitle: 'child_care', title: 'Child', id: -1),
-  const SectionIcon(iconTitle: 'access_alarm', title: 'Urgently', id: -1),
+  const SectionIcon(iconTitle: 'clear', title: 'Cancel', id: ''),
+  const SectionIcon(iconTitle: 'fastfood', title: 'FastFood', id: ''),
+  const SectionIcon(iconTitle: 'movie', title: 'Movie', id: ''),
+  const SectionIcon(
+      iconTitle: 'local_laundry_service', title: 'Laundry', id: ''),
+  const SectionIcon(iconTitle: 'directions_run', title: 'Running', id: ''),
+  const SectionIcon(iconTitle: 'basketballBall', title: 'Sports', id: ''),
+  const SectionIcon(iconTitle: 'child_care', title: 'Child', id: ''),
+  const SectionIcon(iconTitle: 'access_alarm', title: 'Urgently', id: ''),
 ];

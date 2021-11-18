@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "587048599469",
+    "project_id": "chatjournal-f7d94",
+    "storage_bucket": "chatjournal-f7d94.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587048599469:android:a6df5254574b8c68936b24",
+        "android_client_info": {
+          "package_name": "com.example.chat_journal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "587048599469-9e0coe71pjvvmcbettvi46o1o8vp6nev.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQZwQEII_b1fUsgb4YGs1rAtOhLHthAFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "587048599469-9e0coe71pjvvmcbettvi46o1o8vp6nev.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

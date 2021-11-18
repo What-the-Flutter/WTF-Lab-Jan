@@ -1,3 +1,4 @@
+import 'package:chat_journal/auth.dart';
 import 'package:chat_journal/screens/create_screen/create_cubit.dart';
 import 'package:chat_journal/screens/event_screen/event_cubit.dart';
 import 'package:chat_journal/screens/home_screen/home_page.dart';
@@ -5,12 +6,22 @@ import 'package:chat_journal/theme/theme_cubit.dart';
 import 'package:chat_journal/theme/theme_state.dart';
 import 'package:chat_journal/screens/home_screen/home_cubit.dart';
 import 'package:chat_journal/util/shared_preferences_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FirebaseApp firebaseApp = await Firebase.initializeApp();
   await SharedPreferencesProvider.initialize();
+  final AuthService _auth = AuthService();
+  dynamic result = await _auth.signInAnon();
+  if(result == null) {
+    debugPrint('error signing in');
+  } else {
+    debugPrint('signed in');
+    debugPrint(result.toString());
+  }
   runApp(const MyApp());
 }
 
