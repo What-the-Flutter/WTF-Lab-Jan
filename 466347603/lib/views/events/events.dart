@@ -30,16 +30,27 @@ class EventsScreen extends StatelessWidget {
           body: GestureDetector(
             onTap: () {
               context.read<EventsCubit>()
-                ..setEditMode(false)
+                ..changeEditMode(false)
                 ..unselectEvents();
               FocusScope.of(context).unfocus();
             },
-            child: Column(
+            child: Stack(
+              alignment:
+                  context.read<EventsCubit>().state.isBubbleAlignmentRight
+                      ? Alignment.topLeft
+                      : Alignment.topRight,
               children: [
-                state.page!.events.isEmpty
-                    ? _hintMessageBox(context)
-                    : _eventList(context),
-                _messageBar(context),
+                Column(
+                  children: [
+                    state.showEvents.isEmpty
+                        ? _hintMessageBox(context)
+                        : _eventList(context),
+                    _messageBar(context),
+                  ],
+                ),
+                if (context.read<EventsCubit>().state.showEvents.isNotEmpty &&
+                    context.read<EventsCubit>().state.isDateModifiable)
+                  _datePicker(context),
               ],
             ),
           ),
@@ -53,11 +64,24 @@ class EventsScreen extends StatelessWidget {
       leading: state.isSearchMode
           ? IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.read<EventsCubit>().setSearchMode(false),
-            )
-          : const BackButton(),
-      title: context.read<EventsCubit>().state.isSearchMode
+              onPressed: () =>
+                  context.read<EventsCubit>().changeSearchMode(false))
+          : BackButton(
+              onPressed: () {
+                context.read<EventsCubit>().unselectEvents();
+                Navigator.pop(
+                  context,
+                  [
+                    context.read<EventsCubit>().state.lastEventMessage,
+                    context.read<EventsCubit>().state.pageId,
+                  ],
+                );
+              },
+            ),
+      title: state.isSearchMode
           ? TextField(
+              onChanged: (query) =>
+                  context.read<EventsCubit>().updateSearchQuery(query),
               style: const TextStyle(color: Colors.white),
               controller: _searchController,
               focusNode: _searchFocusNode,
@@ -70,7 +94,9 @@ class EventsScreen extends StatelessWidget {
                 ),
               ),
             )
-          : Center(child: Text(state.page!.title)),
+          : Center(
+              child: Text(context.read<EventsCubit>().state.page?.title ?? ''),
+            ),
       actions: _appBarActions(context),
     );
   }
@@ -84,7 +110,7 @@ class EventsScreen extends StatelessWidget {
           onPressed: () => _replyEvents(context),
         ),
         if (state.selectedEvents.length == 1 &&
-            state.page!.events[state.selectedEvents[0]].message != null)
+            state.showEvents[state.selectedEvents[0]].message != null)
           Row(
             children: [
               IconButton(
@@ -98,9 +124,11 @@ class EventsScreen extends StatelessWidget {
             ],
           ),
         IconButton(
-          icon: state.page!.events[state.selectedEvents[0]].isBookmarked
-              ? const Icon(Icons.bookmark)
-              : const Icon(Icons.bookmark_border),
+          icon: state.selectedEvents.isEmpty
+              ? const Icon(Icons.bookmark_border)
+              : state.showEvents[state.selectedEvents[0]].isBookmarked
+                  ? const Icon(Icons.bookmark)
+                  : const Icon(Icons.bookmark_border),
           onPressed: () => _bookmarkEvent(context),
         ),
         IconButton(
@@ -113,14 +141,14 @@ class EventsScreen extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {
-            context.read<EventsCubit>().state.isSearchMode
+            state.isSearchMode
                 ? {
                     FocusScope.of(context).unfocus(),
                   }
                 : {
                     _searchFocusNode.requestFocus(),
                     _searchController.clear(),
-                    context.read<EventsCubit>().setSearchMode(true),
+                    context.read<EventsCubit>().changeSearchMode(true),
                   };
           },
         ),
@@ -132,6 +160,54 @@ class EventsScreen extends StatelessWidget {
         ),
       ];
     }
+  }
+
+  Widget _datePicker(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _pickDate(context),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(12),
+          ),
+          color: Theme.of(context).selectedRowColor,
+        ),
+        margin: const EdgeInsets.all(15),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 5,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.date_range_outlined),
+            const SizedBox(
+              width: 5,
+            ),
+            Text(
+              context.read<EventsCubit>().state.formattedEventDate,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickDate(BuildContext context) async {
+    TimeOfDay? time = TimeOfDay.now();
+    var date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year - 5),
+      lastDate: DateTime.now(),
+    );
+    if (date != null) {
+      time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+    }
+    context.read<EventsCubit>().saveEventDate(date, time);
   }
 
   void _replyEvents(BuildContext context) {
@@ -164,15 +240,27 @@ class EventsScreen extends StatelessWidget {
                             Container(
                               width: 80,
                               child: RadioListTile<int>(
-                                activeColor: Theme.of(context).accentColor,
                                 value: index,
                                 groupValue: context
                                     .read<EventsCubit>()
                                     .state
                                     .replyPageIndex,
-                                onChanged: (value) => context
-                                    .read<EventsCubit>()
-                                    .setReplyPage(context, value as int),
+                                onChanged: (value) {
+                                  final page = context
+                                      .read<HomeCubit>()
+                                      .state
+                                      .pages[index];
+                                  if (page.id !=
+                                      context
+                                          .read<EventsCubit>()
+                                          .state
+                                          .page!
+                                          .id) {
+                                    context
+                                        .read<EventsCubit>()
+                                        .changeReplyPage(page, value as int);
+                                  }
+                                },
                               ),
                             ),
                             Expanded(
@@ -210,7 +298,7 @@ class EventsScreen extends StatelessWidget {
                   primary: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 onPressed: () {
-                  context.read<EventsCubit>().replyEvents(context);
+                  context.read<EventsCubit>().replyEvents();
                   Navigator.of(context).pop();
                 },
               ),
@@ -225,13 +313,13 @@ class EventsScreen extends StatelessWidget {
     final state = context.read<EventsCubit>().state;
     _messageFocusNode.requestFocus();
     _messageController.text =
-        state.page!.events[state.selectedEvents[0]].message!;
+        state.showEvents[state.selectedEvents[0]].message!;
     _messageController.selection = TextSelection.fromPosition(
       TextPosition(offset: _messageController.text.length),
     );
     context.read<EventsCubit>()
-      ..setEditMode(false)
-      ..setMessageEdit(true);
+      ..changeEditMode(false)
+      ..changeIsMessageEdit(true);
   }
 
   void _copyEvent(BuildContext context) {
@@ -303,12 +391,12 @@ class EventsScreen extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: 'This is the page where you can track '
-                              'everything about "${state.page!.title}"!\n\n',
+                              'everything about "${state.page?.title}"!\n\n',
                           style: Theme.of(context).primaryTextTheme.bodyText1,
                         ),
                         TextSpan(
                           text:
-                              'Add you first event to "${state.page!.title}" page by '
+                              'Add you first event to "${state.page?.title}" page by '
                               'entering some text in the text box below '
                               'and hitting the send button. Tap on the '
                               'bookmark icon on the top right corner to '
@@ -329,23 +417,26 @@ class EventsScreen extends StatelessWidget {
     return Expanded(
       child: ListView.builder(
         reverse: true,
-        itemCount: state.page!.events.length,
+        itemCount: state.showEvents.length,
         itemBuilder: (context, index) {
           return GestureDetector(
-            onTap: () => context.read<EventsCubit>().selectEvent(index),
+            onTap: () {
+              if (state.isEditMode) {
+                context.read<EventsCubit>().selectEvent(index);
+              }
+            },
             onLongPress: () {
               context.read<EventsCubit>()
-                ..setEditMode(true)
+                ..changeEditMode(true)
                 ..selectEvent(index);
             },
             child: Row(
+              mainAxisAlignment:
+                  context.read<EventsCubit>().state.isBubbleAlignmentRight
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
               children: [
-                if (state.page!.events[index].isBookmarked ||
-                    !state.isBookmarkedOnly ||
-                    context
-                        .read<EventsCubit>()
-                        .isSearchSuggest(index, _searchController.text))
-                  _eventListElement(index, context),
+                _eventListElement(index, context),
               ],
             ),
           );
@@ -356,7 +447,7 @@ class EventsScreen extends StatelessWidget {
 
   Widget _eventListElement(int index, BuildContext context) {
     final state = context.read<EventsCubit>().state;
-    final event = state.page!.events[index];
+    final event = state.showEvents[index];
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(12)),
@@ -372,56 +463,51 @@ class EventsScreen extends StatelessWidget {
         horizontal: 15,
         vertical: 8,
       ),
-      child: (state.isSearchMode &&
-              !context
-                  .read<EventsCubit>()
-                  .isSearchSuggest(index, _searchController.text))
-          ? Container()
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (event.category != null)
+            Row(
               children: [
-                if (event.category != null)
-                  Row(
-                    children: [
-                      Icon(event.category!.icon),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Text(
-                        event.category!.title,
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    ],
-                  ),
-                const SizedBox(height: 5),
-                event.message != null
-                    ? LimitedBox(
-                        maxWidth: 320,
-                        child: Text(
-                          event.message!,
-                        ),
-                      )
-                    : Container(
-                        width: 150,
-                        height: 150,
-                        child: Image.file(event.image!),
-                      ),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    if (event.isBookmarked)
-                      Icon(
-                        Icons.bookmark,
-                        color: Colors.orange[600],
-                        size: 15,
-                      ),
-                    const SizedBox(width: 5),
-                    Text(event.formattedSendTime),
-                  ],
+                Icon(event.category!.icon),
+                const SizedBox(
+                  width: 15,
+                ),
+                Text(
+                  event.category!.title,
+                  style: const TextStyle(fontSize: 18),
                 ),
               ],
             ),
+          const SizedBox(height: 5),
+          event.imageString != ''
+              ? Container(
+                  width: 150,
+                  height: 150,
+                  child: event.image!,
+                )
+              : LimitedBox(
+                  maxWidth: 320,
+                  child: Text(
+                    event.message!,
+                  ),
+                ),
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              if (event.isBookmarked)
+                Icon(
+                  Icons.bookmark,
+                  color: Colors.orange[600],
+                  size: 15,
+                ),
+              const SizedBox(width: 5),
+              Text(event.formattedSendTime!),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -431,16 +517,14 @@ class EventsScreen extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.attach_file,
-              color: Theme.of(context).accentIconTheme.color,
             ),
             onPressed: () => _addImageEvent(context),
           ),
           IconButton(
             icon: Icon(
               context.read<EventsCubit>().state.selectedCategory.icon,
-              color: Theme.of(context).accentIconTheme.color,
             ),
             onPressed: () {
               _showCategoryList(context);
@@ -461,9 +545,8 @@ class EventsScreen extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.send,
-              color: Theme.of(context).accentIconTheme.color,
             ),
             onPressed: () => _addMessageEvent(context),
           ),
@@ -487,7 +570,7 @@ class EventsScreen extends StatelessWidget {
                 width: 70,
                 child: GestureDetector(
                   onTap: () {
-                    context.read<EventsCubit>().setCategory(
+                    context.read<EventsCubit>().changeCategory(
                         context.read<EventsCubit>().state.categories[index]);
                     Navigator.of(context).pop();
                   },
@@ -505,11 +588,13 @@ class EventsScreen extends StatelessWidget {
                         radius: 30,
                         backgroundColor: Theme.of(context).cardColor,
                       ),
-                      Text(context
-                          .read<EventsCubit>()
-                          .state
-                          .categories[index]
-                          .title),
+                      Text(
+                        context
+                            .read<EventsCubit>()
+                            .state
+                            .categories[index]
+                            .title,
+                      ),
                     ],
                   ),
                 ),

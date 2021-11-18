@@ -1,28 +1,59 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:local_auth/local_auth.dart';
 
-import '../../database.dart';
+import '../../repository/pages_repository.dart';
 import 'home_page_state.dart';
 
 class HomePageCubit extends Cubit<HomePageState> {
-  HomePageCubit()
+  final PagesRepository pagesRepository;
+  final LocalAuthentication _localAuthentication = LocalAuthentication();
+
+  HomePageCubit(this.pagesRepository)
       : super(
           HomePageState(
+            isColorChanged: false,
             isSelected: false,
             selectedPageIndex: 0,
             eventPages: [],
           ),
         );
 
-  Stream<List> showPages() async* {
-    final pages = await DBProvider.db.eventPagesList();
+  void authentication() async {
+    if (await checkingForBioMetrics() == true) {
+      authenticateMe();
+    }
+  }
+
+  Future<bool> checkingForBioMetrics() async {
+    final canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
+    print(canCheckBiometrics);
+    return canCheckBiometrics;
+  }
+
+  Future<void> authenticateMe() async {
+    try {
+      await _localAuthentication.authenticate(
+        biometricOnly: true,
+        localizedReason: 'Authenticate, please', // message for dialog
+        useErrorDialogs: true, // show error in dialog
+        stickyAuth: true, // native process
+      );
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void showPages() async {
+    final pages = await pagesRepository.eventPagesList();
     emit(
       state.copyWith(
         eventPages: pages,
       ),
     );
-    yield pages;
   }
 
   void select(int i) {
@@ -43,7 +74,7 @@ class HomePageCubit extends Cubit<HomePageState> {
   }
 
   void delete() {
-    DBProvider.db.deletePage(state.eventPages[state.selectedPageIndex].id);
+    pagesRepository.deletePage(state.eventPages[state.selectedPageIndex].id);
     emit(
       state.copyWith(
         selectedPageIndex: state.selectedPageIndex,
@@ -66,7 +97,7 @@ class HomePageCubit extends Cubit<HomePageState> {
     final tempEventPage = selectedPage.copyWith(
       isFixed: !selectedPage.isFixed,
     );
-    DBProvider.db.updatePage(tempEventPage);
+    pagesRepository.updatePage(tempEventPage);
 
     emit(
       state.copyWith(
@@ -79,7 +110,21 @@ class HomePageCubit extends Cubit<HomePageState> {
     return state.eventPages[state.selectedPageIndex].eventMessages.isEmpty
         ? 'no messages'
         : Jiffy(state
-                .eventPages[state.selectedPageIndex].eventMessages.last.date)
+                .eventPages[state.selectedPageIndex].eventMessages.last._date)
             .format('d/M/y h:mm a');
+  }
+
+  FutureOr onGoBack(dynamic value) {
+    showPages();
+  }
+
+  void gradientAnimation() async {
+    emit(
+      state.copyWith(isColorChanged: false),
+    );
+    await Future.delayed(const Duration(milliseconds: 30));
+    emit(
+      state.copyWith(isColorChanged: true),
+    );
   }
 }

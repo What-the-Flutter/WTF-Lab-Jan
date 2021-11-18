@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../util/database.dart';
-import '../entity/category.dart';
+import '../../entity/category.dart';
+import '../../repositories/database.dart';
 
 part 'add_page_state.dart';
 
@@ -9,7 +9,6 @@ class AddPageCubit extends Cubit<AddPageState> {
   AddPageCubit()
       : super(
           const AddPageState(
-            selectedIconIndex: 0,
             categories: [],
           ),
         );
@@ -25,9 +24,11 @@ class AddPageCubit extends Cubit<AddPageState> {
     );
   }
 
-  void setSelectedIconIndex(int selectedIconIndex) => emit(
-        state.copyWith(
-          selectedIconIndex: selectedIconIndex,
-        ),
-      );
+  void setSelectedIconIndex(int selectedIconIndex) {
+    emit(
+      state.copyWith(
+        selectedIconIndex: selectedIconIndex,
+      ),
+    );
+  }
 }

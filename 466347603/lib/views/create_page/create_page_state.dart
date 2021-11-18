@@ -3,7 +3,7 @@ part of 'create_page_cubit.dart';
 class CreatePageState extends Equatable {
   final List<IconData> icons;
   final PageInfo? editPage;
-  late final IconData? selectedIcon;
+  final IconData? selectedIcon;
 
   CreatePageState({
     this.icons = const [],

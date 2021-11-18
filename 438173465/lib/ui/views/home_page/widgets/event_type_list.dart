@@ -6,7 +6,7 @@ import '../../../../constants/icon_map.dart';
 import '../../../../core/models/event_type.dart';
 import '../../../../core/services/db/db_helper.dart';
 import '../../../shared/utils/date_formatter.dart';
-import '../screens/event_screen.dart';
+import '../screens/events_screen.dart';
 import '../screens/events_type_add_screen.dart';
 
 Widget eventTypeList() {
