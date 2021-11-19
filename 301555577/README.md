@@ -1,4 +1,4 @@
-# diary
+# sticky_notes
 
 A new Flutter project.
 

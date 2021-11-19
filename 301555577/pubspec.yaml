@@ -1,7 +1,7 @@
-name: diary
+name: sticky_notes
 description: A new Flutter project.
 
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -10,15 +10,21 @@ environment:
 
 dependencies:
   cupertino_icons: ^1.0.2
+  equatable: ^2.0.3
   flutter:
     sdk: flutter
-  flutter_slidable: ^0.6.0
-  focused_menu: ^1.0.5
-  get: ^4.3.8
+  flutter_bloc: ^7.3.3
+  flutter_slidable: ^1.1.0
   google_fonts: ^2.1.0
   google_nav_bar: ^5.0.5
+  image_picker: ^0.8.4+4
   line_icons: ^2.0.1
-  uuid: ^3.0.5
+  material_floating_search_bar: ^0.3.6
+  modal_bottom_sheet: ^2.0.0
+  path: ^1.8.0
+  provider: ^6.0.1
+  shared_preferences: ^2.0.8
+  sqflite: ^2.0.0+4
 
 dev_dependencies:
   flutter_lints: ^1.0.0
@@ -26,11 +32,5 @@ dev_dependencies:
     sdk: flutter
 
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
-  # To add assets to your application, add an assets section, like this:
-  assets:
-    - assets/images/
+

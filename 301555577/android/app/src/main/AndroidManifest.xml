@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.wolde.diary">
+    package="com.wolde.sticky_notes">
    <application
-        android:label="diary"
+        android:label="sticky_notes"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
