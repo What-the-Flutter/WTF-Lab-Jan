@@ -1,6 +1,6 @@
 {
-    "name": "diary",
-    "short_name": "diary",
+    "name": "sticky_notes",
+    "short_name": "sticky_notes",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
