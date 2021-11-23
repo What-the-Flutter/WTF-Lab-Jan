@@ -1,4 +1,3 @@
-import 'package:chat_diary/src/screens/events_screen/models/event_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../events_screen/event_screen.dart';
