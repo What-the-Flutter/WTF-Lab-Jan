@@ -15,6 +15,7 @@ class EventScreen extends StatefulWidget {
   State<EventScreen> createState() => _EventScreenState();
 }
 
+//todo events lift up, make favorite events page
 class _EventScreenState extends State<EventScreen> {
   final List<EventModel> _events = <EventModel>[];
   final List<EventModel> _favoriteEvents = <EventModel>[];
