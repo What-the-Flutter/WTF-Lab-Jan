@@ -7,7 +7,7 @@ import 'package:jiffy/jiffy.dart';
 
 import '../../models/events_model.dart';
 import '../../theme/themes.dart';
-import 'event_page_cubit.dart';
+import 'event_cubit.dart';
 import 'event_page_state.dart';
 
 class EventPage extends StatefulWidget {

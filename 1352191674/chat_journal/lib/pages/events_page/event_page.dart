@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 import '../../main.dart';
 import '../../models/event_model.dart';
 import '../../models/note_model.dart';
-import 'event_page_cubit.dart';
+import 'event_cubit.dart';
 
 class EventPage extends StatefulWidget {
   final String? title;

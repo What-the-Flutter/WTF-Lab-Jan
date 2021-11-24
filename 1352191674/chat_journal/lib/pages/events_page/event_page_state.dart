@@ -1,4 +1,4 @@
-part of 'event_page_cubit.dart';
+part of 'event_cubit.dart';
 
 class EventsState {
   final bool eventSelected;

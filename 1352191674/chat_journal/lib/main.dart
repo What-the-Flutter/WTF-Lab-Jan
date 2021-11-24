@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'pages/create_page/create_cubit.dart';
-import 'pages/events_page/event_page_cubit.dart';
+import 'pages/events_page/event_cubit.dart';
 import 'pages/filter_page/fllter_page_cubit.dart';
 import 'pages/home_page/home_page_cubit.dart';
 import 'pages/main_page/main_page.dart';

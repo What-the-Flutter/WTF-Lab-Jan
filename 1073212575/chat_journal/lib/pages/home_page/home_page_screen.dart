@@ -6,7 +6,7 @@ import '../../theme/custom_theme.dart';
 import '../../theme/themes.dart';
 import '../add_page/add_page_cubit.dart';
 import '../add_page/add_page_screen.dart';
-import '../event_page/event_page_cubit.dart';
+import '../event_page/event_cubit.dart';
 import '../event_page/event_page_screen.dart';
 import 'home_page_cubit.dart';
 import 'home_page_state.dart';
