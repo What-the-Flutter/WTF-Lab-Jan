@@ -25,6 +25,12 @@ dependencies:
   # Allows you pick images from the gallery and take new pictures with the camera.
   image_picker: ^0.8.0
 
+  # Allows you use bloc in Dart
+  bloc: ^8.0.0
+
+  # Allows you integrate blocs and cubits into Flutter
+  flutter_bloc: ^8.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

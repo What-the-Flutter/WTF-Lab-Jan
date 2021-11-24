@@ -8,7 +8,12 @@ class Category {
   final bool favourite;
   final DateTime created;
 
-  Category(this.name, this.icon, this.favourite, this.created);
+  Category(
+    this.name,
+    this.icon,
+    this.favourite,
+    this.created,
+  );
 
   String get formattedDate => DateFormat('dd MMMM yyyy - H:m').format(created);
 
