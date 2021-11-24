@@ -1,28 +1,33 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
-import '../screen/chat_screen.dart';
-import '../screen/home_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../chat_screen/chat_screen.dart';
+import '../home_screen/home_page.dart';
+import 'package:chat_journal/chat_screen/chat_screen.dart';
 
-class fluroRouter {
+class FluroRouterCubit extends Cubit<FluroRouter> {
   static FluroRouter router = FluroRouter();
   static final Handler _homeHandler = Handler(handlerFunc: (
-    BuildContext? context,
-    Map<String, dynamic> params,
+    context,
+    params,
   ) {
     return const MyHomePage(
       title: 'HOME',
     );
   });
+
   static final Handler _detailedHandler = Handler(
     handlerFunc: (
-      BuildContext? context,
+      context,
       Map<String, dynamic> params,
     ) {
       return ChatScreen(
-        title: params['title'][0],
+        indexId: params["index"][0],
       );
     },
   );
+
+  FluroRouterCubit() : super(router);
 
   static void setupRouter() {
     router.define(
@@ -31,7 +36,7 @@ class fluroRouter {
       transitionType: TransitionType.inFromRight,
     );
     router.define(
-      '/chat/:title',
+      '/chat/:index',
       handler: _detailedHandler,
       transitionType: TransitionType.fadeIn,
     );

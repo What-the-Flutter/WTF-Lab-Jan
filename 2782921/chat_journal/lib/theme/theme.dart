@@ -16,15 +16,4 @@ class Themes {
     accentColor: Colors.indigo,
     brightness: Brightness.dark,
   );
-
-  static ThemeData getThemeFromKey(myThemes theme) {
-    switch (theme) {
-      case myThemes.light:
-        return lightTheme;
-      case myThemes.dark:
-        return darkTheme;
-      default:
-        return lightTheme;
-    }
-  }
 }
