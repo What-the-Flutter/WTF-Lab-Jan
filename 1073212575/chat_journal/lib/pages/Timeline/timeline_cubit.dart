@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:chat_journal/models/events_model.dart';
-import 'package:chat_journal/models/filter_parameters.dart';
-import 'package:chat_journal/pages/Timeline/timeline_state.dart';
-import 'package:chat_journal/repository/messages_repository.dart';
-import 'package:chat_journal/repository/pages_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../../models/filter_parameters.dart';
+import '../../repository/messages_repository.dart';
+import '../../repository/pages_repository.dart';
+import 'timeline_state.dart';
 
 class TimelinePageCubit extends Cubit<TimelinePageState> {
   final MessagesRepository messagesRepository;
@@ -37,7 +37,7 @@ class TimelinePageCubit extends Cubit<TimelinePageState> {
               arePagesIgnored: true,
               selectedPages: [],
               selectedTags: [],
-              selectedCategories: [],
+              selectedLabels: [],
               searchText: '',
               date: DateTime.now(),
             ),
@@ -79,12 +79,12 @@ class TimelinePageCubit extends Cubit<TimelinePageState> {
 
   List filterMessages(List messages) {
     if (state.parameters.selectedPages.isNotEmpty) {
-      messages = _filterByPages(messages);
+      messages = filterByPages(messages);
     }
     if (state.parameters.selectedTags.isNotEmpty) {
       messages = _filterByTags(messages);
     }
-    if (state.parameters.selectedCategories.isNotEmpty) {
+    if (state.parameters.selectedLabels.isNotEmpty) {
       messages = _filterByLabels(messages);
     }
     if (state.parameters.isDateSelected) {
@@ -99,7 +99,7 @@ class TimelinePageCubit extends Cubit<TimelinePageState> {
     return messages;
   }
 
-  List _filterByPages(List messages) {
+  List filterByPages(List messages) {
     if (state.parameters.arePagesIgnored) {
       messages = messages
           .where(
@@ -128,8 +128,8 @@ class TimelinePageCubit extends Cubit<TimelinePageState> {
 
   List _filterByLabels(List messages) {
     messages = messages
-        .where((message) =>
-            state.parameters.selectedCategories.contains(message.icon))
+        .where(
+            (message) => state.parameters.selectedLabels.contains(message.icon))
         .toList();
     return messages;
   }
@@ -351,7 +351,7 @@ class TimelinePageCubit extends Cubit<TimelinePageState> {
       state.copyWith(isColorChanged: false),
     );
     await Future.delayed(
-      Duration(milliseconds: 30),
+      const Duration(milliseconds: 30),
     );
     emit(
       state.copyWith(isColorChanged: true),

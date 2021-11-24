@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:chat_journal/repository/labels_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,22 +15,25 @@ import 'event_page_state.dart';
 class EventPageCubit extends Cubit<EventPageState> {
   final MessagesRepository messagesRepository;
   final PagesRepository pagesRepository;
+  final LabelsRepository labelsRepository;
 
-  EventPageCubit(this.messagesRepository, this.pagesRepository)
+  EventPageCubit(
+      this.messagesRepository, this.pagesRepository, this.labelsRepository)
       : super(
           EventPageState(
+            labels: [],
             hashTags: [],
             messages: [],
             onlyMarked: false,
             isSelected: false,
             isSearchGoing: false,
-            isCategoryPanelOpened: false,
+            isLabelPanelOpened: false,
             isHashTagPanelVisible: false,
             needsEditing: false,
             isDateTimeSelected: false,
             isColorChanged: false,
             selectedMessageIndex: -1,
-            categoryIcon: Icons.remove_rounded,
+            selectedLabelIcon: Icons.remove_rounded,
             eventPageId: '',
             selectedImagePath: '',
             searchText: '',
@@ -43,6 +47,8 @@ class EventPageCubit extends Cubit<EventPageState> {
     gradientAnimation();
     showMessages();
     findHashTags();
+    loadLabels();
+    closeCategoryPanel();
   }
 
   void showMessages() async {
@@ -60,11 +66,18 @@ class EventPageCubit extends Cubit<EventPageState> {
     } else {
       messages = [];
     }
-    //final pages = await pagesRepository.eventPagesList();
     emit(
       state.copyWith(
         messages: messages,
-        //eventPages: pages,
+      ),
+    );
+  }
+
+  void loadLabels() async {
+    final labels = await labelsRepository.labelsList();
+    emit(
+      state.copyWith(
+        labels: labels,
       ),
     );
   }
@@ -204,12 +217,12 @@ class EventPageCubit extends Cubit<EventPageState> {
     if (state.selectedImagePath == '') {
       message = state.messages[state.selectedMessageIndex].copyWith(
         text: text,
-        icon: state.categoryIcon,
+        icon: state.selectedLabelIcon,
       );
     } else {
       message = state.messages[state.selectedMessageIndex].copyWith(
         text: text,
-        icon: state.categoryIcon,
+        icon: state.selectedLabelIcon,
         imagePath: state.selectedImagePath,
       );
     }
@@ -219,7 +232,7 @@ class EventPageCubit extends Cubit<EventPageState> {
     emit(
       state.copyWith(
         isSelected: false,
-        categoryIcon: Icons.remove_rounded,
+        selectedLabelIcon: Icons.remove_rounded,
         needsEditing: false,
       ),
     );
@@ -240,14 +253,14 @@ class EventPageCubit extends Cubit<EventPageState> {
         text: text,
         imagePath: state.selectedImagePath,
         date: dateTime,
-        icon: state.categoryIcon,
+        icon: state.selectedLabelIcon,
         isMarked: false,
         isChecked: false,
       );
       messagesRepository.insertMessage(message);
       emit(
         state.copyWith(
-          categoryIcon: null,
+          selectedLabelIcon: null,
           selectedImagePath: '',
           isDateTimeSelected: false,
         ),
@@ -316,7 +329,7 @@ class EventPageCubit extends Cubit<EventPageState> {
   }
 
   void findHashtagMatches(String text) {
-    findHashTags();
+    //findHashTags();
     var hashTags = state.hashTags;
     final exp = RegExp(r'\B#[0-9a-zA-Zа-яёА-ЯЁ]+$');
     final match = exp.stringMatch(text);
@@ -374,7 +387,7 @@ class EventPageCubit extends Cubit<EventPageState> {
   void openCategoryPanel() {
     emit(
       state.copyWith(
-        isCategoryPanelOpened: true,
+        isLabelPanelOpened: true,
       ),
     );
   }
@@ -382,16 +395,16 @@ class EventPageCubit extends Cubit<EventPageState> {
   void closeCategoryPanel() {
     emit(
       state.copyWith(
-        isCategoryPanelOpened: false,
-        categoryIcon: Icons.remove_rounded,
+        isLabelPanelOpened: false,
+        selectedLabelIcon: Icons.remove_rounded,
       ),
     );
   }
 
-  void setCategory(IconData categoryIcon) {
+  void setCategory(IconData selectedLabelIcon) {
     emit(
       state.copyWith(
-        categoryIcon: categoryIcon,
+        selectedLabelIcon: selectedLabelIcon,
       ),
     );
   }
@@ -400,7 +413,7 @@ class EventPageCubit extends Cubit<EventPageState> {
     i == 0 ? closeCategoryPanel() : setCategory(icon);
   }
 
-  IconData categoryIcon(bool isCategoryPanelVisible, int i) {
+  IconData labelIcon(bool isCategoryPanelVisible, int i) {
     return isCategoryPanelVisible
         ? state.messages[i].icon
         : Icons.remove_rounded;

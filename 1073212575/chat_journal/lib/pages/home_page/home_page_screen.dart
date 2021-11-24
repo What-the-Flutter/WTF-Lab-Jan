@@ -1,19 +1,27 @@
 import 'dart:async';
 
 import 'package:animations/animations.dart';
+import 'package:chat_journal/pages/statistics/add_label/add_label_cubit.dart';
+import 'package:chat_journal/pages/statistics/charts_statistics/charts_statistics_cubit.dart';
+import 'package:chat_journal/pages/statistics/labels_statistics/labels_statistics_cubit.dart';
+import 'package:chat_journal/pages/statistics/statistics_filters/statistics_filters_cubit.dart';
+import 'package:chat_journal/pages/statistics/statistics_main/statistics_cubit.dart';
+import 'package:chat_journal/pages/statistics/statistics_main/statistics_screen.dart';
+import 'package:chat_journal/pages/statistics/summary_statistics/summary_statistics_cubit.dart';
+import 'package:chat_journal/repository/labels_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:rive_splash_screen/rive_splash_screen.dart';
 
-import '../../database.dart';
-import '../../repository/messages_repository.dart';
-import '../../repository/pages_repository.dart';
-import '../../repository/settings_repository.dart';
-import '../../shared_preferences.dart';
-import '../../theme/themes.dart';
-import '../Timeline/timeline_cubit.dart';
+import 'package:chat_journal/database.dart';
+import 'package:chat_journal/repository/messages_repository.dart';
+import 'package:chat_journal/repository/pages_repository.dart';
+import 'package:chat_journal/repository/settings_repository.dart';
+import 'package:chat_journal/shared_preferences.dart';
+import 'package:chat_journal/theme/themes.dart';
+import 'package:chat_journal/pages/Timeline/timeline_cubit.dart';
 import '../Timeline/timeline_screen.dart';
 import '../add_page/add_page_cubit.dart';
 import '../add_page/add_page_screen.dart';
@@ -41,6 +49,9 @@ Widget startApp() {
       RepositoryProvider<SettingsRepository>(
         create: (context) => SettingsRepository(prefs),
       ),
+      RepositoryProvider<LabelsRepository>(
+        create: (context) => LabelsRepository(db),
+      ),
     ],
     child: MultiBlocProvider(
       providers: [
@@ -61,6 +72,7 @@ Widget startApp() {
           create: (context) => EventPageCubit(
             RepositoryProvider.of<MessagesRepository>(context),
             RepositoryProvider.of<PagesRepository>(context),
+            RepositoryProvider.of<LabelsRepository>(context),
           ),
         ),
         BlocProvider<AddPageCubit>(
@@ -78,6 +90,38 @@ Widget startApp() {
           create: (context) => FiltersPageCubit(
             RepositoryProvider.of<PagesRepository>(context),
             RepositoryProvider.of<MessagesRepository>(context),
+          ),
+        ),
+        BlocProvider<StatisticsPageCubit>(
+          create: (context) => StatisticsPageCubit(),
+        ),
+        BlocProvider<StatisticsFiltersPageCubit>(
+          create: (context) => StatisticsFiltersPageCubit(
+            RepositoryProvider.of<PagesRepository>(context),
+          ),
+        ),
+        BlocProvider<LabelsStatisticsPageCubit>(
+          create: (context) => LabelsStatisticsPageCubit(
+            RepositoryProvider.of<LabelsRepository>(context),
+            RepositoryProvider.of<MessagesRepository>(context),
+          ),
+        ),
+        BlocProvider<ChartsStatisticsPageCubit>(
+          create: (context) => ChartsStatisticsPageCubit(
+            RepositoryProvider.of<LabelsRepository>(context),
+            RepositoryProvider.of<MessagesRepository>(context),
+          ),
+        ),
+        BlocProvider<SummaryStatisticsPageCubit>(
+          create: (context) => SummaryStatisticsPageCubit(
+            RepositoryProvider.of<LabelsRepository>(context),
+            RepositoryProvider.of<MessagesRepository>(context),
+          ),
+        ),
+        BlocProvider<AddLabelPageCubit>(
+          create: (context) => AddLabelPageCubit(
+            RepositoryProvider.of<PagesRepository>(context),
+            RepositoryProvider.of<LabelsRepository>(context),
           ),
         ),
       ],
@@ -158,9 +202,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var first = Theme.of(context).colorScheme.secondary;
-    var second = Theme.of(context).colorScheme.onSecondary;
-    var third = Theme.of(context).colorScheme.secondaryVariant;
+    final first = Theme.of(context).colorScheme.secondary;
+    final second = Theme.of(context).colorScheme.onSecondary;
+    final third = Theme.of(context).colorScheme.secondaryVariant;
     return BlocBuilder<HomePageCubit, HomePageState>(
       builder: (context, state) {
         return AnimatedContainer(
@@ -179,7 +223,7 @@ class _HomePageState extends State<HomePage> {
           child: Scaffold(
             backgroundColor: Colors.transparent,
             appBar: state.isSelected ? _editingAppBar(state) : _defaultAppBar(),
-            floatingActionButton: floatingActionButton(),
+            floatingActionButton: _floatingActionButton(),
             body: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -202,7 +246,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget floatingActionButton() {
+  Widget _floatingActionButton() {
     return OpenContainer(
       onClosed: BlocProvider.of<HomePageCubit>(context).onGoBack,
       transitionDuration: const Duration(seconds: 1),
@@ -225,31 +269,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-
-    // return FloatingActionButton(
-    //   onPressed: () {
-    //     Navigator.push(
-    //       context,
-    //       PageRouteBuilder(
-    //         pageBuilder: (context, animation1, animation2) => const AddPage(
-    //           needsEditing: false,
-    //           selectedPageIndex: -1,
-    //         ),
-    //         transitionsBuilder: (context, animation1, animation2, child) =>
-    //             FadeThroughTransition(
-    //                 secondaryAnimation: animation2,
-    //                 animation: animation1,
-    //                 child: child),
-    //         transitionDuration: Duration(milliseconds: 2000),
-    //       ),
-    //     ).then(BlocProvider.of<HomePageCubit>(context).onGoBack);
-    //   },
-    //   backgroundColor: Theme.of(context).colorScheme.primary,
-    //   child: Icon(
-    //     Icons.add,
-    //     color: Theme.of(context).colorScheme.secondaryVariant,
-    //   ),
-    // );
   }
 
   Widget _elevatedButton() {
@@ -365,7 +384,7 @@ class _HomePageState extends State<HomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_rounded),
+            icon: Icon(Icons.auto_graph_rounded),
             label: 'Daily',
           ),
           BottomNavigationBarItem(
@@ -384,7 +403,7 @@ class _HomePageState extends State<HomePage> {
   void _onItemTapped(int index) {
     final pages = [
       HomePage(),
-      HomePage(),
+      StatisticsPage(),
       TimelinePage(),
       HomePage(),
     ];

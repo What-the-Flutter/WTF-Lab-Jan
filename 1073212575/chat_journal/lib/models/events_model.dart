@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import '../database.dart';
+
 class EventMessage {
   final String id;
   final String pageId;
@@ -49,8 +51,8 @@ class EventMessage {
         imagePath: map['image_path'],
         date: DateTime.parse(map['date']),
         icon: IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
-    isMarked: map['is_marked'] == 1 ? true : false,
-    isChecked: map['is_checked'] == 1 ? true : false,
+        isMarked: map['is_marked'] == 1 ? true : false,
+        isChecked: map['is_checked'] == 1 ? true : false,
       );
 
   Map<String, dynamic> toMap() => {
@@ -60,7 +62,7 @@ class EventMessage {
         'image_path': imagePath,
         'date': date.toString(),
         'icon': icon.codePoint,
-    'is_marked': isMarked ? 1 : 0,
+        'is_marked': isMarked ? 1 : 0,
         'is_checked': isChecked ? 1 : 0,
       };
 }
@@ -71,7 +73,6 @@ class EventPages {
   final DateTime date;
   final IconData icon;
   final bool isFixed;
-
 
   EventPages({
     required this.id,
@@ -110,5 +111,40 @@ class EventPages {
         'date': date.toString(),
         'icon': icon.codePoint,
         'is_fixed': isFixed ? 1 : 0,
+      };
+}
+
+class Label {
+  final String id;
+  final IconData icon;
+  final String name;
+
+  Label({
+    required this.id,
+    required this.icon,
+    required this.name,
+  });
+
+  Label copyWith({
+    String? id,
+    String? name,
+    IconData? icon,
+  }) =>
+      Label(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        icon: icon ?? this.icon,
+      );
+
+  factory Label.fromMap(Map<String, dynamic> map) => Label(
+        id: map[columnLabelId],
+        name: map[columnName],
+        icon: IconData(int.parse(map[columnIcon]), fontFamily: 'MaterialIcons'),
+      );
+
+  Map<String, dynamic> toMap() => {
+        columnLabelId: id,
+        columnName: name,
+        columnIcon: icon.codePoint,
       };
 }
