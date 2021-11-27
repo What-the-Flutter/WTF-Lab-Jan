@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import '../shared_preferences.dart';
 
 class SettingsRepository {
@@ -28,7 +26,7 @@ class SettingsRepository {
   }
 
   Future<bool> customDateUsage() {
-    return _provider.biometricsUsage();
+    return _provider.customDateUsage();
   }
 
   Future<String> messageAlignment() {

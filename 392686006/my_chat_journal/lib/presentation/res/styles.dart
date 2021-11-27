@@ -23,19 +23,19 @@ class CustomThemeModelState extends State<CustomThemeModel> {
   ThemeData themeData = CustomTheme.light;
 
   void changeTheme() {
-    setState(
-      () {
-        themeData = themeData == CustomTheme.light ? CustomTheme.dark : CustomTheme.light;
-      },
-    );
+    setState(() {
+      themeData = themeData == CustomTheme.light ? CustomTheme.dark : CustomTheme.light;
+    });
   }
 
   @override
-  Widget build(BuildContext context) => InheritedCustomTheme(
-        themeData: widget.themeData,
-        child: widget.child,
-        state: this,
-      );
+  Widget build(BuildContext context) {
+    return InheritedCustomTheme(
+      themeData: widget.themeData,
+      child: widget.child,
+      state: this,
+    );
+  }
 }
 
 class InheritedCustomTheme extends InheritedWidget {
@@ -50,9 +50,7 @@ class InheritedCustomTheme extends InheritedWidget {
   }) : super(key: key, child: child);
 
   @override
-  bool updateShouldNotify(InheritedWidget oldWidget) {
-    return true;
-  }
+  bool updateShouldNotify(InheritedWidget oldWidget) => true;
 
   static CustomThemeModelState of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<InheritedCustomTheme>()!.state;

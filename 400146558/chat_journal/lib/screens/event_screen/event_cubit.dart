@@ -6,47 +6,49 @@ import 'package:chat_journal/util/db_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'dart:async';
 import 'event_state.dart';
 
 class EventCubit extends Cubit<EventState> {
-  final List<Message> _selected = [];
-  final List<Message> _favourites = [];
-  final List<Message> _foundList = [];
-  final Chat _currentChat = Chat(
-      chatIconId: -1,
-      time: null,
-      title: '',
-      isPinned: false,
-      id: -1,
-      chatIcon: null,
-      messageBase: []);
+  EventCubit()
+      : super(EventState(
+          currentChat: Chat(
+            time: null,
+            chatIconTitle: '',
+            title: '',
+            isPinned: false,
+            id: '',
+            lastMessage: '',
+            lastMessageTime: null,
+          ),
+        ));
 
   Future<void> init(Chat currChat) async {
-    _currentChat.id = currChat.id;
-    _currentChat.isPinned = currChat.isPinned;
-    _currentChat.chatIconId = currChat.chatIconId;
-    _currentChat.chatIcon = currChat.chatIcon;
-    _currentChat.messageBase = currChat.messageBase;
-    _currentChat.title = currChat.title;
-    _currentChat.time = currChat.time;
     emit(state.copyWith(
-      selected: _selected,
-      currentChat: _currentChat,
-    ));
-    emit(state.copyWith(
+      currentChat: currChat,
       sectionsList: await DBProvider.db.fetchSectionIconsList(),
+      messageBase: await DBProvider.db.fetchMessagesList(currChat.id!),
     ));
   }
 
-  EventCubit() : super(EventState());
+  Future<void> setMessageList(Map<dynamic, dynamic> map) async {
+    final Map<dynamic, dynamic> values = map;
+    final messageList = <Message>[];
+    values.forEach((key, value) async {
+      final message = Message.fromMap(key, value);
+      messageList.insert(0, message);
+    });
+    emit(state.copyWith(messageBase: messageList));
+  }
 
-  Future<void> _updateLists() async {
+  Future<void> _updateMessageList(List<Message> messageList) async {
     emit(state.copyWith(
-      currentChat: await DBProvider.db.fetchChatById(state.currentChat!.id),
-      selected: _selected,
-      foundList: _foundList,
+      messageBase: messageList,
     ));
+  }
+
+  void _updateSelectedList(List<Message> sel) {
+    emit(state.copyWith(selected: sel));
   }
 
   void setIsNew(bool isNew) {
@@ -78,44 +80,60 @@ class EventCubit extends Cubit<EventState> {
   }
 
   void setSelectedSection(SectionIcon? sectionIcon) {
-    emit(state.copyWith(selectedSection: sectionIcon));
+    emit(state.copyWith(
+      selectedSection: sectionIcon,
+    ));
   }
 
   void cancelSelection() {
-    _selected.clear();
-    _selected.isNotEmpty ? setAnySelected(true) : setAnySelected(false);
-    _updateLists();
+    List<Message> sel = state.selected.toList();
+    sel.clear();
+    _updateSelectedList(sel);
+    state.selected.isNotEmpty ? setAnySelected(true) : setAnySelected(false);
   }
 
   Future<void> addToFavourites() async {
-    for (var sel in _selected) {
-      for (var msg in state.currentChat!.messageBase) {
+    List<Message> messages = state.messageBase!.toList();
+    final favourites = <Message>[];
+    for (var sel in state.selected) {
+      for (var msg in messages) {
         if (msg == sel) {
           msg.isFavourite = !msg.isFavourite;
-          await DBProvider.db.updateMessage(msg);
+          favourites.add(msg);
         }
       }
+    }
+    _updateMessageList(messages);
+    for (var fav in favourites) {
+      await DBProvider.db.updateMessage(fav, state.currentChat!.id!);
     }
     cancelSelection();
   }
 
   Future<void> searchMsg(String text) async {
-    _foundList.clear();
-    final founded =
-        await DBProvider.db.searchMessages(state.currentChat!.id, text);
-    for (var msg in founded) {
-      _foundList.add(msg);
+    List<Message> myFounded = state.foundList.toList();
+    myFounded.clear();
+
+    for (var msg in state.messageBase!) {
+      if (msg.message.contains(text)) {
+        myFounded.add(msg);
+      }
     }
-    emit(state.copyWith(foundList: _foundList));
+
+    emit(state.copyWith(foundList: myFounded));
   }
 
   Future<void> showFavourites() async {
-    _favourites.clear();
-    final favourites = await DBProvider.db.fetchFavouriteMessages();
-    for (var msg in favourites) {
-      _favourites.add(msg);
+    List<Message> myFavourites = state.favourites.toList();
+    myFavourites.clear();
+
+    for (var msg in state.messageBase!) {
+      if (msg.isFavourite == true) {
+        myFavourites.add(msg);
+      }
     }
-    emit(state.copyWith(favourites: _favourites));
+
+    emit(state.copyWith(favourites: myFavourites));
     setShowFav(!state.isShowFav!);
   }
 
@@ -129,7 +147,7 @@ class EventCubit extends Cubit<EventState> {
 
   void copyMsg() {
     var buffer = '';
-    for (var element in _selected) {
+    for (var element in state.selected) {
       buffer += element.message;
       buffer += '\n';
     }
@@ -137,59 +155,117 @@ class EventCubit extends Cubit<EventState> {
   }
 
   Future<void> deleteMsg() async {
-    for (var sel in _selected) {
-      await DBProvider.db.deleteMessage(sel);
+    List<Message> messages = state.messageBase!.toList();
+    for (var sel in state.selected) {
+      messages.remove(sel);
+    }
+    _updateMessageList(messages);
+
+    for (var sel in state.selected) {
+      await DBProvider.db.deleteMessage(sel, state.currentChat!.id!);
     }
 
+    final currChat = state.currentChat;
+    if (state.messageBase!.isNotEmpty) {
+      currChat!.lastMessage = state.messageBase!.first.message;
+      currChat.lastMessageTime = state.messageBase!.first.time;
+    } else {
+      currChat!.lastMessage = 'No events. Click to create one';
+      currChat.lastMessageTime = null;
+    }
+    await DBProvider.db.updateChat(currChat);
     cancelSelection();
   }
 
   Future<void> addMsg(Message newMessage) async {
-    await DBProvider.db.insertMessage(newMessage);
-    _updateLists();
+    List<Message> messages = state.messageBase!.toList();
+    messages.insert(0, newMessage);
+    _updateMessageList(messages);
+    await DBProvider.db.insertMessage(newMessage, state.currentChat!.id!);
+    final currChat = state.currentChat;
+    currChat!.lastMessage = newMessage.message;
+    currChat.lastMessageTime = newMessage.time;
+    await DBProvider.db.updateChat(currChat);
   }
 
   Future<void> editMsg(String newText) async {
-    Message? editingMessage = _selected[0];
+    List<Message> messages = state.messageBase!.toList();
+    Message? editingMessage = state.selected[0];
     editingMessage.message = newText;
-    if (state.selectedSection!.id != -1) {
-      editingMessage.sectionIconId = state.selectedSection!.id;
+    if (state.selectedSection!.iconTitle != 'work') {
+      editingMessage.sectionIconTitle = state.selectedSection!.iconTitle;
+      editingMessage.sectionName = state.selectedSection!.title;
     }
-    await DBProvider.db.updateMessage(editingMessage);
-    _selected.clear();
-    _selected.isNotEmpty ? setAnySelected(true) : setAnySelected(false);
-    _updateLists();
+    for (var message in messages) {
+      if (message == state.selected[0]) {
+        message = editingMessage;
+      }
+    }
+    _updateMessageList(messages);
+
+    await DBProvider.db.updateMessage(editingMessage, state.currentChat!.id!);
+
+    if (state.selected[0] == state.messageBase!.first) {
+      final currChat = state.currentChat;
+      currChat!.lastMessage = editingMessage.message;
+      currChat.lastMessageTime = editingMessage.time;
+      await DBProvider.db.updateChat(currChat);
+    }
+
+    cancelSelection();
   }
 
   Future<void> addToFavouriteOnTap(Message currentMessage) async {
     final curMsg = currentMessage;
     curMsg.isFavourite = !curMsg.isFavourite;
-    await DBProvider.db.updateMessage(curMsg);
+    List<Message> messages = state.messageBase!.toList();
+    for (var message in messages) {
+      if (message == currentMessage) {
+        message = curMsg;
+      }
+    }
+    _updateMessageList(messages);
+    await DBProvider.db.updateMessage(curMsg, state.currentChat!.id!);
     cancelSelection();
-    _updateLists();
   }
 
   void messageTools(Message currentMessage) {
-    if (_selected.contains(currentMessage)) {
-      _selected.remove(currentMessage);
+    List<Message> sel = state.selected.toList();
+    if (state.selected.contains(currentMessage)) {
+      sel.remove(currentMessage);
     } else {
-      _selected.add(currentMessage);
+      sel.add(currentMessage);
     }
-    _selected.isNotEmpty ? setAnySelected(true) : setAnySelected(false);
+    _updateSelectedList(sel);
+    state.selected.isNotEmpty ? setAnySelected(true) : setAnySelected(false);
   }
 
   void foundedClear() {
-    _foundList.clear();
-    _updateLists();
+    List<Message> founded = state.foundList.toList();
+    founded.clear();
   }
 
   Future<void> replyEvents() async {
+    List<Message> messages = state.messageBase!.toList();
+    for (var sel in state.selected) {
+      messages.remove(sel);
+    }
+    _updateMessageList(messages);
     for (var msg in state.selected) {
-      msg.chatId = state.replyChat!.id;
-      await DBProvider.db.updateMessage(msg);
+      await DBProvider.db.insertMessage(msg, state.replyChat!.id!);
+      await DBProvider.db.deleteMessage(msg, state.currentChat!.id!);
     }
 
+    final currChat = state.currentChat;
+    if (state.messageBase!.isNotEmpty) {
+      currChat!.lastMessage = state.messageBase!.first.message;
+      currChat.lastMessageTime = state.messageBase!.first.time;
+    } else {
+      currChat!.lastMessage = 'No events. Click to create one';
+      currChat.lastMessageTime = null;
+    }
+
+    await DBProvider.db.updateChat(currChat);
     cancelSelection();
-    _updateLists();
   }
 }

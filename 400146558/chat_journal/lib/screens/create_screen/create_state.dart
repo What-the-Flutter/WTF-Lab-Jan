@@ -1,8 +1,6 @@
-import 'package:chat_journal/models/chaticon_model.dart';
-
 class CreatePageState {
-  final List<ChatIcon> iconsList;
-  final ChatIcon? selectedChatIcon;
+  final List<String> iconsList;
+  final String? selectedChatIcon;
 
   CreatePageState({
     this.iconsList = const [],
@@ -10,8 +8,8 @@ class CreatePageState {
   });
 
   CreatePageState copyWith({
-    List<ChatIcon>? iconsList,
-    ChatIcon? selectedChatIcon,
+    List<String>? iconsList,
+    String? selectedChatIcon,
   }) {
     return CreatePageState(
       iconsList: iconsList ?? this.iconsList,

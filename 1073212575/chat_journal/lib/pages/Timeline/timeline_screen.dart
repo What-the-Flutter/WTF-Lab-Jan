@@ -41,9 +41,9 @@ class _TimelinePageState extends State<TimelinePage> {
 
   @override
   Widget build(BuildContext context) {
-    var first = Theme.of(context).colorScheme.secondary;
-    var second = Theme.of(context).colorScheme.onSecondary;
-    var third = Theme.of(context).colorScheme.secondaryVariant;
+    final first = Theme.of(context).colorScheme.secondary;
+    final second = Theme.of(context).colorScheme.onSecondary;
+    final third = Theme.of(context).colorScheme.secondaryVariant;
     return BlocBuilder<TimelinePageCubit, TimelinePageState>(
       builder: (blocContext, state) {
         if (BlocProvider.of<BackgroundImageCubit>(context)
@@ -54,9 +54,11 @@ class _TimelinePageState extends State<TimelinePage> {
               image: DecorationImage(
                 fit: BoxFit.cover,
                 image: FileImage(
-                  File(BlocProvider.of<BackgroundImageCubit>(context)
-                      .state
-                      .imagePath),
+                  File(
+                    BlocProvider.of<BackgroundImageCubit>(context)
+                        .state
+                        .imagePath,
+                  ),
                 ),
               ),
             ),

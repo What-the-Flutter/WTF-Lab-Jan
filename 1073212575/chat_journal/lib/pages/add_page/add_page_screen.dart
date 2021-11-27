@@ -64,9 +64,9 @@ class _AddPageState extends State<AddPage> {
 
   @override
   Widget build(BuildContext context) {
-    var first = Theme.of(context).colorScheme.secondary;
-    var second = Theme.of(context).colorScheme.onSecondary;
-    var third = Theme.of(context).colorScheme.secondaryVariant;
+    final first = Theme.of(context).colorScheme.secondary;
+    final second = Theme.of(context).colorScheme.onSecondary;
+    final third = Theme.of(context).colorScheme.secondaryVariant;
     return BlocBuilder<AddPageCubit, AddPageState>(
       builder: (blocContext, state) {
         return AnimatedContainer(

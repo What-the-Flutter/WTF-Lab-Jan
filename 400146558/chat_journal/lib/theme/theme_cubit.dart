@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'theme_state.dart';
 
 class ThemeCubit extends Cubit<ThemeState>{
-  ThemeCubit(): super(ThemeState(isLight: SharedPreferencesProvider().getThemeModeSF()));
+  ThemeCubit(): super(ThemeState(isLight: SharedPreferencesProvider().getThemeMode()));
 
   void changeTheme(){
     emit(state.copyWith(isLight: !state.isLight));
-    SharedPreferencesProvider().addThemeModeToSF(state.isLight);
+    SharedPreferencesProvider().addThemeMode(state.isLight);
   }
 }

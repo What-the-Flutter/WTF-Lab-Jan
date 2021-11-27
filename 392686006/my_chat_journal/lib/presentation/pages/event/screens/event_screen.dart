@@ -15,8 +15,8 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
-  final _focusNode = FocusNode();
-  final _events = <Event>[];
+  final FocusNode _focusNode = FocusNode();
+  final List<Event> _events = [];
   final TextEditingController _messageController = TextEditingController();
   int _selectedMessageIndex = -1;
   bool _isCRUDMode = false;
@@ -26,9 +26,7 @@ class _EventScreenState extends State<EventScreen> {
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(() {
-      setState(() {});
-    });
+    _focusNode.addListener(() => setState(() {}));
   }
 
   @override
@@ -116,10 +114,10 @@ class _EventScreenState extends State<EventScreen> {
     setState(() {});
   }
 
+  /// state switching implementation (bookmarked / unbookmarked)
+  ///      if true is true or false is false then 0
+  ///      if true false or false ture then 1
   void _bookmarkEvent() {
-    // реализация переключения состояния (bookmarked/unbookmarked)
-    // если true true или false false то 0
-    // если true false или false ture то 1
     _events[_selectedMessageIndex].isBookmarked ^= true;
     unfocus();
   }

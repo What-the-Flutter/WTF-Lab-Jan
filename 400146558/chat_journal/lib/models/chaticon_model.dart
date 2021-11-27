@@ -1,36 +1,33 @@
 class ChatIcon {
-  final int id;
+  final String? id;
   final String iconTitle;
 
   ChatIcon({required this.iconTitle, required this.id});
 
-  Map<String, dynamic> toMap() {
+  ChatIcon.fromMap(String key, Map<dynamic, dynamic> map)
+      : id = key,
+        iconTitle = map['iconTitle'];
+
+  toJson() {
     return {
       'iconTitle': iconTitle,
     };
   }
-
-  factory ChatIcon.fromMap(Map<String, dynamic> map) {
-    return ChatIcon(
-      id: map['id'],
-      iconTitle: map['iconTitle'],
-    );
-  }
 }
 
 final List<ChatIcon> chatIconsList = [
-  ChatIcon(iconTitle: 'basketballBall', id: -1),
-  ChatIcon(iconTitle: 'child_care', id: -1),
-  ChatIcon(iconTitle: 'monetization_on', id: -1),
-  ChatIcon(iconTitle: 'airport_shuttle', id: -1),
-  ChatIcon(iconTitle: 'card_travel', id: -1),
-  ChatIcon(iconTitle: 'directions_car', id: -1),
-  ChatIcon(iconTitle: 'home', id: -1),
-  ChatIcon(iconTitle: 'star', id: -1),
-  ChatIcon(iconTitle: 'vpn_key', id: -1),
-  ChatIcon(iconTitle: 'brush', id: -1),
-  ChatIcon(iconTitle: 'title', id: -1),
-  ChatIcon(iconTitle: 'favorite', id: -1),
-  ChatIcon(iconTitle: 'book', id: -1),
-  ChatIcon(iconTitle: 'nature_people', id: -1),
+  ChatIcon(iconTitle: 'basketballBall', id: ''),
+  ChatIcon(iconTitle: 'child_care', id: ''),
+  ChatIcon(iconTitle: 'monetization_on', id: ''),
+  ChatIcon(iconTitle: 'airport_shuttle', id: ''),
+  ChatIcon(iconTitle: 'card_travel', id: ''),
+  ChatIcon(iconTitle: 'directions_car', id: ''),
+  ChatIcon(iconTitle: 'home', id: ''),
+  ChatIcon(iconTitle: 'star', id: ''),
+  ChatIcon(iconTitle: 'vpn_key', id: ''),
+  ChatIcon(iconTitle: 'brush', id: ''),
+  ChatIcon(iconTitle: 'title', id: ''),
+  ChatIcon(iconTitle: 'favorite', id: ''),
+  ChatIcon(iconTitle: 'book', id: ''),
+  ChatIcon(iconTitle: 'nature_people', id: ''),
 ];

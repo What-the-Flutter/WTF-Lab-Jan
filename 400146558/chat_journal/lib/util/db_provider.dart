@@ -3,273 +3,163 @@ import 'package:chat_journal/models/chat_model.dart';
 import 'package:chat_journal/models/chaticon_model.dart';
 import 'package:chat_journal/models/message_model.dart';
 import 'package:chat_journal/models/sectionicon_model.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class DBProvider {
   DBProvider._();
 
   static final DBProvider db = DBProvider._();
+  final DatabaseReference _databaseRef = FirebaseDatabase.instance.reference();
 
-  static Database? _database;
-
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-
-    // if _database is null we instantiate it
-    _database = await initDB();
-    return _database!;
+  void initDB(DatabaseReference databaseRef) {
+    initTableChatIcons(databaseRef);
+    initTableSectionIcons(databaseRef);
   }
 
-  initDB() async {
-    final path = join(await getDatabasesPath(), "journal.db");
-    return await openDatabase(path, version: 1, onOpen: (db) {},
-        onCreate: (Database db, int version) async {
-      await db.execute('''
-      create table chatIcons(
-      id integer primary key autoincrement,
-      iconTitle text not null) 
-       ''');
-      await db.execute('''
-      create table sectionIcons(
-      id integer primary key autoincrement,
-      iconTitle text not null,
-      title text not null)
-       ''');
-      await db.execute('''
-      create table chats(
-      id integer primary key autoincrement,
-      chatIconId integer not null,
-      title text not null,
-      isPinned integer not null,
-      time text not null,
-      FOREIGN KEY (chatIconId)
-       REFERENCES chatIcons (id))
-       ''');
-      await db.execute('''
-      create table messages(
-      id integer primary key autoincrement,
-      chatId integer not null,
-      message text not null,
-      isFavourite integer not null,
-      time text not null,
-      sectionIconId integer null,
-      FOREIGN KEY (sectionIconId)
-       REFERENCES sectionIcons (id))
-       ''');
+  DatabaseReference get databaseRef => _databaseRef;
 
-      await initTableSectionIcons(db);
-      await initTableChatIcons(db);
-    });
-  }
-
-  Future<void> initTableChatIcons(Database db) async {
+  void initTableChatIcons(DatabaseReference dbRef) async {
     for (var ico in chatIconsList) {
-      await db.insert(
-        'chatIcons',
-        ico.toMap(),
-      );
+      await dbRef.child('chatIcons').push().set(ico.toJson());
     }
   }
 
-  Future<void> initTableSectionIcons(Database db) async {
+  void initTableSectionIcons(DatabaseReference dbRef) async {
     for (var ico in sectionIconsList) {
-      await db.insert(
-        'sectionIcons',
-        ico.toMap(),
-      );
+      await dbRef.child('sectionIcons').push().set(ico.toJson());
     }
   }
 
-  Future<List<ChatIcon>> fetchChatIconsList() async {
-    final db = await database;
-    final dbNotesList = await db.query('chatIcons');
-    final chatIconsList = <ChatIcon>[];
-    for (var item in dbNotesList) {
-      final chatIcon = ChatIcon.fromMap(item);
-      chatIconsList.add(chatIcon);
-    }
+  Future<List<String>> fetchChatIconsList() async {
+    final dbNotesList = await _databaseRef.child('chatIcons').once();
+    final Map<dynamic, dynamic> values = dbNotesList.value;
+    final chatIconsList = <String>[];
+    values.forEach((key, value) {
+      final chatIcon = ChatIcon.fromMap(key, value);
+      chatIconsList.add(chatIcon.iconTitle);
+    });
     return chatIconsList;
   }
 
   Future<List<SectionIcon>> fetchSectionIconsList() async {
-    final db = await database;
-    final dbNotesList = await db.query('sectionIcons');
+    final dbNotesList = await _databaseRef.child('sectionIcons').once();
+    final Map<dynamic, dynamic> values = dbNotesList.value;
     final sectionIconsList = <SectionIcon>[];
-    for (var item in dbNotesList) {
-      final sectionIcon = SectionIcon.fromMap(item);
-      sectionIconsList.add(sectionIcon);
-    }
+    values.forEach((key, value) {
+      sectionIconsList.add(SectionIcon.fromMap(key, value));
+    });
     return sectionIconsList;
   }
 
-  Future<List<Message>> fetchFavouriteMessages() async {
-    final db = await database;
-    final dbNotesList = await db.query(
-      'messages',
-      where: 'isFavourite = ?',
-      whereArgs: [1],
-    );
+  Future<List<Message>> fetchFavouriteMessages(String chatId) async {
+    final dbNotesList =
+        await _databaseRef.child('messages').child(chatId).once();
+    final Map<dynamic, dynamic> values = dbNotesList.value;
     final favouritesList = <Message>[];
-    for (var item in dbNotesList) {
-      final favourite = Message.fromMap(item);
-      if (favourite.sectionIconId != null) {
-        favourite.sectionIcon =
-            await fetchSectionIconById(favourite.sectionIconId!);
+    values.forEach((key, value) async {
+      final favourite = Message.fromMap(key, value);
+      if (favourite.isFavourite == true) {
+        favouritesList.insert(0, favourite);
       }
-      favouritesList.insert(0, favourite);
-    }
+    });
+
     return favouritesList;
   }
 
   Future<void> insertChat(Chat chat) async {
-    final db = await database;
-    await db.insert('chats', chat.toMap());
+    await _databaseRef.child('chats').push().set(chat.toJson());
   }
 
   Future<void> deleteChat(Chat chat) async {
-    final db = await database;
-    await db.delete(
-      'chats',
-      where: 'id = ?',
-      whereArgs: [chat.id],
-    );
+    await _databaseRef.child('chats').child(chat.id!).remove();
   }
 
   Future<void> updateChat(Chat chat) async {
-    final db = await database;
-    await db.update(
-      'chats',
-      chat.toMap(),
-      where: 'id = ?',
-      whereArgs: [chat.id],
-    );
+    await _databaseRef
+        .reference()
+        .child('chats')
+        .child(chat.id!)
+        .set(chat.toJson());
   }
 
   Future<List<Chat>> fetchChatsList() async {
-    final db = await database;
-    final dbNotesList =
-        await db.rawQuery('select * from chats order by isPinned desc');
+    final dbNotesList = await _databaseRef.child('chats').once();
+    final Map<dynamic, dynamic> values = dbNotesList.value;
     final chatsList = <Chat>[];
-    for (var item in dbNotesList) {
-      final chat = Chat.fromMap(item);
-      chat.chatIcon = await fetchChatIconById(chat.chatIconId);
-      chat.messageBase = await fetchMessagesListById(chat.id);
-      chatsList.add(chat);
-    }
+    values.forEach((key, value) async {
+      final chat = Chat.fromMap(key, value);
+      if (chat.isPinned == true) {
+        chatsList.insert(0, chat);
+      } else {
+        chatsList.add(chat);
+      }
+    });
     return chatsList;
   }
 
-  Future<ChatIcon> fetchChatIconById(int id) async {
-    final db = await database;
-    final dbNotesList = await db.query(
-      'chatIcons',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    final chatIconsList = <ChatIcon>[];
-    for (var item in dbNotesList) {
-      final chatIcon = ChatIcon.fromMap(item);
-      chatIconsList.insert(0, chatIcon);
-    }
-
-    return chatIconsList.first;
+  Future<void> deleteAllMessages(String chatId) async {
+    await _databaseRef.child('messages').child(chatId).remove();
   }
 
-  Future<Chat> fetchChatById(int id) async {
-    final db = await database;
-    final dbNotesList = await db.query(
-      'chats',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    final chatsList = <Chat>[];
-    for (var item in dbNotesList) {
-      final chat = Chat.fromMap(item);
-      chat.chatIcon = await fetchChatIconById(chat.chatIconId);
-      chat.messageBase = await fetchMessagesListById(chat.id);
-      chatsList.insert(0, chat);
-    }
-
-    return chatsList.first;
+  Future<Chat> fetchChatById(String id) async {
+    final dbNotesList = await _databaseRef.child('chats').child(id).once();
+    final Map<dynamic, dynamic> values = dbNotesList.value;
+    final chat = Chat.fromMap(id, values);
+    return chat;
   }
 
-  Future<List<Message>> searchMessages(int chatId, String text) async {
+  Future<List<Message>> searchMessages(String chatId, String text) async {
     if (text.isNotEmpty) {
-      final db = await database;
-      final dbNotesList = await db.rawQuery(
-          'select * from messages where chatId = $chatId and message like "%$text%"');
+      final dbNotesList =
+          await _databaseRef.child('messages').child(chatId).once();
+      final Map<dynamic, dynamic> values = dbNotesList.value;
       final messagesList = <Message>[];
-      for (var item in dbNotesList) {
-        final message = Message.fromMap(item);
-        if (message.sectionIconId != null) {
-          message.sectionIcon =
-              await fetchSectionIconById(message.sectionIconId!);
+      values.forEach((key, value) async {
+        final message = Message.fromMap(key, value);
+        if (message.message.contains(text)) {
+          messagesList.insert(0, message);
         }
-        messagesList.insert(0, message);
-      }
-
+      });
       return messagesList;
     } else {
       return [];
     }
   }
 
-  Future<SectionIcon> fetchSectionIconById(int id) async {
-    final db = await database;
-    final dbNotesList = await db.query(
-      'sectionIcons',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    final sectionIconsList = <SectionIcon>[];
-    for (var item in dbNotesList) {
-      final sectionIcon = SectionIcon.fromMap(item);
-      sectionIconsList.insert(0, sectionIcon);
-    }
-
-    return sectionIconsList.first;
+  Future<void> insertMessage(Message message, String chatId) async {
+    await _databaseRef
+        .child('messages')
+        .child(chatId)
+        .push()
+        .set(message.toJson());
   }
 
-  Future<void> insertMessage(Message message) async {
-    final db = await database;
-    await db.insert('messages', message.toMap());
+  Future<void> deleteMessage(Message message, String chatId) async {
+    await _databaseRef
+        .child('messages')
+        .child(chatId)
+        .child(message.id!)
+        .remove();
   }
 
-  Future<void> deleteMessage(Message message) async {
-    final db = await database;
-    await db.delete(
-      'messages',
-      where: 'id = ?',
-      whereArgs: [message.id],
-    );
+  Future<void> updateMessage(Message message, String chatId) async {
+    await _databaseRef
+        .child('messages')
+        .child(chatId)
+        .child(message.id!)
+        .set(message.toJson());
   }
 
-  Future<void> updateMessage(Message message) async {
-    final db = await database;
-    await db.update(
-      'messages',
-      message.toMap(),
-      where: 'id = ?',
-      whereArgs: [message.id],
-    );
-  }
-
-  Future<List<Message>> fetchMessagesListById(int id) async {
-    final db = await database;
-    final dbNotesList = await db.query(
-      'messages',
-      where: 'chatId = ?',
-      whereArgs: [id],
-    );
+  Future<List<Message>> fetchMessagesList(String chatId) async {
+    final dbNotesList =
+        await _databaseRef.child('messages').child(chatId).once();
     final messagesList = <Message>[];
-    for (var item in dbNotesList) {
-      final message = Message.fromMap(item);
-      if (message.sectionIconId != null) {
-        message.sectionIcon =
-            await fetchSectionIconById(message.sectionIconId!);
-      }
-      messagesList.insert(0, message);
+    if (dbNotesList.exists) {
+      final Map<dynamic, dynamic> values = dbNotesList.value;
+      values.forEach((key, value) async {
+        final message = Message.fromMap(key, value);
+        messagesList.insert(0, message);
+      });
     }
     return messagesList;
   }

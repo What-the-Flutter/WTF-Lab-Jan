@@ -1,5 +1,4 @@
 import 'package:chat_journal/models/chat_model.dart';
-import 'package:chat_journal/models/chaticon_model.dart';
 import 'package:chat_journal/screens/create_screen/create_state.dart';
 import 'package:chat_journal/theme/theme_constants.dart';
 import 'package:flutter/material.dart';
@@ -144,7 +143,7 @@ class _AddChatState extends State<AddChat> {
                   backgroundColor: Colors.grey,
                   radius: 30.0,
                   child: Icon(
-                    getIconUsingPrefix(name: state.iconsList[index].iconTitle),
+                    getIconUsingPrefix(name: state.iconsList[index]),
                     color: Colors.white,
                     size: 30.0,
                   ),
@@ -178,26 +177,26 @@ class _AddChatState extends State<AddChat> {
     );
   }
 
-  void _check(ChatIcon chatIcon) {
+  void _check(String chatIcon) {
     BlocProvider.of<CreatePageCubit>(context).check(chatIcon);
   }
 
   void _addChat(CreatePageState state) {
     Chat newChat = Chat(
       isPinned: false,
-      chatIconId: state.selectedChatIcon!.id,
       title: _textController.text,
       time: Jiffy(DateTime.now()),
-      id: -1,
-      messageBase: [],
-      chatIcon: null,
+      id: '',
+      chatIconTitle: state.selectedChatIcon,
+      lastMessage: '',
+      lastMessageTime: null,
     );
     Navigator.of(context).pop(newChat);
   }
 
   void _editChat(CreatePageState state) {
     editingChat!.title = _textController.text;
-    editingChat!.chatIconId = state.selectedChatIcon!.id;
+    editingChat!.chatIconTitle = state.selectedChatIcon;
     Navigator.of(context).pop(editingChat);
   }
 }

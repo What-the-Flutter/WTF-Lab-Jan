@@ -22,7 +22,7 @@ class FiltersPageCubit extends Cubit<FiltersPageState> {
               arePagesIgnored: true,
               selectedPages: [],
               selectedTags: [],
-              selectedCategories: [],
+              selectedLabels: [],
               searchText: '',
               date: DateTime.now(),
             ),
@@ -173,14 +173,14 @@ class FiltersPageCubit extends Cubit<FiltersPageState> {
   }
 
   bool isLabelSelected(Category category) {
-    return state.parameters.selectedCategories.contains(category.icon);
+    return state.parameters.selectedLabels.contains(category.icon);
   }
 
   void selectLabel(Category category) {
-    final categories = state.parameters.selectedCategories;
+    final categories = state.parameters.selectedLabels;
     categories.add(category.icon);
     final parameters = state.parameters.copyWith(
-      selectedCategories: categories,
+      selectedLabels: categories,
     );
     emit(
       state.copyWith(
@@ -190,10 +190,10 @@ class FiltersPageCubit extends Cubit<FiltersPageState> {
   }
 
   void unselectLabel(Category category) {
-    final categories = state.parameters.selectedCategories;
+    final categories = state.parameters.selectedLabels;
     categories.remove(category.icon);
     final parameters = state.parameters.copyWith(
-      selectedCategories: categories,
+      selectedLabels: categories,
     );
     emit(
       state.copyWith(
@@ -204,11 +204,11 @@ class FiltersPageCubit extends Cubit<FiltersPageState> {
 
   String labelsInfo() {
     var info;
-    if (state.parameters.selectedCategories.isEmpty) {
+    if (state.parameters.selectedLabels.isEmpty) {
       info =
           'Tap to select a label you want to include to the filter. All labels are included by default';
     } else {
-      info = '${state.parameters.selectedCategories.length} label(s) included';
+      info = '${state.parameters.selectedLabels.length} label(s) included';
     }
     return info;
   }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 const double radiusValue = 10;
-
+const graphicColors = [
+  Color(0xFF369FBA),
+  Color(0xFF3D70B4),
+  Color(0xFF8A43B6),
+];
 final ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme(
     primary:  Color(0xFF173E47), //appbar
@@ -45,7 +49,7 @@ final ThemeData darkTheme = ThemeData(
     onError: Color(0xFF108098),
 
     surface: Color(0xFF0D1B29), //selected items
-    onSurface: Color(0xFFF7FAFE),
+    onSurface: Color(0xFF97B3D0),
 
     brightness: Brightness.dark,
   ),

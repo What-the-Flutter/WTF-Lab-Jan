@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_helper/icons_helper.dart';
 import 'package:jiffy/jiffy.dart';
+
 import 'event_state.dart';
 
 class ChatDetailPage extends StatefulWidget {
@@ -118,7 +119,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           decoration: InputDecoration(
               hintText: "Search in '${state.currentChat!.title}'",
               hintStyle: const TextStyle(color: Colors.black54),
-              fillColor: Theme.of(context).cardColor,
+              fillColor: Colors.lightGreen,
               filled: true,
               border: InputBorder.none),
           onChanged: (text) {
@@ -239,7 +240,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 reverse: true,
                 itemCount: state.isShowFav!
                     ? state.favourites.length
-                    : state.currentChat?.messageBase.length,
+                    : state.messageBase!.length,
                 itemBuilder: (BuildContext context, int index) {
                   return _msgWidget(index, state);
                 },
@@ -470,53 +471,73 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         ),
       );
     } else if (state.foundList.isEmpty && _searchController.text.isNotEmpty) {
-      return Container(
-        color: Theme.of(context).cardColor,
-        margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 50.0),
-        padding: const EdgeInsets.all(15.0),
-        child: Center(
+      return Expanded(
+        child: Container(
+          color: Theme.of(context).primaryColor,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              Text(
-                'No search results available.',
-                style: TextStyle(fontSize: 18, color: Colors.black),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(
-                height: 15.0,
-              ),
-              Text(
-                'No entries match the given search query. \nPlease try again.',
-                style: TextStyle(fontSize: 18, color: Colors.blueGrey),
-                textAlign: TextAlign.center,
+            children: [
+              Container(
+                color: Colors.lightGreen,
+                margin:
+                    const EdgeInsets.only(left: 20.0, right: 20.0, top: 50.0),
+                padding: const EdgeInsets.all(15.0),
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const [
+                      Text(
+                        'No search results available.',
+                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      Text(
+                        'No entries match the given search query. \nPlease try again.',
+                        style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
         ),
       );
     } else {
-      return Container(
-        color: Theme.of(context).cardColor,
-        margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 50.0),
-        padding: const EdgeInsets.all(15.0),
-        child: Center(
+      return Expanded(
+        child: Container(
+          color: Theme.of(context).primaryColor,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(
-                Icons.search,
-                color: Colors.black,
-                size: 70.0,
-              ),
-              SizedBox(
-                height: 15.0,
-              ),
-              Text(
-                'Please enter a search query to begin searching.',
-                style: TextStyle(fontSize: 18, color: Colors.black),
-                textAlign: TextAlign.center,
+            children: [
+              Container(
+                color: Colors.lightGreen,
+                margin:
+                    const EdgeInsets.only(left: 20.0, right: 20.0, top: 50.0),
+                padding: const EdgeInsets.all(15.0),
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(
+                        Icons.search,
+                        color: Colors.black,
+                        size: 70.0,
+                      ),
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      Text(
+                        'Please enter a search query to begin searching.',
+                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -539,13 +560,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+              Padding(
+                padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
                 child: Text(
                   'Select the page you want '
                   'to migrate the selected '
                   'event(s) to!',
-                  style: TextStyle(fontSize: 18),
+                  style: Theme.of(context).textTheme.bodyText1,
                 ),
               ),
               const SizedBox(height: 10),
@@ -573,6 +594,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         return RadioListTile(
           title: Text(
             context.read<HomeCubit>().state.chatsList[index].title,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           activeColor: Colors.redAccent,
           value: index,
@@ -648,8 +670,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   void _editMsg(EventState state) {
     BlocProvider.of<EventCubit>(context).setEditMode(true);
     _textController.text = state.selected.elementAt(0).message;
-    BlocProvider.of<EventCubit>(context)
-        .setSelectedSection(state.selected.elementAt(0).sectionIcon);
+    if (state.selected.elementAt(0).sectionIconTitle! != '') {
+      final selSectionIcon = SectionIcon(
+          iconTitle: state.selected.elementAt(0).sectionIconTitle!,
+          title: state.selected.elementAt(0).sectionName!,
+          id: '');
+      BlocProvider.of<EventCubit>(context).setSelectedSection(selSectionIcon);
+    }
     BlocProvider.of<EventCubit>(context).setIsNew(false);
   }
 
@@ -657,13 +684,18 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     if (state.isNew == true) {
       _textController.clear();
       Message _currentMessage = Message(
-          id: -1,
-          isFavourite: false,
-          chatId: state.currentChat!.id,
-          sectionIconId: state.selectedSection!.id == -1 ? null : state.selectedSection!.id,
-          message: txt,
-          time: Jiffy(DateTime.now()),
-          sectionIcon: null);
+        id: '',
+        isFavourite: false,
+        sectionIconTitle: state.selectedSection!.iconTitle == 'work'
+            ? ''
+            : state.selectedSection!.iconTitle,
+        sectionName: state.selectedSection!.title == 'Work'
+            ? ''
+            : state.selectedSection!.title,
+        message: txt,
+        time: Jiffy(DateTime.now()),
+        imagePath: '',
+      );
 
       BlocProvider.of<EventCubit>(context).addMsg(_currentMessage);
       BlocProvider.of<EventCubit>(context).setIsWriting(false);
@@ -674,8 +706,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     }
 
     BlocProvider.of<EventCubit>(context).setShowFav(false);
-    BlocProvider.of<EventCubit>(context).setSelectedSection(const SectionIcon(
-        iconTitle: 'workspaces_filled', title: 'workspaces_filled', id: -1));
+    const secIcon = SectionIcon(iconTitle: 'work', title: 'Work', id: '');
+    BlocProvider.of<EventCubit>(context).setSelectedSection(secIcon);
     BlocProvider.of<EventCubit>(context).setShowPanel(false);
     BlocProvider.of<EventCubit>(context).setEditMode(false);
   }
@@ -697,7 +729,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       return Msg(
         message: state.isShowFav!
             ? state.favourites[index]
-            : state.currentChat!.messageBase[index],
+            : state.messageBase![index],
         chatIndex: widget.chatIndex,
         notifyParent: refresh,
       );
@@ -801,13 +833,13 @@ class _MsgState extends State<Msg> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    if (widget.message.sectionIconId != null) ...[
+                    if (widget.message.sectionIconTitle != '') ...[
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Icon(
                             getIconUsingPrefix(
-                                name: widget.message.sectionIcon!.iconTitle),
+                                name: widget.message.sectionIconTitle!),
                             color: Colors.black,
                             size: 30.0,
                           ),
@@ -815,7 +847,7 @@ class _MsgState extends State<Msg> {
                             width: 10.0,
                           ),
                           Flexible(
-                            child: Text(widget.message.sectionIcon!.title,
+                            child: Text(widget.message.sectionName!,
                                 style: const TextStyle(fontSize: 20)),
                           ),
                         ],

@@ -4,7 +4,7 @@ class FilterParameters {
   final bool arePagesIgnored;
   final List selectedPages;
   final List selectedTags;
-  final List selectedCategories;
+  final List selectedLabels;
   final String searchText;
   final DateTime date;
 
@@ -14,7 +14,7 @@ class FilterParameters {
     required this.arePagesIgnored,
     required this.selectedPages,
     required this.selectedTags,
-    required this.selectedCategories,
+    required this.selectedLabels,
     required this.searchText,
     required this.date,
   });
@@ -25,7 +25,7 @@ class FilterParameters {
     bool? arePagesIgnored,
     List? selectedPages,
     List? selectedTags,
-    List? selectedCategories,
+    List? selectedLabels,
     String? searchText,
     DateTime? date,
   }) {
@@ -35,7 +35,7 @@ class FilterParameters {
       arePagesIgnored: arePagesIgnored ?? this.arePagesIgnored,
       selectedPages: selectedPages ?? this.selectedPages,
       selectedTags: selectedTags ?? this.selectedTags,
-      selectedCategories: selectedCategories ?? this.selectedCategories,
+      selectedLabels: selectedLabels ?? this.selectedLabels,
       searchText: searchText ?? this.searchText,
       date: date ?? this.date,
     );

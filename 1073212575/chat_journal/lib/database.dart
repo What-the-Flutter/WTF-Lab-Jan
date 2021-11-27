@@ -19,6 +19,9 @@ const String tablePages = 'event_pages';
 const String columnName = 'name';
 const String columnIsFixed = 'is_fixed';
 
+const String tableLabels = 'labels';
+const String columnLabelId = 'label_id';
+
 class DBProvider {
   Database? _database;
 
@@ -51,6 +54,27 @@ class DBProvider {
           '$columnIcon TEXT,'
           '$columnIsMarked INTEGER,'
           '$columnIsChecked INTEGER'
+          ');');
+      await db.execute('CREATE TABLE $tableLabels('
+          '$columnLabelId TEXT PRIMARY KEY,'
+          '$columnName TEXT,'
+          '$columnIcon TEXT'
+          ');');
+      await db.execute(
+          'INSERT INTO $tableLabels ($columnLabelId,$columnName,$columnIcon) '
+          'VALUES(${DateTime.now().millisecondsSinceEpoch.toString()}, "Close",	"0xf7eb"'
+          ');');
+      await db.execute(
+          'INSERT INTO $tableLabels ($columnLabelId,$columnName,$columnIcon)'
+          'VALUES(${DateTime.now().millisecondsSinceEpoch.toString()}, "Travel",	"0xf54c"'
+          ');');
+      await db.execute(
+          'INSERT INTO $tableLabels ($columnLabelId,$columnName,$columnIcon)'
+          'VALUES(${DateTime.now().millisecondsSinceEpoch.toString()}, "Shopping",	"0xf0171"'
+          ');');
+      await db.execute(
+          'INSERT INTO $tableLabels ($columnLabelId,$columnName,$columnIcon)'
+          'VALUES(${DateTime.now().millisecondsSinceEpoch.toString()}, "Movies",	"0xf874"'
           ');');
     });
   }
@@ -161,18 +185,20 @@ class DBProvider {
     }
     return messageList.reversed.toList();
   }
+
   Future<List<EventMessage>> messagesListByPages(String searchText) async {
     final db = await database;
     db!.execute('VACUUM;');
     var messageList = <EventMessage>[];
     final messagesList =
-    await db.query('$tableMessages and $columnText like "%$searchText%"');
+        await db.query('$tableMessages and $columnText like "%$searchText%"');
     for (final element in messagesList) {
       final note = EventMessage.fromMap(element);
       messageList.insert(0, note);
     }
     return messageList.reversed.toList();
   }
+
   Future<int> insertPage(EventPages eventPage) async {
     final db = await database;
     final insertedPageId = await db!.insert(
@@ -213,11 +239,40 @@ class DBProvider {
     final db = await database;
     db!.execute('VACUUM;');
     final eventList = <EventPages>[];
-    final dbPagesList = await db.query('$tablePages order by is_fixed;');
+    final dbPagesList = await db.query('$tablePages order by $columnIsFixed;');
     for (final element in dbPagesList) {
       final note = EventPages.fromMap(element);
       eventList.insert(0, note);
     }
     return eventList;
+  }
+
+  Future<List<Label>> labelsList() async {
+    final db = await database;
+    db!.execute('VACUUM;');
+    final labelsList = <Label>[];
+    final dbLabelsList = await db.query('$tableLabels');
+    for (final element in dbLabelsList) {
+      final note = Label.fromMap(element);
+      labelsList.add(note);
+    }
+    return labelsList;
+  }
+
+  Future<void> insertLabel(Label label) async {
+    final db = await database;
+    await db!.insert(
+      tableLabels,
+      label.toMap(),
+    );
+  }
+
+  Future<void> deleteLabel(String labelId) async {
+    final db = await database;
+    await db!.delete(
+      tableLabels,
+      where: '$columnLabelId = ?',
+      whereArgs: [labelId],
+    );
   }
 }

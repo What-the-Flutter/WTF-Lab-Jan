@@ -15,11 +15,11 @@ class SharedPreferencesProvider {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  addThemeModeToSF(bool isLight) async {
+  addThemeMode(bool isLight) async {
     _prefs.setBool('isLight', isLight);
   }
 
-  getThemeModeSF() {
+  getThemeMode() {
     return _prefs.getBool('isLight') ?? true;
   }
 }
