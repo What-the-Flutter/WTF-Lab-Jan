@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/event_model.dart';
+import '../../../models/event_model.dart';
 import 'event_message.dart';
 
 class EventList extends StatelessWidget {

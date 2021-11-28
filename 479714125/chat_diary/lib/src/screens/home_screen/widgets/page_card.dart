@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../models/event_model.dart';
 import '../../events_screen/event_screen.dart';
-import '../../events_screen/models/event_model.dart';
 import 'bottom_sheet_card.dart';
 
 class PageCard extends StatefulWidget {

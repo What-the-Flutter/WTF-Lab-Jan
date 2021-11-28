@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'models/event_model.dart';
+import '../../models/event_model.dart';
 import 'widgets/app_bars.dart';
 import 'widgets/event_input_field.dart';
 import 'widgets/event_list.dart';

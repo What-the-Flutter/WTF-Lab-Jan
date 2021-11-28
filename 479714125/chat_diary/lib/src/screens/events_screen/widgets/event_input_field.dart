@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../models/event_model.dart';
+import '../../../models/event_model.dart';
 
 class EventInputField extends StatefulWidget {
   final void Function(EventModel) addEvent;
