@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
-class PageModel {
-  final String name;
-  final IconData icon;
+import 'event_model.dart';
 
-  const PageModel({
+class PageModel {
+  String name;
+  IconData icon;
+  final Key key;
+  final List<EventModel> events;
+
+  PageModel({
     required this.name,
     required this.icon,
-  });
+  })  : events = <EventModel>[],
+        key = UniqueKey();
 }

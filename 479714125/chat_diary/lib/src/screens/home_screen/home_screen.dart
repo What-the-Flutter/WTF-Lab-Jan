@@ -13,33 +13,33 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<PageCard> _listOfChats = <PageCard>[];
-
+  //final List<PageCard> _listOfChats = <PageCard>[];
+  final List<PageModel> _listOfPages = [];
   @override
   void initState() {
-    _listOfChats.addAll([
-      PageCard(
-        icon: Icons.notes,
-        title: 'Notes',
-        key: UniqueKey(),
-        deletePage: _deleteSelectedPage,
-        editPage: _editSelectedPage,
-      ),
-      PageCard(
-        icon: Icons.travel_explore,
-        title: 'Travel',
-        key: UniqueKey(),
-        deletePage: _deleteSelectedPage,
-        editPage: _editSelectedPage,
-      ),
-      PageCard(
-        icon: Icons.sports_score,
-        title: 'Sport',
-        key: UniqueKey(),
-        deletePage: _deleteSelectedPage,
-        editPage: _editSelectedPage,
-      ),
-    ]);
+    // _listOfChats.addAll([
+    //   PageCard(
+    //     icon: Icons.notes,
+    //     title: 'Notes',
+    //     key: UniqueKey(),
+    //     deletePage: _deleteSelectedPage,
+    //     editPage: _editSelectedPage,
+    //   ),
+    //   PageCard(
+    //     icon: Icons.travel_explore,
+    //     title: 'Travel',
+    //     key: UniqueKey(),
+    //     deletePage: _deleteSelectedPage,
+    //     editPage: _editSelectedPage,
+    //   ),
+    //   PageCard(
+    //     icon: Icons.sports_score,
+    //     title: 'Sport',
+    //     key: UniqueKey(),
+    //     deletePage: _deleteSelectedPage,
+    //     editPage: _editSelectedPage,
+    //   ),
+    // ]);
     super.initState();
   }
 
@@ -47,9 +47,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView.builder(
-        itemCount: _listOfChats.length,
+        itemCount: _listOfPages.length,
         itemBuilder: (context, index) {
-          return _listOfChats[index];
+          final page = _listOfPages[index];
+          final pageWidget = PageCard(
+            key: page.key,
+            icon: page.icon,
+            title: page.name,
+            deletePage: _deleteSelectedPage,
+            editPage: _editSelectedPage,
+          );
+          return pageWidget;
         },
       ),
       floatingActionButton: AppFloatingActionButton(
@@ -70,14 +78,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     if (result != null) {
       final pageModel = result as PageModel;
-      final pageCard = PageCard(
-        key: UniqueKey(),
-        icon: pageModel.icon,
-        title: pageModel.name,
-        deletePage: _deleteSelectedPage,
-        editPage: _editSelectedPage,
-      );
-      setState(() => _listOfChats.add(pageCard));
+      // final pageCard = PageCard(
+      //   key: pageModel.key,
+      //   icon: pageModel.icon,
+      //   title: pageModel.name,
+      //   deletePage: _deleteSelectedPage,
+      //   editPage: _editSelectedPage,
+      // );
+      setState(() => _listOfPages.add(pageModel));
     }
   }
 
@@ -98,20 +106,21 @@ class _HomeScreenState extends State<HomeScreen> {
     if (result != null) {
       int? index;
       final pageModel = result as PageModel;
-      for (final value in _listOfChats) {
+      for (final value in _listOfPages) {
         if (value.key == key) {
-          index = _listOfChats.indexOf(value);
+          index = _listOfPages.indexOf(value);
           break;
         }
       }
       if (index != null) {
-        _listOfChats[index] = PageCard(
-          key: key,
-          icon: pageModel.icon,
-          title: pageModel.name,
-          deletePage: _deleteSelectedPage,
-          editPage: _editSelectedPage,
-        );
+        _listOfPages[index] = pageModel;
+        // _listOfChats[index] = PageCard(
+        //   key: key,
+        //   icon: pageModel.icon,
+        //   title: pageModel.name,
+        //   deletePage: _deleteSelectedPage,
+        //   editPage: _editSelectedPage,
+        // );
       }
     }
   }
@@ -154,7 +163,8 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text('Yes'),
               onPressed: () {
-                _listOfChats.removeWhere((element) => element.key == key);
+                _listOfPages.removeWhere((element) => element.key == key);
+                //_listOfChats.removeWhere((element) => element.key == key);
                 Navigator.of(context).pop();
               },
             ),
