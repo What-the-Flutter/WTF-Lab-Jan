@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'app_home_cubit/app_home_cubit.dart';
 import 'screens/daily_screen/daily_screen.dart';
 import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';
@@ -8,18 +9,8 @@ import 'screens/timeline_screen/timeline_screen.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_cubit/theme_cubit.dart';
 
-class App extends StatefulWidget {
+class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
-
-  @override
-  State<App> createState() => _AppState();
-}
-
-class _AppState extends State<App> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,29 +22,29 @@ class _AppState extends State<App> {
           darkTheme: AppTheme.darkTheme,
           themeMode: themeState.currentTheme,
           title: 'Chat Diary',
-          home: const Home(),
+          home: BlocProvider<AppHomeCubit>(
+            create: (context) => AppHomeCubit(),
+            child: BlocBuilder<AppHomeCubit, AppHomeState>(
+              builder: (context, state) => Home(),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
-
-  @override
-  _HomeState createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  int _currentIndex = 0;
-  String _title = 'Home';
+class Home extends StatelessWidget {
+  Home({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var currentIndex = context.read<AppHomeCubit>().state.currentIndex;
+    var title = context.read<AppHomeCubit>().state.title;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_title),
+        title: Text(title),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.menu),
@@ -61,13 +52,13 @@ class _HomeState extends State<Home> {
         ),
         actions: [
           IconButton(
-            onPressed: () => BlocProvider.of<ThemeCubit>(context).toggleTheme(),
+            onPressed: () => context.read<ThemeCubit>().toggleTheme(),
             icon: const Icon(Icons.invert_colors),
           ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: currentIndex,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -86,23 +77,9 @@ class _HomeState extends State<Home> {
             label: 'Explore',
           ),
         ],
-        onTap: (index) => setState(() {
-          _currentIndex = index;
-          switch (index) {
-            case 0:
-              _title = 'Home';
-              break;
-            case 1:
-              _title = 'Daily';
-              break;
-            case 2:
-              _title = 'Timeline';
-              break;
-            case 3:
-              _title = 'Explore';
-              break;
-          }
-        }),
+        onTap: (index) {
+          context.read<AppHomeCubit>().togglePage(index);
+        },
       ),
       body: IndexedStack(
         children: [
@@ -111,7 +88,7 @@ class _HomeState extends State<Home> {
           const TimelineScreen(),
           const ExploreScreen(),
         ],
-        index: _currentIndex,
+        index: currentIndex,
       ),
     );
   }
