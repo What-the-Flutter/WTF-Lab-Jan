@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../events_screen/event_screen.dart';
+import '../../events_screen/models/event_model.dart';
 import 'bottom_sheet_card.dart';
 
 class PageCard extends StatefulWidget {
@@ -25,6 +26,7 @@ class _PageCardState extends State<PageCard> {
   final String _description = 'No Events. Click to create one.';
   bool _isHover = false;
   late Key _key;
+  final List<EventModel> _events = <EventModel>[];
 
   @override
   void initState() {
@@ -48,7 +50,10 @@ class _PageCardState extends State<PageCard> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EventScreen(title: widget.title),
+                builder: (context) => EventScreen(
+                  title: widget.title,
+                  events: _events,
+                ),
               ),
             );
           },
@@ -101,7 +106,7 @@ class _PageCardState extends State<PageCard> {
       context: context,
       builder: (_) {
         return SizedBox(
-          height: 200,
+          height: 120,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,

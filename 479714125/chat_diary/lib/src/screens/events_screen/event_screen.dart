@@ -8,16 +8,19 @@ import 'widgets/event_list.dart';
 
 class EventScreen extends StatefulWidget {
   final String title;
+  final List<EventModel> events;
 
-  const EventScreen({Key? key, required this.title}) : super(key: key);
+  const EventScreen({
+    Key? key,
+    required this.title,
+    required this.events,
+  }) : super(key: key);
 
   @override
   State<EventScreen> createState() => _EventScreenState();
 }
 
-//todo events lift up, make favorite events page
 class _EventScreenState extends State<EventScreen> {
-  final List<EventModel> _events = <EventModel>[];
   final List<EventModel> _favoriteEvents = <EventModel>[];
   final FocusNode _inputNode = FocusNode();
   final TextEditingController _inputController = TextEditingController();
@@ -50,7 +53,9 @@ class _EventScreenState extends State<EventScreen> {
               deleteSelectedEvents: _deleteSelectedEvents,
               containsMoreThanOneSelected: _containsMoreThanOneSelected,
             ) as PreferredSizeWidget
-          : DefaultAppBar(title: widget.title),
+          : DefaultAppBar(
+              title: widget.title,
+            ),
       body: GestureDetector(
         onTap: _hideKeyboard,
         child: Column(
@@ -58,7 +63,7 @@ class _EventScreenState extends State<EventScreen> {
             Expanded(
               child: EventList(
                 toggleAppBar: _toggleAppBar,
-                events: _events,
+                events: widget.events,
               ),
             ),
             EventInputField(
@@ -76,18 +81,18 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _addEvent(EventModel model) {
-    setState(() => _events.insert(0, model));
+    setState(() => widget.events.insert(0, model));
   }
 
   void _toggleAppBar(int indexOfEvent, bool isSelected) {
     isSelected = !isSelected;
-    _events[indexOfEvent].isSelected = isSelected;
-    if (_events[indexOfEvent].image == null) {
-      setState(() => _countOfSelected = _countSelectedEvents(_events));
+    widget.events[indexOfEvent].isSelected = isSelected;
+    if (widget.events[indexOfEvent].image == null) {
+      setState(() => _countOfSelected = _countSelectedEvents(widget.events));
     } else {
       setState(() {
         _isImageSelected = !_isImageSelected;
-        _countOfSelected = _countSelectedEvents(_events);
+        _countOfSelected = _countSelectedEvents(widget.events);
       });
     }
   }
@@ -103,7 +108,7 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _toggleSelected() {
-    for (final event in _events) {
+    for (final event in widget.events) {
       if (event.isSelected) {
         event.isSelected = false;
       }
@@ -113,7 +118,7 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _deleteSelectedEvents() {
-    _events.removeWhere(
+    widget.events.removeWhere(
       (element) => element.isSelected,
     );
     _countOfSelected = 0;
@@ -122,7 +127,7 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _copySelectedEvents() async {
-    final selectedEvents = _events.where((element) => element.isSelected);
+    final selectedEvents = widget.events.where((element) => element.isSelected);
     var eventsToCopy = '';
     var isEveryEventImage = true;
     for (final event in selectedEvents) {
@@ -149,18 +154,18 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _findEventToEdit() {
-    final index = _events.indexWhere((element) => element.isSelected);
+    final index = widget.events.indexWhere((element) => element.isSelected);
     _showKeyboard();
     _isEditing = true;
-    _inputController.text = _events[index].text!;
+    _inputController.text = widget.events[index].text!;
 
     setState(() {});
   }
 
   void _editEvent(String newEventText) {
-    final index = _events.indexWhere((element) => element.isSelected);
-    _events[index].text = newEventText;
-    _events[index].isSelected = false;
+    final index = widget.events.indexWhere((element) => element.isSelected);
+    widget.events[index].text = newEventText;
+    widget.events[index].isSelected = false;
     _hideKeyboard();
     _countOfSelected = 0;
     _isEditing = false;
@@ -168,7 +173,7 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _addToFavorites() {
-    final selectedEvents = _events.where((element) => element.isSelected);
+    final selectedEvents = widget.events.where((element) => element.isSelected);
     _favoriteEvents.addAll(selectedEvents);
     _toggleSelected();
     setState(() {});

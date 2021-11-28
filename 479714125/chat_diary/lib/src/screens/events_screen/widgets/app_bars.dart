@@ -5,7 +5,10 @@ const double appBarHeight = 50;
 class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
-  const DefaultAppBar({Key? key, required this.title}) : super(key: key);
+  const DefaultAppBar({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return AppBar(
