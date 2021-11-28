@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'screens/daily_screen/daily_screen.dart';
 import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';
 import 'screens/timeline_screen/timeline_screen.dart';
 import 'theme/app_theme.dart';
-import 'theme/config.dart';
+import 'theme/theme_cubit/theme_cubit.dart';
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -18,19 +19,21 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    appTheme.addListener(() {
-      setState(() {});
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: appTheme.currentTheme,
-      title: 'Chat Diary',
-      home: const Home(),
+    return BlocProvider<ThemeCubit>(
+      create: (context) => ThemeCubit(),
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) => MaterialApp(
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeState.currentTheme,
+          title: 'Chat Diary',
+          home: const Home(),
+        ),
+      ),
     );
   }
 }
@@ -58,7 +61,7 @@ class _HomeState extends State<Home> {
         ),
         actions: [
           IconButton(
-            onPressed: () => appTheme.toggleTheme(),
+            onPressed: () => BlocProvider.of<ThemeCubit>(context).toggleTheme(),
             icon: const Icon(Icons.invert_colors),
           ),
         ],

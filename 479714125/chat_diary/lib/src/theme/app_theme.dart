@@ -2,15 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-class AppTheme extends ChangeNotifier {
-  static bool _isDarkTheme = false;
-  ThemeMode get currentTheme => _isDarkTheme ? ThemeMode.dark : ThemeMode.light;
-
-  void toggleTheme() {
-    _isDarkTheme = !_isDarkTheme;
-    notifyListeners();
-  }
-
+class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       colorScheme: const ColorScheme.light(
