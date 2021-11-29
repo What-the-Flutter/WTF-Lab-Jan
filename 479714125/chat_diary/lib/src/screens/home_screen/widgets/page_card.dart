@@ -1,38 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../models/event_model.dart';
+import '../../../models/page_model.dart';
 import '../../events_screen/event_screen.dart';
+import '../cubit/home_screen_cubit.dart';
 import 'bottom_sheet_card.dart';
 
-class PageCard extends StatefulWidget {
-  final IconData icon;
-  final String title;
-  final Future<void> Function(Key) deletePage;
-  final Future<void> Function(Key, String) editPage;
+class PageCard extends StatelessWidget {
+  final PageModel page;
+  final Future<void> Function(BuildContext, PageModel) deletePage;
+  final Future<void> Function(BuildContext, PageModel) editPage;
+  final BuildContext parentContext;
 
   const PageCard({
-    required Key? key,
-    required this.icon,
-    required this.title,
+    Key? key,
+    required this.page,
     required this.deletePage,
     required this.editPage,
+    required this.parentContext,
   }) : super(key: key);
-
-  @override
-  State<PageCard> createState() => _PageCardState();
-}
-
-class _PageCardState extends State<PageCard> {
-  final String _description = 'No Events. Click to create one.';
-  bool _isHover = false;
-  late Key _key;
-  final List<EventModel> _events = <EventModel>[];
-
-  @override
-  void initState() {
-    super.initState();
-    _key = widget.key!;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +27,7 @@ class _PageCardState extends State<PageCard> {
       child: Ink(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          border: !_isHover ? Border.all() : Border.all(width: 3),
+          border: Border.all(),
           borderRadius: BorderRadius.circular(12),
         ),
         child: InkWell(
@@ -51,16 +37,13 @@ class _PageCardState extends State<PageCard> {
               context,
               MaterialPageRoute(
                 builder: (context) => EventScreen(
-                  title: widget.title,
-                  events: _events,
+                  title: page.name,
+                  events: page.events,
                 ),
               ),
             );
           },
-          onHover: (value) => setState(
-            () => _isHover = value,
-          ),
-          onLongPress: _showModalBottomSheet,
+          onLongPress: () => _showModalBottomSheet(parentContext),
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Row(
@@ -68,7 +51,7 @@ class _PageCardState extends State<PageCard> {
                 CircleAvatar(
                   radius: 25,
                   child: Icon(
-                    widget.icon,
+                    page.icon,
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -80,17 +63,23 @@ class _PageCardState extends State<PageCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.title,
+                        page.name,
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(
-                        _description,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                        ),
+                      BlocBuilder<HomeScreenCubit, HomeScreenState>(
+                        builder: (context, state) {
+                          return Text(
+                            (page.events.isEmpty)
+                                ? 'No Events. Click to create one.'
+                                : '${page.events.length} Events',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -103,7 +92,7 @@ class _PageCardState extends State<PageCard> {
     );
   }
 
-  void _showModalBottomSheet() {
+  void _showModalBottomSheet(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
       builder: (_) {
@@ -118,7 +107,7 @@ class _PageCardState extends State<PageCard> {
                 icon: Icons.edit,
                 color: Colors.blue,
                 action: () async {
-                  await widget.editPage(_key, widget.title);
+                  await editPage(context, page);
                   Navigator.pop(context);
                 },
               ),
@@ -127,7 +116,7 @@ class _PageCardState extends State<PageCard> {
                 icon: Icons.delete,
                 color: Colors.red,
                 action: () async {
-                  await widget.deletePage(_key);
+                  await deletePage(context, page);
                   Navigator.pop(context);
                 },
               ),

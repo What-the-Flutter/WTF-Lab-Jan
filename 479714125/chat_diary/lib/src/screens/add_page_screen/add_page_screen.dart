@@ -95,8 +95,10 @@ class _AddPageScreenState extends State<AddPageScreen> {
       floatingActionButton: AppFloatingActionButton(
         onPressed: () {
           if (_inputController.text.isNotEmpty) {
-            final result =
-                PageModel(name: _inputController.text, icon: _selectedIcon);
+            final result = PageModel(
+              name: _inputController.text,
+              icon: _selectedIcon,
+            );
 
             Navigator.pop(context, result);
           }
