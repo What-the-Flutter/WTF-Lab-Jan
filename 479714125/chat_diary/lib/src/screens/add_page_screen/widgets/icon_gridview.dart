@@ -1,45 +1,45 @@
+import 'package:chat_diary/src/screens/add_page_screen/widgets/icon_gridview_cubit/cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../resources/icon_list.dart';
-
-class IconsGridView extends StatefulWidget {
+class IconsGridView extends StatelessWidget {
   final void Function(IconData) changeSelectedIcon;
+
   const IconsGridView({
     Key? key,
     required this.changeSelectedIcon,
   }) : super(key: key);
 
   @override
-  State<IconsGridView> createState() => _IconsGridViewState();
-}
-
-class _IconsGridViewState extends State<IconsGridView> {
-  final List<IconData> _iconsOfPages = IconList.iconList;
-  int _selectedIcon = 0;
-
-  @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      itemCount: _iconsOfPages.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 20,
-        crossAxisSpacing: 10,
+    return BlocProvider<IconGridViewCubit>(
+      create: (context) => IconGridViewCubit(),
+      child: BlocBuilder<IconGridViewCubit, IconGridViewState>(
+        builder: (context, state) {
+          return GridView.builder(
+            itemCount: state.iconsOfPages.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 10,
+            ),
+            itemBuilder: (context, index) {
+              return IconButton(
+                onPressed: () {
+                  changeSelectedIcon(state.iconsOfPages[index]);
+                  context.read<IconGridViewCubit>().changeSelectedIcon(index);
+                },
+                icon: Icon(
+                  state.iconsOfPages[index],
+                  color: state.selectedIcon == index
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).colorScheme.onSecondary,
+                ),
+              );
+            },
+          );
+        },
       ),
-      itemBuilder: (context, index) {
-        return IconButton(
-          onPressed: () {
-            widget.changeSelectedIcon(_iconsOfPages[index]);
-            setState(() => _selectedIcon = index);
-          },
-          icon: Icon(
-            _iconsOfPages[index],
-            color: _selectedIcon == index
-                ? Theme.of(context).primaryColor
-                : Theme.of(context).colorScheme.onSecondary,
-          ),
-        );
-      },
     );
   }
 }
