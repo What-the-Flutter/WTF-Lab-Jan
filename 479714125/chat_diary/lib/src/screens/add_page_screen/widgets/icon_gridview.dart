@@ -1,6 +1,7 @@
-import 'package:chat_diary/src/screens/add_page_screen/widgets/icon_gridview_cubit/cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'icon_gridview_cubit/cubit.dart';
 
 class IconsGridView extends StatelessWidget {
   final void Function(IconData) changeSelectedIcon;
