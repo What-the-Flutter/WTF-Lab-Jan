@@ -36,9 +36,9 @@ class PageCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
+                //todo here blocbuildre value
                 builder: (context) => EventScreen(
-                  title: page.name,
-                  events: page.events,
+                  page: page,
                 ),
               ),
             );
@@ -69,6 +69,7 @@ class PageCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      //todo not homescreencubit but eventscreen cubit
                       BlocBuilder<HomeScreenCubit, HomeScreenState>(
                         builder: (context, state) {
                           return Text(

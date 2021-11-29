@@ -18,14 +18,15 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   }
 
   void editPage(PageModel page, PageModel oldPage) {
-    page.key = oldPage.key;
-    page.events = oldPage.events;
+    // page.key = oldPage.key;
+    // page.events = oldPage.events;
+    final newPage = page.copyWith(key: oldPage.key, events: oldPage.events);
 
     int? index =
         state.listOfPages.indexWhere((element) => element.key == oldPage.key);
 
     if (index != -1) {
-      state.listOfPages[index] = page;
+      state.listOfPages[index] = newPage;
     }
     _emitStateWithEditedList();
   }

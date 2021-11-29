@@ -13,7 +13,7 @@ class EventInputField extends StatefulWidget {
   final bool isEditing;
   final FocusNode inputNode;
   final TextEditingController inputController;
-  final Function(String) editEvent;
+  final void Function(String) editEvent;
 
   const EventInputField({
     Key? key,

@@ -21,7 +21,8 @@ class HomeScreen extends StatelessWidget {
             body: ListView.builder(
               itemCount: state.listOfPages.length,
               itemBuilder: (context, index) {
-                final page = state.listOfPages[index];
+                final page =
+                    state.listOfPages[index]; //todo maybe here blocprovider
                 final pageWidget = PageCard(
                   parentContext: context,
                   deletePage: _deleteSelectedPage,
