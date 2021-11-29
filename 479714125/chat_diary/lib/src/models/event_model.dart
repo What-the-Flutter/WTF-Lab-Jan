@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:equatable/equatable.dart';
-
-class EventModel extends Equatable {
+class EventModel {
   String? text;
   File? image;
   bool isSelected;
@@ -18,7 +16,4 @@ class EventModel extends Equatable {
 
   @override
   String toString() => '$text $isSelected';
-
-  @override
-  List<Object?> get props => [text, image, isSelected];
 }

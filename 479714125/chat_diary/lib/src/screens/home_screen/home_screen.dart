@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../components/floating_action_button.dart';
 import '../../models/page_model.dart';
 import '../add_page_screen/add_page_screen.dart';
+import '../events_screen/cubit/cubit.dart';
 import 'cubit/home_screen_cubit.dart';
 import 'widgets/page_card.dart';
 
@@ -21,13 +22,15 @@ class HomeScreen extends StatelessWidget {
             body: ListView.builder(
               itemCount: state.listOfPages.length,
               itemBuilder: (context, index) {
-                final page =
-                    state.listOfPages[index]; //todo maybe here blocprovider
-                final pageWidget = PageCard(
-                  parentContext: context,
-                  deletePage: _deleteSelectedPage,
-                  editPage: _editSelectedPage,
-                  page: page,
+                final page = state.listOfPages[index];
+                final pageWidget = BlocProvider<EventScreenCubit>(
+                  create: (context) => EventScreenCubit(page),
+                  child: PageCard(
+                    page: page,
+                    parentContext: context,
+                    deletePage: _deleteSelectedPage,
+                    editPage: _editSelectedPage,
+                  ),
                 );
                 return pageWidget;
               },

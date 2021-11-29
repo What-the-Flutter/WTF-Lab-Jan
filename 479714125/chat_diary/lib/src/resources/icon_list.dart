@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 abstract class IconList {
   static const List<IconData> iconList = [
     Icons.notes,
+    Icons.edit,
     Icons.ac_unit,
     Icons.access_alarm,
     Icons.accessibility,

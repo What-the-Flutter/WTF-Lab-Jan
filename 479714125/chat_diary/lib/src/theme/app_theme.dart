@@ -13,6 +13,7 @@ class AppTheme {
         color: AppColors.bluePurple,
         foregroundColor: Colors.white,
       ),
+      dialogBackgroundColor: AppColors.blue200,
       primaryColor: AppColors.bluePurple,
       scaffoldBackgroundColor: AppColors.grey50,
       cardColor: AppColors.lightBlue,
@@ -41,6 +42,7 @@ class AppTheme {
         foregroundColor: Colors.white,
       ),
       primaryColor: AppColors.bluePurple,
+      dialogBackgroundColor: AppColors.grey800,
       scaffoldBackgroundColor: AppColors.darkGrey,
       cardColor: AppColors.grey600,
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(

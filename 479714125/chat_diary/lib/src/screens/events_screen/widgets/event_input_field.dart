@@ -2,24 +2,20 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../models/event_model.dart';
+import '../cubit/cubit.dart';
 
 class EventInputField extends StatefulWidget {
-  final void Function(EventModel) addEvent;
-  final bool isSelected;
-  final bool isEditing;
   final FocusNode inputNode;
   final TextEditingController inputController;
   final void Function(String) editEvent;
 
   const EventInputField({
     Key? key,
-    required this.addEvent,
-    required this.isSelected,
-    required this.isEditing,
     required this.inputNode,
     required this.inputController,
     required this.editEvent,
@@ -32,6 +28,13 @@ class EventInputField extends StatefulWidget {
 class _EventInputFieldState extends State<EventInputField> {
   bool _keyboardIsVisible = false;
   final ImagePicker _picker = ImagePicker();
+  late final EventScreenCubit cubit;
+
+  @override
+  void initState() {
+    super.initState();
+    cubit = BlocProvider.of<EventScreenCubit>(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +53,7 @@ class _EventInputFieldState extends State<EventInputField> {
               Flexible(
                 child: TextField(
                   focusNode: widget.inputNode,
-                  enabled: !widget.isSelected,
+                  enabled: !cubit.state.containsMoreThanOneSelected,
                   controller: widget.inputController,
                   maxLines: null,
                   decoration: InputDecoration(
@@ -96,12 +99,12 @@ class _EventInputFieldState extends State<EventInputField> {
 
   void _addEventModel() {
     if (widget.inputController.text.isNotEmpty) {
-      if (!widget.isEditing) {
+      if (!cubit.state.isEditing) {
         final model = EventModel(
           text: widget.inputController.text,
           date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
         );
-        widget.addEvent(model);
+        cubit.addEvent(model);
         widget.inputController.clear();
       } else {
         widget.editEvent(widget.inputController.text);
@@ -121,7 +124,7 @@ class _EventInputFieldState extends State<EventInputField> {
           image: imagePath,
           date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
         );
-        widget.addEvent(model);
+        cubit.addEvent(model);
       }
     } catch (e) {
       log(e.toString());

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../cubit/cubit.dart';
 
 const double appBarHeight = 50;
 
@@ -33,28 +36,24 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 class MessageClickedAppBar extends StatelessWidget
     implements PreferredSizeWidget {
-  final bool containsMoreThanOneSelected;
-  final bool isImageSelected;
-  final void Function() deleteSelectedEvents;
   final void Function() copySelectedEvents;
   final void Function() findEventToEdit;
   final void Function() addToFavorites;
 
   const MessageClickedAppBar({
     Key? key,
-    required this.containsMoreThanOneSelected,
-    required this.deleteSelectedEvents,
     required this.copySelectedEvents,
     required this.findEventToEdit,
-    required this.isImageSelected,
     required this.addToFavorites,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final cubit = BlocProvider.of<EventScreenCubit>(context);
     return AppBar(
       centerTitle: true,
       actions: [
-        if (!containsMoreThanOneSelected && !isImageSelected)
+        if (!cubit.state.containsMoreThanOneSelected &&
+            !cubit.state.isImageSelected)
           IconButton(
             onPressed: findEventToEdit,
             icon: const Icon(Icons.edit),
@@ -68,7 +67,7 @@ class MessageClickedAppBar extends StatelessWidget
           icon: const Icon(Icons.bookmark_outline),
         ),
         IconButton(
-          onPressed: deleteSelectedEvents,
+          onPressed: cubit.deleteSelectedEvents,
           icon: const Icon(Icons.delete),
         ),
       ],

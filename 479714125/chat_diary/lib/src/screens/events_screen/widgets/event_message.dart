@@ -1,30 +1,25 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../models/event_model.dart';
 import '../../../theme/app_colors.dart';
+import '../cubit/cubit.dart';
 
 class EventMessage extends StatelessWidget {
-  final String? text;
-  final String date;
+  final EventModel event;
   final int index;
-  final File? imageFile;
-  final bool isSelected;
-  final void Function(int, bool) toggleAppBar;
 
   const EventMessage({
     Key? key,
-    required this.date,
+    required this.event,
     required this.index,
-    required this.toggleAppBar,
-    required this.isSelected,
-    this.text,
-    this.imageFile,
   }) : super(key: key);
 
-  bool get isTextEvent => (imageFile == null && text != null);
+  bool get isTextEvent => (event.image == null && event.text != null);
 
   @override
   Widget build(BuildContext context) {
+    final cubit = BlocProvider.of<EventScreenCubit>(context);
     return Padding(
       padding: const EdgeInsets.only(
         left: 5,
@@ -35,16 +30,20 @@ class EventMessage extends StatelessWidget {
       child: Align(
         alignment: Alignment.bottomLeft,
         child: GestureDetector(
-          onLongPress: _toggleSelection,
+          onLongPress: () {
+            cubit.toggleAppBar(index, event.isSelected);
+          },
           onTap: () {
-            if (isSelected) {
-              _toggleSelection();
+            if (event.isSelected) {
+              cubit.toggleAppBar(index, event.isSelected);
             }
           },
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
-              color: isSelected ? AppColors.blue400 : AppColors.blue200,
+              color: event.isSelected
+                  ? AppColors.blue400
+                  : Theme.of(context).dialogBackgroundColor,
             ),
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -54,7 +53,7 @@ class EventMessage extends StatelessWidget {
                 children: [
                   isTextEvent
                       ? Text(
-                          text!,
+                          event.text!,
                           style: const TextStyle(fontSize: 16),
                         )
                       : Padding(
@@ -62,13 +61,13 @@ class EventMessage extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.file(
-                              imageFile!,
+                              event.image!,
                               fit: BoxFit.contain,
                             ),
                           ),
                         ),
                   Text(
-                    date,
+                    event.date,
                     style: const TextStyle(color: AppColors.grey600),
                   ),
                 ],
@@ -79,6 +78,4 @@ class EventMessage extends StatelessWidget {
       ),
     );
   }
-
-  void _toggleSelection() => toggleAppBar(index, isSelected);
 }

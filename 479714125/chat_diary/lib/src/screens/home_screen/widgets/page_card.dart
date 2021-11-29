@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/page_model.dart';
+import '../../events_screen/cubit/cubit.dart';
 import '../../events_screen/event_screen.dart';
-import '../cubit/home_screen_cubit.dart';
 import 'bottom_sheet_card.dart';
 
 class PageCard extends StatelessWidget {
@@ -22,6 +22,7 @@ class PageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubitEventScreen = BlocProvider.of<EventScreenCubit>(context);
     return Padding(
       padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
       child: Ink(
@@ -36,14 +37,16 @@ class PageCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                //todo here blocbuildre value
-                builder: (context) => EventScreen(
-                  page: page,
+                builder: (context) => BlocProvider.value(
+                  value: cubitEventScreen,
+                  child: EventScreen(
+                    page: page,
+                  ),
                 ),
               ),
             );
           },
-          onLongPress: () => _showModalBottomSheet(parentContext),
+          onLongPress: () => _showModalBottomSheet(parentContext, page),
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Row(
@@ -69,13 +72,12 @@ class PageCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      //todo not homescreencubit but eventscreen cubit
-                      BlocBuilder<HomeScreenCubit, HomeScreenState>(
+                      BlocBuilder<EventScreenCubit, EventScreenState>(
                         builder: (context, state) {
                           return Text(
-                            (page.events.isEmpty)
+                            (state.page.events.isEmpty)
                                 ? 'No Events. Click to create one.'
-                                : '${page.events.length} Events',
+                                : eventsText(state.page.events.length),
                             style: const TextStyle(
                               color: Colors.grey,
                             ),
@@ -93,7 +95,15 @@ class PageCard extends StatelessWidget {
     );
   }
 
-  void _showModalBottomSheet(BuildContext context) {
+  String eventsText(int length) {
+    if (length == 1) {
+      return '$length Event';
+    } else {
+      return '$length Events';
+    }
+  }
+
+  void _showModalBottomSheet(BuildContext context, PageModel page) {
     showModalBottomSheet<void>(
       context: context,
       builder: (_) {
