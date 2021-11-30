@@ -50,6 +50,16 @@ class _EventInputFieldState extends State<EventInputField> {
           padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
+              IconButton(
+                onPressed: () {
+                  cubit.deleteCurrentCaregory();
+                  cubit.toggleIsCategory();
+                },
+                icon: Icon(
+                  Icons.bubble_chart,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
               Flexible(
                 child: TextField(
                   focusNode: widget.inputNode,
@@ -100,12 +110,23 @@ class _EventInputFieldState extends State<EventInputField> {
   void _addEventModel() {
     if (widget.inputController.text.isNotEmpty) {
       if (!cubit.state.isEditing) {
-        final model = EventModel(
-          text: widget.inputController.text,
-          date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
-        );
+        final EventModel model;
+        if (cubit.state.isCategory && cubit.state.currentCategory != null) {
+          model = EventModel(
+            text: widget.inputController.text,
+            date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
+            category: cubit.state.currentCategory,
+          );
+        } else {
+          model = EventModel(
+            text: widget.inputController.text,
+            date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
+          );
+        }
         cubit.addEvent(model);
         widget.inputController.clear();
+        cubit.deleteCurrentCaregory();
+        cubit.setIsCategoryFalse();
       } else {
         widget.editEvent(widget.inputController.text);
         widget.inputController.clear();
@@ -121,6 +142,7 @@ class _EventInputFieldState extends State<EventInputField> {
         final imagePath = File(nativeImagePath.path);
 
         final model = EventModel(
+          category: cubit.state.currentCategory,
           image: imagePath,
           date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
         );

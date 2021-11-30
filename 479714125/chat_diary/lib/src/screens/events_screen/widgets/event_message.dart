@@ -51,6 +51,7 @@ class EventMessage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (event.category != null) Icon(event.category),
                   isTextEvent
                       ? Text(
                           event.text!,

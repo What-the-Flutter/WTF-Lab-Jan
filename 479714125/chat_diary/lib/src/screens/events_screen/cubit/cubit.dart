@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import '../../../models/event_model.dart';
 
 import '../../../models/page_model.dart';
@@ -12,11 +13,29 @@ class EventScreenCubit extends Cubit<EventScreenState> {
           countOfSelected: 0,
           isEditing: false,
           isImageSelected: false,
+          isCategory: false,
+          currentCategory: null,
         ));
 
   void addEvent(EventModel model) {
     state.page.events.insert(0, model);
     emit(state.copyWith(page: state.page));
+  }
+
+  void addCurrentCategory(IconData iconData) {
+    emit(state.copyWith(currentCategory: iconData));
+  }
+
+  void deleteCurrentCaregory() {
+    emit(state.copyWith(currentCategory: null));
+  }
+
+  void toggleIsCategory() {
+    emit(state.copyWith(isCategory: !state.isCategory));
+  }
+
+  void setIsCategoryFalse() {
+    emit(state.copyWith(isCategory: false));
   }
 
   void toggleAppBar(int indexOfEvent, bool isSelected) {
