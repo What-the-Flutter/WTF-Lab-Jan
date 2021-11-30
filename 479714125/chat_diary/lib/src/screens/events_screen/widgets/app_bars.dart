@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/cubit.dart';
+import '../search_events_screen.dart';
 
 const double appBarHeight = 50;
 
@@ -14,12 +15,25 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final cubit = BlocProvider.of<EventScreenCubit>(context);
     return AppBar(
       title: Text(title),
       centerTitle: true,
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BlocProvider.value(
+                  value: cubit,
+                  child: SearchEventScreen(
+                    title: title,
+                  ),
+                ),
+              ),
+            );
+          },
           icon: const Icon(Icons.search),
         ),
         IconButton(
