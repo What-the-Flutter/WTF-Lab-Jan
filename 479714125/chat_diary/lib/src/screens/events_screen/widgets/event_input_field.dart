@@ -140,13 +140,22 @@ class _EventInputFieldState extends State<EventInputField> {
           await _picker.pickImage(source: ImageSource.gallery);
       if (nativeImagePath != null) {
         final imagePath = File(nativeImagePath.path);
-
-        final model = EventModel(
-          category: cubit.state.currentCategory,
-          image: imagePath,
-          date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
-        );
+        final EventModel model;
+        if (cubit.state.isCategory && cubit.state.currentCategory != null) {
+          model = EventModel(
+            image: imagePath,
+            date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
+            category: cubit.state.currentCategory,
+          );
+        } else {
+          model = EventModel(
+            image: imagePath,
+            date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
+          );
+        }
         cubit.addEvent(model);
+        cubit.deleteCurrentCaregory();
+        cubit.setIsCategoryFalse();
       }
     } catch (e) {
       log(e.toString());
