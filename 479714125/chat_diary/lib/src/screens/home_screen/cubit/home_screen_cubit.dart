@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
+import '../../../models/event_model.dart';
 import '../../../models/page_model.dart';
 
 part 'home_screen_state.dart';
@@ -15,6 +16,13 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
 
   void _emitStateWithEditedList() {
     emit(state.copyWith(listOfPages: state.listOfPages));
+  }
+
+  void migrateEventsToPage(
+      PageModel page, Iterable<EventModel> eventsToMigrate) {
+    var index = state.listOfPages.indexOf(page);
+    state.listOfPages[index].events.addAll(eventsToMigrate);
+    _emitStateWithEditedList();
   }
 
   void addPage(PageModel page) {

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../models/page_model.dart';
 import '../../events_screen/cubit/cubit.dart';
 import '../../events_screen/event_screen.dart';
+import '../cubit/home_screen_cubit.dart';
 import 'bottom_sheet_card.dart';
 
 class PageCard extends StatelessWidget {
@@ -22,6 +23,7 @@ class PageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeScreenCubit = BlocProvider.of<HomeScreenCubit>(context);
     final cubitEventScreen = BlocProvider.of<EventScreenCubit>(context);
     return Padding(
       padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
@@ -37,8 +39,15 @@ class PageCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BlocProvider.value(
-                  value: cubitEventScreen,
+                builder: (context) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(
+                      value: cubitEventScreen,
+                    ),
+                    BlocProvider.value(
+                      value: homeScreenCubit,
+                    ),
+                  ],
                   child: EventScreen(
                     page: page,
                   ),

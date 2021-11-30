@@ -73,6 +73,28 @@ class EventScreenCubit extends Cubit<EventScreenState> {
     ));
   }
 
+  Iterable<EventModel> popSelectedEvents() {
+    var selectedEvents = state.page.events
+        .where(
+          (element) => element.isSelected,
+        )
+        .toList();
+    state.page.events.removeWhere(
+      (element) => element.isSelected,
+    );
+    for (var event in selectedEvents) {
+      if (event.isSelected) {
+        event.isSelected = !event.isSelected;
+      }
+    }
+    emit(state.copyWith(
+      page: state.page,
+      countOfSelected: 0,
+      isImageSelected: false,
+    ));
+    return selectedEvents;
+  }
+
   String copySelectedEvents() {
     final selectedEvents =
         state.page.events.where((element) => element.isSelected);

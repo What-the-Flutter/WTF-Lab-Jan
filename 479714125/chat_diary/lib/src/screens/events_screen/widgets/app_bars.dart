@@ -53,12 +53,14 @@ class MessageClickedAppBar extends StatelessWidget
   final void Function() copySelectedEvents;
   final void Function() findEventToEdit;
   final void Function() addToFavorites;
+  final void Function() migrateSelectedEvents;
 
   const MessageClickedAppBar({
     Key? key,
     required this.copySelectedEvents,
     required this.findEventToEdit,
     required this.addToFavorites,
+    required this.migrateSelectedEvents,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -66,6 +68,10 @@ class MessageClickedAppBar extends StatelessWidget
     return AppBar(
       centerTitle: true,
       actions: [
+        IconButton(
+          onPressed: migrateSelectedEvents,
+          icon: const Icon(Icons.reply),
+        ),
         if (!cubit.state.containsMoreThanOneSelected &&
             !cubit.state.isImageSelected)
           IconButton(

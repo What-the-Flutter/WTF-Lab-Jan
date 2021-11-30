@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/event_model.dart';
 import '../../models/page_model.dart';
+import '../home_screen/cubit/home_screen_cubit.dart';
 import 'cubit/cubit.dart';
 import 'widgets/app_bars.dart';
 import 'widgets/event_input_field.dart';
@@ -48,6 +49,7 @@ class _EventScreenState extends State<EventScreen> {
           resizeToAvoidBottomInset: false,
           appBar: state.containsSelected
               ? MessageClickedAppBar(
+                  migrateSelectedEvents: _showMigrateDialog,
                   addToFavorites: _addToFavorites,
                   findEventToEdit: _findEventToEdit,
                   copySelectedEvents: _copySelectedEvents,
@@ -88,6 +90,40 @@ class _EventScreenState extends State<EventScreen> {
       );
     }
     cubit.toggleAllSelected();
+  }
+
+  Future<void> _showMigrateDialog() async {
+    final eventScreenCubit = BlocProvider.of<EventScreenCubit>(context);
+    final homeScreenCubit = BlocProvider.of<HomeScreenCubit>(context);
+    final listOfPages = homeScreenCubit.state.listOfPages
+        .where((element) => element.name != widget.page.name)
+        .toList();
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            title: const Text(
+              'Select the page you want to migrate selected events to!',
+            ),
+            children: listOfPages
+                .map(
+                  (page) => SimpleDialogOption(
+                    child: Text(page.name),
+                    onPressed: () {
+                      var eventsToMigrate =
+                          eventScreenCubit.popSelectedEvents();
+                      homeScreenCubit.migrateEventsToPage(
+                          page, eventsToMigrate);
+
+                      Navigator.pop(context);
+                    },
+                  ),
+                )
+                .toList(),
+          );
+        });
+
+    eventScreenCubit.toggleAllSelected();
   }
 
   void _findEventToEdit() {
