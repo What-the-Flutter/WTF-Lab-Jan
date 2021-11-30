@@ -1,9 +1,8 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import 'event_model.dart';
 
-class PageModel extends Equatable {
+class PageModel {
   final String name;
   final IconData icon;
   late final Key key;
@@ -23,9 +22,6 @@ class PageModel extends Equatable {
 
   @override
   String toString() => '$name $icon $key ${events.length}';
-
-  @override
-  List<Object?> get props => [name, icon, key, events];
 
   PageModel copyWith(
           {String? name, IconData? icon, Key? key, List<EventModel>? events}) =>
