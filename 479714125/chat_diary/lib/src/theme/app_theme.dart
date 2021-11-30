@@ -2,15 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-class AppTheme extends ChangeNotifier {
-  static bool _isDarkTheme = false;
-  ThemeMode get currentTheme => _isDarkTheme ? ThemeMode.dark : ThemeMode.light;
-
-  void toggleTheme() {
-    _isDarkTheme = !_isDarkTheme;
-    notifyListeners();
-  }
-
+class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       colorScheme: const ColorScheme.light(
@@ -21,6 +13,7 @@ class AppTheme extends ChangeNotifier {
         color: AppColors.bluePurple,
         foregroundColor: Colors.white,
       ),
+      dialogBackgroundColor: AppColors.blue200,
       primaryColor: AppColors.bluePurple,
       scaffoldBackgroundColor: AppColors.grey50,
       cardColor: AppColors.lightBlue,
@@ -49,6 +42,7 @@ class AppTheme extends ChangeNotifier {
         foregroundColor: Colors.white,
       ),
       primaryColor: AppColors.bluePurple,
+      dialogBackgroundColor: AppColors.grey800,
       scaffoldBackgroundColor: AppColors.darkGrey,
       cardColor: AppColors.grey600,
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
