@@ -1,108 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+import 'blocs/home_page_bloc.dart';
+import 'blocs/theme_bloc.dart';
+import 'category_list_page.dart';
 
-  final String title;
+class HomePage extends StatelessWidget {
+  const HomePage({
+    Key? key,
+  }) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  bool _darkTheme = false;
-  int _currentScreen = 0;
-  final _entries = <String>[
-    'Travel',
-    'Work',
-    'Family',
-    'Sport',
-  ];
-  final _icons = <IconData>[
-    Icons.flight_takeoff,
-    Icons.business_center,
-    Icons.weekend,
-    Icons.directions_run,
-  ];
-
-  /// Stub method
-  ///
-  /// Substitute for yet-to-be-developed methods
-  /// Will be removed during development
-  void _mockup(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => HomePageBloc(Screen.home),
+      child: BlocBuilder<HomePageBloc, Screen>(
+        builder: (context, state) => Scaffold(
+          appBar: _appBar(state),
+          drawer: _drawer(),
+          body: _body(state),
+          bottomNavigationBar: _bottomBar(context, state),
+        ),
+      ),
+    );
   }
 
-  void _changeTheme() {
-    setState(() {
-      _darkTheme = !_darkTheme;
-    });
-  }
-
-  void _onBottomBarItemTapped(int index) {
-    setState(() {
-      _currentScreen = index;
-      _mockup((index + 1).toString());
-    });
-  }
-
-  void _onListItemTapped(String category) {
-    _mockup('List Item "$category" pressed');
-  }
-
-  AppBar _appBar() {
+  AppBar _appBar(Screen screen) {
     return AppBar(
-      title: Text(widget.title),
+      title: Text(
+        ['Home', 'Daily', 'Time Line'][screen.index],
+      ),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
-          child: IconButton(
-            icon: Icon(_darkTheme ? Icons.brightness_3 : Icons.brightness_5),
-            tooltip: _darkTheme ? 'Dark Theme' : 'Light Theme',
-            onPressed: () {
-              _changeTheme();
-              _mockup('Theme is changed (DarkTheme = $_darkTheme)');
-            },
+          child: BlocBuilder<ThemeBloc, bool>(
+            builder: (context, state) => IconButton(
+              icon: Icon(
+                state ? Icons.brightness_3 : Icons.brightness_5,
+              ),
+              tooltip: state ? 'Dark Theme' : 'Light Theme',
+              onPressed: () => context.read<ThemeBloc>().change(),
+            ),
           ),
-        )
+        ),
       ],
     );
   }
 
   Widget _drawer() {
     return const Drawer(
-        child: Center(
       child: Text(
         'Empty Drawer',
+        textAlign: TextAlign.center,
         style: TextStyle(fontSize: 48),
       ),
-    ));
-  }
-
-  Widget _body() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(10),
-      itemCount: _entries.length,
-      itemBuilder: (context, index) {
-        return Container(
-            height: 60,
-            child: InkWell(
-              child: Row(
-                children: [
-                  Icon(_icons[index]),
-                  const SizedBox(width: 20),
-                  Text(_entries[index]),
-                ],
-              ),
-              onTap: () => _onListItemTapped(_entries[index]),
-            ));
-      },
-      separatorBuilder: (_, __) => const Divider(),
     );
   }
 
-  BottomNavigationBar _bottomBar(){
+  Widget _body(Screen screen) {
+    switch (screen) {
+      case Screen.home:
+        return const CategoriesListPage();
+      case Screen.daily:
+        return _dailyBody();
+      case Screen.timeline:
+        return _timeLineBody();
+      default:
+        return ErrorWidget(
+          Exception('wrong screen'),
+        );
+    }
+  }
+
+  BottomNavigationBar _bottomBar(BuildContext context, Screen screen) {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
@@ -118,24 +88,25 @@ class _HomePageState extends State<HomePage> {
           label: 'Timeline',
         ),
       ],
-      currentIndex: _currentScreen,
-      onTap: _onBottomBarItemTapped,
+      currentIndex: screen.index,
+      onTap: context.read<HomePageBloc>().setFromIndex,
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _appBar(),
-      drawer: _drawer(),
-      body: _body(),
-      bottomNavigationBar: _bottomBar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _mockup('Floating Button pressed');
-        },
-        tooltip: 'Add entry',
-        child: const Icon(Icons.add),
+  // TODO: remove and replace with separate package (like [CategoriesListPage])
+  Widget _dailyBody() {
+    return const Center(
+      child: Text(
+        'Daily',
+      ),
+    );
+  }
+
+  // TODO: remove and replace with separate package (like [CategoriesListPage])
+  Widget _timeLineBody() {
+    return const Center(
+      child: Text(
+        'Time Line',
       ),
     );
   }
