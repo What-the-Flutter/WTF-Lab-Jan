@@ -4,21 +4,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'add_page_cubit.dart';
 import 'add_page_state.dart';
 
-class CreateNewPage extends StatefulWidget {
+class AddPageScreen extends StatefulWidget {
   final bool isEditing;
   final int? selectedPageIndex;
 
-  const CreateNewPage({
+  const AddPageScreen({
     Key? key,
     required this.isEditing,
     this.selectedPageIndex,
   }) : super(key: key);
 
   @override
-  _CreateNewPageState createState() => _CreateNewPageState();
+  _AddPageScreen createState() => _AddPageScreen();
 }
 
-class _CreateNewPageState extends State<CreateNewPage> {
+class _AddPageScreen extends State<AddPageScreen> {
   final _pageInputController = TextEditingController();
   final List<IconData> _iconData = const [
     Icons.airplane_ticket,
@@ -52,13 +52,13 @@ class _CreateNewPageState extends State<CreateNewPage> {
 
   @override
   void initState() {
-    BlocProvider.of<PageCubit>(context).init();
     super.initState();
+    BlocProvider.of<AddPageCubit>(context).init();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PageCubit, PageState>(
+    return BlocBuilder<AddPageCubit, AddPageState>(
       builder: (context, state) {
         return Scaffold(
           resizeToAvoidBottomInset: true,
@@ -90,13 +90,13 @@ class _CreateNewPageState extends State<CreateNewPage> {
     return FloatingActionButton(
       onPressed: () {
         if (widget.isEditing) {
-          BlocProvider.of<PageCubit>(context).edit(
+          BlocProvider.of<AddPageCubit>(context).edit(
             _pageInputController.text,
             _iconData,
             widget.selectedPageIndex!,
           );
         } else {
-          BlocProvider.of<PageCubit>(context)
+          BlocProvider.of<AddPageCubit>(context)
               .addPage(_pageInputController.text, _iconData);
         }
         Navigator.of(context).pop();
@@ -113,7 +113,7 @@ class _CreateNewPageState extends State<CreateNewPage> {
     super.dispose();
   }
 
-  Widget _bodyStructure(PageState state) {
+  Widget _bodyStructure(AddPageState state) {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(15),
@@ -152,7 +152,7 @@ class _CreateNewPageState extends State<CreateNewPage> {
     );
   }
 
-  TextFormField _textFormField(PageState state) {
+  TextFormField _textFormField(AddPageState state) {
     return TextFormField(
       autofocus: true,
       decoration: const InputDecoration(
@@ -169,7 +169,7 @@ class _CreateNewPageState extends State<CreateNewPage> {
     );
   }
 
-  Widget _activityPageIcon(IconData iconData, int index, PageState state) {
+  Widget _activityPageIcon(IconData iconData, int index, AddPageState state) {
     return CircleAvatar(
       backgroundColor: Colors.grey,
       child: Stack(
@@ -181,7 +181,7 @@ class _CreateNewPageState extends State<CreateNewPage> {
               iconSize: 30,
               color: Colors.white,
               onPressed: () =>
-                  BlocProvider.of<PageCubit>(context).setIconIndex(index),
+                  BlocProvider.of<AddPageCubit>(context).setIconIndex(index),
             ),
           ),
           if (index == state.selectedIconIndex)

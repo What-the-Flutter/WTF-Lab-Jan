@@ -13,7 +13,7 @@ class EventState {
   final String selectedImage;
   final int selectedCategoryIndex;
   final List<Event> eventList;
-  final int pageId;
+  final String pageId;
 
   EventState({
     required this.isEditing,
@@ -44,7 +44,7 @@ class EventState {
     int? selectedCategoryIndex,
     String? selectedImage,
     List<Event>? eventList,
-    int? pageId,
+    String? pageId,
   }) {
     return EventState(
       isEditing: isEditing ?? this.isEditing,

@@ -2,9 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
-import '../../data/event_repository.dart';
 import '../../data/models/event.dart';
+import '../../data/repository/event_repository.dart';
 import 'event_state.dart';
 
 class EventCubit extends Cubit<EventState> {
@@ -25,13 +26,14 @@ class EventCubit extends Cubit<EventState> {
       selectedImage: '',
       selectedCategoryIndex: -1,
       eventList: [],
-      pageId: -1,
+      pageId: '',
     ),
   );
 
-  void init(int pageId) {
+  void init(String pageId) {
     setPageId(pageId);
     showAllEvents();
+    closeCategoryList();
   }
 
   void setIsSearching() {
@@ -51,7 +53,7 @@ class EventCubit extends Cubit<EventState> {
     );
   }
 
-  void setPageId(int pageId) {
+  void setPageId(String pageId) {
     emit(
       state.copyWith(
         pageId: pageId,
@@ -104,7 +106,16 @@ class EventCubit extends Cubit<EventState> {
     );
   }
 
-  void unselectEvent() {
+  void unselectEvent() async {
+    for (var i = 0; i < state.eventList.length; i++) {
+      if (state.eventList[i].isSelected) {
+        final unSelectedEvent = state.eventList[i].copyWith(
+          isSelected: false,
+        );
+        eventRepository.updateEvent(unSelectedEvent);
+      }
+    }
+    showAllEvents();
     emit(
       state.copyWith(
         isSelected: false,
@@ -116,8 +127,7 @@ class EventCubit extends Cubit<EventState> {
     final selectedEvent = state.eventList[eventIndex].copyWith(
       isSelected: !state.eventList[eventIndex].isSelected,
     );
-    eventRepository.deleteEvent(state.eventList[eventIndex]);
-    eventRepository.insertEvent(eventIndex, selectedEvent);
+    eventRepository.updateEvent(selectedEvent);
     showAllEvents();
     emit(
       state.copyWith(
@@ -125,9 +135,6 @@ class EventCubit extends Cubit<EventState> {
         selectedEventIndex: eventIndex,
       ),
     );
-    final selectedList =
-    state.eventList.where((element) => element.isSelected).toList();
-    if (selectedList.isEmpty) unselectEvent();
   }
 
   void searchEvent(String text) {
@@ -138,11 +145,9 @@ class EventCubit extends Cubit<EventState> {
     );
   }
 
-  void showSearchedEvents(String text) {
-    final searchedEvents = eventRepository
-        .eventsListByPageId(state.pageId)
-        .where((element) => element.eventData.contains(text))
-        .toList();
+  void showSearchedEvents(String text) async {
+    final searchedEvents =
+    await eventRepository.fetchSearchedEventList(state.pageId, text);
     emit(
       state.copyWith(
         eventList: searchedEvents,
@@ -150,31 +155,32 @@ class EventCubit extends Cubit<EventState> {
     );
   }
 
-  void showMarkedEvents(bool isAllMarked) {
+  void showMarkedEvents(bool isAllMarked) async {
     final List<Event> markedList;
     if (isAllMarked) {
-      markedList = eventRepository
-          .eventsListByPageId(state.pageId)
-          .where((element) => element.isMarked)
-          .toList();
+      markedList = await eventRepository.fetchMarkedAllEventList(state.pageId);
     } else {
-      markedList = eventRepository.eventsListByPageId(state.pageId).toList();
+      markedList = await eventRepository.fetchEventList(state.pageId);
     }
-    emit(state.copyWith(eventList: markedList, isAllMarked: isAllMarked));
+    emit(
+      state.copyWith(
+        eventList: markedList,
+        isAllMarked: isAllMarked,
+      ),
+    );
   }
 
   void markEvent(int index) {
     final markedEvent = state.eventList[index].copyWith(
       isMarked: !state.eventList[index].isMarked,
     );
-    eventRepository.deleteEvent(state.eventList[index]);
-    eventRepository.insertEvent(index, markedEvent);
+    eventRepository.updateEvent(markedEvent);
     showAllEvents();
   }
 
-  void showAllEvents() {
+  void showAllEvents() async {
     final List<Event> eventList;
-    eventList = eventRepository.eventsListByPageId(state.pageId);
+    eventList = await eventRepository.fetchEventList(state.pageId);
     emit(
       state.copyWith(
         eventList: eventList,
@@ -183,11 +189,10 @@ class EventCubit extends Cubit<EventState> {
   }
 
   void addEditedEvent(String eventText) {
-    var newEvent = state.eventList[state.selectedEventIndex].copyWith(
+    var editedEvent = state.eventList[state.selectedEventIndex].copyWith(
       eventData: eventText,
     );
-    eventRepository.deleteEvent(state.eventList[state.selectedEventIndex]);
-    eventRepository.insertEvent(state.selectedEventIndex, newEvent);
+    eventRepository.updateEvent(editedEvent);
     emit(
       state.copyWith(
         isEditing: false,
@@ -206,9 +211,7 @@ class EventCubit extends Cubit<EventState> {
   void addEvent(
       [String text = '', IconData? categoryIcon, String categoryName = '']) {
     final event = Event(
-      id: eventRepository
-          .eventsList()
-          .length + 1,
+      id: const Uuid().v4(),
       eventData: text,
       imagePath: state.selectedImage,
       categoryIcon: categoryIcon,
@@ -218,7 +221,7 @@ class EventCubit extends Cubit<EventState> {
       isSelected: false,
       isMarked: false,
     );
-    eventRepository.addEvent(event);
+    eventRepository.insertEvent(event);
     showAllEvents();
   }
 
@@ -230,8 +233,7 @@ class EventCubit extends Cubit<EventState> {
       imageEvent = state.eventList[state.selectedEventIndex].copyWith(
         imagePath: image!.path,
       );
-      eventRepository.deleteEvent(state.eventList[state.selectedEventIndex]);
-      eventRepository.insertEvent(state.selectedEventIndex, imageEvent);
+      eventRepository.updateEvent(imageEvent);
     }
     emit(
       state.copyWith(
@@ -240,16 +242,14 @@ class EventCubit extends Cubit<EventState> {
     );
   }
 
-  void replyEvents(int newPageId) {
+  void replyEvents(String newPageId) {
     for (var i = 0; i < state.eventList.length; i++) {
       if (state.eventList[i].isSelected) {
-        final eventToDelete = state.eventList[i];
-        final eventToMove = state.eventList[i].copyWith(
+        final eventToReply = state.eventList[i].copyWith(
           pageId: newPageId,
-          id: state.eventList.length + 1,
+          isSelected: false,
         );
-        eventRepository.deleteEvent(eventToDelete);
-        eventRepository.addEvent(eventToMove);
+        eventRepository.updateEvent(eventToReply);
       }
     }
     emit(
@@ -260,11 +260,17 @@ class EventCubit extends Cubit<EventState> {
     showAllEvents();
   }
 
-  void delete(List<Event> selectedList) {
+  void delete() async {
+    final selectedList = await eventRepository.fetchSelectedEventList();
     for (var el in selectedList) {
       eventRepository.deleteEvent(el);
     }
     showAllEvents();
+    emit(
+      state.copyWith(
+        eventList: state.eventList,
+      ),
+    );
   }
 
   void copy() {

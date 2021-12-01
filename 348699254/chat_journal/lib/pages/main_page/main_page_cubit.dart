@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/models/activity_page.dart';
-import '../../data/page_repository.dart';
+import '../../data/repository/page_repository.dart';
 import 'main_page_state.dart';
 
 class MainPageCubit extends Cubit<MainPageState> {
@@ -17,8 +17,8 @@ class MainPageCubit extends Cubit<MainPageState> {
     ),
   );
 
-  void showActivityPages() {
-    final pages = pageRepository.activityPageList();
+  void showActivityPages() async {
+    final pages = await pageRepository.fetchActivityPageList();
     emit(
       state.copyWith(
         activityPageList: pages,
@@ -44,11 +44,14 @@ class MainPageCubit extends Cubit<MainPageState> {
   }
 
   void deleteActivityPage() {
-    pageRepository.deleteActivityPageByIndex(state.selectedPageIndex);
+    pageRepository
+        .deleteActivityPage(state.activityPageList[state.selectedPageIndex]);
+    showActivityPages();
     emit(
       state.copyWith(
         selectedPageIndex: state.selectedPageIndex,
         isSelected: false,
+        activityPageList: state.activityPageList,
       ),
     );
   }
@@ -73,16 +76,15 @@ class MainPageCubit extends Cubit<MainPageState> {
     );
     if (pinnedEventPage.isPinned) {
       if (pinnedList.length < 3) {
-        pageRepository.deleteActivityPageByIndex(state.selectedPageIndex);
-        pageRepository.insertActivityPage(0, pinnedEventPage);
+        pageRepository.deleteActivityPage(selectedPage);
+        pageRepository.insertActivityPage(pinnedEventPage);
       } else {
         print('More then 3');
       }
     } else {
-      pageRepository.deleteActivityPageByIndex(state.selectedPageIndex);
-      pageRepository.insertActivityPage(
-          state.selectedPageIndex, pinnedEventPage);
+      pageRepository.updateActivityPage(pinnedEventPage);
     }
+    showActivityPages();
     emit(
       state.copyWith(
         isSelected: false,
