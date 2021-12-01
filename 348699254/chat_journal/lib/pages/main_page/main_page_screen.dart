@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
+import '../../theme/theme_cubit.dart';
 import '../add_page/add_page_screen.dart';
 import '../event_page/event_screen.dart';
+import '../settings/settings_screen.dart';
 import 'main_pade_cubit.dart';
 import 'main_page_state.dart';
 
@@ -17,6 +19,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
   @override
   void initState() {
     super.initState();
+    BlocProvider.of<ThemeCubit>(context).init();
     BlocProvider.of<MainPageCubit>(context).showActivityPages();
   }
 
@@ -27,14 +30,16 @@ class _MainPageScreenState extends State<MainPageScreen> {
         return Scaffold(
           appBar: AppBar(
             title: _appBarHomeTitle(),
-            leading: _appBarMenuButton(),
+            //leading: _appBarMenuButton(),
             actions: <Widget>[
               IconButton(
                 icon: const Icon(Icons.wb_incandescent_outlined),
-                onPressed: () {},
+                onPressed: () =>
+                    BlocProvider.of<ThemeCubit>(context).changeTheme(),
               ),
             ],
           ),
+          drawer: _burgerMenuDrawer(),
           body: _bodyStructure(state),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
@@ -42,15 +47,15 @@ class _MainPageScreenState extends State<MainPageScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                  const CreateNewPage(
+                  const AddPageScreen(
                     isEditing: false,
                   ),
                 ),
               );
               BlocProvider.of<MainPageCubit>(context).showActivityPages();
             },
-            child: const Icon(Icons.add, color: Colors.brown),
-            backgroundColor: Colors.amberAccent,
+            child: const Icon(Icons.add), //color: Colors.brown),
+            //backgroundColor: Colors.amberAccent,
           ),
           bottomNavigationBar: _bottomNavigationBar(),
         );
@@ -65,17 +70,58 @@ class _MainPageScreenState extends State<MainPageScreen> {
     );
   }
 
-  Widget _appBarMenuButton() {
-    return IconButton(
-      icon: const Icon(Icons.menu_outlined),
-      onPressed: () {},
-    );
-  }
-
-  Widget _appBarThemeButton() {
-    return IconButton(
-      icon: const Icon(Icons.wb_incandescent_outlined),
-      onPressed: () {},
+  Drawer _burgerMenuDrawer() {
+    return Drawer(
+      child: ListView(
+        children: <Widget>[
+          const DrawerHeader(
+            margin: EdgeInsets.zero,
+            padding: EdgeInsets.zero,
+            child: UserAccountsDrawerHeader(
+              decoration: BoxDecoration(color: Colors.teal),
+              accountName: Text(''),
+              accountEmail: Text('(Click here to setup Drive backups)'),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.card_giftcard_outlined),
+            title: const Text('Help spread the world'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.search),
+            title: const Text('Search'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.notifications),
+            title: const Text('Notifications'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.multiline_chart),
+            title: const Text('Statistics'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.mail),
+            title: const Text('Feedback'),
+            onTap: () {},
+          ),
+        ],
+      ),
     );
   }
 
@@ -122,9 +168,9 @@ class _MainPageScreenState extends State<MainPageScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(
-          color: Colors.black26,
-        ),
+        //style: const TextStyle(
+        // color: Colors.black26,
+        //),
       ),
       leading: _circleAvatarForActivityPage(state, icon, index),
       onTap: () async {
@@ -311,7 +357,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            CreateNewPage(
+            AddPageScreen(
               isEditing: true,
               selectedPageIndex: index,
             ),

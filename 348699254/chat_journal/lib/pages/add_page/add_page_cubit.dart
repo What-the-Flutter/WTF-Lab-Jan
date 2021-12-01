@@ -1,15 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../data/models/activity_page.dart';
-import '../../data/page_repository.dart';
+import '../../data/repository/page_repository.dart';
 import 'add_page_state.dart';
 
-class PageCubit extends Cubit<PageState> {
+class AddPageCubit extends Cubit<AddPageState> {
   final ActivityPageRepository pageRepository;
 
-  PageCubit(this.pageRepository)
+  AddPageCubit(this.pageRepository)
       : super(
-    PageState(
+    AddPageState(
       selectedIconIndex: 0,
       pageList: [],
     ),
@@ -19,7 +20,7 @@ class PageCubit extends Cubit<PageState> {
     emit(
       state.copyWith(
         selectedIconIndex: 0,
-        pageList: pageRepository.activityPageList(),
+        pageList: state.pageList,
       ),
     );
   }
@@ -32,13 +33,15 @@ class PageCubit extends Cubit<PageState> {
 
   void addPage(String pageName, List iconList) {
     final page = ActivityPage(
-      id: pageRepository.pageList.length + 1,
+      id: const Uuid().v4(),
       name: pageName,
       icon: iconList[state.selectedIconIndex],
       creationDate: DateTime.now().toString(),
       isPinned: false,
     );
-    pageRepository.addActivityPage(page);
+    state.pageList.insert(0, page);
+    pageRepository.insertActivityPage(page);
+    emit(state.copyWith(pageList: state.pageList));
   }
 
   void edit(String pageName, List iconList, int selectedPageIndex) {
@@ -46,7 +49,6 @@ class PageCubit extends Cubit<PageState> {
       name: pageName,
       icon: iconList[state.selectedIconIndex],
     );
-    pageRepository.deleteActivityPage(state.pageList[selectedPageIndex]);
-    pageRepository.insertActivityPage(selectedPageIndex, editedPage);
+    pageRepository.updateActivityPage(editedPage);
   }
 }

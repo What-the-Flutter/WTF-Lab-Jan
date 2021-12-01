@@ -8,6 +8,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/models/activity_page.dart';
+import '../settings/settings_cubit.dart';
+import '../settings/settings_state.dart';
 import 'event_cubit.dart';
 import 'event_state.dart';
 
@@ -331,8 +333,8 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _alertDeleteDialog(BuildContext context, EventState state) {
-    final selectedList =
-    state.eventList.where((element) => element.isSelected).toList();
+    //final selectedList =
+    //  state.eventList.where((element) => element.isSelected).toList();
     var dialog = AlertDialog(
       title: const Text('Delete Entry(s)?'),
       content: const FittedBox(
@@ -344,7 +346,7 @@ class _EventScreenState extends State<EventScreen> {
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () {
               print('deleteIndex = ${state.selectedEventIndex}');
-              BlocProvider.of<EventCubit>(context).delete(selectedList);
+              BlocProvider.of<EventCubit>(context).delete();
               Navigator.of(context).pop(true); // Return true
             },
           ),
@@ -608,23 +610,29 @@ class _EventScreenState extends State<EventScreen> {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          IconButton(
-            icon: state.selectedCategoryIndex > 0
-                ? Icon(entries
-                .elementAt(state.selectedCategoryIndex)
-                .value)
-                : const Icon(Icons.workspaces_filled),
-            color: Colors.teal,
-            onPressed: () {
-              BlocProvider.of<EventCubit>(context).openCategoryList();
-            },
-          ),
+          BlocBuilder<SettingsCubit, SettingsState>(
+              builder: (blocContext, settingsState) {
+                return Visibility(
+                  visible: settingsState.isCategoryListOpen,
+                  child: IconButton(
+                    icon: state.selectedCategoryIndex > 0
+                        ? Icon(entries
+                        .elementAt(state.selectedCategoryIndex)
+                        .value)
+                        : const Icon(Icons.workspaces_filled),
+                    //color: Colors.teal,
+                    onPressed: () {
+                      BlocProvider.of<EventCubit>(context).openCategoryList();
+                    },
+                  ),
+                );
+              }),
           Expanded(
             child: _eventTextFormField(state),
           ),
           IconButton(
             icon: const Icon(Icons.add_a_photo),
-            color: Colors.teal,
+            //color: Colors.teal,
             onPressed: () {
               BlocProvider.of<EventCubit>(context).addImageEvent().then(
                     (value) =>

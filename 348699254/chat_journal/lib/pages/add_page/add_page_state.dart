@@ -1,17 +1,17 @@
-class PageState {
+class AddPageState {
   final List pageList;
   final int selectedIconIndex;
 
-  PageState({
+  AddPageState({
     required this.pageList,
     required this.selectedIconIndex,
   });
 
-  PageState copyWith({
+  AddPageState copyWith({
     List? pageList,
     int? selectedIconIndex,
   }) {
-    return PageState(
+    return AddPageState(
       pageList: pageList ?? this.pageList,
       selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
     );
