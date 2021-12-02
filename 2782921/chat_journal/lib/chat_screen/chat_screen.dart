@@ -1,3 +1,4 @@
+import 'package:chat_journal/entity/category_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -32,7 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final index = int.parse(widget.indexId); //final doljen bit
-    return BlocBuilder<HomeCubit, HomeState>(
+    return BlocBuilder<HomeCubit, List<CategoryPage>>(
       builder: (_, state) => Scaffold(
         appBar: AppBar(
           title: Center(
@@ -505,7 +506,7 @@ class DefaultChat extends StatelessWidget {
   }
 }
 
-Widget _sectionItem(HomeState state, int index, BuildContext context) {
+Widget _sectionItem(List<CategoryPage> state, int index, BuildContext context) {
   var section = Section(
     title: sections.keys.elementAt(index),
     icon: sections.values.elementAt(index),

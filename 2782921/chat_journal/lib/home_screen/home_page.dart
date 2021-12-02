@@ -1,3 +1,4 @@
+import 'package:chat_journal/entity/category_page.dart';
 import 'package:chat_journal/screen_elements/bottom_nv_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          BlocBuilder<HomeCubit, HomeState>(
+          BlocBuilder<HomeCubit, List<CategoryPage>>(
             builder: (_, state) => Expanded(
               child: ListView.builder(
                 itemCount: state.categories.length,
@@ -76,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      floatingActionButton: BlocBuilder<HomeCubit, HomeState>(
+      floatingActionButton: BlocBuilder<HomeCubit, List<CategoryPage>>(
         builder: (_, state) => FloatingActionButton(
           onPressed: () {
             create(state, context);

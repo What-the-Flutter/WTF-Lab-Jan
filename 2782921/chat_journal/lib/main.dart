@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'data/database_file.dart';
 import 'data/preferences.dart';
 import 'home_screen/home_cubit.dart';
 import 'home_screen/home_page.dart';
@@ -9,6 +10,7 @@ import 'theme/theme_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseFile.initialize();
   await PreferenceData.initialize();
   FluroRouterCubit.setupRouter();
   runApp(
@@ -24,7 +26,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(providers: [
       BlocProvider<ThemeCubit>(create: (_) => ThemeCubit()),
       BlocProvider<FluroRouterCubit>(create: (_) => FluroRouterCubit()),
-      BlocProvider<HomeCubit>(create: (context) => HomeCubit()),
+      BlocProvider<HomeCubit>(create: (context) => HomeCubit([])),
     ], child: MyPage());
   }
 }

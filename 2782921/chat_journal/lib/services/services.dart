@@ -1,3 +1,4 @@
+import 'package:chat_journal/entity/category_page.dart';
 import 'package:chat_journal/model/category.dart';
 import 'package:chat_journal/screen_elements/consts.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../components/icons.dart';
 import '../home_screen/home_cubit.dart';
 
-void create(HomeState state, BuildContext context,
+void create(List<CategoryPage> state, BuildContext context,
     [String? categoryTitle, int? index]) async {
   final nameController = TextEditingController();
   late String titleName;
@@ -17,7 +18,7 @@ void create(HomeState state, BuildContext context,
     newTitle = true;
   }
 
-  var category = Category(title: '', icon: const Icon(Icons.home));
+  // var category = CategoryPage(title: '', iconIndex: const Icon(Icons.home), creationTime: DateTime.now());
   var _iconsize = 40.0;
   return showDialog(
     context: context,

@@ -1,3 +1,4 @@
+import 'package:chat_journal/entity/category_page.dart';
 import 'package:chat_journal/home_screen/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +21,7 @@ class ChatBubble extends StatefulWidget {
 class _ChatBubbleState extends State<ChatBubble> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
+    return BlocBuilder<HomeCubit, List<CategoryPage>>(
       builder: (_, state) => Container(
         padding: const EdgeInsets.only(
           left: 16,

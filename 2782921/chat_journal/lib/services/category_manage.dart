@@ -1,3 +1,4 @@
+import 'package:chat_journal/entity/category_page.dart';
 import 'package:chat_journal/home_screen/home_cubit.dart';
 import 'package:chat_journal/model/title_lists.dart';
 import 'package:chat_journal/services/services.dart';
@@ -7,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 Future<dynamic> customModalBottomSheet(
   BuildContext context,
   int index,
-  HomeState state,
+  List<CategoryPage> state,
 ) {
   Future<void> _printInfo(BuildContext context) async {
     final select = await showDialog(
@@ -17,7 +18,7 @@ Future<dynamic> customModalBottomSheet(
           children: [
             Expanded(
               child: ListviewItems(
-                category: state.categories[index],
+                category: state[index],
                 index: index,
               ),
             ),
@@ -54,7 +55,7 @@ Future<dynamic> customModalBottomSheet(
                           children: [
                             Expanded(
                               child: ListviewItems(
-                                category: state.categories[index],
+                                category: state[index],
                                 index: index,
                               ),
                             ),
@@ -109,7 +110,7 @@ Future<dynamic> customModalBottomSheet(
             ),
             title: const Text('Edit'),
             onTap: () {
-              create(state, context, state.categories[index].title, index);
+              create(state, context, state[index].title, index);
             },
           ),
           ListTile(
@@ -120,7 +121,7 @@ Future<dynamic> customModalBottomSheet(
             title: const Text('Delete'),
             onTap: () {
               Navigator.pop(context);
-              context.read<HomeCubit>().deleteCategory(index);
+              context.read<HomeCubit>().deleteCategory(state[index]);
             },
           ),
         ],

@@ -1,4 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:chat_journal/data/database_file.dart';
+import 'package:chat_journal/entity/category_page.dart';
 import 'package:chat_journal/model/category.dart';
 import '../model/message_data.dart';
 import 'package:chat_journal/model/section.dart';
@@ -7,55 +9,60 @@ import 'package:flutter/material.dart';
 
 part 'home_state.dart';
 
-class HomeCubit extends Cubit<HomeState> {
-  final List<Category> _titleLists = [
-    Category(
-      title: 'Travel',
-      icon: const Icon(
-        Icons.card_travel,
-        size: 40,
-      ),
-      createdTime: DateTime.now(),
-    ),
-    Category(
-      title: 'Family',
-      icon: const Icon(
-        Icons.living_rounded,
-        size: 40,
-      ),
-      createdTime: DateTime.now(),
-    ),
-    Category(
-      title: 'Sports',
-      icon: const Icon(
-        Icons.sports_mma,
-        size: 40,
-      ),
-      createdTime: DateTime.now(),
-    ),
-  ];
+class HomeCubit extends Cubit<List<CategoryPage>> {
+  // final List<Category> _titleLists = [
+  //   Category(
+  //     title: 'Travel',
+  //     icon: const Icon(
+  //       Icons.card_travel,
+  //       size: 40,
+  //     ),
+  //     createdTime: DateTime.now(),
+  //   ),
+  //   Category(
+  //     title: 'Family',
+  //     icon: const Icon(
+  //       Icons.living_rounded,
+  //       size: 40,
+  //     ),
+  //     createdTime: DateTime.now(),
+  //   ),
+  //   Category(
+  //     title: 'Sports',
+  //     icon: const Icon(
+  //       Icons.sports_mma,
+  //       size: 40,
+  //     ),
+  //     createdTime: DateTime.now(),
+  //   ),
+  // ];
 
-  HomeCubit() : super(HomeState());
+  DatabaseFile db = DatabaseFile();
 
-  void init() => emit(
-        state.copyWith(categories: _titleLists),
-      );
+  HomeCubit(List<CategoryPage> state) : super(state);
 
-  void addCategory(Category list) {
-    state.categories.add(list);
-    emit(state.copyWith(categories: state.categories));
-    print(state.toString());
+  void init() async {
+    final pages = await db.fetchPages();
+    emit(pages);
   }
 
-  void editCategory(Category list, int index) {
-    state.categories[index] = list;
-    emit(state.copyWith(categories: state.categories));
-    print(state.toString());
+  void addCategory(CategoryPage page) async {
+    page.id = await db.insertPage(page);
+    emit(state..add(page));
   }
 
-  void deleteCategory(int index) {
-    state.categories.removeAt(index);
-    emit(state.copyWith(categories: state.categories));
+  void editCategory(CategoryPage page1, CategoryPage page2) {
+    page1.title = page2.title;
+    page1.iconIndex = page2.iconIndex;
+    db.updatePage(page1);
+    final updatedCategories = List<CategoryPage>.from(state);
+    emit(updatedCategories);
+  }
+
+  void deleteCategory(CategoryPage page) {
+    final updatedPages = List<CategoryPage>.from(state..remove(page));
+    db.deletePage(page);
+    emit(updatedPages);
   }
 
   void addMessage(String text, int index) {
