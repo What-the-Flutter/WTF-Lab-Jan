@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../model/message_data.dart';
 
 class ChatBubble extends StatefulWidget {
+  //final
   int index;
   int messageIndex;
   MessageData chatMessage;
@@ -21,8 +22,12 @@ class _ChatBubbleState extends State<ChatBubble> {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (_, state) => Container(
-        padding:
-            const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+        padding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 10,
+          bottom: 10,
+        ),
         child: Row(
           children: [
             Align(

@@ -15,7 +15,7 @@ Widget slideRightBackground() {
             color: Colors.white,
           ),
           const Text(
-            " Edit",
+            ' Edit',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w700,

@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat_journal/model/category.dart';
-import 'package:chat_journal/model/message_data.dart';
+import '../model/message_data.dart';
 import 'package:chat_journal/model/section.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +86,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(categories: state.categories));
   }
 
+//copywith
   void migrateMessage(
     MessageData data,
     int indexCategoryTo,

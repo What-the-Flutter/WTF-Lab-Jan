@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<dynamic> customModalBottomSheet(
-    BuildContext context, int index, HomeState state) {
+  BuildContext context,
+  int index,
+  HomeState state,
+) {
   Future<void> _printInfo(BuildContext context) async {
     final select = await showDialog(
       context: context,

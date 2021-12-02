@@ -31,7 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool favourite = false;
   @override
   Widget build(BuildContext context) {
-    var index = int.parse(widget.indexId);
+    final index = int.parse(widget.indexId); //final doljen bit
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (_, state) => Scaffold(
         appBar: AppBar(
@@ -157,7 +157,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   ListView listViewFavouriteFalse(
-      List<MessageData>? list, int indexMessage, bool favourite) {
+    List<MessageData>? list,
+    int indexMessage,
+    bool favourite,
+  ) {
     return ListView.builder(
       itemCount: list!.length,
       shrinkWrap: true,
@@ -253,7 +256,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   ListView listViewFavourite(
-      List<MessageData>? list, int indexCategory, List<Category> categories) {
+    List<MessageData>? list,
+    int indexCategory,
+    List<Category> categories,
+  ) {
     return ListView.builder(
       itemCount: list!.length,
       shrinkWrap: true,
