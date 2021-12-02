@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../domain/entities/event.dart';
 
@@ -175,61 +176,101 @@ class _EventScreenState extends State<EventScreen> {
         reverse: true,
         itemCount: _events.length,
         itemBuilder: (context, index) {
-          return GestureDetector(
-            onLongPress: () {
-              _isCRUDMode ^= true;
-              setState(() {});
-              _selectedMessageIndex = _isCRUDMode == true ? index : -1;
-            },
-            child: Row(
+          return Slidable(
+            key: const ValueKey(0),
+            //from left to right
+            startActionPane: ActionPane(
+              motion: const ScrollMotion(),
+              dismissible: DismissiblePane(onDismissed: () {}),
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      color: _selectedMessageIndex != index
-                          ? Theme.of(context).dialogBackgroundColor
-                          : Theme.of(context).selectedRowColor,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _events[index].message != null
-                            ? Text(
-                                _events[index].message!,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 18),
-                              )
-                            : Container(
-                                width: 150,
-                                height: 150,
-                                child: Image.file(_events[index].image!),
-                              ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              _events[index].sendTime,
-                              style: TextStyle(
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            _events[index].isBookmarked
-                                ? Icon(
-                                    Icons.bookmark_add,
-                                    color: Colors.orange[800],
-                                  )
-                                : const SizedBox(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                SlidableAction(
+                  onPressed:(context){
+                    _isCRUDMode ^= true;
+                    setState(() {});
+                    _selectedMessageIndex = _isCRUDMode == true ? index : -1;
+                    _editEvent();
+                  } ,
+                  backgroundColor: const Color(0xFF21B7CA),
+                  foregroundColor: Colors.white,
+                  icon: Icons.edit,
+                  label: 'Edit',
                 ),
               ],
+            ),
+            // from right to left
+            endActionPane: ActionPane(
+              motion: const ScrollMotion(),
+              children: [
+                SlidableAction(
+                  onPressed: (context){
+                    _isCRUDMode ^= true;
+                    setState(() {});
+                    _selectedMessageIndex = _isCRUDMode == true ? index : -1;
+                    _deleteEvent();
+                  },
+                  backgroundColor: const Color(0xFF7BC043),
+                  foregroundColor: Colors.white,
+                  icon: Icons.delete,
+                  label: 'Delete',
+                ),
+              ],
+            ),
+            child: GestureDetector(
+              onLongPress: () {
+                _isCRUDMode ^= true;
+                setState(() {});
+                _selectedMessageIndex = _isCRUDMode == true ? index : -1;
+              },
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(16)),
+                        color: _selectedMessageIndex != index
+                            ? Theme.of(context).dialogBackgroundColor
+                            : Theme.of(context).selectedRowColor,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _events[index].message != null
+                              ? Text(
+                                  _events[index].message!,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 18),
+                                )
+                              : Container(
+                                  width: 150,
+                                  height: 150,
+                                  child: Image.file(_events[index].image!),
+                                ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Text(
+                                _events[index].sendTime,
+                                style: TextStyle(
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              _events[index].isBookmarked
+                                  ? Icon(
+                                      Icons.bookmark_add,
+                                      color: Colors.orange[800],
+                                    )
+                                  : const SizedBox(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },

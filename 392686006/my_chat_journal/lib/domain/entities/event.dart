@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 
+/// The element that is created on the event page
 class Event {
   String? message;
   File? image;

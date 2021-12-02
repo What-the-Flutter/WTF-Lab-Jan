@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 
-enum Themes {
-  light,
-  dark,
-}
-
 class CustomThemeModel extends StatefulWidget {
   final ThemeData themeData;
   final Widget child;
@@ -95,6 +90,7 @@ class CustomTheme {
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Color(0xFF1E2832),
       selectedItemColor: Color(0xFFFFD741),
+      unselectedItemColor: Colors.grey,
     ),
     primaryTextTheme: const TextTheme(
       bodyText1: TextStyle(

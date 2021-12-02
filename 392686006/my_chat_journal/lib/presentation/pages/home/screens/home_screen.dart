@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../domain/entities/event_info.dart';
@@ -17,21 +16,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isDarkMode = false;
 
-  final List<EventInfo> events = [
+  /// need for save  current event
+  int _currentEventIndex = -1;
+
+  final List<EventInfo> _events = [
     EventInfo(
       title: 'Journal',
-      subtitle: 'No Events. Click to create one.',
-      leading: const CircleIcon(icon: Icons.collections_bookmark),
+      icon: const Icon(Icons.collections_bookmark),
     ),
     EventInfo(
       title: 'Notes',
-      subtitle: 'No Events. Click to create one.',
-      leading: const CircleIcon(icon: Icons.menu_book_outlined),
+      icon: const Icon(Icons.menu_book_outlined),
     ),
     EventInfo(
-      leading: const CircleIcon(icon: Icons.thumb_up_alt_outlined),
+      icon: const Icon(Icons.thumb_up_alt_outlined),
       title: 'Gratitude',
-      subtitle: 'No Events. Click to create one.',
     ),
   ];
 
@@ -49,10 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _body() {
     final _elements = <Widget>[
       const QuestionBotButton(),
-      ...events.map((e) => ListTile(
+      ..._events.map((e) => ListTile(
             title: Text(e.title),
-            leading: e.leading,
-            subtitle: Text(e.subtitle),
+            leading: CircleIcon(icon: e.icon),
+            subtitle: Text(e.lastMessage),
           )),
     ];
     return Padding(
@@ -63,18 +62,174 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              if (_elements[index] is ListTile) {
-                Navigator.pushNamed(
-                  context,
-                  Routs.event,
-                  arguments: events[index - 1].title,
-                );
+              if (_elements[index] is ListTile || (_elements[index]is QuestionBotButton)) {
+                Navigator.of(context).pushNamed(Routs.event, arguments: _events[index-1].title);
               }
+            },
+            onLongPress: () {
+              _currentEventIndex = index;
+              _showBottomSheetDialog(context);
             },
             child: _elements[index],
           );
         },
       ),
+    );
+  }
+
+  Future<dynamic> _showBottomSheetDialog(BuildContext context) {
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              onTap: _showPageInfo,
+              leading: Icon(
+                Icons.info,
+                color: Theme.of(context).primaryColor,
+              ),
+              title: const Text('Info'),
+            ),
+            ListTile(
+              onTap: _pinPage,
+              leading: Icon(
+                Icons.attach_file,
+                color: Colors.green[500],
+              ),
+              title: const Text('Pin/Unpin page'),
+            ),
+            ListTile(
+              onTap: _editPage,
+              leading: const Icon(
+                Icons.edit,
+                color: Colors.blue,
+              ),
+              title: const Text('Edit Page'),
+            ),
+            ListTile(
+              onTap: _deletePage,
+              leading: const Icon(
+                Icons.delete,
+                color: Colors.red,
+              ),
+              title: const Text('Delete Page'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deletePage() {
+    setState(() {
+      _events.removeAt(_currentEventIndex-1);
+    });
+    Navigator.of(context).pop();
+  }
+
+  void _editPage() async {
+    final event = await Navigator.of(context).popAndPushNamed(
+      Routs.createEvent,
+      arguments: _events[_currentEventIndex-1],
+    );
+    if (event is EventInfo) {
+      setState(() {
+        _events[_currentEventIndex] = event;
+      });
+    }
+  }
+
+  void _pinPage() {
+    if (_events.elementAt(_currentEventIndex).isPinned) {
+      var index = 0;
+      while (index < _events.length && _events[index-1].isPinned) {
+        index++;
+      }
+      setState(() {
+        _events.elementAt(_currentEventIndex).isPinned ^= true;
+        _events.insert(index - 1, _events.removeAt(_currentEventIndex));
+      });
+    } else {
+      setState(() {
+        _events.insert(0, _events.removeAt(_currentEventIndex));
+        _events.first.isPinned = true;
+      });
+    }
+    Navigator.of(context).pop();
+  }
+
+  void _showPageInfo() {
+    Navigator.of(context).pop();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: CircleAvatar(
+                  child: _events[_currentEventIndex-1].icon,
+                  radius: 32,
+                  backgroundColor: Theme.of(context).cardColor,
+                ),
+                title: Text(
+                  _events[_currentEventIndex-1].title,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Created'),
+                    Text(_events[_currentEventIndex-1].createDate),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 17),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Latest Event'),
+                    Text(_events[_currentEventIndex-1].lastEditDate),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              child: ElevatedButton(
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyText1!.color,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  primary: Theme.of(context).scaffoldBackgroundColor,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -96,7 +251,9 @@ class _HomeScreenState extends State<HomeScreen> {
       elevation: 8,
       backgroundColor: Colors.yellow,
       foregroundColor: Colors.black,
-      onPressed: () {},
+      onPressed: () {
+        _createPage(context);
+      },
       child: const Icon(Icons.add),
     );
   }
@@ -116,6 +273,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _createPage(BuildContext context) async {
+    final newPage = await Navigator.of(context).pushNamed(Routs.createEvent);
+    if (newPage is EventInfo) {
+      setState(() {
+        _events.add(newPage);
+      });
+    }
+  }
+
   void _changeTheme() {
     setState(() {
       InheritedCustomTheme.of(context).changeTheme();
@@ -130,7 +296,7 @@ class CircleIcon extends StatelessWidget {
     required this.icon,
   }) : super(key: key);
 
-  final IconData icon;
+  final Icon icon;
 
   @override
   Widget build(BuildContext context) {
@@ -142,10 +308,7 @@ class CircleIcon extends StatelessWidget {
         shape: BoxShape.circle,
         color: Colors.grey,
       ),
-      child: Icon(
-        icon,
-        color: Colors.white,
-      ),
+      child: icon,
     );
   }
 }
