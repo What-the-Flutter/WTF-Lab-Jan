@@ -251,7 +251,7 @@ class _EventScreenState extends State<EventScreen> {
                           Row(
                             children: [
                               Text(
-                                _events[index].sendTime,
+                                _events[index].stringSendTime,
                                 style: TextStyle(
                                   color: Colors.black.withOpacity(0.5),
                                 ),
