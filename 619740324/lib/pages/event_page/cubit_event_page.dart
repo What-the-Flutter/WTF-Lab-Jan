@@ -33,6 +33,7 @@ class CubitEventPage extends Cubit<StatesEventPage> {
     }
   }
 
+
   void updateBookmark(Event event) {
     event.isBookmark = !event.isBookmark;
     setEventList(state.eventList);
