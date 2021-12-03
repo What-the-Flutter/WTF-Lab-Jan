@@ -1,43 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'pages/event_page/cubit_event_page.dart';
 
-import 'data/shared_preferences_provider.dart';
-import 'home_page/home_page.dart';
-import 'theme/cubit_theme.dart';
-import 'theme/states_theme.dart';
+import 'pages/home_page/cubit_home_page.dart';
+import 'pages/home_page/home_page.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferencesProvider.initialize();
+void main() {
   runApp(
-    BlocProvider(
-      create: (context) => CubitTheme(),
-      child: MyApp(),
+    MultiBlocProvider(
+      providers: <BlocProvider>[
+        BlocProvider<CubitEventPage>(
+          create: (context) => CubitEventPage(),
+        ),
+        BlocProvider<CubitHomePage>(
+          create: (context) => CubitHomePage(),
+        ),
+      ],
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   @override
-  void initState() {
-    BlocProvider.of<CubitTheme>(context).init();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CubitTheme, StatesTheme>(
-      builder: (context, state) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter project',
-        theme: state.themeData,
-        home: HomePage(),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter project',
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
       ),
+      home: HomePage(),
     );
   }
 }
