@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/event_info.dart';
+import '../../domain/entities/event.dart';
 import '../pages/create/screens/create_screen.dart';
 import '../pages/event/screens/event_screen.dart';
 import '../pages/home/screens/home_screen.dart';
@@ -26,12 +26,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case Routs.event:
       return MaterialPageRoute(
-        builder: (_) => EventScreen(title: settings.arguments as String),
+        builder: (_) => EventScreen(title: settings.arguments as String?),
         settings: settings,
       );
     case Routs.createEvent:
       return MaterialPageRoute(
-        builder: (_) => CreateScreen(eventInfo: settings.arguments as EventInfo?),
+        builder: (_) => CreateScreen(event: settings.arguments as Event?),
         settings: settings,
       );
     default:

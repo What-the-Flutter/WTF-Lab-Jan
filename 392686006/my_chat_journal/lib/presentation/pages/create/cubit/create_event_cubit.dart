@@ -1,12 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import '../../../../domain/entities/event_info.dart';
+import '../../../../domain/entities/event.dart';
 
-part 'create_page_state.dart';
+part 'create_event_state.dart';
 
-class CreatePageCubit extends Cubit<CreatePageState> {
-  CreatePageCubit() : super(CreatePageState());
+class CreateEventCubit extends Cubit<CreateEventState> {
+  CreateEventCubit() : super(CreateEventState());
 
   late IconData _currentIcon;
 
@@ -49,23 +49,23 @@ class CreatePageCubit extends Cubit<CreatePageState> {
 
   void loadIcons() {
     emit(
-      CreatePageState(
+      CreateEventState(
         icons: _icons,
         currentIcon: _icons.first,
       ),
     );
   }
 
-  EventInfo? createPage(String title) {
-    EventInfo updatedPage;
+  Event? createEvent(String title) {
+    Event updatedPage;
     if (title.isEmpty) return null;
     if (state.editPage != null) {
-      updatedPage = EventInfo.copyWith(state.editPage!);
+      updatedPage = Event.from(state.editPage!);
       updatedPage
         ..title = title
         ..icon = Icon(state.currentIcon, color: Colors.white);
     } else {
-      updatedPage = EventInfo(
+      updatedPage = Event(
         title: title,
         icon: Icon(state.currentIcon, color: Colors.white),
       );
@@ -73,11 +73,11 @@ class CreatePageCubit extends Cubit<CreatePageState> {
     return updatedPage;
   }
 
-  void setEditPage(EventInfo? page) {
+  void setEditEvent(Event? page) {
     if (page == null) {
       emit(state.copyWith(
         editPage: page,
-        selectedIcon: state.icons.first,
+        currentIcon: state.icons.first,
       ));
     } else {
       final icons = List<IconData>.from(state.icons);
@@ -89,12 +89,12 @@ class CreatePageCubit extends Cubit<CreatePageState> {
       emit(state.copyWith(
         icons: icons,
         editPage: page,
-        selectedIcon: _currentIcon,
+        currentIcon: _currentIcon,
       ));
     }
   }
 
   void currentIcon(IconData icon) {
-    emit(state.copyWith(selectedIcon: icon));
+    emit(state.copyWith(currentIcon: icon));
   }
 }

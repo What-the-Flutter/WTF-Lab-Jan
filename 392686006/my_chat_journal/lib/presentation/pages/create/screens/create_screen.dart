@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../domain/entities/event_info.dart';
-import '../cubit/create_page_cubit.dart';
+import '../../../../domain/entities/event.dart';
+import '../cubit/create_event_cubit.dart';
 
 class CreateScreen extends StatelessWidget {
   CreateScreen({
     Key? key,
-    this.eventInfo,
+    this.event,
   }) : super(key: key);
 
-  final EventInfo? eventInfo;
-  final TextEditingController _pageNameController = TextEditingController();
+  final Event? event;
+  final TextEditingController _eventNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final createPageCubit = context.read<CreatePageCubit>();
-    createPageCubit.loadIcons();
-    createPageCubit.setEditPage(eventInfo);
-    _pageNameController.text = createPageCubit.state.editPage?.title ?? '';
+    final createEventCubit = context.read<CreateEventCubit>();
+    createEventCubit.loadIcons();
+    createEventCubit.setEditEvent(event);
+    _eventNameController.text = createEventCubit.state.editPage?.title ?? '';
 
     return Scaffold(
-      body: _body(context, createPageCubit),
+      body: _body(context, createEventCubit),
       floatingActionButton: _floatingActionButton(context),
     );
   }
@@ -29,7 +29,7 @@ class CreateScreen extends StatelessWidget {
   FloatingActionButton _floatingActionButton(BuildContext context) {
     return FloatingActionButton(
       onPressed: () => _continueCreatingPageOrCancel(context),
-      child: _pageNameController.text.isEmpty
+      child: _eventNameController.text.isEmpty
           ? const Icon(
               Icons.clear,
               color: Colors.black,
@@ -41,7 +41,7 @@ class CreateScreen extends StatelessWidget {
     );
   }
 
-  Widget _body(BuildContext context, dynamic createPageCubit) {
+  Widget _body(BuildContext context, CreateEventCubit createPageCubit) {
     return Padding(
       padding: const EdgeInsets.only(top: 40),
       child: Container(
@@ -72,7 +72,7 @@ class CreateScreen extends StatelessWidget {
                   TextField(
                     autofocus: true,
                     cursorColor: Theme.of(context).primaryColor,
-                    controller: _pageNameController,
+                    controller: _eventNameController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                     ),
@@ -81,7 +81,7 @@ class CreateScreen extends StatelessWidget {
               ),
             ),
             //TODO
-            BlocBuilder<CreatePageCubit, CreatePageState>(
+            BlocBuilder<CreateEventCubit, CreateEventState>(
               builder: (context, state) {
                 return Expanded(
                   child: GridView.count(
@@ -102,16 +102,16 @@ class CreateScreen extends StatelessWidget {
 
   void _continueCreatingPageOrCancel(BuildContext context) {
     Navigator.of(context).pop(
-      context.read<CreatePageCubit>().createPage(_pageNameController.text),
+      context.read<CreateEventCubit>().createEvent(_eventNameController.text),
     );
   }
 
   List<Widget> _iconList(BuildContext context) {
-    return context.read<CreatePageCubit>().state.icons.map(
+    return context.read<CreateEventCubit>().state.icons.map(
       (iconData) {
         return GestureDetector(
           onTap: () {
-            context.read<CreatePageCubit>().currentIcon(iconData);
+            context.read<CreateEventCubit>().currentIcon(iconData);
           },
           child: _iconListElement(context, iconData),
         );
@@ -131,7 +131,7 @@ class CreateScreen extends StatelessWidget {
           radius: 32,
           backgroundColor: Theme.of(context).cardColor,
         ),
-        if (context.read<CreatePageCubit>().state.currentIcon == iconData)
+        if (context.read<CreateEventCubit>().state.currentIcon == iconData)
           const CircleAvatar(
             radius: 11,
             backgroundColor: Colors.white,

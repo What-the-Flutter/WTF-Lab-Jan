@@ -1,24 +1,24 @@
-part of 'create_page_cubit.dart';
+part of 'create_event_cubit.dart';
 
-class CreatePageState extends Equatable {
+class CreateEventState extends Equatable {
   final List<IconData> icons;
-  final EventInfo? editPage;
+  final Event? editPage;
   late final IconData? currentIcon;
 
-  CreatePageState({
+  CreateEventState({
     this.icons = const [],
     this.currentIcon,
     this.editPage,
   });
 
-  CreatePageState copyWith({
+  CreateEventState copyWith({
     List<IconData>? icons,
-    IconData? selectedIcon,
-    EventInfo? editPage,
+    IconData? currentIcon,
+    Event? editPage,
   }) {
-    return CreatePageState(
+    return CreateEventState(
       icons: icons ?? this.icons,
-      currentIcon:selectedIcon ?? this.currentIcon,
+      currentIcon:currentIcon ?? this.currentIcon,
       editPage: editPage ?? this.editPage,
     );
   }

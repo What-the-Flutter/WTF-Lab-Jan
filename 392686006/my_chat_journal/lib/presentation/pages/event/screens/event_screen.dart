@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../domain/entities/event.dart';
+import '../../../../domain/entities/event_detail.dart';
 
 class EventScreen extends StatefulWidget {
   const EventScreen({Key? key, required this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _EventScreenState createState() => _EventScreenState(title);
@@ -17,12 +17,12 @@ class EventScreen extends StatefulWidget {
 
 class _EventScreenState extends State<EventScreen> {
   final FocusNode _focusNode = FocusNode();
-  final List<Event> _events = [];
+  final List<EventDetail> _events = [];
   final TextEditingController _messageController = TextEditingController();
   int _selectedMessageIndex = -1;
   bool _isCRUDMode = false;
 
-  _EventScreenState(String title);
+  _EventScreenState(String? title);
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _EventScreenState extends State<EventScreen> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: _isCRUDMode == false ? Text('${widget.title}') : Container(),
+          title: _isCRUDMode == false ? Text('${widget.title ?? 'Questionnaire Boot'}') : Container(),
           centerTitle: true,
           actions: _appBarActions,
         ),
@@ -148,7 +148,7 @@ class _EventScreenState extends State<EventScreen> {
                   ),
                   children: [
                     TextSpan(
-                      text: 'This is the ${widget.title} page!',
+                      text: 'This is the ${widget.title ?? 'Questionnaire Boot'} page!',
                     ),
                     const TextSpan(
                       text: '\n\nAdd you first event to "Test" page by '
@@ -322,7 +322,7 @@ class _EventScreenState extends State<EventScreen> {
     final xFile = await imagePicker.pickImage(source: ImageSource.gallery);
     if (xFile != null) {
       File? imageFile = File(xFile.path);
-      _events.insert(0, Event(image: imageFile));
+      _events.insert(0, EventDetail(image: imageFile));
       setState(() {});
     }
   }
@@ -339,7 +339,7 @@ class _EventScreenState extends State<EventScreen> {
     } else if (_messageController.text.isNotEmpty) {
       _events.insert(
         0,
-        Event(
+        EventDetail(
           message: _messageController.text,
         ),
       );

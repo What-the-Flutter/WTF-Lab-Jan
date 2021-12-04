@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/presentation/res/theme_cubit.dart';
 
 import '../navigator/router.dart';
-import '../res/styles.dart';
-import 'create/cubit/create_page_cubit.dart';
+import '../res/theme_cubit.dart';
+import 'create/cubit/create_event_cubit.dart';
+import 'home/cubit/home_page_cubit.dart';
 import 'home/screens/home_screen.dart';
 
 class App extends StatelessWidget {
@@ -15,8 +15,8 @@ class App extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => ThemeCubit()),
-        //BlocProvider<HomePageCubit>(create: (_) => HomePageCubit()),
-        BlocProvider<CreatePageCubit>(create: (_) => CreatePageCubit()),
+        BlocProvider<HomePageCubit>(create: (_) => HomePageCubit()),
+        BlocProvider<CreateEventCubit>(create: (_) => CreateEventCubit()),
         //BlocProvider<EventPageCubit>(create: (_) => EventPageCubit()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeData>(
