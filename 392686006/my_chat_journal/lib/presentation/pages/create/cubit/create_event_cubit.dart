@@ -48,7 +48,20 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     Icons.change_history,
   ];
 
-  void loadIcons() {
+  void init() {
+    _loadIcons();
+    editingController.addListener(_swichFlag);
+  }
+
+  void _swichFlag() {
+    if (editingController.text.isEmpty) {
+      emit(state.copyWith(isContinue: false));
+    } else {
+      emit(state.copyWith(isContinue: true));
+    }
+  }
+
+  void _loadIcons() {
     emit(
       CreateEventState(
         icons: _icons,
@@ -57,29 +70,18 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     );
   }
 
-  void init() {
-    loadIcons();
-    editingController.addListener(() {
-      if (editingController.text.isEmpty){
-        emit(state.copyWith(flag: false));
-      }else{
-        emit(state.copyWith(flag:true));
-      }
-    },);
-  }
-
-
   @override
   Future<void> close() {
     editingController.dispose();
     return super.close();
   }
 
-  Event? createEvent(String title) {
+  Event? createEvent() {
     Event updateEvent;
+    final title = editingController.text;
     if (title.isEmpty) return null;
-    if (state.editPage != null) {
-      updateEvent = Event.from(state.editPage!);
+    if (state.editEvent != null) {
+      updateEvent = Event.from(state.editEvent!);
       updateEvent
         ..title = title
         ..icon = Icon(state.currentIcon, color: Colors.white);
@@ -97,7 +99,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     /// Create event
     if (event == null) {
       emit(state.copyWith(
-        editPage: event,
+        editEvent: event,
         currentIcon: state.icons.first,
       ));
     }
@@ -112,7 +114,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
       emit(state.copyWith(
         icons: icons,
-        editPage: event,
+        editEvent: event,
         currentIcon: _currentIcon,
       ));
     }
@@ -121,6 +123,4 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void currentIcon(IconData icon) {
     emit(state.copyWith(currentIcon: icon));
   }
-
-
 }

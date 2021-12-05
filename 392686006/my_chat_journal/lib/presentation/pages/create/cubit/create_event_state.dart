@@ -2,38 +2,33 @@ part of 'create_event_cubit.dart';
 
 class CreateEventState extends Equatable {
   final List<IconData> icons;
-  final Event? editPage;
+  final Event? editEvent;
   late final IconData? currentIcon;
-  final bool flag;
+  final bool isContinue;
 
   CreateEventState({
     this.icons = const [],
     this.currentIcon,
-    this.editPage,
-    this.flag = false,
+    this.editEvent,
+    this.isContinue = false,
   });
 
   CreateEventState copyWith({
     List<IconData>? icons,
     IconData? currentIcon,
-    Event? editPage,
-    bool? flag,
+    Event? editEvent,
+    bool? isContinue,
   }) {
     return CreateEventState(
       icons: icons ?? this.icons,
       currentIcon: currentIcon ?? this.currentIcon,
-      editPage: editPage ?? this.editPage,
-      flag: flag ?? this.flag,
+      editEvent: editEvent ?? this.editEvent,
+      isContinue: isContinue ?? this.isContinue,
     );
   }
 
   @override
   List<Object?> get props {
-    return [
-      editPage,
-      currentIcon,
-      icons,
-      flag,
-    ];
+    return [editEvent, currentIcon, icons, isContinue];
   }
 }

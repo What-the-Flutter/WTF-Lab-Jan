@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../domain/entities/event.dart';
 import '../cubit/create_event_cubit.dart';
+import '../widgets/check_submit_for_event_icon.dart';
+import '../widgets/event_icon.dart';
 
 class CreateScreen extends StatelessWidget {
   CreateScreen({
@@ -19,7 +21,7 @@ class CreateScreen extends StatelessWidget {
         final cubit = CreateEventCubit();
         cubit.init();
         cubit.createOrEditEvent(event);
-        cubit.editingController.text = cubit.state.editPage?.title ?? '';
+        cubit.editingController.text = cubit.state.editEvent?.title ?? '';
         return cubit;
       },
       child: Scaffold(
@@ -29,19 +31,18 @@ class CreateScreen extends StatelessWidget {
     );
   }
 
-  // завязать на кубит, записывать емпти или не емпти в  стейт и в динамике менять иконку через билдер
   Widget _floatingActionButton() {
     return BlocBuilder<CreateEventCubit, CreateEventState>(
       builder: (context, state) {
         return FloatingActionButton(
           onPressed: () => _continueCreatingPageOrCancel(context),
-          child: !state.flag
+          child: state.isContinue
               ? const Icon(
-                  Icons.clear,
+                  Icons.check,
                   color: Colors.black,
                 )
               : const Icon(
-                  Icons.check,
+                  Icons.clear,
                   color: Colors.black,
                 ),
         );
@@ -50,71 +51,71 @@ class CreateScreen extends StatelessWidget {
   }
 
   Widget _body() {
-    return Builder(
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 40),
-          child: Container(
-            padding: const EdgeInsets.all(30),
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Text(
-                  context.read<CreateEventCubit>().state.editPage == null ? 'Create New Page' : 'Edit Page',
-                  style: const TextStyle(
-                    fontSize: 27,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Builder(builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: Container(
+          padding: const EdgeInsets.all(30),
+          alignment: Alignment.center,
+          child: Column(
+            children: [
+              Text(
+                context.read<CreateEventCubit>().state.editEvent == null
+                    ? 'Create New Page'
+                    : 'Edit Page',
+                style: const TextStyle(
+                  fontSize: 27,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).backgroundColor,
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Name of the Event',
-                        style: TextStyle(color: Theme.of(context).primaryColor),
-                      ),
-                      TextField(
-                        autofocus: true,
-                        cursorColor: Theme.of(context).primaryColor,
-                        controller: context.read<CreateEventCubit>().editingController,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).backgroundColor,
                 ),
-                BlocBuilder<CreateEventCubit, CreateEventState>(
-                  builder: (context, state) {
-                    return Expanded(
-                      child: GridView.count(
-                        padding: const EdgeInsets.all(20),
-                        mainAxisSpacing: 20,
-                        crossAxisSpacing: 20,
-                        crossAxisCount: 4,
-                        children: _iconList(context),
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Name of the Event',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
+                    TextField(
+                      autofocus: true,
+                      cursorColor: Theme.of(context).primaryColor,
+                      controller: context.read<CreateEventCubit>().editingController,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              BlocBuilder<CreateEventCubit, CreateEventState>(
+                builder: (context, state) {
+                  return Expanded(
+                    child: GridView.count(
+                      padding: const EdgeInsets.all(20),
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                      crossAxisCount: 4,
+                      children: _iconList(context),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        );
-      }
-    );
+        ),
+      );
+    });
   }
 
   Future<void> _continueCreatingPageOrCancel(BuildContext context) async {
     final cubit = context.read<CreateEventCubit>();
-    final event = await cubit.createEvent(cubit.editingController.text);
-    if (event != null) Navigator.of(context).pop(event);
+    final event = await cubit.createEvent();
+    Navigator.of(context).pop(event);
   }
 
   List<Widget> _iconList(BuildContext context) {
@@ -134,29 +135,9 @@ class CreateScreen extends StatelessWidget {
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
-        CircleAvatar(
-          child: Icon(
-            iconData,
-            color: Colors.white,
-          ),
-          radius: 32,
-          backgroundColor: Theme.of(context).cardColor,
-        ),
+        EventIcon(iconData: iconData),
         if (context.read<CreateEventCubit>().state.currentIcon == iconData)
-          const CircleAvatar(
-            radius: 11,
-            backgroundColor: Colors.white,
-            child: CircleAvatar(
-              radius: 9,
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              child: Icon(
-                Icons.check,
-                color: Colors.white,
-                size: 17,
-              ),
-            ),
-          ),
+          const CheckSubmitForEventIcon(),
       ],
     );
   }
