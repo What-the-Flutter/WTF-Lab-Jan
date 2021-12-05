@@ -16,7 +16,6 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => ThemeCubit()),
         BlocProvider<HomePageCubit>(create: (_) => HomePageCubit()),
-        BlocProvider<CreateEventCubit>(create: (_) => CreateEventCubit()),
         //BlocProvider<EventPageCubit>(create: (_) => EventPageCubit()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeData>(

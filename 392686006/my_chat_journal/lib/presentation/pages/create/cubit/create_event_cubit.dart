@@ -8,7 +8,8 @@ part 'create_event_state.dart';
 class CreateEventCubit extends Cubit<CreateEventState> {
   CreateEventCubit() : super(CreateEventState());
 
-  late IconData _currentIcon;
+  IconData? _currentIcon;
+  final editingController = TextEditingController();
 
   final List<IconData> _icons = <IconData>[
     Icons.collections_bookmark,
@@ -56,39 +57,62 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     );
   }
 
+  void init() {
+    loadIcons();
+    editingController.addListener(() {
+      if (editingController.text.isEmpty){
+        emit(state.copyWith(flag: false));
+      }else{
+        emit(state.copyWith(flag:true));
+      }
+    },);
+  }
+
+
+  @override
+  Future<void> close() {
+    editingController.dispose();
+    return super.close();
+  }
+
   Event? createEvent(String title) {
-    Event updatedPage;
+    Event updateEvent;
     if (title.isEmpty) return null;
     if (state.editPage != null) {
-      updatedPage = Event.from(state.editPage!);
-      updatedPage
+      updateEvent = Event.from(state.editPage!);
+      updateEvent
         ..title = title
         ..icon = Icon(state.currentIcon, color: Colors.white);
     } else {
-      updatedPage = Event(
+      updateEvent = Event(
         title: title,
         icon: Icon(state.currentIcon, color: Colors.white),
       );
     }
-    return updatedPage;
+    return updateEvent;
   }
 
-  void setEditEvent(Event? page) {
-    if (page == null) {
+  /// This method created new event or make it possible to change the current event
+  void createOrEditEvent(Event? event) {
+    /// Create event
+    if (event == null) {
       emit(state.copyWith(
-        editPage: page,
+        editPage: event,
         currentIcon: state.icons.first,
       ));
-    } else {
+    }
+
+    /// Edit event
+    else {
       final icons = List<IconData>.from(state.icons);
-      final currentIndex = icons.indexOf(page.icon.icon!);
+      final currentIndex = icons.indexOf(event.icon.icon!);
       if (currentIndex != 0) {
-        _currentIcon = page.icon.icon!;
+        _currentIcon = event.icon.icon!;
       }
 
       emit(state.copyWith(
         icons: icons,
-        editPage: page,
+        editPage: event,
         currentIcon: _currentIcon,
       ));
     }
@@ -97,4 +121,6 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void currentIcon(IconData icon) {
     emit(state.copyWith(currentIcon: icon));
   }
+
+
 }

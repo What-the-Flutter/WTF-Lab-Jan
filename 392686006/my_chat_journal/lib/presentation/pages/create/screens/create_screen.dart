@@ -11,99 +11,110 @@ class CreateScreen extends StatelessWidget {
   }) : super(key: key);
 
   final Event? event;
-  final TextEditingController _eventNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final createEventCubit = context.read<CreateEventCubit>();
-    createEventCubit.loadIcons();
-    createEventCubit.setEditEvent(event);
-    _eventNameController.text = createEventCubit.state.editPage?.title ?? '';
-
-    return Scaffold(
-      body: _body(context, createEventCubit),
-      floatingActionButton: _floatingActionButton(context),
-    );
-  }
-
-  FloatingActionButton _floatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => _continueCreatingPageOrCancel(context),
-      child: _eventNameController.text.isEmpty
-          ? const Icon(
-              Icons.clear,
-              color: Colors.black,
-            )
-          : const Icon(
-              Icons.check,
-              color: Colors.black,
-            ),
-    );
-  }
-
-  Widget _body(BuildContext context, CreateEventCubit createPageCubit) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 40),
-      child: Container(
-        padding: const EdgeInsets.all(30),
-        alignment: Alignment.center,
-        child: Column(
-          children: [
-            Text(
-              createPageCubit.state.editPage == null ? 'Create New Page' : 'Edit Page',
-              style: const TextStyle(
-                fontSize: 27,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).backgroundColor,
-              ),
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Name of the Page',
-                    style: TextStyle(color: Theme.of(context).primaryColor),
-                  ),
-                  TextField(
-                    autofocus: true,
-                    cursorColor: Theme.of(context).primaryColor,
-                    controller: _eventNameController,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            //TODO
-            BlocBuilder<CreateEventCubit, CreateEventState>(
-              builder: (context, state) {
-                return Expanded(
-                  child: GridView.count(
-                    padding: const EdgeInsets.all(20),
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    crossAxisCount: 4,
-                    children: _iconList(context),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+    return BlocProvider<CreateEventCubit>(
+      create: (_) {
+        final cubit = CreateEventCubit();
+        cubit.init();
+        cubit.createOrEditEvent(event);
+        cubit.editingController.text = cubit.state.editPage?.title ?? '';
+        return cubit;
+      },
+      child: Scaffold(
+        body: _body(),
+        floatingActionButton: _floatingActionButton(),
       ),
     );
   }
 
-  void _continueCreatingPageOrCancel(BuildContext context) {
-    Navigator.of(context).pop(
-      context.read<CreateEventCubit>().createEvent(_eventNameController.text),
+  // завязать на кубит, записывать емпти или не емпти в  стейт и в динамике менять иконку через билдер
+  Widget _floatingActionButton() {
+    return BlocBuilder<CreateEventCubit, CreateEventState>(
+      builder: (context, state) {
+        return FloatingActionButton(
+          onPressed: () => _continueCreatingPageOrCancel(context),
+          child: !state.flag
+              ? const Icon(
+                  Icons.clear,
+                  color: Colors.black,
+                )
+              : const Icon(
+                  Icons.check,
+                  color: Colors.black,
+                ),
+        );
+      },
     );
+  }
+
+  Widget _body() {
+    return Builder(
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 40),
+          child: Container(
+            padding: const EdgeInsets.all(30),
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                Text(
+                  context.read<CreateEventCubit>().state.editPage == null ? 'Create New Page' : 'Edit Page',
+                  style: const TextStyle(
+                    fontSize: 27,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).backgroundColor,
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Name of the Event',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                      TextField(
+                        autofocus: true,
+                        cursorColor: Theme.of(context).primaryColor,
+                        controller: context.read<CreateEventCubit>().editingController,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                BlocBuilder<CreateEventCubit, CreateEventState>(
+                  builder: (context, state) {
+                    return Expanded(
+                      child: GridView.count(
+                        padding: const EdgeInsets.all(20),
+                        mainAxisSpacing: 20,
+                        crossAxisSpacing: 20,
+                        crossAxisCount: 4,
+                        children: _iconList(context),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    );
+  }
+
+  Future<void> _continueCreatingPageOrCancel(BuildContext context) async {
+    final cubit = context.read<CreateEventCubit>();
+    final event = await cubit.createEvent(cubit.editingController.text);
+    if (event != null) Navigator.of(context).pop(event);
   }
 
   List<Widget> _iconList(BuildContext context) {
