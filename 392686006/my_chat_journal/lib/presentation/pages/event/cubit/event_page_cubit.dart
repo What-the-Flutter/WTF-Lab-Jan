@@ -26,25 +26,37 @@ class EventPageCubit extends Cubit<EventPageState> {
 
   final List<Category> _initCategories = const <Category>[
     Category(icon: Icons.favorite, title: 'favorite'),
-    Category(icon: Icons.ac_unit, title: 'ac unit'),
+    Category(icon: Icons.agriculture_sharp, title: 'jym'),
     Category(icon: Icons.wine_bar, title: 'wine bar'),
     Category(icon: Icons.local_pizza, title: 'local pizza'),
     Category(icon: Icons.money, title: 'money'),
     Category(icon: Icons.car_rental, title: 'car rental'),
     Category(icon: Icons.food_bank, title: 'food bank'),
     Category(icon: Icons.navigation, title: 'navigation'),
+    Category(icon: Icons.auto_graph_sharp, title: 'stars'),
+    Category(icon: Icons.airplanemode_active, title: 'air'),
   ];
 
   EventPageCubit() : super(EventPageState());
 
-  void init(Event page) {
+  void init(Event event) {
+    messageController.addListener(_setIsAvaliableForSend);
     emit(
       state.copyWith(
-        selectedCategory: _defaultCategory,
-        page: page,
-        categories: state.categories.isEmpty ? _initCategories : state.categories,
+        currentCategory: _defaultCategory,
+        event: event,
+        //categories: state.categories.isEmpty ? _initCategories : state.categories,
+        categories: _initCategories,
       ),
     );
+  }
+
+  void _setIsAvaliableForSend() {
+    if (messageController.text.isEmpty) {
+      emit(state.copyWith(isAvailableForSend: false));
+    } else {
+      emit(state.copyWith(isAvailableForSend: true));
+    }
   }
 
   @override
@@ -52,7 +64,7 @@ class EventPageCubit extends Cubit<EventPageState> {
     messageController.dispose();
     searchController.dispose();
     searchFocusNode.dispose();
-    searchController.dispose();
+    messageFocusNode.dispose();
     return super.close();
   }
 
@@ -64,46 +76,46 @@ class EventPageCubit extends Cubit<EventPageState> {
     emit(state.copyWith(isSearchMode: isSearchMode));
   }
 
-  bool isSearchSuggest(int index, String query) {
-    if (state.page!.events[index].message == null) {
+  bool isSearchSuggestion(int index, String query) {
+    if (state.event!.events[index].message == null) {
       return false;
     }
-    return state.page!.events[index].message!.toLowerCase().contains(query.toLowerCase());
+    return state.event!.events[index].message!.toLowerCase().contains(query.toLowerCase());
   }
 
   void setCategory(Category category) {
-    emit(state.copyWith(selectedCategory: category));
+    emit(state.copyWith(currentCategory: category));
   }
 
-  void setReplyPage(BuildContext context, int index) {
-    final page = context.read<HomePageCubit>().state.events[index];
+  void setReplyEventElement(BuildContext context, int index) {
+    final eventElement = context.read<HomePageCubit>().state.events[index];
     emit(state.copyWith(
-      replyPage: page,
-      replyPageIndex: index,
+      replyEvent: eventElement,
+      replyEventIndex: index,
     ));
   }
 
   void setDefaultCategory() {
-    emit(state.copyWith(selectedCategory: _defaultCategory));
+    emit(state.copyWith(currentCategory: _defaultCategory));
   }
 
-  void setMessageEdit(bool isMessageEdit) {
+  void setEventElementEdit(bool isMessageEdit) {
     emit(state.copyWith(isMessageEdit: isMessageEdit));
   }
 
-  void unselectEvents() {
-    emit(state.copyWith(selectedEvents: []));
+  void unselectEventElements() {
+    emit(state.copyWith(selectedEventElements: []));
   }
 
-  void changeBookmarkedOnly() {
+  void changeBookmarked() {
     emit(
-      state.copyWith(isBookmarkedOnly: state.isBookmarkedOnly ? false : true),
+      state.copyWith(isBookmarked: state.isBookmarked ? false : true),
     );
   }
 
-  void selectEvent(int index) {
-    var updatedSelectedEvents = List<int>.from(state.selectedEvents);
-    if (state.selectedEvents.contains(index)) {
+  void selectEventElements(int index) {
+    var updatedSelectedEvents = List<int>.from(state.selectedEventElements);
+    if (state.selectedEventElements.contains(index)) {
       updatedSelectedEvents.remove(index);
       if (updatedSelectedEvents.isEmpty) {
         setEditMode(false);
@@ -111,85 +123,77 @@ class EventPageCubit extends Cubit<EventPageState> {
     } else {
       updatedSelectedEvents.add(index);
     }
-    emit(state.copyWith(selectedEvents: updatedSelectedEvents));
+    emit(state.copyWith(selectedEventElements: updatedSelectedEvents));
   }
 
-  void replyEvents(BuildContext context) {
-    final page = state.replyPage;
-    var eventsToReply = <EventElement>[];
-    for (var i in state.selectedEvents) {
-      eventsToReply.add(state.page!.events[i]);
+  void replyEventElements(BuildContext context) {
+    final event = state.replyEvent;
+    var eventElementsToReply = <EventElement>[];
+    for (var i in state.selectedEventElements) {
+      eventElementsToReply.add(state.event!.events[i]);
     }
-    deleteEvent();
-    context.read<HomePageCubit>().fillEventDetail(eventsToReply, page!);
+    deleteEventElements();
+    context.read<HomePageCubit>().fillEventWithEventElements(eventElementsToReply, event!);
   }
 
-  void copyEvent() {
-    final message = state.page!.events[state.selectedEvents[0]].message;
+  void copyEventElement() {
+    final message = state.event!.events[state.selectedEventElements.first].message;
     if (message != null) {
       Clipboard.setData(ClipboardData(text: message));
     }
     setEditMode(false);
-    unselectEvents();
+    unselectEventElements();
   }
 
-  void bookMarkEvent() {
-    var selectedEvents = List<int>.from(state.selectedEvents)..sort();
-    var updatedPage = Event.from(state.page!);
+  void bookMarkEventElements() {
+    var selectedEvents = List<int>.from(state.selectedEventElements)..sort();
+    var updatedEvent = Event.from(state.event!);
     for (var index in selectedEvents) {
-      updatedPage.events[index].isBookmarked =
-          updatedPage.events[index].isBookmarked ? false : true;
+      updatedEvent.events[index].isBookmarked =
+          updatedEvent.events[index].isBookmarked ? false : true;
     }
     setEditMode(false);
-    unselectEvents();
+    unselectEventElements();
   }
 
-  void deleteEvent() {
-    var selectedEvents = List<int>.from(state.selectedEvents)..sort();
-    var updatedPage = Event.from(state.page!);
-    for (var i = selectedEvents.length - 1; i >= 0; i--) {
-      updatedPage.events.removeAt(selectedEvents[i]);
+  void deleteEventElements() {
+    var selectedEventElements = List<int>.from(state.selectedEventElements)..sort();
+    var updatedEvent = Event.from(state.event!);
+    for (var i = selectedEventElements.length - 1; i >= 0; i--) {
+      updatedEvent.events.removeAt(selectedEventElements[i]);
     }
     setEditMode(false);
-    unselectEvents();
+    unselectEventElements();
   }
 
-  Future<void> addImageEvent() async {
+  Future<void> addEventElementImage() async {
     final imagePicker = ImagePicker();
-    final xFile = await imagePicker.pickImage(source: ImageSource.gallery);
-    if (xFile != null) {
-      var imageFile = File(xFile.path);
-      var updatedPage = Event.from(state.page!)..events.insert(0, EventElement(image: imageFile));
-      emit(state.copyWith(page: updatedPage));
+    final file = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      var imageFile = File(file.path);
+      var updatedEvent = Event.from(state.event!)..events.insert(0, EventElement(image: imageFile));
+      emit(state.copyWith(event: updatedEvent));
     }
   }
 
-  void addMessageEvent(String text) {
-    Event? updatedPage;
-    if (state.selectedEvents.length == 1 && state.isMessageEdit) {
+  void addEventElementMessage(String text) {
+    Event? updatedEvent;
+    if (state.selectedEventElements.length == 1 && state.isMessageEdit) {
       if (text.isEmpty) {
-        updatedPage = state.page!..events.removeAt(state.selectedEvents[0]);
+        updatedEvent = state.event!..events.removeAt(state.selectedEventElements.first);
       } else {
-        updatedPage = state.page!
-          ..events[state.selectedEvents[0]].message = text
-          ..events[state.selectedEvents[0]].updateSendTime();
+        updatedEvent = state.event!
+          ..events[state.selectedEventElements.first].message = text
+          ..events[state.selectedEventElements.first].updateSendTime();
       }
-      emit(state.copyWith(selectedEvents: []));
+      emit(state.copyWith(selectedEventElements: []));
     } else if (text.isNotEmpty) {
-      updatedPage = state.page!..events.insert(0, EventElement(message: text));
-      if (state.selectedCategory != _defaultCategory) {
-        updatedPage.events[0].category = state.selectedCategory;
+      updatedEvent = state.event!..events.insert(0, EventElement(message: text));
+      if (state.currentCategory != _defaultCategory) {
+        updatedEvent.events.first.category = state.currentCategory;
         setDefaultCategory();
       }
     }
-    emit(state.copyWith(page: updatedPage));
-  }
-
-  void setHorizontalDragStart(DragStartDetails details) {
-    emit(state.copyWith(xStart: details.globalPosition.dx));
-  }
-
-  void setHorizontalDragUpdate(DragUpdateDetails details) {
-    emit(state.copyWith(xCurrent: details.globalPosition.dx));
+    emit(state.copyWith(event: updatedEvent));
   }
 }

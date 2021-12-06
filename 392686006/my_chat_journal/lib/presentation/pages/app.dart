@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_chat_journal/presentation/pages/event/cubit/event_page_cubit.dart';
 
 import '../navigator/router.dart';
 import '../res/theme/theme_cubit.dart';
+import 'event/cubit/event_page_cubit.dart';
 import 'home/cubit/home_page_cubit.dart';
 import 'home/screens/home_screen.dart';
 

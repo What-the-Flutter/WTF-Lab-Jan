@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../../../domain/entities/event.dart';
 import '../../home/cubit/home_page_cubit.dart';
@@ -9,25 +10,26 @@ import '../cubit/event_page_cubit.dart';
 class EventScreen extends StatelessWidget {
   EventScreen({Key? key, required this.event}) : super(key: key);
 
-  final Event? event;
+  final Event event;
 
   @override
   Widget build(BuildContext context) {
-    context.read<EventPageCubit>().init(event!);
+    final cubit = context.read<EventPageCubit>();
+    cubit.init(event);
     return BlocBuilder<EventPageCubit, EventPageState>(
       builder: (context, state) {
         return Scaffold(
           appBar: _appBar(state, context),
           body: GestureDetector(
             onTap: () {
-              context.read<EventPageCubit>()
+              cubit
                 ..setEditMode(false)
-                ..unselectEvents();
+                ..unselectEventElements();
               FocusScope.of(context).unfocus();
             },
             child: Column(
               children: [
-                state.page!.events.isEmpty ? _hintMessageBox(context) : _eventList(context),
+                state.event!.events.isEmpty ? _hintMessageBox(context) : _eventElementList(context),
                 _messageBar(context),
               ],
             ),
@@ -59,7 +61,7 @@ class EventScreen extends StatelessWidget {
                 ),
               ),
             )
-          : Center(child: Text(state.page!.title)),
+          : Center(child: Text(state.event!.title)),
       actions: _appBarActions(context),
     );
   }
@@ -72,8 +74,8 @@ class EventScreen extends StatelessWidget {
           icon: const Icon(Icons.reply),
           onPressed: () => _replyEvents(context),
         ),
-        if (state.selectedEvents.length == 1 &&
-            state.page!.events[state.selectedEvents[0]].message != null)
+        if (state.selectedEventElements.length == 1 &&
+            state.event!.events[state.selectedEventElements[0]].message != null)
           Row(
             children: [
               IconButton(
@@ -87,7 +89,7 @@ class EventScreen extends StatelessWidget {
             ],
           ),
         IconButton(
-          icon: state.page!.events[state.selectedEvents[0]].isBookmarked
+          icon: state.event!.events[state.selectedEventElements[0]].isBookmarked
               ? const Icon(Icons.bookmark)
               : const Icon(Icons.bookmark_border),
           onPressed: () => _bookmarkEvent(context),
@@ -114,10 +116,8 @@ class EventScreen extends StatelessWidget {
           },
         ),
         IconButton(
-          icon: state.isBookmarkedOnly
-              ? const Icon(Icons.bookmark)
-              : const Icon(Icons.bookmark_border),
-          onPressed: () => context.read<EventPageCubit>().changeBookmarkedOnly(),
+          icon: state.isBookmarked ? const Icon(Icons.bookmark) : const Icon(Icons.bookmark_border),
+          onPressed: () => context.read<EventPageCubit>().changeBookmarked(),
         ),
       ];
     }
@@ -153,12 +153,12 @@ class EventScreen extends StatelessWidget {
                             Container(
                               width: 80,
                               child: RadioListTile<int>(
-                                activeColor: Theme.of(context).accentColor,
+                                activeColor: Colors.green,
                                 value: index,
-                                groupValue: context.read<EventPageCubit>().state.replyPageIndex,
+                                groupValue: context.read<EventPageCubit>().state.replyEventIndex,
                                 onChanged: (value) => context
                                     .read<EventPageCubit>()
-                                    .setReplyPage(context, value as int),
+                                    .setReplyEventElement(context, value as int),
                               ),
                             ),
                             Expanded(
@@ -192,7 +192,7 @@ class EventScreen extends StatelessWidget {
                   primary: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 onPressed: () {
-                  context.read<EventPageCubit>().replyEvents(context);
+                  context.read<EventPageCubit>().replyEventElements(context);
                   Navigator.of(context).pop();
                 },
               ),
@@ -203,28 +203,46 @@ class EventScreen extends StatelessWidget {
     );
   }
 
+  void _editSlidableEventElement(BuildContext context, {required int index}) {
+    final cubit = context.read<EventPageCubit>();
+    cubit.messageFocusNode.requestFocus();
+    cubit.messageController.text = cubit.state.event!.events[index].message!;
+    cubit.setEditMode(false);
+    cubit.setEventElementEdit(true);
+  }
+
   void _editEvent(BuildContext context) {
     final cubit = context.read<EventPageCubit>();
     cubit.messageFocusNode.requestFocus();
-    cubit.messageController.text = cubit.state.page!.events[cubit.state.selectedEvents[0]].message!;
+    cubit.messageController.text =
+        cubit.state.event!.events[cubit.state.selectedEventElements.first].message!;
     cubit.messageController.selection = TextSelection.fromPosition(
       TextPosition(offset: cubit.messageController.text.length),
     );
     context.read<EventPageCubit>()
       ..setEditMode(false)
-      ..setMessageEdit(true);
+      ..setEventElementEdit(true);
   }
 
   void _copyEvent(BuildContext context) {
-    context.read<EventPageCubit>().copyEvent();
+    context.read<EventPageCubit>().copyEventElement();
   }
 
   void _bookmarkEvent(BuildContext context) {
-    context.read<EventPageCubit>().bookMarkEvent();
+    context.read<EventPageCubit>().bookMarkEventElements();
+  }
+
+  void _deleteSlidableEventElement(BuildContext context, {required int index}) {
+    final cubit = context.read<EventPageCubit>();
+    var currentEventElement = cubit.state.selectedEventElements[index];
+    var updatedEvent = Event.from(cubit.state.event!);
+    updatedEvent.events.removeAt(currentEventElement);
+    cubit.setEditMode(false);
+    cubit.state.copyWith(event: updatedEvent);
   }
 
   void _deleteEvent(BuildContext context) {
-    context.read<EventPageCubit>().deleteEvent();
+    context.read<EventPageCubit>().deleteEventElements();
   }
 
   Widget _hintMessageBox(BuildContext context) {
@@ -284,11 +302,11 @@ class EventScreen extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: 'This is the page where you can track '
-                              'everything about "${state.page!.title}"!\n\n',
+                              'everything about "${state.event!.title}"!\n\n',
                           style: Theme.of(context).primaryTextTheme.bodyText1,
                         ),
                         TextSpan(
-                          text: 'Add you first event to "${state.page!.title}" page by '
+                          text: 'Add you first event to "${state.event!.title}" page by '
                               'entering some text in the text box below '
                               'and hitting the send button. Tap on the '
                               'bookmark icon on the top right corner to '
@@ -304,27 +322,63 @@ class EventScreen extends StatelessWidget {
     );
   }
 
-  Widget _eventList(BuildContext context) {
+  Widget _eventElementList(BuildContext context) {
     final cubit = context.read<EventPageCubit>();
     return Expanded(
       child: ListView.builder(
         reverse: true,
-        itemCount: cubit.state.page!.events.length,
+        itemCount: cubit.state.event!.events.length,
         itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () => context.read<EventPageCubit>().selectEvent(index),
-            onLongPress: () {
-              context.read<EventPageCubit>()
-                ..setEditMode(true)
-                ..selectEvent(index);
-            },
-            child: Row(
+          return Slidable(
+            key: const ValueKey(0),
+            //from left to right
+            startActionPane: ActionPane(
+              motion: const ScrollMotion(),
               children: [
-                if (cubit.state.page!.events[index].isBookmarked ||
-                    !cubit.state.isBookmarkedOnly ||
-                    context.read<EventPageCubit>().isSearchSuggest(index, cubit.searchController.text))
-                  _eventListElement(index, context),
+                SlidableAction(
+                  onPressed: (context) {
+                    _editSlidableEventElement(context, index: index);
+                  },
+                  backgroundColor: const Color(0xFF21B7CA),
+                  foregroundColor: Colors.white,
+                  icon: Icons.edit,
+                  label: 'Edit',
+                ),
               ],
+            ),
+            // from right to left
+            endActionPane: ActionPane(
+              motion: const ScrollMotion(),
+              dismissible: DismissiblePane(onDismissed: () {}),
+              children: [
+                SlidableAction(
+                  onPressed: (context) {
+                    _deleteSlidableEventElement(context, index: index);
+                  },
+                  backgroundColor: const Color(0xFF7BC043),
+                  foregroundColor: Colors.white,
+                  icon: Icons.delete,
+                  label: 'Delete',
+                ),
+              ],
+            ),
+            child: GestureDetector(
+              onTap: () => context.read<EventPageCubit>().selectEventElements(index),
+              onLongPress: () {
+                context.read<EventPageCubit>()
+                  ..setEditMode(true)
+                  ..selectEventElements(index);
+              },
+              child: Row(
+                children: [
+                  if (cubit.state.event!.events[index].isBookmarked ||
+                      !cubit.state.isBookmarked ||
+                      context
+                          .read<EventPageCubit>()
+                          .isSearchSuggestion(index, cubit.searchController.text))
+                    _eventListElement(index, context),
+                ],
+              ),
             ),
           );
         },
@@ -334,11 +388,11 @@ class EventScreen extends StatelessWidget {
 
   Widget _eventListElement(int index, BuildContext context) {
     final cubit = context.read<EventPageCubit>();
-    final event = cubit.state.page!.events[index];
+    final event = cubit.state.event!.events[index];
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(12)),
-        color: cubit.state.selectedEvents.contains(index)
+        color: cubit.state.selectedEventElements.contains(index)
             ? Theme.of(context).selectedRowColor
             : Theme.of(context).dialogBackgroundColor,
       ),
@@ -351,7 +405,9 @@ class EventScreen extends StatelessWidget {
         vertical: 8,
       ),
       child: (cubit.state.isSearchMode &&
-              !context.read<EventPageCubit>().isSearchSuggest(index, cubit.searchController.text))
+              !context
+                  .read<EventPageCubit>()
+                  .isSearchSuggestion(index, cubit.searchController.text))
           ? Container()
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,12 +464,8 @@ class EventScreen extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.attach_file, color: Colors.green),
-            onPressed: () => _addImageEvent(context),
-          ),
-          IconButton(
             icon: Icon(
-              context.read<EventPageCubit>().state.selectedCategory.icon,
+              context.read<EventPageCubit>().state.currentCategory.icon,
               color: Colors.green,
             ),
             onPressed: () {
@@ -434,12 +486,21 @@ class EventScreen extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.send,
-              color: Colors.green,
-            ),
-            onPressed: () => _addMessageEvent(context),
+          BlocBuilder<EventPageCubit, EventPageState>(
+            builder: (context, state) {
+              return IconButton(
+                onPressed: () => _addEventElement(context),
+                icon: state.isAvailableForSend
+                    ? const Icon(
+                        Icons.send,
+                        color: Colors.green,
+                      )
+                    : const Icon(
+                        Icons.add_a_photo,
+                        color: Colors.green,
+                      ),
+              );
+            },
           ),
         ],
       ),
@@ -488,13 +549,18 @@ class EventScreen extends StatelessWidget {
     );
   }
 
+  void _addEventElement(BuildContext context) {
+    final cubit = context.read<EventPageCubit>();
+    cubit.state.isAvailableForSend ? _addMessageEvent(context) : _addImageEvent(context);
+  }
+
   void _addImageEvent(BuildContext context) {
-    context.read<EventPageCubit>().addImageEvent();
+    context.read<EventPageCubit>().addEventElementImage();
   }
 
   void _addMessageEvent(BuildContext context) {
     final cubit = context.read<EventPageCubit>();
-    context.read<EventPageCubit>().addMessageEvent(cubit.messageController.text);
+    context.read<EventPageCubit>().addEventElementMessage(cubit.messageController.text);
     FocusScope.of(context).unfocus();
     cubit.messageController.clear();
   }

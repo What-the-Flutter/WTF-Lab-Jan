@@ -1,81 +1,76 @@
 part of 'event_page_cubit.dart';
 
 class EventPageState extends Equatable {
-  final Event? page;
-  final List<int> selectedEvents;
+  final List<Category> categories;
+  final List<int> selectedEventElements;
   final bool isEditMode;
   final bool isSearchMode;
-  final bool isBookmarkedOnly;
+  final bool isBookmarked;
   final bool isMessageEdit;
-  final List<Category> categories;
-  final Category selectedCategory;
-  final Event? replyPage;
-  final int replyPageIndex;
-  final double? xStart;
-  final double? xCurrent;
+  final Category currentCategory;
+  final int replyEventIndex;
+  final Event? replyEvent;
+  final Event? event;
+  final bool isAvailableForSend;
 
   EventPageState({
-    this.xCurrent,
-    this.xStart,
-    this.page,
-    this.selectedEvents = const [],
+    this.event,
+    this.selectedEventElements = const [],
     this.categories = const [],
     this.isEditMode = false,
     this.isSearchMode = false,
-    this.isBookmarkedOnly = false,
+    this.isBookmarked = false,
     this.isMessageEdit = false,
-    this.selectedCategory = const Category(
+    this.currentCategory = const Category(
       icon: Icons.favorite,
       title: 'favorite',
     ),
-    this.replyPage,
-    this.replyPageIndex = 0,
+    this.replyEvent,
+    this.replyEventIndex = 0,
+    this.isAvailableForSend = false,
   });
 
   EventPageState copyWith({
-    double? xStart,
-    double? xCurrent,
-    Event? page,
-    List<int>? selectedEvents,
+    Event? event,
+    List<int>? selectedEventElements,
     bool? isEditMode,
     bool? isSearchMode,
     List<Category>? categories,
-    bool? isBookmarkedOnly,
+    bool? isBookmarked,
     bool? isMessageEdit,
-    Category? selectedCategory,
-    Event? replyPage,
-    int? replyPageIndex,
+    Category? currentCategory,
+    Event? replyEvent,
+    int? replyEventIndex,
+    bool? isAvailableForSend,
   }) {
     return EventPageState(
-      xStart: xStart ?? this.xStart,
-      xCurrent: xCurrent ?? this.xCurrent,
-      page: page ?? this.page,
-      selectedEvents: selectedEvents ?? this.selectedEvents,
+      event: event ?? this.event,
+      selectedEventElements: selectedEventElements ?? this.selectedEventElements,
       isEditMode: isEditMode ?? this.isEditMode,
       isSearchMode: isSearchMode ?? this.isSearchMode,
       categories: categories ?? this.categories,
-      isBookmarkedOnly: isBookmarkedOnly ?? this.isBookmarkedOnly,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
       isMessageEdit: isMessageEdit ?? this.isMessageEdit,
-      selectedCategory: selectedCategory ?? this.selectedCategory,
-      replyPage: replyPage ?? this.replyPage,
-      replyPageIndex: replyPageIndex ?? this.replyPageIndex,
+      currentCategory: currentCategory ?? this.currentCategory,
+      replyEvent: replyEvent ?? this.replyEvent,
+      replyEventIndex: replyEventIndex ?? this.replyEventIndex,
+      isAvailableForSend: isAvailableForSend ?? this.isAvailableForSend,
     );
   }
 
   @override
   List<Object?> get props {
     return [
-      selectedEvents,
+      selectedEventElements,
       isEditMode,
       isSearchMode,
-      isBookmarkedOnly,
+      isBookmarked,
       isMessageEdit,
-      selectedCategory,
-      replyPageIndex,
-      page,
-      replyPage,
-      xStart,
-      xCurrent,
+      currentCategory,
+      replyEventIndex,
+      event,
+      replyEvent,
+      isAvailableForSend,
     ];
   }
 }
