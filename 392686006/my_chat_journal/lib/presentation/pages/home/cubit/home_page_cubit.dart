@@ -40,7 +40,7 @@ class HomePageCubit extends Cubit<HomePageState> {
   }
 
   /// This method fill an event object with eventDetails objects intended for it
-  void fillEventDetail(List<EventDetail> eventDetailList, Event event) {
+  void fillEventDetail(List<EventElement> eventDetailList, Event event) {
     final events = List<Event>.from(state.events);
     final index = events.indexOf(event);
     for (var current in eventDetailList) {

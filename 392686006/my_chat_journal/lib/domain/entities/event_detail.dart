@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'category.dart';
 
 /// The element that is created on the event page
-class EventDetail {
+class EventElement {
   String? message;
   File? image;
   bool isBookmarked;
@@ -12,7 +12,7 @@ class EventDetail {
   String stringSendTime;
   Category? category;
 
-  EventDetail({
+  EventElement({
     this.category,
     this.message,
     this.image,
@@ -24,7 +24,7 @@ class EventDetail {
     stringSendTime = 'edited ${DateFormat('hh:mm a').format(DateTime.now())}';
   }
 
-  int compareTo(EventDetail other) {
+  int compareTo(EventElement other) {
     return sendTime.isAfter(other.sendTime) ? -1 : 1;
   }
 }

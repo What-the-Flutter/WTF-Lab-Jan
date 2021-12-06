@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_chat_journal/domain/entities/event_detail.dart';
 import '../../domain/entities/event.dart';
 import '../pages/create/screens/create_screen.dart';
 import '../pages/event/screens/event_screen.dart';
@@ -26,7 +27,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case Routs.event:
       return MaterialPageRoute(
-        builder: (_) => EventScreen(title: settings.arguments as String?),
+        builder: (_) => EventScreen(event: settings.arguments as Event?),
         settings: settings,
       );
     case Routs.createEvent:

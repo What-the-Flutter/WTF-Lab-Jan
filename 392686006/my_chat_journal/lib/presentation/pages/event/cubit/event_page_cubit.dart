@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../domain/entities/category.dart';
@@ -15,6 +15,15 @@ part 'event_page_state.dart';
 
 class EventPageCubit extends Cubit<EventPageState> {
   final Category _defaultCategory = const Category(icon: Icons.bubble_chart, title: '');
+
+  final FocusNode messageFocusNode = FocusNode();
+
+  final FocusNode searchFocusNode = FocusNode();
+
+  final TextEditingController messageController = TextEditingController();
+
+  final TextEditingController searchController = TextEditingController();
+
   final List<Category> _initCategories = const <Category>[
     Category(icon: Icons.favorite, title: 'favorite'),
     Category(icon: Icons.ac_unit, title: 'ac unit'),
@@ -33,10 +42,18 @@ class EventPageCubit extends Cubit<EventPageState> {
       state.copyWith(
         selectedCategory: _defaultCategory,
         page: page,
-        categories:
-        state.categories.isEmpty ? _initCategories : state.categories,
+        categories: state.categories.isEmpty ? _initCategories : state.categories,
       ),
     );
+  }
+
+  @override
+  Future<void> close() {
+    messageController.dispose();
+    searchController.dispose();
+    searchFocusNode.dispose();
+    searchController.dispose();
+    return super.close();
   }
 
   void setEditMode(bool isEditMode) {
@@ -51,9 +68,7 @@ class EventPageCubit extends Cubit<EventPageState> {
     if (state.page!.events[index].message == null) {
       return false;
     }
-    return state.page!.events[index].message!
-        .toLowerCase()
-        .contains(query.toLowerCase());
+    return state.page!.events[index].message!.toLowerCase().contains(query.toLowerCase());
   }
 
   void setCategory(Category category) {
@@ -61,7 +76,7 @@ class EventPageCubit extends Cubit<EventPageState> {
   }
 
   void setReplyPage(BuildContext context, int index) {
-    final page = context.read<HomePageCubit>().state.pages[index];
+    final page = context.read<HomePageCubit>().state.events[index];
     emit(state.copyWith(
       replyPage: page,
       replyPageIndex: index,
@@ -101,12 +116,12 @@ class EventPageCubit extends Cubit<EventPageState> {
 
   void replyEvents(BuildContext context) {
     final page = state.replyPage;
-    var eventsToReply = <EventDetail>[];
+    var eventsToReply = <EventElement>[];
     for (var i in state.selectedEvents) {
       eventsToReply.add(state.page!.events[i]);
     }
     deleteEvent();
-    context.read<HomePageCubit>().addEvents(eventsToReply, page!);
+    context.read<HomePageCubit>().fillEventDetail(eventsToReply, page!);
   }
 
   void copyEvent() {
@@ -123,7 +138,7 @@ class EventPageCubit extends Cubit<EventPageState> {
     var updatedPage = Event.from(state.page!);
     for (var index in selectedEvents) {
       updatedPage.events[index].isBookmarked =
-      updatedPage.events[index].isBookmarked ? false : true;
+          updatedPage.events[index].isBookmarked ? false : true;
     }
     setEditMode(false);
     unselectEvents();
@@ -144,8 +159,7 @@ class EventPageCubit extends Cubit<EventPageState> {
     final xFile = await imagePicker.pickImage(source: ImageSource.gallery);
     if (xFile != null) {
       var imageFile = File(xFile.path);
-      var updatedPage = Event.from(state.page!)
-        ..events.insert(0, EventDetail(image: imageFile));
+      var updatedPage = Event.from(state.page!)..events.insert(0, EventElement(image: imageFile));
       emit(state.copyWith(page: updatedPage));
     }
   }
@@ -162,7 +176,7 @@ class EventPageCubit extends Cubit<EventPageState> {
       }
       emit(state.copyWith(selectedEvents: []));
     } else if (text.isNotEmpty) {
-      updatedPage = state.page!..events.insert(0, EventDetail(message: text));
+      updatedPage = state.page!..events.insert(0, EventElement(message: text));
       if (state.selectedCategory != _defaultCategory) {
         updatedPage.events[0].category = state.selectedCategory;
         setDefaultCategory();

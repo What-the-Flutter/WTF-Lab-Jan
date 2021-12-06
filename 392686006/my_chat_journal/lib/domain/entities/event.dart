@@ -11,7 +11,7 @@ class Event {
   String lastMessage;
   bool isPinned;
   Icon icon;
-  List<EventDetail> events = <EventDetail>[];
+  List<EventElement> events = <EventElement>[];
 
 
 
@@ -36,7 +36,7 @@ class Event {
         isPinned = event.isPinned,
         icon = event.icon;
 
-  List<EventDetail> sortEvents() {
+  List<EventElement> sortEvents() {
     events.sort((a, b) => a.compareTo(b));
     return events;
   }

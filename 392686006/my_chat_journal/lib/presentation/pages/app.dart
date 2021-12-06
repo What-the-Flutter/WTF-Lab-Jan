@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_chat_journal/presentation/pages/event/cubit/event_page_cubit.dart';
 
 import '../navigator/router.dart';
 import '../res/theme/theme_cubit.dart';
@@ -15,6 +16,7 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => ThemeCubit()),
         BlocProvider<HomePageCubit>(create: (_) => HomePageCubit()),
+        BlocProvider<EventPageCubit>(create: (_)=> EventPageCubit()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeData>(
         builder: (context, state){

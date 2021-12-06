@@ -20,7 +20,7 @@ class ElementList extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   Navigator.of(context)
-                      .pushNamed(Routs.event, arguments: state.events[index].title);
+                      .pushNamed(Routs.event, arguments: state.events[index]);
                 },
                 onLongPress: () => _showBottomSheetDialog(context, index),
                 child: EventListElement(context: context, page: state.events[index]),
