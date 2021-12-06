@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../domain/entities/event.dart';
 import '../../../navigator/router.dart';
-import '../../../res/theme_cubit.dart';
+import '../../../res/theme/theme_cubit.dart';
 import '../cubit/home_page_cubit.dart';
 import '../widgets/element_list.dart';
 import '../widgets/question_bot.dart';

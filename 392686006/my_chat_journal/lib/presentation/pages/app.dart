@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../navigator/router.dart';
-import '../res/theme_cubit.dart';
-import 'create/cubit/create_event_cubit.dart';
+import '../res/theme/theme_cubit.dart';
 import 'home/cubit/home_page_cubit.dart';
 import 'home/screens/home_screen.dart';
 
@@ -16,7 +15,6 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => ThemeCubit()),
         BlocProvider<HomePageCubit>(create: (_) => HomePageCubit()),
-        //BlocProvider<EventPageCubit>(create: (_) => EventPageCubit()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeData>(
         builder: (context, state){
