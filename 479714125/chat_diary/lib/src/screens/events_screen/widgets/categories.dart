@@ -27,7 +27,7 @@ class Categories extends StatelessWidget {
   }
 }
 
-class CategoryIcon extends StatefulWidget {
+class CategoryIcon extends StatelessWidget {
   final IconData icon;
   final EventScreenCubit cubit;
 
@@ -38,24 +38,16 @@ class CategoryIcon extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CategoryIcon> createState() => _CategoryIconState();
-}
-
-class _CategoryIconState extends State<CategoryIcon> {
-  bool isSelected = false;
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: IconButton(
         onPressed: () {
-          widget.cubit.addCurrentCategory(widget.icon);
-          isSelected = !isSelected;
+          cubit.addCurrentCategory(icon);
         },
         icon: Icon(
-          widget.icon,
-          color: isSelected
+          icon,
+          color: icon == cubit.state.currentCategory
               ? Theme.of(context).primaryColor
               : Theme.of(context).disabledColor,
         ),
