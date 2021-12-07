@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../data/data.dart';
 
 import '../../../../domain/entities/category.dart';
 import '../../../../domain/entities/event.dart';
-import '../../../../domain/entities/event_detail.dart';
+import '../../../../domain/entities/event_element.dart';
 import '../../home/cubit/home_page_cubit.dart';
 
 part 'event_page_state.dart';
@@ -24,29 +25,15 @@ class EventPageCubit extends Cubit<EventPageState> {
 
   final TextEditingController searchController = TextEditingController();
 
-  final List<Category> _initCategories = const <Category>[
-    Category(icon: Icons.favorite, title: 'favorite'),
-    Category(icon: Icons.agriculture_sharp, title: 'jym'),
-    Category(icon: Icons.wine_bar, title: 'wine bar'),
-    Category(icon: Icons.local_pizza, title: 'local pizza'),
-    Category(icon: Icons.money, title: 'money'),
-    Category(icon: Icons.car_rental, title: 'car rental'),
-    Category(icon: Icons.food_bank, title: 'food bank'),
-    Category(icon: Icons.navigation, title: 'navigation'),
-    Category(icon: Icons.auto_graph_sharp, title: 'stars'),
-    Category(icon: Icons.airplanemode_active, title: 'air'),
-  ];
-
   EventPageCubit() : super(EventPageState());
 
-  void init(Event event) {
+  Future<void> init(Event event) async {
     messageController.addListener(_setIsAvaliableForSend);
     emit(
       state.copyWith(
-        currentCategory: _defaultCategory,
+        currentCategoryIndex: 0,
         event: event,
-        //categories: state.categories.isEmpty ? _initCategories : state.categories,
-        categories: _initCategories,
+        categories: initCategories,
       ),
     );
   }
@@ -77,14 +64,14 @@ class EventPageCubit extends Cubit<EventPageState> {
   }
 
   bool isSearchSuggestion(int index, String query) {
-    if (state.event!.events[index].message == null) {
+    if (state.event!.eventElements[index].message == '') {
       return false;
     }
-    return state.event!.events[index].message!.toLowerCase().contains(query.toLowerCase());
+    return state.event!.eventElements[index].message.toLowerCase().contains(query.toLowerCase());
   }
 
-  void setCategory(Category category) {
-    emit(state.copyWith(currentCategory: category));
+  void setCategory(int index) {
+    emit(state.copyWith(currentCategoryIndex: index));
   }
 
   void setReplyEventElement(BuildContext context, int index) {
@@ -96,7 +83,7 @@ class EventPageCubit extends Cubit<EventPageState> {
   }
 
   void setDefaultCategory() {
-    emit(state.copyWith(currentCategory: _defaultCategory));
+    emit(state.copyWith(currentCategoryIndex: 0));
   }
 
   void setEventElementEdit(bool isMessageEdit) {
@@ -130,15 +117,15 @@ class EventPageCubit extends Cubit<EventPageState> {
     final event = state.replyEvent;
     var eventElementsToReply = <EventElement>[];
     for (var i in state.selectedEventElements) {
-      eventElementsToReply.add(state.event!.events[i]);
+      eventElementsToReply.add(state.event!.eventElements[i]);
     }
     deleteEventElements();
     context.read<HomePageCubit>().fillEventWithEventElements(eventElementsToReply, event!);
   }
 
   void copyEventElement() {
-    final message = state.event!.events[state.selectedEventElements.first].message;
-    if (message != null) {
+    final message = state.event!.eventElements[state.selectedEventElements.first].message;
+    if (message != '') {
       Clipboard.setData(ClipboardData(text: message));
     }
     setEditMode(false);
@@ -149,8 +136,8 @@ class EventPageCubit extends Cubit<EventPageState> {
     var selectedEvents = List<int>.from(state.selectedEventElements)..sort();
     var updatedEvent = Event.from(state.event!);
     for (var index in selectedEvents) {
-      updatedEvent.events[index].isBookmarked =
-          updatedEvent.events[index].isBookmarked ? false : true;
+      updatedEvent.eventElements[index].isBookmarked =
+          updatedEvent.eventElements[index].isBookmarked ? false : true;
     }
     setEditMode(false);
     unselectEventElements();
@@ -160,7 +147,7 @@ class EventPageCubit extends Cubit<EventPageState> {
     var selectedEventElements = List<int>.from(state.selectedEventElements)..sort();
     var updatedEvent = Event.from(state.event!);
     for (var i = selectedEventElements.length - 1; i >= 0; i--) {
-      updatedEvent.events.removeAt(selectedEventElements[i]);
+      updatedEvent.eventElements.removeAt(selectedEventElements[i]);
     }
     setEditMode(false);
     unselectEventElements();
@@ -171,7 +158,7 @@ class EventPageCubit extends Cubit<EventPageState> {
     final file = await imagePicker.pickImage(source: ImageSource.gallery);
     if (file != null) {
       var imageFile = File(file.path);
-      var updatedEvent = Event.from(state.event!)..events.insert(0, EventElement(image: imageFile));
+      var updatedEvent = Event.from(state.event!)..eventElements.insert(0, EventElement(imagePath: imageFile.path));
       emit(state.copyWith(event: updatedEvent));
     }
   }
@@ -180,17 +167,17 @@ class EventPageCubit extends Cubit<EventPageState> {
     Event? updatedEvent;
     if (state.selectedEventElements.length == 1 && state.isMessageEdit) {
       if (text.isEmpty) {
-        updatedEvent = state.event!..events.removeAt(state.selectedEventElements.first);
+        updatedEvent = state.event!..eventElements.removeAt(state.selectedEventElements.first);
       } else {
         updatedEvent = state.event!
-          ..events[state.selectedEventElements.first].message = text
-          ..events[state.selectedEventElements.first].updateSendTime();
+          ..eventElements[state.selectedEventElements.first].message = text
+          ..eventElements[state.selectedEventElements.first].updateSendTime();
       }
       emit(state.copyWith(selectedEventElements: []));
     } else if (text.isNotEmpty) {
-      updatedEvent = state.event!..events.insert(0, EventElement(message: text));
-      if (state.currentCategory != _defaultCategory) {
-        updatedEvent.events.first.category = state.currentCategory;
+      updatedEvent = state.event!..eventElements.insert(0, EventElement(message: text));
+      if (state.currentCategoryIndex != 0) {
+        updatedEvent.eventElements.first.categoryId = state.currentCategoryIndex;
         setDefaultCategory();
       }
     }

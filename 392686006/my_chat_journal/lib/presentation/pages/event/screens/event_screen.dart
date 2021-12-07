@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,7 +31,7 @@ class EventScreen extends StatelessWidget {
             },
             child: Column(
               children: [
-                state.event!.events.isEmpty ? _hintMessageBox(context) : _eventElementList(context),
+                state.event!.eventElements.isEmpty ? _hintMessageBox(context) : _eventElementList(context),
                 _messageBar(context),
               ],
             ),
@@ -75,7 +77,7 @@ class EventScreen extends StatelessWidget {
           onPressed: () => _replyEvents(context),
         ),
         if (state.selectedEventElements.length == 1 &&
-            state.event!.events[state.selectedEventElements[0]].message != null)
+            state.event!.eventElements[state.selectedEventElements[0]].message != '')
           Row(
             children: [
               IconButton(
@@ -89,7 +91,7 @@ class EventScreen extends StatelessWidget {
             ],
           ),
         IconButton(
-          icon: state.event!.events[state.selectedEventElements[0]].isBookmarked
+          icon: state.event!.eventElements[state.selectedEventElements[0]].isBookmarked
               ? const Icon(Icons.bookmark)
               : const Icon(Icons.bookmark_border),
           onPressed: () => _bookmarkEvent(context),
@@ -206,7 +208,7 @@ class EventScreen extends StatelessWidget {
   void _editSlidableEventElement(BuildContext context, {required int index}) {
     final cubit = context.read<EventPageCubit>();
     cubit.messageFocusNode.requestFocus();
-    cubit.messageController.text = cubit.state.event!.events[index].message!;
+    cubit.messageController.text = cubit.state.event!.eventElements[index].message;
     cubit.setEditMode(false);
     cubit.setEventElementEdit(true);
   }
@@ -215,7 +217,7 @@ class EventScreen extends StatelessWidget {
     final cubit = context.read<EventPageCubit>();
     cubit.messageFocusNode.requestFocus();
     cubit.messageController.text =
-        cubit.state.event!.events[cubit.state.selectedEventElements.first].message!;
+        cubit.state.event!.eventElements[cubit.state.selectedEventElements.first].message;
     cubit.messageController.selection = TextSelection.fromPosition(
       TextPosition(offset: cubit.messageController.text.length),
     );
@@ -236,7 +238,7 @@ class EventScreen extends StatelessWidget {
     final cubit = context.read<EventPageCubit>();
     var currentEventElement = cubit.state.selectedEventElements[index];
     var updatedEvent = Event.from(cubit.state.event!);
-    updatedEvent.events.removeAt(currentEventElement);
+    updatedEvent.eventElements.removeAt(currentEventElement);
     cubit.setEditMode(false);
     cubit.state.copyWith(event: updatedEvent);
   }
@@ -327,7 +329,7 @@ class EventScreen extends StatelessWidget {
     return Expanded(
       child: ListView.builder(
         reverse: true,
-        itemCount: cubit.state.event!.events.length,
+        itemCount: cubit.state.event!.eventElements.length,
         itemBuilder: (context, index) {
           return Slidable(
             key: const ValueKey(0),
@@ -371,7 +373,7 @@ class EventScreen extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  if (cubit.state.event!.events[index].isBookmarked ||
+                  if (cubit.state.event!.eventElements[index].isBookmarked ||
                       !cubit.state.isBookmarked ||
                       context
                           .read<EventPageCubit>()
@@ -388,7 +390,7 @@ class EventScreen extends StatelessWidget {
 
   Widget _eventListElement(int index, BuildContext context) {
     final cubit = context.read<EventPageCubit>();
-    final event = cubit.state.event!.events[index];
+    final event = cubit.state.event!.eventElements[index];
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(12)),
@@ -413,31 +415,31 @@ class EventScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (event.category != null)
+                if (event.categoryId != 0)
                   Row(
                     children: [
-                      Icon(event.category!.icon),
+                      Icon(cubit.state.categories[event.categoryId].icon),
                       const SizedBox(
                         width: 15,
                       ),
                       Text(
-                        event.category!.title,
+                        cubit.state.categories[event.categoryId].title,
                         style: const TextStyle(fontSize: 18),
                       ),
                     ],
                   ),
                 const SizedBox(height: 5),
-                event.message != null
+                event.message != ''
                     ? LimitedBox(
                         maxWidth: 320,
                         child: Text(
-                          event.message!,
+                          event.message,
                         ),
                       )
                     : Container(
                         width: 150,
                         height: 150,
-                        child: Image.file(event.image!),
+                        child: Image.file(File(event.imagePath)),
                       ),
                 const SizedBox(height: 5),
                 Row(
@@ -465,7 +467,7 @@ class EventScreen extends StatelessWidget {
         children: [
           IconButton(
             icon: Icon(
-              context.read<EventPageCubit>().state.currentCategory.icon,
+              context.read<EventPageCubit>().state.categories[cubit.state.currentCategoryIndex].icon,
               color: Colors.green,
             ),
             onPressed: () {
@@ -524,7 +526,7 @@ class EventScreen extends StatelessWidget {
                   onTap: () {
                     context
                         .read<EventPageCubit>()
-                        .setCategory(context.read<EventPageCubit>().state.categories[index]);
+                        .setCategory(context.read<EventPageCubit>().state.currentCategoryIndex);
                     Navigator.of(context).pop();
                   },
                   child: Column(

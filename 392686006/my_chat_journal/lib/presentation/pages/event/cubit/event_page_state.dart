@@ -7,7 +7,7 @@ class EventPageState extends Equatable {
   final bool isSearchMode;
   final bool isBookmarked;
   final bool isMessageEdit;
-  final Category currentCategory;
+  final int currentCategoryIndex;
   final int replyEventIndex;
   final Event? replyEvent;
   final Event? event;
@@ -21,10 +21,7 @@ class EventPageState extends Equatable {
     this.isSearchMode = false,
     this.isBookmarked = false,
     this.isMessageEdit = false,
-    this.currentCategory = const Category(
-      icon: Icons.favorite,
-      title: 'favorite',
-    ),
+    this.currentCategoryIndex = 0,
     this.replyEvent,
     this.replyEventIndex = 0,
     this.isAvailableForSend = false,
@@ -41,6 +38,7 @@ class EventPageState extends Equatable {
     Category? currentCategory,
     Event? replyEvent,
     int? replyEventIndex,
+    int? currentCategoryIndex,
     bool? isAvailableForSend,
   }) {
     return EventPageState(
@@ -51,7 +49,7 @@ class EventPageState extends Equatable {
       categories: categories ?? this.categories,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       isMessageEdit: isMessageEdit ?? this.isMessageEdit,
-      currentCategory: currentCategory ?? this.currentCategory,
+      currentCategoryIndex: currentCategoryIndex ?? this.currentCategoryIndex,
       replyEvent: replyEvent ?? this.replyEvent,
       replyEventIndex: replyEventIndex ?? this.replyEventIndex,
       isAvailableForSend: isAvailableForSend ?? this.isAvailableForSend,
@@ -66,7 +64,7 @@ class EventPageState extends Equatable {
       isSearchMode,
       isBookmarked,
       isMessageEdit,
-      currentCategory,
+      currentCategoryIndex,
       replyEventIndex,
       event,
       replyEvent,

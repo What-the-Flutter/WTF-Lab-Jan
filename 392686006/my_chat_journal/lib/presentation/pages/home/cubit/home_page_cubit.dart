@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../domain/entities/event.dart';
-import '../../../../domain/entities/event_detail.dart';
+import '../../../../domain/entities/event_element.dart';
 
 part 'home_page_state.dart';
 
@@ -44,7 +44,7 @@ class HomePageCubit extends Cubit<HomePageState> {
     final events = List<Event>.from(state.events);
     final index = events.indexOf(event);
     for (var current in eventDetailList) {
-      events[index].events.add(current);
+      events[index].eventElements.add(current);
     }
     events[index].sortEvents();
     emit(state.copyWith(events: events));

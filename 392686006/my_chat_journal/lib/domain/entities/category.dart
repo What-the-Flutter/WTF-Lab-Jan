@@ -5,7 +5,7 @@ class Category {
   final IconData icon;
 
   const Category({
-    required this.icon,
-    required this.title,
+    this.icon = Icons.favorite,
+    this.title ='',
   });
 }
