@@ -1,9 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../domain/entities/event_info.dart';
+import '../../../../domain/entities/event.dart';
 import '../../../navigator/router.dart';
-import '../../../res/styles.dart';
+import '../../../res/theme/theme_cubit.dart';
+import '../cubit/home_page_cubit.dart';
+import '../widgets/element_list.dart';
+import '../widgets/question_bot.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -15,66 +18,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _isDarkMode = false;
-
-  final List<EventInfo> events = [
-    EventInfo(
-      title: 'Journal',
-      subtitle: 'No Events. Click to create one.',
-      leading: const CircleIcon(icon: Icons.collections_bookmark),
-    ),
-    EventInfo(
-      title: 'Notes',
-      subtitle: 'No Events. Click to create one.',
-      leading: const CircleIcon(icon: Icons.menu_book_outlined),
-    ),
-    EventInfo(
-      leading: const CircleIcon(icon: Icons.thumb_up_alt_outlined),
-      title: 'Gratitude',
-      subtitle: 'No Events. Click to create one.',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(),
-      body: _body(),
+      body: _body(context),
       drawer: const Drawer(),
       floatingActionButton: _floatingActionButton(),
       bottomNavigationBar: _bottomNavigationBar(),
     );
   }
 
-  Widget _body() {
-    final _elements = <Widget>[
-      const QuestionBotButton(),
-      ...events.map((e) => ListTile(
-            title: Text(e.title),
-            leading: e.leading,
-            subtitle: Text(e.subtitle),
-          )),
-    ];
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: ListView.separated(
-        separatorBuilder: (context, index) => const Divider(),
-        itemCount: _elements.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              if (_elements[index] is ListTile) {
-                Navigator.pushNamed(
-                  context,
-                  Routs.event,
-                  arguments: events[index - 1].title,
-                );
-              }
-            },
-            child: _elements[index],
-          );
-        },
-      ),
+  Widget _body(BuildContext context) {
+    context.read<HomePageCubit>().init();
+    return CustomScrollView(
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate(
+            [
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushNamed(Routs.event);
+                },
+                child: const QuestionBotButton(),
+              ),
+              const Divider(),
+            ],
+          ),
+        ),
+        const ElementList(),
+      ],
     );
   }
 
@@ -96,19 +70,22 @@ class _HomeScreenState extends State<HomeScreen> {
       elevation: 8,
       backgroundColor: Colors.yellow,
       foregroundColor: Colors.black,
-      onPressed: () {},
+      onPressed: () {
+        _createPage(context);
+      },
       child: const Icon(Icons.add),
     );
   }
 
   AppBar _appBar() {
+    final themeCubit = context.read<ThemeCubit>();
     return AppBar(
       actions: [
         IconButton(
-          icon: _isDarkMode
+          icon: themeCubit.isDarkMode
               ? const Icon(Icons.invert_colors)
               : const Icon(Icons.invert_colors_outlined),
-          onPressed: _changeTheme,
+          onPressed: themeCubit.changeTheme,
         ),
       ],
       centerTitle: true,
@@ -116,73 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _changeTheme() {
-    setState(() {
-      InheritedCustomTheme.of(context).changeTheme();
-      _isDarkMode ^= true;
-    });
-  }
-}
-
-class CircleIcon extends StatelessWidget {
-  const CircleIcon({
-    Key? key,
-    required this.icon,
-  }) : super(key: key);
-
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 64,
-      height: 64,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.grey,
-      ),
-      child: Icon(
-        icon,
-        color: Colors.white,
-      ),
-    );
-  }
-}
-
-class QuestionBotButton extends StatelessWidget {
-  const QuestionBotButton({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.lightGreen,
-          borderRadius: BorderRadius.all(Radius.circular(6)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(
-                Icons.ac_unit,
-                size: 32,
-              ),
-              SizedBox(width: 16),
-              Text(
-                'Questionnaire Bot',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Future<void> _createPage(BuildContext context) async {
+    final newPage = await Navigator.of(context).pushNamed(Routs.createEvent);
+    if (newPage is Event) {
+      context.read<HomePageCubit>().createEvent(newPage);
+    }
   }
 }
