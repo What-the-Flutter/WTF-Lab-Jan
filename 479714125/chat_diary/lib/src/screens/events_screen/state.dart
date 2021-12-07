@@ -24,13 +24,14 @@ class EventScreenState {
   EventScreenState copyWith({
     PageModel? page,
     int? countOfSelected,
+    int? countOfSelectedCategories,
     bool? isEditing,
     bool? isImageSelected,
     bool? isCategory,
     IconData? currentCategory,
   }) {
     return EventScreenState(
-      currentCategory: currentCategory ?? this.currentCategory,
+      currentCategory: currentCategory,
       page: page ?? this.page,
       countOfSelected: countOfSelected ?? this.countOfSelected,
       isEditing: isEditing ?? this.isEditing,

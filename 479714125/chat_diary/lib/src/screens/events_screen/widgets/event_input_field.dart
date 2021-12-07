@@ -53,6 +53,7 @@ class _EventInputFieldState extends State<EventInputField> {
               IconButton(
                 onPressed: () {
                   cubit.deleteCurrentCaregory();
+                  print(cubit.state.currentCategory);
                   cubit.toggleIsCategory();
                 },
                 icon: Icon(
