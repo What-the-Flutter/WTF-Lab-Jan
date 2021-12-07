@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../components/floating_action_button.dart';
 import '../../models/page_model.dart';
-import '../../resources/icon_list.dart';
+import 'add_page_screen_cubit/cubit.dart';
 import 'widgets/icon_gridview.dart';
 
 class AddPageScreen extends StatefulWidget {
@@ -22,7 +23,6 @@ class AddPageScreen extends StatefulWidget {
 class _AddPageScreenState extends State<AddPageScreen> {
   late final FocusNode _focusNode;
   late final TextEditingController _inputController;
-  IconData _selectedIcon = IconList.iconList[0];
 
   @override
   void initState() {
@@ -45,67 +45,75 @@ class _AddPageScreenState extends State<AddPageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 35),
-            child: Column(
-              children: [
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _inputController,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Name of the Page',
-                    labelStyle: TextStyle(
-                        color: _focusNode.hasFocus
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).colorScheme.onSecondary),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 10,
+    final cubit = AddPageScreenCubit();
+    return BlocProvider<AddPageScreenCubit>(
+      create: (context) => cubit,
+      child: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 35),
+              child: Column(
+                children: [
+                  Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
                     ),
-                    border: const OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor,
-                        width: 2,
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _inputController,
+                    focusNode: _focusNode,
+                    decoration: InputDecoration(
+                      labelText: 'Name of the Page',
+                      labelStyle: TextStyle(
+                          color: _focusNode.hasFocus
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).colorScheme.onSecondary),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 10,
+                      ),
+                      border: const OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).primaryColor,
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: IconsGridView(
-                    changeSelectedIcon: _changeSelectedIcon,
+                  Expanded(
+                    child: IconsGridView(
+                      changeSelectedIcon: cubit.changeSelectedIcon,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: AppFloatingActionButton(
-        onPressed: () {
-          if (_inputController.text.isNotEmpty) {
-            final result =
-                PageModel(name: _inputController.text, icon: _selectedIcon);
+        floatingActionButton:
+            BlocBuilder<AddPageScreenCubit, AddPageScreenState>(
+          builder: (context, state) {
+            return AppFloatingActionButton(
+              onPressed: () {
+                if (_inputController.text.isNotEmpty) {
+                  final result = PageModel(
+                    name: _inputController.text,
+                    icon: state.selectedIcon,
+                  );
 
-            Navigator.pop(context, result);
-          }
-        },
-        child: const Icon(Icons.close, size: 50),
+                  Navigator.pop(context, result);
+                }
+              },
+              child: const Icon(Icons.close, size: 50),
+            );
+          },
+        ),
       ),
     );
   }
-
-  void _changeSelectedIcon(IconData icon) =>
-      setState(() => _selectedIcon = icon);
 }

@@ -10,10 +10,15 @@ class Message {
   final MapEntry<String, IconData>? event;
   final File? image;
 
-  Message(this.text, this.date, this.favourite, [this.event, this.image]);
+  Message(
+    this.text,
+    this.date,
+    this.favourite, [
+    this.event,
+    this.image,
+  ]);
 
   String get formattedDate => DateFormat('dd MMMM yyyy').format(date);
 
   String get formattedTime => DateFormat('Hm').format(date);
-
 }

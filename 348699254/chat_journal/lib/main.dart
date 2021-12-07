@@ -1,155 +1,103 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'bottom_navigation.dart';
-import 'create_new_page.dart';
-import 'list_with_activities.dart';
-import 'model/page.dart' as page;
+import 'data/data_provider/journal_database.dart';
+import 'data/data_provider/shared_preferences_provider.dart';
+import 'data/repository/event_repository.dart';
+import 'data/repository/page_repository.dart';
+import 'data/repository/settings_repository.dart';
+import 'pages/add_page/add_page_cubit.dart';
+import 'pages/event_page/event_cubit.dart';
+import 'pages/main_page/main_pade_cubit.dart';
+import 'pages/main_page/main_page_screen.dart';
+import 'pages/settings/settings_cubit.dart';
+import 'pages/settings/settings_state.dart';
+import 'theme/theme_cubit.dart';
+import 'theme/theme_state.dart';
 
-StreamController<bool> isLightTheme = StreamController();
-
-ThemeData lightThemeData = ThemeData(
-  primarySwatch: Colors.teal,
-  brightness: Brightness.light,
-);
-
-ThemeData darkThemeData = ThemeData(
-  primarySwatch: Colors.deepPurple,
-  brightness: Brightness.dark,
-  bottomAppBarColor: Colors.amber,
-  backgroundColor: Colors.black,
-);
-
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final db = JournalDatabase();
+  await SharedPreferencesProvider.initialize();
+  final pref = SharedPreferencesProvider();
   runApp(
-    StreamBuilder<bool>(
-      initialData: true,
-      stream: isLightTheme.stream,
-      builder: (context, snapshot) {
-        return MaterialApp(
-          theme: snapshot.data! ? lightThemeData : darkThemeData,
-          debugShowCheckedModeBanner: false,
-          title: 'Chat Journal App',
-          initialRoute: '/',
-          home: ChatJournalApp(),
-        );
-      },
+    MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<ActivityPageRepository>(
+          create: (context) => ActivityPageRepository(db),
+        ),
+        RepositoryProvider<EventRepository>(
+          create: (context) => EventRepository(db),
+        ),
+        RepositoryProvider<SettingsRepository>(
+          create: (context) => SettingsRepository(pref),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => ThemeCubit(),
+          ),
+          BlocProvider(
+            create: (context) =>
+                SettingsCubit(
+                  RepositoryProvider.of<SettingsRepository>(context),
+                ),
+          ),
+          BlocProvider(
+            create: (context) =>
+                EventCubit(
+                  RepositoryProvider.of<EventRepository>(context),
+                ),
+          ),
+          BlocProvider(
+            create: (context) =>
+                MainPageCubit(
+                  RepositoryProvider.of<ActivityPageRepository>(context),
+                ),
+          ),
+          BlocProvider(
+            create: (context) =>
+                AddPageCubit(
+                  RepositoryProvider.of<ActivityPageRepository>(context),
+                ),
+          ),
+        ],
+        child: MyApp(),
+      ),
     ),
   );
 }
 
-class ChatJournalApp extends StatefulWidget {
-  final List<page.Page> _pageList = [];
-
+class MyApp extends StatefulWidget {
   @override
-  _ChatJournalAppState createState() => _ChatJournalAppState(_pageList);
+  _MyAppState createState() => _MyAppState();
 }
 
-class _ChatJournalAppState extends State<ChatJournalApp> {
-  _ChatJournalAppState(List<page.Page> pageList);
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<SettingsCubit>(context).initSettings();
+    BlocProvider.of<ThemeCubit>(context).init();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: _appBarHomeTitle(),
-        leading: _appBarMenuButton(),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.wb_incandescent_outlined),
-            onPressed: () {
-              isLightTheme.add(_themeValue);
-              _themeValue = !_themeValue;
-            },
-          ),
-        ],
-      ),
-      body: _bodyStructure(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final value = await _pageListData(context);
-          setState(() {
-            if (value != false) {
-              widget._pageList.add(value);
-            }
-          });
-        },
-        child: const Icon(Icons.add, color: Colors.brown),
-        backgroundColor: Colors.amberAccent,
-      ),
-      bottomNavigationBar: BottomNavigation(),
-    );
-  }
-
-  Future<page.Page> _pageListData(BuildContext context) async {
-    var result = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => CreateNewPage()));
-    print(result);
-    return Future.value(result);
-  }
-
-  Widget _bodyStructure() {
-    var pages = widget._pageList.reversed;
-    print(widget._pageList.length);
-    return Column(
-      children: <Widget>[
-        Row(children: <Widget>[
-          Expanded(
-            child: _questionnaireBotContainer(),
-          ),
-        ]),
-        const Divider(height: 1),
-        Expanded(
-          child: ChangeListViewBGColor(pages.toList()),
-        ),
-      ],
-    );
-  }
-
-  Widget _appBarHomeTitle() {
-    return const Align(
-      child: Text('Home'),
-      alignment: Alignment.center,
-    );
-  }
-
-  Widget _appBarMenuButton() {
-    return IconButton(
-      icon: const Icon(Icons.menu_outlined),
-      onPressed: () {},
-    );
-  }
-
-  bool _themeValue = false;
-
-  Widget _appBarThemeButton() {
-    return IconButton(
-      icon: const Icon(Icons.wb_incandescent_outlined),
-      onPressed: () {
-        isLightTheme.add(_themeValue);
-        _themeValue = !_themeValue;
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        return BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, state) {
+            return MaterialApp(
+              title: 'Chat Journal App',
+              themeMode: state.isLightTheme ? ThemeMode.dark : ThemeMode.dark,
+              theme: state.themeData,
+              initialRoute: '/',
+              home: MainPageScreen(),
+            );
+          },
+        );
       },
-    );
-  }
-
-  Widget _questionnaireBotContainer() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        margin: const EdgeInsets.fromLTRB(20, 6, 20, 6),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.adb),
-            const Text('   Questionnaire Bot'),
-          ],
-        ),
-        decoration: BoxDecoration(
-          color: Colors.blueGrey,
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
     );
   }
 }

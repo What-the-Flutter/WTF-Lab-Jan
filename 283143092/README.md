@@ -10,8 +10,6 @@ WTFlutter Lab graduation project
 | Medium   | Low      | ThemeManager does not implement all colors (only primary + Brightness.dark overrides theme)        |
 
 ## Roadmap
-- Organize libraries (for easier project expansion)
-- Create View and Logic for floatingButton at home screen (to create new category)
 - Customise Drawer at HomePage
-- Create layout for two other screens at HomePage (Timeline and Daily)
+- Create two other pages for HomePage (Time Line and Daily)
 
