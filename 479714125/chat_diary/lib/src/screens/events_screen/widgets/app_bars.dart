@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit/cubit.dart';
+import '../cubit.dart';
 import '../search_events_screen.dart';
 
 const double appBarHeight = 50;

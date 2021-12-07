@@ -1,10 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
-import '../../../models/event_model.dart';
-import '../../../models/page_model.dart';
+import '../../models/event_model.dart';
+import '../../models/page_model.dart';
 
-part 'home_screen_state.dart';
+part 'state.dart';
 
 class HomeScreenCubit extends Cubit<HomeScreenState> {
   HomeScreenCubit()

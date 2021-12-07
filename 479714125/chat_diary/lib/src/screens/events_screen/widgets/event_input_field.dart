@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../models/event_model.dart';
-import '../cubit/cubit.dart';
+import '../cubit.dart';
 
 class EventInputField extends StatefulWidget {
   final FocusNode inputNode;

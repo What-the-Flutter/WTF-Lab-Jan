@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../components/floating_action_button.dart';
 import '../../models/page_model.dart';
-import 'add_page_screen_cubit/cubit.dart';
+import 'cubit.dart';
 import 'widgets/icon_gridview.dart';
 
 class AddPageScreen extends StatefulWidget {

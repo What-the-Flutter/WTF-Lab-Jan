@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import '../../../models/event_model.dart';
+import '../../models/event_model.dart';
 
-import '../../../models/page_model.dart';
+import '../../models/page_model.dart';
 
 part 'state.dart';
 
@@ -56,7 +56,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
 
   int _countSelectedEvents(List<EventModel> events) {
     var count = 0;
-    for (final event in events) {
+    for (var event in events) {
       if (event.isSelected) {
         count += 1;
       }
@@ -65,7 +65,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   void toggleAllSelected() {
-    for (final event in state.page.events) {
+    for (var event in state.page.events) {
       if (event.isSelected) {
         event.isSelected = false;
       }
@@ -119,7 +119,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
         state.page.events.where((element) => element.isSelected);
     var eventsToCopy = '';
     var isEveryEventImage = true;
-    for (final event in selectedEvents) {
+    for (var event in selectedEvents) {
       if (event.text != null) {
         isEveryEventImage = false;
         eventsToCopy += event.text!;

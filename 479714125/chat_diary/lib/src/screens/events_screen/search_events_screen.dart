@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/event_model.dart';
-import 'cubit/cubit.dart';
+import 'cubit.dart';
 import 'widgets/event_message.dart';
 
 class SearchEventScreen extends StatefulWidget {

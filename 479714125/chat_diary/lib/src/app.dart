@@ -7,7 +7,7 @@ import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';
 import 'screens/timeline_screen/timeline_screen.dart';
 import 'theme/app_theme.dart';
-import 'theme/theme_cubit/theme_cubit.dart';
+import 'theme/cubit.dart';
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);

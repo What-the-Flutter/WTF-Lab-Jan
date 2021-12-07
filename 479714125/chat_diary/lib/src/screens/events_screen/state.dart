@@ -28,13 +28,14 @@ class EventScreenState {
     bool? isImageSelected,
     bool? isCategory,
     IconData? currentCategory,
-  }) =>
-      EventScreenState(
-        currentCategory: currentCategory ?? this.currentCategory,
-        page: page ?? this.page,
-        countOfSelected: countOfSelected ?? this.countOfSelected,
-        isEditing: isEditing ?? this.isEditing,
-        isImageSelected: isImageSelected ?? this.isImageSelected,
-        isCategory: isCategory ?? this.isCategory,
-      );
+  }) {
+    return EventScreenState(
+      currentCategory: currentCategory ?? this.currentCategory,
+      page: page ?? this.page,
+      countOfSelected: countOfSelected ?? this.countOfSelected,
+      isEditing: isEditing ?? this.isEditing,
+      isImageSelected: isImageSelected ?? this.isImageSelected,
+      isCategory: isCategory ?? this.isCategory,
+    );
+  }
 }

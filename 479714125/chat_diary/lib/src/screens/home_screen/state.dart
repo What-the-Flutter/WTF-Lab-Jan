@@ -1,4 +1,4 @@
-part of 'home_screen_cubit.dart';
+part of 'cubit.dart';
 
 class HomeScreenState {
   final List<PageModel> listOfPages;
