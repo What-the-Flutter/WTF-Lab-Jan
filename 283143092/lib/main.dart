@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:provider/provider.dart';
-
-import 'home_page_view.dart';
-import 'theme_manager.dart';
+import 'blocs/theme_bloc.dart';
+import 'home_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,17 +10,19 @@ void main() {
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (_) => ThemeProvider(),
-        builder: (context, __) {
-          final themeProvider = Provider.of<ThemeProvider>(context);
-          return MaterialApp(
-            title: 'Chat Journal',
-            themeMode: themeProvider.theme,
-            theme: Themes.lightTheme,
-            darkTheme: Themes.darkTheme,
-            home: const HomePage(title: 'Home'),
-          );
-        },
+  Widget build(BuildContext context) =>
+      BlocProvider(
+        create: (context) => ThemeBloc(false),
+        child: BlocBuilder<ThemeBloc, bool>(
+          builder: (context, isDarkTheme) {
+            return MaterialApp(
+              title: 'Chat Journal',
+              themeMode: isDarkTheme ? ThemeMode.dark : ThemeMode.light,
+              theme: Themes.lightTheme,
+              darkTheme: Themes.darkTheme,
+              home: const HomePage(),
+            );
+          },
+        ),
       );
 }

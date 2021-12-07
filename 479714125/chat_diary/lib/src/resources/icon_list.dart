@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 abstract class IconList {
   static const List<IconData> iconList = [
+    Icons.notes,
+    Icons.edit,
     Icons.ac_unit,
     Icons.access_alarm,
     Icons.accessibility,
@@ -37,5 +39,18 @@ abstract class IconList {
     Icons.wb_cloudy,
     Icons.wb_sunny,
     Icons.wc,
+  ];
+
+  static const List<IconData> iconCategoriesList = [
+    Icons.movie,
+    Icons.sports_basketball,
+    Icons.fastfood,
+    Icons.work,
+    Icons.local_laundry_service,
+    Icons.local_drink,
+    Icons.wc,
+    Icons.local_cafe,
+    Icons.directions_car,
+    Icons.games,
   ];
 }

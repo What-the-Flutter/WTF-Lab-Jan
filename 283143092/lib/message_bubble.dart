@@ -5,29 +5,39 @@ import 'package:flutter/material.dart';
 import 'Models/message.dart';
 
 class MessageBubble extends StatelessWidget {
-  MessageBubble(this._message, this._isNewDate, this._isSelected, {Key? key})
-      : super(key: key);
-
   final Message _message;
   final bool _isNewDate;
   final bool _isSelected;
 
   final double _textFontSize = 14.0;
 
+  MessageBubble(
+    this._message,
+    this._isNewDate,
+    this._isSelected, {
+    Key? key,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    var color = Colors.black26;
-
-    if (_isNewDate) color = Colors.black45;
-    if (_isSelected) color = Colors.blueGrey;
+    Color _bubbleColor;
+    if (_isNewDate) {
+      _bubbleColor = Colors.black45;
+    } else if (_isSelected) {
+      _bubbleColor = Colors.blueGrey;
+    } else {
+      _bubbleColor = Colors.black26;
+    }
 
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color,
+        color: _bubbleColor,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text.rich(_textSpan()),
+      child: Text.rich(
+        _textSpan(),
+      ),
     );
   }
 

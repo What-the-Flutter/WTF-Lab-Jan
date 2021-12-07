@@ -1,4 +1,12 @@
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'src/app.dart';
 
-void main() => runApp(const App());
+import 'src/app.dart';
+import 'src/app_home_cubit/app_cubit_observer.dart';
+
+void main() {
+  BlocOverrides.runZoned(
+    () => runApp(const App()),
+    blocObserver: AppCubitObserver(),
+  );
+}

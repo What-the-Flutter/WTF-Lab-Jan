@@ -1,139 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'models/event_model.dart';
+import '../../models/event_model.dart';
+import '../../models/page_model.dart';
+import '../../resources/icon_list.dart';
+import '../home_screen/cubit/home_screen_cubit.dart';
+import 'cubit/cubit.dart';
 import 'widgets/app_bars.dart';
 import 'widgets/event_input_field.dart';
 import 'widgets/event_list.dart';
 
 class EventScreen extends StatefulWidget {
-  final String title;
-
-  const EventScreen({Key? key, required this.title}) : super(key: key);
+  final PageModel page;
+  const EventScreen({
+    Key? key,
+    required this.page,
+  }) : super(key: key);
 
   @override
   State<EventScreen> createState() => _EventScreenState();
 }
 
 class _EventScreenState extends State<EventScreen> {
-  final List<EventModel> _events = <EventModel>[];
   final List<EventModel> _favoriteEvents = <EventModel>[];
   final FocusNode _inputNode = FocusNode();
   final TextEditingController _inputController = TextEditingController();
+  late final EventScreenCubit cubit;
 
-  int _countOfSelected = 0;
-  bool _isEditing = false;
-  bool _isImageSelected = false;
-
-  bool get _containsSelected => _countOfSelected > 0;
-
-  bool get _containsMoreThanOneSelected => _countOfSelected > 1;
+  @override
+  void initState() {
+    cubit = BlocProvider.of<EventScreenCubit>(context);
+    super.initState();
+  }
 
   @override
   void dispose() {
     _inputController.dispose();
     _inputNode.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: _containsSelected
-          ? MessageClickedAppBar(
-              addToFavorites: _addToFavorites,
-              isImageSelected: _isImageSelected,
-              findEventToEdit: _findEventToEdit,
-              copySelectedEvents: _copySelectedEvents,
-              deleteSelectedEvents: _deleteSelectedEvents,
-              containsMoreThanOneSelected: _containsMoreThanOneSelected,
-            ) as PreferredSizeWidget
-          : DefaultAppBar(title: widget.title),
-      body: GestureDetector(
-        onTap: _hideKeyboard,
-        child: Column(
-          children: [
-            Expanded(
-              child: EventList(
-                toggleAppBar: _toggleAppBar,
-                events: _events,
-              ),
+    return BlocBuilder<EventScreenCubit, EventScreenState>(
+      builder: (context, state) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: state.containsSelected
+              ? MessageClickedAppBar(
+                  migrateSelectedEvents: _showMigrateDialog,
+                  addToFavorites: _addToFavorites,
+                  findEventToEdit: _findEventToEdit,
+                  copySelectedEvents: _copySelectedEvents,
+                ) as PreferredSizeWidget
+              : DefaultAppBar(
+                  title: widget.page.name,
+                ),
+          body: GestureDetector(
+            onTap: _hideKeyboard,
+            child: Column(
+              children: [
+                Expanded(
+                  child: EventList(),
+                ),
+                if (state.isCategory)
+                  SizedBox(
+                    height: 50,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: IconList.iconCategoriesList
+                          .map(
+                            (e) => CategoryIcon(cubit: cubit, icon: e),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                EventInputField(
+                  editEvent: _editEvent,
+                  inputController: _inputController,
+                  inputNode: _inputNode,
+                ),
+              ],
             ),
-            EventInputField(
-              editEvent: _editEvent,
-              inputController: _inputController,
-              inputNode: _inputNode,
-              isSelected: _containsMoreThanOneSelected,
-              addEvent: _addEvent,
-              isEditing: _isEditing,
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
-  }
-
-  void _addEvent(EventModel model) {
-    setState(() => _events.insert(0, model));
-  }
-
-  void _toggleAppBar(int indexOfEvent, bool isSelected) {
-    isSelected = !isSelected;
-    _events[indexOfEvent].isSelected = isSelected;
-    if (_events[indexOfEvent].image == null) {
-      setState(() => _countOfSelected = _countSelectedEvents(_events));
-    } else {
-      setState(() {
-        _isImageSelected = !_isImageSelected;
-        _countOfSelected = _countSelectedEvents(_events);
-      });
-    }
-  }
-
-  int _countSelectedEvents(List<EventModel> events) {
-    var count = 0;
-    for (final event in events) {
-      if (event.isSelected) {
-        count += 1;
-      }
-    }
-    return count;
-  }
-
-  void _toggleSelected() {
-    for (final event in _events) {
-      if (event.isSelected) {
-        event.isSelected = false;
-      }
-    }
-    _countOfSelected = 0;
-    _isImageSelected = false;
-  }
-
-  void _deleteSelectedEvents() {
-    _events.removeWhere(
-      (element) => element.isSelected,
-    );
-    _countOfSelected = 0;
-    _isImageSelected = false;
-    setState(() {});
   }
 
   void _copySelectedEvents() async {
-    final selectedEvents = _events.where((element) => element.isSelected);
-    var eventsToCopy = '';
-    var isEveryEventImage = true;
-    for (final event in selectedEvents) {
-      if (event.text != null) {
-        isEveryEventImage = false;
-        eventsToCopy += event.text!;
-        if (event != selectedEvents.last && selectedEvents.last.text != null) {
-          eventsToCopy += '\n';
-        }
-      }
-    }
-    if (!isEveryEventImage) {
+    final cubit = BlocProvider.of<EventScreenCubit>(context);
+    final eventsToCopy = cubit.copySelectedEvents();
+    if (eventsToCopy != '') {
       await Clipboard.setData(ClipboardData(text: eventsToCopy));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -142,34 +102,65 @@ class _EventScreenState extends State<EventScreen> {
         ),
       );
     }
+    cubit.toggleAllSelected();
+  }
 
-    _toggleSelected();
-    setState(() {});
+  Future<void> _showMigrateDialog() async {
+    final eventScreenCubit = BlocProvider.of<EventScreenCubit>(context);
+    final homeScreenCubit = BlocProvider.of<HomeScreenCubit>(context);
+    final listOfPages = homeScreenCubit.state.listOfPages
+        .where((element) => element.name != widget.page.name)
+        .toList();
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            title: const Text(
+              'Select the page you want to migrate selected events to!',
+            ),
+            children: listOfPages
+                .map(
+                  (page) => SimpleDialogOption(
+                    child: Text(page.name),
+                    onPressed: () {
+                      var eventsToMigrate =
+                          eventScreenCubit.popSelectedEvents();
+                      homeScreenCubit.migrateEventsToPage(
+                          page, eventsToMigrate);
+
+                      Navigator.pop(context);
+                    },
+                  ),
+                )
+                .toList(),
+          );
+        });
+
+    eventScreenCubit.toggleAllSelected();
   }
 
   void _findEventToEdit() {
-    final index = _events.indexWhere((element) => element.isSelected);
+    final cubit = BlocProvider.of<EventScreenCubit>(context);
+    final index = cubit.findSelectedEventIndex();
     _showKeyboard();
-    _isEditing = true;
-    _inputController.text = _events[index].text!;
-
-    setState(() {});
+    cubit.setIsEditing();
+    _inputController.text = cubit.state.page.events[index].text!;
   }
 
   void _editEvent(String newEventText) {
-    final index = _events.indexWhere((element) => element.isSelected);
-    _events[index].text = newEventText;
-    _events[index].isSelected = false;
+    final cubit = BlocProvider.of<EventScreenCubit>(context);
+    cubit.editEvent(newEventText);
     _hideKeyboard();
-    _countOfSelected = 0;
-    _isEditing = false;
-    setState(() {});
+    cubit.toggleSelected();
+    cubit.setIsEditing();
   }
 
   void _addToFavorites() {
-    final selectedEvents = _events.where((element) => element.isSelected);
+    final cubit = BlocProvider.of<EventScreenCubit>(context);
+    final selectedEvents =
+        cubit.state.page.events.where((element) => element.isSelected);
     _favoriteEvents.addAll(selectedEvents);
-    _toggleSelected();
+    cubit.toggleAllSelected();
     setState(() {});
     _favoriteEvents.forEach(print);
   }
@@ -180,5 +171,41 @@ class _EventScreenState extends State<EventScreen> {
 
   void _hideKeyboard() {
     _inputNode.unfocus();
+  }
+}
+
+class CategoryIcon extends StatefulWidget {
+  final IconData icon;
+  final EventScreenCubit cubit;
+
+  const CategoryIcon({
+    Key? key,
+    required this.cubit,
+    required this.icon,
+  }) : super(key: key);
+
+  @override
+  State<CategoryIcon> createState() => _CategoryIconState();
+}
+
+class _CategoryIconState extends State<CategoryIcon> {
+  bool isSelected = false;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: IconButton(
+        onPressed: () {
+          isSelected = true;
+          widget.cubit.addCurrentCategory(widget.icon);
+        },
+        icon: Icon(
+          widget.icon,
+          color: isSelected
+              ? Theme.of(context).primaryColor
+              : Theme.of(context).disabledColor,
+        ),
+      ),
+    );
   }
 }
