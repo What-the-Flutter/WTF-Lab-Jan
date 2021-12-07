@@ -7,6 +7,7 @@ class EventScreenState {
   final bool isImageSelected;
   final bool isCategory;
   final IconData? currentCategory;
+  final bool isSearch;
 
   bool get containsSelected => countOfSelected > 0;
 
@@ -16,6 +17,7 @@ class EventScreenState {
     required this.currentCategory,
     required this.isCategory,
     required this.page,
+    required this.isSearch,
     required this.countOfSelected,
     required this.isEditing,
     required this.isImageSelected,
@@ -28,10 +30,12 @@ class EventScreenState {
     bool? isEditing,
     bool? isImageSelected,
     bool? isCategory,
+    bool? isSearch,
     IconData? currentCategory,
   }) {
     return EventScreenState(
       currentCategory: currentCategory,
+      isSearch: isSearch ?? this.isSearch,
       page: page ?? this.page,
       countOfSelected: countOfSelected ?? this.countOfSelected,
       isEditing: isEditing ?? this.isEditing,

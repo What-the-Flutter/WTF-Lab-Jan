@@ -14,6 +14,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
           isEditing: false,
           isImageSelected: false,
           isCategory: false,
+          isSearch: false,
           currentCategory: null,
         ));
 
@@ -24,6 +25,10 @@ class EventScreenCubit extends Cubit<EventScreenState> {
 
   void addCurrentCategory(IconData iconData) {
     emit(state.copyWith(currentCategory: iconData));
+  }
+
+  void toggleIsSearch() {
+    emit(state.copyWith(isSearch: !state.isSearch));
   }
 
   void deleteCurrentCaregory() {

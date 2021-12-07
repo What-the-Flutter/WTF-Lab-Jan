@@ -21,12 +21,14 @@ class _SearchEventScreenState extends State<SearchEventScreen> {
 
   @override
   void initState() {
+    _cubit.toggleIsSearch();
     _items.addAll(_cubit.state.page.events);
     super.initState();
   }
 
   @override
   void dispose() {
+    _cubit.toggleIsSearch();
     _controller.dispose();
     super.dispose();
   }

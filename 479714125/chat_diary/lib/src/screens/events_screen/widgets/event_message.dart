@@ -31,11 +31,15 @@ class EventMessage extends StatelessWidget {
         alignment: Alignment.bottomLeft,
         child: GestureDetector(
           onLongPress: () {
-            cubit.toggleAppBar(index, event.isSelected);
+            if (!cubit.state.isSearch) {
+              cubit.toggleAppBar(index, event.isSelected);
+            }
           },
           onTap: () {
-            if (event.isSelected) {
-              cubit.toggleAppBar(index, event.isSelected);
+            if (!cubit.state.isSearch) {
+              if (event.isSelected) {
+                cubit.toggleAppBar(index, event.isSelected);
+              }
             }
           },
           child: DecoratedBox(
