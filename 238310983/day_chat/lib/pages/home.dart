@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import 'chat_page.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -12,12 +13,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String? userToDO;
+
   List chats = [];
 
   @override
   void initState() {
     super.initState();
-
     chats.addAll(['Family', 'Sport', 'Money']);
   }
 
@@ -28,13 +29,14 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.transparent.withOpacity(0.3),
         flexibleSpace: ClipRRect(
           child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent.withOpacity(0.4),
-                  gradient: const LinearGradient(colors: [Colors.red, Colors.blue]),
-                ),
-              )),
+            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.transparent.withOpacity(0.4),
+                gradient: const LinearGradient(colors: [Colors.red, Colors.blue]),
+              ),
+            ),
+          ),
         ),
         title: const Text(
           'Chat Journal',
@@ -47,7 +49,10 @@ class _HomeState extends State<Home> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: <Widget>[
-          IconButton(onPressed: () {}, icon: const Icon(Icons.invert_colors_sharp))
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.invert_colors_sharp),
+          ),
         ],
       ),
       extendBodyBehindAppBar: true,
@@ -59,34 +64,39 @@ class _HomeState extends State<Home> {
           ),
         ),
         child: ListView.builder(
-            itemCount: chats.length,
-            itemBuilder: (context, index) {
-              return Dismissible(
-                  key: Key(chats[index]),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all( Radius.circular(18)),
-                        color: Colors.transparent.withOpacity(0.6),
-                        gradient:
-                        const LinearGradient(colors: [Colors.red, Colors.blue])),
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
-                    child: ListTile(
-                      title: Text((chats[index]),
-                          style: const TextStyle(color: Colors.white)),
-                      //subtitle: Text(("No events. Click to create one"),
-                      //style: TextStyle(color: Colors.grey.withOpacity(0.7))),
-                      //leading: Icon(
-                      //Icons.flight,
-                      //color: Colors.white,
+          itemCount: chats.length,
+          itemBuilder: (context, index) {
+            return Dismissible(
+              key: Key(chats[index]),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(18),
+                  ),
+                  color: Colors.transparent.withOpacity(0.6),
+                  gradient: const LinearGradient(colors: [Colors.red, Colors.blue]),
+                ),
+                alignment: Alignment.center,
+                margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
+                child: ListTile(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MessagesScreen(),
                     ),
                   ),
-                  onDismissed: (direction) {
-                    setState(() {
-                      chats.removeAt(index);
-                    });
-                  });
-            }),
+                  title: Text(
+                    (chats[index]),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              onDismissed: (direction) => setState(
+                () => chats.removeAt(index),
+              ),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Container(
@@ -100,34 +110,39 @@ class _HomeState extends State<Home> {
         ),
         onPressed: () {
           showDialog(
-              context: context,
-              builder: (context) {
-                return  AlertDialog(
-
-
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0)),
-                  backgroundColor: Colors.blueGrey,
-                  title: const Text('Add New Chat',style: TextStyle(color:Colors.white),),
-                  content: TextField(
-                      style: const TextStyle(color:Colors.white),
-                      onChanged: (value) {
-                        userToDO = value;
-                      }),
-                  actions: [
-                    ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            chats.add(userToDO);
-                          });
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Add'))
-                  ],
-                );});
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                backgroundColor: Colors.blueGrey,
+                title: const Text(
+                  'Add New Chat',
+                  style: TextStyle(color: Colors.white),
+                ),
+                content: TextField(
+                  style: const TextStyle(color: Colors.white),
+                  onChanged: (value) {
+                    userToDO = value;
+                  },
+                ),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(
+                        () => chats.add(userToDO),
+                      );
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Add'),
+                  ),
+                ],
+              );
+            },
+          );
         },
       ),
-
     );
   }
 }
