@@ -115,14 +115,14 @@ class _EventInputFieldState extends State<EventInputField> {
         final EventModel model;
         if (cubit.state.isCategory && cubit.state.currentCategory != null) {
           model = EventModel(
-            index: index,
+            id: index,
             text: widget.inputController.text,
             date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
             category: cubit.state.currentCategory,
           );
         } else {
           model = EventModel(
-            index: index,
+            id: index,
             text: widget.inputController.text,
             date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
           );
@@ -148,14 +148,14 @@ class _EventInputFieldState extends State<EventInputField> {
         var index = cubit.state.newEventIndex;
         if (cubit.state.isCategory && cubit.state.currentCategory != null) {
           model = EventModel(
-            index: index,
+            id: index,
             image: imagePath,
             date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
             category: cubit.state.currentCategory,
           );
         } else {
           model = EventModel(
-            index: index,
+            id: index,
             image: imagePath,
             date: DateFormat('dd.MM.yy').add_Hm().format(DateTime.now()),
           );
