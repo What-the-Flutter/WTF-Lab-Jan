@@ -5,35 +5,36 @@ import 'event_model.dart';
 class PageModel {
   final String name;
   final IconData icon;
-  late final Key key;
+  final int id;
+
   final List<EventModel> events;
 
   PageModel({
+    required this.id,
     required this.name,
     required this.icon,
-  })  : key = UniqueKey(),
-        events = [];
+  }) : events = [];
 
-  PageModel.withKeyAndList({
+  PageModel.withIdAndList({
+    required this.id,
     required this.name,
     required this.icon,
-    required this.key,
     required this.events,
   });
 
   @override
-  String toString() => '$name $icon $key ${events.length}';
+  String toString() => '$name $icon $id ${events.length}';
 
   PageModel copyWith({
     String? name,
     IconData? icon,
-    Key? key,
+    int? id,
     List<EventModel>? events,
   }) {
-    return PageModel.withKeyAndList(
+    return PageModel.withIdAndList(
       name: name ?? this.name,
       icon: icon ?? this.icon,
-      key: key ?? this.key,
+      id: id ?? this.id,
       events: events ?? this.events,
     );
   }

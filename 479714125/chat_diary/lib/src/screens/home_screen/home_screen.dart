@@ -8,14 +8,20 @@ import '../events_screen/cubit.dart';
 import 'cubit.dart';
 import 'widgets/page_card.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final HomeScreenCubit _cubit = HomeScreenCubit();
 
   @override
   Widget build(BuildContext context) {
-    final cubit = HomeScreenCubit();
     return BlocProvider<HomeScreenCubit>(
-      create: (context) => cubit,
+      create: (context) => _cubit,
       child: BlocBuilder<HomeScreenCubit, HomeScreenState>(
         builder: (context, state) {
           return Scaffold(
@@ -49,14 +55,17 @@ class HomeScreen extends StatelessWidget {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AddPageScreen(
-          title: 'Create a new Page',
+        builder: (context) => BlocProvider<HomeScreenCubit>.value(
+          value: _cubit,
+          child: const AddPageScreen(
+            title: 'Create a new Page',
+          ),
         ),
       ),
     );
     if (result != null) {
       final pageModel = result as PageModel;
-      context.read<HomeScreenCubit>().addPage(pageModel);
+      _cubit.addPage(pageModel);
     }
   }
 
@@ -67,15 +76,18 @@ class HomeScreen extends StatelessWidget {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddPageScreen(
-          title: 'Edit Page',
-          titleOfPage: page.name,
+        builder: (context) => BlocProvider<HomeScreenCubit>.value(
+          value: _cubit,
+          child: AddPageScreen(
+            title: 'Edit Page',
+            titleOfPage: page.name,
+          ),
         ),
       ),
     );
     if (result != null) {
       final newPage = result as PageModel;
-      context.read<HomeScreenCubit>().editPage(newPage, page);
+      _cubit.editPage(newPage, page);
     }
   }
 
@@ -111,7 +123,7 @@ class HomeScreen extends StatelessWidget {
             TextButton(
               child: const Text('Yes'),
               onPressed: () {
-                context.read<HomeScreenCubit>().removePageByKey(page.key);
+                context.read<HomeScreenCubit>().removePageById(page.id);
                 Navigator.of(context).pop();
               },
             ),

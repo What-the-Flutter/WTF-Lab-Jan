@@ -35,7 +35,6 @@ class EventScreenCubit extends Cubit<EventScreenState> {
 
   void deleteCurrentCaregory() {
     emit(state.copyWith(currentCategory: null));
-    print(state.currentCategory);
   }
 
   void toggleIsCategory() {

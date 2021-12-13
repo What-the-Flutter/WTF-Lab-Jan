@@ -2,11 +2,19 @@ part of 'cubit.dart';
 
 class HomeScreenState {
   final List<PageModel> listOfPages;
+  final int newPageId;
 
-  HomeScreenState({required this.listOfPages});
+  HomeScreenState({
+    required this.listOfPages,
+    required this.newPageId,
+  });
 
-  HomeScreenState copyWith({List<PageModel>? listOfPages}) =>
-      HomeScreenState(listOfPages: listOfPages ?? this.listOfPages);
+  HomeScreenState copyWith({List<PageModel>? listOfPages, int? newPageId}) {
+    return HomeScreenState(
+      listOfPages: listOfPages ?? this.listOfPages,
+      newPageId: newPageId ?? this.newPageId,
+    );
+  }
 
   @override
   String toString() => listOfPages.map((e) => e.toString()).toString();

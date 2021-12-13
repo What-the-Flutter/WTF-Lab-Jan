@@ -104,7 +104,7 @@ class Home extends StatelessWidget {
       ),
       body: IndexedStack(
         children: [
-          const HomeScreen(),
+          HomeScreen(),
           const DailyScreen(),
           const TimelineScreen(),
           const ExploreScreen(),

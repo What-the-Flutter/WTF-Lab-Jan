@@ -32,7 +32,6 @@ class EventMessage extends StatelessWidget {
         alignment: Alignment.bottomLeft,
         child: GestureDetector(
           onLongPress: () {
-            print('index is ${event.id}');
             if (!cubit.state.isSearch) {
               cubit.toggleAppBar(index, event.isSelected);
             }

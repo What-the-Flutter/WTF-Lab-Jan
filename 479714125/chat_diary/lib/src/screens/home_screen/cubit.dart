@@ -8,11 +8,14 @@ part 'state.dart';
 
 class HomeScreenCubit extends Cubit<HomeScreenState> {
   HomeScreenCubit()
-      : super(HomeScreenState(listOfPages: [
-          PageModel(icon: Icons.edit, name: 'Notes'),
-          PageModel(icon: Icons.warning, name: 'Important'),
-          PageModel(icon: Icons.spa, name: 'Relax'),
-        ]));
+      : super(HomeScreenState(
+          listOfPages: [
+            PageModel(icon: Icons.edit, name: 'Notes', id: 0),
+            PageModel(icon: Icons.warning, name: 'Important', id: 1),
+            PageModel(icon: Icons.spa, name: 'Relax', id: 2),
+          ],
+          newPageId: 3,
+        ));
 
   void _emitStateWithEditedList() {
     emit(state.copyWith(listOfPages: state.listOfPages));
@@ -27,14 +30,15 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
 
   void addPage(PageModel page) {
     state.listOfPages.add(page);
-    _emitStateWithEditedList();
+    emit(state.copyWith(
+        listOfPages: state.listOfPages, newPageId: state.newPageId + 1));
   }
 
   void editPage(PageModel page, PageModel oldPage) {
-    final newPage = page.copyWith(key: oldPage.key, events: oldPage.events);
+    final newPage = page.copyWith(id: oldPage.id, events: oldPage.events);
 
     int? index =
-        state.listOfPages.indexWhere((element) => element.key == oldPage.key);
+        state.listOfPages.indexWhere((element) => element.id == oldPage.id);
 
     if (index != -1) {
       state.listOfPages[index] = newPage;
@@ -42,8 +46,8 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     _emitStateWithEditedList();
   }
 
-  void removePageByKey(Key key) {
-    state.listOfPages.removeWhere((element) => element.key == key);
+  void removePageById(int id) {
+    state.listOfPages.removeWhere((element) => element.id == id);
     _emitStateWithEditedList();
   }
 }
