@@ -42,6 +42,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     var id = page.nextEventId;
     for (var event in eventsToMigrate) {
       event.id = id;
+      event.pageId = page.id;
       id += 1;
       page.nextEventId += 1;
     }

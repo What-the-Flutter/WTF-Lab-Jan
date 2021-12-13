@@ -48,6 +48,7 @@ class PageModel {
       'id': id,
       'name': name,
       'icon': icon.codePoint,
+      'nextEventId': nextEventId,
     };
   }
 
