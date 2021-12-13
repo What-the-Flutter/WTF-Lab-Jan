@@ -9,6 +9,7 @@ part 'state.dart';
 class EventScreenCubit extends Cubit<EventScreenState> {
   EventScreenCubit(PageModel page)
       : super(EventScreenState(
+          newEventIndex: 0,
           page: page,
           countOfSelected: 0,
           isEditing: false,
@@ -20,7 +21,8 @@ class EventScreenCubit extends Cubit<EventScreenState> {
 
   void addEvent(EventModel model) {
     state.page.events.insert(0, model);
-    emit(state.copyWith(page: state.page));
+    emit(state.copyWith(
+        page: state.page, newEventIndex: state.newEventIndex + 1));
   }
 
   void addCurrentCategory(IconData iconData) {

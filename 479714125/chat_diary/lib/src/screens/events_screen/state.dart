@@ -3,6 +3,7 @@ part of 'cubit.dart';
 class EventScreenState {
   final PageModel page;
   final int countOfSelected;
+  final int newEventIndex;
   final bool isEditing;
   final bool isImageSelected;
   final bool isCategory;
@@ -14,6 +15,7 @@ class EventScreenState {
   bool get containsMoreThanOneSelected => countOfSelected > 1;
 
   EventScreenState({
+    required this.newEventIndex,
     required this.currentCategory,
     required this.isCategory,
     required this.page,
@@ -27,6 +29,7 @@ class EventScreenState {
     PageModel? page,
     int? countOfSelected,
     int? countOfSelectedCategories,
+    int? newEventIndex,
     bool? isEditing,
     bool? isImageSelected,
     bool? isCategory,
@@ -41,6 +44,7 @@ class EventScreenState {
       isEditing: isEditing ?? this.isEditing,
       isImageSelected: isImageSelected ?? this.isImageSelected,
       isCategory: isCategory ?? this.isCategory,
+      newEventIndex: newEventIndex ?? this.newEventIndex,
     );
   }
 }

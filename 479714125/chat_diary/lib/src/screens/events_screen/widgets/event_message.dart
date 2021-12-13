@@ -20,6 +20,7 @@ class EventMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = BlocProvider.of<EventScreenCubit>(context);
+
     return Padding(
       padding: const EdgeInsets.only(
         left: 5,
@@ -31,6 +32,7 @@ class EventMessage extends StatelessWidget {
         alignment: Alignment.bottomLeft,
         child: GestureDetector(
           onLongPress: () {
+            print('index is ${event.index}');
             if (!cubit.state.isSearch) {
               cubit.toggleAppBar(index, event.isSelected);
             }
