@@ -21,8 +21,14 @@ class EventScreenCubit extends Cubit<EventScreenState> {
 
   void addEvent(EventModel model) {
     state.page.events.insert(0, model);
+    model.id = state.page.nextEventId;
+    state.page.nextEventId += 1;
     emit(state.copyWith(
         page: state.page, newEventIndex: state.newEventIndex + 1));
+  }
+
+  void incrementNewEventIndex() {
+    emit(state.copyWith(newEventIndex: state.newEventIndex + 1));
   }
 
   void addCurrentCategory(IconData iconData) {

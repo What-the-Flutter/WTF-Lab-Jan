@@ -10,9 +10,24 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   HomeScreenCubit()
       : super(HomeScreenState(
           listOfPages: [
-            PageModel(icon: Icons.edit, name: 'Notes', id: 0),
-            PageModel(icon: Icons.warning, name: 'Important', id: 1),
-            PageModel(icon: Icons.spa, name: 'Relax', id: 2),
+            PageModel(
+              icon: Icons.edit,
+              name: 'Notes',
+              id: 0,
+              nextEventId: 0,
+            ),
+            PageModel(
+              icon: Icons.warning,
+              name: 'Important',
+              id: 1,
+              nextEventId: 0,
+            ),
+            PageModel(
+              icon: Icons.spa,
+              name: 'Relax',
+              id: 2,
+              nextEventId: 0,
+            ),
           ],
           newPageId: 3,
         ));
@@ -24,7 +39,13 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   void migrateEventsToPage(
       PageModel page, Iterable<EventModel> eventsToMigrate) {
     var index = state.listOfPages.indexOf(page);
-    state.listOfPages[index].events.addAll(eventsToMigrate);
+    var id = page.nextEventId;
+    for (var event in eventsToMigrate) {
+      event.id = id;
+      id += 1;
+      page.nextEventId += 1;
+    }
+    state.listOfPages[index].events.insertAll(0, eventsToMigrate);
     _emitStateWithEditedList();
   }
 

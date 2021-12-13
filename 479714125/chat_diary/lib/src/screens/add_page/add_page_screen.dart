@@ -104,6 +104,7 @@ class _AddPageScreenState extends State<AddPageScreen> {
                 if (_inputController.text.isNotEmpty) {
                   var id = context.read<HomeScreenCubit>().state.newPageId;
                   final result = PageModel(
+                    nextEventId: 0,
                     id: id,
                     name: _inputController.text,
                     icon: state.selectedIcon,

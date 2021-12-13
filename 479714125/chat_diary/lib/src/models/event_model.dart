@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class EventModel {
-  final int id;
+  int id;
   String? text;
   File? image;
   bool isSelected;
@@ -21,5 +21,5 @@ class EventModel {
   });
 
   @override
-  String toString() => '$text $isSelected';
+  String toString() => '$id $text $isSelected ${image?.path}';
 }
