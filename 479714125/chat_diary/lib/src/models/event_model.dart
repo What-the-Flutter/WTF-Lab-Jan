@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class EventModel {
-  final int index;
+  final int id;
   String? text;
   File? image;
   bool isSelected;
@@ -12,7 +12,7 @@ class EventModel {
   final String date;
 
   EventModel({
-    required this.index,
+    required this.id,
     required this.date,
     this.text,
     this.image,
