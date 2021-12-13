@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_home_cubit/app_home_cubit.dart';
 import 'screens/daily_screen/daily_screen.dart';
@@ -9,13 +10,33 @@ import 'screens/timeline_screen/timeline_screen.dart';
 import 'theme/app_theme.dart';
 import 'theme/cubit.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  bool _isDarkTheme = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme();
+  }
+
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkTheme = (prefs.getBool('isDarkTheme') ?? false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ThemeCubit>(
-      create: (context) => ThemeCubit(),
+      create: (context) => ThemeCubit(_isDarkTheme),
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) => MaterialApp(
           theme: AppTheme.lightTheme,
