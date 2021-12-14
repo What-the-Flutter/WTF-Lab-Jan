@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../components/floating_action_button.dart';
 import '../../models/page_model.dart';
 import '../add_page/add_page_screen.dart';
-import '../events_screen/cubit.dart';
-import 'cubit.dart';
+import '../events_screen/cubit/cubit.dart';
+import 'cubit/cubit.dart';
 import 'widgets/page_card.dart';
 
 class HomeScreen extends StatefulWidget {

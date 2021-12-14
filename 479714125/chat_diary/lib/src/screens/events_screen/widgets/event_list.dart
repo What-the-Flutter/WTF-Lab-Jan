@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit.dart';
+import '../cubit/cubit.dart';
 import 'event_message.dart';
 
 class EventList extends StatelessWidget {

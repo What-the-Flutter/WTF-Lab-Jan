@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/event_model.dart';
 import '../../../theme/app_colors.dart';
-import '../cubit.dart';
+import '../cubit/cubit.dart';
 
 class EventMessage extends StatelessWidget {
   final EventModel event;

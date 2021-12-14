@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/page_model.dart';
-import '../../events_screen/cubit.dart';
+import '../../events_screen/cubit/cubit.dart';
 import '../../events_screen/event_screen.dart';
-import '../cubit.dart';
+import '../cubit/cubit.dart';
 import 'bottom_sheet_card.dart';
 
 class PageCard extends StatelessWidget {

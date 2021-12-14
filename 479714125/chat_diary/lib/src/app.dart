@@ -8,7 +8,7 @@ import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';
 import 'screens/timeline_screen/timeline_screen.dart';
 import 'theme/app_theme.dart';
-import 'theme/cubit.dart';
+import 'theme/cubit/cubit.dart';
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);

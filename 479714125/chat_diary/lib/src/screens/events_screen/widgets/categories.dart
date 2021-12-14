@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../resources/icon_list.dart';
-import '../cubit.dart';
+import '../cubit/cubit.dart';
 
 class Categories extends StatelessWidget {
   const Categories({

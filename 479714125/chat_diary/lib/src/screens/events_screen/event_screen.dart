@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/event_model.dart';
 import '../../models/page_model.dart';
-import '../home_screen/cubit.dart';
-import 'cubit.dart';
+import '../home_screen/cubit/cubit.dart';
+import 'cubit/cubit.dart';
 import 'widgets/app_bars.dart';
 import 'widgets/categories.dart';
 import 'widgets/event_input_field.dart';

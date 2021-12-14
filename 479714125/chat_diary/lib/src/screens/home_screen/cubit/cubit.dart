@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/event_model.dart';
-import '../../models/page_model.dart';
+import '../../../models/event_model.dart';
+import '../../../models/page_model.dart';
 
 part 'state.dart';
 
