@@ -81,7 +81,7 @@ class _EventScreenState extends State<EventScreen> {
 
   void _copySelectedEvents() async {
     final cubit = BlocProvider.of<EventScreenCubit>(context);
-    final eventsToCopy = cubit.copySelectedEvents();
+    final eventsToCopy = await cubit.copySelectedEvents();
     if (eventsToCopy != '') {
       await Clipboard.setData(ClipboardData(text: eventsToCopy));
       ScaffoldMessenger.of(context).showSnackBar(
@@ -111,9 +111,9 @@ class _EventScreenState extends State<EventScreen> {
                 .map(
                   (page) => SimpleDialogOption(
                     child: Text(page.name),
-                    onPressed: () {
+                    onPressed: () async {
                       var eventsToMigrate =
-                          eventScreenCubit.popSelectedEvents();
+                          await eventScreenCubit.popSelectedEvents();
                       homeScreenCubit.migrateEventsToPage(
                           page, eventsToMigrate);
 

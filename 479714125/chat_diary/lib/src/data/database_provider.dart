@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:chat_diary/src/models/event_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../models/event_model.dart';
 import '../models/page_model.dart';
 import '../resources/default_pages.dart';
 
@@ -69,10 +69,10 @@ class DatabaseProvider {
     );
   }
 
-  Future<int> insertPage(PageModel page) async {
+  Future<void> insertPage(PageModel page) async {
     final db = await database;
 
-    return await db.insert(
+    await db.insert(
       'pages',
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -89,10 +89,10 @@ class DatabaseProvider {
     );
   }
 
-  Future<int> updatePage(PageModel page) async {
+  Future<void> updatePage(PageModel page) async {
     final db = await database;
 
-    return await db.update(
+    await db.update(
       'pages',
       page.toMap(),
       where: 'id = ?',
@@ -100,14 +100,85 @@ class DatabaseProvider {
     );
   }
 
-  Future<List<EventModel>> retrieveEvents() async {
+  Future<List<EventModel>> retrieveEvents(int pageId) async {
     final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.query('events');
+    final List<Map<String, dynamic>> maps = await db.query(
+      'events',
+      where: 'pageId = ?',
+      whereArgs: [pageId],
+    );
 
     return List.generate(
       maps.length,
       (index) => EventModel.fromMap(maps[index]),
+    );
+  }
+
+  Future<void> insertEvent(EventModel event) async {
+    final db = await database;
+
+    await db.insert(
+      'events',
+      event.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> insertEvents(Iterable<EventModel> events) async {
+    final db = await database;
+
+    for (var event in events) {
+      await db.insert(
+        'events',
+        event.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+  }
+
+  Future<void> deleteSelectedEvents() async {
+    final db = await database;
+
+    await db.delete(
+      'events',
+      where: 'isSelected = 1',
+    );
+  }
+
+  Future<List<EventModel>> fetchSelectedEvents() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'events',
+      where: 'isSelected = 1',
+    );
+
+    return List.generate(
+      maps.length,
+      (index) => EventModel.fromMap(maps[index]),
+    );
+  }
+
+  Future<void> updateEvent(EventModel event) async {
+    final db = await database;
+
+    await db.update(
+      'events',
+      event.toMap(),
+      where: 'id = ?',
+      whereArgs: [event.id],
+    );
+  }
+
+  Future<void> toggleEventSelection(EventModel event) async {
+    final db = await database;
+
+    await db.update(
+      'events',
+      event.toMap(),
+      where: 'id = ?',
+      whereArgs: [event.id],
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:chat_diary/src/data/database_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -35,11 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
             body: ListView.builder(
               itemCount: state.listOfPages.length,
               itemBuilder: (context, index) {
-                final page = state.listOfPages[index];
+                var page = state.listOfPages[index];
                 final pageWidget = BlocProvider<EventScreenCubit>(
                   create: (context) => EventScreenCubit(page),
                   child: PageCard(
-                    page: page,
                     parentContext: context,
                     deletePage: _deleteSelectedPage,
                     editPage: _editSelectedPage,

@@ -7,24 +7,36 @@ import '../../events_screen/event_screen.dart';
 import '../cubit/cubit.dart';
 import 'bottom_sheet_card.dart';
 
-class PageCard extends StatelessWidget {
-  final PageModel page;
+class PageCard extends StatefulWidget {
   final Future<void> Function(BuildContext, PageModel) deletePage;
   final Future<void> Function(BuildContext, PageModel) editPage;
   final BuildContext parentContext;
 
   const PageCard({
     Key? key,
-    required this.page,
     required this.deletePage,
     required this.editPage,
     required this.parentContext,
   }) : super(key: key);
 
   @override
+  State<PageCard> createState() => _PageCardState();
+}
+
+class _PageCardState extends State<PageCard> {
+  late final HomeScreenCubit homeScreenCubit;
+  late final EventScreenCubit cubitEventScreen;
+
+  @override
+  void initState() {
+    homeScreenCubit = BlocProvider.of<HomeScreenCubit>(context);
+    cubitEventScreen = BlocProvider.of<EventScreenCubit>(context);
+    cubitEventScreen.fetchAllEvents();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final homeScreenCubit = BlocProvider.of<HomeScreenCubit>(context);
-    final cubitEventScreen = BlocProvider.of<EventScreenCubit>(context);
     return Padding(
       padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
       child: Ink(
@@ -49,13 +61,14 @@ class PageCard extends StatelessWidget {
                     ),
                   ],
                   child: EventScreen(
-                    page: page,
+                    page: cubitEventScreen.state.page,
                   ),
                 ),
               ),
             );
           },
-          onLongPress: () => _showModalBottomSheet(parentContext, page),
+          onLongPress: () => _showModalBottomSheet(
+              widget.parentContext, cubitEventScreen.state.page),
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Row(
@@ -63,7 +76,7 @@ class PageCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 25,
                   child: Icon(
-                    page.icon,
+                    cubitEventScreen.state.page.icon,
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -75,7 +88,7 @@ class PageCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        page.name,
+                        cubitEventScreen.state.page.name,
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -127,7 +140,7 @@ class PageCard extends StatelessWidget {
                 icon: Icons.edit,
                 color: Colors.blue,
                 action: () async {
-                  await editPage(context, page);
+                  await widget.editPage(context, page);
                   Navigator.pop(context);
                 },
               ),
@@ -136,7 +149,7 @@ class PageCard extends StatelessWidget {
                 icon: Icons.delete,
                 color: Colors.red,
                 action: () async {
-                  await deletePage(context, page);
+                  await widget.deletePage(context, page);
                   Navigator.pop(context);
                 },
               ),

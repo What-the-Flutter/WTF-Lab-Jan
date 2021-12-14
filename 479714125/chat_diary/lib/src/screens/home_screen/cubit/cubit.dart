@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:chat_diary/src/data/database_config.dart';
-import 'package:flutter/material.dart';
 
+import '../../../data/database_config.dart';
 import '../../../models/event_model.dart';
 import '../../../models/page_model.dart';
 
@@ -24,7 +23,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   }
 
   void migrateEventsToPage(
-      PageModel page, Iterable<EventModel> eventsToMigrate) {
+      PageModel page, Iterable<EventModel> eventsToMigrate) async {
     var index = state.listOfPages.indexOf(page);
     var id = page.nextEventId;
     for (var event in eventsToMigrate) {
@@ -34,6 +33,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       page.nextEventId += 1;
     }
     state.listOfPages[index].events.insertAll(0, eventsToMigrate);
+    await databaseProvider.insertEvents(eventsToMigrate);
     _emitStateWithEditedList();
   }
 

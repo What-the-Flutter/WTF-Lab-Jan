@@ -42,7 +42,7 @@ class EventModel {
       pageId: eventMap['pageId'] as int,
       id: eventMap['id'] as int,
       date: eventMap['date'] as String,
-      text: eventMap['text'] as String,
+      text: eventMap['text'],
       image: eventMap['image'] != 'null'
           ? File(eventMap['image'].toString())
           : null,
