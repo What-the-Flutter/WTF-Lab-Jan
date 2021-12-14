@@ -1,8 +1,9 @@
+import 'package:chat_diary/src/data/database_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'app_home_cubit/app_home_cubit.dart';
+import 'app_home_cubit/cubit.dart';
 import 'screens/daily_screen/daily_screen.dart';
 import 'screens/explore_screen/explore_screen.dart';
 import 'screens/home_screen/home_screen.dart';

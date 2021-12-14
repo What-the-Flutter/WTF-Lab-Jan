@@ -1,3 +1,4 @@
+import 'package:chat_diary/src/models/event_model.dart';
 import 'package:flutter/material.dart';
 
 import '../models/page_model.dart';

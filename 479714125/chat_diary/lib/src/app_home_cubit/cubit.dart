@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-part 'app_home_state.dart';
+part 'state.dart';
 
 class AppHomeCubit extends Cubit<AppHomeState> {
   AppHomeCubit() : super(const AppHomeState());

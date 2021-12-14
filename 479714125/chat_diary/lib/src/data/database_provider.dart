@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chat_diary/src/models/event_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -96,6 +97,17 @@ class DatabaseProvider {
       page.toMap(),
       where: 'id = ?',
       whereArgs: [page.id],
+    );
+  }
+
+  Future<List<EventModel>> retrieveEvents() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query('events');
+
+    return List.generate(
+      maps.length,
+      (index) => EventModel.fromMap(maps[index]),
     );
   }
 }
