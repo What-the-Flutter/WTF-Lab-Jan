@@ -33,7 +33,7 @@ class EventModel {
       'image': image != null ? image!.path : 'null',
       'date': date,
       'isSelected': isSelected ? 1 : 0,
-      'category': category != null ? category!.codePoint : 0,
+      'category': category != null ? category!.codePoint : -1,
     };
   }
 
@@ -47,8 +47,11 @@ class EventModel {
           ? File(eventMap['image'].toString())
           : null,
       isSelected: eventMap['isSelected'] == 1 ? true : false,
-      category: eventMap['category'] != 0
-          ? IconData(int.parse(eventMap['category']))
+      category: eventMap['category'] != -1
+          ? IconData(
+              eventMap['category'],
+              fontFamily: 'MaterialIcons',
+            )
           : null,
     );
   }

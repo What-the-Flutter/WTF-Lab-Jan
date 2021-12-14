@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:chat_diary/src/data/database_config.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/event_model.dart';
@@ -9,28 +10,14 @@ part 'state.dart';
 class HomeScreenCubit extends Cubit<HomeScreenState> {
   HomeScreenCubit()
       : super(HomeScreenState(
-          listOfPages: [
-            PageModel(
-              icon: Icons.edit,
-              name: 'Notes',
-              id: 0,
-              nextEventId: 0,
-            ),
-            PageModel(
-              icon: Icons.warning,
-              name: 'Important',
-              id: 1,
-              nextEventId: 0,
-            ),
-            PageModel(
-              icon: Icons.spa,
-              name: 'Relax',
-              id: 2,
-              nextEventId: 0,
-            ),
-          ],
-          newPageId: 3,
+          listOfPages: [],
+          newPageId: 0,
         ));
+
+  void init() async {
+    final list = await databaseProvider.retrievePages();
+    emit(state.copyWith(listOfPages: list, newPageId: list.length));
+  }
 
   void _emitStateWithEditedList() {
     emit(state.copyWith(listOfPages: state.listOfPages));
@@ -50,26 +37,23 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     _emitStateWithEditedList();
   }
 
-  void addPage(PageModel page) {
+  void addPage(PageModel page) async {
     state.listOfPages.add(page);
+    await databaseProvider.insertPage(page);
     emit(state.copyWith(
         listOfPages: state.listOfPages, newPageId: state.newPageId + 1));
   }
 
-  void editPage(PageModel page, PageModel oldPage) {
+  void editPage(PageModel page, PageModel oldPage) async {
     final newPage = page.copyWith(id: oldPage.id, events: oldPage.events);
-
-    int? index =
-        state.listOfPages.indexWhere((element) => element.id == oldPage.id);
-
-    if (index != -1) {
-      state.listOfPages[index] = newPage;
-    }
-    _emitStateWithEditedList();
+    await databaseProvider.updatePage(newPage);
+    final pages = await databaseProvider.retrievePages();
+    emit(state.copyWith(listOfPages: pages));
   }
 
-  void removePageById(int id) {
-    state.listOfPages.removeWhere((element) => element.id == id);
-    _emitStateWithEditedList();
+  void removePage(PageModel page) async {
+    await databaseProvider.deletePage(page);
+    final pages = await databaseProvider.retrievePages();
+    emit(state.copyWith(listOfPages: pages));
   }
 }

@@ -1,3 +1,4 @@
+import 'package:chat_diary/src/data/database_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,6 +18,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final HomeScreenCubit _cubit = HomeScreenCubit();
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit.init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text('Yes'),
               onPressed: () {
-                context.read<HomeScreenCubit>().removePageById(page.id);
+                context.read<HomeScreenCubit>().removePage(page);
                 Navigator.of(context).pop();
               },
             ),

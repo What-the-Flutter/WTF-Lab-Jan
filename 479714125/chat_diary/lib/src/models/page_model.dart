@@ -55,9 +55,9 @@ class PageModel {
   factory PageModel.fromMap(Map<String, dynamic> pageMap) {
     return PageModel(
       id: pageMap['id'] as int,
-      nextEventId: pageMap['currentEventId'] as int,
+      nextEventId: pageMap['nextEventId'] as int,
       name: pageMap['name'] as String,
-      icon: IconData(int.parse(pageMap['icon'])),
+      icon: IconData(pageMap['icon'], fontFamily: 'MaterialIcons'),
     );
   }
 }
