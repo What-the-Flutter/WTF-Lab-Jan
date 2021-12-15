@@ -1,24 +1,27 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:local_auth/local_auth.dart';
 
-import '../../data/models/activity_page.dart';
+import '../../data/model/activity_page.dart';
 import '../../data/repository/page_repository.dart';
 import 'main_page_state.dart';
 
 class MainPageCubit extends Cubit<MainPageState> {
   final ActivityPageRepository pageRepository;
+  final LocalAuthentication _localAuthentication = LocalAuthentication();
 
   MainPageCubit(this.pageRepository)
       : super(
-    MainPageState(
-      activityPageList: [],
-      isSelected: false,
-      isPinned: false,
-      selectedPageIndex: 0,
-    ),
-  );
+          MainPageState(
+            activityPageList: [],
+            isSelected: false,
+            isPinned: false,
+            selectedPageIndex: 0,
+          ),
+        );
 
   void showActivityPages() async {
     final pages = await pageRepository.fetchActivityPageList();
+    pages.sort((a, b) => b.creationDate.compareTo(a.creationDate));
     emit(
       state.copyWith(
         activityPageList: pages,
@@ -70,7 +73,7 @@ class MainPageCubit extends Cubit<MainPageState> {
   void pinPage() {
     final selectedPage = state.activityPageList[state.selectedPageIndex];
     final pinnedList =
-    state.activityPageList.where((element) => element.isPinned).toList();
+        state.activityPageList.where((element) => element.isPinned).toList();
     final pinnedEventPage = selectedPage.copyWith(
       isPinned: !selectedPage.isPinned,
     );

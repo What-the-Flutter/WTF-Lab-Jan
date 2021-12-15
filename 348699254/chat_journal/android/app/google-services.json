@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "521010525262",
+    "firebase_url": "https://wtf-chat-journal-default-rtdb.firebaseio.com",
+    "project_id": "wtf-chat-journal",
+    "storage_bucket": "wtf-chat-journal.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521010525262:android:247a6878145a47c2443f1f",
+        "android_client_info": {
+          "package_name": "ua.wtf.chat_journal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "521010525262-jbmas8i7k07eufugpo7nldhl4fk0vjjt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_SZQKkqNlFg9LWlAWKrVlGZru_RT4LR0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "521010525262-jbmas8i7k07eufugpo7nldhl4fk0vjjt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

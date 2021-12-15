@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
-
 class Event {
   final String id;
   final String eventData;
   final String imagePath;
   final DateTime creationDate;
-  final IconData? categoryIcon;
+  final int? categoryIcon;
   final String? categoryName;
   final String pageId;
   final bool isSelected;
@@ -27,7 +25,7 @@ class Event {
     String? id,
     String? eventData,
     String? imagePath,
-    IconData? categoryIcon,
+    int? categoryIcon,
     String? categoryName,
     DateTime? creationDate,
     String? pageId,
@@ -52,10 +50,7 @@ class Event {
       id: map['id'],
       eventData: map['event_data'],
       imagePath: map['image_path'],
-      categoryIcon: map['category_icon'] != null
-          ? IconData(int.parse(map['category_icon']),
-          fontFamily: 'MaterialIcons')
-          : null,
+      categoryIcon: map['category_icon'],
       categoryName: map['category_name'],
       creationDate: DateTime.parse(map['creation_date']),
       pageId: map['page_id'],
@@ -69,7 +64,7 @@ class Event {
       'id': id,
       'event_data': eventData,
       'image_path': imagePath,
-      'category_icon': categoryIcon != null ? categoryIcon!.codePoint : null,
+      'category_icon': categoryIcon != null ? categoryIcon! : null,
       'category_name': categoryName,
       'creation_date': creationDate.toString(),
       'page_id': pageId,

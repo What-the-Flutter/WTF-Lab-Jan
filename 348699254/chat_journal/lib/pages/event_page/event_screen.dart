@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
-import '../../data/models/activity_page.dart';
+import '../../data/model/activity_page.dart';
 import '../settings/settings_cubit.dart';
 import '../settings/settings_state.dart';
 import 'event_cubit.dart';
@@ -62,13 +62,10 @@ class _EventScreenState extends State<EventScreen> {
           bottomNavigationBar: state.isSearching
               ? null
               : Padding(
-            child: _eventBottomAppBar(context, state),
-            padding: EdgeInsets.only(
-                bottom: MediaQuery
-                    .of(context)
-                    .viewInsets
-                    .bottom),
-          ),
+                  child: _eventBottomAppBar(context, state),
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                ),
         );
       },
     );
@@ -127,15 +124,15 @@ class _EventScreenState extends State<EventScreen> {
       ),
       actions: state.isSearching
           ? <Widget>[
-        if (_eventInputController.text.isNotEmpty)
-          IconButton(
-            icon: const Icon(Icons.cancel_outlined),
-            onPressed: _eventInputController.clear,
-          ),
-      ]
+              if (_eventInputController.text.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.cancel_outlined),
+                  onPressed: _eventInputController.clear,
+                ),
+            ]
           : <Widget>[
-        _usualAppBarButtons(state),
-      ],
+              _usualAppBarButtons(state),
+            ],
     );
   }
 
@@ -150,9 +147,8 @@ class _EventScreenState extends State<EventScreen> {
         IconButton(
           icon: const Icon(Icons.bookmark_border_outlined),
           color: Colors.amber,
-          onPressed: () =>
-              BlocProvider.of<EventCubit>(context)
-                  .showMarkedEvents(!state.isAllMarked),
+          onPressed: () => BlocProvider.of<EventCubit>(context)
+              .showMarkedEvents(!state.isAllMarked),
         ),
       ],
     );
@@ -201,7 +197,7 @@ class _EventScreenState extends State<EventScreen> {
 
   Widget _appBarButtonsForSelectedEvents(EventState state) {
     final selectedList =
-    state.eventList.where((element) => element.isSelected).toList();
+        state.eventList.where((element) => element.isSelected).toList();
     return Row(
       children: <Widget>[
         IconButton(
@@ -213,8 +209,7 @@ class _EventScreenState extends State<EventScreen> {
         if (selectedList.length == 1)
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () =>
-            _eventInputController.text =
+            onPressed: () => _eventInputController.text =
                 BlocProvider.of<EventCubit>(context)
                     .edit(state.selectedEventIndex),
           ),
@@ -320,9 +315,8 @@ class _EventScreenState extends State<EventScreen> {
       ),
       value: index,
       groupValue: state.selectedPage,
-      onChanged: (value) =>
-          BlocProvider.of<EventCubit>(context)
-              .setIndexOfSelectedPage(value as int),
+      onChanged: (value) => BlocProvider.of<EventCubit>(context)
+          .setIndexOfSelectedPage(value as int),
     );
   }
 
@@ -463,10 +457,7 @@ class _EventScreenState extends State<EventScreen> {
           Container(
             margin: const EdgeInsets.only(top: 5),
             constraints: BoxConstraints(
-              maxWidth: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.87,
+              maxWidth: MediaQuery.of(context).size.width * 0.87,
             ),
             decoration: const BoxDecoration(
               color: Colors.greenAccent,
@@ -485,14 +476,16 @@ class _EventScreenState extends State<EventScreen> {
     );
   }
 
-  Widget _categoryContainer(IconData? categoryIcon, String? categoryName) {
+  Widget _categoryContainer(int? categoryIconIndex, String? categoryName) {
+    var entries = _categoriesMap.entries.toList();
     return Container(
       padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Icon(
-            categoryIcon,
+            entries.elementAt(categoryIconIndex!).value,
+            //_categoriesMap.[categoryIconIndex],
             size: 35,
             color: Colors.black54,
           ),
@@ -513,22 +506,23 @@ class _EventScreenState extends State<EventScreen> {
       title: imagePath.isNotEmpty
           ? Image.file(File(imagePath))
           : Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          if (state.eventList[index].categoryIcon != null)
-            _categoryContainer(
-              state.eventList[index].categoryIcon,
-              state.eventList[index].categoryName,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                if (state.eventList[index].categoryIcon != null)
+                  _categoryContainer(
+                    //state.selectedCategoryIndex,
+                    state.eventList[index].categoryIcon,
+                    state.eventList[index].categoryName,
+                  ),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w300,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w300,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
       subtitle: Row(
         children: <Widget>[
           state.eventList[index].isSelected
@@ -611,22 +605,23 @@ class _EventScreenState extends State<EventScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           BlocBuilder<SettingsCubit, SettingsState>(
-              builder: (blocContext, settingsState) {
-                return Visibility(
-                  visible: settingsState.isCategoryListOpen,
-                  child: IconButton(
-                    icon: state.selectedCategoryIndex > 0
-                        ? Icon(entries
-                        .elementAt(state.selectedCategoryIndex)
-                        .value)
-                        : const Icon(Icons.workspaces_filled),
-                    //color: Colors.teal,
-                    onPressed: () {
-                      BlocProvider.of<EventCubit>(context).openCategoryList();
-                    },
-                  ),
-                );
-              }),
+            builder: (blocContext, settingsState) {
+              return Visibility(
+                visible: settingsState.isCategoryListOpen,
+                child: IconButton(
+                  icon: state.selectedCategoryIndex > 0
+                      ? Icon(
+                          entries.elementAt(state.selectedCategoryIndex).value,
+                        )
+                      : const Icon(Icons.workspaces_filled),
+                  //color: Colors.teal,
+                  onPressed: () {
+                    BlocProvider.of<EventCubit>(context).openCategoryList();
+                  },
+                ),
+              );
+            },
+          ),
           Expanded(
             child: _eventTextFormField(state),
           ),
@@ -635,10 +630,9 @@ class _EventScreenState extends State<EventScreen> {
             //color: Colors.teal,
             onPressed: () {
               BlocProvider.of<EventCubit>(context).addImageEvent().then(
-                    (value) =>
-                    BlocProvider.of<EventCubit>(context)
+                    (value) => BlocProvider.of<EventCubit>(context)
                         .addEvent(state.selectedImage),
-              );
+                  );
             },
           ),
         ],
@@ -651,13 +645,12 @@ class _EventScreenState extends State<EventScreen> {
       padding: const EdgeInsets.all(5),
       scrollDirection: Axis.horizontal,
       itemCount: _categoriesMap.length,
-      itemBuilder: (_, index) =>
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              _categoryItem(index, _categoriesMap),
-            ],
-          ),
+      itemBuilder: (_, index) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          _categoryItem(index, _categoriesMap),
+        ],
+      ),
     );
   }
 
@@ -675,9 +668,7 @@ class _EventScreenState extends State<EventScreen> {
                 Align(
                   alignment: Alignment.center,
                   child: Icon(
-                    entries
-                        .elementAt(index)
-                        .value,
+                    entries.elementAt(index).value,
                     color: index == 0 ? Colors.red : Colors.white,
                     size: 30,
                   ),
@@ -687,9 +678,7 @@ class _EventScreenState extends State<EventScreen> {
           ),
           subtitle: Align(
             alignment: Alignment.topCenter,
-            child: Text(entries
-                .elementAt(index)
-                .key),
+            child: Text(entries.elementAt(index).key),
           ),
           onTap: () {
             if (index == 0) {
@@ -740,12 +729,9 @@ class _EventScreenState extends State<EventScreen> {
     if (state.selectedCategoryIndex > 0) {
       BlocProvider.of<EventCubit>(context).addEvent(
         text,
-        entries
-            .elementAt(state.selectedCategoryIndex)
-            .value,
-        entries
-            .elementAt(state.selectedCategoryIndex)
-            .key,
+        //entries.elementAt(state.selectedCategoryIndex).value,
+        state.selectedCategoryIndex,
+        entries.elementAt(state.selectedCategoryIndex).key,
       );
       BlocProvider.of<EventCubit>(context).setCategoryInitialIndex();
     } else {
