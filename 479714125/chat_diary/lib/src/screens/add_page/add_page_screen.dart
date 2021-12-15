@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../components/floating_action_button.dart';
 import '../../models/page_model.dart';
-import 'add_page_screen_cubit/cubit.dart';
+import '../home_screen/cubit/cubit.dart';
+import 'cubit/cubit.dart';
 import 'widgets/icon_gridview.dart';
 
 class AddPageScreen extends StatefulWidget {
@@ -101,7 +102,10 @@ class _AddPageScreenState extends State<AddPageScreen> {
             return AppFloatingActionButton(
               onPressed: () {
                 if (_inputController.text.isNotEmpty) {
+                  var id = context.read<HomeScreenCubit>().state.newPageId;
                   final result = PageModel(
+                    nextEventId: 0,
+                    id: id,
                     name: _inputController.text,
                     icon: state.selectedIcon,
                   );

@@ -1,4 +1,4 @@
-part of 'app_home_cubit.dart';
+part of 'cubit.dart';
 
 class AppHomeState extends Equatable {
   final int currentIndex;

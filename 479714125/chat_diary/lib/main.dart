@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'src/app.dart';
 import 'src/app_home_cubit/app_cubit_observer.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   BlocOverrides.runZoned(
     () => runApp(const App()),
     blocObserver: AppCubitObserver(),

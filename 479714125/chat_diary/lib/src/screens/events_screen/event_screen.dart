@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/event_model.dart';
 import '../../models/page_model.dart';
-import '../../resources/icon_list.dart';
-import '../home_screen/cubit/home_screen_cubit.dart';
+import '../home_screen/cubit/cubit.dart';
 import 'cubit/cubit.dart';
 import 'widgets/app_bars.dart';
+import 'widgets/categories.dart';
 import 'widgets/event_input_field.dart';
 import 'widgets/event_list.dart';
 
@@ -65,18 +65,7 @@ class _EventScreenState extends State<EventScreen> {
                 Expanded(
                   child: EventList(),
                 ),
-                if (state.isCategory)
-                  SizedBox(
-                    height: 50,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: IconList.iconCategoriesList
-                          .map(
-                            (e) => CategoryIcon(cubit: cubit, icon: e),
-                          )
-                          .toList(),
-                    ),
-                  ),
+                if (state.isCategory) Categories(cubit: cubit),
                 EventInputField(
                   editEvent: _editEvent,
                   inputController: _inputController,
@@ -92,7 +81,7 @@ class _EventScreenState extends State<EventScreen> {
 
   void _copySelectedEvents() async {
     final cubit = BlocProvider.of<EventScreenCubit>(context);
-    final eventsToCopy = cubit.copySelectedEvents();
+    final eventsToCopy = await cubit.copySelectedEvents();
     if (eventsToCopy != '') {
       await Clipboard.setData(ClipboardData(text: eventsToCopy));
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,9 +111,9 @@ class _EventScreenState extends State<EventScreen> {
                 .map(
                   (page) => SimpleDialogOption(
                     child: Text(page.name),
-                    onPressed: () {
+                    onPressed: () async {
                       var eventsToMigrate =
-                          eventScreenCubit.popSelectedEvents();
+                          await eventScreenCubit.popSelectedEvents();
                       homeScreenCubit.migrateEventsToPage(
                           page, eventsToMigrate);
 
@@ -171,41 +160,5 @@ class _EventScreenState extends State<EventScreen> {
 
   void _hideKeyboard() {
     _inputNode.unfocus();
-  }
-}
-
-class CategoryIcon extends StatefulWidget {
-  final IconData icon;
-  final EventScreenCubit cubit;
-
-  const CategoryIcon({
-    Key? key,
-    required this.cubit,
-    required this.icon,
-  }) : super(key: key);
-
-  @override
-  State<CategoryIcon> createState() => _CategoryIconState();
-}
-
-class _CategoryIconState extends State<CategoryIcon> {
-  bool isSelected = false;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: IconButton(
-        onPressed: () {
-          isSelected = true;
-          widget.cubit.addCurrentCategory(widget.icon);
-        },
-        icon: Icon(
-          widget.icon,
-          color: isSelected
-              ? Theme.of(context).primaryColor
-              : Theme.of(context).disabledColor,
-        ),
-      ),
-    );
   }
 }

@@ -1,4 +1,4 @@
-part of 'theme_cubit.dart';
+part of 'cubit.dart';
 
 class ThemeState extends Equatable {
   final bool isDarkTheme;
