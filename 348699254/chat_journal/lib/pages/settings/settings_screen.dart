@@ -44,7 +44,13 @@ class _SettingsScreensState extends State<SettingsScreen> {
         ),
         const Divider(height: 1),
         Expanded(
-          child: _categorySettingsListTile(state),
+          child: ListView(
+            children: <Widget>[
+              _addCategorySettings(state),
+              _changeThemeSettings(state),
+              _biometricAuthSettings(state),
+            ],
+          ),
         ),
       ],
     );
@@ -82,15 +88,40 @@ class _SettingsScreensState extends State<SettingsScreen> {
     );
   }
 
-  ListTile _categorySettingsListTile(SettingsState state) {
+  ListTile _addCategorySettings(SettingsState state) {
     return ListTile(
       leading: const Icon(Icons.workspaces_filled),
       title: const Text('Add category'),
       trailing: Switch.adaptive(
         value: state.isCategoryListOpen,
+        onChanged: (value) => BlocProvider.of<SettingsCubit>(context)
+            .changeAbilityChooseCategory(),
+      ),
+      onTap: () {},
+    );
+  }
+
+  ListTile _changeThemeSettings(SettingsState state) {
+    return ListTile(
+      leading: const Icon(Icons.wb_incandescent_outlined),
+      title: const Text('Change theme'),
+      trailing: Switch.adaptive(
+        value: state.isLightTheme,
         onChanged: (value) =>
-            BlocProvider.of<SettingsCubit>(context)
-                .changeAbilityChooseCategory(),
+            BlocProvider.of<SettingsCubit>(context).changeTheme(),
+      ),
+      onTap: () {},
+    );
+  }
+
+  ListTile _biometricAuthSettings(SettingsState state) {
+    return ListTile(
+      leading: const Icon(Icons.fingerprint),
+      title: const Text('Authentication with fingerprint'),
+      trailing: Switch.adaptive(
+        value: state.isBiometricAuth,
+        onChanged: (value) => BlocProvider.of<SettingsCubit>(context)
+            .changeBiometricAuthAbility(),
       ),
       onTap: () {},
     );

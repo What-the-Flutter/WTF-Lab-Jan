@@ -1,4 +1,4 @@
-import '../../data/models/event.dart';
+import '../../data/model/event.dart';
 
 class EventState {
   final bool isEditing;
@@ -58,7 +58,7 @@ class EventState {
       selectedPage: selectedPage ?? this.selectedPage,
       selectedImage: selectedImage ?? this.selectedImage,
       selectedCategoryIndex:
-      selectedCategoryIndex ?? this.selectedCategoryIndex,
+          selectedCategoryIndex ?? this.selectedCategoryIndex,
       eventList: eventList ?? this.eventList,
       pageId: pageId ?? this.pageId,
     );

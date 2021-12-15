@@ -1,8 +1,8 @@
-import '../data_provider/journal_database.dart';
-import '../models/activity_page.dart';
+import '../data_provider/firebase_database_provider.dart';
+import '../model/activity_page.dart';
 
 class ActivityPageRepository {
-  final JournalDatabase _db;
+  final FirebaseDatabaseProvider _db;
 
   ActivityPageRepository(this._db);
 

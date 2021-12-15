@@ -1,14 +1,107 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
-import '../../theme/theme_cubit.dart';
+import '../../auth/auth_cubit.dart';
+import '../../data/data_provider/firebase_database_provider.dart';
+import '../../data/data_provider/shared_preferences_provider.dart';
+import '../../data/repository/event_repository.dart';
+import '../../data/repository/page_repository.dart';
+import '../../data/repository/settings_repository.dart';
+import '../../splash_screen.dart';
+import '../add_page/add_page_cubit.dart';
 import '../add_page/add_page_screen.dart';
+import '../event_page/event_cubit.dart';
 import '../event_page/event_screen.dart';
+import '../settings/settings_cubit.dart';
 import '../settings/settings_screen.dart';
-import 'main_pade_cubit.dart';
+import '../settings/settings_state.dart';
+import 'main_page_cubit.dart';
 import 'main_page_state.dart';
+
+Future<Widget> startApp() async {
+  //WidgetsFlutterBinding.ensureInitialized();
+  //final db = JournalDatabase();
+  final firebaseDb = FirebaseDatabaseProvider();
+  await SharedPreferencesProvider.initialize();
+  final pref = SharedPreferencesProvider();
+  return MultiRepositoryProvider(
+    providers: [
+      RepositoryProvider<ActivityPageRepository>(
+        create: (context) => ActivityPageRepository(firebaseDb),
+      ),
+      RepositoryProvider<EventRepository>(
+        create: (context) => EventRepository(firebaseDb),
+      ),
+      RepositoryProvider<SettingsRepository>(
+        create: (context) => SettingsRepository(pref),
+      ),
+    ],
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AuthCubit(),
+        ),
+        //BlocProvider(
+        //  create: (context) => ThemeCubit(),
+        //),
+        BlocProvider(
+          create: (context) => SettingsCubit(
+            RepositoryProvider.of<SettingsRepository>(context),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => EventCubit(
+            RepositoryProvider.of<EventRepository>(context),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => MainPageCubit(
+            RepositoryProvider.of<ActivityPageRepository>(context),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => AddPageCubit(
+            RepositoryProvider.of<ActivityPageRepository>(context),
+          ),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<SettingsCubit>(context).initSettings();
+    //BlocProvider.of<ThemeCubit>(context).init();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        return MaterialApp(
+          title: 'Chat Journal App',
+          themeMode: state.isLightTheme ? ThemeMode.dark : ThemeMode.dark,
+          theme: state.themeData,
+          initialRoute: '/',
+          home: SplashScreen(),
+        );
+      },
+    );
+  }
+}
 
 class MainPageScreen extends StatefulWidget {
   @override
@@ -19,7 +112,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<ThemeCubit>(context).init();
+    //BlocProvider.of<ThemeCubit>(context).init();
     BlocProvider.of<MainPageCubit>(context).showActivityPages();
   }
 
@@ -35,7 +128,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
               IconButton(
                 icon: const Icon(Icons.wb_incandescent_outlined),
                 onPressed: () =>
-                    BlocProvider.of<ThemeCubit>(context).changeTheme(),
+                    BlocProvider.of<SettingsCubit>(context).changeTheme(),
               ),
             ],
           ),
@@ -46,8 +139,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                  const AddPageScreen(
+                  builder: (context) => const AddPageScreen(
                     isEditing: false,
                   ),
                 ),
@@ -147,17 +239,49 @@ class _MainPageScreenState extends State<MainPageScreen> {
     return ListView.separated(
       itemCount: reversedList.length,
       separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (context, index) =>
-          Container(
-            child: _listTileForActivity(state, reversedList[index].name,
-                'No events. Click to create one', reversedList[index].icon,
-                index),
-          ),
+      itemBuilder: (context, index) => Container(
+        child: _listTileForActivity(
+            state,
+            reversedList[index].name,
+            'No events. Click to create one',
+            reversedList[index].iconIndex,
+            index),
+      ),
     );
   }
 
+  final List<IconData> _iconData = const [
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+    Icons.airplane_ticket,
+    Icons.weekend,
+    Icons.sports_baseball_sharp,
+  ];
+
   ListTile _listTileForActivity(MainPageState state, String title,
-      String subtitle, IconData icon, int index) {
+      String subtitle, int iconIndex, int index) {
     return ListTile(
       title: Text(
         title,
@@ -172,16 +296,15 @@ class _MainPageScreenState extends State<MainPageScreen> {
         // color: Colors.black26,
         //),
       ),
-      leading: _circleAvatarForActivityPage(state, icon, index),
+      leading: _circleAvatarForActivityPage(state, iconIndex, index),
       onTap: () async {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                EventScreen(
-                  activityPage: state.activityPageList[index],
-                  pageList: state.activityPageList,
-                ),
+            builder: (context) => EventScreen(
+              activityPage: state.activityPageList[index],
+              pageList: state.activityPageList,
+            ),
           ),
         );
       },
@@ -189,8 +312,8 @@ class _MainPageScreenState extends State<MainPageScreen> {
     );
   }
 
-  CircleAvatar _circleAvatarForActivityPage(MainPageState state, IconData icon,
-      int index) {
+  CircleAvatar _circleAvatarForActivityPage(
+      MainPageState state, int iconIndex, int index) {
     return CircleAvatar(
       backgroundColor: Colors.grey,
       radius: 30,
@@ -199,7 +322,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
           Align(
             alignment: Alignment.center,
             child: IconButton(
-              icon: Icon(icon),
+              icon: Icon(_iconData[iconIndex]),
               iconSize: 30,
               color: Colors.white,
               onPressed: () {},
@@ -254,10 +377,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
             Padding(
               padding: const EdgeInsets.all(0),
               child: Container(
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
+                width: MediaQuery.of(context).size.width,
                 color: Colors.white,
                 child: Column(
                   children: <Widget>[
@@ -356,11 +476,10 @@ class _MainPageScreenState extends State<MainPageScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            AddPageScreen(
-              isEditing: true,
-              selectedPageIndex: index,
-            ),
+        builder: (context) => AddPageScreen(
+          isEditing: true,
+          selectedPageIndex: index,
+        ),
       ),
     );
     BlocProvider.of<MainPageCubit>(context).showActivityPages();
@@ -426,9 +545,9 @@ class _MainPageScreenState extends State<MainPageScreen> {
     final dateFormat = DateFormat('dd/MM/yy');
     final timeFormat = DateFormat('h:m a');
     final dateInDataTime =
-    DateTime.parse(state.activityPageList[_selectedPageIndex].creationDate);
+        DateTime.parse(state.activityPageList[_selectedPageIndex].creationDate);
     final timeInDataTime =
-    DateTime.parse(state.activityPageList[_selectedPageIndex].creationDate);
+        DateTime.parse(state.activityPageList[_selectedPageIndex].creationDate);
     final dateInString = dateFormat.format(dateInDataTime);
     final timeInString = timeFormat.format(timeInDataTime);
     return Column(
@@ -437,10 +556,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
         Padding(
           padding: const EdgeInsets.all(0),
           child: Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
+            width: MediaQuery.of(context).size.width,
             color: Colors.white,
             child: Column(
               children: <Widget>[
@@ -512,7 +628,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
       },
     );
     futureValue.then(
-          (value) {
+      (value) {
         BlocProvider.of<MainPageCubit>(context).unselect();
         //print('Return value: $value'); // true/false
       },

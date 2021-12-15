@@ -1,16 +1,16 @@
-import 'package:flutter/material.dart';
-
 class ActivityPage {
   final String id;
   final String name;
-  final IconData icon;
+  final int iconIndex;
+
+  //final IconData icon;
   final String creationDate;
   final bool isPinned;
 
   ActivityPage({
     required this.id,
     required this.name,
-    required this.icon,
+    required this.iconIndex,
     required this.creationDate,
     required this.isPinned,
   });
@@ -18,14 +18,14 @@ class ActivityPage {
   ActivityPage copyWith({
     String? id,
     String? name,
-    IconData? icon,
+    int? iconIndex,
     String? creationDate,
     bool? isPinned,
   }) {
     return ActivityPage(
       id: id ?? this.id,
       name: name ?? this.name,
-      icon: icon ?? this.icon,
+      iconIndex: iconIndex ?? this.iconIndex,
       creationDate: creationDate ?? this.creationDate,
       isPinned: isPinned ?? this.isPinned,
     );
@@ -35,7 +35,9 @@ class ActivityPage {
     return ActivityPage(
       id: map['id'],
       name: map['name'],
-      icon: IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
+      iconIndex: map['icon_index'],
+      //IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
+      //iconIndex: map['icon'], //IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
       creationDate: map['creation_date'],
       isPinned: map['is_pinned'] == 1 ? true : false,
     );
@@ -45,7 +47,7 @@ class ActivityPage {
     return {
       'id': id,
       'name': name,
-      'icon': icon.codePoint,
+      'icon_index': iconIndex, //icon.codePoint,
       'creation_date': creationDate,
       'is_pinned': isPinned ? 1 : 0,
     };

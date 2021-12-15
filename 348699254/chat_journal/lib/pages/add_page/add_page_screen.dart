@@ -65,10 +65,7 @@ class _AddPageScreen extends State<AddPageScreen> {
           body: Padding(
             child: _bodyStructure(state),
             padding:
-            EdgeInsets.only(bottom: MediaQuery
-                .of(context)
-                .viewInsets
-                .top),
+                EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.top),
           ),
           floatingActionButton: _pageInputController.text.isEmpty
               ? _cancelButton()
@@ -140,10 +137,9 @@ class _AddPageScreen extends State<AddPageScreen> {
                   mainAxisSpacing: 30,
                   crossAxisCount: 4,
                 ),
-                itemBuilder: (context, index) =>
-                    GridTile(
-                      child: _activityPageIcon(_iconData[index], index, state),
-                    ),
+                itemBuilder: (context, index) => GridTile(
+                  child: _activityPageIcon(_iconData[index], index, state),
+                ),
               ),
             ),
           ],

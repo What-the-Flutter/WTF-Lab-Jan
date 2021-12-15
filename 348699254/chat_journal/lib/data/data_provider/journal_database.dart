@@ -1,14 +1,14 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../models/activity_page.dart';
-import '../models/event.dart';
+import '../model/activity_page.dart';
+import '../model/event.dart';
 
 const String tableActivityPages = 'activity_pages';
 const String tableEvents = 'events';
 
 class JournalDatabase {
-  static Database? _database;
+  Database? _database;
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -38,7 +38,7 @@ class JournalDatabase {
           creation_date $textType,
           is_pinned $integerType
           )
-    ''');
+     ''');
     await db.execute('''
         create table $tableEvents ( 
           id $idType, 
@@ -54,18 +54,18 @@ class JournalDatabase {
     ''');
   }
 
-  Future<int> insertActivityPage(ActivityPage page) async {
+  Future<void> insertActivityPage(ActivityPage page) async {
     final db = await database;
-    return db.insert(
+    db.insert(
       tableActivityPages,
       page.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<int> updateActivityPage(ActivityPage page) async {
+  Future<void> updateActivityPage(ActivityPage page) async {
     final db = await database;
-    return await db.update(
+    await db.update(
       tableActivityPages,
       page.toMap(),
       where: 'id = ?',
@@ -77,34 +77,35 @@ class JournalDatabase {
     final db = await database;
     final dbPageList = await db.query(tableActivityPages);
     final pageList = <ActivityPage>[];
-    for (var el in dbPageList) {
-      final page = ActivityPage.fromMap(el);
-      pageList.insert(0, page);
+    for (final page in dbPageList) {
+      final activityPage = ActivityPage.fromMap(page);
+      //pageList.insert(0, page);
+      pageList.add(activityPage);
     }
     return pageList;
   }
 
-  Future<int> deleteActivityPage(ActivityPage page) async {
+  Future<void> deleteActivityPage(ActivityPage page) async {
     final db = await database;
-    return db.delete(
+    db.delete(
       tableActivityPages,
       where: 'id = ?',
       whereArgs: [page.id],
     );
   }
 
-  Future<int> insertEvent(Event event) async {
+  Future<void> insertEvent(Event event) async {
     final db = await database;
-    return db.insert(
+    db.insert(
       tableEvents,
       event.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<int> deleteEvent(Event event) async {
+  Future<void> deleteEvent(Event event) async {
     final db = await database;
-    return db.delete(
+    db.delete(
       tableEvents,
       where: 'id = ?',
       whereArgs: [event.id],
@@ -114,11 +115,12 @@ class JournalDatabase {
   Future<List<Event>> fetchEventList(String pageId) async {
     final db = await database;
     final dbEventList =
-    await db.query('$tableEvents where page_id = "$pageId"');
+        await db.query('$tableEvents where page_id = "$pageId"');
     final eventList = <Event>[];
-    for (var el in dbEventList) {
-      final event = Event.fromMap(el);
-      eventList.insert(0, event);
+    for (final event in dbEventList) {
+      final pageEvent = Event.fromMap(event);
+      //eventList.insert(0, event);
+      eventList.add(pageEvent);
     }
     return eventList;
   }
@@ -127,9 +129,10 @@ class JournalDatabase {
     final db = await database;
     final dbEventList = await db.query('$tableEvents where is_selected = true');
     final eventList = <Event>[];
-    for (var el in dbEventList) {
-      final event = Event.fromMap(el);
-      eventList.insert(0, event);
+    for (final event in dbEventList) {
+      final selectedEvent = Event.fromMap(event);
+      //eventList.insert(0, event);
+      eventList.add(selectedEvent);
     }
     return eventList;
   }
@@ -139,9 +142,10 @@ class JournalDatabase {
     final dbEventList = await db
         .query('$tableEvents where page_id = "$pageId" and is_marked = true');
     final eventList = <Event>[];
-    for (var el in dbEventList) {
-      final event = Event.fromMap(el);
-      eventList.insert(0, event);
+    for (final event in dbEventList) {
+      final markedEvent = Event.fromMap(event);
+      //eventList.insert(0, event);
+      eventList.add(markedEvent);
     }
     return eventList;
   }
@@ -151,16 +155,17 @@ class JournalDatabase {
     final dbEventList = await db.query(
         '$tableEvents where page_id = "$pageId" and event_data like "%$text%"');
     final eventList = <Event>[];
-    for (var el in dbEventList) {
-      final event = Event.fromMap(el);
-      eventList.insert(0, event);
+    for (final event in dbEventList) {
+      final searchedEvent = Event.fromMap(event);
+      //eventList.insert(0, event);
+      eventList.add(searchedEvent);
     }
     return eventList;
   }
 
-  Future<int> updateEvent(Event event) async {
+  Future<void> updateEvent(Event event) async {
     final db = await database;
-    return await db.update(
+    await db.update(
       tableEvents,
       event.toMap(),
       where: 'id = ?',

@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/repository/settings_repository.dart';
+import '../../theme/themes.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
@@ -8,13 +10,34 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   SettingsCubit(this.settingsRepository)
       : super(
-    SettingsState(
-      isCategoryListOpen: true,
-    ),
-  );
+          SettingsState(
+            isCategoryListOpen: true,
+            isBiometricAuth: true,
+            isLightTheme: true,
+            themeData: ThemeData(),
+          ),
+        );
 
   void initSettings() {
     _setAbilityChooseCategory();
+    _setBiometricAuth();
+    emit(
+      state.copyWith(
+        isLightTheme: settingsRepository.fetchTheme(),
+      ),
+    );
+    _updateTheme();
+  }
+
+  void _updateTheme() async {
+    final updatedTheme = state.isLightTheme ? lightTheme : darkTheme;
+    emit(state.copyWith(themeData: updatedTheme));
+  }
+
+  void changeTheme() {
+    settingsRepository.changeTheme(!settingsRepository.fetchTheme());
+    emit(state.copyWith(isLightTheme: settingsRepository.fetchTheme()));
+    _updateTheme();
   }
 
   void _setAbilityChooseCategory() {
@@ -33,5 +56,27 @@ class SettingsCubit extends Cubit<SettingsState> {
         isCategoryListOpen: !state.isCategoryListOpen,
       ),
     );
+  }
+
+  void _setBiometricAuth() {
+    final isBiometricAuth = settingsRepository.biometricAuth();
+    emit(
+      state.copyWith(
+        isBiometricAuth: isBiometricAuth,
+      ),
+    );
+  }
+
+  void changeBiometricAuthAbility() {
+    settingsRepository.changeBiometricAuthAbility(!state.isBiometricAuth);
+    emit(
+      state.copyWith(
+        isBiometricAuth: !state.isBiometricAuth,
+      ),
+    );
+  }
+
+  bool isBiometricsAuthAbility() {
+    return settingsRepository.biometricAuth();
   }
 }
