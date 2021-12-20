@@ -31,7 +31,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
 
   void addEvent(EventModel model) async {
     await databaseProvider.insertEvent(model);
-    state.page.events.insert(0, model); //лучше immutable - явно!!
+    state.page.events.insert(0, model);
     state.page.nextEventId += 1;
     emit(state.copyWith(
         page: state.page, newEventIndex: state.newEventIndex + 1));

@@ -25,7 +25,7 @@ class PageModel {
   });
 
   @override
-  String toString() => '$name $icon $id ${events.length}';
+  String toString() => '$name $icon $id ${events.length} $nextEventId';
 
   PageModel copyWith({
     String? name,
