@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../models/event_model.dart';
 import '../../models/page_model.dart';
 import '../home_screen/cubit/cubit.dart';
 import 'cubit/cubit.dart';

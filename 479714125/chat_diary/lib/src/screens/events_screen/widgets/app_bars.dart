@@ -1,4 +1,3 @@
-import 'package:chat_diary/src/data/database_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
