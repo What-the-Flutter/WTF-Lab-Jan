@@ -18,13 +18,8 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     emit(state.copyWith(listOfPages: list, newPageId: list.length));
   }
 
-  void _emitStateWithEditedList() {
-    emit(state.copyWith(listOfPages: state.listOfPages));
-  }
-
   void migrateEventsToPage(
       PageModel page, Iterable<EventModel> eventsToMigrate) async {
-    var index = state.listOfPages.indexOf(page);
     var id = page.nextEventId;
     for (var event in eventsToMigrate) {
       event.id = id;
@@ -32,9 +27,9 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       id += 1;
       page.nextEventId += 1;
     }
-    state.listOfPages[index].events.insertAll(0, eventsToMigrate);
+    state.listOfPages[page.id].events.insertAll(0, eventsToMigrate);
     await databaseProvider.insertEvents(eventsToMigrate);
-    _emitStateWithEditedList();
+    emit(state.copyWith(listOfPages: state.listOfPages));
   }
 
   void addPage(PageModel page) async {

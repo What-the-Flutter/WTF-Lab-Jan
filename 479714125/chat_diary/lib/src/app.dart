@@ -27,8 +27,9 @@ class _AppState extends State<App> {
   }
 
   Future<void> _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance(); //лучше из блока
     setState(() {
+      //=>
       _isDarkTheme = (prefs.getBool('isDarkTheme') ?? false);
     });
   }
