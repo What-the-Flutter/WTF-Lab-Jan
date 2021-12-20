@@ -27,7 +27,8 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       id += 1;
       page.nextEventId += 1;
     }
-    state.listOfPages[page.id].events.insertAll(0, eventsToMigrate);
+
+    state.listOfPages[page.id].events.addAll(eventsToMigrate);
     await databaseProvider.insertEvents(eventsToMigrate);
     emit(state.copyWith(listOfPages: state.listOfPages));
   }

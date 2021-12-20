@@ -1,3 +1,4 @@
+import 'package:chat_diary/src/data/database_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -52,14 +53,12 @@ class MessageClickedAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   final void Function() copySelectedEvents;
   final void Function() findEventToEdit;
-  final void Function() addToFavorites;
   final void Function() migrateSelectedEvents;
 
   const MessageClickedAppBar({
     Key? key,
     required this.copySelectedEvents,
     required this.findEventToEdit,
-    required this.addToFavorites,
     required this.migrateSelectedEvents,
   }) : super(key: key);
   @override
@@ -83,7 +82,7 @@ class MessageClickedAppBar extends StatelessWidget
           icon: const Icon(Icons.copy),
         ),
         IconButton(
-          onPressed: addToFavorites,
+          onPressed: () {},
           icon: const Icon(Icons.bookmark_outline),
         ),
         IconButton(
