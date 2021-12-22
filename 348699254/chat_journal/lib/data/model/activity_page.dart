@@ -2,8 +2,6 @@ class ActivityPage {
   final String id;
   final String name;
   final int iconIndex;
-
-  //final IconData icon;
   final String creationDate;
   final bool isPinned;
 
@@ -36,8 +34,6 @@ class ActivityPage {
       id: map['id'],
       name: map['name'],
       iconIndex: map['icon_index'],
-      //IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
-      //iconIndex: map['icon'], //IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
       creationDate: map['creation_date'],
       isPinned: map['is_pinned'] == 1 ? true : false,
     );
@@ -47,7 +43,7 @@ class ActivityPage {
     return {
       'id': id,
       'name': name,
-      'icon_index': iconIndex, //icon.codePoint,
+      'icon_index': iconIndex,
       'creation_date': creationDate,
       'is_pinned': isPinned ? 1 : 0,
     };

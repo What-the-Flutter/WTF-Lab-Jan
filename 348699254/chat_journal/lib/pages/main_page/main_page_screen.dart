@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:splash_screen_view/SplashScreenView.dart';
 
 import '../../auth/auth_cubit.dart';
 import '../../data/data_provider/firebase_database_provider.dart';
+import '../../data/data_provider/firebase_firestore_provider.dart';
 import '../../data/data_provider/shared_preferences_provider.dart';
 import '../../data/repository/event_repository.dart';
 import '../../data/repository/page_repository.dart';
 import '../../data/repository/settings_repository.dart';
-import '../../splash_screen.dart';
 import '../add_page/add_page_cubit.dart';
 import '../add_page/add_page_screen.dart';
 import '../event_page/event_cubit.dart';
@@ -22,83 +23,90 @@ import '../settings/settings_state.dart';
 import 'main_page_cubit.dart';
 import 'main_page_state.dart';
 
-Future<Widget> startApp() async {
-  //WidgetsFlutterBinding.ensureInitialized();
-  //final db = JournalDatabase();
-  final firebaseDb = FirebaseDatabaseProvider();
-  await SharedPreferencesProvider.initialize();
-  final pref = SharedPreferencesProvider();
-  return MultiRepositoryProvider(
-    providers: [
-      RepositoryProvider<ActivityPageRepository>(
-        create: (context) => ActivityPageRepository(firebaseDb),
-      ),
-      RepositoryProvider<EventRepository>(
-        create: (context) => EventRepository(firebaseDb),
-      ),
-      RepositoryProvider<SettingsRepository>(
-        create: (context) => SettingsRepository(pref),
-      ),
-    ],
-    child: MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => AuthCubit(),
-        ),
-        //BlocProvider(
-        //  create: (context) => ThemeCubit(),
-        //),
-        BlocProvider(
-          create: (context) => SettingsCubit(
-            RepositoryProvider.of<SettingsRepository>(context),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => EventCubit(
-            RepositoryProvider.of<EventRepository>(context),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => MainPageCubit(
-            RepositoryProvider.of<ActivityPageRepository>(context),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => AddPageCubit(
-            RepositoryProvider.of<ActivityPageRepository>(context),
-          ),
-        ),
-      ],
-      child: MyApp(),
-    ),
-  );
-}
-
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+  final firebaseDb = FirebaseDatabaseProvider();
+  final firestoreDb = FirebaseFirestoreProvider();
+  final pref = SharedPreferencesProvider();
+
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<SettingsCubit>(context).initSettings();
-    //BlocProvider.of<ThemeCubit>(context).init();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsCubit, SettingsState>(
-      builder: (context, state) {
-        return MaterialApp(
-          title: 'Chat Journal App',
-          themeMode: state.isLightTheme ? ThemeMode.dark : ThemeMode.dark,
-          theme: state.themeData,
-          initialRoute: '/',
-          home: SplashScreen(),
-        );
-      },
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<ActivityPageRepository>(
+          create: (context) => ActivityPageRepository(firebaseDb),
+        ),
+        RepositoryProvider<EventRepository>(
+          create: (context) => EventRepository(firebaseDb, firestoreDb),
+        ),
+        RepositoryProvider<SettingsRepository>(
+          create: (context) => SettingsRepository(pref),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => AuthCubit(),
+          ),
+          BlocProvider(
+            create: (context) => SettingsCubit(
+              RepositoryProvider.of<SettingsRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => EventCubit(
+              RepositoryProvider.of<EventRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => MainPageCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => AddPageCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+            ),
+          ),
+        ],
+        child: BlocBuilder<SettingsCubit, SettingsState>(
+          builder: (context, state) {
+            return MaterialApp(
+              title: 'Chat Journal App',
+              themeMode: state.isLightTheme ? ThemeMode.dark : ThemeMode.dark,
+              theme: state.themeData,
+              initialRoute: '/',
+              home: SplashScreenView(
+                navigateRoute: MainPageScreen(),
+                duration: 5000,
+                imageSize: 300,
+                imageSrc: 'assets/splash_screen.jpg',
+                text: 'Chat Journal',
+                textType: TextType.ColorizeAnimationText,
+                textStyle: const TextStyle(
+                  fontSize: 40.0,
+                ),
+                colors: [
+                  Colors.purple,
+                  Colors.blue,
+                  Colors.yellow,
+                  Colors.red,
+                ],
+                backgroundColor: Colors.white,
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
@@ -112,8 +120,17 @@ class _MainPageScreenState extends State<MainPageScreen> {
   @override
   void initState() {
     super.initState();
-    //BlocProvider.of<ThemeCubit>(context).init();
+    BlocProvider.of<AuthCubit>(context).signInAnonymously();
+    authentication();
+    BlocProvider.of<SettingsCubit>(context).initSettings();
     BlocProvider.of<MainPageCubit>(context).showActivityPages();
+  }
+
+  Future<void> authentication() async {
+    if (await BlocProvider.of<SettingsCubit>(context)
+        .isBiometricsAuthAbility()) {
+      BlocProvider.of<AuthCubit>(context).authorizeWithBiometric();
+    }
   }
 
   @override
@@ -178,7 +195,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
           ListTile(
             leading: const Icon(Icons.card_giftcard_outlined),
             title: const Text('Help spread the world'),
-            onTap: () {},
+            onTap: () => BlocProvider.of<SettingsCubit>(context).share(),
           ),
           ListTile(
             leading: const Icon(Icons.search),
@@ -292,9 +309,6 @@ class _MainPageScreenState extends State<MainPageScreen> {
       ),
       subtitle: Text(
         subtitle,
-        //style: const TextStyle(
-        // color: Colors.black26,
-        //),
       ),
       leading: _circleAvatarForActivityPage(state, iconIndex, index),
       onTap: () async {
@@ -630,7 +644,6 @@ class _MainPageScreenState extends State<MainPageScreen> {
     futureValue.then(
       (value) {
         BlocProvider.of<MainPageCubit>(context).unselect();
-        //print('Return value: $value'); // true/false
       },
     );
   }

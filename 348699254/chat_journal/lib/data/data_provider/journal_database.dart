@@ -12,8 +12,6 @@ class JournalDatabase {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    //if (_database != null) await deleteDatabase('journal_database.db');
-
     _database = await _initDB('journal_database.db');
     return _database!;
   }
@@ -79,7 +77,6 @@ class JournalDatabase {
     final pageList = <ActivityPage>[];
     for (final page in dbPageList) {
       final activityPage = ActivityPage.fromMap(page);
-      //pageList.insert(0, page);
       pageList.add(activityPage);
     }
     return pageList;
@@ -119,7 +116,6 @@ class JournalDatabase {
     final eventList = <Event>[];
     for (final event in dbEventList) {
       final pageEvent = Event.fromMap(event);
-      //eventList.insert(0, event);
       eventList.add(pageEvent);
     }
     return eventList;
@@ -131,7 +127,6 @@ class JournalDatabase {
     final eventList = <Event>[];
     for (final event in dbEventList) {
       final selectedEvent = Event.fromMap(event);
-      //eventList.insert(0, event);
       eventList.add(selectedEvent);
     }
     return eventList;
@@ -144,7 +139,6 @@ class JournalDatabase {
     final eventList = <Event>[];
     for (final event in dbEventList) {
       final markedEvent = Event.fromMap(event);
-      //eventList.insert(0, event);
       eventList.add(markedEvent);
     }
     return eventList;
@@ -157,7 +151,6 @@ class JournalDatabase {
     final eventList = <Event>[];
     for (final event in dbEventList) {
       final searchedEvent = Event.fromMap(event);
-      //eventList.insert(0, event);
       eventList.add(searchedEvent);
     }
     return eventList;

@@ -1,13 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesProvider {
-  //TODO late final
   static const SharedPreferencesProvider _sharedPreferencesProvider =
       SharedPreferencesProvider._createInstance();
 
   static late final SharedPreferences _prefs;
-
-  //SharedPreferences? _prefs;
 
   const SharedPreferencesProvider._createInstance();
 
@@ -15,7 +12,6 @@ class SharedPreferencesProvider {
     return _sharedPreferencesProvider;
   }
 
-  //In constructor
   static Future<void> initialize() async =>
       _prefs = await SharedPreferences.getInstance();
 
@@ -28,8 +24,27 @@ class SharedPreferencesProvider {
   void changeAbilityChooseCategory(bool isCategoryListOpen) =>
       _prefs.setBool('isCategoryListOpen', isCategoryListOpen);
 
+  bool isRightBubbleAlignment() =>
+      _prefs.getBool('isRightBubbleAlignment') ?? true;
+
+  void changeBubbleAlignment(bool isRightBubbleAlignment) =>
+      _prefs.setBool('isRightBubbleAlignment', isRightBubbleAlignment);
+
+  double fetchFontSize() => _prefs.getDouble('fontSize') ?? 16;
+
+  void changeFontSize(double fontSize) =>
+      _prefs.setDouble('fontSize', fontSize);
+
   bool biometricAuth() => _prefs.getBool('isBiometricAuth') ?? true;
 
   void changeBiometricAuthAbility(bool isBiometricAuth) =>
       _prefs.setBool('isBiometricAuth', isBiometricAuth);
+
+  void resetAllSettings() {
+    changeTheme(true);
+    changeAbilityChooseCategory(true);
+    changeBubbleAlignment(true);
+    changeFontSize(16);
+    changeBiometricAuthAbility(true);
+  }
 }

@@ -6,6 +6,7 @@ class EventState {
   final bool isMarked;
   final bool isAllMarked;
   final bool isCategoryListOpened;
+  final bool isHashTagListOpened;
   final bool isSearching;
   final String searchData;
   final int selectedEventIndex;
@@ -13,6 +14,7 @@ class EventState {
   final String selectedImage;
   final int selectedCategoryIndex;
   final List<Event> eventList;
+  final List<String> hashTagList;
   final String pageId;
 
   EventState({
@@ -22,12 +24,14 @@ class EventState {
     required this.isAllMarked,
     required this.isSearching,
     required this.isCategoryListOpened,
+    required this.isHashTagListOpened,
     required this.searchData,
     required this.selectedImage,
     required this.selectedCategoryIndex,
     required this.selectedEventIndex,
     required this.selectedPage,
     required this.eventList,
+    required this.hashTagList,
     required this.pageId,
   });
 
@@ -38,12 +42,14 @@ class EventState {
     bool? isAllMarked,
     bool? isSearching,
     bool? isCategoryListOpened,
+    bool? isHashTagListOpened,
     String? searchData,
     int? selectedEventIndex,
     int? selectedPage,
     int? selectedCategoryIndex,
     String? selectedImage,
     List<Event>? eventList,
+    List<String>? hashTagList,
     String? pageId,
   }) {
     return EventState(
@@ -53,6 +59,7 @@ class EventState {
       isAllMarked: isAllMarked ?? this.isAllMarked,
       isSearching: isSearching ?? this.isSearching,
       isCategoryListOpened: isCategoryListOpened ?? this.isCategoryListOpened,
+      isHashTagListOpened: isHashTagListOpened ?? this.isHashTagListOpened,
       searchData: searchData ?? this.searchData,
       selectedEventIndex: selectedEventIndex ?? this.selectedEventIndex,
       selectedPage: selectedPage ?? this.selectedPage,
@@ -60,6 +67,7 @@ class EventState {
       selectedCategoryIndex:
           selectedCategoryIndex ?? this.selectedCategoryIndex,
       eventList: eventList ?? this.eventList,
+      hashTagList: hashTagList ?? this.hashTagList,
       pageId: pageId ?? this.pageId,
     );
   }
