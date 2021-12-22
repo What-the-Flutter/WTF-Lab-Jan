@@ -189,7 +189,7 @@ class _AddPageScreen extends State<AddPageScreen> {
                 child: Icon(
                   Icons.check_circle,
                   color: Colors.green,
-                ), // change this children
+                ),
               ),
             ),
         ],

@@ -1,13 +1,15 @@
 import '../data_provider/firebase_database_provider.dart';
+import '../data_provider/firebase_firestore_provider.dart';
 import '../model/event.dart';
 
 class EventRepository {
   final FirebaseDatabaseProvider _db;
+  final FirebaseFirestoreProvider _store;
 
-  EventRepository(this._db);
+  EventRepository(this._db, this._store);
 
   void addImageEvent(String eventId, String imagePath) {
-    _db.addImageEvent(eventId, imagePath);
+    _store.addImageEvent(eventId, imagePath);
   }
 
   void insertEvent(Event event) {

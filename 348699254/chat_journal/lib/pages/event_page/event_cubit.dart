@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/functions.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
@@ -19,12 +20,14 @@ class EventCubit extends Cubit<EventState> {
             isAllMarked: false,
             isSearching: false,
             isCategoryListOpened: false,
+            isHashTagListOpened: false,
             searchData: '',
             selectedEventIndex: -1,
             selectedPage: -1,
             selectedImage: '',
             selectedCategoryIndex: -1,
             eventList: [],
+            hashTagList: [],
             pageId: '',
           ),
         );
@@ -33,6 +36,7 @@ class EventCubit extends Cubit<EventState> {
     setPageId(pageId);
     showAllEvents();
     closeCategoryList();
+    closeHashTagList();
   }
 
   void setIsSearching() {
@@ -88,6 +92,14 @@ class EventCubit extends Cubit<EventState> {
         state.copyWith(selectedPage: index),
       );
 
+  void hashTagList(String text) {
+    final tempHashTagList = extractHashTags(text);
+    state.hashTagList.addAll(tempHashTagList);
+    emit(
+      state.copyWith(hashTagList: state.hashTagList),
+    );
+  }
+
   void openCategoryList() {
     emit(
       state.copyWith(
@@ -100,6 +112,22 @@ class EventCubit extends Cubit<EventState> {
     emit(
       state.copyWith(
         isCategoryListOpened: false,
+      ),
+    );
+  }
+
+  void openHashTagList() {
+    emit(
+      state.copyWith(
+        isHashTagListOpened: true,
+      ),
+    );
+  }
+
+  void closeHashTagList() {
+    emit(
+      state.copyWith(
+        isHashTagListOpened: false,
       ),
     );
   }
@@ -145,7 +173,6 @@ class EventCubit extends Cubit<EventState> {
 
   void showSearchedEvents(String text) async {
     final searchedEvents = await eventRepository.fetchEventList();
-    //  await eventRepository.fetchSearchedEventList(state.pageId, text);
     emit(
       state.copyWith(
         eventList: searchedEvents,
@@ -163,14 +190,12 @@ class EventCubit extends Cubit<EventState> {
           .toList();
       markedListByPageId
           .sort((a, b) => a.creationDate.compareTo(b.creationDate));
-      //markedList = await eventRepository.fetchMarkedAllEventList(state.pageId);
     } else {
       final markedList = await eventRepository.fetchEventList();
       markedListByPageId =
           markedList.where((event) => event.pageId == state.pageId).toList();
       markedListByPageId
           .sort((a, b) => a.creationDate.compareTo(b.creationDate));
-      //markedList = await eventRepository.fetchEventList(state.pageId);
     }
     emit(
       state.copyWith(
@@ -279,7 +304,6 @@ class EventCubit extends Cubit<EventState> {
     final selectedList = await eventRepository.fetchEventList();
     final selectedListByPageId =
         selectedList.where((event) => event.isSelected == true).toList();
-    //final selectedList = await eventRepository.fetchSelectedEventList();
     for (final event in selectedListByPageId) {
       eventRepository.deleteEvent(event);
     }
