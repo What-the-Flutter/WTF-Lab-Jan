@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '/main_list_elements/list_elements.dart';
+import 'chat_bot_list_element.dart';
 
 class MainList extends StatelessWidget {
   @override
