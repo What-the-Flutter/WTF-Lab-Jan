@@ -11,7 +11,7 @@ class CustomBottomNavigationBar extends StatefulWidget {
 class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   int _selectedTab = 0;
 
-  void onSelectTab(int index) {
+  void _onSelectTab(int index) {
     if (_selectedTab == index) return;
     setState(() {
       _selectedTab = index;
@@ -47,7 +47,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
           tooltip: '',
         ),
       ],
-      onTap: onSelectTab,
+      onTap: _onSelectTab,
     );
   }
 }
