@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'note_object.dart';
+import 'note_model.dart';
 
-class PageObject {
+class PageModel {
   late String title;
   late IconData icon;
   late final Key pageKey;
@@ -10,16 +10,16 @@ class PageObject {
   DateTime get getCretionDate => cretionDate;
   late DateTime lastModifedDate;
   DateTime get getlastModifedDate => lastModifedDate;
-  List<NoteObject> notesList = [];
+  List<NoteModel> notesList = [];
 
-  PageObject({
+  PageModel({
     required this.title,
     required this.icon,
   }) {
     pageKey = UniqueKey();
   }
 
-  void addNote(NoteObject note) {
+  void addNote(NoteModel note) {
     notesList.add(note);
     numOfNotes++;
   }
