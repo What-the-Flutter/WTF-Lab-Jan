@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../objects/note_object.dart';
-import '../../objects/page_object.dart';
+import '../../models/page_model.dart';
+import '../home/page_qubit.dart';
 import 'note_input.dart';
+import 'note_qubit.dart';
+import 'note_state.dart';
 
 class CustomPage extends StatefulWidget {
-  late final PageObject page;
+  late final PageCubit pageCubit;
+  final TextEditingController searchController = TextEditingController();
   CustomPage({Key? key}) : super(key: key);
 
   static const routeName = '/customPage';
@@ -16,165 +19,229 @@ class CustomPage extends StatefulWidget {
 }
 
 class _CustomPageState extends State<CustomPage> {
+  late NoteCubit noteCubit;
   bool idkHowToDoAnotherWay = false;
-  late String _nodeInput;
-  bool _editIconClicked = false;
-  final List<NoteObject> _selcetedNotes = [];
 
   final TextEditingController _controller = TextEditingController();
 
-  void addNoteToList() {
-    late String nodeInput;
-    widget.page.numOfNotes++;
-    nodeInput = _controller.text;
-    var note =
-        NoteObject(heading: widget.page.numOfNotes.toString(), data: nodeInput);
-    setState(() {
-      _editIconClicked
-          ? _selcetedNotes.first.data = _controller.text
-          : widget.page.notesList.add(note);
-    });
-    widget.page.lastModifedDate = DateTime.now();
-    _editIconClicked = false;
-    _controller.text = '';
-    makeAllNotesSelected(false);
+  @override
+  void initState() {
+    super.initState();
   }
 
-  void editNote() {
-    _controller.text = _selcetedNotes.first.data;
-    _editIconClicked = true;
-  }
-
-  void deleteFromNoteList() {
-    setState(() {
-      for (var currentNote in _selcetedNotes) {
-        widget.page.notesList.remove(currentNote);
-      }
-    });
-    makeAllNotesSelected(false);
-  }
-
-  void addNoteToFavorite() {
-    for (var currentNote in _selcetedNotes) {
-      setState(() {
-        currentNote.isFavorite == false
-            ? currentNote.isFavorite = true
-            : currentNote.isFavorite = false;
-      });
-    }
-    makeAllNotesSelected(false);
-  }
-
-  void makeAllNotesSelected(bool selectAll) {
-    for (var currentNote in widget.page.notesList) {
-      _selcetedNotes.add(currentNote);
-      setState(() {
-        if (selectAll) {
-          currentNote.isChecked = true;
-        } else {
-          currentNote.isChecked = false;
-        }
-      });
-    }
-    if (!selectAll) _selcetedNotes.clear();
-  }
-
-  void copyDataToBuffer() {
-    var bufferData = '';
-    for (var currentNote in _selcetedNotes) {
-      bufferData += '${currentNote.data} ';
-    }
-    Clipboard.setData(ClipboardData(text: bufferData));
-    makeAllNotesSelected(false);
-  }
-
+  late PageModel selected;
   @override
   Widget build(BuildContext context) {
     if (idkHowToDoAnotherWay != true) {
-      widget.page = ModalRoute.of(context)!.settings.arguments as PageObject;
+      widget.pageCubit =
+          ModalRoute.of(context)!.settings.arguments as PageCubit;
+      noteCubit = NoteCubit();
+      noteCubit.init(widget.pageCubit.getPage());
+      widget.pageCubit.initRadioButtonInPagesWindow(
+          widget.pageCubit.getListOfPages().first);
       idkHowToDoAnotherWay = true;
     }
-    return Scaffold(
-      appBar: AppBar(
-          title: Center(child: Text(widget.page.title)),
-          actions: _selcetedNotes.isNotEmpty
-              ? <Widget>[
-                  IconButton(
-                    icon: const Icon(Icons.select_all),
-                    onPressed: () => makeAllNotesSelected(true),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.star),
-                    onPressed: addNoteToFavorite,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: deleteFromNoteList,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: _selcetedNotes.length == 1 ? editNote : null,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy),
-                    onPressed: copyDataToBuffer,
-                  ),
-                ]
-              : <Widget>[]),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.page.notesList.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 1.0, horizontal: 4.0),
-                  child: Card(
-                    child: ListTile(
-                      key: ValueKey(widget.page.notesList[index].heading),
-                      leading: Icon(
-                        widget.page.icon,
+    return BlocBuilder<NoteCubit, NoteState>(
+      bloc: noteCubit,
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+              title: Center(
+                child: Text(state.page!.title),
+              ),
+              actions: noteCubit.areAppBarActionsDisplayed()
+                  ? <Widget>[
+                      IconButton(
+                        icon: const Icon(Icons.select_all),
+                        onPressed: () =>
+                            noteCubit.setAllNotesSelectedUnselected(true),
                       ),
-                      title: Text(
-                        'Node ${widget.page.notesList[index].heading}',
-                        style: TextStyle(
-                            color: widget.page.notesList[index].isFavorite
-                                ? Colors.green
-                                : Colors.black),
+                      IconButton(
+                        icon: const Icon(Icons.star),
+                        onPressed: () => noteCubit.addNoteToFavorite(),
                       ),
-                      subtitle: Text(widget.page.notesList[index].data),
-                      isThreeLine: widget.page.notesList[index].data.length > 30
-                          ? true
-                          : false,
-                      trailing: Checkbox(
-                        key: UniqueKey(),
-                        checkColor: Colors.white,
-                        value: widget.page.notesList[index].isChecked,
-                        onChanged: (value) {
-                          setState(() {
-                            widget.page.notesList[index].isChecked = value!;
-                          });
-                          if (value == true) {
-                            _selcetedNotes.add(widget.page.notesList[index]);
-                          } else {
-                            _selcetedNotes.remove(widget.page.notesList[index]);
-                          }
-                        },
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => noteCubit.deleteFromNoteList(),
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: noteCubit.isEditIconEnable()
+                            ? () {
+                                _controller.text = noteCubit.editNote();
+                              }
+                            : null,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.copy),
+                        onPressed: () => noteCubit.copyDataToBuffer(),
+                      ),
+                    ]
+                  : <Widget>[
+                      noteCubit.getSerchBarDisplayedState()
+                          ? Row(
+                              children: [
+                                Container(
+                                  width: 150.0,
+                                  height: 40.0,
+                                  child: TextField(
+                                    controller: widget.searchController,
+                                    onChanged: (searchString) =>
+                                        noteCubit.search(searchString),
+                                    maxLines: 1,
+                                    decoration: const InputDecoration(
+                                      hintText: 'search..',
+                                      fillColor: Colors.black12,
+                                      filled: true,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () => noteCubit.showSerchBar(
+                                      false, widget.searchController),
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : IconButton(
+                              onPressed: () {
+                                noteCubit.showSerchBar(
+                                    true, widget.searchController);
+                              },
+                              icon: const Icon(Icons.search),
+                            )
+                    ]),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: state.page!.notesList.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 1.0, horizontal: 4.0),
+                      child: Card(
+                        color: state.page!.notesList[index].isSearched
+                            ? Colors.green
+                            : Colors.white,
+                        child: ListTile(
+                          key: ValueKey(state.page!.notesList[index].heading),
+                          leading: Column(
+                            children: [
+                              Icon(
+                                state.page!.icon,
+                                color: Colors.black,
+                              ),
+                              Icon(
+                                state.page!.notesList[index].icon,
+                              ),
+                            ],
+                          ),
+                          title: Text(
+                            'Node ${state.page!.notesList[index].heading}',
+                            style: TextStyle(
+                                color: state.page!.notesList[index].isFavorite
+                                    ? Colors.green
+                                    : Colors.black),
+                          ),
+                          subtitle: Text(state.page!.notesList[index].data),
+                          isThreeLine:
+                              state.page!.notesList[index].data.length > 30
+                                  ? true
+                                  : false,
+                          trailing: Checkbox(
+                            key: UniqueKey(),
+                            checkColor: Colors.white,
+                            value: state.notesList![index].isChecked,
+                            onChanged: (value) {
+                              noteCubit.setSelectesCheckBoxState(value!, index);
+                              value
+                                  ? noteCubit.addNoteToSelectedNotesList(index)
+                                  : noteCubit
+                                      .removeNoteFromSelectedNotesList(index);
+                            },
+                          ),
+                          onLongPress: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Choose a new page'),
+                                content: Container(
+                                  height: 200.0,
+                                  width: 200.0,
+                                  child: ListView.builder(
+                                    itemCount: widget.pageCubit
+                                        .getListOfPages()
+                                        .length,
+                                    itemBuilder: (context, index) {
+                                      return Row(
+                                        children: [
+                                          Radio<PageModel>(
+                                            value: widget.pageCubit
+                                                .getListOfPages()[index],
+                                            groupValue: widget.pageCubit
+                                                .getPageSelectedToMove(),
+                                            onChanged: (value) {
+                                              widget.pageCubit
+                                                  .setNewPageSelectedToMove(
+                                                      value!);
+                                            },
+                                          ),
+                                          Text(widget.pageCubit
+                                              .getListOfPages()[index]
+                                              .title),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(
+                                          context,
+                                          widget.pageCubit
+                                              .getPageSelectedToMove());
+                                    },
+                                    child: const Text('Move to'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Close'),
+                                  ),
+                                ],
+                                elevation: 1.0,
+                              ),
+                            ).then((value) {
+                              if (value != null) {
+                                widget.pageCubit
+                                    .setNewPageSelectedToMove(value);
+                                widget.pageCubit.moveNoteTo(state.page!, value,
+                                    state.notesList![index]);
+                                noteCubit.init(state.page!);
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              NoteInput(
+                noteCubit: noteCubit,
+                controller: _controller,
+              ),
+            ],
           ),
-          NoteInput(
-            selectHandler: addNoteToList,
-            controller: _controller,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

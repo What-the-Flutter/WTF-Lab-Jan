@@ -1,30 +1,26 @@
 import 'package:flutter/material.dart';
 
-import '../../objects/lists.dart';
-import '../../page_constructor.dart';
 import '../page/custom_page.dart';
+import 'page_constructor.dart';
+import 'page_qubit.dart';
+import 'page_state.dart';
 
 class PageList extends StatefulWidget {
-  PageList({Key? key}) : super(key: key);
+  final PageCubit pageCubit;
+  final PageState pageState;
+  PageList({Key? key, required this.pageCubit, required this.pageState})
+      : super(key: key);
 
   @override
   State<PageList> createState() => _PageListState();
 }
 
 class _PageListState extends State<PageList> {
-  String cropDateTimeObject(DateTime fullDate) {
-    var croppedDate = '';
-
-    croppedDate =
-        '${fullDate.day}.${fullDate.month} at ${fullDate.hour}:${fullDate.minute}';
-    return croppedDate;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView.builder(
-        itemCount: listOfPages.length,
+        itemCount: widget.pageState.listOfPages!.length,
         itemBuilder: (context, index) {
           return Column(
             children: [
@@ -32,19 +28,23 @@ class _PageListState extends State<PageList> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
                 child: ListTile(
-                  key: ValueKey(listOfPages[index].pageKey),
+                  key: ValueKey(widget.pageState.listOfPages![index].pageKey),
                   leading: Icon(
-                    listOfPages[index].icon,
+                    widget.pageState.listOfPages![index].icon,
                   ),
-                  title: Text(listOfPages[index].title),
-                  subtitle: Text(listOfPages[index].notesList.isEmpty
-                      ? 'create your first hote'
-                      : listOfPages[index].notesList.last.data),
+                  title: Text(widget.pageState.listOfPages![index].title),
+                  subtitle: Text(
+                      widget.pageState.listOfPages![index].notesList.isEmpty
+                          ? 'create your first nuote'
+                          : widget.pageState.listOfPages![index].notesList.last
+                              .data),
                   onTap: () async {
+                    widget.pageCubit
+                        .setCurrentPage(widget.pageState.listOfPages![index]);
                     await Navigator.pushNamed(
                       context,
                       CustomPage.routeName,
-                      arguments: listOfPages[index],
+                      arguments: widget.pageCubit,
                     );
                     setState(() {});
                   },
@@ -70,9 +70,9 @@ class _PageListState extends State<PageList> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: <Widget>[
                                           Text(
-                                              'Created: ${cropDateTimeObject(listOfPages[index].getCretionDate)}'),
+                                              'Created: ${widget.pageCubit.cropDateTimeObject(widget.pageState.listOfPages![index].getCretionDate)}'),
                                           Text(
-                                              'Last event: ${cropDateTimeObject(listOfPages[index].getlastModifedDate)}'),
+                                              'Last event: ${widget.pageCubit.cropDateTimeObject(widget.pageState.listOfPages![index].getlastModifedDate)}'),
                                         ],
                                       ),
                                       actions: [
@@ -98,10 +98,12 @@ class _PageListState extends State<PageList> {
                               ),
                               TextButton.icon(
                                 onPressed: () async {
+                                  widget.pageCubit
+                                      .setNewCreateNewPageChecker(false);
                                   await Navigator.pushNamed(
                                     context,
                                     PageConstructor.routeName,
-                                    arguments: listOfPages[index],
+                                    arguments: widget.pageCubit,
                                   );
                                   setState(() {
                                     Navigator.pop(context);
@@ -111,10 +113,8 @@ class _PageListState extends State<PageList> {
                                 label: const Text('Edit page'),
                               ),
                               TextButton.icon(
-                                onPressed: () => setState(() {
-                                  Navigator.pop(context);
-                                  listOfPages.remove(listOfPages[index]);
-                                }),
+                                onPressed: () =>
+                                    widget.pageCubit.deletePage(context, index),
                                 icon: const Icon(Icons.delete),
                                 label: const Text('Delete page'),
                               ),
