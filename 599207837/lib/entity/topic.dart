@@ -10,16 +10,27 @@ Map<String, Topic> get topics => _topics;
 class Topic {
   String name;
   String imagePath;
+  late int id;
   int elements = 0;
+  bool _firstLoad = true;
+  late final entity.MessageLoader mLoader;
 
-  Topic({
-    required this.name,
-    this.imagePath = '../../assets/images/topic_placeholder.jpg',
-  }) {
-    if (!_topics.containsKey(name)) {
-      _topics[name] = this;
+  factory Topic({required name, imagePath}) {
+    if (_topics.containsKey(name)) {
+      return _topics[name]!;
+    } else {
+      return Topic.newInstance(name: name);
     }
-    _topics[name]!.incContent();
+  }
+
+  Topic.newInstance({required this.name, this.imagePath = '../../assets/images/topic_placeholder.jpg'}) {
+    if (!_topics.containsKey(name)) {
+      id = _topics.length;
+      _topics[name] = this;
+    } else {
+      id = _topics[name]!.id;
+    }
+    mLoader = entity.MessageLoader(this);
   }
 
   ImageProvider getImageProvider() => AssetImage(imagePath);
@@ -31,15 +42,21 @@ class Topic {
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   List<entity.Message> getElements() {
-    var ret = (entity.Task.getPendingTasksM()
-        .where((element) => element.topic.equals(this))).toList();
-    ret += entity.Event.getUpcomingEventsM()
-        .where((element) => element.topic.equals(this))
-        .toList();
-    ret += entity.Note.getNotesM()
-        .where((element) => element.topic.equals(this))
-        .toList();
-    return ret;
+    if (_firstLoad) {
+      mLoader.loadMessages(10);
+      _firstLoad = false;
+    }
+    return entity.MessageLoader.messages[id];
+  }
+
+  void loadElements() {
+    mLoader.loadMessages(10);
+  }
+
+  static void loadTopics() {
+    entity.topics['WTF Lab'] = entity.Topic(name: 'WTF Lab');
+    entity.topics['BSUIR'] = entity.Topic(name: 'BSUIR');
+    entity.topics['Leisure'] = entity.Topic(name: 'Leisure');
   }
 
   @override

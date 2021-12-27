@@ -5,11 +5,24 @@ class Task implements Message {
   @override
   Topic topic;
 
+  @override
+  late DateTime timeCreated;
+
+  @override
+  bool favourite;
+
+  @override
+  void onFavourite() => favourite=!favourite;
+
   String description;
   bool isCompleted = false;
+  static bool _firstLoad = true;
   DateTime? timeCompleted;
+  static late final MessageLoader mLoader = MessageLoader.type(Task);
 
-  Task({required this.topic, required this.description});
+  Task({required this.topic, required this.description, this.favourite = false}) {
+    timeCreated = DateTime.now();
+  }
 
   void complete() => isCompleted = true;
 
@@ -17,49 +30,11 @@ class Task implements Message {
 
   int get uuid => hashCode + Random.secure().nextInt(100);
 
-  static List<Task> getPendingTasks() {
-    var toReturn = <Task>[];
-    toReturn.add(
-      Task(
-        description: 'Create flutter app',
-        topic: Topic(name: 'WTF Lab'),
-      ),
-    );
-    toReturn.add(
-      Task(
-        description: 'Start writing a term project',
-        topic: Topic(name: 'BSUIR'),
-      ),
-    );
-    toReturn.add(
-      Task(
-        description: 'See Arcane',
-        topic: Topic(name: 'Leisure'),
-      ),
-    );
-    return toReturn;
-  }
-
-  static List<Message> getPendingTasksM() {
-    var toReturn = <Message>[];
-    toReturn.add(
-      Task(
-        description: 'Create flutter app',
-        topic: Topic(name: 'WTF Lab'),
-      ),
-    );
-    toReturn.add(
-      Task(
-        description: 'Start writing a term project',
-        topic: Topic(name: 'BSUIR'),
-      ),
-    );
-    toReturn.add(
-      Task(
-        description: 'See Arcane',
-        topic: Topic(name: 'Leisure'),
-      ),
-    );
-    return toReturn;
+  static List<Message> getFavouriteTasks() {
+    if(_firstLoad) {
+      mLoader.loadTypeFavourites();
+      _firstLoad = false;
+    }
+    return MessageLoader.favouriteMessages[0];
   }
 }

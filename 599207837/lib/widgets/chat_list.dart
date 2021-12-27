@@ -6,35 +6,31 @@ import 'chat.dart';
 class ChatList extends StatefulWidget {
   const ChatList({Key? key}) : super(key: key);
 
-  List<entity.Topic> loadTopics() {
-    return entity.topics.values.toList();
-  }
+  List<entity.Topic> _loadTopics() => entity.topics.values.toList();
 
   @override
   _ChatListState createState() => _ChatListState();
 }
 
 class _ChatListState extends State<ChatList> {
-  late List<entity.Topic> topics;
+  late List<entity.Topic> _topics;
 
   @override
   void initState() {
-    topics = widget.loadTopics();
+    _topics = widget._loadTopics();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: topics.length,
+      itemCount: _topics.length,
       shrinkWrap: true,
       padding: const EdgeInsets.only(top: 16),
       physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        return ChatCard(
-          topic: topics[index],
-        );
-      },
+      itemBuilder: (context, index) => ChatCard(
+        topic: _topics[index],
+      ),
     );
   }
 }
@@ -52,14 +48,14 @@ class _ChatCardState extends State<ChatCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return ChatPage(widget.topic);
-        }));
-      },
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatPage(widget.topic),
+        ),
+      ),
       child: Container(
-        padding:
-            const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
         child: Row(
           children: <Widget>[
             Expanded(

@@ -5,25 +5,29 @@ import '../main.dart';
 
 class AddingButton extends StatefulWidget {
   final Icon firstIcon, secondIcon;
+  final TabController? tabController;
 
-  const AddingButton(
-      {Key? key, required this.firstIcon, required this.secondIcon})
-      : super(key: key);
+  const AddingButton({
+    Key? key,
+    required this.firstIcon,
+    required this.secondIcon,
+    required this.tabController,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _AddingButtonState();
 }
 
 class _AddingButtonState extends State<AddingButton> {
-  late Icon firstIcon, secondIcon, mainIcon;
+  late Icon _firstIcon, _secondIcon, _mainIcon;
   PersistentBottomSheetController? bottomSheetController;
 
   @override
   void initState() {
     super.initState();
-    firstIcon = widget.firstIcon;
-    secondIcon = widget.secondIcon;
-    mainIcon = firstIcon;
+    _firstIcon = widget.firstIcon;
+    _secondIcon = widget.secondIcon;
+    _mainIcon = _firstIcon;
   }
 
   PersistentBottomSheetController _showBottomSheet(BuildContext ctxOfScaffold) {
@@ -36,6 +40,7 @@ class _AddingButtonState extends State<AddingButton> {
         height: 250,
         child: _BottomForm(
           sheetState: this,
+          currentPage: widget.tabController!.index,
         ),
       );
     });
@@ -53,19 +58,15 @@ class _AddingButtonState extends State<AddingButton> {
           onPressed: () {
             if (bottomSheetController == null) {
               bottomSheetController = _showBottomSheet(ctxOfScaffold);
-              setState(() {
-                mainIcon = secondIcon;
-              });
+              setState(() => _mainIcon = _secondIcon);
             } else {
               _hideBottomSheet(bottomSheetController!);
               bottomSheetController = null;
-              setState(() {
-                mainIcon = firstIcon;
-              });
+              setState(() => _mainIcon = _firstIcon);
             }
           },
           tooltip: 'Add new',
-          child: mainIcon,
+          child: _mainIcon,
         );
       },
     );
@@ -74,8 +75,13 @@ class _AddingButtonState extends State<AddingButton> {
 
 class _BottomForm extends StatefulWidget {
   final _AddingButtonState sheetState;
+  final int currentPage;
 
-  const _BottomForm({Key? key, required this.sheetState}) : super(key: key);
+  const _BottomForm({
+    Key? key,
+    required this.sheetState,
+    required this.currentPage,
+  }) : super(key: key);
 
   @override
   State<_BottomForm> createState() => _BottomFormState();
@@ -96,6 +102,19 @@ class _BottomFormState extends State<_BottomForm> {
 
   @override
   Widget build(BuildContext context) {
+    switch (widget.currentPage) {
+      case 1:
+        return Container();
+      case 2:
+        return Container();
+      case 3:
+        return _taskBottomForm();
+      default:
+        return Container();
+    }
+  }
+
+  Widget _taskBottomForm(){
     return Form(
       key: _formKey,
       child: Column(
@@ -108,10 +127,8 @@ class _BottomFormState extends State<_BottomForm> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   color: Colors.white54,
                 ),
-                margin: const EdgeInsets.symmetric(
-                    vertical: 10.0, horizontal: 25.0),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 1.0, horizontal: 5.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 5.0),
                 alignment: Alignment.centerLeft,
                 width: 130,
                 child: TextFormField(
@@ -139,8 +156,7 @@ class _BottomFormState extends State<_BottomForm> {
                       _categoryController.text = newValue;
                     });
                   },
-                  items: custom.topics.values
-                      .map<DropdownMenuItem<String>>((value) {
+                  items: custom.topics.values.map<DropdownMenuItem<String>>((value) {
                     return DropdownMenuItem<String>(
                       value: value.toString(),
                       child: Text(value.toString()),
@@ -155,10 +171,8 @@ class _BottomFormState extends State<_BottomForm> {
               borderRadius: BorderRadius.all(Radius.circular(10)),
               color: Colors.white54,
             ),
-            margin:
-                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
-            padding:
-                const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+            margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
+            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
             child: TextFormField(
               controller: _descriptionController,
               maxLines: 3,
@@ -166,21 +180,24 @@ class _BottomFormState extends State<_BottomForm> {
             ),
           ),
           Center(
-            //padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: ElevatedButton(
               onPressed: () {
                 final inherited = TabContrDecorator.of(context)!;
-                inherited.pendingTasks.add(custom.Task(
-                  description: _descriptionController.text,
-                  topic: custom.Topic(
-                    name: _categoryController.text,
+                custom.MessageLoader.messages[0].insert(
+                  0,
+                  custom.Task(
+                    description: _descriptionController.text,
+                    topic: custom.Topic(
+                      name: _categoryController.text,
+                    ),
+                    favourite: true,
                   ),
-                ));
+                );
                 inherited.onEdited();
-                var parent = widget.sheetState;
+                final parent = widget.sheetState;
                 parent._hideBottomSheet(parent.bottomSheetController!);
                 parent.bottomSheetController = null;
-                parent.setState(() => parent.mainIcon = parent.firstIcon);
+                parent.setState(() => parent._mainIcon = parent._firstIcon);
               },
               child: const Text('Submit'),
             ),

@@ -5,12 +5,25 @@ class Event implements Message {
   @override
   Topic topic;
 
+  @override
+  late DateTime timeCreated;
+
+  @override
+  bool favourite;
+
+  @override
+  void onFavourite() => favourite=!favourite;
+
   String description;
+  DateTime? scheduledTime;
   bool _isVisited = false;
   bool _isMissed = false;
-  DateTime? scheduledTime;
+  static bool _firstLoad = true;
+  static late final MessageLoader mLoader = MessageLoader.type(Event);
 
-  Event({required this.topic, required this.description, this.scheduledTime});
+  Event({required this.topic, required this.description, this.scheduledTime, this.favourite = false}) {
+    timeCreated=DateTime.now();
+  }
 
   void visit() {
     _isVisited = true;
@@ -19,7 +32,10 @@ class Event implements Message {
 
   void unVisit() => _isVisited = false;
 
-  void miss() => _isMissed = true;
+  void miss() {
+    _isMissed = true;
+    unVisit();
+  }
 
   bool isVisited() => _isVisited;
 
@@ -27,49 +43,11 @@ class Event implements Message {
 
   int get uuid => hashCode + Random.secure().nextInt(100);
 
-  static List<Event> getUpcomingEvents() {
-    var toReturn = <Event>[];
-    toReturn.add(
-      Event(
-        description: 'WTF Meeting',
-        topic: Topic(name: 'WTF Lab'),
-        scheduledTime: DateTime.parse('2012-02-27 13:27:00'),
-      ),
-    );
-    toReturn.add(
-      Event(
-        description: 'First Exam',
-        topic: Topic(name: 'BSUIR'),
-        scheduledTime: DateTime.parse('2021-12-23 12:00:00'),
-      ),
-    );
-    toReturn.add(
-      Event(
-        description: 'Tour to Japan',
-        topic: Topic(name: 'Leisure'),
-      ),
-    );
-    return toReturn;
-  }
-
-  static List<Message> getUpcomingEventsM() {
-    var toReturn = <Message>[];
-    toReturn.add(
-      Event(
-        description: 'WTF Meeting',
-        topic: Topic(name: 'WTF Lab'),
-        scheduledTime: DateTime.parse('2012-02-27 13:27:00'),
-      ),
-    );
-    toReturn.add(
-      Event(
-        description: 'First Exam',
-        topic: Topic(name: 'BSUIR'),
-        scheduledTime: DateTime.parse('2021-12-23 12:00:00'),
-      ),
-    );
-    toReturn.add(
-        Event(description: 'Tour to Japan', topic: Topic(name: 'Leisure')));
-    return toReturn;
+  static List<Message> getFavouriteEvents() {
+    if(_firstLoad) {
+      mLoader.loadTypeFavourites();
+      _firstLoad = false;
+    }
+    return MessageLoader.favouriteMessages[1];
   }
 }
