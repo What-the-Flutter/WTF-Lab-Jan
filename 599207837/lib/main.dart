@@ -9,36 +9,46 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      home: _ItemsPage(),
+      home: ThemeDecorator(
+        child: const _ItemsPage(),
+        theme: entity.Theme.defaultOne(),
+      ),
     );
   }
 }
 
-class TabContrDecorator extends InheritedWidget {
-  final List<entity.Task> pendingTasks;
-  final List<entity.Event> upcomingEvents;
-  final List<entity.Note> notes;
-  final Function() onEdited;
+class ThemeDecorator extends InheritedWidget {
+  final entity.Theme theme;
 
-  TabContrDecorator(
-      {required this.pendingTasks,
-      required this.upcomingEvents,
-      required this.notes,
-      required this.onEdited,
-      required child})
-      : super(
-          child: child,
-        );
+  ThemeDecorator({
+    required this.theme,
+    required child,
+  }) : super(child: child);
 
-  @override
-  bool updateShouldNotify(covariant TabContrDecorator oldWidget) {
-    return false;
+  void changeTheme(int key) {
+    theme.changeTheme();
   }
 
-  static TabContrDecorator? of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<TabContrDecorator>();
+  @override
+  bool updateShouldNotify(covariant ThemeDecorator oldWidget) => false;
+
+  static ThemeDecorator? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<ThemeDecorator>();
+}
+
+class TabContrDecorator extends InheritedWidget {
+  final Function() onEdited;
+
+  TabContrDecorator({
+    required this.onEdited,
+    required child,
+  }) : super(child: child);
+
+  @override
+  bool updateShouldNotify(covariant TabContrDecorator oldWidget) => false;
+
+  static TabContrDecorator? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<TabContrDecorator>();
 }
 
 class _ItemsPage extends StatefulWidget {
@@ -48,23 +58,21 @@ class _ItemsPage extends StatefulWidget {
   State<StatefulWidget> createState() => _ItemsPageState();
 }
 
-class _ItemsPageState extends State<_ItemsPage>
-    with SingleTickerProviderStateMixin {
-  late final List<entity.Task> pendingTasks;
-  late final List<entity.Event> upcomingEvents;
-  late final List<entity.Note> notes;
+class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMixin {
+  late final List<entity.Message> _pendingTasks;
+  late final List<entity.Message> _upcomingEvents;
+  late final List<entity.Message> _notes;
+  late final List<entity.Topic> _topics;
 
   String _title = 'Main';
   late TabController _tabController;
-  static const List<String> tabTitles = ['Main', 'Tasks', 'Events', 'Notes'];
+  static const List<String> _tabTitles = ['Main', 'Tasks', 'Events', 'Notes'];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _tabController.addListener(() {
-      setState(() => _title = tabTitles[_tabController.index]);
-    });
+    _tabController.addListener(() => setState(() => _title = _tabTitles[_tabController.index]));
     loadItems();
   }
 
@@ -75,49 +83,61 @@ class _ItemsPageState extends State<_ItemsPage>
   }
 
   void loadItems() {
-    pendingTasks = entity.Task.getPendingTasks();
-    upcomingEvents = entity.Event.getUpcomingEvents();
-    notes = entity.Note.getNotes();
+    entity.Topic.loadTopics();
+    _pendingTasks = entity.Task.getFavouriteTasks();
+    _upcomingEvents = entity.Event.getFavouriteEvents();
+    _notes = entity.Note.getFavouriteNotes();
+    _topics = entity.Topic.topics;
   }
 
   @override
   Widget build(BuildContext context) {
+    final decorator = ThemeDecorator.of(context)!;
     return TabContrDecorator(
-      pendingTasks: pendingTasks,
-      upcomingEvents: upcomingEvents,
-      notes: notes,
       onEdited: () => setState(() => {}),
       child: DefaultTabController(
         length: 4,
         child: Scaffold(
+          backgroundColor: decorator.theme.backgroundColor,
           appBar: AppBar(
+            backgroundColor: decorator.theme.themeColor1,
             title: Text(_title),
             actions: <Widget>[
               IconButton(
-                icon: const Icon(Icons.add_alert),
-                tooltip: 'Show notifications',
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content:
-                          Text('You haven\'t received any notifications')));
-                },
+                icon: const Icon(Icons.brightness_4_rounded),
+                tooltip: 'Change theme',
+                onPressed: () => setState(decorator.theme.changeTheme),
               ),
             ],
           ),
           bottomNavigationBar: TabBar(
+            indicatorColor: decorator.theme.underlineColor,
+            indicatorWeight: 3,
             controller: _tabController,
-            tabs: const [
+            tabs: [
               Tab(
-                icon: Icon(Icons.amp_stories_rounded),
+                icon: Icon(
+                  Icons.amp_stories_rounded,
+                  color: decorator.theme.iconColor1,
+                ),
               ),
               Tab(
-                icon: Icon(Icons.feed_rounded),
+                icon: Icon(
+                  Icons.feed_rounded,
+                  color: decorator.theme.iconColor1,
+                ),
               ),
               Tab(
-                icon: Icon(Icons.event_rounded),
+                icon: Icon(
+                  Icons.event_rounded,
+                  color: decorator.theme.iconColor1,
+                ),
               ),
               Tab(
-                icon: Icon(Icons.drive_file_rename_outline),
+                icon: Icon(
+                  Icons.drive_file_rename_outline,
+                  color: decorator.theme.iconColor1,
+                ),
               ),
             ],
             labelColor: Theme.of(context).primaryColor,
@@ -126,18 +146,27 @@ class _ItemsPageState extends State<_ItemsPage>
           body: TabBarView(
             controller: _tabController,
             children: [
-              const widget.ChatList(
+              widget.ChatList(
                 key: null,
+                topics: _topics,
               ),
-              _itemsList('Tasks', pendingTasks),
-              _itemsList('Events', upcomingEvents),
-              _itemsList('Notes', notes),
+              _itemsList('Tasks', _pendingTasks),
+              _itemsList('Events', _upcomingEvents),
+              _itemsList('Notes', _notes),
             ],
           ),
-          floatingActionButton: const widget.AddingButton(
-              key: Key('MainButton'),
-              firstIcon: Icon(Icons.add),
-              secondIcon: Icon(Icons.remove)),
+          floatingActionButton: widget.AddingButton(
+            key: const Key('MainButton'),
+            firstIcon: const Icon(
+              Icons.add,
+              size: 30,
+            ),
+            secondIcon: const Icon(
+              Icons.remove,
+              size: 30,
+            ),
+            tabController: _tabController,
+          ),
         ),
       ),
     );
@@ -162,8 +191,7 @@ class _ItemsPageState extends State<_ItemsPage>
               final item = items[index];
               return Card(
                 key: ValueKey(item.uuid),
-                margin: const EdgeInsets.symmetric(
-                    vertical: 10.0, horizontal: 25.0),
+                margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: Padding(
                   child: widget.ItemColumn(item),
                   padding: const EdgeInsets.all(8.0),

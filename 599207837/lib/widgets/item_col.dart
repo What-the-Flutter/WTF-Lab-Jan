@@ -3,21 +3,20 @@ import '../entity/entities.dart' as entity;
 import '../main.dart';
 
 class ItemColumn<T> extends StatelessWidget {
-  final T item;
+  final T _item;
 
-  const ItemColumn(this.item, {Key? key}) : super(key: key);
+  const ItemColumn(this._item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (item is entity.Task) {
-      return _TaskColumn(item as entity.Task);
-    } else if (item is entity.Event) {
-      return _EventColumn(item as entity.Event);
+    if (_item is entity.Task) {
+      return _TaskColumn(_item as entity.Task);
+    } else if (_item is entity.Event) {
+      return _EventColumn(_item as entity.Event);
     } else {
       return Column(
         children: <Widget>[
-          Text((item as entity.Note).name ?? 'No name'),
-          Text((item as entity.Note).description),
+          Text((_item as entity.Note).description),
         ],
       );
     }
@@ -25,17 +24,17 @@ class ItemColumn<T> extends StatelessWidget {
 }
 
 class _TaskColumn extends StatelessWidget {
-  final entity.Task item;
+  final entity.Task _item;
 
-  const _TaskColumn(this.item);
+  const _TaskColumn(this._item);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        _taskHeader(item),
-        Text(item.description),
-        _taskFooter(item, context),
+        _taskHeader(_item),
+        Text(_item.description),
+        _taskFooter(_item, context),
       ],
     );
   }
@@ -43,15 +42,13 @@ class _TaskColumn extends StatelessWidget {
   Widget _taskHeader(entity.Task task) {
     return Row(
       children: <Widget>[
-        CircleAvatar(
-          backgroundImage: task.topic.getImageProvider(),
-        ),
+        const CircleAvatar(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text(task.topic.name),
           ),
-        )
+        ),
       ],
     );
   }
@@ -62,9 +59,7 @@ class _TaskColumn extends StatelessWidget {
         margin: const EdgeInsets.only(top: 8.0),
         alignment: Alignment.centerRight,
         child: Chip(
-          label: Text(
-            'Completed at: ${entity.dateFormatter.format(task.timeCompleted!)}',
-          ),
+          label: Text('Completed at: ${entity.fullDateFormatter.format(task.timeCompleted!)}'),
         ),
       );
     }
@@ -76,17 +71,16 @@ class _TaskColumn extends StatelessWidget {
           TextButton(
             child: const Text('Remove'),
             onPressed: () {
+              entity.MessageLoader.remove(task);
               final inherited = TabContrDecorator.of(context)!;
-              inherited.pendingTasks.remove(task);
-              task.topic.decContent();
               inherited.onEdited();
             },
           ),
           TextButton(
             child: const Text('Complete'),
             onPressed: () {
-              final inherited = TabContrDecorator.of(context)!;
               task.complete();
+              final inherited = TabContrDecorator.of(context)!;
               task.timeCompleted = DateTime.now();
               inherited.onEdited();
             },
@@ -99,31 +93,31 @@ class _TaskColumn extends StatelessWidget {
 }
 
 class _EventColumn extends StatelessWidget {
-  final entity.Event item;
+  final entity.Event _item;
 
-  const _EventColumn(this.item);
+  const _EventColumn(this._item);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        _eventHeader(item),
+        _eventHeader(_item),
         Column(
           children: [
             Align(
               alignment: Alignment.center,
               child: Text(
-                item.description,
+                _item.description,
                 textAlign: TextAlign.center,
               ),
             ),
             Align(
               alignment: Alignment.centerRight,
-              child: _eventSchedule(item),
+              child: _eventSchedule(_item),
             ),
           ],
         ),
-        _eventFooter(item, context),
+        _eventFooter(_item, context),
       ],
     );
   }
@@ -131,13 +125,12 @@ class _EventColumn extends StatelessWidget {
   Row _eventHeader(entity.Event event) {
     return Row(
       children: <Widget>[
-        CircleAvatar(
-          backgroundImage: event.topic.getImageProvider(),
-        ),
+        const CircleAvatar(),
         Expanded(
           child: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(event.topic.name)),
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(event.topic.name),
+          ),
         ),
       ],
     );
@@ -159,22 +152,19 @@ class _EventColumn extends StatelessWidget {
       child: Chip(
         label: Text(
           event.scheduledTime!.compareTo(DateTime.now()) > 0
-              ? 'Scheduled on: ${entity.dateFormatter.format(event.scheduledTime!)}'
-              : 'Passed on: ${entity.dateFormatter.format(event.scheduledTime!)}',
+              ? 'Scheduled on: ${entity.fullDateFormatter.format(event.scheduledTime!)}'
+              : 'Passed on: ${entity.fullDateFormatter.format(event.scheduledTime!)}',
         ),
       ),
     );
   }
 
   Widget _eventFooter(entity.Event event, BuildContext context) {
-    if (event.scheduledTime != null &&
-        event.scheduledTime!.compareTo(DateTime.now()) > 0) {
+    if (event.scheduledTime != null && event.scheduledTime!.compareTo(DateTime.now()) > 0) {
       Duration? period = event.scheduledTime!.difference(DateTime.now());
       return Container(
         alignment: Alignment.center,
-        child: Text(
-          'Will happen in ${period.inDays} days ${period.inHours % 24} hours',
-        ),
+        child: Text('Will happen in ${period.inDays} days ${period.inHours % 24} hours'),
       );
     }
 
@@ -190,11 +180,7 @@ class _EventColumn extends StatelessWidget {
               ),
             ),
             child: const Text('Visited'),
-            onPressed: () {
-              event.visit();
-              final inherited = TabContrDecorator.of(context)!;
-              inherited.onEdited();
-            },
+            onPressed: () => event.visit(),
           ),
           TextButton(
             child: const Text('Missed'),

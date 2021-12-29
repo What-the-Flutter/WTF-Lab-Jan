@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'entities.dart' as entity;
 
 Map<String, Topic> _topics = {};
@@ -8,21 +8,37 @@ Map<String, Topic> _topics = {};
 Map<String, Topic> get topics => _topics;
 
 class Topic {
+  static int _vacantIndex = 0;
+  static List<Topic> topics = [];
   String name;
-  String imagePath;
+  IconData icon;
+  late int id;
+  late DateTime timeCreated;
   int elements = 0;
+  bool _firstLoad = true;
+  late final entity.MessageLoader mLoader;
 
-  Topic({
-    required this.name,
-    this.imagePath = '../../assets/images/topic_placeholder.jpg',
-  }) {
-    if (!_topics.containsKey(name)) {
-      _topics[name] = this;
+  factory Topic({required String name, required IconData icon}) {
+    if (_topics.containsKey(name)) {
+      return _topics[name]!;
+    } else {
+      return Topic.newInstance(
+        name: name,
+        icon: icon,
+      );
     }
-    _topics[name]!.incContent();
   }
 
-  ImageProvider getImageProvider() => AssetImage(imagePath);
+  Topic.newInstance({
+    required this.name,
+    required this.icon,
+  }) {
+    id = _vacantIndex;
+    timeCreated = DateTime.now();
+    _vacantIndex++;
+    _topics[name] = this;
+    mLoader = entity.MessageLoader(this);
+  }
 
   void incContent() => elements++;
 
@@ -31,15 +47,27 @@ class Topic {
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   List<entity.Message> getElements() {
-    var ret = (entity.Task.getPendingTasksM()
-        .where((element) => element.topic.equals(this))).toList();
-    ret += entity.Event.getUpcomingEventsM()
-        .where((element) => element.topic.equals(this))
-        .toList();
-    ret += entity.Note.getNotesM()
-        .where((element) => element.topic.equals(this))
-        .toList();
-    return ret;
+    if (_firstLoad) {
+      mLoader.loadMessages(10);
+      _firstLoad = false;
+    }
+    return entity.MessageLoader.messages[id];
+  }
+
+  void loadElements() {
+    mLoader.loadMessages(10);
+  }
+
+  static void loadTopics() {
+    topics.add(entity.Topic(name: 'WTF Lab', icon: Icons.flutter_dash_rounded));
+    topics.add(entity.Topic(name: 'BSUIR', icon: Icons.account_balance_rounded));
+    topics.add(entity.Topic(name: 'Leisure', icon: Icons.sports_esports_rounded));
+  }
+
+  void delete() {
+    entity.MessageLoader.clearTopicData(id);
+    _topics.remove(name);
+    topics.remove(this);
   }
 
   @override
