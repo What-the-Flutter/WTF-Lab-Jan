@@ -9,11 +9,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      home: _ItemsPage(),
+      home: ThemeDecorator(
+        child: const _ItemsPage(),
+        theme: entity.Theme.defaultOne(),
+      ),
     );
   }
+}
+
+class ThemeDecorator extends InheritedWidget {
+  final entity.Theme theme;
+
+  ThemeDecorator({
+    required this.theme,
+    required child,
+  }) : super(child: child);
+
+  void changeTheme(int key) {
+    theme.changeTheme();
+  }
+
+  @override
+  bool updateShouldNotify(covariant ThemeDecorator oldWidget) => false;
+
+  static ThemeDecorator? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<ThemeDecorator>();
 }
 
 class TabContrDecorator extends InheritedWidget {
@@ -41,6 +62,7 @@ class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMi
   late final List<entity.Message> _pendingTasks;
   late final List<entity.Message> _upcomingEvents;
   late final List<entity.Message> _notes;
+  late final List<entity.Topic> _topics;
 
   String _title = 'Main';
   late TabController _tabController;
@@ -61,47 +83,61 @@ class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMi
   }
 
   void loadItems() {
+    entity.Topic.loadTopics();
     _pendingTasks = entity.Task.getFavouriteTasks();
     _upcomingEvents = entity.Event.getFavouriteEvents();
     _notes = entity.Note.getFavouriteNotes();
-    entity.Topic.loadTopics();
+    _topics = entity.Topic.topics;
   }
 
   @override
   Widget build(BuildContext context) {
+    final decorator = ThemeDecorator.of(context)!;
     return TabContrDecorator(
       onEdited: () => setState(() => {}),
       child: DefaultTabController(
         length: 4,
         child: Scaffold(
+          backgroundColor: decorator.theme.backgroundColor,
           appBar: AppBar(
+            backgroundColor: decorator.theme.themeColor1,
             title: Text(_title),
             actions: <Widget>[
               IconButton(
-                icon: const Icon(Icons.add_alert),
-                tooltip: 'Show notifications',
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('You haven\'t received any notifications'),
-                  ),
-                ),
+                icon: const Icon(Icons.brightness_4_rounded),
+                tooltip: 'Change theme',
+                onPressed: () => setState(decorator.theme.changeTheme),
               ),
             ],
           ),
           bottomNavigationBar: TabBar(
+            indicatorColor: decorator.theme.underlineColor,
+            indicatorWeight: 3,
             controller: _tabController,
-            tabs: const [
+            tabs: [
               Tab(
-                icon: Icon(Icons.amp_stories_rounded),
+                icon: Icon(
+                  Icons.amp_stories_rounded,
+                  color: decorator.theme.iconColor1,
+                ),
               ),
               Tab(
-                icon: Icon(Icons.feed_rounded),
+                icon: Icon(
+                  Icons.feed_rounded,
+                  color: decorator.theme.iconColor1,
+                ),
               ),
               Tab(
-                icon: Icon(Icons.event_rounded),
+                icon: Icon(
+                  Icons.event_rounded,
+                  color: decorator.theme.iconColor1,
+                ),
               ),
               Tab(
-                icon: Icon(Icons.drive_file_rename_outline),
+                icon: Icon(
+                  Icons.drive_file_rename_outline,
+                  color: decorator.theme.iconColor1,
+                ),
               ),
             ],
             labelColor: Theme.of(context).primaryColor,
@@ -110,7 +146,10 @@ class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMi
           body: TabBarView(
             controller: _tabController,
             children: [
-              const widget.ChatList(key: null),
+              widget.ChatList(
+                key: null,
+                topics: _topics,
+              ),
               _itemsList('Tasks', _pendingTasks),
               _itemsList('Events', _upcomingEvents),
               _itemsList('Notes', _notes),
@@ -118,8 +157,14 @@ class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMi
           ),
           floatingActionButton: widget.AddingButton(
             key: const Key('MainButton'),
-            firstIcon: const Icon(Icons.add),
-            secondIcon: const Icon(Icons.remove),
+            firstIcon: const Icon(
+              Icons.add,
+              size: 30,
+            ),
+            secondIcon: const Icon(
+              Icons.remove,
+              size: 30,
+            ),
             tabController: _tabController,
           ),
         ),

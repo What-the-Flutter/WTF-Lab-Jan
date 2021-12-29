@@ -42,9 +42,7 @@ class _TaskColumn extends StatelessWidget {
   Widget _taskHeader(entity.Task task) {
     return Row(
       children: <Widget>[
-        CircleAvatar(
-          backgroundImage: task.topic.getImageProvider(),
-        ),
+        const CircleAvatar(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(left: 8.0),
@@ -127,9 +125,7 @@ class _EventColumn extends StatelessWidget {
   Row _eventHeader(entity.Event event) {
     return Row(
       children: <Widget>[
-        CircleAvatar(
-          backgroundImage: event.topic.getImageProvider(),
-        ),
+        const CircleAvatar(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(left: 8.0),

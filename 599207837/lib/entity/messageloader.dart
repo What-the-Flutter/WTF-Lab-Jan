@@ -37,6 +37,7 @@ class MessageLoader {
     final fileLength = 10;
     for(var i = 0; i<fileLength; i++){
       messages[_topic.id].add(getHardcodeMessage(i, _topic.name));
+      _topic.elements++;
     }
   }
 
@@ -53,17 +54,33 @@ class MessageLoader {
   }
 
   static void remove(entity.Message o){
+    o.topic.elements--;
     favouriteMessages[entity.getTypeId(o)].remove(o);
     messages[o.topic.id].remove(o);
   }
 
-  static entity.Message getHardcodeMessage(int index, String topicName) {
-    if(entity.topics.isEmpty){
-      entity.topics['WTF Lab'] = entity.Topic(name: 'WTF Lab');
-      entity.topics['BSUIR'] = entity.Topic(name: 'BSUIR');
-      entity.topics['Leisure'] = entity.Topic(name: 'Leisure');
-    }
+  static void add(entity.Message o){
+    o.topic.elements++;
+    messages[o.topic.id].insert(0, o);
+  }
 
+  static void clearTopicData(int id){
+    messages[id].clear();
+    var removed = <entity.Message>[];
+    for(var list in favouriteMessages){
+      for(var item in list){
+        if(item.topic.id==id){
+          removed.add(item);
+        }
+      }
+      for(var item in removed){
+        list.remove(item);
+      }
+      removed.clear();
+    }
+  }
+
+  static entity.Message getHardcodeMessage(int index, String topicName) {
     switch (index % 3) {
       case (0):
         return entity.Task(

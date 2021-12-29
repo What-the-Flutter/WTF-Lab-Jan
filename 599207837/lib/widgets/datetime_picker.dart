@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../main.dart';
+
 class DateTimePicker extends StatelessWidget {
   DateTimePicker({
     required this.labelText,
@@ -9,8 +11,10 @@ class DateTimePicker extends StatelessWidget {
     this.selectedTime,
     required this.selectDate,
     required this.selectTime,
+    required this.decorator,
   });
 
+  final ThemeDecorator decorator;
   final String labelText;
   final DateTime? selectedDate;
   final TimeOfDay? selectedTime;
@@ -46,6 +50,7 @@ class DateTimePicker extends StatelessWidget {
             labelText: labelText,
             valueText: selectedDate == null ? '' : DateFormat.yMMMd().format(selectedDate!),
             onPressed: () => _selectDate(context),
+            decorator: decorator,
           ),
         ),
         const SizedBox(width: 12.0),
@@ -55,6 +60,7 @@ class DateTimePicker extends StatelessWidget {
             labelText: 'Scheduled time',
             valueText: selectedTime == null ? '' : selectedTime!.format(context),
             onPressed: () => _selectTime(context),
+            decorator: decorator,
           ),
         ),
       ],
@@ -67,8 +73,10 @@ class _InputDropdown extends StatelessWidget {
     required this.labelText,
     required this.valueText,
     required this.onPressed,
+    required this.decorator,
   });
 
+  final ThemeDecorator decorator;
   final String labelText;
   final String valueText;
   final VoidCallback onPressed;
@@ -80,12 +88,28 @@ class _InputDropdown extends StatelessWidget {
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: labelText,
+          labelStyle: TextStyle(color: Colors.grey.shade600),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.grey.shade600,
+              width: 1,
+            ),
+          ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: decorator.theme.underlineColor,
+              width: 2,
+            ),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text(valueText),
+            Text(
+              valueText,
+              style: TextStyle(color: decorator.theme.textColor1),
+            ),
             Icon(
               Icons.arrow_drop_down,
               color: Colors.grey.shade700,

@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'entities.dart' as entity;
 
 Map<String, Topic> _topics = {};
@@ -8,32 +8,37 @@ Map<String, Topic> _topics = {};
 Map<String, Topic> get topics => _topics;
 
 class Topic {
+  static int _vacantIndex = 0;
+  static List<Topic> topics = [];
   String name;
-  String imagePath;
+  IconData icon;
   late int id;
+  late DateTime timeCreated;
   int elements = 0;
   bool _firstLoad = true;
   late final entity.MessageLoader mLoader;
 
-  factory Topic({required name, imagePath}) {
+  factory Topic({required String name, required IconData icon}) {
     if (_topics.containsKey(name)) {
       return _topics[name]!;
     } else {
-      return Topic.newInstance(name: name);
+      return Topic.newInstance(
+        name: name,
+        icon: icon,
+      );
     }
   }
 
-  Topic.newInstance({required this.name, this.imagePath = '../../assets/images/topic_placeholder.jpg'}) {
-    if (!_topics.containsKey(name)) {
-      id = _topics.length;
-      _topics[name] = this;
-    } else {
-      id = _topics[name]!.id;
-    }
+  Topic.newInstance({
+    required this.name,
+    required this.icon,
+  }) {
+    id = _vacantIndex;
+    timeCreated = DateTime.now();
+    _vacantIndex++;
+    _topics[name] = this;
     mLoader = entity.MessageLoader(this);
   }
-
-  ImageProvider getImageProvider() => AssetImage(imagePath);
 
   void incContent() => elements++;
 
@@ -54,9 +59,15 @@ class Topic {
   }
 
   static void loadTopics() {
-    entity.topics['WTF Lab'] = entity.Topic(name: 'WTF Lab');
-    entity.topics['BSUIR'] = entity.Topic(name: 'BSUIR');
-    entity.topics['Leisure'] = entity.Topic(name: 'Leisure');
+    topics.add(entity.Topic(name: 'WTF Lab', icon: Icons.flutter_dash_rounded));
+    topics.add(entity.Topic(name: 'BSUIR', icon: Icons.account_balance_rounded));
+    topics.add(entity.Topic(name: 'Leisure', icon: Icons.sports_esports_rounded));
+  }
+
+  void delete() {
+    entity.MessageLoader.clearTopicData(id);
+    _topics.remove(name);
+    topics.remove(this);
   }
 
   @override

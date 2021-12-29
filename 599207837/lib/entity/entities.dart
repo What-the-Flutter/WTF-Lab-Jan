@@ -8,6 +8,7 @@ export 'event.dart';
 export 'messageloader.dart';
 export 'note.dart';
 export 'task.dart';
+export 'theme.dart';
 export 'topic.dart';
 
 DateFormat fullDateFormatter = DateFormat('d MMM y HH:mm');

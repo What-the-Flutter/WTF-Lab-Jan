@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../entity/entities.dart' as entity;
+import '../main.dart';
 import 'chat_message.dart';
 import 'datetime_picker.dart';
 
 class ChatPage extends StatefulWidget {
   final entity.Topic topic;
+  final BuildContext context;
 
-  ChatPage(this.topic);
+  ChatPage(this.topic, this.context);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -28,7 +30,7 @@ class _ChatPageState extends State<ChatPage> {
   IconData _addedIcon = Icons.feed_rounded;
   int _addedType = 0;
 
-  void changeAddedType() {
+  void _changeAddedType() {
     _addedType = (_addedType + 1) % 3;
     _addedIcon = _addedType == 0
         ? Icons.feed_rounded
@@ -107,8 +109,10 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final decorator = ThemeDecorator.of(widget.context)!;
     return Scaffold(
-      appBar: _chatAppBar(),
+      backgroundColor: decorator.theme.backgroundColor,
+      appBar: _chatAppBar(decorator),
       body: Column(
         children: <Widget>[
           if (_selectionFlag)
@@ -168,6 +172,7 @@ class _ChatPageState extends State<ChatPage> {
                     }
                   },
                   selection: _selectionFlag,
+                  decorator: decorator,
                 );
               },
             ),
@@ -178,64 +183,69 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  PreferredSizeWidget _chatAppBar() {
+  PreferredSizeWidget _chatAppBar(ThemeDecorator decorator) {
     return AppBar(
       elevation: 0,
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.white,
+      backgroundColor: decorator.theme.themeColor2,
       flexibleSpace: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.only(right: 16),
-          child: Row(
-            children: <Widget>[
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.black,
-                ),
+        child: Row(
+          children: <Widget>[
+            IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(
+                Icons.arrow_back,
+                color: decorator.theme.iconColor2,
               ),
-              const SizedBox(
-                width: 2,
+            ),
+            const SizedBox(
+              width: 2,
+            ),
+            CircleAvatar(
+              backgroundColor: decorator.theme.avatarColor1,
+              child: Icon(
+                widget.topic.icon,
+                color: Colors.white,
+                size: 25,
               ),
-              CircleAvatar(
-                backgroundImage: widget.topic.getImageProvider(),
-                maxRadius: 20,
-              ),
-              const SizedBox(
-                width: 12,
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      widget.topic.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+              radius: 20,
+            ),
+            const SizedBox(
+              width: 12,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    widget.topic.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: decorator.theme.textColor2,
                     ),
-                    const SizedBox(
-                      height: 6,
+                  ),
+                  const SizedBox(
+                    height: 6,
+                  ),
+                  Text(
+                    'Online',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
                     ),
-                    Text(
-                      'Online',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const Icon(
-                Icons.settings,
-                color: Colors.black54,
-              ),
-            ],
-          ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.brightness_4_rounded),
+              color: decorator.theme.iconColor2,
+              tooltip: 'Change theme',
+              onPressed: () => setState(decorator.theme.changeTheme),
+            ),
+          ],
         ),
       ),
     );
@@ -253,17 +263,19 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _eventInputForm() {
+    final decorator = ThemeDecorator.of(widget.context)!;
     return Container(
       padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
       width: double.infinity,
-      color: Colors.white,
+      color: decorator.theme.themeColor2,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
           Container(
             height: 40,
             child: FloatingActionButton(
-              onPressed: () => setState(changeAddedType),
+              backgroundColor: decorator.theme.buttonColor,
+              onPressed: () => setState(_changeAddedType),
               child: Container(
                 height: 30,
                 width: 30,
@@ -291,14 +303,19 @@ class _ChatPageState extends State<ChatPage> {
                     selectedDate: _selectedDate,
                     labelText: 'Scheduled date',
                     selectedTime: _selectedTime,
+                    decorator: decorator,
                   ),
-                  TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Write event description...',
-                      hintStyle: TextStyle(color: Colors.black54),
-                      border: InputBorder.none,
+                  Container(
+                    height: 40,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Write event description...',
+                        hintStyle: TextStyle(color: Colors.grey.shade600),
+                        border: InputBorder.none,
+                      ),
+                      controller: _descriptionController,
+                      style: TextStyle(color: decorator.theme.textColor2),
                     ),
-                    controller: _descriptionController,
                   ),
                 ],
               ),
@@ -310,17 +327,15 @@ class _ChatPageState extends State<ChatPage> {
           Container(
             height: 40,
             child: FloatingActionButton(
+              backgroundColor: decorator.theme.buttonColor,
               onPressed: () => setState(() {
                 FocusScope.of(context).requestFocus(FocusNode());
                 if (!_editingFlag && _descriptionController.text.isNotEmpty) {
-                  _elements.insert(
-                    0,
-                    entity.Event(
-                      scheduledTime: _getDateTime(),
-                      description: _descriptionController.text.toString(),
-                      topic: widget.topic,
-                    ),
-                  );
+                  entity.MessageLoader.add(entity.Event(
+                    scheduledTime: _getDateTime(),
+                    description: _descriptionController.text.toString(),
+                    topic: widget.topic,
+                  ));
                   _selectedTime = null;
                   _selectedDate = null;
                 } else if (_descriptionController.text.isNotEmpty) {
@@ -337,7 +352,6 @@ class _ChatPageState extends State<ChatPage> {
                 color: Colors.white,
                 size: 18,
               ),
-              backgroundColor: Colors.blue,
               elevation: 0,
             ),
           ),
@@ -347,15 +361,17 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _defaultInputForm(bool isTask) {
+    final decorator = ThemeDecorator.of(widget.context)!;
     return Container(
       padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
       height: 60,
       width: double.infinity,
-      color: Colors.white,
+      color: decorator.theme.themeColor2,
       child: Row(
         children: <Widget>[
           FloatingActionButton(
-            onPressed: () => setState(changeAddedType),
+            backgroundColor: decorator.theme.buttonColor,
+            onPressed: () => setState(_changeAddedType),
             child: Container(
               height: 30,
               width: 30,
@@ -373,25 +389,32 @@ class _ChatPageState extends State<ChatPage> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: isTask ? 'Write task...' : 'Write note...',
-                hintStyle: const TextStyle(color: Colors.black54),
+                hintStyle: TextStyle(color: Colors.grey.shade600),
                 border: InputBorder.none,
               ),
               controller: _descriptionController,
+              style: TextStyle(color: decorator.theme.textColor2),
             ),
           ),
           const SizedBox(
             width: 15,
           ),
           FloatingActionButton(
+            backgroundColor: decorator.theme.buttonColor,
             onPressed: () => setState(() {
               FocusScope.of(context).requestFocus(FocusNode());
               if (!_editingFlag && _descriptionController.text.isNotEmpty) {
-                _elements.insert(
-                  0,
-                  isTask
-                      ? entity.Task(description: _descriptionController.text.toString(), topic: widget.topic)
-                      : entity.Note(description: _descriptionController.text.toString(), topic: widget.topic),
-                );
+                if (isTask) {
+                  entity.MessageLoader.add(entity.Task(
+                    description: _descriptionController.text.toString(),
+                    topic: widget.topic,
+                  ));
+                } else {
+                  entity.MessageLoader.add(entity.Note(
+                    description: _descriptionController.text.toString(),
+                    topic: widget.topic,
+                  ));
+                }
               } else if (_descriptionController.text.isNotEmpty) {
                 _editingFlag = false;
                 if (isTask) {
@@ -407,7 +430,6 @@ class _ChatPageState extends State<ChatPage> {
               color: Colors.white,
               size: 18,
             ),
-            backgroundColor: Colors.blue,
             elevation: 0,
           ),
         ],

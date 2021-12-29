@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../entity/entities.dart' as custom;
 import '../main.dart';
+import 'topic_maker.dart';
 
 class AddingButton extends StatefulWidget {
   final Icon firstIcon, secondIcon;
@@ -52,17 +53,28 @@ class _AddingButtonState extends State<AddingButton> {
 
   @override
   Widget build(BuildContext context) {
+    final decorator = ThemeDecorator.of(context)!;
     return Builder(
       builder: (ctxOfScaffold) {
         return FloatingActionButton(
+          backgroundColor: decorator.theme.buttonColor,
           onPressed: () {
-            if (bottomSheetController == null) {
-              bottomSheetController = _showBottomSheet(ctxOfScaffold);
-              setState(() => _mainIcon = _secondIcon);
+            if(widget.tabController!.index==0){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TopicMaker(decorator: decorator),
+                ),
+              );
             } else {
-              _hideBottomSheet(bottomSheetController!);
-              bottomSheetController = null;
-              setState(() => _mainIcon = _firstIcon);
+              if (bottomSheetController == null) {
+                bottomSheetController = _showBottomSheet(ctxOfScaffold);
+                setState(() => _mainIcon = _secondIcon);
+              } else {
+                _hideBottomSheet(bottomSheetController!);
+                bottomSheetController = null;
+                setState(() => _mainIcon = _firstIcon);
+              }
             }
           },
           tooltip: 'Add new',
@@ -189,6 +201,7 @@ class _BottomFormState extends State<_BottomForm> {
                     description: _descriptionController.text,
                     topic: custom.Topic(
                       name: _categoryController.text,
+                      icon: Icons.delete_outline_rounded
                     ),
                     favourite: true,
                   ),
