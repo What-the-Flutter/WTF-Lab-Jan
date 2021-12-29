@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'pages/create_page/cubit_create_page.dart';
 import 'pages/event_page/cubit_event_page.dart';
-
 import 'pages/home_page/cubit_home_page.dart';
 import 'pages/home_page/home_page.dart';
-import 'theme/light_theme.dart';
-import 'theme/theme.dart';
+import 'theme/cubit_theme.dart';
+
+import 'theme/states_theme.dart';
 
 void main() {
   runApp(
@@ -21,11 +22,11 @@ void main() {
         BlocProvider<CubitCreatePage>(
           create: (context) => CubitCreatePage(),
         ),
+        BlocProvider<CubitTheme>(
+          create: (context) => CubitTheme(),
+        ),
       ],
-      child: ThemeSwitcherWidget(
-        child: const MyApp(),
-        initialTheme: lightThemeData,
-      ),
+      child: const MyApp(),
     ),
   );
 }
@@ -39,12 +40,20 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<CubitTheme>(context).init();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter project',
-      theme: ThemeSwitcher.of(context)?.themeData,
-      home: HomePage(),
+    return BlocBuilder<CubitTheme, StatesTheme>(
+      builder: (context, state) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter project',
+        theme: state.themeData,
+        home: HomePage(),
+      ),
     );
   }
 }

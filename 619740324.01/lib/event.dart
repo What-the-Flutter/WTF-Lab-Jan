@@ -2,6 +2,7 @@ class Event {
   String text;
   String time;
   String date;
+  int indexOfCircleAvatar;
   bool isSelected;
   bool isBookmark;
 
@@ -11,5 +12,6 @@ class Event {
     this.text = '',
     this.time = '',
     this.isSelected = false,
+    this.indexOfCircleAvatar = -1,
   });
 }

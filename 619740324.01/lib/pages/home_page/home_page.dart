@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../icons.dart';
 import '../../note.dart';
-import '../../theme/dark_theme.dart';
-import '../../theme/light_theme.dart';
-import '../../theme/theme.dart';
+import '../../theme/cubit_theme.dart';
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
 import 'cubit_home_page.dart';
@@ -18,7 +16,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<Note> _noteList = [];
-  bool _themeSwitcher = false;
 
   @override
   void initState() {
@@ -52,8 +49,8 @@ class _HomePageState extends State<HomePage> {
     return BottomNavigationBar(
       items: [
         BottomNavigationBarItem(
-          backgroundColor:
-              ThemeSwitcher.of(context)?.themeData?.backgroundColor,
+          backgroundColor: BlocProvider.of<CubitTheme>(context)
+              .state.themeData?.backgroundColor,
           icon: const Icon(
             Icons.home,
           ),
@@ -187,12 +184,7 @@ class _HomePageState extends State<HomePage> {
       ),
       actions: [
         IconButton(
-          onPressed: () {
-            _themeSwitcher
-                ? ThemeSwitcher.of(context)?.switchTheme(lightThemeData)
-                : ThemeSwitcher.of(context)?.switchTheme(darkThemeData);
-            _themeSwitcher = !_themeSwitcher;
-          },
+          onPressed: () => BlocProvider.of<CubitTheme>(context).changeTheme(),
           icon: const Icon(
             Icons.invert_colors,
           ),
