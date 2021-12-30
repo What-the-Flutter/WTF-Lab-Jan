@@ -17,9 +17,12 @@ import '../add_page/add_page_cubit.dart';
 import '../add_page/add_page_screen.dart';
 import '../event_page/event_cubit.dart';
 import '../event_page/event_screen.dart';
+import '../filters/filters_cubit.dart';
 import '../settings/settings_cubit.dart';
 import '../settings/settings_screen.dart';
 import '../settings/settings_state.dart';
+import '../timeline_page/timeline_cubit.dart';
+import '../timeline_page/timeline_screen.dart';
 import 'main_page_cubit.dart';
 import 'main_page_state.dart';
 
@@ -73,6 +76,18 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
           BlocProvider(
+            create: (context) => TimelineCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+              RepositoryProvider.of<EventRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => FiltersCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+              RepositoryProvider.of<EventRepository>(context),
+            ),
+          ),
+          BlocProvider(
             create: (context) => AddPageCubit(
               RepositoryProvider.of<ActivityPageRepository>(context),
             ),
@@ -116,7 +131,23 @@ class MainPageScreen extends StatefulWidget {
   _MainPageScreenState createState() => _MainPageScreenState();
 }
 
-class _MainPageScreenState extends State<MainPageScreen> {
+class _MainPageScreenState extends State<MainPageScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(seconds: 4),
+    vsync: this,
+  )..forward();
+  late final Animation<double> _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.fastOutSlowIn,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -151,20 +182,23 @@ class _MainPageScreenState extends State<MainPageScreen> {
           ),
           drawer: _burgerMenuDrawer(),
           body: _bodyStructure(state),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AddPageScreen(
-                    isEditing: false,
+          floatingActionButton: ScaleTransition(
+            scale: _animation,
+            child: FloatingActionButton(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddPageScreen(
+                      isEditing: false,
+                    ),
                   ),
-                ),
-              );
-              BlocProvider.of<MainPageCubit>(context).showActivityPages();
-            },
-            child: const Icon(Icons.add), //color: Colors.brown),
-            //backgroundColor: Colors.amberAccent,
+                );
+                BlocProvider.of<MainPageCubit>(context).showActivityPages();
+              },
+              child: const Icon(Icons.add), //color: Colors.brown),
+              //backgroundColor: Colors.amberAccent,
+            ),
           ),
           bottomNavigationBar: _bottomNavigationBar(),
         );
@@ -309,6 +343,9 @@ class _MainPageScreenState extends State<MainPageScreen> {
       ),
       subtitle: Text(
         subtitle,
+        //style: const TextStyle(
+        // color: Colors.black26,
+        //),
       ),
       leading: _circleAvatarForActivityPage(state, iconIndex, index),
       onTap: () async {
@@ -644,6 +681,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
     futureValue.then(
       (value) {
         BlocProvider.of<MainPageCubit>(context).unselect();
+        //print('Return value: $value'); // true/false
       },
     );
   }
@@ -662,6 +700,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
   BottomNavigationBar _bottomNavigationBar() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
+      onTap: _selectedPage,
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -681,5 +720,16 @@ class _MainPageScreenState extends State<MainPageScreen> {
         )
       ],
     );
+  }
+
+  void _selectedPage(int index) {
+    final pages = [
+      MainPageScreen(),
+      MainPageScreen(),
+      TimelineScreen(),
+      MainPageScreen(),
+    ];
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => pages[index]));
   }
 }

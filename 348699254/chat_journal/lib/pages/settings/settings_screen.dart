@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 import 'settings_cubit.dart';
 import 'settings_state.dart';
@@ -66,17 +67,16 @@ class _SettingsScreensState extends State<SettingsScreen> {
     return Align(
       alignment: AlignmentDirectional.topCenter,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-        margin: const EdgeInsets.fromLTRB(25, 50, 25, 0),
+        margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Connect your Google account to automatically sync your entries to your drive',
-              style: TextStyle(
-                color: Colors.black38,
-                fontSize: state.chosenFontSize,
-              ),
+            Lottie.asset(
+              'assets/lottie_settings.json',
+              width: 220,
+              height: 220,
+              fit: BoxFit.fill,
+              repeat: false,
             ),
             ElevatedButton(
               onPressed: () {},
@@ -88,10 +88,6 @@ class _SettingsScreensState extends State<SettingsScreen> {
               ),
             )
           ],
-        ),
-        decoration: BoxDecoration(
-          color: Colors.greenAccent,
-          borderRadius: BorderRadius.circular(5),
         ),
       ),
     );
@@ -106,8 +102,9 @@ class _SettingsScreensState extends State<SettingsScreen> {
       ),
       trailing: Switch.adaptive(
         value: state.isCategoryListOpen,
-        onChanged: (value) => BlocProvider.of<SettingsCubit>(context)
-            .changeAbilityChooseCategory(),
+        onChanged: (value) =>
+            BlocProvider.of<SettingsCubit>(context)
+                .changeAbilityChooseCategory(),
       ),
       onTap: () {},
     );
@@ -269,10 +266,12 @@ class _SettingsScreensState extends State<SettingsScreen> {
       ),
       trailing: Switch.adaptive(
         value: state.isBiometricAuth,
-        onChanged: (value) => BlocProvider.of<SettingsCubit>(context)
-            .changeBiometricAuthAbility(),
+        onChanged: (value) =>
+            BlocProvider.of<SettingsCubit>(context)
+                .changeBiometricAuthAbility(),
       ),
       onTap: () {},
     );
   }
 }
+
