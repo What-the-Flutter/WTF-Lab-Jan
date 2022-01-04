@@ -13,7 +13,7 @@ class Note implements Message {
   bool favourite;
 
   @override
-  void onFavourite() => favourite=!favourite;
+  void onFavourite() => favourite = !favourite;
 
   String description;
   static bool _firstLoad = true;
@@ -26,7 +26,7 @@ class Note implements Message {
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   static List<Message> getFavouriteNotes() {
-    if(_firstLoad) {
+    if (_firstLoad) {
       mLoader.loadTypeFavourites();
       _firstLoad = false;
     }

@@ -9,7 +9,7 @@ class ChatMessage extends StatefulWidget {
   final Function() onSelection;
   final Function() onSelected;
   final bool selection;
-  final ThemeDecorator decorator;
+  final ThemeInherited themeInherited;
 
   const ChatMessage({
     required this.item,
@@ -18,7 +18,7 @@ class ChatMessage extends StatefulWidget {
     required this.onSelection,
     required this.onSelected,
     required this.selection,
-    required this.decorator,
+    required this.themeInherited,
   });
 
   @override
@@ -34,7 +34,7 @@ class _ChatMessageState extends State<ChatMessage> {
   @override
   void initState() {
     _favIcon = widget.item.favourite ? Icons.star_rounded : Icons.star_border_rounded;
-    _favColor = widget.item.favourite ? Colors.amberAccent : widget.decorator.theme.chatNoteColor;
+    _favColor = widget.item.favourite ? Colors.amberAccent : const Color.fromARGB(255, 66, 66, 66);
     super.initState();
   }
 
@@ -47,14 +47,15 @@ class _ChatMessageState extends State<ChatMessage> {
     }
     setState(() {
       _favIcon = widget.item.favourite ? Icons.star_rounded : Icons.star_border_rounded;
-      _favColor = widget.item.favourite ? Colors.amberAccent : widget.decorator.theme.chatNoteColor;
+      _favColor =
+          widget.item.favourite ? Colors.amberAccent : const Color.fromARGB(255, 66, 66, 66);
     });
   }
 
   @override
   void didUpdateWidget(covariant ChatMessage oldWidget) {
     _favIcon = widget.item.favourite ? Icons.star_rounded : Icons.star_border_rounded;
-    _favColor = widget.item.favourite ? Colors.amberAccent : widget.decorator.theme.chatNoteColor;
+    _favColor = widget.item.favourite ? Colors.amberAccent : const Color.fromARGB(255, 66, 66, 66);
     _selected = _calledSelection;
     _calledSelection = false;
     super.didUpdateWidget(oldWidget);
@@ -92,7 +93,7 @@ class _ChatMessageState extends State<ChatMessage> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: widget.decorator.theme.chatTaskColor,
+                color: widget.themeInherited.preset.colors.chatTaskColor,
               ),
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -100,7 +101,8 @@ class _ChatMessageState extends State<ChatMessage> {
                 children: [
                   Text(
                     task.description,
-                    style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor2),
+                    style: TextStyle(
+                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 5),
@@ -128,7 +130,7 @@ class _ChatMessageState extends State<ChatMessage> {
           TextButton(
             child: Text(
               'Complete',
-              style: TextStyle(color: widget.decorator.theme.blueTextColor),
+              style: TextStyle(color: widget.themeInherited.preset.colors.blueTextColor),
             ),
             onPressed: () {
               setState(() => task.complete());
@@ -137,7 +139,7 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
           Text(
             entity.timeFormatter.format(task.timeCreated),
-            style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor1),
+            style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
           ),
         ],
       );
@@ -148,14 +150,14 @@ class _ChatMessageState extends State<ChatMessage> {
           Text(
             'Completed on:',
             style: TextStyle(
-              color: widget.decorator.theme.blueTextColor,
+              color: widget.themeInherited.preset.colors.blueTextColor,
               fontSize: 12,
             ),
           ),
           Text(
             '${entity.fullDateFormatter.format(task.timeCompleted!)}',
             style: TextStyle(
-              color: widget.decorator.theme.blueTextColor,
+              color: widget.themeInherited.preset.colors.blueTextColor,
               fontSize: 13,
             ),
           ),
@@ -163,7 +165,7 @@ class _ChatMessageState extends State<ChatMessage> {
             margin: const EdgeInsets.only(top: 5),
             child: Text(
               entity.timeFormatter.format(task.timeCreated),
-              style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor1),
+              style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
             ),
           ),
         ],
@@ -192,7 +194,7 @@ class _ChatMessageState extends State<ChatMessage> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: (widget.decorator.theme.chatEventColor),
+                color: (widget.themeInherited.preset.colors.chatEventColor),
               ),
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -200,7 +202,8 @@ class _ChatMessageState extends State<ChatMessage> {
                 children: [
                   Text(
                     event.description,
-                    style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor2),
+                    style: TextStyle(
+                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
                   ),
                   _eventSchedule(event),
                   _eventFooter(event),
@@ -230,8 +233,10 @@ class _ChatMessageState extends State<ChatMessage> {
           visited ? 'Visited' : (missed ? 'Missed' : 'No date set'),
           style: TextStyle(
             color: visited
-                ? widget.decorator.theme.greenTextColor
-                : (missed ? widget.decorator.theme.redTextColor : widget.decorator.theme.blueTextColor),
+                ? widget.themeInherited.preset.colors.greenTextColor
+                : (missed
+                    ? widget.themeInherited.preset.colors.redTextColor
+                    : widget.themeInherited.preset.colors.blueTextColor),
             fontSize: 13,
           ),
         ),
@@ -246,11 +251,15 @@ class _ChatMessageState extends State<ChatMessage> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            !passed ? 'Scheduled on:' : (visited ? 'Visited on' : (missed ? 'Missed on' : 'Passed on:')),
+            !passed
+                ? 'Scheduled on:'
+                : (visited ? 'Visited on' : (missed ? 'Missed on' : 'Passed on:')),
             style: TextStyle(
               color: visited
-                  ? widget.decorator.theme.greenTextColor
-                  : (missed ? widget.decorator.theme.redTextColor : widget.decorator.theme.blueTextColor),
+                  ? widget.themeInherited.preset.colors.greenTextColor
+                  : (missed
+                      ? widget.themeInherited.preset.colors.redTextColor
+                      : widget.themeInherited.preset.colors.blueTextColor),
               fontSize: 12,
             ),
           ),
@@ -258,8 +267,10 @@ class _ChatMessageState extends State<ChatMessage> {
             entity.fullDateFormatter.format(event.scheduledTime!),
             style: TextStyle(
               color: visited
-                  ? widget.decorator.theme.greenTextColor
-                  : (missed ? widget.decorator.theme.redTextColor : widget.decorator.theme.blueTextColor),
+                  ? widget.themeInherited.preset.colors.greenTextColor
+                  : (missed
+                      ? widget.themeInherited.preset.colors.redTextColor
+                      : widget.themeInherited.preset.colors.blueTextColor),
               fontSize: 13,
             ),
           ),
@@ -274,7 +285,7 @@ class _ChatMessageState extends State<ChatMessage> {
         margin: const EdgeInsets.only(top: 5),
         child: Text(
           entity.timeFormatter.format(event.timeCreated),
-          style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor1),
+          style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
         ),
       );
     }
@@ -284,7 +295,7 @@ class _ChatMessageState extends State<ChatMessage> {
         children: <Widget>[
           TextButton(
             style: TextButton.styleFrom(
-              primary: widget.decorator.theme.greenTextColor,
+              primary: widget.themeInherited.preset.colors.greenTextColor,
             ),
             child: const Text(
               'Visited',
@@ -296,7 +307,7 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
           TextButton(
             style: TextButton.styleFrom(
-              primary: widget.decorator.theme.redTextColor,
+              primary: widget.themeInherited.preset.colors.redTextColor,
             ),
             child: const Text(
               'Missed',
@@ -308,7 +319,7 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
           Text(
             entity.timeFormatter.format(event.timeCreated),
-            style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor1),
+            style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
           ),
         ],
       );
@@ -317,7 +328,7 @@ class _ChatMessageState extends State<ChatMessage> {
       margin: const EdgeInsets.only(top: 5),
       child: Text(
         entity.timeFormatter.format(event.timeCreated),
-        style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor1),
+        style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
       ),
     );
   }
@@ -343,7 +354,7 @@ class _ChatMessageState extends State<ChatMessage> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: (widget.decorator.theme.chatNoteColor),
+                color: (widget.themeInherited.preset.colors.chatNoteColor),
               ),
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -351,13 +362,15 @@ class _ChatMessageState extends State<ChatMessage> {
                 children: [
                   Text(
                     note.description,
-                    style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor2),
+                    style: TextStyle(
+                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 5),
                     child: Text(
                       entity.timeFormatter.format(note.timeCreated),
-                      style: TextStyle(fontSize: 15, color: widget.decorator.theme.textColor1),
+                      style: TextStyle(
+                          fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
                     ),
                   ),
                 ],
@@ -377,6 +390,7 @@ class _ChatMessageState extends State<ChatMessage> {
 
   void _showMenu() {
     showMenu(
+      color: widget.themeInherited.preset.colors.backgroundColor,
       context: context,
       position: const RelativeRect.fromLTRB(100.0, 100.0, 100.0, 100.0),
       items: <PopupMenuEntry>[
@@ -385,8 +399,14 @@ class _ChatMessageState extends State<ChatMessage> {
           value: 1,
           child: Row(
             children: <Widget>[
-              const Icon(Icons.delete),
-              const Text('Delete'),
+              Icon(
+                Icons.delete,
+                color: widget.themeInherited.preset.colors.textColor2,
+              ),
+              Text(
+                'Delete',
+                style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
+              ),
             ],
           ),
         ),
@@ -395,8 +415,14 @@ class _ChatMessageState extends State<ChatMessage> {
           value: 2,
           child: Row(
             children: <Widget>[
-              const Icon(Icons.edit),
-              const Text('Edit'),
+              Icon(
+                Icons.edit,
+                color: widget.themeInherited.preset.colors.textColor2,
+              ),
+              Text(
+                'Edit',
+                style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
+              ),
             ],
           ),
         ),
@@ -412,8 +438,14 @@ class _ChatMessageState extends State<ChatMessage> {
           value: 3,
           child: Row(
             children: <Widget>[
-              const Icon(Icons.autofps_select),
-              const Text('Select'),
+              Icon(
+                Icons.autofps_select,
+                color: widget.themeInherited.preset.colors.textColor2,
+              ),
+              Text(
+                'Select',
+                style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
+              ),
             ],
           ),
         ),

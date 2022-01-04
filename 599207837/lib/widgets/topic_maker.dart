@@ -3,9 +3,10 @@ import '../entity/entities.dart' as entity;
 import '../main.dart';
 
 class TopicMaker extends StatefulWidget {
-  final ThemeDecorator decorator;
+  final BuildContext context;
+  final entity.Topic? topic;
 
-  const TopicMaker({Key? key, required this.decorator}) : super(key: key);
+  const TopicMaker({Key? key, required this.context, this.topic}) : super(key: key);
 
   @override
   _TopicMakerState createState() => _TopicMakerState();
@@ -14,8 +15,18 @@ class TopicMaker extends StatefulWidget {
 class _TopicMakerState extends State<TopicMaker> {
   int _selected = -1;
   final _nameController = TextEditingController();
+  late final themeInherited = ThemeInherited.of(widget.context)!;
 
   void _changeSelected(int value) => setState(() => _selected = value);
+
+  @override
+  void initState() {
+    if (widget.topic != null) {
+      _nameController.text = widget.topic!.name;
+      _selected = _icons.indexOf(widget.topic!.icon);
+    }
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -26,12 +37,12 @@ class _TopicMakerState extends State<TopicMaker> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: widget.decorator.theme.backgroundColor,
+      backgroundColor: themeInherited.preset.colors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: widget.decorator.theme.themeColor1,
-        title: const Text(
-          'Create new topic',
-          style: TextStyle(
+        backgroundColor: themeInherited.preset.colors.themeColor1,
+        title: Text(
+          widget.topic == null ? 'Create new topic' : 'Edit ${widget.topic!.name}',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -39,7 +50,7 @@ class _TopicMakerState extends State<TopicMaker> {
           IconButton(
             icon: const Icon(Icons.brightness_4_rounded),
             tooltip: 'Change theme',
-            onPressed: () => setState(widget.decorator.theme.changeTheme),
+            onPressed: () => setState(themeInherited.changeTheme),
           ),
         ],
       ),
@@ -49,11 +60,11 @@ class _TopicMakerState extends State<TopicMaker> {
           children: [
             TextField(
               decoration: InputDecoration(
-                hintStyle: TextStyle(color: Colors.grey.shade600),
+                hintStyle: TextStyle(color: themeInherited.preset.colors.minorTextColor),
                 hintText: 'Enter topic name...',
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
-                    color: Colors.grey.shade600,
+                    color: themeInherited.preset.colors.minorTextColor,
                     width: 1,
                   ),
                 ),
@@ -66,7 +77,7 @@ class _TopicMakerState extends State<TopicMaker> {
               ),
               controller: _nameController,
               style: TextStyle(
-                color: widget.decorator.theme.textColor1,
+                color: themeInherited.preset.colors.textColor1,
               ),
             ),
             const SizedBox(height: 20),
@@ -86,17 +97,22 @@ class _TopicMakerState extends State<TopicMaker> {
                   ),
                 ],
               ),
-              child: ListView.builder(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 30,
+                  mainAxisSpacing: 30,
+                ),
                 padding: const EdgeInsets.all(20),
                 physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: _icons.length ~/ 4,
+                itemCount: _icons.length,
                 itemBuilder: (context, index) {
-                  return _avatarsRow(
+                  return _iconAvatar(
                     index: index,
-                    radius: 35,
+                    radius: 40,
                     iconColor: Colors.white,
-                    backgroundColor: widget.decorator.theme.avatarColor1,
-                    onSelect: _changeSelected,
+                    backgroundColor: themeInherited.preset.colors.avatarColor,
+                    onSelect: () => _changeSelected(index),
                     selected: _selected,
                   );
                 },
@@ -114,14 +130,26 @@ class _TopicMakerState extends State<TopicMaker> {
                 backgroundColor: MaterialStateProperty.all(Colors.teal),
               ),
               onPressed: () {
-                if (_nameController.text.isNotEmpty && _selected!=-1) {
-                  entity.Topic.topics.add(entity.Topic(name: _nameController.text, icon: _icons[_selected]));
+                if (_nameController.text.isNotEmpty && _selected != -1) {
+                  if (widget.topic == null) {
+                    entity.Topic.topics.add(entity.Topic(
+                      name: _nameController.text,
+                      icon: _icons[_selected],
+                    ));
+                  } else {
+                    if (widget.topic!.name != _nameController.text) {
+                      entity.topics.remove(widget.topic!.name);
+                      widget.topic!.name = _nameController.text;
+                      entity.topics[widget.topic!.name] = widget.topic!;
+                    }
+                    widget.topic!.icon = _icons[_selected];
+                  }
                   Navigator.pop(context);
                 }
               },
-              child: const Text(
-                'Add topic',
-                style: TextStyle(
+              child: Text(
+                widget.topic == null ? 'Add topic' : 'Save',
+                style: const TextStyle(
                   fontSize: 20,
                 ),
               ),
@@ -130,59 +158,9 @@ class _TopicMakerState extends State<TopicMaker> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: widget.decorator.theme.buttonColor,
+        backgroundColor: themeInherited.preset.colors.buttonColor,
         onPressed: () => Navigator.pop(context),
         child: const Icon(Icons.close_rounded),
-      ),
-    );
-  }
-
-  Widget _avatarsRow({
-    required int index,
-    required double radius,
-    required Color iconColor,
-    required Color backgroundColor,
-    required void Function(int) onSelect,
-    required int selected,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _iconAvatar(
-            index: index * 4,
-            iconColor: iconColor,
-            onSelect: () => onSelect(index * 4),
-            backgroundColor: backgroundColor,
-            radius: radius,
-            selected: selected,
-          ),
-          _iconAvatar(
-            index: index * 4 + 1,
-            iconColor: iconColor,
-            onSelect: () => onSelect(index * 4 + 1),
-            backgroundColor: backgroundColor,
-            radius: radius,
-            selected: selected,
-          ),
-          _iconAvatar(
-            index: index * 4 + 2,
-            iconColor: iconColor,
-            onSelect: () => onSelect(index * 4 + 2),
-            backgroundColor: backgroundColor,
-            radius: radius,
-            selected: selected,
-          ),
-          _iconAvatar(
-            index: index * 4 + 3,
-            iconColor: iconColor,
-            onSelect: () => onSelect(index * 4 + 3),
-            backgroundColor: backgroundColor,
-            radius: radius,
-            selected: selected,
-          ),
-        ],
       ),
     );
   }
@@ -198,7 +176,6 @@ class _TopicMakerState extends State<TopicMaker> {
     return GestureDetector(
       onTap: onSelect,
       child: CircleAvatar(
-        radius: radius,
         child: Icon(
           _icons[index],
           color: iconColor,
@@ -216,10 +193,12 @@ class _TopicMakerState extends State<TopicMaker> {
     Icons.add_ic_call_rounded,
     Icons.agriculture_rounded,
     Icons.android_rounded,
+    Icons.sports_esports_rounded,
     Icons.backup_rounded,
     Icons.star_rounded,
     Icons.add_location_rounded,
     Icons.add_shopping_cart_rounded,
+    Icons.flutter_dash_rounded,
     Icons.airport_shuttle_rounded,
     Icons.tv_rounded,
     Icons.wb_incandescent_rounded,

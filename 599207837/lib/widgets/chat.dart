@@ -109,17 +109,15 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final decorator = ThemeDecorator.of(widget.context)!;
+    final themeInherited = ThemeInherited.of(widget.context)!;
     return Scaffold(
-      backgroundColor: decorator.theme.backgroundColor,
-      appBar: _chatAppBar(decorator),
+      backgroundColor: themeInherited.preset.colors.backgroundColor,
+      appBar: _chatAppBar(themeInherited),
       body: Column(
         children: <Widget>[
           if (_selectionFlag)
             Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-              ),
+              decoration: BoxDecoration(color: themeInherited.preset.colors.backgroundColor),
               height: 50,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -172,7 +170,7 @@ class _ChatPageState extends State<ChatPage> {
                     }
                   },
                   selection: _selectionFlag,
-                  decorator: decorator,
+                  themeInherited: themeInherited,
                 );
               },
             ),
@@ -183,11 +181,11 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  PreferredSizeWidget _chatAppBar(ThemeDecorator decorator) {
+  PreferredSizeWidget _chatAppBar(ThemeInherited decorator) {
     return AppBar(
       elevation: 0,
       automaticallyImplyLeading: false,
-      backgroundColor: decorator.theme.themeColor2,
+      backgroundColor: decorator.preset.colors.themeColor2,
       flexibleSpace: SafeArea(
         child: Row(
           children: <Widget>[
@@ -195,14 +193,14 @@ class _ChatPageState extends State<ChatPage> {
               onPressed: () => Navigator.pop(context),
               icon: Icon(
                 Icons.arrow_back,
-                color: decorator.theme.iconColor2,
+                color: decorator.preset.colors.iconColor2,
               ),
             ),
             const SizedBox(
               width: 2,
             ),
             CircleAvatar(
-              backgroundColor: decorator.theme.avatarColor1,
+              backgroundColor: decorator.preset.colors.avatarColor,
               child: Icon(
                 widget.topic.icon,
                 color: Colors.white,
@@ -223,7 +221,7 @@ class _ChatPageState extends State<ChatPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: decorator.theme.textColor2,
+                      color: decorator.preset.colors.textColor2,
                     ),
                   ),
                   const SizedBox(
@@ -241,9 +239,9 @@ class _ChatPageState extends State<ChatPage> {
             ),
             IconButton(
               icon: const Icon(Icons.brightness_4_rounded),
-              color: decorator.theme.iconColor2,
+              color: decorator.preset.colors.iconColor2,
               tooltip: 'Change theme',
-              onPressed: () => setState(decorator.theme.changeTheme),
+              onPressed: () => setState(() => decorator.changeTheme()),
             ),
           ],
         ),
@@ -263,18 +261,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _eventInputForm() {
-    final decorator = ThemeDecorator.of(widget.context)!;
+    final decorator = ThemeInherited.of(widget.context)!;
     return Container(
       padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
       width: double.infinity,
-      color: decorator.theme.themeColor2,
+      color: decorator.preset.colors.themeColor2,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
           Container(
             height: 40,
             child: FloatingActionButton(
-              backgroundColor: decorator.theme.buttonColor,
+              backgroundColor: decorator.preset.colors.buttonColor,
               onPressed: () => setState(_changeAddedType),
               child: Container(
                 height: 30,
@@ -303,7 +301,7 @@ class _ChatPageState extends State<ChatPage> {
                     selectedDate: _selectedDate,
                     labelText: 'Scheduled date',
                     selectedTime: _selectedTime,
-                    decorator: decorator,
+                    themeInherited: decorator,
                   ),
                   Container(
                     height: 40,
@@ -314,7 +312,7 @@ class _ChatPageState extends State<ChatPage> {
                         border: InputBorder.none,
                       ),
                       controller: _descriptionController,
-                      style: TextStyle(color: decorator.theme.textColor2),
+                      style: TextStyle(color: decorator.preset.colors.textColor2),
                     ),
                   ),
                 ],
@@ -327,7 +325,7 @@ class _ChatPageState extends State<ChatPage> {
           Container(
             height: 40,
             child: FloatingActionButton(
-              backgroundColor: decorator.theme.buttonColor,
+              backgroundColor: decorator.preset.colors.buttonColor,
               onPressed: () => setState(() {
                 FocusScope.of(context).requestFocus(FocusNode());
                 if (!_editingFlag && _descriptionController.text.isNotEmpty) {
@@ -340,7 +338,8 @@ class _ChatPageState extends State<ChatPage> {
                   _selectedDate = null;
                 } else if (_descriptionController.text.isNotEmpty) {
                   _editingFlag = false;
-                  (_elements[_editingIndex] as entity.Event).description = _descriptionController.text;
+                  (_elements[_editingIndex] as entity.Event).description =
+                      _descriptionController.text;
                   (_elements[_editingIndex] as entity.Event).scheduledTime = _getDateTime();
                   _selectedTime = null;
                   _selectedDate = null;
@@ -361,16 +360,16 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _defaultInputForm(bool isTask) {
-    final decorator = ThemeDecorator.of(widget.context)!;
+    final decorator = ThemeInherited.of(widget.context)!;
     return Container(
       padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
       height: 60,
       width: double.infinity,
-      color: decorator.theme.themeColor2,
+      color: decorator.preset.colors.themeColor2,
       child: Row(
         children: <Widget>[
           FloatingActionButton(
-            backgroundColor: decorator.theme.buttonColor,
+            backgroundColor: decorator.preset.colors.buttonColor,
             onPressed: () => setState(_changeAddedType),
             child: Container(
               height: 30,
@@ -393,14 +392,14 @@ class _ChatPageState extends State<ChatPage> {
                 border: InputBorder.none,
               ),
               controller: _descriptionController,
-              style: TextStyle(color: decorator.theme.textColor2),
+              style: TextStyle(color: decorator.preset.colors.textColor2),
             ),
           ),
           const SizedBox(
             width: 15,
           ),
           FloatingActionButton(
-            backgroundColor: decorator.theme.buttonColor,
+            backgroundColor: decorator.preset.colors.buttonColor,
             onPressed: () => setState(() {
               FocusScope.of(context).requestFocus(FocusNode());
               if (!_editingFlag && _descriptionController.text.isNotEmpty) {
@@ -418,9 +417,11 @@ class _ChatPageState extends State<ChatPage> {
               } else if (_descriptionController.text.isNotEmpty) {
                 _editingFlag = false;
                 if (isTask) {
-                  (_elements[_editingIndex] as entity.Task).description = _descriptionController.text;
+                  (_elements[_editingIndex] as entity.Task).description =
+                      _descriptionController.text;
                 } else {
-                  (_elements[_editingIndex] as entity.Note).description = _descriptionController.text;
+                  (_elements[_editingIndex] as entity.Note).description =
+                      _descriptionController.text;
                 }
               }
               _descriptionController.clear();

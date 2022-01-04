@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../entity/entities.dart' as entity;
+import '../widgets/widgets.dart' as custom;
 
 import '../main.dart';
-import 'chat.dart';
 
 class ChatList extends StatefulWidget {
   const ChatList({Key? key, required this.topics}) : super(key: key);
@@ -24,14 +24,30 @@ class _ChatListState extends State<ChatList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: _topics.length,
-      shrinkWrap: true,
-      padding: const EdgeInsets.only(top: 16),
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) => ChatCard(
-        topic: _topics[index],
-      ),
+    return Column(
+      children: [
+        ListView.builder(
+          itemCount: _topics.length,
+          shrinkWrap: true,
+          padding: const EdgeInsets.only(top: 16),
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) => _topics[index].isPinned && !_topics[index].isArchived
+              ? ChatCard(
+                  topic: _topics[index],
+                )
+              : Container(),
+        ),
+        ListView.builder(
+          itemCount: _topics.length,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) => !_topics[index].isPinned && !_topics[index].isArchived
+              ? ChatCard(
+                  topic: _topics[index],
+                )
+              : Container(),
+        ),
+      ],
     );
   }
 }
@@ -46,16 +62,16 @@ class ChatCard extends StatefulWidget {
 }
 
 class _ChatCardState extends State<ChatCard> {
-  late ThemeDecorator decorator;
+  late ThemeInherited themeInherited;
 
   @override
   Widget build(BuildContext context) {
-    decorator = ThemeDecorator.of(context)!;
+    themeInherited = ThemeInherited.of(context)!;
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (newContext) => ChatPage(widget.topic, context),
+          builder: (newContext) => custom.ChatPage(widget.topic, context),
         ),
       ),
       onLongPress: () => showModalBottomSheet(
@@ -63,13 +79,12 @@ class _ChatCardState extends State<ChatCard> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
         ),
         constraints: const BoxConstraints(maxHeight: 330),
-        backgroundColor: decorator.theme.backgroundColor,
+        backgroundColor: themeInherited.preset.colors.backgroundColor,
         builder: (context) {
           return _chatCardMenu();
         },
         context: context,
         isDismissible: true,
-        //isScrollControlled: //boolean if something does not display, try that
       ),
       child: Container(
         padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
@@ -85,7 +100,7 @@ class _ChatCardState extends State<ChatCard> {
                       size: 30,
                     ),
                     radius: 30,
-                    backgroundColor: decorator.theme.avatarColor1,
+                    backgroundColor: themeInherited.preset.colors.avatarColor,
                   ),
                   const SizedBox(
                     width: 16,
@@ -96,9 +111,22 @@ class _ChatCardState extends State<ChatCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            widget.topic.name,
-                            style: TextStyle(fontSize: 16, color: decorator.theme.textColor1),
+                          Row(
+                            children: [
+                              Text(
+                                '${widget.topic.name} ',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: themeInherited.preset.colors.textColor1,
+                                ),
+                              ),
+                              if (widget.topic.isPinned)
+                                Icon(
+                                  Icons.push_pin_rounded,
+                                  size: 15,
+                                  color: themeInherited.preset.colors.textColor1,
+                                ),
+                            ],
                           ),
                           const SizedBox(
                             height: 6,
@@ -107,7 +135,7 @@ class _ChatCardState extends State<ChatCard> {
                             'widget.topic.lastMessage',
                             style: TextStyle(
                               fontSize: 13,
-                              color: Colors.grey.shade600,
+                              color: themeInherited.preset.colors.minorTextColor,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -123,7 +151,7 @@ class _ChatCardState extends State<ChatCard> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
-                color: decorator.theme.textColor1,
+                color: themeInherited.preset.colors.textColor1,
               ),
             ),
           ],
@@ -146,46 +174,115 @@ class _ChatCardState extends State<ChatCard> {
             label: 'Info',
             icon: Icons.info_outline_rounded,
             iconColor: Colors.teal,
-            labelColor: decorator.theme.textColor1,
-          ),
-          const Divider(),
-          _cardMenuItem(
-            onTap: () => Navigator.pop(context),
-            label: 'Pin/Unpin Topic',
-            icon: Icons.push_pin_outlined,
-            iconColor: Colors.green,
-            labelColor: decorator.theme.textColor1,
-          ),
-          const Divider(),
-          _cardMenuItem(
-            onTap: () => Navigator.pop(context),
-            label: 'Archive Topic',
-            icon: Icons.archive_outlined,
-            iconColor: Colors.amberAccent,
-            labelColor: decorator.theme.textColor1,
-          ),
-          const Divider(),
-          _cardMenuItem(
-            onTap: () => Navigator.pop(context),
-            label: 'Edit Topic',
-            icon: Icons.edit_outlined,
-            iconColor: Colors.blue,
-            labelColor: decorator.theme.textColor1,
+            labelColor: themeInherited.preset.colors.textColor1,
           ),
           const Divider(),
           _cardMenuItem(
             onTap: () {
               Navigator.pop(context);
-              widget.topic.delete();
+              widget.topic.onPin();
               TabContrDecorator.of(context)!.onEdited();
+            },
+            label: 'Pin/Unpin Topic',
+            icon: Icons.push_pin_outlined,
+            iconColor: Colors.green,
+            labelColor: themeInherited.preset.colors.textColor1,
+          ),
+          const Divider(),
+          _cardMenuItem(
+            onTap: () {
+              Navigator.pop(context);
+              widget.topic.onArchive();
+              TabContrDecorator.of(context)!.onEdited();
+            },
+            label: 'Archive Topic',
+            icon: Icons.archive_outlined,
+            iconColor: Colors.amberAccent,
+            labelColor: themeInherited.preset.colors.textColor1,
+          ),
+          const Divider(),
+          _cardMenuItem(
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (newContext) => custom.TopicMaker(
+                    context: context,
+                    topic: widget.topic,
+                  ),
+                ),
+              );
+            },
+            label: 'Edit Topic',
+            icon: Icons.edit_outlined,
+            iconColor: Colors.blue,
+            labelColor: themeInherited.preset.colors.textColor1,
+          ),
+          const Divider(),
+          _cardMenuItem(
+            onTap: () {
+              Navigator.pop(context);
+              _deleteAlert(onDelete: () {
+                widget.topic.delete();
+                TabContrDecorator.of(context)!.onEdited();
+              });
             },
             label: 'Delete Topic',
             icon: Icons.delete_outline_rounded,
             iconColor: Colors.red,
-            labelColor: decorator.theme.textColor1,
+            labelColor: themeInherited.preset.colors.textColor1,
           ),
         ],
       ),
+    );
+  }
+
+  void _deleteAlert({required Function onDelete}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: themeInherited.preset.colors.backgroundColor,
+          content: Text(
+            'Are you sure you want to permanently delete ${widget.topic.name}?',
+            style: TextStyle(fontSize: 20, color: themeInherited.preset.colors.textColor1),
+          ),
+          actions: <Widget>[
+            Container(
+              padding: const EdgeInsets.only(right: 5, bottom: 5),
+              child: TextButton(
+                style: TextButton.styleFrom(primary: Colors.transparent),
+                child: Text(
+                  'No',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: themeInherited.preset.colors.underlineColor,
+                  ),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.only(right: 5, bottom: 5),
+              child: TextButton(
+                style: TextButton.styleFrom(primary: Colors.transparent),
+                child: Text(
+                  'Yes',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: themeInherited.preset.colors.underlineColor,
+                  ),
+                ),
+                onPressed: () {
+                  onDelete();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -194,7 +291,7 @@ class _ChatCardState extends State<ChatCard> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: decorator.theme.backgroundColor,
+          backgroundColor: themeInherited.preset.colors.backgroundColor,
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 220),
             child: Column(
@@ -209,14 +306,15 @@ class _ChatCardState extends State<ChatCard> {
                         size: 35,
                       ),
                       radius: 35,
-                      backgroundColor: decorator.theme.avatarColor1,
+                      backgroundColor: themeInherited.preset.colors.avatarColor,
                     ),
                     const SizedBox(
                       width: 15,
                     ),
                     Text(
                       widget.topic.name,
-                      style: TextStyle(fontSize: 20, color: decorator.theme.textColor1),
+                      style:
+                          TextStyle(fontSize: 20, color: themeInherited.preset.colors.textColor1),
                     ),
                   ],
                 ),
@@ -226,7 +324,8 @@ class _ChatCardState extends State<ChatCard> {
                 ),
                 _infoNode(
                   topText: 'Last message:',
-                  bottomText: '${entity.fullDateFormatter.format(widget.topic.getElements()[0].timeCreated)}',
+                  bottomText:
+                      '${entity.fullDateFormatter.format(widget.topic.getElements()[0].timeCreated)}',
                 ),
                 _infoNode(
                   topText: 'Date created:',
@@ -240,7 +339,9 @@ class _ChatCardState extends State<ChatCard> {
               padding: const EdgeInsets.only(right: 5, bottom: 5),
               child: TextButton(
                 style: TextButton.styleFrom(primary: Colors.transparent),
-                child: Text('Ok', style: TextStyle(fontSize: 18, color: decorator.theme.underlineColor)),
+                child: Text('Ok',
+                    style: TextStyle(
+                        fontSize: 18, color: themeInherited.preset.colors.underlineColor)),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),
@@ -258,14 +359,14 @@ class _ChatCardState extends State<ChatCard> {
         children: [
           Text(
             topText,
-            style: TextStyle(color: decorator.theme.textColor1, fontSize: 13),
+            style: TextStyle(color: themeInherited.preset.colors.textColor1, fontSize: 13),
           ),
           const SizedBox(
             height: 3,
           ),
           Text(
             bottomText,
-            style: TextStyle(color: decorator.theme.textColor2, fontSize: 14),
+            style: TextStyle(color: themeInherited.preset.colors.textColor2, fontSize: 14),
           ),
         ],
       ),
@@ -277,7 +378,7 @@ class _ChatCardState extends State<ChatCard> {
     required GestureTapCallback onTap,
     required IconData icon,
     required Color iconColor,
-    required Color labelColor,
+    required Color? labelColor,
   }) {
     return GestureDetector(
       onTap: onTap,

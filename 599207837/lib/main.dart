@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'entity/entities.dart' as entity;
-import 'widgets/widgets.dart' as widget;
+import 'widgets/widgets.dart' as custom;
 
 void main() => runApp(const MyApp());
 
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: ThemeDecorator(
+      home: ThemeUpdater(
         child: const _ItemsPage(),
         theme: entity.Theme.defaultOne(),
       ),
@@ -19,22 +19,47 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class ThemeDecorator extends InheritedWidget {
+class ThemeUpdater extends StatefulWidget {
+  final Widget child;
   final entity.Theme theme;
 
-  ThemeDecorator({
-    required this.theme,
+  const ThemeUpdater({Key? key, required this.child, required this.theme}) : super(key: key);
+
+  @override
+  _ThemeUpdaterState createState() => _ThemeUpdaterState();
+}
+
+class _ThemeUpdaterState extends State<ThemeUpdater> {
+  @override
+  Widget build(BuildContext context) {
+    return ThemeInherited(
+      child: widget.child,
+      preset: widget.theme,
+      onEdited: () => setState(() => widget.theme.changeTheme()),
+    );
+  }
+}
+
+class ThemeInherited extends InheritedWidget {
+  final entity.Theme preset;
+  final Function onEdited;
+
+  ThemeInherited({
+    required this.preset,
     required child,
+    required this.onEdited,
   }) : super(child: child);
 
-  void changeTheme(int key) {
-    theme.changeTheme();
+  void changeTheme() {
+    //exit(0);
+    onEdited();
   }
 
   @override
-  bool updateShouldNotify(covariant ThemeDecorator oldWidget) => false;
+  bool updateShouldNotify(covariant ThemeInherited oldWidget) => true;
 
-  static ThemeDecorator? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<ThemeDecorator>();
+  static ThemeInherited? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ThemeInherited>();
 }
 
 class TabContrDecorator extends InheritedWidget {
@@ -48,7 +73,8 @@ class TabContrDecorator extends InheritedWidget {
   @override
   bool updateShouldNotify(covariant TabContrDecorator oldWidget) => false;
 
-  static TabContrDecorator? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<TabContrDecorator>();
+  static TabContrDecorator? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<TabContrDecorator>();
 }
 
 class _ItemsPage extends StatefulWidget {
@@ -92,51 +118,51 @@ class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMi
 
   @override
   Widget build(BuildContext context) {
-    final decorator = ThemeDecorator.of(context)!;
+    final themeInherited = ThemeInherited.of(context)!;
     return TabContrDecorator(
       onEdited: () => setState(() => {}),
       child: DefaultTabController(
         length: 4,
         child: Scaffold(
-          backgroundColor: decorator.theme.backgroundColor,
+          backgroundColor: themeInherited.preset.colors.backgroundColor,
           appBar: AppBar(
-            backgroundColor: decorator.theme.themeColor1,
+            backgroundColor: themeInherited.preset.colors.themeColor1,
             title: Text(_title),
             actions: <Widget>[
               IconButton(
                 icon: const Icon(Icons.brightness_4_rounded),
                 tooltip: 'Change theme',
-                onPressed: () => setState(decorator.theme.changeTheme),
+                onPressed: themeInherited.changeTheme,
               ),
             ],
           ),
           bottomNavigationBar: TabBar(
-            indicatorColor: decorator.theme.underlineColor,
+            indicatorColor: themeInherited.preset.colors.underlineColor,
             indicatorWeight: 3,
             controller: _tabController,
             tabs: [
               Tab(
                 icon: Icon(
                   Icons.amp_stories_rounded,
-                  color: decorator.theme.iconColor1,
+                  color: themeInherited.preset.colors.iconColor1,
                 ),
               ),
               Tab(
                 icon: Icon(
                   Icons.feed_rounded,
-                  color: decorator.theme.iconColor1,
+                  color: themeInherited.preset.colors.iconColor1,
                 ),
               ),
               Tab(
                 icon: Icon(
                   Icons.event_rounded,
-                  color: decorator.theme.iconColor1,
+                  color: themeInherited.preset.colors.iconColor1,
                 ),
               ),
               Tab(
                 icon: Icon(
                   Icons.drive_file_rename_outline,
-                  color: decorator.theme.iconColor1,
+                  color: themeInherited.preset.colors.iconColor1,
                 ),
               ),
             ],
@@ -146,7 +172,7 @@ class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMi
           body: TabBarView(
             controller: _tabController,
             children: [
-              widget.ChatList(
+              custom.ChatList(
                 key: null,
                 topics: _topics,
               ),
@@ -155,7 +181,7 @@ class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMi
               _itemsList('Notes', _notes),
             ],
           ),
-          floatingActionButton: widget.AddingButton(
+          floatingActionButton: custom.AddingButton(
             key: const Key('MainButton'),
             firstIcon: const Icon(
               Icons.add,
@@ -193,7 +219,7 @@ class _ItemsPageState extends State<_ItemsPage> with SingleTickerProviderStateMi
                 key: ValueKey(item.uuid),
                 margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: Padding(
-                  child: widget.ItemColumn(item),
+                  child: custom.ItemColumn(item),
                   padding: const EdgeInsets.all(8.0),
                 ),
               );

@@ -53,17 +53,17 @@ class _AddingButtonState extends State<AddingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final decorator = ThemeDecorator.of(context)!;
+    final themeInherited = ThemeInherited.of(context)!;
     return Builder(
       builder: (ctxOfScaffold) {
         return FloatingActionButton(
-          backgroundColor: decorator.theme.buttonColor,
+          backgroundColor: themeInherited.preset.colors.buttonColor,
           onPressed: () {
-            if(widget.tabController!.index==0){
+            if (widget.tabController!.index == 0) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TopicMaker(decorator: decorator),
+                  builder: (newContext) => TopicMaker(context: context),
                 ),
               );
             } else {
@@ -126,7 +126,7 @@ class _BottomFormState extends State<_BottomForm> {
     }
   }
 
-  Widget _taskBottomForm(){
+  Widget _taskBottomForm() {
     return Form(
       key: _formKey,
       child: Column(
@@ -199,10 +199,7 @@ class _BottomFormState extends State<_BottomForm> {
                   0,
                   custom.Task(
                     description: _descriptionController.text,
-                    topic: custom.Topic(
-                      name: _categoryController.text,
-                      icon: Icons.delete_outline_rounded
-                    ),
+                    topic: custom.Topic(name: _categoryController.text, icon: Icons.delete_outline_rounded),
                     favourite: true,
                   ),
                 );

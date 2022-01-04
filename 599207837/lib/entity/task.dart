@@ -12,7 +12,7 @@ class Task implements Message {
   bool favourite;
 
   @override
-  void onFavourite() => favourite=!favourite;
+  void onFavourite() => favourite = !favourite;
 
   String description;
   bool isCompleted = false;
@@ -31,7 +31,7 @@ class Task implements Message {
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   static List<Message> getFavouriteTasks() {
-    if(_firstLoad) {
+    if (_firstLoad) {
       mLoader.loadTypeFavourites();
       _firstLoad = false;
     }
