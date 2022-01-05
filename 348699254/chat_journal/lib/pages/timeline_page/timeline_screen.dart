@@ -35,7 +35,7 @@ class _TimelineScreenState extends State<TimelineScreen>
     duration: const Duration(milliseconds: 1000),
     vsync: this,
   )..forward();
-  late final Animation<Size> _myAnimation =
+  late final Animation<Size> _buttonAnimation =
       Tween<Size>(begin: const Size(60, 60), end: const Size(80, 80)).animate(
           CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn));
 
@@ -63,10 +63,10 @@ class _TimelineScreenState extends State<TimelineScreen>
           floatingActionButton: state.isSearching
               ? null
               : AnimatedBuilder(
-                  animation: _myAnimation,
+                  animation: _buttonAnimation,
                   builder: (ctx, ch) => Container(
-                    width: _myAnimation.value.width,
-                    height: _myAnimation.value.height,
+                    width: _buttonAnimation.value.width,
+                    height: _buttonAnimation.value.height,
                     child: FloatingActionButton(
                       onPressed: () async {
                         final result = await Navigator.push(
@@ -83,6 +83,7 @@ class _TimelineScreenState extends State<TimelineScreen>
                   ),
                 ),
           bottomNavigationBar: _bottomNavigationBar(),
+          //),
         );
       },
     );
@@ -96,6 +97,7 @@ class _TimelineScreenState extends State<TimelineScreen>
           if (state.isSearching) {
             BlocProvider.of<TimelineCubit>(context).finishSearching();
             BlocProvider.of<TimelineCubit>(context).showAllEvents();
+            BlocProvider.of<TimelineCubit>(context).clearHashtagSelectedLists();
             _eventInputController.clear();
           } else {
             Navigator.pop(context);
@@ -185,6 +187,8 @@ class _TimelineScreenState extends State<TimelineScreen>
       onSelected: (selected) {
         BlocProvider.of<TimelineCubit>(context)
             .onHashtagSelected(state.hashtagList[index]);
+        BlocProvider.of<TimelineCubit>(context)
+            .showAllEventsByHashtags(state.hashtagList);
       },
     );
   }
@@ -329,6 +333,14 @@ class _TimelineScreenState extends State<TimelineScreen>
                       state.timelineList[index].categoryIcon,
                       state.timelineList[index].categoryName,
                     ),
+                  Text(
+                    state.pageNameList[index],
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.brown,
+                    ),
+                  ),
                   HashTagText(
                     text: eventContent,
                     decoratedStyle: const TextStyle(
@@ -351,7 +363,8 @@ class _TimelineScreenState extends State<TimelineScreen>
             ? const Icon(Icons.bookmark, color: Colors.amber)
             : null,
         onTap: () => BlocProvider.of<TimelineCubit>(context).markEvent(index),
-        onLongPress: () {});
+        onLongPress: () {} //=>
+        );
   }
 
   Widget _listTileRow(String subtitle) {

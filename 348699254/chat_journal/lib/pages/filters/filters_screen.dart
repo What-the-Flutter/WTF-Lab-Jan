@@ -39,6 +39,12 @@ class _FiltersScreenState extends State<FiltersScreen>
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<FiltersCubit, FiltersState>(
       builder: (context, state) {
@@ -178,9 +184,9 @@ class _FiltersScreenState extends State<FiltersScreen>
     return Column(
       children: [
         if (state.selectedPageList.isNotEmpty && state.arePagesIgnored)
-          _startFilterContainer(selectedPageIncluded),
-        if (state.selectedPageList.isNotEmpty && !state.arePagesIgnored)
           _startFilterContainer(selectedPageIgnored),
+        if (state.selectedPageList.isNotEmpty && !state.arePagesIgnored)
+          _startFilterContainer(selectedPageIncluded),
         if (state.selectedPageList.isEmpty) _startFilterContainer(pageText),
         Container(
           margin: const EdgeInsets.all(10),
@@ -200,7 +206,10 @@ class _FiltersScreenState extends State<FiltersScreen>
             ? _startFilterContainer(selectedTagText)
             : _startFilterContainer(hashtagText),
         const SizedBox(height: 15),
-        _hashtagList(state),
+        Container(
+          margin: const EdgeInsets.all(10),
+          child: _hashtagList(state),
+        ),
       ],
     );
   }
@@ -214,7 +223,10 @@ class _FiltersScreenState extends State<FiltersScreen>
             ? _startFilterContainer(selectedCategoriesText)
             : _startFilterContainer(categoryText),
         const SizedBox(height: 15),
-        _categoryTagList(state),
+        Container(
+          margin: const EdgeInsets.all(10),
+          child: _categoryTagList(state),
+        ),
       ],
     );
   }
@@ -311,20 +323,20 @@ class _FiltersScreenState extends State<FiltersScreen>
     return Wrap(
       spacing: 10,
       children: <Widget>[
-        for (int i = 0; i < state.categoryList.length; i++)
+        for (int i = 0; i < state.categoryNameList.length; i++)
           FilterChip(
             backgroundColor: Colors.deepPurpleAccent,
             selectedColor: Colors.purpleAccent,
             avatar: Icon(
-              entries.elementAt(state.categoryList[i].categoryIcon!).value,
+              entries.elementAt(state.categoryIconList[i]!).value,
               color: Colors.black,
               size: 20,
             ),
-            label: Text(state.categoryList[i].categoryName!),
+            label: Text(state.categoryNameList[i]!),
             selected: BlocProvider.of<FiltersCubit>(context)
-                .isCategorySelected(state.categoryList[i]),
+                .isCategorySelected(state.categoryNameList[i]!),
             onSelected: (selected) => BlocProvider.of<FiltersCubit>(context)
-                .onCategorySelected(state.categoryList[i]),
+                .onCategorySelected(state.categoryNameList[i]!),
           ),
       ],
     );

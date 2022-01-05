@@ -1,9 +1,9 @@
 import '../../data/model/activity_page.dart';
-import '../../data/model/event.dart';
 
 class FiltersState {
   final List<ActivityPage> pageList;
-  final List<Event> categoryList;
+  final List<String?> categoryNameList;
+  final List<int?> categoryIconList;
   final List<String> hashtagList;
   final bool isSelectedPage;
   final bool isSelectedHashtag;
@@ -17,7 +17,8 @@ class FiltersState {
 
   FiltersState({
     required this.pageList,
-    required this.categoryList,
+    required this.categoryNameList,
+    required this.categoryIconList,
     required this.hashtagList,
     required this.isSelectedPage,
     required this.isSelectedHashtag,
@@ -28,12 +29,12 @@ class FiltersState {
     required this.selectedCategoryList,
     required this.isSearching,
     required this.searchData,
-    //required this.selectedIconIndex,
   });
 
   FiltersState copyWith({
     List<ActivityPage>? pageList,
-    List<Event>? categoryList,
+    List<String?>? categoryNameList,
+    List<int?>? categoryIconList,
     List<String>? hashtagList,
     bool? isSelectedPage,
     bool? isSelectedHashtag,
@@ -47,7 +48,8 @@ class FiltersState {
   }) {
     return FiltersState(
       pageList: pageList ?? this.pageList,
-      categoryList: categoryList ?? this.categoryList,
+      categoryNameList: categoryNameList ?? this.categoryNameList,
+      categoryIconList: categoryIconList ?? this.categoryIconList,
       hashtagList: hashtagList ?? this.hashtagList,
       isSelectedPage: isSelectedPage ?? this.isSelectedPage,
       isSelectedHashtag: isSelectedHashtag ?? this.isSelectedHashtag,

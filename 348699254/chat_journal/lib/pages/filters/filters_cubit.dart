@@ -15,7 +15,9 @@ class FiltersCubit extends Cubit<FiltersState> {
       : super(
           FiltersState(
             pageList: [],
-            categoryList: [],
+            //categoryList: [],
+            categoryNameList: [],
+            categoryIconList: [],
             hashtagList: [],
             isSelectedPage: false,
             isSelectedHashtag: false,
@@ -83,9 +85,14 @@ class FiltersCubit extends Cubit<FiltersState> {
     final eventList = await eventRepository.fetchEventList();
     categoryList =
         eventList.where((event) => event.categoryName!.isNotEmpty).toList();
+    final categoryNameList =
+        categoryList.map((event) => event.categoryName).toSet().toList();
+    final categoryIconList =
+        categoryList.map((event) => event.categoryIcon).toSet().toList();
     emit(
       state.copyWith(
-        categoryList: categoryList,
+        categoryNameList: categoryNameList,
+        categoryIconList: categoryIconList,
       ),
     );
   }
@@ -156,15 +163,15 @@ class FiltersCubit extends Cubit<FiltersState> {
     );
   }
 
-  void onCategorySelected(Event event) {
+  void onCategorySelected(String event) {
     isCategorySelected(event) ? unselectCategory(event) : selectCategory(event);
   }
 
-  bool isCategorySelected(Event event) {
+  bool isCategorySelected(String event) {
     return state.selectedCategoryList.contains(event);
   }
 
-  void selectCategory(Event event) {
+  void selectCategory(String event) {
     final events = state.selectedCategoryList;
     events.add(event);
     emit(
@@ -174,7 +181,7 @@ class FiltersCubit extends Cubit<FiltersState> {
     );
   }
 
-  void unselectCategory(Event event) {
+  void unselectCategory(String event) {
     final events = state.selectedCategoryList;
     events.remove(event);
     emit(
