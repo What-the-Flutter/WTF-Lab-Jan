@@ -31,6 +31,18 @@ dependencies:
   path: ^1.8.0
   uuid: ^3.0.5
   shared_preferences: ^2.0.9
+  firebase_core: ^1.10.2
+  firebase_database: ^9.0.0-dev.0
+  local_auth: ^1.1.7
+  firebase_auth: ^3.3.0
+  cloud_firestore: ^3.1.4
+  splash_screen_view: ^3.0.0
+  flutter_share: ^2.0.0
+  hashtagable: ^2.0.2+1
+  logger: ^1.1.0
+  lottie: ^1.2.1
+  rive: ^0.8.1
+  show_up_animation: ^2.0.0
 
 
   # The following adds the Cupertino Icons font to your application.

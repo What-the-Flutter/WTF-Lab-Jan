@@ -3,30 +3,41 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../components/floating_action_button.dart';
 import '../../models/page_model.dart';
-import '../add_page_screen/add_page_screen.dart';
+import '../add_page/add_page_screen.dart';
 import '../events_screen/cubit/cubit.dart';
-import 'cubit/home_screen_cubit.dart';
+import 'cubit/cubit.dart';
 import 'widgets/page_card.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final HomeScreenCubit _cubit = HomeScreenCubit();
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit.init();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cubit = HomeScreenCubit();
     return BlocProvider<HomeScreenCubit>(
-      create: (context) => cubit,
+      create: (context) => _cubit,
       child: BlocBuilder<HomeScreenCubit, HomeScreenState>(
         builder: (context, state) {
           return Scaffold(
             body: ListView.builder(
               itemCount: state.listOfPages.length,
               itemBuilder: (context, index) {
-                final page = state.listOfPages[index];
+                var page = state.listOfPages[index];
                 final pageWidget = BlocProvider<EventScreenCubit>(
                   create: (context) => EventScreenCubit(page),
                   child: PageCard(
-                    page: page,
                     parentContext: context,
                     deletePage: _deleteSelectedPage,
                     editPage: _editSelectedPage,
@@ -49,15 +60,17 @@ class HomeScreen extends StatelessWidget {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AddPageScreen(
-          title: 'Create a new Page',
+        builder: (context) => BlocProvider<HomeScreenCubit>.value(
+          value: _cubit,
+          child: const AddPageScreen(
+            title: 'Create a new Page',
+          ),
         ),
       ),
     );
     if (result != null) {
       final pageModel = result as PageModel;
-
-      context.read<HomeScreenCubit>().addPage(pageModel);
+      _cubit.addPage(pageModel);
     }
   }
 
@@ -68,15 +81,18 @@ class HomeScreen extends StatelessWidget {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddPageScreen(
-          title: 'Edit Page',
-          titleOfPage: page.name,
+        builder: (context) => BlocProvider<HomeScreenCubit>.value(
+          value: _cubit,
+          child: AddPageScreen(
+            title: 'Edit Page',
+            titleOfPage: page.name,
+          ),
         ),
       ),
     );
     if (result != null) {
       final newPage = result as PageModel;
-      context.read<HomeScreenCubit>().editPage(newPage, page);
+      _cubit.editPage(newPage, page);
     }
   }
 
@@ -112,7 +128,7 @@ class HomeScreen extends StatelessWidget {
             TextButton(
               child: const Text('Yes'),
               onPressed: () {
-                context.read<HomeScreenCubit>().removePageByKey(page.key);
+                context.read<HomeScreenCubit>().removePage(page);
                 Navigator.of(context).pop();
               },
             ),

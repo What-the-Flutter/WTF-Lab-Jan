@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import 'pages/daily/daily.dart';
-import 'pages/home/home.dart';
+import 'my_app.dart';
+import 'style/custom_theme.dart';
+import 'style/themes.dart';
 
 void main() {
   runApp(
-    MaterialApp(
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomePage(),
-        '/daily': (context) => const DailyPage(),
-      },
+    CustomTheme(
+      initialThemeKey: MyThemeKeys.light,
+      key: UniqueKey(),
+      child: MyApp(),
     ),
+    //MyApp(),
   );
 }

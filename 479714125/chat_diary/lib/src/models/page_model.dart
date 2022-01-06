@@ -5,30 +5,59 @@ import 'event_model.dart';
 class PageModel {
   final String name;
   final IconData icon;
-  late final Key key;
+  final int id;
+  int nextEventId;
   final List<EventModel> events;
 
   PageModel({
+    required this.nextEventId,
+    required this.id,
     required this.name,
     required this.icon,
-  })  : key = UniqueKey(),
-        events = [];
+  }) : events = [];
 
-  PageModel.withKeyAndList(
-      {required this.name,
-      required this.icon,
-      required this.key,
-      required this.events});
+  PageModel.withIdAndList({
+    required this.nextEventId,
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.events,
+  });
 
   @override
-  String toString() => '$name $icon $key ${events.length}';
+  String toString() => '$name $icon $id ${events.length}';
 
-  PageModel copyWith(
-          {String? name, IconData? icon, Key? key, List<EventModel>? events}) =>
-      PageModel.withKeyAndList(
-        name: name ?? this.name,
-        icon: icon ?? this.icon,
-        key: key ?? this.key,
-        events: events ?? this.events,
-      );
+  PageModel copyWith({
+    String? name,
+    IconData? icon,
+    int? id,
+    int? nextEventId,
+    List<EventModel>? events,
+  }) {
+    return PageModel.withIdAndList(
+      nextEventId: nextEventId ?? this.nextEventId,
+      name: name ?? this.name,
+      icon: icon ?? this.icon,
+      id: id ?? this.id,
+      events: events ?? this.events,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'icon': icon.codePoint,
+      'nextEventId': nextEventId,
+    };
+  }
+
+  factory PageModel.fromMap(Map<String, dynamic> pageMap) {
+    return PageModel(
+      id: pageMap['id'] as int,
+      nextEventId: pageMap['nextEventId'] as int,
+      name: pageMap['name'] as String,
+      icon: IconData(pageMap['icon'], fontFamily: 'MaterialIcons'),
+    );
+  }
 }

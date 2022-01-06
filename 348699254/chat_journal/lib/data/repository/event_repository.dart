@@ -1,36 +1,30 @@
-import '../data_provider/journal_database.dart';
-import '../models/event.dart';
+import '../data_provider/firebase_database_provider.dart';
+import '../data_provider/firebase_firestore_provider.dart';
+import '../model/event.dart';
 
 class EventRepository {
-  final JournalDatabase _db;
+  final FirebaseDatabaseProvider _realtimeDb;
+  final FirebaseFirestoreProvider _firebaseDb;
 
-  EventRepository(this._db);
+  EventRepository(this._realtimeDb, this._firebaseDb);
+
+  void addImageEvent(String eventId, String imagePath) {
+    _firebaseDb.addImageEvent(eventId, imagePath);
+  }
 
   void insertEvent(Event event) {
-    _db.insertEvent(event);
+    _realtimeDb.insertEvent(event);
   }
 
   void deleteEvent(Event event) {
-    _db.deleteEvent(event);
+    _realtimeDb.deleteEvent(event);
   }
 
   void updateEvent(Event event) {
-    _db.updateEvent(event);
+    _realtimeDb.updateEvent(event);
   }
 
-  Future<List<Event>> fetchEventList(String pageId) async {
-    return await _db.fetchEventList(pageId);
-  }
-
-  Future<List<Event>> fetchSelectedEventList() async {
-    return await _db.fetchSelectedEventList();
-  }
-
-  Future<List<Event>> fetchMarkedAllEventList(String pageId) async {
-    return await _db.fetchAllMarkEventList(pageId);
-  }
-
-  Future<List<Event>> fetchSearchedEventList(String pageId, String text) async {
-    return await _db.fetchSearchedEventList(pageId, text);
+  Future<List<Event>> fetchEventList() async {
+    return await _realtimeDb.fetchEventList();
   }
 }
