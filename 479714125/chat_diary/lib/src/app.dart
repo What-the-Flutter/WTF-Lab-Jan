@@ -74,9 +74,7 @@ class Home extends StatelessWidget {
             label: 'Explore',
           ),
         ],
-        onTap: (index) {
-          context.read<AppHomeCubit>().togglePage(index);
-        },
+        onTap: (index) => context.read<AppHomeCubit>().togglePage(index),
       ),
       body: IndexedStack(
         children: [
