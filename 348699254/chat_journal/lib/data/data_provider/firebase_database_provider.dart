@@ -1,25 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../model/activity_page.dart';
 import '../model/event.dart';
 
 class FirebaseDatabaseProvider {
-  final CollectionReference collection =
-      FirebaseFirestore.instance.collection('event_images');
   final database = FirebaseDatabase.instance.ref();
 
   final _pageRef = FirebaseDatabase.instance.ref().child('/activity_pages');
   final _eventRef = FirebaseDatabase.instance.ref().child('/events');
 
-  Future<void> addImageEvent(String eventId, String imagePath) async {
-    final imageMap = <String, dynamic>{'image_path': imagePath};
-    collection.doc(eventId).set(imageMap);
-  }
-
   Future<void> insertActivityPage(ActivityPage page) async {
     await _pageRef.child(page.id).push().set(page.toMap());
-    //print(_pageRef);
   }
 
   Future<void> updateActivityPage(ActivityPage page) async {
@@ -40,7 +31,6 @@ class FirebaseDatabaseProvider {
       var childKey = childSnapshot.key;
       childKeyList.add(childKey);
     }
-    //print(childKeyList);
     DatabaseEvent snapPage;
     for (var i = 0; i < childKeyList.length; i++) {
       snapPage = await _pageRef.child(childKeyList[i]).once();
@@ -49,10 +39,6 @@ class FirebaseDatabaseProvider {
         childPageKeyList.add(childPageKey);
         resultList.add(snapPage.snapshot.child(childPageKeyList[i]).value);
       }
-      //print('page key $childPageKeyList');
-      // }
-      //print('List $resultList');
-      //for (var i = 0; i < childKeyList.length; i++) {
       final result = resultList[i];
       print(result);
       activityPageList
@@ -94,10 +80,7 @@ class FirebaseDatabaseProvider {
         childEventKeyList.add(childEventKey);
         resultList.add(snapEvent.snapshot.child(childEventKeyList[i]).value);
       }
-      //}
-      //for (var i = 0; i < childKeyList.length; i++) {
       final result = resultList[i];
-      //print(result);
       eventList.add(Event.fromMap(Map<String, dynamic>.from(result)));
     }
     return eventList;

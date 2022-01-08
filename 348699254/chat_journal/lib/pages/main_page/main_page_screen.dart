@@ -4,75 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:show_up_animation/show_up_animation.dart';
+import 'package:splash_screen_view/SplashScreenView.dart';
 
 import '../../auth/auth_cubit.dart';
 import '../../data/data_provider/firebase_database_provider.dart';
+import '../../data/data_provider/firebase_firestore_provider.dart';
 import '../../data/data_provider/shared_preferences_provider.dart';
 import '../../data/repository/event_repository.dart';
 import '../../data/repository/page_repository.dart';
 import '../../data/repository/settings_repository.dart';
-import '../../splash_screen.dart';
 import '../add_page/add_page_cubit.dart';
 import '../add_page/add_page_screen.dart';
 import '../event_page/event_cubit.dart';
 import '../event_page/event_screen.dart';
+import '../filters/filters_cubit.dart';
 import '../settings/settings_cubit.dart';
 import '../settings/settings_screen.dart';
 import '../settings/settings_state.dart';
+import '../timeline_page/timeline_cubit.dart';
+import '../timeline_page/timeline_screen.dart';
 import 'main_page_cubit.dart';
 import 'main_page_state.dart';
-
-Future<Widget> startApp() async {
-  //WidgetsFlutterBinding.ensureInitialized();
-  //final db = JournalDatabase();
-  final firebaseDb = FirebaseDatabaseProvider();
-  await SharedPreferencesProvider.initialize();
-  final pref = SharedPreferencesProvider();
-  return MultiRepositoryProvider(
-    providers: [
-      RepositoryProvider<ActivityPageRepository>(
-        create: (context) => ActivityPageRepository(firebaseDb),
-      ),
-      RepositoryProvider<EventRepository>(
-        create: (context) => EventRepository(firebaseDb),
-      ),
-      RepositoryProvider<SettingsRepository>(
-        create: (context) => SettingsRepository(pref),
-      ),
-    ],
-    child: MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => AuthCubit(),
-        ),
-        //BlocProvider(
-        //  create: (context) => ThemeCubit(),
-        //),
-        BlocProvider(
-          create: (context) => SettingsCubit(
-            RepositoryProvider.of<SettingsRepository>(context),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => EventCubit(
-            RepositoryProvider.of<EventRepository>(context),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => MainPageCubit(
-            RepositoryProvider.of<ActivityPageRepository>(context),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => AddPageCubit(
-            RepositoryProvider.of<ActivityPageRepository>(context),
-          ),
-        ),
-      ],
-      child: MyApp(),
-    ),
-  );
-}
 
 class MyApp extends StatefulWidget {
   @override
@@ -80,25 +33,96 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final firebaseDb = FirebaseDatabaseProvider();
+  final firestoreDb = FirebaseFirestoreProvider();
+  final pref = SharedPreferencesProvider();
+
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<SettingsCubit>(context).initSettings();
-    //BlocProvider.of<ThemeCubit>(context).init();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsCubit, SettingsState>(
-      builder: (context, state) {
-        return MaterialApp(
-          title: 'Chat Journal App',
-          themeMode: state.isLightTheme ? ThemeMode.dark : ThemeMode.dark,
-          theme: state.themeData,
-          initialRoute: '/',
-          home: SplashScreen(),
-        );
-      },
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<ActivityPageRepository>(
+          create: (context) => ActivityPageRepository(firebaseDb),
+        ),
+        RepositoryProvider<EventRepository>(
+          create: (context) => EventRepository(firebaseDb, firestoreDb),
+        ),
+        RepositoryProvider<SettingsRepository>(
+          create: (context) => SettingsRepository(pref),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => AuthCubit(),
+          ),
+          BlocProvider(
+            create: (context) => SettingsCubit(
+              RepositoryProvider.of<SettingsRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => EventCubit(
+              RepositoryProvider.of<EventRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => MainPageCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => TimelineCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+              RepositoryProvider.of<EventRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => FiltersCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+              RepositoryProvider.of<EventRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => AddPageCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+            ),
+          ),
+        ],
+        child: BlocBuilder<SettingsCubit, SettingsState>(
+          builder: (context, state) {
+            return MaterialApp(
+              title: 'Chat Journal App',
+              themeMode: state.isLightTheme ? ThemeMode.dark : ThemeMode.dark,
+              theme: state.themeData,
+              initialRoute: '/',
+              home: SplashScreenView(
+                navigateRoute: MainPageScreen(),
+                duration: 5000,
+                imageSize: 300,
+                imageSrc: 'assets/splash_screen.jpg',
+                text: 'Chat Journal',
+                textType: TextType.ColorizeAnimationText,
+                textStyle: const TextStyle(
+                  fontSize: 40.0,
+                ),
+                colors: [
+                  Colors.purple,
+                  Colors.blue,
+                  Colors.yellow,
+                  Colors.red,
+                ],
+                backgroundColor: Colors.white,
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
@@ -108,12 +132,37 @@ class MainPageScreen extends StatefulWidget {
   _MainPageScreenState createState() => _MainPageScreenState();
 }
 
-class _MainPageScreenState extends State<MainPageScreen> {
+class _MainPageScreenState extends State<MainPageScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(seconds: 4),
+    vsync: this,
+  )..forward();
+  late final Animation<double> _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.fastOutSlowIn,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
-    //BlocProvider.of<ThemeCubit>(context).init();
+    BlocProvider.of<AuthCubit>(context).signInAnonymously();
+    authentication();
+    BlocProvider.of<SettingsCubit>(context).initSettings();
     BlocProvider.of<MainPageCubit>(context).showActivityPages();
+  }
+
+  Future<void> authentication() async {
+    if (await BlocProvider.of<SettingsCubit>(context)
+        .isBiometricsAuthAbility()) {
+      BlocProvider.of<AuthCubit>(context).authorizeWithBiometric();
+    }
   }
 
   @override
@@ -123,7 +172,6 @@ class _MainPageScreenState extends State<MainPageScreen> {
         return Scaffold(
           appBar: AppBar(
             title: _appBarHomeTitle(),
-            //leading: _appBarMenuButton(),
             actions: <Widget>[
               IconButton(
                 icon: const Icon(Icons.wb_incandescent_outlined),
@@ -134,20 +182,22 @@ class _MainPageScreenState extends State<MainPageScreen> {
           ),
           drawer: _burgerMenuDrawer(),
           body: _bodyStructure(state),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AddPageScreen(
-                    isEditing: false,
+          floatingActionButton: ScaleTransition(
+            scale: _animation,
+            child: FloatingActionButton(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddPageScreen(
+                      isEditing: false,
+                    ),
                   ),
-                ),
-              );
-              BlocProvider.of<MainPageCubit>(context).showActivityPages();
-            },
-            child: const Icon(Icons.add), //color: Colors.brown),
-            //backgroundColor: Colors.amberAccent,
+                );
+                BlocProvider.of<MainPageCubit>(context).showActivityPages();
+              },
+              child: const Icon(Icons.add),
+            ),
           ),
           bottomNavigationBar: _bottomNavigationBar(),
         );
@@ -178,7 +228,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
           ListTile(
             leading: const Icon(Icons.card_giftcard_outlined),
             title: const Text('Help spread the world'),
-            onTap: () {},
+            onTap: () => BlocProvider.of<SettingsCubit>(context).share(),
           ),
           ListTile(
             leading: const Icon(Icons.search),
@@ -292,9 +342,6 @@ class _MainPageScreenState extends State<MainPageScreen> {
       ),
       subtitle: Text(
         subtitle,
-        //style: const TextStyle(
-        // color: Colors.black26,
-        //),
       ),
       leading: _circleAvatarForActivityPage(state, iconIndex, index),
       onTap: () async {
@@ -337,7 +384,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
                 child: Icon(
                   Icons.push_pin,
                   color: Colors.black54,
-                ), // change this children
+                ),
               ),
             ),
         ],
@@ -346,20 +393,23 @@ class _MainPageScreenState extends State<MainPageScreen> {
   }
 
   Widget _questionnaireBotContainer() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        margin: const EdgeInsets.fromLTRB(20, 6, 20, 6),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.adb),
-            const Text('   Questionnaire Bot'),
-          ],
-        ),
-        decoration: BoxDecoration(
-          color: Colors.blueGrey,
-          borderRadius: BorderRadius.circular(10),
+    return FadeTransition(
+      opacity: _animation,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          margin: const EdgeInsets.fromLTRB(20, 6, 20, 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.adb),
+              const Text('   Questionnaire Bot'),
+            ],
+          ),
+          decoration: BoxDecoration(
+            color: Colors.blueGrey,
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       ),
     );
@@ -371,24 +421,30 @@ class _MainPageScreenState extends State<MainPageScreen> {
       barrierDismissible: true,
       context: context,
       builder: (context) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(0),
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                color: Colors.white,
-                child: Column(
-                  children: <Widget>[
-                    Card(
-                      child: _listWithMenuOptions(state, index),
-                    ),
-                  ],
+        return ShowUpAnimation(
+          animationDuration: const Duration(seconds: 2),
+          curve: Curves.bounceIn,
+          direction: Direction.vertical,
+          offset: 0.2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(0),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  color: Colors.white,
+                  child: Column(
+                    children: <Widget>[
+                      Card(
+                        child: _listWithMenuOptions(state, index),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -630,7 +686,6 @@ class _MainPageScreenState extends State<MainPageScreen> {
     futureValue.then(
       (value) {
         BlocProvider.of<MainPageCubit>(context).unselect();
-        //print('Return value: $value'); // true/false
       },
     );
   }
@@ -649,6 +704,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
   BottomNavigationBar _bottomNavigationBar() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
+      onTap: _selectedPage,
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -668,5 +724,16 @@ class _MainPageScreenState extends State<MainPageScreen> {
         )
       ],
     );
+  }
+
+  void _selectedPage(int index) {
+    final pages = [
+      MainPageScreen(),
+      MainPageScreen(),
+      TimelineScreen(),
+      MainPageScreen(),
+    ];
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => pages[index]));
   }
 }

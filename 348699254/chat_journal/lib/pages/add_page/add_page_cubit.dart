@@ -36,7 +36,6 @@ class AddPageCubit extends Cubit<AddPageState> {
       id: const Uuid().v4(),
       name: pageName,
       iconIndex: state.selectedIconIndex,
-      //icon: iconList[state.selectedIconIndex],
       creationDate: DateTime.now().toString(),
       isPinned: false,
     );

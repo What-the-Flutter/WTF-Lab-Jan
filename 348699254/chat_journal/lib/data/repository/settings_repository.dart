@@ -1,21 +1,33 @@
 import '../data_provider/shared_preferences_provider.dart';
 
 class SettingsRepository {
-  final SharedPreferencesProvider _pref;
+  final SharedPreferencesProvider _prefProvider;
 
-  SettingsRepository(this._pref);
+  SettingsRepository(this._prefProvider);
 
-  bool fetchTheme() => _pref.fetchTheme();
+  bool fetchTheme() => _prefProvider.fetchTheme();
 
-  void changeTheme(bool isLight) => _pref.changeTheme(isLight);
+  void changeTheme(bool isLight) => _prefProvider.changeTheme(isLight);
 
-  bool abilityChooseCategory() => _pref.abilityChooseCategory();
+  bool abilityChooseCategory() => _prefProvider.abilityChooseCategory();
 
   void changeAbilityChooseCategory(bool isCategoryListOpen) =>
-      _pref.changeAbilityChooseCategory(isCategoryListOpen);
+      _prefProvider.changeAbilityChooseCategory(isCategoryListOpen);
 
-  bool biometricAuth() => _pref.biometricAuth();
+  bool isRightBubbleAlignment() => _prefProvider.isRightBubbleAlignment();
+
+  void changeBubbleAlignment(bool isRightBubbleAlignment) =>
+      _prefProvider.changeBubbleAlignment(isRightBubbleAlignment);
+
+  double fetchFontSize() => _prefProvider.fetchFontSize();
+
+  void changeFontSize(double fontSize) =>
+      _prefProvider.changeFontSize(fontSize);
+
+  bool biometricAuth() => _prefProvider.biometricAuth();
 
   void changeBiometricAuthAbility(bool isBiometricAuth) =>
-      _pref.changeBiometricAuthAbility(isBiometricAuth);
+      _prefProvider.changeBiometricAuthAbility(isBiometricAuth);
+
+  void resetAllSettings() => _prefProvider.resetAllSettings();
 }

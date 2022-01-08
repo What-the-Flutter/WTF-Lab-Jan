@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hashtagable/hashtagable.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/model/activity_page.dart';
@@ -39,6 +40,7 @@ class _EventScreenState extends State<EventScreen> {
     'Sports': Icons.sports_baseball_rounded,
     'Laundry': Icons.local_laundry_service,
   };
+  List _hashTagList = [];
 
   @override
   void initState() {
@@ -365,7 +367,6 @@ class _EventScreenState extends State<EventScreen> {
     futureValue.then((value) async {
       await _actionsToast('Delete selected event');
       BlocProvider.of<EventCubit>(context).unselectEvent();
-      //print('Return value: $value'); // true/false
     });
   }
 
@@ -402,6 +403,16 @@ class _EventScreenState extends State<EventScreen> {
               child: SizedBox(
                 height: 70,
                 child: _categoryList(),
+              ),
+            ),
+          ),
+        if (state.isHashTagListOpened)
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 70,
+                child: _hashTagListView(state),
               ),
             ),
           ),
@@ -450,28 +461,35 @@ class _EventScreenState extends State<EventScreen> {
     }
     return Align(
       alignment: Alignment.centerLeft,
-      child: Flex(
-        direction: Axis.horizontal,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            margin: const EdgeInsets.only(top: 5),
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.87,
-            ),
-            decoration: const BoxDecoration(
-              color: Colors.greenAccent,
-              borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            ),
-            child: _eventTile(
-              state,
-              state.eventList[index].imagePath,
-              state.eventList[index].eventData,
-              timeInString,
-              index,
-            ),
-          ),
-        ],
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (blocContext, settingsState) {
+          final alignment = settingsState.isRightBubbleAlignment
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.end;
+          return Flex(
+            direction: Axis.horizontal,
+            mainAxisAlignment: alignment,
+            children: <Widget>[
+              Container(
+                margin: const EdgeInsets.only(top: 5),
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.87,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.greenAccent,
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                ),
+                child: _eventTile(
+                  state,
+                  state.eventList[index].imagePath,
+                  state.eventList[index].eventData,
+                  timeInString,
+                  index,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -485,7 +503,6 @@ class _EventScreenState extends State<EventScreen> {
         children: <Widget>[
           Icon(
             entries.elementAt(categoryIconIndex!).value,
-            //_categoriesMap.[categoryIconIndex],
             size: 35,
             color: Colors.black54,
           ),
@@ -510,15 +527,18 @@ class _EventScreenState extends State<EventScreen> {
               children: <Widget>[
                 if (state.eventList[index].categoryIcon != null)
                   _categoryContainer(
-                    //state.selectedCategoryIndex,
                     state.eventList[index].categoryIcon,
                     state.eventList[index].categoryName,
                   ),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w300,
+                HashTagText(
+                  text: title,
+                  decoratedStyle: const TextStyle(
                     fontSize: 16,
+                    color: Colors.purple,
+                  ),
+                  basicStyle: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
                   ),
                 ),
               ],
@@ -614,7 +634,6 @@ class _EventScreenState extends State<EventScreen> {
                           entries.elementAt(state.selectedCategoryIndex).value,
                         )
                       : const Icon(Icons.workspaces_filled),
-                  //color: Colors.teal,
                   onPressed: () {
                     BlocProvider.of<EventCubit>(context).openCategoryList();
                   },
@@ -627,7 +646,6 @@ class _EventScreenState extends State<EventScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.add_a_photo),
-            //color: Colors.teal,
             onPressed: () {
               BlocProvider.of<EventCubit>(context).addImageEvent().then(
                     (value) => BlocProvider.of<EventCubit>(context)
@@ -692,8 +710,45 @@ class _EventScreenState extends State<EventScreen> {
     );
   }
 
+  Widget _hashTagListView(EventState state) {
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: state.hashTagList.length,
+      itemBuilder: (_, index) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          _hashTagItem(index, state.hashTagList),
+        ],
+      ),
+    );
+  }
+
+  Widget _hashTagItem(int index, List hashTagList) {
+    return GestureDetector(
+      child: SizedBox(
+        width: 120,
+        child: ListTile(
+          title: Container(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(hashTagList[index].toString()),
+              ],
+            ),
+            decoration: BoxDecoration(
+              color: Colors.blueGrey,
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          onTap: () {},
+        ),
+      ),
+    );
+  }
+
   Widget _eventTextFormField(EventState state) {
-    return TextFormField(
+    return HashTagTextField(
       decoration: const InputDecoration(
         border: InputBorder.none,
         contentPadding: EdgeInsets.all(15),
@@ -705,9 +760,23 @@ class _EventScreenState extends State<EventScreen> {
           color: Colors.grey,
         ),
       ),
+      decoratedStyle: const TextStyle(
+        fontSize: 14,
+        color: Colors.purple,
+      ),
+      basicStyle: const TextStyle(
+        fontSize: 14,
+        color: Colors.black,
+      ),
       keyboardType: TextInputType.text,
       controller: _eventInputController,
-      onFieldSubmitted: (text) {
+      onChanged: (text) {
+        _hashTagList.addAll(extractHashTags(text));
+        if (_hashTagList.isNotEmpty) {
+          BlocProvider.of<EventCubit>(context).openHashTagList();
+        }
+      },
+      onSubmitted: (text) {
         if (state.selectedImage.isNotEmpty) {
           BlocProvider.of<EventCubit>(context).setSelectedImage('');
         }
@@ -720,6 +789,8 @@ class _EventScreenState extends State<EventScreen> {
           BlocProvider.of<EventCubit>(context).closeCategoryList();
         }
         _eventInputController.clear();
+        BlocProvider.of<EventCubit>(context).closeHashTagList();
+        _hashTagList = [];
       },
     );
   }
@@ -729,13 +800,13 @@ class _EventScreenState extends State<EventScreen> {
     if (state.selectedCategoryIndex > 0) {
       BlocProvider.of<EventCubit>(context).addEvent(
         text,
-        //entries.elementAt(state.selectedCategoryIndex).value,
         state.selectedCategoryIndex,
         entries.elementAt(state.selectedCategoryIndex).key,
       );
       BlocProvider.of<EventCubit>(context).setCategoryInitialIndex();
     } else {
       BlocProvider.of<EventCubit>(context).addEvent(text);
+      BlocProvider.of<EventCubit>(context).hashTagList(text);
     }
   }
 }

@@ -2,11 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:logger/logger.dart';
 
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final LocalAuthentication _localAuthentication = LocalAuthentication();
+  final Logger logger = Logger(
+    printer: PrettyPrinter(),
+  );
 
   AuthCubit()
       : super(
@@ -18,54 +22,51 @@ class AuthCubit extends Cubit<AuthState> {
           ),
         );
 
-  bool isAuthorizedState() {
-    return state.isAuthorized;
-  }
-
   Future<void> authorizeWithBiometric() async {
     var isAuthorized = false;
-    try {
-      isAuthorized = await _localAuthentication.authenticate(
-        biometricOnly: true,
-        localizedReason: 'Please authenticate to complete your transaction',
-        useErrorDialogs: true,
-        stickyAuth: true,
-      );
-      emit(
-        state.copyWith(isAuthorized: isAuthorized),
-      );
-    } on PlatformException catch (e) {
-      print('err');
-      print(isAuthorized);
-      print(e);
+    if (checkBiometrics() == true) {
+      try {
+        isAuthorized = await _localAuthentication.authenticate(
+          biometricOnly: true,
+          localizedReason: 'Please authenticate to complete your transaction',
+          useErrorDialogs: true,
+          stickyAuth: true,
+        );
+        emit(
+          state.copyWith(isAuthorized: isAuthorized),
+        );
+      } on PlatformException catch (e) {
+        logger.e(e.code);
+      }
+    } else {
+      logger.e('No biometrics found');
     }
   }
 
-  Future<void> checkBiometrics() async {
-    var canCheckBiometric = false;
+  Future<bool> checkBiometrics() async {
+    var canCheckBiometrics = false;
     try {
-      canCheckBiometric = await _localAuthentication.canCheckBiometrics;
-      print(canCheckBiometric);
+      canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
+      print(canCheckBiometrics);
       emit(
-        state.copyWith(canCheckBiometrics: canCheckBiometric),
+        state.copyWith(canCheckBiometrics: canCheckBiometrics),
       );
     } on PlatformException catch (e) {
-      print(e);
+      logger.e(e.code);
     }
+    return canCheckBiometrics;
   }
 
   Future<void> getListOfBiometricTypes() async {
-    var availableListOfBiometrics =
-        await _localAuthentication.getAvailableBiometrics();
     try {
-      availableListOfBiometrics =
+      final availableListOfBiometrics =
           await _localAuthentication.getAvailableBiometrics();
-      print(availableListOfBiometrics);
+      logger.i(availableListOfBiometrics);
       emit(
         state.copyWith(listOfBiometrics: availableListOfBiometrics),
       );
     } on PlatformException catch (e) {
-      print(e);
+      logger.e(e.code);
     }
   }
 
@@ -79,7 +80,7 @@ class AuthCubit extends Cubit<AuthState> {
     var isAuthorized = false;
     try {
       final userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+          .createUserWithEmailAndPassword(email: email, password: password);
       if (userCredential.user != null) {
         isAuthorized = true;
       }
@@ -90,9 +91,9 @@ class AuthCubit extends Cubit<AuthState> {
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        logger.e('No user found for that email.');
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        logger.e('Wrong password provided for that user.');
       }
     }
   }
@@ -104,7 +105,6 @@ class AuthCubit extends Cubit<AuthState> {
       if (userCredential.user != null) {
         isAuthorized = true;
       }
-      //print(isAuthorized);
       emit(
         state.copyWith(
           isAuthorized: isAuthorized,
@@ -112,9 +112,9 @@ class AuthCubit extends Cubit<AuthState> {
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        logger.e('No user found for that email.');
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        logger.e('Wrong password provided for that user.');
       }
     }
   }
