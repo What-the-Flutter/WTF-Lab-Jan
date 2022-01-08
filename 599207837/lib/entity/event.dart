@@ -46,6 +46,7 @@ class Event implements Message {
 
   bool isMissed() => _isMissed;
 
+  @override
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   static List<Message> getFavouriteEvents() {

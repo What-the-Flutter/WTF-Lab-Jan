@@ -28,6 +28,7 @@ class Task implements Message {
 
   void unComplete() => isCompleted = false;
 
+  @override
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   static List<Message> getFavouriteTasks() {

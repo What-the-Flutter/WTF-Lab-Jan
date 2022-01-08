@@ -428,11 +428,11 @@ class _ChatMessageState extends State<ChatMessage> {
         ),
         PopupMenuItem(
           onTap: () {
-            widget.onSelection();
             setState(() {
               _selected = true;
               _calledSelection = true;
               widget.onSelected();
+              widget.onSelection();
             });
           },
           value: 3,

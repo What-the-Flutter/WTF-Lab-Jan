@@ -23,6 +23,7 @@ class Note implements Message {
     timeCreated = DateTime.now();
   }
 
+  @override
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   static List<Message> getFavouriteNotes() {

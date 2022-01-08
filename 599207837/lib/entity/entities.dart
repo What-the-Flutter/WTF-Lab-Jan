@@ -20,6 +20,8 @@ abstract class Message {
   late bool favourite;
 
   void onFavourite();
+
+  int get uuid;
 }
 
 int getTypeId(Message o) {

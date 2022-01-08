@@ -1,77 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../entity/entities.dart' as entity;
-import '../widgets/widgets.dart' as custom;
-
 import '../main.dart';
+import '../widgets/widgets.dart' as custom;
+import 'items_page/items_page_cubit.dart';
+import 'items_page/items_page_state.dart';
 
-class ChatList extends StatefulWidget {
-  const ChatList({Key? key, required this.topics}) : super(key: key);
-
-  final List<entity.Topic> topics;
-
-  @override
-  _ChatListState createState() => _ChatListState();
-}
-
-class _ChatListState extends State<ChatList> {
-  late List<entity.Topic> _topics;
-
-  @override
-  void initState() {
-    _topics = widget.topics;
-    super.initState();
-  }
+class ChatList extends StatelessWidget {
+  const ChatList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListView.builder(
-          itemCount: _topics.length,
-          shrinkWrap: true,
-          padding: const EdgeInsets.only(top: 16),
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => _topics[index].isPinned && !_topics[index].isArchived
-              ? ChatCard(
-                  topic: _topics[index],
-                )
-              : Container(),
-        ),
-        ListView.builder(
-          itemCount: _topics.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => !_topics[index].isPinned && !_topics[index].isArchived
-              ? ChatCard(
-                  topic: _topics[index],
-                )
-              : Container(),
-        ),
-      ],
+    return BlocBuilder<ItemsPageCubit, ItemsPageState>(
+      buildWhen: (previous, current) {
+        return current.topicsEdited;
+      },
+      builder: (context, state) {
+        return Column(
+          children: [
+            ListView.builder(
+              itemCount: state.topics.length,
+              shrinkWrap: true,
+              padding: const EdgeInsets.only(top: 16),
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) =>
+                  state.topics[index].isPinned && !state.topics[index].isArchived
+                      ? _ChatCard(
+                          topic: state.topics[index],
+                          themeInherited: ThemeInherited.of(context)!,
+                        )
+                      : Container(),
+            ),
+            ListView.builder(
+              itemCount: state.topics.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) =>
+                  !state.topics[index].isPinned && !state.topics[index].isArchived
+                      ? _ChatCard(
+                          topic: state.topics[index],
+                          themeInherited: ThemeInherited.of(context)!,
+                        )
+                      : Container(),
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
-class ChatCard extends StatefulWidget {
+class _ChatCard extends StatelessWidget {
+  late final ThemeInherited themeInherited;
+  late final BuildContext oldContext;
   final entity.Topic topic;
 
-  ChatCard({required this.topic});
-
-  @override
-  _ChatCardState createState() => _ChatCardState();
-}
-
-class _ChatCardState extends State<ChatCard> {
-  late ThemeInherited themeInherited;
+  _ChatCard({required this.topic, required this.themeInherited});
 
   @override
   Widget build(BuildContext context) {
-    themeInherited = ThemeInherited.of(context)!;
+    oldContext = context;
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (newContext) => custom.ChatPage(widget.topic, context),
+          builder: (newContext) => custom.ChatPage(topic, context),
         ),
       ),
       onLongPress: () => showModalBottomSheet(
@@ -80,9 +74,7 @@ class _ChatCardState extends State<ChatCard> {
         ),
         constraints: const BoxConstraints(maxHeight: 330),
         backgroundColor: themeInherited.preset.colors.backgroundColor,
-        builder: (context) {
-          return _chatCardMenu();
-        },
+        builder: _chatCardMenu,
         context: context,
         isDismissible: true,
       ),
@@ -95,7 +87,7 @@ class _ChatCardState extends State<ChatCard> {
                 children: <Widget>[
                   CircleAvatar(
                     child: Icon(
-                      widget.topic.icon,
+                      topic.icon,
                       color: Colors.white,
                       size: 30,
                     ),
@@ -114,13 +106,13 @@ class _ChatCardState extends State<ChatCard> {
                           Row(
                             children: [
                               Text(
-                                '${widget.topic.name} ',
+                                '${topic.name} ',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: themeInherited.preset.colors.textColor1,
                                 ),
                               ),
-                              if (widget.topic.isPinned)
+                              if (topic.isPinned)
                                 Icon(
                                   Icons.push_pin_rounded,
                                   size: 15,
@@ -147,7 +139,7 @@ class _ChatCardState extends State<ChatCard> {
               ),
             ),
             Text(
-              widget.topic.elements.toString(),
+              topic.elements.toString(),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
@@ -160,7 +152,7 @@ class _ChatCardState extends State<ChatCard> {
     );
   }
 
-  Widget _chatCardMenu() {
+  Widget _chatCardMenu(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
       child: Column(
@@ -169,7 +161,7 @@ class _ChatCardState extends State<ChatCard> {
           _cardMenuItem(
             onTap: () {
               Navigator.pop(context);
-              _showInfo();
+              _showInfo(context);
             },
             label: 'Info',
             icon: Icons.info_outline_rounded,
@@ -180,8 +172,7 @@ class _ChatCardState extends State<ChatCard> {
           _cardMenuItem(
             onTap: () {
               Navigator.pop(context);
-              widget.topic.onPin();
-              TabContrDecorator.of(context)!.onEdited();
+              oldContext.read<ItemsPageCubit>().pinTopic(topic);
             },
             label: 'Pin/Unpin Topic',
             icon: Icons.push_pin_outlined,
@@ -192,8 +183,7 @@ class _ChatCardState extends State<ChatCard> {
           _cardMenuItem(
             onTap: () {
               Navigator.pop(context);
-              widget.topic.onArchive();
-              TabContrDecorator.of(context)!.onEdited();
+              oldContext.read<ItemsPageCubit>().archiveTopic(topic);
             },
             label: 'Archive Topic',
             icon: Icons.archive_outlined,
@@ -208,8 +198,9 @@ class _ChatCardState extends State<ChatCard> {
                 context,
                 MaterialPageRoute(
                   builder: (newContext) => custom.TopicMaker(
-                    context: context,
-                    topic: widget.topic,
+                    themeInherited: themeInherited,
+                    topic: topic,
+                    onChange: () => oldContext.read<ItemsPageCubit>().onTopicsChange(),
                   ),
                 ),
               );
@@ -223,10 +214,10 @@ class _ChatCardState extends State<ChatCard> {
           _cardMenuItem(
             onTap: () {
               Navigator.pop(context);
-              _deleteAlert(onDelete: () {
-                widget.topic.delete();
-                TabContrDecorator.of(context)!.onEdited();
-              });
+              _deleteAlert(
+                onDelete: () => oldContext.read<ItemsPageCubit>().deleteTopic(topic),
+                context: context,
+              );
             },
             label: 'Delete Topic',
             icon: Icons.delete_outline_rounded,
@@ -238,14 +229,14 @@ class _ChatCardState extends State<ChatCard> {
     );
   }
 
-  void _deleteAlert({required Function onDelete}) {
+  void _deleteAlert({required Function onDelete, required BuildContext context}) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: themeInherited.preset.colors.backgroundColor,
           content: Text(
-            'Are you sure you want to permanently delete ${widget.topic.name}?',
+            'Are you sure you want to permanently delete ${topic.name}?',
             style: TextStyle(fontSize: 20, color: themeInherited.preset.colors.textColor1),
           ),
           actions: <Widget>[
@@ -286,7 +277,7 @@ class _ChatCardState extends State<ChatCard> {
     );
   }
 
-  void _showInfo() {
+  void _showInfo(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -301,7 +292,7 @@ class _ChatCardState extends State<ChatCard> {
                   children: [
                     CircleAvatar(
                       child: Icon(
-                        widget.topic.icon,
+                        topic.icon,
                         color: Colors.white,
                         size: 35,
                       ),
@@ -312,7 +303,7 @@ class _ChatCardState extends State<ChatCard> {
                       width: 15,
                     ),
                     Text(
-                      widget.topic.name,
+                      topic.name,
                       style:
                           TextStyle(fontSize: 20, color: themeInherited.preset.colors.textColor1),
                     ),
@@ -320,16 +311,16 @@ class _ChatCardState extends State<ChatCard> {
                 ),
                 _infoNode(
                   topText: 'Message amount:',
-                  bottomText: '${widget.topic.elements}',
+                  bottomText: '${topic.elements}',
                 ),
                 _infoNode(
                   topText: 'Last message:',
                   bottomText:
-                      '${entity.fullDateFormatter.format(widget.topic.getElements()[0].timeCreated)}',
+                      '${entity.fullDateFormatter.format(topic.getElements()[0].timeCreated)}',
                 ),
                 _infoNode(
                   topText: 'Date created:',
-                  bottomText: '${entity.fullDateFormatter.format(widget.topic.timeCreated)}',
+                  bottomText: '${entity.fullDateFormatter.format(topic.timeCreated)}',
                 ),
               ],
             ),
