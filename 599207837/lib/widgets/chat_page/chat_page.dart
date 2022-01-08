@@ -85,6 +85,23 @@ class _ChatPage extends StatelessWidget {
                       ),
                       Expanded(
                         child: TextButton(
+                          child: const Text('Move to'),
+                          onPressed: () {
+                            custom.Alerts.moveAlert(
+                              context: context,
+                              themeInherited: themeInherited,
+                              currentTopic: topic,
+                              onMoved: (topic) {
+                                Navigator.pop(context);
+                                context.read<ChatPageCubit>().moveSelected(topic);
+                                context.read<ChatPageCubit>().setSelection(false);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: TextButton(
                           child: const Text('Cancel'),
                           onPressed: () {
                             context.read<ChatPageCubit>().clearSelection();

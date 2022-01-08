@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../entity/entities.dart' as entity;
 import '../main.dart';
+import 'alerts.dart';
 
 class ChatMessage extends StatefulWidget {
   final entity.Message item;
@@ -403,6 +405,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 Icons.delete,
                 color: widget.themeInherited.preset.colors.textColor2,
               ),
+              const SizedBox(width: 5),
               Text(
                 'Delete',
                 style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
@@ -419,6 +422,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 Icons.edit,
                 color: widget.themeInherited.preset.colors.textColor2,
               ),
+              const SizedBox(width: 5),
               Text(
                 'Edit',
                 style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
@@ -442,8 +446,41 @@ class _ChatMessageState extends State<ChatMessage> {
                 Icons.autofps_select,
                 color: widget.themeInherited.preset.colors.textColor2,
               ),
+              const SizedBox(width: 5),
               Text(
                 'Select',
+                style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          onTap: () {
+            Future<void>.delayed(
+              const Duration(), // OR const Duration(milliseconds: 500),
+              () => Alerts.moveAlert(
+                context: context,
+                themeInherited: widget.themeInherited,
+                currentTopic: widget.item.topic,
+                onMoved: (topic) {
+                  widget.onDeleted();
+                  widget.item.topic = topic;
+                  entity.MessageLoader.add(widget.item);
+                  Navigator.pop(context);
+                },
+              ),
+            );
+          },
+          value: 4,
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.drive_file_move_outline,
+                color: widget.themeInherited.preset.colors.textColor2,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                'Move',
                 style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
               ),
             ],

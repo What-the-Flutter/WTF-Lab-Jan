@@ -27,6 +27,19 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     }
   }
 
+  void moveSelected(Topic topic) {
+    for (var item in state.selected) {
+      MessageLoader.remove(item);
+      item.topic = topic;
+      MessageLoader.add(item);
+    }
+    state.selected.clear();
+    if (state.searchPage) {
+      state.findElements();
+    }
+    fullRedraw();
+  }
+
   void deleteSelected() {
     for (var item in state.selected) {
       MessageLoader.remove(item);
@@ -43,7 +56,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     if (state.searchPage) {
       state.findElements();
     }
-    emit(state.duplicate());
+    fullRedraw();
   }
 
   void clearSelection() {

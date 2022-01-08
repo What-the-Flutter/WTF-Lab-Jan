@@ -330,9 +330,13 @@ class _ChatCard extends StatelessWidget {
               padding: const EdgeInsets.only(right: 5, bottom: 5),
               child: TextButton(
                 style: TextButton.styleFrom(primary: Colors.transparent),
-                child: Text('Ok',
-                    style: TextStyle(
-                        fontSize: 18, color: themeInherited.preset.colors.underlineColor)),
+                child: Text(
+                  'Ok',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: themeInherited.preset.colors.underlineColor,
+                  ),
+                ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),
