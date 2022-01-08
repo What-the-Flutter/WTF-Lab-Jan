@@ -14,7 +14,9 @@ class Task implements Message {
   @override
   void onFavourite() => favourite = !favourite;
 
+  @override
   String description;
+
   bool isCompleted = false;
   static bool _firstLoad = true;
   DateTime? timeCompleted;

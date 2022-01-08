@@ -15,7 +15,9 @@ class Note implements Message {
   @override
   void onFavourite() => favourite = !favourite;
 
+  @override
   String description;
+
   static bool _firstLoad = true;
   static late final MessageLoader mLoader = MessageLoader.type(Note);
 

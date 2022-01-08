@@ -18,6 +18,7 @@ abstract class Message {
   late Topic topic;
   late DateTime timeCreated;
   late bool favourite;
+  late String description;
 
   void onFavourite();
 

@@ -4,33 +4,40 @@ import '../../entity/entities.dart';
 
 class ChatPageState {
   List<Message> selected = List.empty(growable: true);
-  late final List<Message> elements;
+  late List<Message> elements;
 
   IconData addedIcon = Icons.feed_rounded;
+  Topic? _topic;
   int addedType = 0;
   int editingIndex = 0;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  bool _dateTimeChanged = false;
+  TextEditingController? searchController;
 
   bool selectionFlag = false;
-  bool needToRedraw = false;
+  bool fullRedraw = false;
+  bool formRedraw = false;
+  bool appBarRedraw = false;
   bool editingFlag = false;
+  bool searchPage = false;
 
   ChatPageState();
 
-  bool get dateTimeChanged {
-    if (_dateTimeChanged) {
-      _dateTimeChanged = false;
-      return true;
-    }
-    return false;
-  }
-
-  set dateTimeChanged(bool v) => _dateTimeChanged = v;
-
   void getElements(Topic topic) {
     elements = topic.getElements();
+    _topic = topic;
+  }
+
+  void getElementsAgain() {
+    getElements(_topic!);
+  }
+
+  void findElements() {
+    getElementsAgain();
+    elements = elements
+        .where((element) =>
+            element.description.toLowerCase().contains(searchController!.text.toLowerCase()))
+        .toList();
   }
 
   ChatPageState duplicate() {
@@ -39,13 +46,17 @@ class ChatPageState {
       ..elements = elements
       ..selectionFlag = selectionFlag
       ..editingFlag = editingFlag
-      ..needToRedraw = needToRedraw
+      ..fullRedraw = fullRedraw
+      ..formRedraw = formRedraw
+      ..appBarRedraw = appBarRedraw
       ..addedType = addedType
       ..addedIcon = addedIcon
       ..selectedDate = selectedDate
       ..selectedTime = selectedTime
-      ..dateTimeChanged = _dateTimeChanged
-      ..editingIndex = editingIndex;
+      ..editingIndex = editingIndex
+      ..searchPage = searchPage
+      ..searchController = searchController
+      .._topic = _topic;
   }
 
   void changeAddedType() {

@@ -14,7 +14,9 @@ class Event implements Message {
   @override
   void onFavourite() => favourite = !favourite;
 
+  @override
   String description;
+
   DateTime? scheduledTime;
   bool _isVisited = false;
   bool _isMissed = false;

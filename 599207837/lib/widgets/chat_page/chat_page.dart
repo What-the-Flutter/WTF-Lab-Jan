@@ -9,15 +9,15 @@ import 'chat_page_state.dart';
 
 class ChatPage extends StatelessWidget {
   final entity.Topic topic;
-  final BuildContext context2;
+  final BuildContext contextOld;
 
-  ChatPage(this.topic, this.context2);
+  ChatPage(this.topic, this.contextOld);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ChatPageCubit()..getElements(topic),
-      child: _ChatPage(topic, context2),
+      child: _ChatPage(topic, contextOld),
     );
   }
 }
@@ -59,7 +59,7 @@ class _ChatPage extends StatelessWidget {
     final themeInherited = ThemeInherited.of(contextOld)!;
     return BlocBuilder<ChatPageCubit, ChatPageState>(
       buildWhen: (previous, current) {
-        return current.needToRedraw;
+        return current.fullRedraw;
       },
       builder: (context, state) {
         return Scaffold(
@@ -133,68 +133,131 @@ class _ChatPage extends StatelessWidget {
       automaticallyImplyLeading: false,
       backgroundColor: themeInherited.preset.colors.themeColor2,
       flexibleSpace: SafeArea(
-        child: Row(
-          children: <Widget>[
-            IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: Icon(
-                Icons.arrow_back,
-                color: themeInherited.preset.colors.iconColor2,
-              ),
-            ),
-            const SizedBox(
-              width: 2,
-            ),
-            CircleAvatar(
-              backgroundColor: themeInherited.preset.colors.avatarColor,
-              child: Icon(
-                topic.icon,
-                color: Colors.white,
-                size: 25,
-              ),
-              radius: 20,
-            ),
-            const SizedBox(
-              width: 12,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    topic.name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: themeInherited.preset.colors.textColor2,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 6,
-                  ),
-                  Text(
-                    'Online',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.brightness_4_rounded),
-              color: themeInherited.preset.colors.iconColor2,
-              tooltip: 'Change theme',
-              onPressed: () {
-                themeInherited.changeTheme();
-                context.read<ChatPageCubit>().needToRedraw();
-              },
-            ),
-          ],
+        child: BlocBuilder<ChatPageCubit, ChatPageState>(
+          buildWhen: (previous, current) {
+            return current.appBarRedraw || current.fullRedraw;
+          },
+          builder: (context, state) {
+            return state.searchPage
+                ? _searchBarRow(context, themeInherited, state)
+                : _defaultAppBarRow(context, themeInherited);
+          },
         ),
       ),
+    );
+  }
+
+  Widget _searchBarRow(BuildContext context, ThemeInherited themeInherited, ChatPageState state) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: TextField(
+              style: TextStyle(color: themeInherited.preset.colors.textColor1),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.only(top: 5, left: 10),
+                hintText: 'Search...',
+                hintStyle: TextStyle(color: themeInherited.preset.colors.minorTextColor),
+                filled: true,
+                fillColor: themeInherited.preset.colors.themeColor2,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(
+                    color: themeInherited.preset.colors.minorTextColor,
+                    width: 0.5,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(
+                    color: themeInherited.preset.colors.underlineColor,
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              controller: state.searchController,
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: () => context.read<ChatPageCubit>().hideSearchBar(),
+          icon: Icon(
+            Icons.close_rounded,
+            color: themeInherited.preset.colors.iconColor2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _defaultAppBarRow(BuildContext context, ThemeInherited themeInherited) {
+    return Row(
+      children: <Widget>[
+        IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(
+            Icons.arrow_back,
+            color: themeInherited.preset.colors.iconColor2,
+          ),
+        ),
+        const SizedBox(
+          width: 2,
+        ),
+        CircleAvatar(
+          backgroundColor: themeInherited.preset.colors.avatarColor,
+          child: Icon(
+            topic.icon,
+            color: Colors.white,
+            size: 25,
+          ),
+          radius: 20,
+        ),
+        const SizedBox(
+          width: 12,
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                topic.name,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: themeInherited.preset.colors.textColor2,
+                ),
+              ),
+              const SizedBox(
+                height: 6,
+              ),
+              Text(
+                'Online',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.search_rounded),
+          color: themeInherited.preset.colors.iconColor2,
+          tooltip: 'Search messages',
+          onPressed: () => context.read<ChatPageCubit>().buildSearchBar(),
+        ),
+        IconButton(
+          icon: const Icon(Icons.brightness_4_rounded),
+          color: themeInherited.preset.colors.iconColor2,
+          tooltip: 'Change theme',
+          onPressed: () {
+            themeInherited.changeTheme();
+            context.read<ChatPageCubit>().fullRedraw();
+          },
+        ),
+      ],
     );
   }
 
@@ -243,7 +306,7 @@ class _ChatPage extends StatelessWidget {
                 children: [
                   BlocBuilder<ChatPageCubit, ChatPageState>(
                     buildWhen: (previous, current) {
-                      return current.dateTimeChanged;
+                      return current.formRedraw;
                     },
                     builder: (context, state) {
                       return custom.DateTimePicker(

@@ -9,7 +9,10 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void loadElements(Topic topic) {
     topic.loadElements();
-    needToRedraw();
+    if (state.searchPage) {
+      state.findElements();
+    }
+    fullRedraw();
   }
 
   void getElements(Topic topic) {
@@ -22,8 +25,6 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     } else {
       state.selected.add(o);
     }
-    state.needToRedraw = false;
-    emit(state.duplicate());
   }
 
   void deleteSelected() {
@@ -31,11 +32,17 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       MessageLoader.remove(item);
     }
     state.selected.clear();
-    needToRedraw();
+    if (state.searchPage) {
+      state.findElements();
+    }
+    fullRedraw();
   }
 
   void deleteMessage(Message o) {
     MessageLoader.remove(o);
+    if (state.searchPage) {
+      state.findElements();
+    }
     emit(state.duplicate());
   }
 
@@ -45,47 +52,41 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void setSelection(bool val) {
     state.selectionFlag = val;
-    needToRedraw();
+    fullRedraw();
   }
 
   void startEditing(int index, int id) {
     state.editingIndex = index;
     state.editingFlag = true;
-    needToRedraw();
+    fullRedraw();
     changeAddedTypeTo(id);
   }
 
   void changeAddedType() {
     state.changeAddedType();
-    needToRedraw();
+    fullRedraw();
   }
 
   void changeAddedTypeTo(int id) {
     state.changeAddedTypeTo(id);
-    needToRedraw();
+    fullRedraw();
   }
 
   void setSelectedTime(TimeOfDay? val) {
     state.selectedTime = val;
     state.selectedDate ??= DateTime.now();
-    state.dateTimeChanged = true;
-    state.needToRedraw = false;
-    emit(state.duplicate());
+    formRedraw();
   }
 
   void setSelectedDate(DateTime? val) {
     state.selectedDate = val;
-    state.dateTimeChanged = true;
-    state.needToRedraw = false;
-    emit(state.duplicate());
+    formRedraw();
   }
 
   void clearDateTime() {
     state.selectedDate = null;
     state.selectedTime = null;
-    state.dateTimeChanged = true;
-    state.needToRedraw = false;
-    emit(state.duplicate());
+    formRedraw();
   }
 
   void onEditEvent(Event o) {
@@ -93,9 +94,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     if (state.selectedDate != null) {
       state.selectedTime = TimeOfDay.fromDateTime(state.selectedDate!);
     }
-    state.dateTimeChanged = true;
-    state.needToRedraw = false;
-    emit(state.duplicate());
+    formRedraw();
   }
 
   void addEvent(String desc, Topic topic) {
@@ -106,7 +105,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     ));
     state.selectedDate = null;
     state.selectedTime = null;
-    needToRedraw();
+    fullRedraw();
   }
 
   void add(bool isTask, String desc, Topic topic) {
@@ -119,7 +118,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
         Note(description: desc, topic: topic),
       );
     }
-    needToRedraw();
+    fullRedraw();
   }
 
   void finishEditing(bool isTask, String desc) {
@@ -129,7 +128,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       (state.elements[state.editingIndex] as Note).description = desc;
     }
     state.editingFlag = false;
-    needToRedraw();
+    fullRedraw();
   }
 
   void finEditEvent(String desc) {
@@ -138,7 +137,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     state.editingFlag = false;
     state.selectedDate = null;
     state.selectedTime = null;
-    needToRedraw();
+    fullRedraw();
   }
 
   DateTime? getDateTime() {
@@ -160,8 +159,41 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     return null;
   }
 
-  void needToRedraw() {
-    state.needToRedraw = true;
+  void buildSearchBar() {
+    state.searchPage = true;
+    state.searchController = TextEditingController();
+    state.searchController!.addListener(() {
+      state.findElements();
+      fullRedraw();
+    });
+    appBarRedraw();
+  }
+
+  void hideSearchBar() {
+    state.searchPage = false;
+    state.getElementsAgain();
+    state.searchController = null;
+    fullRedraw();
+  }
+
+  void fullRedraw() {
+    state.fullRedraw = true;
+    state.appBarRedraw = false;
+    state.formRedraw = false;
+    emit(state.duplicate());
+  }
+
+  void appBarRedraw() {
+    state.fullRedraw = false;
+    state.appBarRedraw = true;
+    state.formRedraw = false;
+    emit(state.duplicate());
+  }
+
+  void formRedraw() {
+    state.fullRedraw = false;
+    state.appBarRedraw = false;
+    state.formRedraw = true;
     emit(state.duplicate());
   }
 }
