@@ -13,6 +13,7 @@ class ChatPageState {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   TextEditingController? searchController;
+  TextEditingController? descriptionController;
 
   bool selectionFlag = false;
   bool fullRedraw = false;
@@ -56,6 +57,7 @@ class ChatPageState {
       ..editingIndex = editingIndex
       ..searchPage = searchPage
       ..searchController = searchController
+      ..descriptionController = descriptionController
       .._topic = _topic;
   }
 

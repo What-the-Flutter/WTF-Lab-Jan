@@ -5,7 +5,7 @@ import '../../entity/entities.dart';
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
-  ChatPageCubit() : super(ChatPageState());
+  ChatPageCubit() : super(ChatPageState()..descriptionController = TextEditingController());
 
   void loadElements(Topic topic) {
     topic.loadElements();
@@ -51,8 +51,11 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     fullRedraw();
   }
 
-  void deleteMessage(Message o) {
-    MessageLoader.remove(o);
+  void deleteMessage(int index) {
+    if (state.editingIndex == index) {
+      finishEditing(state.elements[index].runtimeType is Event);
+    }
+    MessageLoader.remove(state.elements[index]);
     if (state.searchPage) {
       state.findElements();
     }
@@ -68,11 +71,15 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     fullRedraw();
   }
 
-  void startEditing(int index, int id) {
+  void startEditing(int index, Message o) {
     state.editingIndex = index;
     state.editingFlag = true;
+    state.descriptionController!.text = o.description;
+    if (o is Event) {
+      _onEditEvent(o);
+    }
     fullRedraw();
-    changeAddedTypeTo(id);
+    changeAddedTypeTo(getTypeId(o));
   }
 
   void changeAddedType() {
@@ -102,54 +109,47 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     formRedraw();
   }
 
-  void onEditEvent(Event o) {
+  void _onEditEvent(Event o) {
     state.selectedDate = o.scheduledTime;
     if (state.selectedDate != null) {
       state.selectedTime = TimeOfDay.fromDateTime(state.selectedDate!);
     }
-    formRedraw();
   }
 
-  void addEvent(String desc, Topic topic) {
+  void addEvent(Topic topic) {
     MessageLoader.add(Event(
       scheduledTime: getDateTime(),
-      description: desc,
+      description: state.descriptionController!.text,
       topic: topic,
     ));
     state.selectedDate = null;
     state.selectedTime = null;
+    state.descriptionController!.clear();
     fullRedraw();
   }
 
-  void add(bool isTask, String desc, Topic topic) {
+  void add(bool isTask, Topic topic) {
     if (isTask) {
       MessageLoader.add(
-        Task(description: desc, topic: topic),
+        Task(description: state.descriptionController!.text, topic: topic),
       );
     } else {
       MessageLoader.add(
-        Note(description: desc, topic: topic),
+        Note(description: state.descriptionController!.text, topic: topic),
       );
     }
     fullRedraw();
   }
 
-  void finishEditing(bool isTask, String desc) {
-    if (isTask) {
-      (state.elements[state.editingIndex] as Task).description = desc;
-    } else {
-      (state.elements[state.editingIndex] as Note).description = desc;
+  void finishEditing(bool isEvent) {
+    state.elements[state.editingIndex].description = state.descriptionController!.text;
+    state.editingFlag = false;
+    if (isEvent) {
+      (state.elements[state.editingIndex] as Event).scheduledTime = getDateTime();
+      state.selectedDate = null;
+      state.selectedTime = null;
     }
-    state.editingFlag = false;
-    fullRedraw();
-  }
-
-  void finEditEvent(String desc) {
-    (state.elements[state.editingIndex] as Event).description = desc;
-    (state.elements[state.editingIndex] as Event).scheduledTime = getDateTime();
-    state.editingFlag = false;
-    state.selectedDate = null;
-    state.selectedTime = null;
+    state.descriptionController!.clear();
     fullRedraw();
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swipe_to/swipe_to.dart';
 
 import '../entity/entities.dart' as entity;
 import '../main.dart';
@@ -65,6 +66,25 @@ class _ChatMessageState extends State<ChatMessage> {
 
   @override
   Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: widget.selection && _selected ? (Colors.blue.shade100) : null,
+      ),
+      padding: const EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
+      child: SwipeTo(
+        onLeftSwipe: widget.selection ? null : widget.onDeleted,
+        onRightSwipe: widget.selection ? null : widget.onEdited,
+        iconOnLeftSwipe: Icons.delete_outline_rounded,
+        iconOnRightSwipe: Icons.edit_outlined,
+        iconColor: widget.themeInherited.preset.colors.textColor1,
+        animationDuration: const Duration(milliseconds: 300),
+        offsetDx: 0.25,
+        child: _innerMessage(),
+      ),
+    );
+  }
+
+  Widget _innerMessage() {
     if (widget.item is entity.Task) {
       return _taskMessage(widget.item as entity.Task);
     } else if (widget.item is entity.Event) {
@@ -85,42 +105,36 @@ class _ChatMessageState extends State<ChatMessage> {
         }
       },
       onLongPress: _showMenu,
-      child: Container(
-        decoration: BoxDecoration(
-          color: widget.selection && _selected ? (Colors.blue.shade100) : null,
-        ),
-        padding: const EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: widget.themeInherited.preset.colors.chatTaskColor,
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    task.description,
-                    style: TextStyle(
-                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 5),
-                    child: _taskMessageFooter(task),
-                  ),
-                ],
-              ),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: widget.themeInherited.preset.colors.chatTaskColor,
             ),
-            IconButton(
-              icon: Icon(_favIcon),
-              onPressed: _onFavourite,
-              color: _favColor,
-              iconSize: 22,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  task.description,
+                  style: TextStyle(
+                      fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 5),
+                  child: _taskMessageFooter(task),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          IconButton(
+            icon: Icon(_favIcon),
+            onPressed: _onFavourite,
+            color: _favColor,
+            iconSize: 22,
+          ),
+        ],
       ),
     );
   }
@@ -186,40 +200,34 @@ class _ChatMessageState extends State<ChatMessage> {
         }
       },
       onLongPress: _showMenu,
-      child: Container(
-        decoration: BoxDecoration(
-          color: widget.selection && _selected ? (Colors.blue.shade100) : null,
-        ),
-        padding: const EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: (widget.themeInherited.preset.colors.chatEventColor),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    event.description,
-                    style: TextStyle(
-                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
-                  ),
-                  _eventSchedule(event),
-                  _eventFooter(event),
-                ],
-              ),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: (widget.themeInherited.preset.colors.chatEventColor),
             ),
-            IconButton(
-              icon: Icon(_favIcon),
-              onPressed: _onFavourite,
-              color: _favColor,
-              iconSize: 22,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  event.description,
+                  style: TextStyle(
+                      fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
+                ),
+                _eventSchedule(event),
+                _eventFooter(event),
+              ],
             ),
-          ],
-        ),
+          ),
+          IconButton(
+            icon: Icon(_favIcon),
+            onPressed: _onFavourite,
+            color: _favColor,
+            iconSize: 22,
+          ),
+        ],
       ),
     );
   }
@@ -346,46 +354,40 @@ class _ChatMessageState extends State<ChatMessage> {
         }
       },
       onLongPress: _showMenu,
-      child: Container(
-        decoration: BoxDecoration(
-          color: widget.selection && _selected ? (Colors.blue.shade100) : null,
-        ),
-        padding: const EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: (widget.themeInherited.preset.colors.chatNoteColor),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    note.description,
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: (widget.themeInherited.preset.colors.chatNoteColor),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  note.description,
+                  style: TextStyle(
+                      fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 5),
+                  child: Text(
+                    entity.timeFormatter.format(note.timeCreated),
                     style: TextStyle(
-                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
+                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
                   ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 5),
-                    child: Text(
-                      entity.timeFormatter.format(note.timeCreated),
-                      style: TextStyle(
-                          fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            IconButton(
-              icon: Icon(_favIcon),
-              onPressed: _onFavourite,
-              color: _favColor,
-              iconSize: 22,
-            ),
-          ],
-        ),
+          ),
+          IconButton(
+            icon: Icon(_favIcon),
+            onPressed: _onFavourite,
+            color: _favColor,
+            iconSize: 22,
+          ),
+        ],
       ),
     );
   }

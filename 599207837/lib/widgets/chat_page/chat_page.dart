@@ -25,7 +25,6 @@ class ChatPage extends StatelessWidget {
 class _ChatPage extends StatelessWidget {
   final entity.Topic topic;
   final BuildContext contextOld;
-  final _descriptionController = TextEditingController();
   final _scrollController = ScrollController();
 
   _ChatPage(this.topic, this.contextOld);
@@ -38,19 +37,7 @@ class _ChatPage extends StatelessWidget {
   }
 
   void _onEditingCalled(entity.Message o, int index, ChatPageState state, BuildContext context) {
-    context.read<ChatPageCubit>().startEditing(index, entity.getTypeId(o));
-    switch (o.runtimeType) {
-      case entity.Task:
-        _descriptionController.text = (o as entity.Task).description;
-        break;
-      case entity.Event:
-        context.read<ChatPageCubit>().onEditEvent(o as entity.Event);
-        _descriptionController.text = o.description;
-        break;
-      case entity.Note:
-        _descriptionController.text = (o as entity.Note).description;
-        break;
-    }
+    context.read<ChatPageCubit>().startEditing(index, o);
   }
 
   @override
@@ -123,8 +110,7 @@ class _ChatPage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return custom.ChatMessage(
                       item: state.elements[index],
-                      onDeleted: () =>
-                          context.read<ChatPageCubit>().deleteMessage(state.elements[index]),
+                      onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
                       onEdited: () =>
                           _onEditingCalled(state.elements[index], index, state, context),
                       onSelection: () => context.read<ChatPageCubit>().setSelection(true),
@@ -344,7 +330,7 @@ class _ChatPage extends StatelessWidget {
                         hintStyle: TextStyle(color: Colors.grey.shade600),
                         border: InputBorder.none,
                       ),
-                      controller: _descriptionController,
+                      controller: state.descriptionController,
                       style: TextStyle(color: themeInherited.preset.colors.textColor2),
                     ),
                   ),
@@ -361,12 +347,11 @@ class _ChatPage extends StatelessWidget {
               backgroundColor: themeInherited.preset.colors.buttonColor,
               onPressed: () {
                 FocusScope.of(context).requestFocus(FocusNode());
-                if (!state.editingFlag && _descriptionController.text.isNotEmpty) {
-                  context.read<ChatPageCubit>().addEvent(_descriptionController.text, topic);
-                } else if (_descriptionController.text.isNotEmpty) {
-                  context.read<ChatPageCubit>().finEditEvent(_descriptionController.text);
+                if (!state.editingFlag && state.descriptionController!.text.isNotEmpty) {
+                  context.read<ChatPageCubit>().addEvent(topic);
+                } else if (state.descriptionController!.text.isNotEmpty) {
+                  context.read<ChatPageCubit>().finishEditing(true);
                 }
-                _descriptionController.clear();
               },
               child: const Icon(
                 Icons.send,
@@ -413,7 +398,7 @@ class _ChatPage extends StatelessWidget {
                 hintStyle: TextStyle(color: Colors.grey.shade600),
                 border: InputBorder.none,
               ),
-              controller: _descriptionController,
+              controller: state.descriptionController,
               style: TextStyle(color: decorator.preset.colors.textColor2),
             ),
           ),
@@ -424,16 +409,14 @@ class _ChatPage extends StatelessWidget {
             backgroundColor: decorator.preset.colors.buttonColor,
             onPressed: () {
               FocusScope.of(context).requestFocus(FocusNode());
-              if (!state.editingFlag && _descriptionController.text.isNotEmpty) {
+              if (!state.editingFlag && state.descriptionController!.text.isNotEmpty) {
                 context.read<ChatPageCubit>().add(
                       isTask,
-                      _descriptionController.text,
                       topic,
                     );
-              } else if (_descriptionController.text.isNotEmpty) {
-                context.read<ChatPageCubit>().finishEditing(isTask, _descriptionController.text);
+              } else if (state.descriptionController!.text.isNotEmpty) {
+                context.read<ChatPageCubit>().finishEditing(false);
               }
-              _descriptionController.clear();
             },
             child: const Icon(
               Icons.send,
