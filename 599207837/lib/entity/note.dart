@@ -13,9 +13,11 @@ class Note implements Message {
   bool favourite;
 
   @override
-  void onFavourite() => favourite=!favourite;
+  void onFavourite() => favourite = !favourite;
 
+  @override
   String description;
+
   static bool _firstLoad = true;
   static late final MessageLoader mLoader = MessageLoader.type(Note);
 
@@ -23,10 +25,11 @@ class Note implements Message {
     timeCreated = DateTime.now();
   }
 
+  @override
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   static List<Message> getFavouriteNotes() {
-    if(_firstLoad) {
+    if (_firstLoad) {
       mLoader.loadTypeFavourites();
       _firstLoad = false;
     }

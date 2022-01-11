@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../entity/entities.dart' as entity;
-import '../main.dart';
+import 'items_page/items_page_cubit.dart';
 
 class ItemColumn<T> extends StatelessWidget {
   final T _item;
@@ -70,20 +71,11 @@ class _TaskColumn extends StatelessWidget {
         children: <Widget>[
           TextButton(
             child: const Text('Remove'),
-            onPressed: () {
-              entity.MessageLoader.remove(task);
-              final inherited = TabContrDecorator.of(context)!;
-              inherited.onEdited();
-            },
+            onPressed: () => context.read<ItemsPageCubit>().removeTask(task),
           ),
           TextButton(
             child: const Text('Complete'),
-            onPressed: () {
-              task.complete();
-              final inherited = TabContrDecorator.of(context)!;
-              task.timeCompleted = DateTime.now();
-              inherited.onEdited();
-            },
+            onPressed: () => context.read<ItemsPageCubit>().completeTask(task),
           ),
         ],
       );
@@ -180,15 +172,11 @@ class _EventColumn extends StatelessWidget {
               ),
             ),
             child: const Text('Visited'),
-            onPressed: () => event.visit(),
+            onPressed: () => context.read<ItemsPageCubit>().visitEvent(event),
           ),
           TextButton(
             child: const Text('Missed'),
-            onPressed: () {
-              event.miss();
-              final inherited = TabContrDecorator.of(context)!;
-              inherited.onEdited();
-            },
+            onPressed: () => context.read<ItemsPageCubit>().missEvent(event),
           ),
         ],
       );

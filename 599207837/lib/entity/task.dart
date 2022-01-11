@@ -12,9 +12,11 @@ class Task implements Message {
   bool favourite;
 
   @override
-  void onFavourite() => favourite=!favourite;
+  void onFavourite() => favourite = !favourite;
 
+  @override
   String description;
+
   bool isCompleted = false;
   static bool _firstLoad = true;
   DateTime? timeCompleted;
@@ -28,10 +30,11 @@ class Task implements Message {
 
   void unComplete() => isCompleted = false;
 
+  @override
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   static List<Message> getFavouriteTasks() {
-    if(_firstLoad) {
+    if (_firstLoad) {
       mLoader.loadTypeFavourites();
       _firstLoad = false;
     }

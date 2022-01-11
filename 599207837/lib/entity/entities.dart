@@ -18,9 +18,17 @@ abstract class Message {
   late Topic topic;
   late DateTime timeCreated;
   late bool favourite;
+  late String description;
+
   void onFavourite();
+
+  int get uuid;
 }
 
-int getTypeId(Message o){
-  return o.runtimeType==Task? 0 : o.runtimeType==Event? 1:2;
+int getTypeId(Message o) {
+  return o.runtimeType == Task
+      ? 0
+      : o.runtimeType == Event
+          ? 1
+          : 2;
 }

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../entity/entities.dart' as custom;
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../entity/entities.dart' as entity;
 import '../main.dart';
-import 'topic_maker.dart';
+import 'items_page/items_page_cubit.dart';
+import 'topic_maker/topic_maker.dart';
 
 class AddingButton extends StatefulWidget {
   final Icon firstIcon, secondIcon;
-  final TabController? tabController;
 
   const AddingButton({
     Key? key,
     required this.firstIcon,
     required this.secondIcon,
-    required this.tabController,
   }) : super(key: key);
 
   @override
@@ -41,7 +42,7 @@ class _AddingButtonState extends State<AddingButton> {
         height: 250,
         child: _BottomForm(
           sheetState: this,
-          currentPage: widget.tabController!.index,
+          currentPage: DefaultTabController.of(context)!.index,
         ),
       );
     });
@@ -53,17 +54,20 @@ class _AddingButtonState extends State<AddingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final decorator = ThemeDecorator.of(context)!;
+    final themeInherited = ThemeInherited.of(context)!;
     return Builder(
       builder: (ctxOfScaffold) {
         return FloatingActionButton(
-          backgroundColor: decorator.theme.buttonColor,
+          backgroundColor: themeInherited.preset.colors.buttonColor,
           onPressed: () {
-            if(widget.tabController!.index==0){
+            if (DefaultTabController.of(context)!.index == 0) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TopicMaker(decorator: decorator),
+                  builder: (newContext) => TopicMaker(
+                    themeInherited: themeInherited,
+                    onChange: () => context.read<ItemsPageCubit>().onTopicsChange(),
+                  ),
                 ),
               );
             } else {
@@ -126,7 +130,7 @@ class _BottomFormState extends State<_BottomForm> {
     }
   }
 
-  Widget _taskBottomForm(){
+  Widget _taskBottomForm() {
     return Form(
       key: _formKey,
       child: Column(
@@ -168,7 +172,7 @@ class _BottomFormState extends State<_BottomForm> {
                       _categoryController.text = newValue;
                     });
                   },
-                  items: custom.topics.values.map<DropdownMenuItem<String>>((value) {
+                  items: entity.topics.values.map<DropdownMenuItem<String>>((value) {
                     return DropdownMenuItem<String>(
                       value: value.toString(),
                       child: Text(value.toString()),
@@ -194,19 +198,15 @@ class _BottomFormState extends State<_BottomForm> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                final inherited = TabContrDecorator.of(context)!;
-                custom.MessageLoader.messages[0].insert(
+                entity.MessageLoader.messages[0].insert(
                   0,
-                  custom.Task(
+                  entity.Task(
                     description: _descriptionController.text,
-                    topic: custom.Topic(
-                      name: _categoryController.text,
-                      icon: Icons.delete_outline_rounded
-                    ),
+                    topic: entity.Topic(
+                        name: _categoryController.text, icon: Icons.delete_outline_rounded),
                     favourite: true,
                   ),
                 );
-                inherited.onEdited();
                 final parent = widget.sheetState;
                 parent._hideBottomSheet(parent.bottomSheetController!);
                 parent.bottomSheetController = null;

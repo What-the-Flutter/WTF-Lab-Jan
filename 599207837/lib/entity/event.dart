@@ -12,17 +12,24 @@ class Event implements Message {
   bool favourite;
 
   @override
-  void onFavourite() => favourite=!favourite;
+  void onFavourite() => favourite = !favourite;
 
+  @override
   String description;
+
   DateTime? scheduledTime;
   bool _isVisited = false;
   bool _isMissed = false;
   static bool _firstLoad = true;
   static late final MessageLoader mLoader = MessageLoader.type(Event);
 
-  Event({required this.topic, required this.description, this.scheduledTime, this.favourite = false}) {
-    timeCreated=DateTime.now();
+  Event({
+    required this.topic,
+    required this.description,
+    this.scheduledTime,
+    this.favourite = false,
+  }) {
+    timeCreated = DateTime.now();
   }
 
   void visit() {
@@ -41,10 +48,11 @@ class Event implements Message {
 
   bool isMissed() => _isMissed;
 
+  @override
   int get uuid => hashCode + Random.secure().nextInt(100);
 
   static List<Message> getFavouriteEvents() {
-    if(_firstLoad) {
+    if (_firstLoad) {
       mLoader.loadTypeFavourites();
       _firstLoad = false;
     }

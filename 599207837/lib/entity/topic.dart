@@ -16,7 +16,20 @@ class Topic {
   late DateTime timeCreated;
   int elements = 0;
   bool _firstLoad = true;
+  late bool _pinned;
+  late bool _archived;
   late final entity.MessageLoader mLoader;
+
+  void onPin() => _pinned = !_pinned;
+
+  void onArchive() {
+    _archived = !_archived;
+    entity.MessageLoader.clearTopicData(id);
+  }
+
+  bool get isPinned => _pinned;
+
+  bool get isArchived => _archived;
 
   factory Topic({required String name, required IconData icon}) {
     if (_topics.containsKey(name)) {
@@ -32,7 +45,11 @@ class Topic {
   Topic.newInstance({
     required this.name,
     required this.icon,
+    bool pinned = false,
+    bool archived = false,
   }) {
+    _archived = archived;
+    _pinned = pinned;
     id = _vacantIndex;
     timeCreated = DateTime.now();
     _vacantIndex++;
@@ -59,9 +76,11 @@ class Topic {
   }
 
   static void loadTopics() {
-    topics.add(entity.Topic(name: 'WTF Lab', icon: Icons.flutter_dash_rounded));
-    topics.add(entity.Topic(name: 'BSUIR', icon: Icons.account_balance_rounded));
-    topics.add(entity.Topic(name: 'Leisure', icon: Icons.sports_esports_rounded));
+    if (topics.isEmpty) {
+      topics.add(entity.Topic(name: 'WTF Lab', icon: Icons.flutter_dash_rounded));
+      topics.add(entity.Topic(name: 'BSUIR', icon: Icons.account_balance_rounded));
+      topics.add(entity.Topic(name: 'Leisure', icon: Icons.sports_esports_rounded));
+    }
   }
 
   void delete() {
