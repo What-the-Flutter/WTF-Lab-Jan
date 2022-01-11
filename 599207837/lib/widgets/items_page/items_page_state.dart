@@ -11,6 +11,10 @@ class ItemsPageState {
   bool _eventsEdited = false;
   bool _notesEdited = false;
 
+  ItemsPageState() {
+    loadItems();
+  }
+
   bool get topicsEdited {
     if (_topicsEdited) {
       _topicsEdited = false;
@@ -50,10 +54,6 @@ class ItemsPageState {
   set eventsEdited(bool v) => _eventsEdited = v;
 
   set notesEdited(bool v) => _notesEdited = v;
-
-  ItemsPageState() {
-    loadItems();
-  }
 
   void loadItems() {
     favTasks = entity.Task.getFavouriteTasks();

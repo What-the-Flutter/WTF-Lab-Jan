@@ -433,14 +433,12 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
         ),
         PopupMenuItem(
-          onTap: () {
-            setState(() {
-              _selected = true;
-              _calledSelection = true;
-              widget.onSelected();
-              widget.onSelection();
-            });
-          },
+          onTap: () => setState(() {
+            _selected = true;
+            _calledSelection = true;
+            widget.onSelected();
+            widget.onSelection();
+          }),
           value: 3,
           child: Row(
             children: <Widget>[
@@ -457,22 +455,20 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
         ),
         PopupMenuItem(
-          onTap: () {
-            Future<void>.delayed(
-              const Duration(), // OR const Duration(milliseconds: 500),
-              () => Alerts.moveAlert(
-                context: context,
-                themeInherited: widget.themeInherited,
-                currentTopic: widget.item.topic,
-                onMoved: (topic) {
-                  widget.onDeleted();
-                  widget.item.topic = topic;
-                  entity.MessageLoader.add(widget.item);
-                  Navigator.pop(context);
-                },
-              ),
-            );
-          },
+          onTap: () => Future<void>.delayed(
+            const Duration(),
+            () => Alerts.moveAlert(
+              context: context,
+              themeInherited: widget.themeInherited,
+              currentTopic: widget.item.topic,
+              onMoved: (topic) {
+                widget.onDeleted();
+                widget.item.topic = topic;
+                entity.MessageLoader.add(widget.item);
+                Navigator.pop(context);
+              },
+            ),
+          ),
           value: 4,
           child: Row(
             children: <Widget>[

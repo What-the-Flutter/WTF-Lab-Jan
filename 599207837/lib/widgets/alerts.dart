@@ -48,7 +48,7 @@ class Alerts {
   ) {
     final items = entity.topics.values.toList();
     return Container(
-      width: 250.0, // Change as per your requirement
+      width: 250.0,
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: items.length,

@@ -29,9 +29,7 @@ class ChatPageState {
     _topic = topic;
   }
 
-  void getElementsAgain() {
-    getElements(_topic!);
-  }
+  void getElementsAgain() => getElements(_topic!);
 
   void findElements() {
     getElementsAgain();

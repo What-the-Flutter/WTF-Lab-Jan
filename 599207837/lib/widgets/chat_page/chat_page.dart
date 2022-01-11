@@ -36,10 +36,6 @@ class _ChatPage extends StatelessWidget {
     }
   }
 
-  void _onEditingCalled(entity.Message o, int index, ChatPageState state, BuildContext context) {
-    context.read<ChatPageCubit>().startEditing(index, o);
-  }
-
   @override
   Widget build(BuildContext context) {
     _scrollController.addListener(() => _onScrollEvent(context));
@@ -112,7 +108,7 @@ class _ChatPage extends StatelessWidget {
                       item: state.elements[index],
                       onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
                       onEdited: () =>
-                          _onEditingCalled(state.elements[index], index, state, context),
+                          context.read<ChatPageCubit>().startEditing(index, state.elements[index]),
                       onSelection: () => context.read<ChatPageCubit>().setSelection(true),
                       onSelected: () =>
                           context.read<ChatPageCubit>().onSelect(state.elements[index]),

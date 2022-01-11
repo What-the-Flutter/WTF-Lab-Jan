@@ -76,7 +76,7 @@ class Topic {
   }
 
   static void loadTopics() {
-    if(topics.isEmpty){
+    if (topics.isEmpty) {
       topics.add(entity.Topic(name: 'WTF Lab', icon: Icons.flutter_dash_rounded));
       topics.add(entity.Topic(name: 'BSUIR', icon: Icons.account_balance_rounded));
       topics.add(entity.Topic(name: 'Leisure', icon: Icons.sports_esports_rounded));

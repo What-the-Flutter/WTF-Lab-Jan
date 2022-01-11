@@ -61,7 +61,7 @@ class MessageLoader {
   static void add(entity.Message o) {
     o.topic.elements++;
     messages[o.topic.id].insert(0, o);
-    if(o.favourite) {
+    if (o.favourite) {
       favouriteMessages[entity.getTypeId(o)].add(o);
     }
   }
