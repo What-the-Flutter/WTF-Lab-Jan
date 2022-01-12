@@ -1,3 +1,4 @@
+import '../../event.dart';
 import '../../note.dart';
 
 class StatesEventPage {
@@ -13,6 +14,7 @@ class StatesEventPage {
   final String time;
   final String date;
   final List<Note> noteList;
+  final List<Event> eventList;
 
   const StatesEventPage({
     this.isWriting = false,
@@ -27,6 +29,7 @@ class StatesEventPage {
     this.isChoosingCircleAvatar = false,
     this.isEventPressed = false,
     this.noteList = const [],
+    this.eventList = const [],
   });
 
   StatesEventPage copyWith({
@@ -42,6 +45,7 @@ class StatesEventPage {
     int? selectedCircleAvatar,
     int? selectedNoteIndex,
     List<Note>? noteList,
+    List<Event>? eventList,
   }) {
     return StatesEventPage(
       isWriting: isWriting ?? this.isWriting,
@@ -56,6 +60,7 @@ class StatesEventPage {
       noteList: noteList ?? this.noteList,
       isTextSearch: isTextSearch ?? this.isTextSearch,
       isEventPressed: isEventPressed ?? this.isEventPressed,
+      eventList: eventList ?? this.eventList,
     );
   }
 }

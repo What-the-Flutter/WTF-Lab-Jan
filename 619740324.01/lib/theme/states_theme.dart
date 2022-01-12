@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class StatesTheme {
-  final bool isLightTheme;
+  final bool? isLightTheme;
   final ThemeData? themeData;
 
-  StatesTheme({this.isLightTheme = true, this.themeData});
+  StatesTheme({this.isLightTheme, this.themeData});
 
   StatesTheme copyWith({
     final bool? isLightTheme,

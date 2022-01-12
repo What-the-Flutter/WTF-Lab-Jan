@@ -20,14 +20,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _noteList.add(
-      Note(
-        eventName: 'Travel',
-        indexOfCircleAvatar: 0,
-        subTittleEvent: 'Add event',
-      ),
-    );
-    BlocProvider.of<CubitHomePage>(context).init(_noteList);
+    BlocProvider.of<CubitHomePage>(context).init();
   }
 
   @override
@@ -50,7 +43,9 @@ class _HomePageState extends State<HomePage> {
       items: [
         BottomNavigationBarItem(
           backgroundColor: BlocProvider.of<CubitTheme>(context)
-              .state.themeData?.backgroundColor,
+              .state
+              .themeData
+              ?.backgroundColor,
           icon: const Icon(
             Icons.home,
           ),
@@ -223,6 +218,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             );
+            BlocProvider.of<CubitHomePage>(context)
+                .updateNote(state.noteList[index]);
             BlocProvider.of<CubitHomePage>(context).setNoteList(state.noteList);
             Navigator.pop(context);
           },

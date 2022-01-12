@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_bloc: ^8.0.0
   intl: ^0.17.0
+  path: ^1.8.0
+  shared_preferences: ^2.0.11
+  sqflite: ^2.0.1
 
 dev_dependencies:
   flutter_test:
