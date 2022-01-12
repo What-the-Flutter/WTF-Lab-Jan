@@ -114,14 +114,13 @@ class _EventPageState extends State<EventPage> {
           onPressed: () {
             BlocProvider.of<CubitEventPage>(context).setEventEditing(true);
             textController.text =
-                state.note!.eventList[state.selectedEventIndex].text;
+                state.eventList[state.selectedEventIndex].text;
             textController.selection = TextSelection(
               baseOffset: textController.text.length,
               extentOffset: textController.text.length,
             );
             BlocProvider.of<CubitEventPage>(context).setSelectedCircleAvatar(
-                state.note!.eventList[state.selectedEventIndex]
-                    .indexOfCircleAvatar);
+                state.eventList[state.selectedEventIndex].indexOfCircleAvatar);
             _focusNode.requestFocus();
             BlocProvider.of<CubitEventPage>(context).setEventPressed(false);
           },
@@ -194,9 +193,8 @@ class _EventPageState extends State<EventPage> {
                 IconButton(
                   icon: const Icon(Icons.check),
                   onPressed: () {
-                    _noteList[state.selectedNoteIndex]
-                        .eventList
-                        .add(state.note!.eventList[state.selectedEventIndex]);
+                    BlocProvider.of<CubitEventPage>(context).transferEvent(
+                        state.eventList[state.selectedEventIndex], _noteList);
                     BlocProvider.of<CubitEventPage>(context)
                         .deleteEvent(state.selectedEventIndex);
                     Navigator.pop(context);
@@ -224,9 +222,8 @@ class _EventPageState extends State<EventPage> {
             title: Text(state.noteList[index].eventName),
             value: index,
             groupValue: state.selectedNoteIndex,
-            onChanged: (value) =>
-              BlocProvider.of<CubitEventPage>(context)
-                  .setSelectedNoteIndex(value!),
+            onChanged: (value) => BlocProvider.of<CubitEventPage>(context)
+                .setSelectedNoteIndex(value!),
           );
         },
       ),
@@ -375,11 +372,11 @@ class _EventPageState extends State<EventPage> {
 
   ListView _listViewWithEvents(StatesEventPage state) {
     final newEventList = state.isTextSearch
-        ? state.note!.eventList
+        ? state.eventList
             .where(
                 (element) => element.text.contains(textSearchController.text))
             .toList()
-        : state.note!.eventList;
+        : state.eventList;
     return ListView.builder(
       itemCount: newEventList.length,
       reverse: true,
@@ -414,16 +411,20 @@ class _EventPageState extends State<EventPage> {
                       alignment: Alignment.bottomRight,
                       child: Text(event.time),
                     ),
-                    trailing: event.isBookmark
+                    trailing: event.bookmarkIndex == 1
                         ? const Icon(
                             Icons.bookmark,
                             size: 30,
                           )
                         : null,
                     onTap: () {
-                      event.isBookmark = !event.isBookmark;
+                      event.bookmarkIndex == 0
+                          ? event.bookmarkIndex = 1
+                          : event.bookmarkIndex = 0;
                       BlocProvider.of<CubitEventPage>(context)
                           .setNote(state.note);
+                      BlocProvider.of<CubitEventPage>(context)
+                          .updateEvent(event);
                     },
                     onLongPress: () {
                       BlocProvider.of<CubitEventPage>(context)
@@ -444,7 +445,7 @@ class _EventPageState extends State<EventPage> {
   void _copyEvent(StatesEventPage state) {
     Clipboard.setData(
       ClipboardData(
-        text: state.note?.eventList[state.selectedEventIndex].text,
+        text: state.eventList[state.selectedEventIndex].text,
       ),
     );
   }
