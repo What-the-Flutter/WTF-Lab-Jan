@@ -1,63 +1,25 @@
 import 'package:flutter/material.dart';
-import 'chat_screen/chat_screen.dart';
 
-import 'custom_bottom_navigation_bar.dart';
-import 'main_list_elements/main_list.dart';
+import '/screens/main_screen.dart';
+import '/theme/custom_theme.dart';
+import '/theme/theme_color.dart';
 
-void main() => runApp(ChatScreen());
+void main() => runApp(
+      CustomTheme(
+        themeData: lightTheme,
+        child: MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
-  PreferredSizeWidget _customAppBar() {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.menu),
-        onPressed: () {},
-      ),
-      title: const Center(
-        child: Text('Home'),
-      ),
-      actions: [
-        IconButton(
-          onPressed: () {},
-          tooltip: 'Switch Theme',
-          icon: const Icon(
-            Icons.invert_colors_on,
-            color: Colors.white,
-            size: 28,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-        )
-      ],
-    );
-  }
-
-  Widget _customFloatingActionButton() {
-    return FloatingActionButton(
-      onPressed: () {},
-      tooltip: 'New Page',
-      child: const Icon(Icons.add),
-      backgroundColor: const Color.fromRGBO(254, 215, 65, 1),
-      foregroundColor: Colors.black,
-      splashColor: Colors.transparent,
-    );
-  }
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: CustomTheme.of(context),
       title: 'Chat Journal',
-      theme: ThemeData(
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blueGrey[700],
-          foregroundColor: Colors.white,
-        ),
-      ),
-      home: Scaffold(
-        appBar: _customAppBar(),
-        body: MainList(),
-        floatingActionButton: _customFloatingActionButton(),
-        bottomNavigationBar: const CustomBottomNavigationBar(),
-      ),
+      home: MainScreen(),
     );
   }
 }
