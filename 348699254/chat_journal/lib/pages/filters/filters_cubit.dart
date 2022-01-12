@@ -15,7 +15,6 @@ class FiltersCubit extends Cubit<FiltersState> {
       : super(
           FiltersState(
             pageList: [],
-            //categoryList: [],
             categoryNameList: [],
             categoryIconList: [],
             hashtagList: [],
@@ -106,14 +105,14 @@ class FiltersCubit extends Cubit<FiltersState> {
   }
 
   void onPageSelected(ActivityPage page) {
-    isPageSelected(page) ? unselectPage(page) : selectPage(page);
+    isPageSelected(page) ? _unselectPage(page) : _selectPage(page);
   }
 
   bool isPageSelected(ActivityPage page) {
     return state.selectedPageList.contains(page);
   }
 
-  void selectPage(ActivityPage page) {
+  void _selectPage(ActivityPage page) {
     final pages = state.selectedPageList;
     pages.add(page);
     emit(
@@ -123,7 +122,7 @@ class FiltersCubit extends Cubit<FiltersState> {
     );
   }
 
-  void unselectPage(ActivityPage page) {
+  void _unselectPage(ActivityPage page) {
     final pages = state.selectedPageList;
     pages.remove(page);
     emit(
@@ -135,15 +134,15 @@ class FiltersCubit extends Cubit<FiltersState> {
 
   void onHashtagSelected(String hashtag) {
     isHashtagSelected(hashtag)
-        ? unselectHashtag(hashtag)
-        : selectHashtag(hashtag);
+        ? _unselectHashtag(hashtag)
+        : _selectHashtag(hashtag);
   }
 
   bool isHashtagSelected(String hashtag) {
     return state.selectedHashtagList.contains(hashtag);
   }
 
-  void selectHashtag(String hashtag) {
+  void _selectHashtag(String hashtag) {
     final hashtags = state.selectedHashtagList;
     hashtags.add(hashtag);
     emit(
@@ -153,7 +152,7 @@ class FiltersCubit extends Cubit<FiltersState> {
     );
   }
 
-  void unselectHashtag(String hashtag) {
+  void _unselectHashtag(String hashtag) {
     final hashtags = state.selectedHashtagList;
     hashtags.remove(hashtag);
     emit(
@@ -164,14 +163,16 @@ class FiltersCubit extends Cubit<FiltersState> {
   }
 
   void onCategorySelected(String event) {
-    isCategorySelected(event) ? unselectCategory(event) : selectCategory(event);
+    isCategorySelected(event)
+        ? _unselectCategory(event)
+        : _selectCategory(event);
   }
 
   bool isCategorySelected(String event) {
     return state.selectedCategoryList.contains(event);
   }
 
-  void selectCategory(String event) {
+  void _selectCategory(String event) {
     final events = state.selectedCategoryList;
     events.add(event);
     emit(
@@ -181,7 +182,7 @@ class FiltersCubit extends Cubit<FiltersState> {
     );
   }
 
-  void unselectCategory(String event) {
+  void _unselectCategory(String event) {
     final events = state.selectedCategoryList;
     events.remove(event);
     emit(

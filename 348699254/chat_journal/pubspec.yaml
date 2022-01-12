@@ -43,6 +43,7 @@ dependencies:
   lottie: ^1.2.1
   rive: ^0.8.1
   show_up_animation: ^2.0.0
+  syncfusion_flutter_charts: ^19.4.41
 
 
   # The following adds the Cupertino Icons font to your application.

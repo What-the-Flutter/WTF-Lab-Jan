@@ -31,21 +31,24 @@ class _TimelineScreenState extends State<TimelineScreen>
     'Sports': Icons.sports_baseball_rounded,
     'Laundry': Icons.local_laundry_service,
   };
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(milliseconds: 1000),
-    vsync: this,
-  )..forward();
-  late final Animation<Size> _buttonAnimation =
-      Tween<Size>(begin: const Size(60, 60), end: const Size(80, 80)).animate(
-          CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn));
+  late AnimationController _animationController;
+  late Animation<Size> _buttonAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    )..forward();
+    _buttonAnimation =
+        Tween<Size>(begin: const Size(60, 60), end: const Size(80, 80)).animate(
+            CurvedAnimation(
+                parent: _animationController, curve: Curves.fastOutSlowIn));
     BlocProvider.of<TimelineCubit>(context).showAllEvents();
-    _controller.addStatusListener((status) {
+    _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _controller.repeat();
+        _animationController.repeat();
       }
     });
   }
@@ -153,7 +156,7 @@ class _TimelineScreenState extends State<TimelineScreen>
   void dispose() {
     // Clean up the controller when the widget is disposed.
     _eventInputController.dispose();
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -320,8 +323,13 @@ class _TimelineScreenState extends State<TimelineScreen>
     );
   }
 
-  Widget _timelineTile(TimelineState state, String imagePath,
-      String eventContent, String subtitle, int index) {
+  Widget _timelineTile(
+    TimelineState state,
+    String imagePath,
+    String eventContent,
+    String subtitle,
+    int index,
+  ) {
     return ListTile(
         title: imagePath.isNotEmpty
             ? Image.file(File(imagePath))
@@ -363,8 +371,7 @@ class _TimelineScreenState extends State<TimelineScreen>
             ? const Icon(Icons.bookmark, color: Colors.amber)
             : null,
         onTap: () => BlocProvider.of<TimelineCubit>(context).markEvent(index),
-        onLongPress: () {} //=>
-        );
+        onLongPress: () {});
   }
 
   Widget _listTileRow(String subtitle) {

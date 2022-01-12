@@ -5,6 +5,7 @@ import '../../data/model/activity_page.dart';
 import '../../data/model/event.dart';
 import '../../data/repository/event_repository.dart';
 import '../../data/repository/page_repository.dart';
+import '../search_filter.dart';
 import 'timeline_state.dart';
 
 class TimelineCubit extends Cubit<TimelineState> {
@@ -98,19 +99,19 @@ class TimelineCubit extends Cubit<TimelineState> {
     final categoryList = <String>[];
     final hashtagList = <String>[];
     if (result != null) {
-      if (result[0] == 'search') {
+      if (result[0] == SearchFilter.search) {
         showAllSearchedEvents(result[1]);
-      } else if (result[0] == 'page') {
+      } else if (result[0] == SearchFilter.page) {
         for (final page in result[1]) {
           pageList.add(page);
         }
         showAllEventsByPages(result[2], pageList);
-      } else if (result[0] == 'tag') {
+      } else if (result[0] == SearchFilter.tag) {
         for (final hashtag in result[1]) {
           hashtagList.add(hashtag);
         }
         showAllEventsByHashtags(hashtagList);
-      } else if (result[0] == 'category') {
+      } else if (result[0] == SearchFilter.category) {
         for (final category in result[1]) {
           categoryList.add(category);
         }
@@ -196,7 +197,9 @@ class TimelineCubit extends Cubit<TimelineState> {
   }
 
   List<Event> _ignoredPageList(
-      List<Event> eventList, List<ActivityPage> selectedPageList) {
+    List<Event> eventList,
+    List<ActivityPage> selectedPageList,
+  ) {
     final eventByPagesList = <Event>[];
     for (var i = 0; i < selectedPageList.length; i++) {
       final tempPagesList = eventList
@@ -208,7 +211,9 @@ class TimelineCubit extends Cubit<TimelineState> {
   }
 
   List<Event> _includedPageList(
-      List<Event> eventList, List<ActivityPage> selectedPageList) {
+    List<Event> eventList,
+    List<ActivityPage> selectedPageList,
+  ) {
     final eventByPagesList = <Event>[];
     for (var i = 0; i < selectedPageList.length; i++) {
       final tempPagesList = eventList
@@ -261,15 +266,15 @@ class TimelineCubit extends Cubit<TimelineState> {
 
   void onHashtagSelected(String hashtag) {
     isHashtagSelected(hashtag)
-        ? unselectHashtag(hashtag)
-        : selectHashtag(hashtag);
+        ? _unselectHashtag(hashtag)
+        : _selectHashtag(hashtag);
   }
 
   bool isHashtagSelected(String hashtag) {
     return state.selectedHashtagList.contains(hashtag);
   }
 
-  void selectHashtag(String hashtag) {
+  void _selectHashtag(String hashtag) {
     final hashtags = state.selectedHashtagList;
     hashtags.add(hashtag);
     emit(
@@ -279,7 +284,7 @@ class TimelineCubit extends Cubit<TimelineState> {
     );
   }
 
-  void unselectHashtag(String hashtag) {
+  void _unselectHashtag(String hashtag) {
     final hashtags = state.selectedHashtagList;
     hashtags.remove(hashtag);
     emit(
