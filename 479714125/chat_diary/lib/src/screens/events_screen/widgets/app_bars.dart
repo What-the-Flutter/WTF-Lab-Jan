@@ -36,10 +36,6 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
           icon: const Icon(Icons.search),
         ),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.bookmark_outline),
-        ),
       ],
     );
   }
@@ -79,10 +75,6 @@ class MessageClickedAppBar extends StatelessWidget
         IconButton(
           onPressed: copySelectedEvents,
           icon: const Icon(Icons.copy),
-        ),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.bookmark_outline),
         ),
         IconButton(
           onPressed: cubit.deleteSelectedEvents,
