@@ -1,6 +1,6 @@
 part of 'cubit.dart';
 
-class EventScreenState {
+class EventScreenState extends Equatable {
   final PageModel page;
   final int countOfSelected;
   final int newEventIndex;
@@ -47,4 +47,16 @@ class EventScreenState {
       newEventIndex: newEventIndex ?? this.newEventIndex,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        page,
+        countOfSelected,
+        newEventIndex,
+        isEditing,
+        isImageSelected,
+        isCategory,
+        currentCategory,
+        isSearch,
+      ];
 }

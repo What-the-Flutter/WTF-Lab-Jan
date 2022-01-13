@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 
 import '../../../data/database_config.dart';
 import '../../../models/event_model.dart';

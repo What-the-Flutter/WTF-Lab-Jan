@@ -10,10 +10,12 @@ void main() async {
   final cubit = ThemeCubit();
   await cubit.loadTheme();
   BlocOverrides.runZoned(
-    () => runApp(BlocProvider<ThemeCubit>(
-      create: (context) => cubit,
-      child: const App(),
-    )),
+    () => runApp(
+      BlocProvider<ThemeCubit>(
+        create: (context) => cubit,
+        child: const App(),
+      ),
+    ),
     blocObserver: AppCubitObserver(),
   );
 }
