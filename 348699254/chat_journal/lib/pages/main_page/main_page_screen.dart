@@ -22,6 +22,9 @@ import '../filters/filters_cubit.dart';
 import '../settings/settings_cubit.dart';
 import '../settings/settings_screen.dart';
 import '../settings/settings_state.dart';
+import '../statistics/statistics_cubit.dart';
+import '../statistics/statistics_filters/statistics_filters_cubit.dart';
+import '../statistics/statistics_screen.dart';
 import '../timeline_page/timeline_cubit.dart';
 import '../timeline_page/timeline_screen.dart';
 import 'main_page_cubit.dart';
@@ -89,6 +92,16 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
           BlocProvider(
+            create: (context) => StatisticsCubit(
+              RepositoryProvider.of<EventRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => StatisticsFiltersCubit(
+              RepositoryProvider.of<ActivityPageRepository>(context),
+            ),
+          ),
+          BlocProvider(
             create: (context) => AddPageCubit(
               RepositoryProvider.of<ActivityPageRepository>(context),
             ),
@@ -134,24 +147,26 @@ class MainPageScreen extends StatefulWidget {
 
 class _MainPageScreenState extends State<MainPageScreen>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 4),
-    vsync: this,
-  )..forward();
-  late final Animation<double> _animation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.fastOutSlowIn,
-  );
+  late AnimationController _animationController;
+  late Animation<double> _mainScreenAnimation;
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 4),
+      vsync: this,
+    )..forward();
+    _mainScreenAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.fastOutSlowIn,
+    );
     BlocProvider.of<AuthCubit>(context).signInAnonymously();
     authentication();
     BlocProvider.of<SettingsCubit>(context).initSettings();
@@ -183,7 +198,7 @@ class _MainPageScreenState extends State<MainPageScreen>
           drawer: _burgerMenuDrawer(),
           body: _bodyStructure(state),
           floatingActionButton: ScaleTransition(
-            scale: _animation,
+            scale: _mainScreenAnimation,
             child: FloatingActionButton(
               onPressed: () async {
                 await Navigator.push(
@@ -196,7 +211,7 @@ class _MainPageScreenState extends State<MainPageScreen>
                 );
                 BlocProvider.of<MainPageCubit>(context).showActivityPages();
               },
-              child: const Icon(Icons.add),
+              child: const Icon(Icons.add), //color: Colors.brown),
             ),
           ),
           bottomNavigationBar: _bottomNavigationBar(),
@@ -243,7 +258,14 @@ class _MainPageScreenState extends State<MainPageScreen>
           ListTile(
             leading: const Icon(Icons.multiline_chart),
             title: const Text('Statistics'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StatisticsScreen(),
+                ),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.settings),
@@ -342,6 +364,9 @@ class _MainPageScreenState extends State<MainPageScreen>
       ),
       subtitle: Text(
         subtitle,
+        //style: const TextStyle(
+        // color: Colors.black26,
+        //),
       ),
       leading: _circleAvatarForActivityPage(state, iconIndex, index),
       onTap: () async {
@@ -384,7 +409,7 @@ class _MainPageScreenState extends State<MainPageScreen>
                 child: Icon(
                   Icons.push_pin,
                   color: Colors.black54,
-                ),
+                ), // change this children
               ),
             ),
         ],
@@ -394,7 +419,7 @@ class _MainPageScreenState extends State<MainPageScreen>
 
   Widget _questionnaireBotContainer() {
     return FadeTransition(
-      opacity: _animation,
+      opacity: _mainScreenAnimation,
       child: Center(
         child: Container(
           padding: const EdgeInsets.all(15),

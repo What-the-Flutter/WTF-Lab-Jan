@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../constants.dart';
+import '../search_filter.dart';
 import 'filters_cubit.dart';
 import 'filters_state.dart';
 
@@ -12,35 +14,35 @@ class FiltersScreen extends StatefulWidget {
 class _FiltersScreenState extends State<FiltersScreen>
     with TickerProviderStateMixin {
   final _searchInputController = TextEditingController();
-  static const String pageText =
-      'Tab to select a page you want to include to the filter. '
-      'All pages are included by default.';
-  static const String hashtagText =
-      'Tab to select a page you want to include to the filter. '
-      'All pages are included by default.';
-  static const String categoryText =
-      'Tab to select a label you want to include to the filter. '
-      'All labels are included by default.';
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 2),
-    vsync: this,
-  )..forward();
-  late final Animation<double> _animation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeIn,
-  );
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..forward();
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
     BlocProvider.of<FiltersCubit>(context).showActivityPages();
     BlocProvider.of<FiltersCubit>(context).showCategoryList();
     BlocProvider.of<FiltersCubit>(context).hashTagList();
+    _searchInputController.addListener(() {
+      if (_searchInputController.text.isNotEmpty) {
+        BlocProvider.of<FiltersCubit>(context).startSearching();
+      } else {
+        BlocProvider.of<FiltersCubit>(context).finishSearching();
+      }
+    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -60,16 +62,26 @@ class _FiltersScreenState extends State<FiltersScreen>
             onPressed: () {
               BlocProvider.of<FiltersCubit>(context).clearAllSelectedLists();
               if (state.searchData.isNotEmpty) {
-                Navigator.pop(context, ['search', state.searchData]);
-                print(state.searchData);
+                Navigator.pop(context, [
+                  SearchFilter.search,
+                  state.searchData,
+                ]);
               } else if (state.selectedPageList.isNotEmpty) {
-                Navigator.pop(context,
-                    ['page', state.selectedPageList, state.arePagesIgnored]);
+                Navigator.pop(context, [
+                  SearchFilter.page,
+                  state.selectedPageList,
+                  state.arePagesIgnored,
+                ]);
               } else if (state.selectedHashtagList.isNotEmpty) {
-                Navigator.pop(context, ['tag', state.selectedHashtagList]);
+                Navigator.pop(context, [
+                  SearchFilter.tag,
+                  state.selectedHashtagList,
+                ]);
               } else if (state.selectedCategoryList.isNotEmpty) {
-                Navigator.pop(
-                    context, ['category', state.selectedCategoryList]);
+                Navigator.pop(context, [
+                  SearchFilter.category,
+                  state.selectedCategoryList,
+                ]);
               } else {
                 Navigator.of(context).pop();
               }
@@ -93,11 +105,6 @@ class _FiltersScreenState extends State<FiltersScreen>
   }
 
   Widget _textFormFieldForSearching(FiltersState state) {
-    if (_searchInputController.text.isNotEmpty) {
-      BlocProvider.of<FiltersCubit>(context).startSearching();
-    } else {
-      BlocProvider.of<FiltersCubit>(context).finishSearching();
-    }
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 10, 5),
       child: TextFormField(
@@ -235,7 +242,7 @@ class _FiltersScreenState extends State<FiltersScreen>
     return Align(
       alignment: AlignmentDirectional.topCenter,
       child: FadeTransition(
-        opacity: _animation,
+        opacity: _fadeAnimation,
         child: Container(
           padding: const EdgeInsets.all(20),
           margin: const EdgeInsets.fromLTRB(25, 30, 25, 0),
@@ -282,19 +289,19 @@ class _FiltersScreenState extends State<FiltersScreen>
     return Wrap(
       spacing: 10,
       children: <Widget>[
-        for (int i = 0; i < state.pageList.length; i++)
+        for (var page in state.pageList)
           FilterChip(
             backgroundColor: Colors.deepPurpleAccent,
             selectedColor: Colors.purpleAccent,
             avatar: Icon(
-              _iconData[state.pageList[i].iconIndex],
+              _iconData[page.iconIndex],
               color: Colors.black,
             ),
-            label: Text(state.pageList[i].name),
-            selected: BlocProvider.of<FiltersCubit>(context)
-                .isPageSelected(state.pageList[i]),
-            onSelected: (selected) => BlocProvider.of<FiltersCubit>(context)
-                .onPageSelected(state.pageList[i]),
+            label: Text(page.name),
+            selected:
+                BlocProvider.of<FiltersCubit>(context).isPageSelected(page),
+            onSelected: (selected) =>
+                BlocProvider.of<FiltersCubit>(context).onPageSelected(page),
           ),
       ],
     );
@@ -304,15 +311,15 @@ class _FiltersScreenState extends State<FiltersScreen>
     return Wrap(
       spacing: 10,
       children: <Widget>[
-        for (int i = 0; i < state.hashtagList.length; i++)
+        for (var tag in state.hashtagList)
           FilterChip(
             backgroundColor: Colors.deepPurpleAccent,
             selectedColor: Colors.purpleAccent,
-            label: Text(state.hashtagList[i]),
-            selected: BlocProvider.of<FiltersCubit>(context)
-                .isHashtagSelected(state.hashtagList[i]),
-            onSelected: (selected) => BlocProvider.of<FiltersCubit>(context)
-                .onHashtagSelected(state.hashtagList[i]),
+            label: Text(tag),
+            selected:
+                BlocProvider.of<FiltersCubit>(context).isHashtagSelected(tag),
+            onSelected: (selected) =>
+                BlocProvider.of<FiltersCubit>(context).onHashtagSelected(tag),
           ),
       ],
     );
