@@ -1,96 +1,109 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../database/note_db_helper.dart';
 import '../../models/note_model.dart';
 
 import '../../models/page_model.dart';
 import 'page_state.dart';
 
 class PageCubit extends Cubit<PageState> {
-  PageCubit() : super(const PageState());
-  //selectedPageIndex useless field
-  void initHomePage() =>
-      emit(state.copyWith(selectedPageIndex: 0, listOfPages: []));
+  final DBHelper _dbHelper = DBHelper();
 
-  void initPageConstructor() {
-    emit(state.copyWith(selectedIcon: state.page!.icon));
+  PageCubit()
+      : super(const PageState(
+          selectedIcon: 0,
+          selectedPageIndex: 0,
+        )) {
+    emit(state.copyWith(listOfPages: []));
   }
 
-  void initRadioButtonInPagesWindow(PageModel page) {
+  void init() async {
     emit(
-      state.copyWith(
-        pageSelectedtoMove: page,
-      ),
+      state.copyWith(listOfPages: await _dbHelper.dbPagesList()),
+    );
+    emit(
+      state.copyWith(pageSelectedtoMove: state.listOfPages!.first),
     );
   }
 
-  void initEmptyPage() {
-    var newPage = PageModel(title: '', icon: Icons.pool);
-    emit(state.copyWith(page: newPage));
-  }
-
   void setCurrentPage(PageModel page) {
-    var newPage = page;
+    final newPage = page;
     emit(state.copyWith(page: newPage));
   }
 
   void setNewCreateNewPageChecker(bool checkerState) {
-    var newCreateNewPageChecker = checkerState;
+    final newCreateNewPageChecker = checkerState;
     emit(state.copyWith(createNewPageChecker: newCreateNewPageChecker));
+    if (!checkerState) {
+      final previousIcon = state.pageToEdit!.icon;
+      emit(state.copyWith(selectedIcon: previousIcon));
+    }
   }
 
-  String getPageTitle() {
-    return state.page!.title;
+  void setPageToEdit(PageModel page) {
+    emit(state.copyWith(pageToEdit: page));
   }
 
-  void setNewSelectesIconValue(IconData icon) {
-    var newSelectedIcon = icon;
+  void setNewSelectesIconValue(int icon) {
+    final newSelectedIcon = icon;
     emit(state.copyWith(selectedIcon: newSelectedIcon));
   }
 
-  void addNewPage(String textInpuyControllerText, BuildContext context) {
-    var newPage = PageModel(title: '', icon: Icons.pool);
+  void addNewPage(String textInpuyControllerText) async {
+    final newListOfPages = state.listOfPages!;
+    final newPage = PageModel(
+      title: textInpuyControllerText,
+      icon: state.selectedIcon,
+      cretionDate: DateTime.now().toString(),
+      numOfNotes: 0,
+      notesList: [],
+      lastModifedDate: DateTime.now().toString(),
+    );
 
-    newPage.title = textInpuyControllerText;
-    newPage.icon = state.selectedIcon!;
-    newPage.cretionDate = DateTime.now();
-    newPage.lastModifedDate = DateTime.now();
-    emit(state.copyWith(page: newPage));
-
-    var newListOfPages = state.listOfPages!;
-
-    newListOfPages.add(state.page!);
-    emit(state.copyWith(listOfPages: newListOfPages));
-    Navigator.pop(context);
+    newListOfPages.add(newPage);
+    emit(state.copyWith(
+      listOfPages: newListOfPages,
+      selectedIcon: 0,
+    ));
+    _dbHelper.insertPage(newPage);
   }
 
-  void editExistingPage(String textInpuyControllerText, BuildContext context) {
-    print('edit');
-    var newListOfPages = state.listOfPages!;
-    for (var page in newListOfPages) {
-      if (state.page!.title == page.title) {
-        page.title = textInpuyControllerText;
-        page.icon = state.selectedIcon!;
-        emit(state.copyWith(listOfPages: newListOfPages));
-        print('edit2');
-        break;
-      }
+  void editExistingPage(TextEditingController textInpuyControllerText) {
+    final newListOfPages = state.listOfPages!;
+
+    final PageModel editedPage;
+    editedPage = state.pageToEdit!.copyWith(
+        title: textInpuyControllerText.text, icon: state.selectedIcon);
+    newListOfPages.remove(state.pageToEdit!);
+    newListOfPages.add(editedPage);
+    _dbHelper.updatePage(editedPage, state.pageToEdit!.title);
+    emit(state.copyWith(
+      listOfPages: newListOfPages,
+      pageToEdit: null,
+      selectedIcon: 0,
+    ));
+  }
+
+  void moveNoteTo(PageModel pageTo, NoteModel note) {
+    var pageFromIndex = 0;
+    for (var i = 0; i < state.listOfPages!.length; i++) {
+      if (state.page!.title == state.listOfPages![i].title) pageFromIndex = i;
     }
-    Navigator.pop(context);
-  }
-
-  void deletePage(BuildContext context, int index) {
     var newListOfPages = state.listOfPages!;
-    newListOfPages.removeAt(index);
+    final pageToIndex = newListOfPages.indexOf(pageTo);
+    newListOfPages[pageFromIndex].notesList.remove(note);
+    newListOfPages[pageToIndex].notesList.add(note);
+
     emit(state.copyWith(listOfPages: newListOfPages));
-    Navigator.pop(context);
   }
 
-  String cropDateTimeObject(DateTime fullDate) {
-    var croppedDate = '';
+  void setNewPageSelectedToMove(PageModel page) {
+    final newPageSelectedToMove = page;
+    emit(state.copyWith(pageSelectedtoMove: newPageSelectedToMove));
+  }
 
-    croppedDate =
-        '${fullDate.day}.${fullDate.month} at ${fullDate.hour}:${fullDate.minute}';
-    return croppedDate;
+  PageModel getPageSelectedToMove() {
+    return state.pageSelectedtoMove!;
   }
 
   PageModel getPage() {
@@ -99,27 +112,5 @@ class PageCubit extends Cubit<PageState> {
 
   List<PageModel> getListOfPages() {
     return state.listOfPages!;
-  }
-
-  void moveNoteTo(PageModel pageFrom, PageModel pageTo, NoteModel note) {
-    var newListOfPages = state.listOfPages!;
-    var pageFromIndex = newListOfPages.indexOf(pageFrom);
-    var pageToIndex = newListOfPages.indexOf(pageTo);
-
-    newListOfPages[pageFromIndex].notesList.remove(note);
-    newListOfPages[pageToIndex].notesList.add(note);
-
-    emit(state.copyWith(listOfPages: newListOfPages));
-  }
-
-  void setNewPageSelectedToMove(PageModel page) {
-    print(state.pageSelectedtoMove!.title);
-    var newPageSelectedToMove = page;
-    emit(state.copyWith(pageSelectedtoMove: newPageSelectedToMove));
-    print(state.pageSelectedtoMove!.title);
-  }
-
-  PageModel getPageSelectedToMove() {
-    return state.pageSelectedtoMove!;
   }
 }

@@ -1,19 +1,30 @@
-import 'package:flutter/cupertino.dart';
-
 import '../../models/note_model.dart';
 import '../../models/page_model.dart';
 
 class NoteState {
-  final bool? isUserEditingeNote;
+  final int? noteIcon;
+  final bool showNoteIconMenue;
+  final bool isSerchBarDisplayed;
+  final bool isUserEditingeNote;
+
+  final PageModel? page;
   final NoteModel? note;
+
   final List<NoteModel>? notesList;
   final List<NoteModel>? searchNotesList;
-
   final List<NoteModel>? selcetedNotes;
-  final PageModel? page;
-  final bool? showNoteIconMenue;
-  final bool? isSerchBarDisplayed;
-  final IconData? noteIcon;
+
+  const NoteState({
+    this.page,
+    this.notesList,
+    this.searchNotesList,
+    this.selcetedNotes,
+    this.note,
+    required this.isUserEditingeNote,
+    required this.showNoteIconMenue,
+    required this.isSerchBarDisplayed,
+    this.noteIcon,
+  });
 
   NoteState copyWith({
     final NoteModel? note,
@@ -24,7 +35,7 @@ class NoteState {
     final PageModel? page,
     final bool? showNoteIconMenue,
     final bool? isSerchBarDisplayed,
-    final IconData? noteIcon,
+    final int? noteIcon,
   }) {
     return NoteState(
       isUserEditingeNote: isUserEditingeNote ?? this.isUserEditingeNote,
@@ -38,16 +49,4 @@ class NoteState {
       noteIcon: noteIcon ?? this.noteIcon,
     );
   }
-
-  const NoteState({
-    this.page,
-    this.notesList,
-    this.searchNotesList,
-    this.selcetedNotes,
-    this.note,
-    this.isUserEditingeNote,
-    this.showNoteIconMenue,
-    this.isSerchBarDisplayed,
-    this.noteIcon,
-  });
 }
