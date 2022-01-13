@@ -7,15 +7,17 @@ import 'src/theme/cubit/cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final cubit = ThemeCubit();
-  await cubit.loadTheme();
   BlocOverrides.runZoned(
-    () => runApp(
-      BlocProvider<ThemeCubit>(
-        create: (context) => cubit,
-        child: const App(),
-      ),
-    ),
+    () async {
+      final cubit = ThemeCubit();
+      await cubit.loadTheme();
+      runApp(
+        BlocProvider<ThemeCubit>(
+          create: (context) => cubit,
+          child: const App(),
+        ),
+      );
+    },
     blocObserver: AppCubitObserver(),
   );
 }
