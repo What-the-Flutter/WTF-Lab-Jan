@@ -11,10 +11,9 @@ class DateTimePicker extends StatelessWidget {
     this.selectedTime,
     required this.selectDate,
     required this.selectTime,
-    required this.themeInherited,
   });
 
-  final ThemeInherited themeInherited;
+  late final ThemeInherited themeInherited;
   final String labelText;
   final DateTime? selectedDate;
   final TimeOfDay? selectedTime;
@@ -41,6 +40,7 @@ class DateTimePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    themeInherited = ThemeInherited.of(context)!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[

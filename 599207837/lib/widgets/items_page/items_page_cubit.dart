@@ -4,45 +4,43 @@ import '../../entity/entities.dart';
 import 'items_page_state.dart';
 
 class ItemsPageCubit extends Cubit<ItemsPageState> {
-  ItemsPageCubit() : super(ItemsPageState());
-
-  void onTopicsChange() {
-    emit(ItemsPageState()..topicsEdited = true);
-  }
+  ItemsPageCubit() : super(ItemsPageState.initial());
 
   void pinTopic(Topic topic) {
     topic.onPin();
-    onTopicsChange();
+    emit(state.duplicate());
   }
 
   void archiveTopic(Topic topic) {
     topic.onArchive();
-    onTopicsChange();
+    emit(state.duplicate());
   }
 
   void deleteTopic(Topic topic) {
     topic.delete();
-    onTopicsChange();
+    emit(state.duplicate());
   }
 
   void removeTask(Task task) {
     MessageLoader.remove(task);
-    emit(ItemsPageState()..tasksEdited = true);
+    emit(state.duplicate());
   }
 
   void completeTask(Task task) {
     task.complete();
     task.timeCompleted = DateTime.now();
-    emit(ItemsPageState()..tasksEdited = true);
+    emit(state.duplicate());
   }
 
   void visitEvent(Event event) {
     event.visit();
-    emit(ItemsPageState()..eventsEdited = true);
+    emit(state.duplicate());
   }
 
   void missEvent(Event event) {
     event.miss();
-    emit(ItemsPageState()..eventsEdited = true);
+    emit(state.duplicate());
   }
+
+  void update() => emit(state.duplicate());
 }

@@ -10,12 +10,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     entity.Topic.loadTopics();
-    return MaterialApp(
-      title: 'Flutter Demo',
-      home: ThemeUpdater(
-        child: const custom.ItemsPage(),
-        theme: entity.Theme.defaultOne(),
+    return ThemeUpdater(
+      child: const MaterialApp(
+        title: 'Flutter Demo',
+        home: custom.ItemsPage(),
       ),
+      theme: entity.Theme.defaultOne(),
     );
   }
 }

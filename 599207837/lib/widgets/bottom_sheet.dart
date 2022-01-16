@@ -65,8 +65,7 @@ class _AddingButtonState extends State<AddingButton> {
                 context,
                 MaterialPageRoute(
                   builder: (newContext) => TopicMaker(
-                    themeInherited: themeInherited,
-                    onChange: () => context.read<ItemsPageCubit>().onTopicsChange(),
+                    onChange: () => context.read<ItemsPageCubit>().update(),
                   ),
                 ),
               );

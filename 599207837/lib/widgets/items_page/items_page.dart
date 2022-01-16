@@ -96,16 +96,6 @@ class _ItemsPage extends StatelessWidget {
 
   Widget _itemsList(String title, int type) {
     return BlocBuilder<ItemsPageCubit, ItemsPageState>(
-      buildWhen: (previous, current) {
-        switch (type) {
-          case (0):
-            return current.tasksEdited;
-          case (1):
-            return current.eventsEdited;
-          default:
-            return current.notesEdited;
-        }
-      },
       builder: (context, state) {
         final items = type == 0 ? state.favTasks : (type == 1 ? state.favEvents : state.favNotes);
         return Column(

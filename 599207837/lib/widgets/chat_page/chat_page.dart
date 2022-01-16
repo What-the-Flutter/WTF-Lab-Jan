@@ -9,25 +9,23 @@ import 'chat_page_state.dart';
 
 class ChatPage extends StatelessWidget {
   final entity.Topic topic;
-  final BuildContext contextOld;
 
-  ChatPage(this.topic, this.contextOld);
+  ChatPage(this.topic);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ChatPageCubit()..getElements(topic),
-      child: _ChatPage(topic, contextOld),
+      child: _ChatPage(topic),
     );
   }
 }
 
 class _ChatPage extends StatelessWidget {
   final entity.Topic topic;
-  final BuildContext contextOld;
   final _scrollController = ScrollController();
 
-  _ChatPage(this.topic, this.contextOld);
+  _ChatPage(this.topic);
 
   void _onScrollEvent(BuildContext context) {
     final pixels = _scrollController.position.pixels;
@@ -39,11 +37,8 @@ class _ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _scrollController.addListener(() => _onScrollEvent(context));
-    final themeInherited = ThemeInherited.of(contextOld)!;
+    final themeInherited = ThemeInherited.of(context)!;
     return BlocBuilder<ChatPageCubit, ChatPageState>(
-      buildWhen: (previous, current) {
-        return current.fullRedraw;
-      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: themeInherited.preset.colors.backgroundColor,
@@ -99,19 +94,19 @@ class _ChatPage extends StatelessWidget {
                 child: ListView.builder(
                   controller: _scrollController,
                   reverse: true,
-                  itemCount: state.elements.length,
+                  itemCount: state.elements!.length,
                   shrinkWrap: true,
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     return custom.ChatMessage(
-                      item: state.elements[index],
+                      item: state.elements![index],
                       onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
                       onEdited: () =>
-                          context.read<ChatPageCubit>().startEditing(index, state.elements[index]),
+                          context.read<ChatPageCubit>().startEditing(index, state.elements![index]),
                       onSelection: () => context.read<ChatPageCubit>().setSelection(true),
                       onSelected: () =>
-                          context.read<ChatPageCubit>().onSelect(state.elements[index]),
+                          context.read<ChatPageCubit>().onSelect(state.elements![index]),
                       selection: state.selectionFlag,
                       themeInherited: themeInherited,
                     );
@@ -133,9 +128,6 @@ class _ChatPage extends StatelessWidget {
       backgroundColor: themeInherited.preset.colors.themeColor2,
       flexibleSpace: SafeArea(
         child: BlocBuilder<ChatPageCubit, ChatPageState>(
-          buildWhen: (previous, current) {
-            return current.appBarRedraw || current.fullRedraw;
-          },
           builder: (context, state) {
             return state.searchPage
                 ? _searchBarRow(context, themeInherited, state)
@@ -253,7 +245,6 @@ class _ChatPage extends StatelessWidget {
           tooltip: 'Change theme',
           onPressed: () {
             themeInherited.changeTheme();
-            context.read<ChatPageCubit>().fullRedraw();
           },
         ),
       ],
@@ -272,7 +263,7 @@ class _ChatPage extends StatelessWidget {
   }
 
   Widget _eventInputForm(ChatPageState state, BuildContext context) {
-    final themeInherited = ThemeInherited.of(contextOld)!;
+    final themeInherited = ThemeInherited.of(context)!;
     return Container(
       padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
       width: double.infinity,
@@ -304,9 +295,6 @@ class _ChatPage extends StatelessWidget {
               child: Column(
                 children: [
                   BlocBuilder<ChatPageCubit, ChatPageState>(
-                    buildWhen: (previous, current) {
-                      return current.formRedraw;
-                    },
                     builder: (context, state) {
                       return custom.DateTimePicker(
                         selectTime: (value) => context.read<ChatPageCubit>().setSelectedTime(value),
@@ -314,7 +302,6 @@ class _ChatPage extends StatelessWidget {
                         selectedDate: state.selectedDate,
                         labelText: 'Scheduled date',
                         selectedTime: state.selectedTime,
-                        themeInherited: themeInherited,
                       );
                     },
                   ),
@@ -363,7 +350,7 @@ class _ChatPage extends StatelessWidget {
   }
 
   Widget _defaultInputForm(bool isTask, ChatPageState state, BuildContext context) {
-    final decorator = ThemeInherited.of(contextOld)!;
+    final decorator = ThemeInherited.of(context)!;
     return Container(
       padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
       height: 60,
