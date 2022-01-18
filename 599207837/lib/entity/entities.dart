@@ -1,11 +1,11 @@
 import 'package:intl/intl.dart';
 
 import 'event.dart';
+import 'note.dart';
 import 'task.dart';
 import 'topic.dart';
 
 export 'event.dart';
-export 'messageloader.dart';
 export 'note.dart';
 export 'task.dart';
 export 'theme.dart';
@@ -22,13 +22,22 @@ abstract class Message {
 
   void onFavourite();
 
+  Message duplicate();
+
   int get uuid;
+
+  Map<String, dynamic> toJson();
+
+  static Message fromJson(Map<String, dynamic> json, Topic topic) {
+    switch (json['type_id']) {
+      case (0):
+        return Task.fromJson(json, topic);
+      case (1):
+        return Event.fromJson(json, topic);
+      default:
+        return Note.fromJson(json, topic);
+    }
+  }
 }
 
-int getTypeId(Message o) {
-  return o.runtimeType == Task
-      ? 0
-      : o.runtimeType == Event
-          ? 1
-          : 2;
-}
+int getTypeId(Message o) => o.runtimeType == Task ? 0 : (o.runtimeType == Event ? 1 : 2);

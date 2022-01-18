@@ -1,7 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import '../../entity/entities.dart';
 
+import '../../database/database.dart' as db;
+import '../../entity/entities.dart' as entity;
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
@@ -17,7 +18,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
             .toList()));
   }
 
-  void loadElements(Topic topic) {
+  void loadElements(entity.Topic topic) {
     topic.loadElements();
     if (state.searchPage) {
       findElements();
@@ -26,10 +27,15 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     }
   }
 
-  void getElements(Topic topic) =>
+  void getElements(entity.Topic topic) =>
       emit(state.duplicate(elements: topic.getElements(), topic: topic));
 
-  void onSelect(Message o) {
+  void onChatExit(entity.Topic topic) {
+    db.MessageLoader.clearElements(topic);
+    topic.initialLoad = true;
+  }
+
+  void onSelect(entity.Message o) {
     if (state.selected!.contains(o)) {
       state.selected!.remove(o);
     } else {
@@ -37,11 +43,11 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     }
   }
 
-  void moveSelected(Topic topic) {
+  void moveSelected(entity.Topic topic) {
     for (var item in state.selected!) {
-      MessageLoader.remove(item);
+      db.MessageLoader.remove(item);
       item.topic = topic;
-      MessageLoader.add(item);
+      db.MessageLoader.add(item);
     }
     state.selected!.clear();
     if (state.searchPage) {
@@ -53,7 +59,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void deleteSelected() {
     for (var item in state.selected!) {
-      MessageLoader.remove(item);
+      db.MessageLoader.remove(item);
     }
     state.selected!.clear();
     if (state.searchPage) {
@@ -65,9 +71,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void deleteMessage(int index) {
     if (state.editingIndex == index) {
-      finishEditing(state.elements![index].runtimeType is Event);
+      finishEditing(state.elements![index].runtimeType is entity.Event);
     }
-    MessageLoader.remove(state.elements![index]);
+    db.MessageLoader.remove(state.elements![index]);
     if (state.searchPage) {
       findElements();
     } else {
@@ -79,13 +85,13 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void setSelection(bool val) => emit(state.duplicate(selectionFlag: val));
 
-  void startEditing(int index, Message o) {
+  void startEditing(int index, entity.Message o) {
     emit(state.duplicate(editingIndex: index, editingFlag: true));
     state.descriptionController!.text = o.description;
-    if (o is Event) {
+    if (o is entity.Event) {
       _onEditEvent(o);
     }
-    changeAddedTypeTo(getTypeId(o));
+    changeAddedTypeTo(entity.getTypeId(o));
   }
 
   void changeAddedType() {
@@ -115,7 +121,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void clearDateTime() => emit(state.duplicate(selectedDate: null, selectedTime: null));
 
-  void _onEditEvent(Event o) {
+  void _onEditEvent(entity.Event o) {
     if (o.scheduledTime != null) {
       emit(state.duplicate(
         selectedDate: o.scheduledTime,
@@ -126,8 +132,8 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     }
   }
 
-  void addEvent(Topic topic) {
-    MessageLoader.add(Event(
+  void addEvent(entity.Topic topic) {
+    db.MessageLoader.add(entity.Event(
       scheduledTime: getDateTime(),
       description: state.descriptionController!.text,
       topic: topic,
@@ -136,30 +142,38 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     emit(state.duplicate(selectedDate: null, selectedTime: null));
   }
 
-  void add(bool isTask, Topic topic) {
+  void add(bool isTask, entity.Topic topic) {
     if (isTask) {
-      MessageLoader.add(
-        Task(description: state.descriptionController!.text, topic: topic),
+      db.MessageLoader.add(
+        entity.Task(description: state.descriptionController!.text, topic: topic),
       );
+      state.descriptionController!.clear();
+      emit(state.duplicate());
     } else {
-      MessageLoader.add(
-        Note(description: state.descriptionController!.text, topic: topic),
+      db.MessageLoader.add(
+        entity.Note(description: state.descriptionController!.text, topic: topic),
       );
+      state.descriptionController!.clear();
+      emit(state.duplicate(
+        selectedDate: null,
+        selectedTime: null,
+      ));
     }
-    emit(state.duplicate());
   }
 
   void finishEditing(bool isEvent) {
     state.elements![state.editingIndex].description = state.descriptionController!.text;
     state.descriptionController!.clear();
     if (isEvent) {
-      (state.elements![state.editingIndex] as Event).scheduledTime = getDateTime();
+      (state.elements![state.editingIndex] as entity.Event).scheduledTime = getDateTime();
+      db.MessageLoader.updateMessage(state.elements![state.editingIndex]);
       emit(state.duplicate(
         editingFlag: false,
         selectedDate: null,
         selectedTime: null,
       ));
     } else {
+      db.MessageLoader.updateMessage(state.elements![state.editingIndex]);
       emit(state.duplicate(editingFlag: false));
     }
   }

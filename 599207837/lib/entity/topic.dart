@@ -1,30 +1,36 @@
+import 'dart:convert';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import '../database/database.dart' as db;
 import 'entities.dart' as entity;
 
-Map<String, Topic> _topics = {};
+Topic topicFromJson(String str) {
+  final jsonData = json.decode(str);
+  return Topic.fromJson(jsonData);
+}
 
-Map<String, Topic> get topics => _topics;
+String topicToJson(Topic data) {
+  final dyn = data.toJson();
+  return json.encode(dyn);
+}
 
 class Topic {
-  static int _vacantIndex = 0;
-  static List<Topic> topics = [];
   String name;
   IconData icon;
   late int id;
   late DateTime timeCreated;
-  int elements = 0;
-  bool _firstLoad = true;
+  DateTime? lastMessage;
+  int elements;
+  bool initialLoad = true;
   late bool _pinned;
   late bool _archived;
-  late final entity.MessageLoader mLoader;
+  late final db.MessageLoader mLoader;
 
   void onPin() => _pinned = !_pinned;
 
   void onArchive() {
     _archived = !_archived;
-    entity.MessageLoader.clearTopicData(id);
+    db.MessageLoader.clearTopicData(id);
   }
 
   bool get isPinned => _pinned;
@@ -32,8 +38,8 @@ class Topic {
   bool get isArchived => _archived;
 
   factory Topic({required String name, required IconData icon}) {
-    if (_topics.containsKey(name)) {
-      return _topics[name]!;
+    if (db.topics.containsKey(name)) {
+      return db.topics[name]!;
     } else {
       return Topic.newInstance(
         name: name,
@@ -47,47 +53,56 @@ class Topic {
     required this.icon,
     bool pinned = false,
     bool archived = false,
+    int? id_,
+    this.elements = 0,
+    DateTime? timeCreated_,
+    this.lastMessage,
   }) {
     _archived = archived;
     _pinned = pinned;
-    id = _vacantIndex;
-    timeCreated = DateTime.now();
-    _vacantIndex++;
-    _topics[name] = this;
-    mLoader = entity.MessageLoader(this);
+    id = id_ ?? hashCode + Random.secure().nextInt(100);
+    timeCreated = timeCreated_ ?? DateTime.now();
+    db.topics[name] = this;
+    mLoader = db.MessageLoader(this);
   }
 
-  void incContent() => elements++;
+  factory Topic.fromJson(Map<String, dynamic> json) => Topic.newInstance(
+        id_: json['id'],
+        name: json['name'],
+        icon: IconData(json['icon_data'] as int, fontFamily: 'MaterialIcons'),
+        elements: json['elements'],
+        pinned: json['pinned'] == 1 ? true : false,
+        archived: json['archived'] == 1 ? true : false,
+        timeCreated_: DateTime.parse(json['time_created']),
+        lastMessage: json['last_message'] == 'null' ? null : DateTime.parse(json['last_message']),
+      );
 
-  void decContent() => elements--;
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'icon_data': icon.codePoint,
+        'elements': elements,
+        'pinned': _pinned ? 1 : 0,
+        'archived': _archived ? 1 : 0,
+        'time_created': timeCreated.toString(),
+        'last_message': lastMessage.toString(),
+      };
 
-  int get uuid => hashCode + Random.secure().nextInt(100);
-
-  List<entity.Message> getElements() {
-    if (_firstLoad) {
-      mLoader.loadMessages(10);
-      _firstLoad = false;
-    }
-    return entity.MessageLoader.messages[id];
+  void incContent() {
+    elements++;
+    db.TopicLoader.updateTopic(this);
+    lastMessage = db.MessageLoader.messages[id]![0].timeCreated;
   }
 
-  void loadElements() {
-    mLoader.loadMessages(10);
+  void decContent() {
+    elements--;
+    db.TopicLoader.updateTopic(this);
+    lastMessage = elements == 0 ? null : db.MessageLoader.messages[id]![0].timeCreated;
   }
 
-  static void loadTopics() {
-    if (topics.isEmpty) {
-      topics.add(entity.Topic(name: 'WTF Lab', icon: Icons.flutter_dash_rounded));
-      topics.add(entity.Topic(name: 'BSUIR', icon: Icons.account_balance_rounded));
-      topics.add(entity.Topic(name: 'Leisure', icon: Icons.sports_esports_rounded));
-    }
-  }
+  List<entity.Message> getElements() => db.MessageLoader.messages[id]!;
 
-  void delete() {
-    entity.MessageLoader.clearTopicData(id);
-    _topics.remove(name);
-    topics.remove(this);
-  }
+  void loadElements() {}
 
   @override
   String toString() => name;

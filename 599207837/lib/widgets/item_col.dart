@@ -160,7 +160,7 @@ class _EventColumn extends StatelessWidget {
       );
     }
 
-    if (!event.isMissed() && !event.isVisited()) {
+    if (!event.isMissed && !event.isVisited) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
@@ -183,7 +183,7 @@ class _EventColumn extends StatelessWidget {
     }
     return Container(
       alignment: Alignment.center,
-      child: Text(event.isVisited() ? 'Visited' : 'Missed'),
+      child: Text(event.isVisited ? 'Visited' : 'Missed'),
     );
   }
 }

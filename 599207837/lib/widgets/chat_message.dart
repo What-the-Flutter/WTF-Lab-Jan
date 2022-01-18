@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:swipe_to/swipe_to.dart';
 
+import '../database/database.dart' as db;
 import '../entity/entities.dart' as entity;
 import '../main.dart';
 import 'alerts.dart';
@@ -15,6 +16,7 @@ class ChatMessage extends StatefulWidget {
   final ThemeInherited themeInherited;
 
   const ChatMessage({
+    Key? key,
     required this.item,
     required this.onDeleted,
     required this.onEdited,
@@ -22,7 +24,7 @@ class ChatMessage extends StatefulWidget {
     required this.onSelected,
     required this.selection,
     required this.themeInherited,
-  });
+  }) : super(key: key);
 
   @override
   _ChatMessageState createState() => _ChatMessageState();
@@ -44,9 +46,9 @@ class _ChatMessageState extends State<ChatMessage> {
   void _onFavourite() {
     widget.item.onFavourite();
     if (widget.item.favourite) {
-      entity.MessageLoader.addToFavourites(widget.item);
+      db.MessageLoader.addToFavourites(widget.item);
     } else {
-      entity.MessageLoader.removeFromFavourites(widget.item);
+      db.MessageLoader.removeFromFavourites(widget.item);
     }
     setState(() {
       _favIcon = widget.item.favourite ? Icons.star_rounded : Icons.star_border_rounded;
@@ -59,8 +61,11 @@ class _ChatMessageState extends State<ChatMessage> {
   void didUpdateWidget(covariant ChatMessage oldWidget) {
     _favIcon = widget.item.favourite ? Icons.star_rounded : Icons.star_border_rounded;
     _favColor = widget.item.favourite ? Colors.amberAccent : const Color.fromARGB(255, 66, 66, 66);
-    _selected = _calledSelection;
-    _calledSelection = false;
+    if (_calledSelection) {
+      _selected = true;
+      _calledSelection = false;
+    }
+    if (!widget.selection) _selected = false;
     super.didUpdateWidget(oldWidget);
   }
 
@@ -150,7 +155,6 @@ class _ChatMessageState extends State<ChatMessage> {
             ),
             onPressed: () {
               setState(() => task.complete());
-              task.timeCompleted = DateTime.now();
             },
           ),
           Text(
@@ -233,8 +237,8 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   Widget _eventSchedule(entity.Event event) {
-    final visited = event.isVisited();
-    final missed = event.isMissed();
+    final visited = event.isVisited;
+    final missed = event.isMissed;
 
     if (event.scheduledTime == null) {
       return Container(
@@ -300,7 +304,7 @@ class _ChatMessageState extends State<ChatMessage> {
       );
     }
 
-    if (!event.isMissed() && !event.isVisited()) {
+    if (!event.isMissed && !event.isVisited) {
       return Row(
         children: <Widget>[
           TextButton(
@@ -462,9 +466,10 @@ class _ChatMessageState extends State<ChatMessage> {
               themeInherited: widget.themeInherited,
               currentTopic: widget.item.topic,
               onMoved: (topic) {
+                final added = widget.item.duplicate();
                 widget.onDeleted();
-                widget.item.topic = topic;
-                entity.MessageLoader.add(widget.item);
+                added.topic = topic;
+                db.MessageLoader.add(added);
                 Navigator.pop(context);
               },
             ),

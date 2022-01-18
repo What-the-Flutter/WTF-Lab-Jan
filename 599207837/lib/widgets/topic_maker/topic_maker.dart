@@ -35,6 +35,7 @@ class _TopicMaker extends StatelessWidget {
     return BlocBuilder<TopicMakerCubit, TopicMakerState>(
       builder: (context, state) {
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: themeInherited.preset.colors.backgroundColor,
           appBar: AppBar(
             backgroundColor: themeInherited.preset.colors.themeColor1,

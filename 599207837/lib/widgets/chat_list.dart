@@ -60,7 +60,10 @@ class _ChatCard extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => custom.ChatPage(topic),
+          builder: (newContext) => custom.ChatPage(
+            topic: topic,
+            onChange: () => context.read<ItemsPageCubit>().update(),
+          ),
         ),
       ),
       onLongPress: () => showModalBottomSheet(
@@ -307,11 +310,11 @@ class _ChatCard extends StatelessWidget {
                   topText: 'Message amount:',
                   bottomText: '${topic.elements}',
                 ),
-                _infoNode(
-                  topText: 'Last message:',
-                  bottomText:
-                      '${entity.fullDateFormatter.format(topic.getElements()[0].timeCreated)}',
-                ),
+                if (topic.lastMessage != null)
+                  _infoNode(
+                    topText: 'Last message:',
+                    bottomText: '${entity.fullDateFormatter.format(topic.lastMessage!)}',
+                  ),
                 _infoNode(
                   topText: 'Date created:',
                   bottomText: '${entity.fullDateFormatter.format(topic.timeCreated)}',

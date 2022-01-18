@@ -19,7 +19,7 @@ class ItemsPageState {
     favTasks = entity.Task.getFavouriteTasks();
     favEvents = entity.Event.getFavouriteEvents();
     favNotes = entity.Note.getFavouriteNotes();
-    topics = entity.Topic.topics;
+    topics = [];
   }
 
   ItemsPageState duplicate({

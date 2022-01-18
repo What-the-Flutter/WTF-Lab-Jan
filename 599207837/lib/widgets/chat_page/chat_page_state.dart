@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../entity/entities.dart';
+import '../../entity/entities.dart' as entity;
 
 class ChatPageState {
   static const Object? plug = Object();
 
-  late final List<Message>? selected;
-  final List<Message>? elements;
+  late final List<entity.Message>? selected;
+  final List<entity.Message>? elements;
 
   final IconData addedIcon;
-  final Topic? topic;
+  final entity.Topic? topic;
   final int addedType;
   final int editingIndex;
   final DateTime? selectedDate;
@@ -69,7 +69,7 @@ class ChatPageState {
   }) {
     return ChatPageState(
       selected: selected,
-      elements: elements == plug ? this.elements : elements as List<Message>?,
+      elements: elements == plug ? this.elements : elements as List<entity.Message>?,
       selectionFlag: selectionFlag ?? this.selectionFlag,
       editingFlag: editingFlag ?? this.editingFlag,
       addedType: addedType ?? this.addedType,
@@ -81,7 +81,7 @@ class ChatPageState {
       searchController: searchController == plug
           ? this.searchController
           : searchController as TextEditingController?,
-      topic: topic == plug ? this.topic : topic as Topic?,
+      topic: topic == plug ? this.topic : topic as entity.Topic?,
       descriptionController: descriptionController,
     );
   }

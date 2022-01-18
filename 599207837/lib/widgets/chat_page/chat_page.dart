@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../database/database.dart' as db;
 import '../../entity/entities.dart' as entity;
 import '../../main.dart';
 import '../widgets.dart' as custom;
@@ -9,14 +10,18 @@ import 'chat_page_state.dart';
 
 class ChatPage extends StatelessWidget {
   final entity.Topic topic;
+  final Function onChange;
 
-  ChatPage(this.topic);
+  ChatPage({required this.topic, required this.onChange});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ChatPageCubit()..getElements(topic),
-      child: _ChatPage(topic),
+      child: _ChatPage(
+        topic: topic,
+        onChange: onChange,
+      ),
     );
   }
 }
@@ -24,8 +29,9 @@ class ChatPage extends StatelessWidget {
 class _ChatPage extends StatelessWidget {
   final entity.Topic topic;
   final _scrollController = ScrollController();
+  final Function onChange;
 
-  _ChatPage(this.topic);
+  _ChatPage({required this.topic, required this.onChange});
 
   void _onScrollEvent(BuildContext context) {
     final pixels = _scrollController.position.pixels;
@@ -91,25 +97,36 @@ class _ChatPage extends StatelessWidget {
                   ),
                 ),
               Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  reverse: true,
-                  itemCount: state.elements!.length,
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return custom.ChatMessage(
-                      item: state.elements![index],
-                      onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
-                      onEdited: () =>
-                          context.read<ChatPageCubit>().startEditing(index, state.elements![index]),
-                      onSelection: () => context.read<ChatPageCubit>().setSelection(true),
-                      onSelected: () =>
-                          context.read<ChatPageCubit>().onSelect(state.elements![index]),
-                      selection: state.selectionFlag,
-                      themeInherited: themeInherited,
-                    );
+                child: FutureBuilder<List<entity.Message>>(
+                  future: db.MessageLoader.loadElements(topic),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                        controller: _scrollController,
+                        reverse: true,
+                        itemCount: state.elements!.length,
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.only(top: 10, bottom: 10),
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return custom.ChatMessage(
+                            key: Key(state.elements![index].uuid.toString()),
+                            item: state.elements![index],
+                            onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
+                            onEdited: () => context
+                                .read<ChatPageCubit>()
+                                .startEditing(index, state.elements![index]),
+                            onSelection: () => context.read<ChatPageCubit>().setSelection(true),
+                            onSelected: () =>
+                                context.read<ChatPageCubit>().onSelect(state.elements![index]),
+                            selection: state.selectionFlag,
+                            themeInherited: themeInherited,
+                          );
+                        },
+                      );
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
                   },
                 ),
               ),
@@ -186,7 +203,11 @@ class _ChatPage extends StatelessWidget {
     return Row(
       children: <Widget>[
         IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            context.read<ChatPageCubit>().onChatExit(topic);
+            onChange();
+            Navigator.pop(context);
+          },
           icon: Icon(
             Icons.arrow_back,
             color: themeInherited.preset.colors.iconColor2,
@@ -274,6 +295,7 @@ class _ChatPage extends StatelessWidget {
           Container(
             height: 40,
             child: FloatingActionButton(
+              heroTag: 'changeAddedType',
               backgroundColor: themeInherited.preset.colors.buttonColor,
               onPressed: () => context.read<ChatPageCubit>().changeAddedType(),
               child: Container(
@@ -327,6 +349,7 @@ class _ChatPage extends StatelessWidget {
           Container(
             height: 40,
             child: FloatingActionButton(
+              heroTag: 'sendMessage',
               backgroundColor: themeInherited.preset.colors.buttonColor,
               onPressed: () {
                 FocusScope.of(context).requestFocus(FocusNode());
@@ -359,6 +382,7 @@ class _ChatPage extends StatelessWidget {
       child: Row(
         children: <Widget>[
           FloatingActionButton(
+            heroTag: 'changeAddedType',
             backgroundColor: decorator.preset.colors.buttonColor,
             onPressed: () => context.read<ChatPageCubit>().changeAddedType(),
             child: Container(
@@ -389,6 +413,7 @@ class _ChatPage extends StatelessWidget {
             width: 15,
           ),
           FloatingActionButton(
+            heroTag: 'sendMessage',
             backgroundColor: decorator.preset.colors.buttonColor,
             onPressed: () {
               FocusScope.of(context).requestFocus(FocusNode());

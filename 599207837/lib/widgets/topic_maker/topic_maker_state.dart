@@ -20,12 +20,16 @@ class TopicMakerState {
     nameController!.text = topic!.name;
   }
 
-  TopicMakerState duplicate({int? selected, Object? topic, Object? nameController}) {
+  TopicMakerState duplicate({
+    int? selected,
+    Object? topic = plug,
+    Object? nameController = plug,
+  }) {
     return TopicMakerState(
       selected: selected ?? this.selected,
-      topic: topic == plug ? this.topic : topic as Topic,
+      topic: topic == plug ? this.topic : topic as Topic?,
       nameController:
-          nameController == plug ? this.nameController : nameController as TextEditingController,
+          nameController == plug ? this.nameController : nameController as TextEditingController?,
     );
   }
 
