@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'entity/entities.dart' as entity;
 import 'widgets/widgets.dart' as custom;
 
-void main() => runApp(const MyApp());
+void main() => entity.Theme.lookUpToPreferences().whenComplete(() => runApp(const MyApp()));
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    entity.Topic.loadTopics();
-    return MaterialApp(
-      title: 'Flutter Demo',
-      home: ThemeUpdater(
-        child: const custom.ItemsPage(),
-        theme: entity.Theme.defaultOne(),
+    return ThemeUpdater(
+      child: const MaterialApp(
+        title: 'Flutter Demo',
+        home: custom.ItemsPage(),
       ),
+      theme: entity.Theme.defaultOne(),
     );
   }
 }

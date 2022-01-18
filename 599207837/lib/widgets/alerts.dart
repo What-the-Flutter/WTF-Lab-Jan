@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../database/database.dart' as db;
 
 import '../entity/entities.dart' as entity;
 import '../main.dart';
@@ -46,13 +47,13 @@ class Alerts {
     ThemeInherited themeInherited,
     Function onMoved,
   ) {
-    final items = entity.topics.values.toList();
+    final items = db.topics.values.toList();
     return Container(
       width: 250.0,
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: items.length,
-        itemBuilder: (context, index) => index == currentTopic.id
+        itemBuilder: (context, index) => items[index].id == currentTopic.id
             ? Container()
             : GestureDetector(
                 onTap: () => onMoved(items[index]),

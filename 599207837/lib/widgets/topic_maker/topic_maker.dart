@@ -7,19 +7,16 @@ import 'topic_maker_cubit.dart';
 import 'topic_maker_state.dart';
 
 class TopicMaker extends StatelessWidget {
-  final ThemeInherited themeInherited;
   final entity.Topic? topic;
   final Function onChange;
 
-  const TopicMaker({Key? key, required this.themeInherited, this.topic, required this.onChange})
-      : super(key: key);
+  const TopicMaker({Key? key, this.topic, required this.onChange}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => topic == null ? TopicMakerCubit() : TopicMakerCubit.editing(topic!),
       child: _TopicMaker(
-        themeInherited: themeInherited,
         onChange: onChange,
       ),
     );
@@ -27,19 +24,18 @@ class TopicMaker extends StatelessWidget {
 }
 
 class _TopicMaker extends StatelessWidget {
-  final ThemeInherited themeInherited;
+  late final ThemeInherited themeInherited;
   final Function onChange;
 
-  _TopicMaker({Key? key, required this.themeInherited, required this.onChange}) : super(key: key);
+  _TopicMaker({Key? key, required this.onChange}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    themeInherited = ThemeInherited.of(context)!;
     return BlocBuilder<TopicMakerCubit, TopicMakerState>(
-      buildWhen: (previous, current) {
-        return current.needToRedraw;
-      },
       builder: (context, state) {
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: themeInherited.preset.colors.backgroundColor,
           appBar: AppBar(
             backgroundColor: themeInherited.preset.colors.themeColor1,
@@ -55,7 +51,7 @@ class _TopicMaker extends StatelessWidget {
                 tooltip: 'Change theme',
                 onPressed: () {
                   themeInherited.changeTheme();
-                  context.read<TopicMakerCubit>().needToRedraw();
+                  context.read<TopicMakerCubit>().update();
                 },
               ),
             ],
@@ -100,7 +96,7 @@ class _TopicMaker extends StatelessWidget {
                     backgroundColor: MaterialStateProperty.all(Colors.teal),
                   ),
                   onPressed: () {
-                    if (state.nameController.text.isNotEmpty && state.selected != -1) {
+                    if (state.nameController!.text.isNotEmpty && state.selected != -1) {
                       context.read<TopicMakerCubit>().finish();
                       Navigator.pop(context);
                       onChange();
@@ -144,9 +140,6 @@ class _TopicMaker extends StatelessWidget {
         ],
       ),
       child: BlocBuilder<TopicMakerCubit, TopicMakerState>(
-        buildWhen: (previous, current) {
-          return !current.needToRedraw;
-        },
         builder: (context, state) {
           return GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

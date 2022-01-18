@@ -2,24 +2,35 @@ import 'package:flutter/material.dart';
 import '../../entity/topic.dart';
 
 class TopicMakerState {
-  int selected = -1;
-  Topic? topic;
-  bool needToRedraw = false;
-  TextEditingController nameController = TextEditingController();
+  static const Object? plug = Object();
 
-  TopicMakerState();
+  late final int selected;
+  final Topic? topic;
+  late final TextEditingController? nameController;
 
-  TopicMakerState.editing(this.topic) {
-    selected = icons.indexOf(topic!.icon);
-    nameController.text = topic!.name;
+  TopicMakerState({this.selected = -1, this.topic, this.nameController});
+
+  TopicMakerState.initial({this.selected = -1, this.topic}) {
+    nameController = TextEditingController();
   }
 
-  TopicMakerState duplicate() {
-    return TopicMakerState()
-      ..selected = selected
-      ..topic = topic
-      ..needToRedraw = needToRedraw
-      ..nameController = nameController;
+  TopicMakerState.editing(this.topic) {
+    nameController = TextEditingController();
+    selected = icons.indexOf(topic!.icon);
+    nameController!.text = topic!.name;
+  }
+
+  TopicMakerState duplicate({
+    int? selected,
+    Object? topic = plug,
+    Object? nameController = plug,
+  }) {
+    return TopicMakerState(
+      selected: selected ?? this.selected,
+      topic: topic == plug ? this.topic : topic as Topic?,
+      nameController:
+          nameController == plug ? this.nameController : nameController as TextEditingController?,
+    );
   }
 
   static final List<IconData> icons = [

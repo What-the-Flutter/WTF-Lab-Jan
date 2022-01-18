@@ -13,9 +13,6 @@ class ChatList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ItemsPageCubit, ItemsPageState>(
-      buildWhen: (previous, current) {
-        return current.topicsEdited;
-      },
       builder: (context, state) {
         return Column(
           children: [
@@ -53,19 +50,20 @@ class ChatList extends StatelessWidget {
 
 class _ChatCard extends StatelessWidget {
   late final ThemeInherited themeInherited;
-  late final BuildContext oldContext;
   final entity.Topic topic;
 
   _ChatCard({required this.topic, required this.themeInherited});
 
   @override
   Widget build(BuildContext context) {
-    oldContext = context;
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (newContext) => custom.ChatPage(topic, context),
+          builder: (newContext) => custom.ChatPage(
+            topic: topic,
+            onChange: () => context.read<ItemsPageCubit>().update(),
+          ),
         ),
       ),
       onLongPress: () => showModalBottomSheet(
@@ -74,7 +72,7 @@ class _ChatCard extends StatelessWidget {
         ),
         constraints: const BoxConstraints(maxHeight: 330),
         backgroundColor: themeInherited.preset.colors.backgroundColor,
-        builder: _chatCardMenu,
+        builder: (newContext) => _chatCardMenu(context),
         context: context,
         isDismissible: true,
       ),
@@ -172,7 +170,7 @@ class _ChatCard extends StatelessWidget {
           _cardMenuItem(
             onTap: () {
               Navigator.pop(context);
-              oldContext.read<ItemsPageCubit>().pinTopic(topic);
+              context.read<ItemsPageCubit>().pinTopic(topic);
             },
             label: 'Pin/Unpin Topic',
             icon: Icons.push_pin_outlined,
@@ -183,7 +181,7 @@ class _ChatCard extends StatelessWidget {
           _cardMenuItem(
             onTap: () {
               Navigator.pop(context);
-              oldContext.read<ItemsPageCubit>().archiveTopic(topic);
+              context.read<ItemsPageCubit>().archiveTopic(topic);
             },
             label: 'Archive Topic',
             icon: Icons.archive_outlined,
@@ -198,9 +196,8 @@ class _ChatCard extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (newContext) => custom.TopicMaker(
-                    themeInherited: themeInherited,
                     topic: topic,
-                    onChange: () => oldContext.read<ItemsPageCubit>().onTopicsChange(),
+                    onChange: () => context.read<ItemsPageCubit>().update(),
                   ),
                 ),
               );
@@ -215,7 +212,7 @@ class _ChatCard extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               _deleteAlert(
-                onDelete: () => oldContext.read<ItemsPageCubit>().deleteTopic(topic),
+                onDelete: () => context.read<ItemsPageCubit>().deleteTopic(topic),
                 context: context,
               );
             },
@@ -313,11 +310,11 @@ class _ChatCard extends StatelessWidget {
                   topText: 'Message amount:',
                   bottomText: '${topic.elements}',
                 ),
-                _infoNode(
-                  topText: 'Last message:',
-                  bottomText:
-                      '${entity.fullDateFormatter.format(topic.getElements()[0].timeCreated)}',
-                ),
+                if (topic.lastMessage != null)
+                  _infoNode(
+                    topText: 'Last message:',
+                    bottomText: '${entity.fullDateFormatter.format(topic.lastMessage!)}',
+                  ),
                 _infoNode(
                   topText: 'Date created:',
                   bottomText: '${entity.fullDateFormatter.format(topic.timeCreated)}',

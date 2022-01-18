@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../database/database.dart' as db;
 import '../entity/entities.dart' as entity;
 import '../main.dart';
 import 'items_page/items_page_cubit.dart';
@@ -65,8 +66,7 @@ class _AddingButtonState extends State<AddingButton> {
                 context,
                 MaterialPageRoute(
                   builder: (newContext) => TopicMaker(
-                    themeInherited: themeInherited,
-                    onChange: () => context.read<ItemsPageCubit>().onTopicsChange(),
+                    onChange: () => context.read<ItemsPageCubit>().update(),
                   ),
                 ),
               );
@@ -172,7 +172,7 @@ class _BottomFormState extends State<_BottomForm> {
                       _categoryController.text = newValue;
                     });
                   },
-                  items: entity.topics.values.map<DropdownMenuItem<String>>((value) {
+                  items: db.topics.values.map<DropdownMenuItem<String>>((value) {
                     return DropdownMenuItem<String>(
                       value: value.toString(),
                       child: Text(value.toString()),
@@ -198,7 +198,7 @@ class _BottomFormState extends State<_BottomForm> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                entity.MessageLoader.messages[0].insert(
+                db.MessageLoader.messages[0]!.insert(
                   0,
                   entity.Task(
                     description: _descriptionController.text,

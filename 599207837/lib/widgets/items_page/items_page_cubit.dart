@@ -1,48 +1,55 @@
 import 'package:bloc/bloc.dart';
-import '../../entity/entities.dart';
 
+import '../../database/database.dart' as db;
+import '../../database/message_loader.dart';
+import '../../entity/entities.dart' as entity;
 import 'items_page_state.dart';
 
 class ItemsPageCubit extends Cubit<ItemsPageState> {
-  ItemsPageCubit() : super(ItemsPageState());
+  ItemsPageCubit() : super(ItemsPageState.initial());
 
-  void onTopicsChange() {
-    emit(ItemsPageState()..topicsEdited = true);
+  void loadTopics() async {
+    emit(state.duplicate(
+      topics: await db.TopicLoader.loadTopics(),
+    ));
   }
 
-  void pinTopic(Topic topic) {
+  void pinTopic(entity.Topic topic) {
     topic.onPin();
-    onTopicsChange();
+    db.TopicLoader.updateTopic(topic);
+    update();
   }
 
-  void archiveTopic(Topic topic) {
+  void archiveTopic(entity.Topic topic) {
     topic.onArchive();
-    onTopicsChange();
+    db.TopicLoader.updateTopic(topic);
+    update();
   }
 
-  void deleteTopic(Topic topic) {
-    topic.delete();
-    onTopicsChange();
+  void deleteTopic(entity.Topic topic) {
+    db.TopicLoader.deleteTopic(topic);
+    update();
   }
 
-  void removeTask(Task task) {
+  void removeTask(entity.Task task) {
     MessageLoader.remove(task);
-    emit(ItemsPageState()..tasksEdited = true);
+    emit(state.duplicate());
   }
 
-  void completeTask(Task task) {
+  void completeTask(entity.Task task) {
     task.complete();
-    task.timeCompleted = DateTime.now();
-    emit(ItemsPageState()..tasksEdited = true);
+    emit(state.duplicate());
   }
 
-  void visitEvent(Event event) {
+  void visitEvent(entity.Event event) {
     event.visit();
-    emit(ItemsPageState()..eventsEdited = true);
+    emit(state.duplicate());
   }
 
-  void missEvent(Event event) {
+  void missEvent(entity.Event event) {
     event.miss();
-    emit(ItemsPageState()..eventsEdited = true);
+    emit(state.duplicate());
   }
+
+  void update() => emit(state.duplicate(topics: db.TopicLoader.getTopics()));
 }

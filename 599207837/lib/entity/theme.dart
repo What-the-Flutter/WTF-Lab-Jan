@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Theme {
   final List<ColorSet> _colorSets = [];
   late ColorSet colors;
-  int _theme = 0;
+  late int _theme;
+  static SharedPreferences? _preferences;
 
   Theme({required this.colors}) {
+    _theme = _preferences?.getInt('theme') ?? 0;
     _colorSets.add(colors);
   }
 
   Theme.defaultOne() {
+    _theme = _preferences?.getInt('theme') ?? 0;
     _colorSets.add(ColorSet.lightDefault());
     _colorSets.add(ColorSet.darkDefault());
     colors = _colorSets[_theme];
   }
 
+  static Future<void> lookUpToPreferences() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    _preferences = await SharedPreferences.getInstance();
+  }
+
   void changeTheme() {
     _theme = (_theme + 1) % _colorSets.length;
+    _preferences!.setInt('theme', _theme);
     colors = _colorSets[_theme];
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../main.dart';
-import '../widgets.dart' as custom;
+import '../widgets.dart' as widget;
 import 'items_page_cubit.dart';
 import 'items_page_state.dart';
 
@@ -12,7 +12,7 @@ class ItemsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ItemsPageCubit(),
+      create: (context) => ItemsPageCubit()..loadTopics(),
       child: _ItemsPage(),
     );
   }
@@ -71,7 +71,7 @@ class _ItemsPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            const custom.ChatList(
+            const widget.ChatList(
               key: null,
             ),
             _itemsList('Tasks', 0),
@@ -79,7 +79,7 @@ class _ItemsPage extends StatelessWidget {
             _itemsList('Notes', 2),
           ],
         ),
-        floatingActionButton: const custom.AddingButton(
+        floatingActionButton: const widget.AddingButton(
           key: Key('MainButton'),
           firstIcon: Icon(
             Icons.add,
@@ -96,16 +96,6 @@ class _ItemsPage extends StatelessWidget {
 
   Widget _itemsList(String title, int type) {
     return BlocBuilder<ItemsPageCubit, ItemsPageState>(
-      buildWhen: (previous, current) {
-        switch (type) {
-          case (0):
-            return current.tasksEdited;
-          case (1):
-            return current.eventsEdited;
-          default:
-            return current.notesEdited;
-        }
-      },
       builder: (context, state) {
         final items = type == 0 ? state.favTasks : (type == 1 ? state.favEvents : state.favNotes);
         return Column(
@@ -128,7 +118,7 @@ class _ItemsPage extends StatelessWidget {
                     key: ValueKey(item.uuid),
                     margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                     child: Padding(
-                      child: custom.ItemColumn(item),
+                      child: widget.ItemColumn(item),
                       padding: const EdgeInsets.all(8.0),
                     ),
                   );
