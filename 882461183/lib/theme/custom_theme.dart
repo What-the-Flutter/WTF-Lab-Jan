@@ -27,13 +27,13 @@ class CustomTheme extends StatefulWidget {
   CustomThemeState createState() => CustomThemeState();
 
   static ThemeData of(BuildContext context) {
-    var inherited =
+    final inherited =
         (context.dependOnInheritedWidgetOfExactType<_CustomTheme>());
     return inherited!.data.themeData;
   }
 
   static CustomThemeState instanceOf(BuildContext context) {
-    var inherited =
+    final inherited =
         (context.dependOnInheritedWidgetOfExactType<_CustomTheme>());
     return inherited!.data;
   }
