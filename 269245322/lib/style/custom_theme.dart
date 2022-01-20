@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import '../shared_preferences/sp_settings_helper.dart';
 import 'themes.dart';
 
 class _CustomTheme extends InheritedWidget {
@@ -19,11 +20,9 @@ class _CustomTheme extends InheritedWidget {
 
 class CustomTheme extends StatefulWidget {
   final Widget child;
-  final MyThemeKeys initialThemeKey;
 
   const CustomTheme({
     required Key key,
-    required this.initialThemeKey,
     required this.child,
   }) : super(key: key);
 
@@ -50,13 +49,22 @@ class CustomThemeState extends State<CustomTheme> {
 
   @override
   void initState() {
-    _theme = MyThemes.getThemeFromKey(widget.initialThemeKey);
+    final _sharedPreferencesProvider = SharedPreferencesProvider();
+
+    _sharedPreferencesProvider.getTheme()
+        ? _theme = MyThemes.getThemeFromKey(MyThemeKeys.light)
+        : _theme = MyThemes.getThemeFromKey(MyThemeKeys.dark);
+
     super.initState();
   }
 
   void changeTheme(MyThemeKeys themeKey) {
     setState(() {
       _theme = MyThemes.getThemeFromKey(themeKey);
+      final _sharedPreferencesProvider = SharedPreferencesProvider();
+      themeKey == MyThemeKeys.light
+          ? _sharedPreferencesProvider.changeTheme(true)
+          : _sharedPreferencesProvider.changeTheme(false);
     });
   }
 

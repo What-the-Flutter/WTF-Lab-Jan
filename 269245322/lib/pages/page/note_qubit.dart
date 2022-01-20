@@ -1,41 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../database/note_db_helper.dart';
 
 import '../../models/note_model.dart';
 import '../../models/page_model.dart';
 import 'note_state.dart';
 
 class NoteCubit extends Cubit<NoteState> {
-  NoteCubit() : super(const NoteState(isUserEditingeNote: false));
+  final DBHelper _dbHelper = DBHelper();
 
-  void init(PageModel page) {
+  NoteCubit()
+      : super(const NoteState(
+          isUserEditingeNote: false,
+          selcetedNotes: [],
+          showNoteIconMenue: false,
+          isSerchBarDisplayed: false,
+        ));
+
+  void initPage(PageModel page) {
     emit(
       state.copyWith(
         notesList: page.notesList,
-        selcetedNotes: [],
         page: page,
-        showNoteIconMenue: false,
-        isSerchBarDisplayed: false,
         noteIcon: page.icon,
       ),
     );
   }
 
   bool areAppBarActionsDisplayed() {
-    if (state.selcetedNotes!.isEmpty) {
-      return false;
-    } else {
-      return true;
-    }
+    final bool functionResult;
+
+    state.selcetedNotes!.isEmpty
+        ? functionResult = false
+        : functionResult = true;
+
+    return functionResult;
   }
 
   bool isEditIconEnable() {
-    if (state.selcetedNotes!.length == 1) {
-      return true;
-    } else {
-      return false;
-    }
+    final bool functionResult;
+
+    (state.selcetedNotes!.length == 1)
+        ? functionResult = true
+        : functionResult = false;
+
+    return functionResult;
   }
 
   void copyDataToBuffer() {
@@ -47,142 +57,172 @@ class NoteCubit extends Cubit<NoteState> {
     setAllNotesSelectedUnselected(false);
   }
 
-  void setAllNotesSelectedUnselected(bool selectAll) {
-    var newSelectedList = <NoteModel>[];
-    if (selectAll) {
-      for (var note in state.notesList!) {
-        note.isChecked = true;
-        newSelectedList.add(note);
-      }
-    } else {
-      for (var note in state.selcetedNotes!) {
-        note.isChecked = false;
-      }
-    }
-    emit(state.copyWith(selcetedNotes: newSelectedList));
-  }
-
   void search(String searchString) {
-    var newNoteList = state.page!.notesList;
+    final newNoteList = state.page!.notesList;
+    NoteModel newNote;
     if (searchString != '') {
       for (var note in newNoteList) {
         if (note.data.contains(searchString)) {
-          note.isSearched = true;
+          newNote = note.copyWith(isSearched: true);
         } else {
-          note.isSearched = false;
+          newNote = note.copyWith(isSearched: false);
         }
+        newNoteList[newNoteList.indexOf(note)] = newNote;
+        emit(state.copyWith(notesList: newNoteList));
       }
-      emit(state.copyWith(notesList: newNoteList));
     } else {
       for (var note in newNoteList) {
-        note.isSearched = false;
+        newNote = note.copyWith(isSearched: false);
+        newNoteList[newNoteList.indexOf(note)] = newNote;
       }
+
       emit(state.copyWith(notesList: newNoteList));
     }
   }
 
   void addNoteToList(TextEditingController controller) {
-    late String nodeInput;
+    final noteInput = controller.text;
+    final headingText = '${state.page!.title} ${state.page!.numOfNotes}';
+    var noteCounter = 0;
 
-    nodeInput = controller.text;
-    var newNote = NoteModel(
-      heading: state.page!.numOfNotes.toString(),
-      data: nodeInput,
+    final newNote = NoteModel(
+      heading: headingText,
+      data: noteInput,
       icon: state.noteIcon!,
+      isSearched: false,
+      isFavorite: false,
+      isChecked: false,
     );
 
-    var newNoteList = state.notesList;
-    if (state.isUserEditingeNote!) {
-      var editableNote = state.selcetedNotes!.first;
+    var newNoteList = state.notesList!;
+    if (state.isUserEditingeNote) {
+      final editableNote = state.selcetedNotes!.first;
       //findig user's selected note in the note list and changing it's data with new value
-      for (var note in newNoteList!) {
+      for (var note in newNoteList) {
         if (note.heading == editableNote.heading) {
-          note.data = controller.text;
+          newNoteList[noteCounter] =
+              note.copyWith(data: controller.text, isChecked: false);
+          _dbHelper.updateNote(newNoteList[noteCounter], state.page!.title);
         }
+        noteCounter++;
       }
     } else {
-      state.page!.numOfNotes++;
-      newNoteList!.add(newNote);
+      final newPage =
+          state.page!.copyWith(numOfNotes: state.page!.numOfNotes + 1);
+      emit(state.copyWith(page: newPage));
+      _dbHelper.updatePage(newPage, newPage.title);
+
+      newNoteList.add(newNote);
+      _dbHelper.insertNote(newNote, newPage.title);
     }
     emit(state.copyWith(notesList: newNoteList));
-    var newIsUserEditingeNoteState = false;
+
+    final newIsUserEditingeNoteState = false;
     emit(state.copyWith(isUserEditingeNote: newIsUserEditingeNoteState));
+
+    final newPage =
+        state.page!.copyWith(lastModifedDate: DateTime.now().toString());
+    emit(state.copyWith(page: newPage));
+
     setAllNotesSelectedUnselected(false);
-    state.page!.lastModifedDate = DateTime.now();
+    //refresh data note input field
     controller.text = '';
   }
 
   void setSelectesCheckBoxState(bool selected, int index) {
-    var newNote = state.notesList![index];
-    newNote.isChecked = selected;
-    emit(state.copyWith(note: newNote));
+    final newNote = state.notesList![index].copyWith(isChecked: selected);
+    final newNotesList = state.notesList!;
+    newNotesList[index] = newNote;
+    emit(state.copyWith(notesList: newNotesList));
   }
 
   void addNoteToSelectedNotesList(int index) {
-    var newSelectedList = state.selcetedNotes!;
+    var newSelectedList = <NoteModel>[];
+    for (var note in state.selcetedNotes!) {
+      newSelectedList.add(note);
+    }
+    setSelectesCheckBoxState(true, index);
     newSelectedList.add(state.page!.notesList[index]);
     emit(state.copyWith(selcetedNotes: newSelectedList));
-    print(state.selcetedNotes!.length);
-  }
-
-  void setNewIcon(IconData icon) {
-    print('set');
-    var newNoteIcon = icon;
-    emit(state.copyWith(noteIcon: newNoteIcon));
-    print(state.noteIcon);
-  }
-
-  IconData getIcon() {
-    return state.noteIcon!;
   }
 
   void removeNoteFromSelectedNotesList(int index) {
-    var newSelectedList = state.selcetedNotes!;
-    newSelectedList.remove(state.page!.notesList[index]);
-    emit(state.copyWith(selcetedNotes: newSelectedList));
+    var newSelectedList = <NoteModel>[];
+    for (var note in state.selcetedNotes!) {
+      newSelectedList.add(note);
+    }
+
+    if (newSelectedList.isNotEmpty) {
+      var noteToDelete = state.page!.notesList[index];
+      for (var note in state.selcetedNotes!) {
+        if (note.heading == noteToDelete.heading) {
+          newSelectedList.remove(note);
+        }
+      }
+      emit(state.copyWith(selcetedNotes: newSelectedList));
+    }
+  }
+
+  void setAllNotesSelectedUnselected(bool selectAll) {
+    for (var indexCounter = 0;
+        indexCounter < state.notesList!.length;
+        indexCounter++) {
+      selectAll
+          ? addNoteToSelectedNotesList(indexCounter)
+          : removeNoteFromSelectedNotesList(indexCounter);
+    }
+  }
+
+  int getIcon() {
+    return state.noteIcon!;
   }
 
   void deleteFromNoteList() {
-    var newNoreList = state.notesList;
+    final newNoreList = state.notesList!;
     for (var currentNote in state.selcetedNotes!) {
-      newNoreList!.remove(currentNote);
+      newNoreList.remove(currentNote);
+      _dbHelper.deleteNote(currentNote);
+    }
+
+    emit(state.copyWith(notesList: newNoreList));
+    setAllNotesSelectedUnselected(false);
+  }
+
+  void addNoteToFavorite() {
+    final newNoreList = state.notesList!;
+    for (var currentNote in state.selcetedNotes!) {
+      if (currentNote.isFavorite == true) {
+        var newNote = currentNote.copyWith(isFavorite: false, isChecked: false);
+        newNoreList[newNoreList.indexOf(currentNote)] = newNote;
+        _dbHelper.updateNote(newNote, state.page!.title);
+      } else {
+        var newNote = currentNote.copyWith(isFavorite: true, isChecked: false);
+        newNoreList[newNoreList.indexOf(currentNote)] = newNote;
+        _dbHelper.updateNote(newNote, state.page!.title);
+      }
     }
     emit(state.copyWith(notesList: newNoreList));
 
     setAllNotesSelectedUnselected(false);
   }
 
-  void addNoteToFavorite() {
-    for (var currentNote in state.selcetedNotes!) {
-      currentNote.isFavorite == false
-          ? currentNote.isFavorite = true
-          : currentNote.isFavorite = false;
-      emit(state.copyWith(note: currentNote));
-    }
-    setAllNotesSelectedUnselected(false);
-  }
-
   String editNote() {
-    var newIsUserEditingeNoteState = true;
+    final newIsUserEditingeNoteState = true;
     emit(state.copyWith(isUserEditingeNote: newIsUserEditingeNoteState));
     return state.selcetedNotes!.first.data;
   }
 
   void showNoteIconMenu(bool show) {
-    bool newShowNoteIconMenue;
+    emit(state.copyWith(showNoteIconMenue: show));
+  }
 
-    if (show) {
-      newShowNoteIconMenue = true;
-    } else {
-      var newNoteList = state.page!.notesList;
-      newShowNoteIconMenue = false;
-      emit(state.copyWith(notesList: newNoteList));
-    }
-    emit(state.copyWith(showNoteIconMenue: newShowNoteIconMenue));
+  void setNewNoteIcon(int icon) {
+    emit(state.copyWith(noteIcon: icon));
+    showNoteIconMenu(false);
   }
 
   bool getShowNoteIconMenueState() {
-    return state.showNoteIconMenue!;
+    return state.showNoteIconMenue;
   }
 
   void showSerchBar(bool dispalayed, TextEditingController searhController) {
@@ -196,9 +236,8 @@ class NoteCubit extends Cubit<NoteState> {
     }
     emit(state.copyWith(isSerchBarDisplayed: newIsSerchBarDisplayed));
   }
-  //krestik close() when click
 
   bool getSerchBarDisplayedState() {
-    return state.isSerchBarDisplayed!;
+    return state.isSerchBarDisplayed;
   }
 }

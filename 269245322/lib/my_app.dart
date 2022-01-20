@@ -19,22 +19,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return CustomTheme(
-//       initialThemeKey: MyThemeKeys.light,
-//       key: UniqueKey(),
-//       child: MaterialApp(
-//         theme: CustomTheme.of(context),
-//         initialRoute: '/',
-//         routes: {
-//           '/': (context) => const HomePage(),
-//           PageConstructor.routeName: (context) => PageConstructor(),
-//           CustomPage.routeName: (context) => CustomPage(),
-//         },
-//       ),
-//     );
-//   }
-// }
