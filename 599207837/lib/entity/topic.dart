@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../database/database.dart' as db;
-import 'entities.dart' as entity;
+import '../database/database.dart';
+import 'entities.dart';
 
 Topic topicFromJson(String str) {
   final jsonData = json.decode(str);
@@ -21,25 +21,20 @@ class Topic {
   late DateTime timeCreated;
   DateTime? lastMessage;
   int elements;
-  bool initialLoad = true;
   late bool _pinned;
   late bool _archived;
-  late final db.MessageLoader mLoader;
 
   void onPin() => _pinned = !_pinned;
 
-  void onArchive() {
-    _archived = !_archived;
-    db.MessageLoader.clearTopicData(id);
-  }
+  void onArchive() => _archived = !_archived;
 
   bool get isPinned => _pinned;
 
   bool get isArchived => _archived;
 
   factory Topic({required String name, required IconData icon}) {
-    if (db.topics.containsKey(name)) {
-      return db.topics[name]!;
+    if (topics.containsKey(name)) {
+      return topics[name]!;
     } else {
       return Topic.newInstance(
         name: name,
@@ -62,8 +57,7 @@ class Topic {
     _pinned = pinned;
     id = id_ ?? hashCode + Random.secure().nextInt(100);
     timeCreated = timeCreated_ ?? DateTime.now();
-    db.topics[name] = this;
-    mLoader = db.MessageLoader(this);
+    topics[name] = this;
   }
 
   factory Topic.fromJson(Map<String, dynamic> json) => Topic.newInstance(
@@ -88,21 +82,11 @@ class Topic {
         'last_message': lastMessage.toString(),
       };
 
-  void incContent() {
-    elements++;
-    db.TopicLoader.updateTopic(this);
-    lastMessage = db.MessageLoader.messages[id]![0].timeCreated;
-  }
+  void incContent() => elements++;
 
-  void decContent() {
-    elements--;
-    db.TopicLoader.updateTopic(this);
-    lastMessage = elements == 0 ? null : db.MessageLoader.messages[id]![0].timeCreated;
-  }
+  void decContent() => elements--;
 
-  List<entity.Message> getElements() => db.MessageLoader.messages[id]!;
-
-  void loadElements() {}
+  Future<List<Message>> getElements() => MessageLoader.loadElements(this);
 
   @override
   String toString() => name;

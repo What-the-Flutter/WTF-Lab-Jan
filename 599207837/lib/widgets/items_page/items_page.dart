@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../main.dart';
-import '../widgets.dart' as widget;
+import '../widgets.dart';
 import 'items_page_cubit.dart';
 import 'items_page_state.dart';
 
@@ -12,7 +12,7 @@ class ItemsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ItemsPageCubit()..loadTopics(),
+      create: (context) => ItemsPageCubit()..loadData(),
       child: _ItemsPage(),
     );
   }
@@ -71,7 +71,7 @@ class _ItemsPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            const widget.ChatList(
+            const ChatList(
               key: null,
             ),
             _itemsList('Tasks', 0),
@@ -79,7 +79,7 @@ class _ItemsPage extends StatelessWidget {
             _itemsList('Notes', 2),
           ],
         ),
-        floatingActionButton: const widget.AddingButton(
+        floatingActionButton: const AddingButton(
           key: Key('MainButton'),
           firstIcon: Icon(
             Icons.add,
@@ -118,7 +118,7 @@ class _ItemsPage extends StatelessWidget {
                     key: ValueKey(item.uuid),
                     margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                     child: Padding(
-                      child: widget.ItemColumn(item),
+                      child: ItemColumn(item),
                       padding: const EdgeInsets.all(8.0),
                     ),
                   );

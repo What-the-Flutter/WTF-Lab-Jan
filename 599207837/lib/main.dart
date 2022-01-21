@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'entity/entities.dart' as entity;
-import 'widgets/widgets.dart' as custom;
+import 'widgets/widgets.dart';
 
 void main() => entity.Theme.lookUpToPreferences().whenComplete(() => runApp(const MyApp()));
 
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
     return ThemeUpdater(
       child: const MaterialApp(
         title: 'Flutter Demo',
-        home: custom.ItemsPage(),
+        home: ItemsPage(),
       ),
       theme: entity.Theme.defaultOne(),
     );

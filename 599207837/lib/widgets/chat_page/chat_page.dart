@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../database/database.dart' as db;
-import '../../entity/entities.dart' as entity;
+import '../../database/database.dart';
+import '../../entity/entities.dart';
 import '../../main.dart';
-import '../widgets.dart' as custom;
+import '../widgets.dart';
 import 'chat_page_cubit.dart';
 import 'chat_page_state.dart';
 
 class ChatPage extends StatelessWidget {
-  final entity.Topic topic;
+  final Topic topic;
   final Function onChange;
 
   ChatPage({required this.topic, required this.onChange});
@@ -27,22 +27,13 @@ class ChatPage extends StatelessWidget {
 }
 
 class _ChatPage extends StatelessWidget {
-  final entity.Topic topic;
-  final _scrollController = ScrollController();
+  final Topic topic;
   final Function onChange;
 
   _ChatPage({required this.topic, required this.onChange});
 
-  void _onScrollEvent(BuildContext context) {
-    final pixels = _scrollController.position.pixels;
-    if (pixels >= _scrollController.position.maxScrollExtent - 40) {
-      context.read<ChatPageCubit>().loadElements(topic);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    _scrollController.addListener(() => _onScrollEvent(context));
     final themeInherited = ThemeInherited.of(context)!;
     return BlocBuilder<ChatPageCubit, ChatPageState>(
       builder: (context, state) {
@@ -71,7 +62,7 @@ class _ChatPage extends StatelessWidget {
                         child: TextButton(
                           child: const Text('Move to'),
                           onPressed: () {
-                            custom.Alerts.moveAlert(
+                            Alerts.moveAlert(
                               context: context,
                               themeInherited: themeInherited,
                               currentTopic: topic,
@@ -97,28 +88,27 @@ class _ChatPage extends StatelessWidget {
                   ),
                 ),
               Expanded(
-                child: FutureBuilder<List<entity.Message>>(
-                  future: db.MessageLoader.loadElements(topic),
+                child: FutureBuilder<List<Message>>(
+                  future: MessageLoader.loadElements(topic),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return ListView.builder(
-                        controller: _scrollController,
                         reverse: true,
-                        itemCount: state.elements!.length,
+                        itemCount: state.messages.length,
                         shrinkWrap: true,
                         padding: const EdgeInsets.only(top: 10, bottom: 10),
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
-                          return custom.ChatMessage(
-                            key: Key(state.elements![index].uuid.toString()),
-                            item: state.elements![index],
+                          return ChatMessage(
+                            key: Key(state.messages[index].uuid.toString()),
+                            item: state.messages[index],
                             onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
                             onEdited: () => context
                                 .read<ChatPageCubit>()
-                                .startEditing(index, state.elements![index]),
+                                .startEditing(index, state.messages[index]),
                             onSelection: () => context.read<ChatPageCubit>().setSelection(true),
                             onSelected: () =>
-                                context.read<ChatPageCubit>().onSelect(state.elements![index]),
+                                context.read<ChatPageCubit>().onSelect(state.messages[index]),
                             selection: state.selectionFlag,
                             themeInherited: themeInherited,
                           );
@@ -204,7 +194,6 @@ class _ChatPage extends StatelessWidget {
       children: <Widget>[
         IconButton(
           onPressed: () {
-            context.read<ChatPageCubit>().onChatExit(topic);
             onChange();
             Navigator.pop(context);
           },
@@ -318,7 +307,7 @@ class _ChatPage extends StatelessWidget {
                 children: [
                   BlocBuilder<ChatPageCubit, ChatPageState>(
                     builder: (context, state) {
-                      return custom.DateTimePicker(
+                      return DateTimePicker(
                         selectTime: (value) => context.read<ChatPageCubit>().setSelectedTime(value),
                         selectDate: (value) => context.read<ChatPageCubit>().setSelectedDate(value),
                         selectedDate: state.selectedDate,

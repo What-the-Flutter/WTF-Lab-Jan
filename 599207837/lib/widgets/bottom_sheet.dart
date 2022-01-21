@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../database/database.dart' as db;
-import '../entity/entities.dart' as entity;
+import '../database/database.dart';
 import '../main.dart';
 import 'items_page/items_page_cubit.dart';
 import 'topic_maker/topic_maker.dart';
@@ -172,7 +171,7 @@ class _BottomFormState extends State<_BottomForm> {
                       _categoryController.text = newValue;
                     });
                   },
-                  items: db.topics.values.map<DropdownMenuItem<String>>((value) {
+                  items: topics.values.map<DropdownMenuItem<String>>((value) {
                     return DropdownMenuItem<String>(
                       value: value.toString(),
                       child: Text(value.toString()),
@@ -198,15 +197,15 @@ class _BottomFormState extends State<_BottomForm> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                db.MessageLoader.messages[0]!.insert(
-                  0,
-                  entity.Task(
-                    description: _descriptionController.text,
-                    topic: entity.Topic(
-                        name: _categoryController.text, icon: Icons.delete_outline_rounded),
-                    favourite: true,
-                  ),
-                );
+                // db.MessageLoader.messages[0]!.insert(
+                //   0,
+                //   entity.Task(
+                //     description: _descriptionController.text,
+                //     topic: entity.Topic(
+                //         name: _categoryController.text, icon: Icons.delete_outline_rounded),
+                //     favourite: true,
+                //   ),
+                // );
                 final parent = widget.sheetState;
                 parent._hideBottomSheet(parent.bottomSheetController!);
                 parent.bottomSheetController = null;

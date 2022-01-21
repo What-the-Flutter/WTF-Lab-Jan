@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../../entity/entities.dart' as entity;
+import '../../entity/entities.dart';
 
 class ChatPageState {
   static const Object? plug = Object();
 
-  late final List<entity.Message>? selected;
-  final List<entity.Message>? elements;
+  late final List<Message>? selected;
+  final List<Message>? elements;
+  final List<Message>? searchMessages;
+
+  List<Message> get messages => searchMessages ?? elements ?? [];
 
   final IconData addedIcon;
-  final entity.Topic? topic;
+  final Topic? topic;
   final int addedType;
   final int editingIndex;
   final DateTime? selectedDate;
@@ -24,6 +27,7 @@ class ChatPageState {
   ChatPageState({
     this.selected,
     this.elements,
+    this.searchMessages,
     this.selectionFlag = false,
     this.editingFlag = false,
     this.addedType = 0,
@@ -39,6 +43,7 @@ class ChatPageState {
 
   ChatPageState.initial({
     this.elements,
+    this.searchMessages,
     this.selectionFlag = false,
     this.editingFlag = false,
     this.addedType = 0,
@@ -56,6 +61,7 @@ class ChatPageState {
 
   ChatPageState duplicate({
     Object? elements = plug,
+    Object? searchMessages = plug,
     bool? selectionFlag,
     bool? editingFlag,
     int? addedType,
@@ -69,7 +75,9 @@ class ChatPageState {
   }) {
     return ChatPageState(
       selected: selected,
-      elements: elements == plug ? this.elements : elements as List<entity.Message>?,
+      elements: elements == plug ? this.elements : elements as List<Message>?,
+      searchMessages:
+          searchMessages == plug ? this.searchMessages : searchMessages as List<Message>?,
       selectionFlag: selectionFlag ?? this.selectionFlag,
       editingFlag: editingFlag ?? this.editingFlag,
       addedType: addedType ?? this.addedType,
@@ -81,7 +89,7 @@ class ChatPageState {
       searchController: searchController == plug
           ? this.searchController
           : searchController as TextEditingController?,
-      topic: topic == plug ? this.topic : topic as entity.Topic?,
+      topic: topic == plug ? this.topic : topic as Topic?,
       descriptionController: descriptionController,
     );
   }

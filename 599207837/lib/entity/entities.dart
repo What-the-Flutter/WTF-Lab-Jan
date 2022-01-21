@@ -28,7 +28,7 @@ abstract class Message {
 
   Map<String, dynamic> toJson();
 
-  static Message fromJson(Map<String, dynamic> json, Topic topic) {
+  static Message fromJson(Map<String, dynamic> json, Topic? topic) {
     switch (json['type_id']) {
       case (0):
         return Task.fromJson(json, topic);

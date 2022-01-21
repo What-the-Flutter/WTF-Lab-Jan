@@ -2,7 +2,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../entity/entities.dart' as entity;
+import '../entity/entities.dart';
 
 class DBProvider {
   static final DBProvider db = DBProvider._inner();
@@ -37,101 +37,121 @@ class DBProvider {
           'time_created TEXT'
           ')',
         );
+        await db.execute(
+          'CREATE TABLE Message ('
+          'id INTEGER PRIMARY KEY,'
+          'type_id INTEGER,'
+          'topic_id INTEGER,'
+          'description TEXT,'
+          'time_created TEXT,'
+          'favourite BIN,'
+          'time_completed TEXT,'
+          'scheduled_time TEXT,'
+          'is_visited BIN,'
+          'is_missed BIN'
+          ')',
+        );
       },
     );
   }
 
-  Future<int> newTopic(entity.Topic newTopic) async {
+  Future<int> newTopic(Topic newTopic) async {
     final db = await database;
     final res = await db.insert('Topic', newTopic.toJson());
-    _crateTopicTable(newTopic);
     return res;
   }
 
-  Future<int> updateTopic(entity.Topic topic) async {
+  Future<int> updateTopic(Topic topic) async {
     final db = await database;
     final res = await db.update('Topic', topic.toJson(), where: 'id = ?', whereArgs: [topic.id]);
     return res;
   }
 
-  void deleteTopic(entity.Topic topic) async {
+  void deleteTopic(Topic topic) async {
     final db = await database;
     db.delete('Topic', where: 'id = ${topic.id}');
-    _deleteTopicTable(topic);
+    deleteAllMessages(topic);
   }
 
-  void _crateTopicTable(entity.Topic topic) async {
-    final db = await database;
-    await db.execute(
-      'CREATE TABLE t${topic.id.toString()} ('
-      'id INTEGER PRIMARY KEY,'
-      'type_id INTEGER,'
-      'description TEXT,'
-      'time_created TEXT,'
-      'favourite BIN,'
-      'time_completed TEXT,'
-      'scheduled_time TEXT,'
-      'is_visited BIN,'
-      'is_missed BIN'
-      ')',
-    );
-  }
-
-  void _deleteTopicTable(entity.Topic topic) async {
-    final db = await database;
-    await db.execute('DROP TABLE IF EXISTS t${topic.id.toString()}');
-  }
-
-  Future<List<entity.Topic>> getAllTopics() async {
+  Future<List<Topic>> getAllTopics() async {
     final db = await database;
     final count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM Topic'));
     if (count == 0) {
       return [];
     } else {
       final res = await db.query('Topic');
-      final list = res.isNotEmpty ? res.map((c) => entity.Topic.fromJson(c)).toList() : [];
-      return list as List<entity.Topic>;
+      final list = res.isNotEmpty ? res.map((c) => Topic.fromJson(c)).toList() : [];
+      return list as List<Topic>;
     }
   }
 
-  Future<int> newMessage(entity.Message o) async {
+  Future<int> newMessage(Message o) async {
     final db = await database;
-    final res = await db.insert('t${o.topic.id.toString()}', o.toJson());
+    final res = await db.insert('Message', o.toJson());
     return res;
   }
 
-  Future<int> updateMessage(entity.Message o) async {
+  Future<int> updateMessage(Message o) async {
     final db = await database;
-    final res = await db
-        .update('t${o.topic.id.toString()}', o.toJson(), where: 'id = ?', whereArgs: [o.uuid]);
+    final res = await db.update('Message', o.toJson(), where: 'id = ?', whereArgs: [o.uuid]);
     return res;
   }
 
-  void deleteMessage(entity.Message o) async {
+  Future<Message> getLastMessage(Topic topic) async {
     final db = await database;
-    db.delete('t${o.topic.id.toString()}', where: 'id = ${o.uuid}');
+    final res = await db.query(
+      'Message',
+      where: 'topic_id = ${topic.id}',
+      orderBy: 'time_created DESC',
+      limit: 1,
+    );
+    final list = res.map((c) => Message.fromJson(c, topic)).toList();
+    return list[0];
   }
 
-  void deleteAllMessages(entity.Topic topic) async {
+  void deleteMessage(Message o) async {
     final db = await database;
-    db.rawDelete('Delete from t${topic.id.toString()}');
+    db.delete('Message', where: 'id = ${o.uuid}');
   }
 
-  Future<List<entity.Message>> getLastMessages(entity.Topic topic) async {
+  void deleteAllMessages(Topic topic) async {
+    final db = await database;
+    db.rawDelete('Delete from Message WHERE topic_id = ${topic.id}');
+  }
+
+  Future<List<Message>> getTopicMessages(Topic topic) async {
     final db = await database;
     final count = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COUNT(*) FROM t${topic.id.toString()}',
+      'SELECT COUNT(*) FROM Message WHERE topic_id = ${topic.id}',
     ));
     if (count == 0) {
       return [];
     } else {
       final res = await db.query(
-        't${topic.id.toString()}',
+        'Message',
+        where: 'topic_id = ${topic.id}',
         orderBy: 'time_created DESC',
-        limit: 25,
       );
-      final list = res.isNotEmpty ? res.map((c) => entity.Message.fromJson(c, topic)).toList() : [];
-      return list as List<entity.Message>;
+      final list = res.isNotEmpty ? res.map((c) => Message.fromJson(c, topic)).toList() : [];
+      return list as List<Message>;
+    }
+  }
+
+  Future<List<Message>> getTypeFavourites(int typeID) async {
+    final db = await database;
+    final count = Sqflite.firstIntValue(await db.rawQuery(
+      'SELECT COUNT(*) FROM Message WHERE type_id = $typeID AND favourite = 1',
+    ));
+    if (count == 0) {
+      return [];
+    } else {
+      final res = await db.query(
+        'Message',
+        where: 'type_id = $typeID AND favourite = 1',
+        orderBy: 'time_created',
+      );
+      final list = res.isNotEmpty ? res.map((c) => Message.fromJson(c, null)).toList() : [];
+      return list as List<Message>;
     }
   }
 }

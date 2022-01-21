@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../entity/entities.dart' as entity;
+import '../../entity/entities.dart';
 import '../../main.dart';
 import 'topic_maker_cubit.dart';
 import 'topic_maker_state.dart';
 
 class TopicMaker extends StatelessWidget {
-  final entity.Topic? topic;
+  final Topic? topic;
   final Function onChange;
 
   const TopicMaker({Key? key, this.topic, required this.onChange}) : super(key: key);

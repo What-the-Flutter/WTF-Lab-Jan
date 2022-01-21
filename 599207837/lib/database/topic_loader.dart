@@ -22,8 +22,9 @@ class TopicLoader {
     updateTopic(topic);
   }
 
+  static Topic getTopicByID(int id) => _topics.values.where((element) => element.id == id).single;
+
   static void deleteTopic(Topic topic) {
-    MessageLoader.clearTopicData(topic.id);
     topics.remove(topic.name);
     DBProvider.db.deleteTopic(topic);
   }
@@ -36,6 +37,24 @@ class TopicLoader {
   static void _saveNewTopic(Topic topic) async => await DBProvider.db.newTopic(topic);
 
   static Future<List<Topic>> loadTopics() async => await DBProvider.db.getAllTopics();
+
+  static void incContent(Topic topic) async {
+    topic.incContent();
+    updateTopic(topic);
+    final message = await MessageLoader.lastMessage(topic);
+    topic.lastMessage = message.timeCreated;
+  }
+
+  static void decContent(Topic topic) async {
+    topic.decContent();
+    updateTopic(topic);
+    if (topic.elements == 0) {
+      topic.lastMessage = null;
+    } else {
+      final message = await MessageLoader.lastMessage(topic);
+      topic.lastMessage = message.timeCreated;
+    }
+  }
 
   static List<Topic> getTopics() {
     return topics.values.toList()

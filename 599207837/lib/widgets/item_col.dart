@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../entity/entities.dart' as entity;
+import '../entity/entities.dart';
 import 'items_page/items_page_cubit.dart';
 
 class ItemColumn<T> extends StatelessWidget {
@@ -10,14 +10,14 @@ class ItemColumn<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (_item is entity.Task) {
-      return _TaskColumn(_item as entity.Task);
-    } else if (_item is entity.Event) {
-      return _EventColumn(_item as entity.Event);
+    if (_item is Task) {
+      return _TaskColumn(_item as Task);
+    } else if (_item is Event) {
+      return _EventColumn(_item as Event);
     } else {
       return Column(
         children: <Widget>[
-          Text((_item as entity.Note).description),
+          Text((_item as Note).description),
         ],
       );
     }
@@ -25,7 +25,7 @@ class ItemColumn<T> extends StatelessWidget {
 }
 
 class _TaskColumn extends StatelessWidget {
-  final entity.Task _item;
+  final Task _item;
 
   const _TaskColumn(this._item);
 
@@ -40,7 +40,7 @@ class _TaskColumn extends StatelessWidget {
     );
   }
 
-  Widget _taskHeader(entity.Task task) {
+  Widget _taskHeader(Task task) {
     return Row(
       children: <Widget>[
         const CircleAvatar(),
@@ -54,13 +54,13 @@ class _TaskColumn extends StatelessWidget {
     );
   }
 
-  Widget _taskFooter(entity.Task task, BuildContext context) {
+  Widget _taskFooter(Task task, BuildContext context) {
     if (task.isCompleted) {
       return Container(
         margin: const EdgeInsets.only(top: 8.0),
         alignment: Alignment.centerRight,
         child: Chip(
-          label: Text('Completed at: ${entity.fullDateFormatter.format(task.timeCompleted!)}'),
+          label: Text('Completed at: ${fullDateFormatter.format(task.timeCompleted!)}'),
         ),
       );
     }
@@ -85,7 +85,7 @@ class _TaskColumn extends StatelessWidget {
 }
 
 class _EventColumn extends StatelessWidget {
-  final entity.Event _item;
+  final Event _item;
 
   const _EventColumn(this._item);
 
@@ -114,7 +114,7 @@ class _EventColumn extends StatelessWidget {
     );
   }
 
-  Row _eventHeader(entity.Event event) {
+  Row _eventHeader(Event event) {
     return Row(
       children: <Widget>[
         const CircleAvatar(),
@@ -128,7 +128,7 @@ class _EventColumn extends StatelessWidget {
     );
   }
 
-  Widget _eventSchedule(entity.Event event) {
+  Widget _eventSchedule(Event event) {
     if (event.scheduledTime == null) {
       return Container(
         margin: const EdgeInsets.only(top: 8.0),
@@ -144,14 +144,14 @@ class _EventColumn extends StatelessWidget {
       child: Chip(
         label: Text(
           event.scheduledTime!.compareTo(DateTime.now()) > 0
-              ? 'Scheduled on: ${entity.fullDateFormatter.format(event.scheduledTime!)}'
-              : 'Passed on: ${entity.fullDateFormatter.format(event.scheduledTime!)}',
+              ? 'Scheduled on: ${fullDateFormatter.format(event.scheduledTime!)}'
+              : 'Passed on: ${fullDateFormatter.format(event.scheduledTime!)}',
         ),
       ),
     );
   }
 
-  Widget _eventFooter(entity.Event event, BuildContext context) {
+  Widget _eventFooter(Event event, BuildContext context) {
     if (event.scheduledTime != null && event.scheduledTime!.compareTo(DateTime.now()) > 0) {
       Duration? period = event.scheduledTime!.difference(DateTime.now());
       return Container(

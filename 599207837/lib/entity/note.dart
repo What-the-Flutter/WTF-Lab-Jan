@@ -1,10 +1,10 @@
 import 'dart:math';
-import '../database/database.dart' as db;
-import 'entities.dart' as entity;
+import '../database/database.dart';
+import 'entities.dart';
 
-class Note implements entity.Message {
+class Note implements Message {
   @override
-  entity.Topic topic;
+  Topic topic;
 
   @override
   late DateTime timeCreated;
@@ -19,9 +19,6 @@ class Note implements entity.Message {
   String description;
 
   int? _id;
-
-  static bool _firstLoad = true;
-  static late final db.MessageLoader mLoader = db.MessageLoader.type(Note);
 
   Note({
     required this.description,
@@ -43,30 +40,25 @@ class Note implements entity.Message {
   @override
   Map<String, dynamic> toJson() => {
         'id': uuid,
-        'type_id': entity.getTypeId(this),
+        'type_id': getTypeId(this),
+        'topic_id': topic.id,
         'description': description,
         'time_created': timeCreated.toString(),
         'favourite': favourite ? 1 : 0,
       };
 
-  static entity.Message fromJson(Map<String, dynamic> json, entity.Topic topic) => Note(
+  static Message fromJson(Map<String, dynamic> json, Topic? topic) => Note(
         id: json['id'],
-        topic: topic,
+        topic: topic ?? TopicLoader.getTopicByID(json['topic_id']),
         description: json['description'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
       );
 
-  static List<entity.Message> getFavouriteNotes() {
-    if (_firstLoad) {
-      mLoader.loadTypeFavourites();
-      _firstLoad = false;
-    }
-    return db.MessageLoader.favouriteMessages[2];
-  }
+  static Future<List<Message>> getFavouriteNotes() => MessageLoader.loadTypeFavourites(2);
 
   @override
-  entity.Message duplicate() {
+  Message duplicate() {
     return Note(
       description: description,
       topic: topic,

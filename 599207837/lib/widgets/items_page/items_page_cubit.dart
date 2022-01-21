@@ -1,55 +1,57 @@
 import 'package:bloc/bloc.dart';
 
-import '../../database/database.dart' as db;
-import '../../database/message_loader.dart';
-import '../../entity/entities.dart' as entity;
+import '../../database/database.dart';
+import '../../entity/entities.dart';
 import 'items_page_state.dart';
 
 class ItemsPageCubit extends Cubit<ItemsPageState> {
   ItemsPageCubit() : super(ItemsPageState.initial());
 
-  void loadTopics() async {
+  void loadData() async {
     emit(state.duplicate(
-      topics: await db.TopicLoader.loadTopics(),
+      topics: await TopicLoader.loadTopics(),
+      favTasks: await Task.getFavouriteTasks(),
+      favEvents: await Event.getFavouriteEvents(),
+      favNotes: await Note.getFavouriteNotes(),
     ));
   }
 
-  void pinTopic(entity.Topic topic) {
+  void pinTopic(Topic topic) {
     topic.onPin();
-    db.TopicLoader.updateTopic(topic);
+    TopicLoader.updateTopic(topic);
     update();
   }
 
-  void archiveTopic(entity.Topic topic) {
+  void archiveTopic(Topic topic) {
     topic.onArchive();
-    db.TopicLoader.updateTopic(topic);
+    TopicLoader.updateTopic(topic);
     update();
   }
 
-  void deleteTopic(entity.Topic topic) {
-    db.TopicLoader.deleteTopic(topic);
+  void deleteTopic(Topic topic) {
+    TopicLoader.deleteTopic(topic);
     update();
   }
 
-  void removeTask(entity.Task task) {
+  void removeTask(Task task) {
     MessageLoader.remove(task);
     emit(state.duplicate());
   }
 
-  void completeTask(entity.Task task) {
-    task.complete();
+  void completeTask(Task task) {
+    MessageLoader.completeTask(task);
     emit(state.duplicate());
   }
 
-  void visitEvent(entity.Event event) {
-    event.visit();
+  void visitEvent(Event event) {
+    MessageLoader.visitEvent(event);
     emit(state.duplicate());
   }
 
-  void missEvent(entity.Event event) {
-    event.miss();
+  void missEvent(Event event) {
+    MessageLoader.missEvent(event);
     emit(state.duplicate());
   }
 
-  void update() => emit(state.duplicate(topics: db.TopicLoader.getTopics()));
+  void update() => loadData();
 }
