@@ -10,14 +10,14 @@ class TopicMakerCubit extends Cubit<TopicMakerState> {
 
   void finish() {
     if (state.topic == null) {
-      TopicLoader.addNewTopic(
+      TopicRepository.addNewTopic(
         Topic(
           name: state.nameController!.text,
           icon: TopicMakerState.icons[state.selected],
         ),
       );
     } else {
-      TopicLoader.editTopic(
+      TopicRepository.editTopic(
         state.topic!,
         state.nameController!.text,
         TopicMakerState.icons[state.selected],

@@ -44,7 +44,7 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   void _onFavourite() {
-    MessageLoader.onFavourite(widget.item);
+    MessageRepository.onFavourite(widget.item);
     setState(() {
       _favIcon = widget.item.favourite ? Icons.star_rounded : Icons.star_border_rounded;
       _favColor =
@@ -149,7 +149,7 @@ class _ChatMessageState extends State<ChatMessage> {
               style: TextStyle(color: widget.themeInherited.preset.colors.blueTextColor),
             ),
             onPressed: () {
-              setState(() => MessageLoader.completeTask(task));
+              setState(() => MessageRepository.completeTask(task));
             },
           ),
           Text(
@@ -312,7 +312,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onPressed: () => setState(() => MessageLoader.visitEvent(event)),
+            onPressed: () => setState(() => MessageRepository.visitEvent(event)),
           ),
           TextButton(
             style: TextButton.styleFrom(
@@ -324,7 +324,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onPressed: () => setState(() => MessageLoader.missEvent(event)),
+            onPressed: () => setState(() => MessageRepository.missEvent(event)),
           ),
           Text(
             timeFormatter.format(event.timeCreated),
@@ -464,7 +464,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 final added = widget.item.duplicate();
                 widget.onDeleted();
                 added.topic = topic;
-                MessageLoader.add(added);
+                MessageRepository.add(added);
                 Navigator.pop(context);
               },
             ),

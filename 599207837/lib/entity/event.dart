@@ -71,7 +71,7 @@ class Event implements Message {
 
   static Message fromJson(Map<String, dynamic> json, Topic? topic) => Event(
         id: json['id'],
-        topic: topic ?? TopicLoader.getTopicByID(json['topic_id']),
+        topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
@@ -81,7 +81,7 @@ class Event implements Message {
         isMissed: json['is_missed'] == 1 ? true : false,
       );
 
-  static Future<List<Message>> getFavouriteEvents() => MessageLoader.loadTypeFavourites(1);
+  static Future<List<Message>> getFavouriteEvents() => MessageRepository.loadTypeFavourites(1);
 
   @override
   Message duplicate() {

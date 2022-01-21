@@ -49,13 +49,13 @@ class Note implements Message {
 
   static Message fromJson(Map<String, dynamic> json, Topic? topic) => Note(
         id: json['id'],
-        topic: topic ?? TopicLoader.getTopicByID(json['topic_id']),
+        topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
       );
 
-  static Future<List<Message>> getFavouriteNotes() => MessageLoader.loadTypeFavourites(2);
+  static Future<List<Message>> getFavouriteNotes() => MessageRepository.loadTypeFavourites(2);
 
   @override
   Message duplicate() {

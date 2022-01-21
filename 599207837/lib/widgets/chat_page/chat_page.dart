@@ -89,7 +89,7 @@ class _ChatPage extends StatelessWidget {
                 ),
               Expanded(
                 child: FutureBuilder<List<Message>>(
-                  future: MessageLoader.loadElements(topic),
+                  future: MessageRepository.loadElements(topic),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return ListView.builder(

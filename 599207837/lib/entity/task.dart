@@ -65,7 +65,7 @@ class Task implements Message {
 
   static Message fromJson(Map<String, dynamic> json, Topic? topic) => Task(
         id: json['id'],
-        topic: topic ?? TopicLoader.getTopicByID(json['topic_id']),
+        topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
@@ -73,7 +73,7 @@ class Task implements Message {
             json['time_completed'] == 'null' ? null : DateTime.parse(json['time_completed']),
       );
 
-  static Future<List<Message>> getFavouriteTasks() => MessageLoader.loadTypeFavourites(0);
+  static Future<List<Message>> getFavouriteTasks() => MessageRepository.loadTypeFavourites(0);
 
   @override
   Message duplicate() {

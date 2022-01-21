@@ -3,7 +3,7 @@ import 'package:my_project/database/database.dart';
 import '../entity/entities.dart';
 import 'database_provider.dart';
 
-class MessageLoader {
+class MessageRepository {
   static Future<Message> lastMessage(Topic topic) => DBProvider.db.getLastMessage(topic);
 
   static void updateMessage(Message o) => DBProvider.db.updateMessage(o);
@@ -45,11 +45,11 @@ class MessageLoader {
 
   static void remove(Message o) {
     DBProvider.db.deleteMessage(o);
-    TopicLoader.decContent(o.topic);
+    TopicRepository.decContent(o.topic);
   }
 
   static void add(Message o) {
     DBProvider.db.newMessage(o);
-    TopicLoader.incContent(o.topic);
+    TopicRepository.incContent(o.topic);
   }
 }

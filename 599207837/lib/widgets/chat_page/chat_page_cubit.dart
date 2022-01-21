@@ -30,9 +30,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void moveSelected(Topic topic) {
     for (var item in state.selected!) {
-      MessageLoader.remove(item);
+      MessageRepository.remove(item);
       item.topic = topic;
-      MessageLoader.add(item);
+      MessageRepository.add(item);
     }
     state.selected!.clear();
     if (state.searchPage) {
@@ -44,7 +44,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void deleteSelected() {
     for (var item in state.selected!) {
-      MessageLoader.remove(item);
+      MessageRepository.remove(item);
       state.elements!.remove(item);
     }
     state.selected!.clear();
@@ -60,7 +60,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       finishEditing(state.messages[index].runtimeType is Event);
     }
     final deleted = state.messages[index];
-    MessageLoader.remove(deleted);
+    MessageRepository.remove(deleted);
     state.elements!.remove(deleted);
     if (state.searchPage) {
       findElements();
@@ -126,7 +126,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       description: state.descriptionController!.text,
       topic: topic,
     );
-    MessageLoader.add(added);
+    MessageRepository.add(added);
     state.elements!.insert(0, added);
     state.descriptionController!.clear();
     emit(state.duplicate(selectedDate: null, selectedTime: null));
@@ -135,13 +135,13 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   void add(bool isTask, Topic topic) {
     if (isTask) {
       final added = Task(description: state.descriptionController!.text, topic: topic);
-      MessageLoader.add(added);
+      MessageRepository.add(added);
       state.elements!.insert(0, added);
       state.descriptionController!.clear();
       emit(state.duplicate());
     } else {
       final added = Note(description: state.descriptionController!.text, topic: topic);
-      MessageLoader.add(
+      MessageRepository.add(
         added,
       );
       state.elements!.insert(0, added);
@@ -158,14 +158,14 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     state.descriptionController!.clear();
     if (isEvent) {
       (state.elements![state.editingIndex] as Event).scheduledTime = _getDateTime();
-      MessageLoader.updateMessage(state.elements![state.editingIndex]);
+      MessageRepository.updateMessage(state.elements![state.editingIndex]);
       emit(state.duplicate(
         editingFlag: false,
         selectedDate: null,
         selectedTime: null,
       ));
     } else {
-      MessageLoader.updateMessage(state.elements![state.editingIndex]);
+      MessageRepository.updateMessage(state.elements![state.editingIndex]);
       emit(state.duplicate(editingFlag: false));
     }
   }

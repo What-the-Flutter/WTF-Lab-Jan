@@ -86,7 +86,7 @@ class Topic {
 
   void decContent() => elements--;
 
-  Future<List<Message>> getElements() => MessageLoader.loadElements(this);
+  Future<List<Message>> getElements() => MessageRepository.loadElements(this);
 
   @override
   String toString() => name;

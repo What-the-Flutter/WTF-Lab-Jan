@@ -9,7 +9,7 @@ class ItemsPageCubit extends Cubit<ItemsPageState> {
 
   void loadData() async {
     emit(state.duplicate(
-      topics: await TopicLoader.loadTopics(),
+      topics: await TopicRepository.loadTopics(),
       favTasks: await Task.getFavouriteTasks(),
       favEvents: await Event.getFavouriteEvents(),
       favNotes: await Note.getFavouriteNotes(),
@@ -18,38 +18,38 @@ class ItemsPageCubit extends Cubit<ItemsPageState> {
 
   void pinTopic(Topic topic) {
     topic.onPin();
-    TopicLoader.updateTopic(topic);
+    TopicRepository.updateTopic(topic);
     update();
   }
 
   void archiveTopic(Topic topic) {
     topic.onArchive();
-    TopicLoader.updateTopic(topic);
+    TopicRepository.updateTopic(topic);
     update();
   }
 
   void deleteTopic(Topic topic) {
-    TopicLoader.deleteTopic(topic);
+    TopicRepository.deleteTopic(topic);
     update();
   }
 
   void removeTask(Task task) {
-    MessageLoader.remove(task);
+    MessageRepository.remove(task);
     emit(state.duplicate());
   }
 
   void completeTask(Task task) {
-    MessageLoader.completeTask(task);
+    MessageRepository.completeTask(task);
     emit(state.duplicate());
   }
 
   void visitEvent(Event event) {
-    MessageLoader.visitEvent(event);
+    MessageRepository.visitEvent(event);
     emit(state.duplicate());
   }
 
   void missEvent(Event event) {
-    MessageLoader.missEvent(event);
+    MessageRepository.missEvent(event);
     emit(state.duplicate());
   }
 

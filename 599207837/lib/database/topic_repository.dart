@@ -2,13 +2,13 @@ import 'package:flutter/cupertino.dart';
 
 import '../entity/topic.dart';
 import 'database_provider.dart';
-import 'message_loader.dart';
+import 'message_repository.dart';
 
 Map<String, Topic> _topics = {};
 
 Map<String, Topic> get topics => _topics;
 
-class TopicLoader {
+class TopicRepository {
   static void updateTopic(Topic updatedTopic) async =>
       await DBProvider.db.updateTopic(updatedTopic);
 
@@ -41,7 +41,7 @@ class TopicLoader {
   static void incContent(Topic topic) async {
     topic.incContent();
     updateTopic(topic);
-    final message = await MessageLoader.lastMessage(topic);
+    final message = await MessageRepository.lastMessage(topic);
     topic.lastMessage = message.timeCreated;
   }
 
@@ -51,7 +51,7 @@ class TopicLoader {
     if (topic.elements == 0) {
       topic.lastMessage = null;
     } else {
-      final message = await MessageLoader.lastMessage(topic);
+      final message = await MessageRepository.lastMessage(topic);
       topic.lastMessage = message.timeCreated;
     }
   }
