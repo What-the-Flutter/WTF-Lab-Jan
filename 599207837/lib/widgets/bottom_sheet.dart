@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../database/database.dart';
+import '../entity/entities.dart';
 import '../main.dart';
 import 'items_page/items_page_cubit.dart';
 import 'topic_maker/topic_maker.dart';
@@ -22,7 +23,6 @@ class AddingButton extends StatefulWidget {
 
 class _AddingButtonState extends State<AddingButton> {
   late Icon _firstIcon, _secondIcon, _mainIcon;
-  PersistentBottomSheetController? bottomSheetController;
 
   @override
   void initState() {
@@ -32,34 +32,15 @@ class _AddingButtonState extends State<AddingButton> {
     _mainIcon = _firstIcon;
   }
 
-  PersistentBottomSheetController _showBottomSheet(BuildContext ctxOfScaffold) {
-    return Scaffold.of(ctxOfScaffold).showBottomSheet<void>((context) {
-      return Container(
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-          color: Colors.grey,
-        ),
-        height: 250,
-        child: _BottomForm(
-          sheetState: this,
-          currentPage: DefaultTabController.of(context)!.index,
-        ),
-      );
-    });
-  }
-
-  void _hideBottomSheet(PersistentBottomSheetController controller) {
-    controller.close();
-  }
-
   @override
   Widget build(BuildContext context) {
     final themeInherited = ThemeInherited.of(context)!;
     return Builder(
       builder: (ctxOfScaffold) {
         return FloatingActionButton(
+          key: widget.key,
           backgroundColor: themeInherited.preset.colors.buttonColor,
-          onPressed: () {
+          onPressed: () async {
             if (DefaultTabController.of(context)!.index == 0) {
               Navigator.push(
                 context,
@@ -70,14 +51,8 @@ class _AddingButtonState extends State<AddingButton> {
                 ),
               );
             } else {
-              if (bottomSheetController == null) {
-                bottomSheetController = _showBottomSheet(ctxOfScaffold);
-                setState(() => _mainIcon = _secondIcon);
-              } else {
-                _hideBottomSheet(bottomSheetController!);
-                bottomSheetController = null;
-                setState(() => _mainIcon = _firstIcon);
-              }
+              _showBottomSheet();
+              setState(() => _mainIcon = _secondIcon);
             }
           },
           tooltip: 'Add new',
@@ -86,16 +61,68 @@ class _AddingButtonState extends State<AddingButton> {
       },
     );
   }
+
+  Future _showBottomSheet() {
+    final themeInherited = ThemeInherited.of(context)!;
+    return showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (newContext) => Container(
+        padding: MediaQuery.of(context).viewInsets,
+        child: Stack(
+          clipBehavior: Clip.none,
+          fit: StackFit.expand,
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                  color: themeInherited.preset.colors.backgroundColor,
+                ),
+                child: _BottomForm(
+                  sheetState: this,
+                  currentPage: DefaultTabController.of(context)!.index,
+                  whenComplete: () {
+                    Navigator.pop(context);
+                    setState(() => _mainIcon = _firstIcon);
+                    context.read<ItemsPageCubit>().update();
+                  },
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 240,
+              right: 16,
+              child: FloatingActionButton(
+                key: widget.key,
+                backgroundColor: themeInherited.preset.colors.buttonColor,
+                onPressed: () => Navigator.pop(context),
+                tooltip: 'Add new',
+                child: _mainIcon,
+              ),
+            ),
+          ],
+        ),
+      ),
+      context: context,
+      isDismissible: true,
+    ).whenComplete(() {
+      setState(() => _mainIcon = _firstIcon);
+    });
+  }
 }
 
 class _BottomForm extends StatefulWidget {
   final _AddingButtonState sheetState;
   final int currentPage;
+  final Function whenComplete;
 
   const _BottomForm({
     Key? key,
     required this.sheetState,
     required this.currentPage,
+    required this.whenComplete,
   }) : super(key: key);
 
   @override
@@ -105,12 +132,10 @@ class _BottomForm extends StatefulWidget {
 class _BottomFormState extends State<_BottomForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _comboBoxValue;
-  final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   @override
   void dispose() {
-    _categoryController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -119,102 +144,91 @@ class _BottomFormState extends State<_BottomForm> {
   Widget build(BuildContext context) {
     switch (widget.currentPage) {
       case 1:
-        return Container();
+        return _taskBottomForm();
       case 2:
         return Container();
-      case 3:
-        return _taskBottomForm();
       default:
         return Container();
     }
   }
 
   Widget _taskBottomForm() {
+    final themeInherited = ThemeInherited.of(context)!;
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.white54,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.symmetric(
+                vertical: 10.0,
+                horizontal: 25.0,
+              ),
+              child: DropdownButton<String>(
+                value: _comboBoxValue,
+                icon: const Icon(Icons.keyboard_arrow_down),
+                iconSize: 24,
+                elevation: 16,
+                style: TextStyle(color: themeInherited.preset.colors.textColor1),
+                underline: Container(
+                  height: 2,
+                  color: themeInherited.preset.colors.underlineColor,
                 ),
-                margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
-                padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 5.0),
-                alignment: Alignment.centerLeft,
-                width: 130,
-                child: TextFormField(
-                  controller: _categoryController,
+                onChanged: (newValue) {
+                  setState(() => _comboBoxValue = newValue!);
+                },
+                items: topics.values.map<DropdownMenuItem<String>>((value) {
+                  return DropdownMenuItem<String>(
+                    value: value.toString(),
+                    child: Text(value.toString()),
+                  );
+                }).toList(),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                color: themeInherited.preset.colors.themeColor2,
+                border: Border.all(color: themeInherited.preset.colors.underlineColor),
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
+              padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+              child: TextFormField(
+                controller: _descriptionController,
+                maxLines: 3,
+                inputFormatters: [LengthLimitingTextInputFormatter(200)],
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.all(3),
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 25.0,
-                ),
-                child: DropdownButton<String>(
-                  value: _comboBoxValue,
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: const TextStyle(color: Colors.black54),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.blueAccent,
-                  ),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _comboBoxValue = newValue!;
-                      _categoryController.text = newValue;
-                    });
-                  },
-                  items: topics.values.map<DropdownMenuItem<String>>((value) {
-                    return DropdownMenuItem<String>(
-                      value: value.toString(),
-                      child: Text(value.toString()),
+            ),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_descriptionController.text.isNotEmpty && _comboBoxValue != null) {
+                    MessageRepository.add(
+                      Task(
+                        description: _descriptionController.text,
+                        topic: topics[_comboBoxValue!]!,
+                        favourite: true,
+                      ),
                     );
-                  }).toList(),
-                ),
+                    widget.whenComplete();
+                  }
+                },
+                child: const Text('Submit'),
               ),
-            ],
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: Colors.white54,
             ),
-            margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
-            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-            child: TextFormField(
-              controller: _descriptionController,
-              maxLines: 3,
-              inputFormatters: [LengthLimitingTextInputFormatter(200)],
-            ),
-          ),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                // db.MessageLoader.messages[0]!.insert(
-                //   0,
-                //   entity.Task(
-                //     description: _descriptionController.text,
-                //     topic: entity.Topic(
-                //         name: _categoryController.text, icon: Icons.delete_outline_rounded),
-                //     favourite: true,
-                //   ),
-                // );
-                final parent = widget.sheetState;
-                parent._hideBottomSheet(parent.bottomSheetController!);
-                parent.bottomSheetController = null;
-                parent.setState(() => parent._mainIcon = parent._firstIcon);
-              },
-              child: const Text('Submit'),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
