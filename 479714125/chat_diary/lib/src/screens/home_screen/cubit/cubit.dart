@@ -15,7 +15,8 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         ));
 
   void init() async {
-    final listOfPages = await DatabaseAccess.firebaseDBProvider.retrievePages();
+    final listOfPages =
+        await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
     listOfPages.forEach(print);
     //final list = await DatabaseAccess.databaseProvider.retrievePages();
     emit(state.copyWith(
@@ -33,27 +34,30 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     }
 
     state.listOfPages[page.id].events.insertAll(0, eventsToMigrate);
-    await DatabaseAccess.databaseProvider.insertEvents(eventsToMigrate);
+    await DatabaseAccess.instance.databaseProvider
+        .insertEvents(eventsToMigrate);
     emit(state.copyWith(listOfPages: state.listOfPages));
   }
 
   void addPage(PageModel page) async {
     state.listOfPages.add(page);
-    await DatabaseAccess.databaseProvider.insertPage(page);
+    await DatabaseAccess.instance.databaseProvider.insertPage(page);
     emit(state.copyWith(
         listOfPages: state.listOfPages, newPageId: state.newPageId + 1));
   }
 
   void editPage(PageModel page, PageModel oldPage) async {
     final newPage = page.copyWith(id: oldPage.id, events: oldPage.events);
-    await DatabaseAccess.databaseProvider.updatePage(newPage);
-    final pages = await DatabaseAccess.databaseProvider.retrievePages();
+    await DatabaseAccess.instance.databaseProvider.updatePage(newPage);
+    final pages =
+        await DatabaseAccess.instance.databaseProvider.retrievePages();
     emit(state.copyWith(listOfPages: pages));
   }
 
   void removePage(PageModel page) async {
-    await DatabaseAccess.databaseProvider.deletePage(page);
-    final pages = await DatabaseAccess.databaseProvider.retrievePages();
+    await DatabaseAccess.instance.databaseProvider.deletePage(page);
+    final pages =
+        await DatabaseAccess.instance.databaseProvider.retrievePages();
     emit(state.copyWith(listOfPages: pages));
   }
 }
