@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../database/database.dart';
+import '../main.dart';
 import 'entities.dart';
 
 class Task implements Message {
@@ -58,6 +59,7 @@ class Task implements Message {
 
   @override
   Map<String, dynamic> toJson() => {
+        'uid': userID,
         'id': uuid,
         'type_id': getTypeId(this),
         'topic_id': topic.id,

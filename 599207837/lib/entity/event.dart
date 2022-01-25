@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../database/database.dart';
+import '../main.dart';
 import 'entities.dart';
 
 class Event implements Message {
@@ -62,6 +63,7 @@ class Event implements Message {
 
   @override
   Map<String, dynamic> toJson() => {
+        'uid': userID,
         'id': uuid,
         'type_id': getTypeId(this),
         'topic_id': topic.id,

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../database/database.dart';
+import '../main.dart';
 
 Topic topicFromJson(String str) {
   final jsonData = json.decode(str);
@@ -74,6 +75,7 @@ class Topic {
       );
 
   Map<String, dynamic> toJson() => {
+        'uid': userID,
         'id': id,
         'name': name,
         'icon_data': icon.codePoint,

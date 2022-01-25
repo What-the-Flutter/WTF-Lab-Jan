@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../entity/entities.dart';
+import '../main.dart';
 
 class FireBaseProvider {
   static FirebaseFirestore fb = FirebaseFirestore.instance;
@@ -15,8 +16,8 @@ class FireBaseProvider {
   static void newTopic(Topic newTopic) => fb.collection('Topics').add(newTopic.toJson());
 
   static void deleteTopic(Topic topic) {
-    fb.collection('Topics').doc(topic.nodeID).delete();
     deleteAllMessages(topic);
+    fb.collection('Topics').doc(topic.nodeID).delete();
   }
 
   static void updateTopic(Topic topic) =>
@@ -26,6 +27,7 @@ class FireBaseProvider {
     Message? ret;
     await fb
         .collection('Messages')
+        .where('uid', isEqualTo: userID)
         .where('topic_id', isEqualTo: topic.id)
         .orderBy('time_created')
         .get()
@@ -37,15 +39,22 @@ class FireBaseProvider {
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getTopics() =>
-      fb.collection('Topics').snapshots();
+      fb.collection('Topics').where('uid', isEqualTo: userID).snapshots();
 
   static void newMessage(Message newMessage) => fb.collection('Messages').add(newMessage.toJson());
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getTopicMessages(Topic topic) =>
-      fb.collection('Messages').where('topic_id', isEqualTo: topic.id).snapshots();
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getTopicMessages(Topic topic) => fb
+      .collection('Messages')
+      .where('uid', isEqualTo: userID)
+      .where('topic_id', isEqualTo: topic.id)
+      .orderBy('time_created', descending: true)
+      .snapshots();
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> loadTypeFavourites(int typeID) =>
-      fb.collection('Messages').where('type_id', isEqualTo: typeID).snapshots();
+  static Stream<QuerySnapshot<Map<String, dynamic>>> loadTypeFavourites(int typeID) => fb
+      .collection('Messages')
+      .where('uid', isEqualTo: userID)
+      .where('type_id', isEqualTo: typeID)
+      .snapshots();
 
   static void deleteMessage(Message o) => fb.collection('Messages').doc(o.nodeID).delete();
 
