@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:swipe_to/swipe_to.dart';
 
@@ -121,6 +123,7 @@ class _ChatMessageState extends State<ChatMessage> {
                   style: TextStyle(
                       fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
                 ),
+                _attachedImage(task.imgPath),
                 Container(
                   margin: const EdgeInsets.only(top: 5),
                   child: _taskMessageFooter(task),
@@ -215,6 +218,7 @@ class _ChatMessageState extends State<ChatMessage> {
                   style: TextStyle(
                       fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
                 ),
+                _attachedImage(event.imgPath),
                 _eventSchedule(event),
                 _eventFooter(event),
               ],
@@ -367,14 +371,19 @@ class _ChatMessageState extends State<ChatMessage> {
                 Text(
                   note.description,
                   style: TextStyle(
-                      fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
+                    fontSize: 15,
+                    color: widget.themeInherited.preset.colors.textColor2,
+                  ),
                 ),
+                _attachedImage(note.imgPath),
                 Container(
                   margin: const EdgeInsets.only(top: 5),
                   child: Text(
                     timeFormatter.format(note.timeCreated),
                     style: TextStyle(
-                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
+                      fontSize: 15,
+                      color: widget.themeInherited.preset.colors.textColor1,
+                    ),
                   ),
                 ),
               ],
@@ -389,6 +398,19 @@ class _ChatMessageState extends State<ChatMessage> {
         ],
       ),
     );
+  }
+
+  Widget _attachedImage(String? imgPath) {
+    return imgPath == null
+        ? Container()
+        : Container(
+            constraints: const BoxConstraints(maxHeight: 200, maxWidth: 200),
+            padding: const EdgeInsets.only(top: 10, bottom: 5),
+            child: Image.file(
+              File(imgPath),
+              fit: BoxFit.contain,
+            ),
+          );
   }
 
   void _showMenu() {

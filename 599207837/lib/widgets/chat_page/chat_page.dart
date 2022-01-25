@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../entity/entities.dart';
@@ -106,6 +109,7 @@ class _ChatPage extends StatelessWidget {
                   },
                 ),
               ),
+              _attachments(state, context),
               _inputForm(state, context),
             ],
           ),
@@ -239,6 +243,52 @@ class _ChatPage extends StatelessWidget {
           onPressed: () {
             themeInherited.changeTheme();
           },
+        ),
+      ],
+    );
+  }
+
+  Widget _attachments(ChatPageState state, BuildContext context) {
+    final themeInherited = ThemeInherited.of(context)!;
+    return state.imagePath == null
+        ? Container()
+        : Container(
+            constraints: const BoxConstraints(maxHeight: 80),
+            padding: const EdgeInsets.only(left: 10, right: 10),
+            decoration: BoxDecoration(
+              color: themeInherited.preset.colors.themeColor2,
+              border: Border(
+                bottom: BorderSide(width: 1.5, color: Colors.grey.shade600),
+              ),
+            ),
+            child: Row(
+              children: [
+                _attachedImage(state.imagePath!, context),
+              ],
+            ));
+  }
+
+  Widget _attachedImage(String imgPath, BuildContext context) {
+    final themeInherited = ThemeInherited.of(context)!;
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image.file(
+              File(imgPath),
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () => context.read<ChatPageCubit>().removeAttachedImage(),
+          child: Icon(
+            Icons.highlight_remove_outlined,
+            color: themeInherited.preset.colors.iconColor1,
+          ),
         ),
       ],
     );
@@ -384,16 +434,24 @@ class _ChatPage extends StatelessWidget {
           const SizedBox(
             width: 15,
           ),
+          GestureDetector(
+            onTap: () => context.read<ChatPageCubit>().loadImageFromGallery(),
+            child: Icon(
+              Icons.photo_camera,
+              color: Colors.grey.shade600,
+              size: 28,
+            ),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
           FloatingActionButton(
             heroTag: 'sendMessage',
             backgroundColor: decorator.preset.colors.buttonColor,
             onPressed: () {
               FocusScope.of(context).requestFocus(FocusNode());
               if (!state.editingFlag && state.descriptionController!.text.isNotEmpty) {
-                context.read<ChatPageCubit>().add(
-                      isTask,
-                      topic,
-                    );
+                context.read<ChatPageCubit>().add(isTask, topic);
               } else if (state.descriptionController!.text.isNotEmpty) {
                 context.read<ChatPageCubit>().finishEditing(false);
               }

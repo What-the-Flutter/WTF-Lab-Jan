@@ -12,6 +12,7 @@ class ChatPageState {
   List<Message> get messages => searchMessages ?? elements ?? [];
 
   final IconData addedIcon;
+  final String? imagePath;
   final Topic? topic;
   final int addedType;
   final int editingIndex;
@@ -39,6 +40,7 @@ class ChatPageState {
     this.searchController,
     this.descriptionController,
     this.topic,
+    this.imagePath,
   });
 
   ChatPageState.initial({
@@ -54,6 +56,7 @@ class ChatPageState {
     this.searchPage = false,
     this.searchController,
     this.topic,
+    this.imagePath,
   }) {
     selected = List.empty(growable: true);
     descriptionController = TextEditingController();
@@ -72,6 +75,7 @@ class ChatPageState {
     bool? searchPage,
     Object? searchController = plug,
     Object? topic = plug,
+    Object? imagePath = plug,
   }) {
     return ChatPageState(
       selected: selected,
@@ -91,6 +95,7 @@ class ChatPageState {
           : searchController as TextEditingController?,
       topic: topic == plug ? this.topic : topic as Topic?,
       descriptionController: descriptionController,
+      imagePath: imagePath == plug ? this.imagePath : imagePath as String?,
     );
   }
 }

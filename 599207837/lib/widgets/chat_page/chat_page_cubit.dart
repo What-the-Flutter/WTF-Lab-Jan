@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../database/database.dart';
-import '../../entity/entities.dart';
+import '../../entity/entities.dart' as entity;
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
@@ -27,15 +29,15 @@ class ChatPageCubit extends Cubit<ChatPageState> {
             .toList()));
   }
 
-  void getElements(Topic topic) =>
+  void getElements(entity.Topic topic) =>
       _sub = MessageRepository.loadElements(topic).listen(_updateMessages);
 
-  Future<void> _updateMessages(List<Message> data) async {
+  Future<void> _updateMessages(List<entity.Message> data) async {
     await Future<void>.delayed(const Duration(milliseconds: 50));
     emit(state.duplicate(elements: data));
   }
 
-  void onSelect(Message o) {
+  void onSelect(entity.Message o) {
     if (state.selected!.contains(o)) {
       state.selected!.remove(o);
     } else {
@@ -43,7 +45,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     }
   }
 
-  void moveSelected(Topic topic) {
+  void moveSelected(entity.Topic topic) {
     for (var item in state.selected!) {
       MessageRepository.remove(item);
       item.topic = topic;
@@ -72,7 +74,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void deleteMessage(int index) {
     if (state.editingFlag && state.editingIndex == index) {
-      finishEditing(state.messages[index].runtimeType is Event);
+      finishEditing(state.messages[index].runtimeType is entity.Event);
     }
     final deleted = state.messages[index];
     MessageRepository.remove(deleted);
@@ -88,13 +90,17 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void setSelection(bool val) => emit(state.duplicate(selectionFlag: val));
 
-  void startEditing(int index, Message o) {
-    emit(state.duplicate(editingIndex: index, editingFlag: true));
+  void startEditing(int index, entity.Message o) {
+    emit(state.duplicate(
+      editingIndex: index,
+      editingFlag: true,
+      imagePath: o.imgPath,
+    ));
     state.descriptionController!.text = o.description;
-    if (o is Event) {
+    if (o is entity.Event) {
       _onEditEvent(o);
     }
-    changeAddedTypeTo(getTypeId(o));
+    changeAddedTypeTo(entity.getTypeId(o));
   }
 
   void changeAddedType() {
@@ -124,7 +130,7 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void clearDateTime() => emit(state.duplicate(selectedDate: null, selectedTime: null));
 
-  void _onEditEvent(Event o) {
+  void _onEditEvent(entity.Event o) {
     if (o.scheduledTime != null) {
       emit(state.duplicate(
         selectedDate: o.scheduledTime,
@@ -135,8 +141,8 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     }
   }
 
-  void addEvent(Topic topic) {
-    final added = Event(
+  void addEvent(entity.Topic topic) {
+    final added = entity.Event(
       scheduledTime: _getDateTime(),
       description: state.descriptionController!.text,
       topic: topic,
@@ -147,15 +153,23 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     emit(state.duplicate(selectedDate: null, selectedTime: null));
   }
 
-  void add(bool isTask, Topic topic) {
+  void add(bool isTask, entity.Topic topic) {
     if (isTask) {
-      final added = Task(description: state.descriptionController!.text, topic: topic);
+      final added = entity.Task(
+        description: state.descriptionController!.text,
+        topic: topic,
+        imgPath: state.imagePath,
+      );
       MessageRepository.add(added);
       state.elements!.insert(0, added);
       state.descriptionController!.clear();
       emit(state.duplicate());
     } else {
-      final added = Note(description: state.descriptionController!.text, topic: topic);
+      final added = entity.Note(
+        description: state.descriptionController!.text,
+        topic: topic,
+        imgPath: state.imagePath,
+      );
       MessageRepository.add(
         added,
       );
@@ -170,18 +184,20 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void finishEditing(bool isEvent) {
     state.elements![state.editingIndex].description = state.descriptionController!.text;
+    state.elements![state.editingIndex].imgPath = state.imagePath;
     state.descriptionController!.clear();
     if (isEvent) {
-      (state.elements![state.editingIndex] as Event).scheduledTime = _getDateTime();
+      (state.elements![state.editingIndex] as entity.Event).scheduledTime = _getDateTime();
       MessageRepository.updateMessage(state.elements![state.editingIndex]);
       emit(state.duplicate(
         editingFlag: false,
         selectedDate: null,
         selectedTime: null,
+        imagePath: null,
       ));
     } else {
       MessageRepository.updateMessage(state.elements![state.editingIndex]);
-      emit(state.duplicate(editingFlag: false));
+      emit(state.duplicate(editingFlag: false, imagePath: null));
     }
   }
 
@@ -216,4 +232,15 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       searchMessages: null,
     ));
   }
+
+  void loadImageFromGallery() async {
+    if (await Permission.storage.request().isGranted) {
+      var imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (imageFile != null) {
+        emit(state.duplicate(imagePath: imageFile.path));
+      }
+    }
+  }
+
+  void removeAttachedImage() => emit(state.duplicate(imagePath: null));
 }

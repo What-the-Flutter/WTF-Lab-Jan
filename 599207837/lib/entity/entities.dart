@@ -20,6 +20,7 @@ abstract class Message {
   late bool favourite;
   late String description;
   late String nodeID;
+  late String? imgPath;
 
   void onFavourite();
 

@@ -22,6 +22,9 @@ class Note implements Message {
   @override
   String nodeID;
 
+  @override
+  String? imgPath;
+
   int? _id;
 
   Note({
@@ -31,6 +34,7 @@ class Note implements Message {
     DateTime? timeCreated_,
     int? id,
     this.nodeID = '',
+    this.imgPath,
   }) {
     _id = id;
     timeCreated = timeCreated_ ?? DateTime.now();
@@ -49,6 +53,7 @@ class Note implements Message {
         'type_id': getTypeId(this),
         'topic_id': topic.id,
         'description': description,
+        'imgPath': imgPath,
         'time_created': timeCreated.toString(),
         'favourite': favourite ? 1 : 0,
       };
@@ -58,6 +63,7 @@ class Note implements Message {
         nodeID: nodeID,
         topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
+        imgPath: json['imgPath'] == 'null' ? null : json['imgPath'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
       );
