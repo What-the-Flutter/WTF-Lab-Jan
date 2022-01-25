@@ -37,4 +37,8 @@ class FirebaseDBProvider {
     final pageJson = newPage.toMap();
     await _refPages.child(newPage.id.toString()).set(pageJson);
   }
+
+  Future<void> removePage(int id) async {
+    await _refPages.child(id.toString()).remove();
+  }
 }

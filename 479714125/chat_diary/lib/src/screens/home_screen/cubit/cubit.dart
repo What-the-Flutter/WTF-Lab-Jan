@@ -57,9 +57,10 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   }
 
   void removePage(PageModel page) async {
-    await DatabaseAccess.instance.databaseProvider.deletePage(page);
+    //await DatabaseAccess.instance.databaseProvider.deletePage(page);
+    await DatabaseAccess.instance.firebaseDBProvider.removePage(page.id);
     final pages =
-        await DatabaseAccess.instance.databaseProvider.retrievePages();
+        await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
     emit(state.copyWith(listOfPages: pages));
   }
 }
