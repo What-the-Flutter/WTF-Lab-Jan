@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +15,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  final userCredential = await FirebaseAuth.instance.signInAnonymously();
+  final user = userCredential.user;
+  if (user == null) {
+    log('Anonymous auth failed');
+  } else {
+    log('Current user is $user');
+  }
   BlocOverrides.runZoned(
     () async {
       final cubit = ThemeCubit();
