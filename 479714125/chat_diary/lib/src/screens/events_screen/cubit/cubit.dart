@@ -22,7 +22,8 @@ class EventScreenCubit extends Cubit<EventScreenState> {
         ));
 
   void fetchAllEvents() async {
-    final list = await databaseProvider.retrieveEvents(state.page.id);
+    final list =
+        await DatabaseAccess.databaseProvider.retrieveEvents(state.page.id);
     final reversedList = list.reversed.toList();
     emit(state.copyWith(
       page: state.page.copyWith(events: reversedList, nextEventId: list.length),
@@ -31,7 +32,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   void addEvent(EventModel model) async {
-    await databaseProvider.insertEvent(model);
+    await DatabaseAccess.databaseProvider.insertEvent(model);
     state.page.events.insert(0, model);
     state.page.nextEventId += 1;
     emit(state.copyWith(
@@ -61,7 +62,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   void toggleAppBar(int indexOfEvent, bool isSelected) async {
     isSelected = !isSelected;
     state.page.events[indexOfEvent].isSelected = isSelected;
-    await databaseProvider
+    await DatabaseAccess.databaseProvider
         .toggleEventSelection(state.page.events[indexOfEvent]);
     if (state.page.events[indexOfEvent].image == null) {
       emit(state.copyWith(
@@ -104,21 +105,23 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   void deleteSelectedEvents() async {
-    await databaseProvider.deleteSelectedEvents();
+    await DatabaseAccess.databaseProvider.deleteSelectedEvents();
     fetchAllEvents();
     emit(state.copyWith(countOfSelected: 0, isImageSelected: false));
   }
 
   Future<Iterable<EventModel>> popSelectedEvents() async {
-    var selectedEvents = await databaseProvider.fetchSelectedEvents();
+    var selectedEvents =
+        await DatabaseAccess.databaseProvider.fetchSelectedEvents();
 
-    await databaseProvider.deleteSelectedEvents();
+    await DatabaseAccess.databaseProvider.deleteSelectedEvents();
     for (var event in selectedEvents) {
       if (event.isSelected) {
         event.isSelected = !event.isSelected;
       }
     }
-    final list = await databaseProvider.retrieveEvents(state.page.id);
+    final list =
+        await DatabaseAccess.databaseProvider.retrieveEvents(state.page.id);
     final reversedList = list.reversed.toList();
 
     emit(state.copyWith(
@@ -130,7 +133,8 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   Future<String> copySelectedEvents() async {
-    final selectedEvents = await databaseProvider.fetchSelectedEvents();
+    final selectedEvents =
+        await DatabaseAccess.databaseProvider.fetchSelectedEvents();
     var eventsToCopy = '';
     var isEveryEventImage = true;
     for (var event in selectedEvents) {
@@ -159,7 +163,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
     final index = findSelectedEventIndex();
     state.page.events[index].text = newEventText;
     state.page.events[index].isSelected = false;
-    await databaseProvider.updateEvent(state.page.events[index]);
+    await DatabaseAccess.databaseProvider.updateEvent(state.page.events[index]);
     emit(state.copyWith(page: state.page));
   }
 }

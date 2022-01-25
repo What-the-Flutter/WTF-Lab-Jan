@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/page_model.dart';
 
-List<PageModel> defaultPages = [
+final List<PageModel> defaultPages = [
   PageModel(
     icon: Icons.edit,
     name: 'Notes',
