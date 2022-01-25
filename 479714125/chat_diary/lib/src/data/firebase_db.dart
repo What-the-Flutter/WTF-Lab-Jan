@@ -27,4 +27,14 @@ class FirebaseDBProvider {
     }
     return pages;
   }
+
+  Future<void> insertPage(PageModel page) async {
+    final pageJson = page.toMap();
+    await _refPages.child(page.id.toString()).set(pageJson);
+  }
+
+  Future<void> updatePage(PageModel newPage) async {
+    final pageJson = newPage.toMap();
+    await _refPages.child(newPage.id.toString()).set(pageJson);
+  }
 }

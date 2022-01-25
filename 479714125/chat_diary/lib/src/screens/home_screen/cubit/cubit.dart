@@ -41,16 +41,18 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
 
   void addPage(PageModel page) async {
     state.listOfPages.add(page);
-    await DatabaseAccess.instance.databaseProvider.insertPage(page);
+    await DatabaseAccess.instance.firebaseDBProvider.insertPage(page);
+    //await DatabaseAccess.instance.databaseProvider.insertPage(page);
     emit(state.copyWith(
         listOfPages: state.listOfPages, newPageId: state.newPageId + 1));
   }
 
   void editPage(PageModel page, PageModel oldPage) async {
     final newPage = page.copyWith(id: oldPage.id, events: oldPage.events);
-    await DatabaseAccess.instance.databaseProvider.updatePage(newPage);
+    //await DatabaseAccess.instance.databaseProvider.updatePage(newPage);
+    await DatabaseAccess.instance.firebaseDBProvider.updatePage(newPage);
     final pages =
-        await DatabaseAccess.instance.databaseProvider.retrievePages();
+        await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
     emit(state.copyWith(listOfPages: pages));
   }
 
