@@ -53,6 +53,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     await DatabaseAccess.instance.firebaseDBProvider.updatePage(newPage);
     final pages =
         await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
+    //todo bug with updating not updated on the screen cause cubit thinks that list is the same
     emit(state.copyWith(listOfPages: pages));
   }
 

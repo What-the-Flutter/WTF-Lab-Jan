@@ -1,7 +1,7 @@
 part of 'cubit.dart';
 
-class HomeScreenState extends Equatable {
-  final List<PageModel> listOfPages;
+class HomeScreenState {
+  List<PageModel> listOfPages;
   final int newPageId;
 
   HomeScreenState({
@@ -18,7 +18,4 @@ class HomeScreenState extends Equatable {
 
   @override
   String toString() => listOfPages.map((e) => e.toString()).toString();
-
-  @override
-  List<Object?> get props => [listOfPages, newPageId];
 }

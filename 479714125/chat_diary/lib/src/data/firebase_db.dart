@@ -19,8 +19,9 @@ class FirebaseDBProvider {
     print(event.snapshot.value);
     var pages = <PageModel>[];
     try {
-      final listOfMaps =
-          (event.snapshot.value as List<Object?>).cast<Map<dynamic, dynamic>>();
+      final listOfMaps = (event.snapshot.value as List<Object?>)
+          .where((element) => element != null)
+          .cast<Map<dynamic, dynamic>>();
       pages = listOfMaps.map((e) => PageModel.fromMap(e)).toList();
     } catch (e) {
       log(e.toString());
