@@ -15,8 +15,11 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         ));
 
   void init() async {
-    final list = await DatabaseAccess.databaseProvider.retrievePages();
-    emit(state.copyWith(listOfPages: list, newPageId: list.length));
+    final listOfPages = await DatabaseAccess.firebaseDBProvider.retrievePages();
+    listOfPages.forEach(print);
+    //final list = await DatabaseAccess.databaseProvider.retrievePages();
+    emit(state.copyWith(
+        listOfPages: listOfPages, newPageId: listOfPages.length));
   }
 
   void migrateEventsToPage(

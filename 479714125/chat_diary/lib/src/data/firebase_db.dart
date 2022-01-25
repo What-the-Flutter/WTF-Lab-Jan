@@ -1,4 +1,8 @@
+import 'dart:developer';
+
 import 'package:firebase_database/firebase_database.dart';
+
+import '../models/page_model.dart';
 
 class FirebaseDBProvider {
   final FirebaseDatabase _firebaseDatabase;
@@ -10,5 +14,17 @@ class FirebaseDBProvider {
     _refMessages = _firebaseDatabase.ref().child('messages');
   }
 
-  void addMessage() async {}
+  Future<List<PageModel>> retrievePages() async {
+    final event = await _refPages.once();
+    print(event.snapshot.value);
+    var pages = <PageModel>[];
+    try {
+      final listOfMaps =
+          (event.snapshot.value as List<Object?>).cast<Map<dynamic, dynamic>>();
+      pages = listOfMaps.map((e) => PageModel.fromMap(e)).toList();
+    } catch (e) {
+      log(e.toString());
+    }
+    return pages;
+  }
 }
