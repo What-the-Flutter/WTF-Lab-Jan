@@ -18,6 +18,9 @@ class Note implements Message {
   @override
   String description;
 
+  @override
+  String nodeID;
+
   int? _id;
 
   Note({
@@ -26,6 +29,7 @@ class Note implements Message {
     this.favourite = false,
     DateTime? timeCreated_,
     int? id,
+    this.nodeID = '',
   }) {
     _id = id;
     timeCreated = timeCreated_ ?? DateTime.now();
@@ -47,15 +51,16 @@ class Note implements Message {
         'favourite': favourite ? 1 : 0,
       };
 
-  static Message fromJson(Map<String, dynamic> json, Topic? topic) => Note(
+  static Message fromJson(Map<String, dynamic> json, Topic? topic, {String nodeID = ''}) => Note(
         id: json['id'],
+        nodeID: nodeID,
         topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
       );
 
-  static Future<List<Message>> getFavouriteNotes() => MessageRepository.loadTypeFavourites(2);
+  static Stream<List<Message>> getFavouriteNotes() => MessageRepository.loadTypeFavourites(2);
 
   @override
   Message duplicate() {

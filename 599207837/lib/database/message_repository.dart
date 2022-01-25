@@ -1,17 +1,24 @@
-import 'package:my_project/database/database.dart';
-
 import '../entity/entities.dart';
-import 'database_provider.dart';
+import 'database.dart';
 
 class MessageRepository {
-  static Future<Message> lastMessage(Topic topic) => DBProvider.db.getLastMessage(topic);
+  static Future<Message> lastMessage(Topic topic) => FireBaseProvider.getLastMessage(topic);
 
-  static void updateMessage(Message o) => DBProvider.db.updateMessage(o);
+  static void updateMessage(Message o) => FireBaseProvider.updateMessage(o);
 
-  static Future<List<Message>> loadElements(Topic topic) => DBProvider.db.getTopicMessages(topic);
+  static Stream<List<Message>> loadElements(Topic topic) =>
+      FireBaseProvider.getTopicMessages(topic).map((s) {
+        return s.docs.map((doc) {
+          return Message.fromJson(doc.data(), topic, nodeID: doc.id);
+        }).toList();
+      });
 
-  static Future<List<Message>> loadTypeFavourites(int typeID) =>
-      DBProvider.db.getTypeFavourites(typeID);
+  static Stream<List<Message>> loadTypeFavourites(int typeID) =>
+      FireBaseProvider.loadTypeFavourites(typeID).map((s) {
+        return s.docs.map((doc) {
+          return Message.fromJson(doc.data(), null, nodeID: doc.id);
+        }).toList();
+      });
 
   static void onFavourite(Message o) {
     o.onFavourite();
@@ -44,12 +51,12 @@ class MessageRepository {
   }
 
   static void remove(Message o) {
-    DBProvider.db.deleteMessage(o);
+    FireBaseProvider.deleteMessage(o);
     TopicRepository.decContent(o.topic);
   }
 
   static void add(Message o) {
-    DBProvider.db.newMessage(o);
+    FireBaseProvider.newMessage(o);
     TopicRepository.incContent(o.topic);
   }
 }

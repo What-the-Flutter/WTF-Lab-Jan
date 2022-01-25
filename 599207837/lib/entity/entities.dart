@@ -19,6 +19,7 @@ abstract class Message {
   late DateTime timeCreated;
   late bool favourite;
   late String description;
+  late String nodeID;
 
   void onFavourite();
 
@@ -28,14 +29,14 @@ abstract class Message {
 
   Map<String, dynamic> toJson();
 
-  static Message fromJson(Map<String, dynamic> json, Topic? topic) {
+  static Message fromJson(Map<String, dynamic> json, Topic? topic, {String nodeID = ''}) {
     switch (json['type_id']) {
       case (0):
-        return Task.fromJson(json, topic);
+        return Task.fromJson(json, topic, nodeID: nodeID);
       case (1):
-        return Event.fromJson(json, topic);
+        return Event.fromJson(json, topic, nodeID: nodeID);
       default:
-        return Note.fromJson(json, topic);
+        return Note.fromJson(json, topic, nodeID: nodeID);
     }
   }
 }

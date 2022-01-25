@@ -1,16 +1,14 @@
 import 'package:flutter/cupertino.dart';
 
 import '../entity/topic.dart';
-import 'database_provider.dart';
-import 'message_repository.dart';
+import 'database.dart';
 
 Map<String, Topic> _topics = {};
 
 Map<String, Topic> get topics => _topics;
 
 class TopicRepository {
-  static void updateTopic(Topic updatedTopic) async =>
-      await DBProvider.db.updateTopic(updatedTopic);
+  static void updateTopic(Topic updatedTopic) => FireBaseProvider.updateTopic(updatedTopic);
 
   static void editTopic(Topic topic, String newName, IconData newIcon) {
     if (topic.name != newName) {
@@ -26,7 +24,7 @@ class TopicRepository {
 
   static void deleteTopic(Topic topic) {
     topics.remove(topic.name);
-    DBProvider.db.deleteTopic(topic);
+    FireBaseProvider.deleteTopic(topic);
   }
 
   static void addNewTopic(Topic topic) async {
@@ -34,26 +32,33 @@ class TopicRepository {
     _saveNewTopic(topic);
   }
 
-  static void _saveNewTopic(Topic topic) async => await DBProvider.db.newTopic(topic);
+  static void _saveNewTopic(Topic topic) => FireBaseProvider.newTopic(topic);
 
-  static Future<List<Topic>> loadTopics() async => await DBProvider.db.getAllTopics();
+  static Stream<List<Topic>> loadTopics() {
+    FireBaseProvider.getTopics().listen((event) => _topics.clear());
+    return FireBaseProvider.getTopics().map((s) {
+      return s.docs.map((doc) {
+        return Topic.fromJson(doc.data(), nodeID: doc.id);
+      }).toList();
+    });
+  }
 
   static void incContent(Topic topic) async {
     topic.incContent();
-    updateTopic(topic);
     final message = await MessageRepository.lastMessage(topic);
     topic.lastMessage = message.timeCreated;
+    updateTopic(topic);
   }
 
   static void decContent(Topic topic) async {
     topic.decContent();
-    updateTopic(topic);
     if (topic.elements == 0) {
       topic.lastMessage = null;
     } else {
       final message = await MessageRepository.lastMessage(topic);
       topic.lastMessage = message.timeCreated;
     }
+    updateTopic(topic);
   }
 
   static List<Topic> getTopics() {

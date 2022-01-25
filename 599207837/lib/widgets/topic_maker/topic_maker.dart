@@ -8,26 +8,22 @@ import 'topic_maker_state.dart';
 
 class TopicMaker extends StatelessWidget {
   final Topic? topic;
-  final Function onChange;
 
-  const TopicMaker({Key? key, this.topic, required this.onChange}) : super(key: key);
+  const TopicMaker({Key? key, this.topic}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => topic == null ? TopicMakerCubit() : TopicMakerCubit.editing(topic!),
-      child: _TopicMaker(
-        onChange: onChange,
-      ),
+      child: _TopicMaker(),
     );
   }
 }
 
 class _TopicMaker extends StatelessWidget {
   late final ThemeInherited themeInherited;
-  final Function onChange;
 
-  _TopicMaker({Key? key, required this.onChange}) : super(key: key);
+  _TopicMaker({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +95,6 @@ class _TopicMaker extends StatelessWidget {
                     if (state.nameController!.text.isNotEmpty && state.selected != -1) {
                       context.read<TopicMakerCubit>().finish();
                       Navigator.pop(context);
-                      onChange();
                     }
                   },
                   child: Text(

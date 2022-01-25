@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../database/database.dart';
 import '../../entity/entities.dart';
 import '../../main.dart';
 import '../widgets.dart';
@@ -10,9 +9,8 @@ import 'chat_page_state.dart';
 
 class ChatPage extends StatelessWidget {
   final Topic topic;
-  final Function onChange;
 
-  ChatPage({required this.topic, required this.onChange});
+  ChatPage({required this.topic});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +18,6 @@ class ChatPage extends StatelessWidget {
       create: (context) => ChatPageCubit()..getElements(topic),
       child: _ChatPage(
         topic: topic,
-        onChange: onChange,
       ),
     );
   }
@@ -28,9 +25,8 @@ class ChatPage extends StatelessWidget {
 
 class _ChatPage extends StatelessWidget {
   final Topic topic;
-  final Function onChange;
 
-  _ChatPage({required this.topic, required this.onChange});
+  _ChatPage({required this.topic});
 
   @override
   Widget build(BuildContext context) {
@@ -88,35 +84,25 @@ class _ChatPage extends StatelessWidget {
                   ),
                 ),
               Expanded(
-                child: FutureBuilder<List<Message>>(
-                  future: MessageRepository.loadElements(topic),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                        reverse: true,
-                        itemCount: state.messages.length,
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.only(top: 10, bottom: 10),
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return ChatMessage(
-                            key: Key(state.messages[index].uuid.toString()),
-                            item: state.messages[index],
-                            onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
-                            onEdited: () => context
-                                .read<ChatPageCubit>()
-                                .startEditing(index, state.messages[index]),
-                            onSelection: () => context.read<ChatPageCubit>().setSelection(true),
-                            onSelected: () =>
-                                context.read<ChatPageCubit>().onSelect(state.messages[index]),
-                            selection: state.selectionFlag,
-                            themeInherited: themeInherited,
-                          );
-                        },
-                      );
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                child: ListView.builder(
+                  reverse: true,
+                  itemCount: state.messages.length,
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return ChatMessage(
+                      key: Key(state.messages[index].uuid.toString()),
+                      item: state.messages[index],
+                      onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
+                      onEdited: () =>
+                          context.read<ChatPageCubit>().startEditing(index, state.messages[index]),
+                      onSelection: () => context.read<ChatPageCubit>().setSelection(true),
+                      onSelected: () =>
+                          context.read<ChatPageCubit>().onSelect(state.messages[index]),
+                      selection: state.selectionFlag,
+                      themeInherited: themeInherited,
+                    );
                   },
                 ),
               ),
@@ -193,10 +179,7 @@ class _ChatPage extends StatelessWidget {
     return Row(
       children: <Widget>[
         IconButton(
-          onPressed: () {
-            onChange();
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
           icon: Icon(
             Icons.arrow_back,
             color: themeInherited.preset.colors.iconColor2,

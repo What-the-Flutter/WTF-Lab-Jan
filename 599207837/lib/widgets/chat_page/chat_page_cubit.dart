@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -6,7 +8,15 @@ import '../../entity/entities.dart';
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
+  late final StreamSubscription _sub;
+
   ChatPageCubit() : super(ChatPageState.initial());
+
+  @override
+  Future<void> close() {
+    _sub.cancel();
+    return super.close();
+  }
 
   void findElements() {
     emit(state.duplicate(
@@ -17,8 +27,13 @@ class ChatPageCubit extends Cubit<ChatPageState> {
             .toList()));
   }
 
-  void getElements(Topic topic) async =>
-      emit(state.duplicate(elements: await topic.getElements(), topic: topic));
+  void getElements(Topic topic) =>
+      _sub = MessageRepository.loadElements(topic).listen(_updateMessages);
+
+  Future<void> _updateMessages(List<Message> data) async {
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    emit(state.duplicate(elements: data));
+  }
 
   void onSelect(Message o) {
     if (state.selected!.contains(o)) {

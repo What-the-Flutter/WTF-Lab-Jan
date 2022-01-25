@@ -18,6 +18,9 @@ class Event implements Message {
   @override
   String description;
 
+  @override
+  String nodeID;
+
   int? _id;
 
   DateTime? scheduledTime;
@@ -33,6 +36,7 @@ class Event implements Message {
     this.isMissed = false,
     DateTime? timeCreated_,
     int? id,
+    this.nodeID = '',
   }) {
     _id = id;
     timeCreated = timeCreated_ ?? DateTime.now();
@@ -69,8 +73,9 @@ class Event implements Message {
         'is_missed': isMissed ? 1 : 0,
       };
 
-  static Message fromJson(Map<String, dynamic> json, Topic? topic) => Event(
+  static Message fromJson(Map<String, dynamic> json, Topic? topic, {String nodeID = ''}) => Event(
         id: json['id'],
+        nodeID: nodeID,
         topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
         favourite: json['favourite'] == 1 ? true : false,
@@ -81,7 +86,7 @@ class Event implements Message {
         isMissed: json['is_missed'] == 1 ? true : false,
       );
 
-  static Future<List<Message>> getFavouriteEvents() => MessageRepository.loadTypeFavourites(1);
+  static Stream<List<Message>> getFavouriteEvents() => MessageRepository.loadTypeFavourites(1);
 
   @override
   Message duplicate() {

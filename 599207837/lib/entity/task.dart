@@ -18,6 +18,9 @@ class Task implements Message {
   @override
   String description;
 
+  @override
+  String nodeID;
+
   int? _id;
 
   bool isCompleted = false;
@@ -30,6 +33,7 @@ class Task implements Message {
     DateTime? timeCreated_,
     this.timeCompleted,
     int? id,
+    this.nodeID = '',
   }) {
     _id = id;
     timeCreated = timeCreated_ ?? DateTime.now();
@@ -63,8 +67,9 @@ class Task implements Message {
         'time_completed': timeCompleted.toString(),
       };
 
-  static Message fromJson(Map<String, dynamic> json, Topic? topic) => Task(
+  static Message fromJson(Map<String, dynamic> json, Topic? topic, {String nodeID = ''}) => Task(
         id: json['id'],
+        nodeID: nodeID,
         topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
         favourite: json['favourite'] == 1 ? true : false,
@@ -73,7 +78,7 @@ class Task implements Message {
             json['time_completed'] == 'null' ? null : DateTime.parse(json['time_completed']),
       );
 
-  static Future<List<Message>> getFavouriteTasks() => MessageRepository.loadTypeFavourites(0);
+  static Stream<List<Message>> getFavouriteTasks() => MessageRepository.loadTypeFavourites(0);
 
   @override
   Message duplicate() {

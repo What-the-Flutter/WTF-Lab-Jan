@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../database/database.dart';
 import '../entity/entities.dart';
 import '../main.dart';
-import 'items_page/items_page_cubit.dart';
 import 'topic_maker/topic_maker.dart';
 
 class AddingButton extends StatefulWidget {
@@ -45,9 +43,7 @@ class _AddingButtonState extends State<AddingButton> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (newContext) => TopicMaker(
-                    onChange: () => context.read<ItemsPageCubit>().update(),
-                  ),
+                  builder: (newContext) => const TopicMaker(),
                 ),
               );
             } else {
@@ -86,7 +82,6 @@ class _AddingButtonState extends State<AddingButton> {
                   whenComplete: () {
                     Navigator.pop(context);
                     setState(() => _mainIcon = _firstIcon);
-                    context.read<ItemsPageCubit>().update();
                   },
                 ),
               ),

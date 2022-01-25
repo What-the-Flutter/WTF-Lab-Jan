@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../database/database.dart';
-import 'entities.dart';
 
 Topic topicFromJson(String str) {
   final jsonData = json.decode(str);
@@ -16,6 +15,7 @@ String topicToJson(Topic data) {
 
 class Topic {
   String name;
+  String nodeID;
   IconData icon;
   late int id;
   late DateTime timeCreated;
@@ -46,6 +46,7 @@ class Topic {
   Topic.newInstance({
     required this.name,
     required this.icon,
+    this.nodeID = '',
     bool pinned = false,
     bool archived = false,
     int? id_,
@@ -60,9 +61,10 @@ class Topic {
     topics[name] = this;
   }
 
-  factory Topic.fromJson(Map<String, dynamic> json) => Topic.newInstance(
+  factory Topic.fromJson(Map<String, dynamic> json, {String nodeID = ''}) => Topic.newInstance(
         id_: json['id'],
         name: json['name'],
+        nodeID: nodeID,
         icon: IconData(json['icon_data'] as int, fontFamily: 'MaterialIcons'),
         elements: json['elements'],
         pinned: json['pinned'] == 1 ? true : false,
@@ -85,8 +87,6 @@ class Topic {
   void incContent() => elements++;
 
   void decContent() => elements--;
-
-  Future<List<Message>> getElements() => MessageRepository.loadElements(this);
 
   @override
   String toString() => name;

@@ -62,7 +62,6 @@ class _ChatCard extends StatelessWidget {
         MaterialPageRoute(
           builder: (newContext) => ChatPage(
             topic: topic,
-            onChange: () => context.read<ItemsPageCubit>().update(),
           ),
         ),
       ),
@@ -197,7 +196,6 @@ class _ChatCard extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (newContext) => TopicMaker(
                     topic: topic,
-                    onChange: () => context.read<ItemsPageCubit>().update(),
                   ),
                 ),
               );
