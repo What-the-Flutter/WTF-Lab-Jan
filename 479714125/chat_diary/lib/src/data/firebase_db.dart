@@ -71,4 +71,22 @@ class FirebaseDBProvider {
     }
     return events;
   }
+
+  Future<void> toggleEventSelection(EventModel event) async {
+    final eventJson = event.toMap();
+    await _refMessages
+        .child(event.pageId.toString())
+        .child(event.id.toString())
+        .set(eventJson);
+  }
+
+  Future<void> updateEvent(EventModel event) async {
+    final eventJson = event.toMap();
+    await _refMessages
+        .child(event.pageId.toString())
+        .child(event.id.toString())
+        .set(eventJson);
+  }
+
+  Future<List<EventModel>> fetchSelectedEvents() async {}
 }
