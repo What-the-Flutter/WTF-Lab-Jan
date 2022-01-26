@@ -59,7 +59,6 @@ class FirebaseDBProvider {
   Future<List<EventModel>> retrieveEvents(int pageId) async {
     final databaseEvent = await _refMessages.child(pageId.toString()).once();
     final value = databaseEvent.snapshot.value;
-    print(value);
     var events = <EventModel>[];
     if (value != null) {
       try {
