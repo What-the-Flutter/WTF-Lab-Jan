@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
 
+import '../../../data/database_config.dart';
 import '../../../models/event_model.dart';
 import '../cubit/cubit.dart';
 
@@ -144,7 +146,10 @@ class _EventInputFieldState extends State<EventInputField> {
       final nativeImagePath =
           await _picker.pickImage(source: ImageSource.gallery);
       if (nativeImagePath != null) {
+        final fileName = path.basename(nativeImagePath.path);
         final imagePath = File(nativeImagePath.path);
+        await DatabaseAccess.instance.firebaseDBProvider
+            .uploadImageToStorage(fileName, imagePath);
         final EventModel model;
         var index = cubit.state.newEventIndex;
         if (cubit.state.isCategory && cubit.state.currentCategory != null) {

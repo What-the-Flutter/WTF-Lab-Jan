@@ -7,6 +7,9 @@ PODS:
   - Firebase/Database (8.10.0):
     - Firebase/CoreOnly
     - FirebaseDatabase (~> 8.10.0)
+  - Firebase/Storage (8.10.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 8.10.0)
   - firebase_auth (3.3.5):
     - Firebase/Auth (= 8.10.0)
     - firebase_core
@@ -16,6 +19,10 @@ PODS:
     - Flutter
   - firebase_database (9.0.5):
     - Firebase/Database (= 8.10.0)
+    - firebase_core
+    - Flutter
+  - firebase_storage (10.2.5):
+    - Firebase/Storage (= 8.10.0)
     - firebase_core
     - Flutter
   - FirebaseAuth (8.10.0):
@@ -35,6 +42,9 @@ PODS:
   - FirebaseDatabase (8.10.0):
     - FirebaseCore (~> 8.0)
     - leveldb-library (~> 1.22)
+  - FirebaseStorage (8.10.0):
+    - FirebaseCore (~> 8.0)
+    - GTMSessionFetcher/Core (~> 1.5)
   - Flutter (1.0.0)
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
@@ -78,6 +88,7 @@ DEPENDENCIES:
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
+  - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
@@ -90,6 +101,7 @@ SPEC REPOS:
     - FirebaseCore
     - FirebaseCoreDiagnostics
     - FirebaseDatabase
+    - FirebaseStorage
     - FMDB
     - GoogleDataTransport
     - GoogleUtilities
@@ -105,6 +117,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_core/ios"
   firebase_database:
     :path: ".symlinks/plugins/firebase_database/ios"
+  firebase_storage:
+    :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
     :path: Flutter
   image_picker:
@@ -119,10 +133,12 @@ SPEC CHECKSUMS:
   firebase_auth: 9d959bddc3b255ddfb67cf630a5bbb6186964356
   firebase_core: 2ca2d6cc8a11693e701b37126afae4800be5dbac
   firebase_database: 54f02e0bac6bac2d21436ac3d4c83f8f34a9f219
+  firebase_storage: 740e81d4bef3360d50447dda37da9b8914a2acc0
   FirebaseAuth: 59a2d2b933b5b79e18fb1e6ad230c6abdaa73d26
   FirebaseCore: 04186597c095da37d90ff9fd3e53bc61a1ff2440
   FirebaseCoreDiagnostics: 64d9709d804a6c25bd77841371c1fcfd909d5601
   FirebaseDatabase: 5f3e83b0a0d8759378fbd5d05661244d14dfbbb0
+  FirebaseStorage: 815410224b548172c578f02554a86bbc8f817f50
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   GoogleDataTransport: 629c20a4d363167143f30ea78320d5a7eb8bd940

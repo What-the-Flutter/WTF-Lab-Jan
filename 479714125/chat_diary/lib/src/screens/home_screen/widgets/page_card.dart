@@ -68,7 +68,9 @@ class _PageCardState extends State<PageCard> {
             );
           },
           onLongPress: () => _showModalBottomSheet(
-              widget.parentContext, cubitEventScreen.state.page),
+            widget.parentContext,
+            cubitEventScreen.state.page,
+          ),
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Row(
