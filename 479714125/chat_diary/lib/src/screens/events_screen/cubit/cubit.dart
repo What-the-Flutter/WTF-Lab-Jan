@@ -62,7 +62,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   void toggleAppBar(int indexOfEvent, bool isSelected) async {
     isSelected = !isSelected;
     state.page.events[indexOfEvent].isSelected = isSelected;
-    await DatabaseAccess.instance.databaseProvider
+    await DatabaseAccess.instance.firebaseDBProvider
         .toggleEventSelection(state.page.events[indexOfEvent]);
     if (state.page.events[indexOfEvent].image == null) {
       emit(state.copyWith(
@@ -105,22 +105,29 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   void deleteSelectedEvents() async {
-    await DatabaseAccess.instance.databaseProvider.deleteSelectedEvents();
-    fetchAllEvents();
-    emit(state.copyWith(countOfSelected: 0, isImageSelected: false));
+    final notSelectedEvents =
+        state.page.events.where((element) => !element.isSelected).toList();
+    await DatabaseAccess.instance.firebaseDBProvider
+        .deleteSelectedEvents(state.page.id, notSelectedEvents);
+
+    emit(state.copyWith(
+        page: state.page.copyWith(events: notSelectedEvents),
+        countOfSelected: 0,
+        isImageSelected: false));
   }
 
   Future<Iterable<EventModel>> popSelectedEvents() async {
-    var selectedEvents =
-        await DatabaseAccess.instance.databaseProvider.fetchSelectedEvents();
+    var selectedEvents = await DatabaseAccess.instance.firebaseDBProvider
+        .fetchSelectedEvents(state.page.id);
 
-    await DatabaseAccess.instance.databaseProvider.deleteSelectedEvents();
     for (var event in selectedEvents) {
       if (event.isSelected) {
         event.isSelected = !event.isSelected;
       }
     }
-    final list = await DatabaseAccess.instance.databaseProvider
+    await DatabaseAccess.instance.firebaseDBProvider
+        .deleteSelectedEvents(state.page.id, selectedEvents);
+    final list = await DatabaseAccess.instance.firebaseDBProvider
         .retrieveEvents(state.page.id);
     final reversedList = list.reversed.toList();
 
@@ -133,8 +140,8 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   Future<String> copySelectedEvents() async {
-    final selectedEvents =
-        await DatabaseAccess.instance.databaseProvider.fetchSelectedEvents();
+    final selectedEvents = await DatabaseAccess.instance.firebaseDBProvider
+        .fetchSelectedEvents(state.page.id);
     var eventsToCopy = '';
     var isEveryEventImage = true;
     for (var event in selectedEvents) {
@@ -149,6 +156,9 @@ class EventScreenCubit extends Cubit<EventScreenState> {
     if (isEveryEventImage) {
       return '';
     }
+    toggleAllSelected();
+    DatabaseAccess.instance.firebaseDBProvider
+        .toggleAllSelected(state.page.events);
     return eventsToCopy;
   }
 
@@ -163,7 +173,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
     final index = findSelectedEventIndex();
     state.page.events[index].text = newEventText;
     state.page.events[index].isSelected = false;
-    await DatabaseAccess.instance.databaseProvider
+    await DatabaseAccess.instance.firebaseDBProvider
         .updateEvent(state.page.events[index]);
     emit(state.copyWith(page: state.page));
   }

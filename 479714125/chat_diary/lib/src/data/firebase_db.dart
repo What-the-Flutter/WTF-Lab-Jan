@@ -88,5 +88,41 @@ class FirebaseDBProvider {
         .set(eventJson);
   }
 
-  Future<List<EventModel>> fetchSelectedEvents() async {}
+  Future<List<EventModel>> fetchSelectedEvents(int pageId) async {
+    final ref = _refMessages.child(pageId.toString());
+    final snapshot = await ref.get();
+    final data = snapshot.value;
+    var events = <EventModel>[];
+    if (data != null) {
+      try {
+        final listOfMaps = (data as List<Object?>)
+            .where((element) => element != null)
+            .cast<Map<dynamic, dynamic>>();
+        events = listOfMaps
+            .map((e) => EventModel.fromMap(e))
+            .where((element) => element.isSelected)
+            .toList();
+      } catch (e) {
+        log(e.toString());
+      }
+    }
+    return events;
+  }
+
+  Future<void> toggleAllSelected(List<EventModel> events) async {
+    final map = <String, Map<dynamic, dynamic>>{};
+    for (var element in events) {
+      map[element.id.toString()] = element.toMap();
+    }
+    await _refMessages.child(events[0].pageId.toString()).update(map);
+  }
+
+  Future<void> deleteSelectedEvents(
+      int pageId, List<EventModel> newEvents) async {
+    final map = <String, Map<dynamic, dynamic>>{};
+    for (var element in newEvents) {
+      map[element.id.toString()] = element.toMap();
+    }
+    await _refMessages.child(pageId.toString()).set(map);
+  }
 }

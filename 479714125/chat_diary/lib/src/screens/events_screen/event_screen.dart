@@ -88,7 +88,6 @@ class _EventScreenState extends State<EventScreen> {
         ),
       );
     }
-    cubit.toggleAllSelected();
   }
 
   Future<void> _showMigrateDialog() async {

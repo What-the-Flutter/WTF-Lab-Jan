@@ -32,8 +32,10 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     }
 
     state.listOfPages[page.id].events.insertAll(0, eventsToMigrate);
-    await DatabaseAccess.instance.databaseProvider
-        .insertEvents(eventsToMigrate);
+    for (var event in eventsToMigrate) {
+      await DatabaseAccess.instance.firebaseDBProvider.addEvent(event);
+    }
+
     emit(state.copyWith(listOfPages: state.listOfPages));
   }
 
