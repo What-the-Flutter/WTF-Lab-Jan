@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:intl/intl.dart';
 
 import 'event.dart';
@@ -39,6 +41,39 @@ abstract class Message {
       default:
         return Note.fromJson(json, topic, nodeID: nodeID);
     }
+  }
+
+  static List<Map<String, dynamic>> parseData(String input) {
+    final exp = RegExp(r'\d+: {[^}]+}');
+    final expField = RegExp(r'[a-z_]+:');
+    final value = RegExp(r': [\w-:\s\.]+,');
+
+    final data = input.replaceAllMapped(expField, (match) {
+      final field = match.group(0);
+      return '"${field!.substring(0, field.length - 1)}":';
+    }).replaceAllMapped(value, (match) {
+      final temp = match.group(0);
+      return ': "${temp!.substring(2, temp.length - 1)}",';
+    }).replaceAllMapped(RegExp(r'"\d+"'), (match) {
+      final temp = match.group(0);
+      return '${temp!.substring(1, temp.length - 1)}';
+    });
+    print(data);
+
+    final list = _allStringMatches(data, exp).toList().map((note) => _toJson(note));
+
+    for (var x in list) {
+      print(x);
+    }
+    return list.map((e) => jsonDecode(e) as Map<String, dynamic>).toList();
+  }
+
+  static Iterable<String> _allStringMatches(String text, RegExp regExp) =>
+      regExp.allMatches(text).map((m) => m.group(0)!);
+
+  static String _toJson(String data) {
+    final clear = data.substring(data.indexOf('{', 1) + 1, data.length - 1);
+    return '{$clear}';
   }
 }
 
