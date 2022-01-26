@@ -31,8 +31,16 @@ class App extends StatelessWidget {
   }
 }
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isSwitched = false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +48,13 @@ class Home extends StatelessWidget {
     var title = context.read<AppHomeCubit>().state.title;
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(title),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.menu),
-          onPressed: () {},
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
           IconButton(
@@ -53,6 +62,43 @@ class Home extends StatelessWidget {
             icon: const Icon(Icons.invert_colors),
           ),
         ],
+      ),
+      drawer: Drawer(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: const Text(
+                'Settings',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                const SizedBox(
+                  width: 20,
+                ),
+                const Text('Toggle Theme'),
+                Switch(
+                  value: context.read<ThemeCubit>().state.isDarkTheme,
+                  onChanged: (value) {
+                    setState(() {
+                      context.read<ThemeCubit>().toggleTheme();
+                      _isSwitched = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
