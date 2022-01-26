@@ -1,8 +1,10 @@
 import 'dart:developer';
+import 'dart:io';
 
-import 'package:chat_diary/src/models/event_model.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
+import '../models/event_model.dart';
 import '../models/page_model.dart';
 
 class FirebaseDBProvider {
@@ -124,5 +126,10 @@ class FirebaseDBProvider {
       map[element.id.toString()] = element.toMap();
     }
     await _refMessages.child(pageId.toString()).set(map);
+  }
+
+  Future<void> uploadImageToStorage(String fileName, File fileImage) async {
+    final storage = FirebaseStorage.instance;
+    await storage.ref('images/$fileName').putFile(fileImage);
   }
 }
