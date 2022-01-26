@@ -1,12 +1,12 @@
-import '../../entity/entities.dart' as entity;
+import '../../entity/entities.dart';
 
 class ItemsPageState {
   static const List listPlug = [];
 
-  late final List<entity.Message> favTasks;
-  late final List<entity.Message> favEvents;
-  late final List<entity.Message> favNotes;
-  late final List<entity.Topic> topics;
+  late final List<Message> favTasks;
+  late final List<Message> favEvents;
+  late final List<Message> favNotes;
+  late final List<Topic> topics;
 
   ItemsPageState({
     required this.topics,
@@ -16,17 +16,17 @@ class ItemsPageState {
   });
 
   ItemsPageState.initial() {
-    favTasks = entity.Task.getFavouriteTasks();
-    favEvents = entity.Event.getFavouriteEvents();
-    favNotes = entity.Note.getFavouriteNotes();
+    favTasks = [];
+    favEvents = [];
+    favNotes = [];
     topics = [];
   }
 
   ItemsPageState duplicate({
-    List<entity.Message>? favTasks,
-    List<entity.Message>? favEvents,
-    List<entity.Message>? favNotes,
-    List<entity.Topic>? topics,
+    List<Message>? favTasks,
+    List<Message>? favEvents,
+    List<Message>? favNotes,
+    List<Topic>? topics,
   }) {
     return ItemsPageState(
       topics: topics ?? this.topics,

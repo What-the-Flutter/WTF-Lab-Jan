@@ -1,23 +1,23 @@
 import 'package:bloc/bloc.dart';
-import '../../database/database.dart' as db;
-import '../../entity/entities.dart' as entity;
+import '../../database/database.dart';
+import '../../entity/entities.dart';
 import 'topic_maker_state.dart';
 
 class TopicMakerCubit extends Cubit<TopicMakerState> {
   TopicMakerCubit() : super(TopicMakerState.initial());
 
-  TopicMakerCubit.editing(entity.Topic topic) : super(TopicMakerState.editing(topic));
+  TopicMakerCubit.editing(Topic topic) : super(TopicMakerState.editing(topic));
 
   void finish() {
     if (state.topic == null) {
-      db.TopicLoader.addNewTopic(
-        entity.Topic(
+      TopicRepository.addNewTopic(
+        Topic(
           name: state.nameController!.text,
           icon: TopicMakerState.icons[state.selected],
         ),
       );
     } else {
-      db.TopicLoader.editTopic(
+      TopicRepository.editTopic(
         state.topic!,
         state.nameController!.text,
         TopicMakerState.icons[state.selected],

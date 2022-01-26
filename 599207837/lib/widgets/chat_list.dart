@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../entity/entities.dart' as entity;
+import '../entity/entities.dart';
 import '../main.dart';
-import '../widgets/widgets.dart' as custom;
+import '../widgets/widgets.dart';
 import 'items_page/items_page_cubit.dart';
 import 'items_page/items_page_state.dart';
 
@@ -50,7 +50,7 @@ class ChatList extends StatelessWidget {
 
 class _ChatCard extends StatelessWidget {
   late final ThemeInherited themeInherited;
-  final entity.Topic topic;
+  final Topic topic;
 
   _ChatCard({required this.topic, required this.themeInherited});
 
@@ -60,9 +60,8 @@ class _ChatCard extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (newContext) => custom.ChatPage(
+          builder: (newContext) => ChatPage(
             topic: topic,
-            onChange: () => context.read<ItemsPageCubit>().update(),
           ),
         ),
       ),
@@ -195,9 +194,8 @@ class _ChatCard extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (newContext) => custom.TopicMaker(
+                  builder: (newContext) => TopicMaker(
                     topic: topic,
-                    onChange: () => context.read<ItemsPageCubit>().update(),
                   ),
                 ),
               );
@@ -313,11 +311,11 @@ class _ChatCard extends StatelessWidget {
                 if (topic.lastMessage != null)
                   _infoNode(
                     topText: 'Last message:',
-                    bottomText: '${entity.fullDateFormatter.format(topic.lastMessage!)}',
+                    bottomText: '${fullDateFormatter.format(topic.lastMessage!)}',
                   ),
                 _infoNode(
                   topText: 'Date created:',
-                  bottomText: '${entity.fullDateFormatter.format(topic.timeCreated)}',
+                  bottomText: '${fullDateFormatter.format(topic.timeCreated)}',
                 ),
               ],
             ),

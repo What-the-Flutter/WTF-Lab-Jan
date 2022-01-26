@@ -1,10 +1,11 @@
 import 'dart:math';
-import '../database/database.dart' as db;
-import 'entities.dart' as entity;
+import '../database/database.dart';
+import '../main.dart';
+import 'entities.dart';
 
-class Event implements entity.Message {
+class Event implements Message {
   @override
-  entity.Topic topic;
+  Topic topic;
 
   @override
   late DateTime timeCreated;
@@ -18,13 +19,17 @@ class Event implements entity.Message {
   @override
   String description;
 
+  @override
+  String nodeID;
+
+  @override
+  String? imgPath;
+
   int? _id;
 
   DateTime? scheduledTime;
   bool isVisited;
   bool isMissed;
-  static bool _firstLoad = true;
-  static late final db.MessageLoader mLoader = db.MessageLoader.type(Event);
 
   Event({
     required this.topic,
@@ -35,6 +40,8 @@ class Event implements entity.Message {
     this.isMissed = false,
     DateTime? timeCreated_,
     int? id,
+    this.nodeID = '',
+    this.imgPath,
   }) {
     _id = id;
     timeCreated = timeCreated_ ?? DateTime.now();
@@ -43,18 +50,13 @@ class Event implements entity.Message {
   void visit() {
     isVisited = true;
     isMissed = false;
-    db.MessageLoader.updateMessage(this);
   }
 
-  void unVisit() {
-    isVisited = false;
-    db.MessageLoader.updateMessage(this);
-  }
+  void unVisit() => isVisited = false;
 
   void miss() {
     isMissed = true;
     unVisit();
-    db.MessageLoader.updateMessage(this);
   }
 
   @override
@@ -65,9 +67,12 @@ class Event implements entity.Message {
 
   @override
   Map<String, dynamic> toJson() => {
+        'uid': userID,
         'id': uuid,
-        'type_id': entity.getTypeId(this),
+        'type_id': getTypeId(this),
+        'topic_id': topic.id,
         'description': description,
+        'imgPath': imgPath,
         'time_created': timeCreated.toString(),
         'favourite': favourite ? 1 : 0,
         'scheduled_time': scheduledTime.toString(),
@@ -75,10 +80,12 @@ class Event implements entity.Message {
         'is_missed': isMissed ? 1 : 0,
       };
 
-  static entity.Message fromJson(Map<String, dynamic> json, entity.Topic topic) => Event(
+  static Message fromJson(Map<String, dynamic> json, Topic? topic, {String nodeID = ''}) => Event(
         id: json['id'],
-        topic: topic,
+        nodeID: nodeID,
+        topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
+        imgPath: json['imgPath'] == 'null' ? null : json['imgPath'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
         scheduledTime:
@@ -87,16 +94,10 @@ class Event implements entity.Message {
         isMissed: json['is_missed'] == 1 ? true : false,
       );
 
-  static List<entity.Message> getFavouriteEvents() {
-    if (_firstLoad) {
-      mLoader.loadTypeFavourites();
-      _firstLoad = false;
-    }
-    return db.MessageLoader.favouriteMessages[1];
-  }
+  static Stream<List<Message>> getFavouriteEvents() => MessageRepository.loadTypeFavourites(1);
 
   @override
-  entity.Message duplicate() {
+  Message duplicate() {
     return Event(
       topic: topic,
       description: description,

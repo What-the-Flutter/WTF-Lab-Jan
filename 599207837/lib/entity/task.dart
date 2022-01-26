@@ -1,10 +1,11 @@
 import 'dart:math';
-import '../database/database.dart' as db;
-import 'entities.dart' as entity;
+import '../database/database.dart';
+import '../main.dart';
+import 'entities.dart';
 
-class Task implements entity.Message {
+class Task implements Message {
   @override
-  entity.Topic topic;
+  Topic topic;
 
   @override
   late DateTime timeCreated;
@@ -18,12 +19,16 @@ class Task implements entity.Message {
   @override
   String description;
 
+  @override
+  String nodeID;
+
+  @override
+  String? imgPath;
+
   int? _id;
 
   bool isCompleted = false;
-  static bool _firstLoad = true;
   DateTime? timeCompleted;
-  static late final db.MessageLoader mLoader = db.MessageLoader.type(Task);
 
   Task({
     required this.topic,
@@ -32,6 +37,8 @@ class Task implements entity.Message {
     DateTime? timeCreated_,
     this.timeCompleted,
     int? id,
+    this.nodeID = '',
+    this.imgPath,
   }) {
     _id = id;
     timeCreated = timeCreated_ ?? DateTime.now();
@@ -41,13 +48,11 @@ class Task implements entity.Message {
   void complete() {
     isCompleted = true;
     timeCompleted = DateTime.now();
-    db.MessageLoader.updateMessage(this);
   }
 
   void unComplete() {
     isCompleted = false;
     timeCompleted = null;
-    db.MessageLoader.updateMessage(this);
   }
 
   @override
@@ -58,34 +63,33 @@ class Task implements entity.Message {
 
   @override
   Map<String, dynamic> toJson() => {
+        'uid': userID,
         'id': uuid,
-        'type_id': entity.getTypeId(this),
+        'type_id': getTypeId(this),
+        'topic_id': topic.id,
         'description': description,
+        'imgPath': imgPath,
         'time_created': timeCreated.toString(),
         'favourite': favourite ? 1 : 0,
         'time_completed': timeCompleted.toString(),
       };
 
-  static entity.Message fromJson(Map<String, dynamic> json, entity.Topic topic) => Task(
+  static Message fromJson(Map<String, dynamic> json, Topic? topic, {String nodeID = ''}) => Task(
         id: json['id'],
-        topic: topic,
+        nodeID: nodeID,
+        topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
+        imgPath: json['imgPath'] == 'null' ? null : json['imgPath'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
         timeCompleted:
             json['time_completed'] == 'null' ? null : DateTime.parse(json['time_completed']),
       );
 
-  static List<entity.Message> getFavouriteTasks() {
-    if (_firstLoad) {
-      mLoader.loadTypeFavourites();
-      _firstLoad = false;
-    }
-    return db.MessageLoader.favouriteMessages[0];
-  }
+  static Stream<List<Message>> getFavouriteTasks() => MessageRepository.loadTypeFavourites(0);
 
   @override
-  entity.Message duplicate() {
+  Message duplicate() {
     return Task(
       topic: topic,
       description: description,

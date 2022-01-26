@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../database/database.dart' as db;
-import 'entities.dart' as entity;
+import '../database/database.dart';
+import '../main.dart';
 
 Topic topicFromJson(String str) {
   final jsonData = json.decode(str);
@@ -16,30 +16,26 @@ String topicToJson(Topic data) {
 
 class Topic {
   String name;
+  String nodeID;
   IconData icon;
   late int id;
   late DateTime timeCreated;
   DateTime? lastMessage;
   int elements;
-  bool initialLoad = true;
   late bool _pinned;
   late bool _archived;
-  late final db.MessageLoader mLoader;
 
   void onPin() => _pinned = !_pinned;
 
-  void onArchive() {
-    _archived = !_archived;
-    db.MessageLoader.clearTopicData(id);
-  }
+  void onArchive() => _archived = !_archived;
 
   bool get isPinned => _pinned;
 
   bool get isArchived => _archived;
 
   factory Topic({required String name, required IconData icon}) {
-    if (db.topics.containsKey(name)) {
-      return db.topics[name]!;
+    if (topics.containsKey(name)) {
+      return topics[name]!;
     } else {
       return Topic.newInstance(
         name: name,
@@ -51,6 +47,7 @@ class Topic {
   Topic.newInstance({
     required this.name,
     required this.icon,
+    this.nodeID = '',
     bool pinned = false,
     bool archived = false,
     int? id_,
@@ -62,13 +59,13 @@ class Topic {
     _pinned = pinned;
     id = id_ ?? hashCode + Random.secure().nextInt(100);
     timeCreated = timeCreated_ ?? DateTime.now();
-    db.topics[name] = this;
-    mLoader = db.MessageLoader(this);
+    topics[name] = this;
   }
 
-  factory Topic.fromJson(Map<String, dynamic> json) => Topic.newInstance(
+  factory Topic.fromJson(Map<String, dynamic> json, {String nodeID = ''}) => Topic.newInstance(
         id_: json['id'],
         name: json['name'],
+        nodeID: nodeID,
         icon: IconData(json['icon_data'] as int, fontFamily: 'MaterialIcons'),
         elements: json['elements'],
         pinned: json['pinned'] == 1 ? true : false,
@@ -78,6 +75,7 @@ class Topic {
       );
 
   Map<String, dynamic> toJson() => {
+        'uid': userID,
         'id': id,
         'name': name,
         'icon_data': icon.codePoint,
@@ -88,21 +86,9 @@ class Topic {
         'last_message': lastMessage.toString(),
       };
 
-  void incContent() {
-    elements++;
-    db.TopicLoader.updateTopic(this);
-    lastMessage = db.MessageLoader.messages[id]![0].timeCreated;
-  }
+  void incContent() => elements++;
 
-  void decContent() {
-    elements--;
-    db.TopicLoader.updateTopic(this);
-    lastMessage = elements == 0 ? null : db.MessageLoader.messages[id]![0].timeCreated;
-  }
-
-  List<entity.Message> getElements() => db.MessageLoader.messages[id]!;
-
-  void loadElements() {}
+  void decContent() => elements--;
 
   @override
   String toString() => name;

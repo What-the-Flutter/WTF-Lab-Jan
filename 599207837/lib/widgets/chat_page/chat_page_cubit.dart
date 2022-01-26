@@ -1,38 +1,40 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-import '../../database/database.dart' as db;
+import '../../database/database.dart';
 import '../../entity/entities.dart' as entity;
 import 'chat_page_state.dart';
 
 class ChatPageCubit extends Cubit<ChatPageState> {
+  late final StreamSubscription _sub;
+
   ChatPageCubit() : super(ChatPageState.initial());
 
+  @override
+  Future<void> close() {
+    _sub.cancel();
+    return super.close();
+  }
+
   void findElements() {
-    getElements(state.topic!);
     emit(state.duplicate(
-        elements: state.elements!
+        searchMessages: state.elements!
             .where((element) => element.description
                 .toLowerCase()
                 .contains(state.searchController!.text.toLowerCase()))
             .toList()));
   }
 
-  void loadElements(entity.Topic topic) {
-    topic.loadElements();
-    if (state.searchPage) {
-      findElements();
-    } else {
-      emit(state.duplicate());
-    }
-  }
-
   void getElements(entity.Topic topic) =>
-      emit(state.duplicate(elements: topic.getElements(), topic: topic));
+      _sub = MessageRepository.loadElements(topic).listen(_updateMessages);
 
-  void onChatExit(entity.Topic topic) {
-    db.MessageLoader.clearElements(topic);
-    topic.initialLoad = true;
+  Future<void> _updateMessages(List<entity.Message> data) async {
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    emit(state.duplicate(elements: data));
   }
 
   void onSelect(entity.Message o) {
@@ -45,9 +47,9 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void moveSelected(entity.Topic topic) {
     for (var item in state.selected!) {
-      db.MessageLoader.remove(item);
+      MessageRepository.remove(item);
       item.topic = topic;
-      db.MessageLoader.add(item);
+      MessageRepository.add(item);
     }
     state.selected!.clear();
     if (state.searchPage) {
@@ -59,7 +61,8 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void deleteSelected() {
     for (var item in state.selected!) {
-      db.MessageLoader.remove(item);
+      MessageRepository.remove(item);
+      state.elements!.remove(item);
     }
     state.selected!.clear();
     if (state.searchPage) {
@@ -70,10 +73,12 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   }
 
   void deleteMessage(int index) {
-    if (state.editingIndex == index) {
-      finishEditing(state.elements![index].runtimeType is entity.Event);
+    if (state.editingFlag && state.editingIndex == index) {
+      finishEditing(state.messages[index].runtimeType is entity.Event);
     }
-    db.MessageLoader.remove(state.elements![index]);
+    final deleted = state.messages[index];
+    MessageRepository.remove(deleted);
+    state.elements!.remove(deleted);
     if (state.searchPage) {
       findElements();
     } else {
@@ -86,7 +91,11 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   void setSelection(bool val) => emit(state.duplicate(selectionFlag: val));
 
   void startEditing(int index, entity.Message o) {
-    emit(state.duplicate(editingIndex: index, editingFlag: true));
+    emit(state.duplicate(
+      editingIndex: index,
+      editingFlag: true,
+      imagePath: o.imgPath,
+    ));
     state.descriptionController!.text = o.description;
     if (o is entity.Event) {
       _onEditEvent(o);
@@ -133,26 +142,38 @@ class ChatPageCubit extends Cubit<ChatPageState> {
   }
 
   void addEvent(entity.Topic topic) {
-    db.MessageLoader.add(entity.Event(
-      scheduledTime: getDateTime(),
+    final added = entity.Event(
+      scheduledTime: _getDateTime(),
       description: state.descriptionController!.text,
       topic: topic,
-    ));
+    );
+    MessageRepository.add(added);
+    state.elements!.insert(0, added);
     state.descriptionController!.clear();
     emit(state.duplicate(selectedDate: null, selectedTime: null));
   }
 
   void add(bool isTask, entity.Topic topic) {
     if (isTask) {
-      db.MessageLoader.add(
-        entity.Task(description: state.descriptionController!.text, topic: topic),
+      final added = entity.Task(
+        description: state.descriptionController!.text,
+        topic: topic,
+        imgPath: state.imagePath,
       );
+      MessageRepository.add(added);
+      state.elements!.insert(0, added);
       state.descriptionController!.clear();
       emit(state.duplicate());
     } else {
-      db.MessageLoader.add(
-        entity.Note(description: state.descriptionController!.text, topic: topic),
+      final added = entity.Note(
+        description: state.descriptionController!.text,
+        topic: topic,
+        imgPath: state.imagePath,
       );
+      MessageRepository.add(
+        added,
+      );
+      state.elements!.insert(0, added);
       state.descriptionController!.clear();
       emit(state.duplicate(
         selectedDate: null,
@@ -163,22 +184,24 @@ class ChatPageCubit extends Cubit<ChatPageState> {
 
   void finishEditing(bool isEvent) {
     state.elements![state.editingIndex].description = state.descriptionController!.text;
+    state.elements![state.editingIndex].imgPath = state.imagePath;
     state.descriptionController!.clear();
     if (isEvent) {
-      (state.elements![state.editingIndex] as entity.Event).scheduledTime = getDateTime();
-      db.MessageLoader.updateMessage(state.elements![state.editingIndex]);
+      (state.elements![state.editingIndex] as entity.Event).scheduledTime = _getDateTime();
+      MessageRepository.updateMessage(state.elements![state.editingIndex]);
       emit(state.duplicate(
         editingFlag: false,
         selectedDate: null,
         selectedTime: null,
+        imagePath: null,
       ));
     } else {
-      db.MessageLoader.updateMessage(state.elements![state.editingIndex]);
-      emit(state.duplicate(editingFlag: false));
+      MessageRepository.updateMessage(state.elements![state.editingIndex]);
+      emit(state.duplicate(editingFlag: false, imagePath: null));
     }
   }
 
-  DateTime? getDateTime() {
+  DateTime? _getDateTime() {
     if (state.selectedDate != null && state.selectedTime != null) {
       return DateTime(
         state.selectedDate!.year,
@@ -203,7 +226,21 @@ class ChatPageCubit extends Cubit<ChatPageState> {
       ));
 
   void hideSearchBar() {
-    getElements(state.topic!);
-    emit(state.duplicate(searchPage: false, searchController: null));
+    emit(state.duplicate(
+      searchPage: false,
+      searchController: null,
+      searchMessages: null,
+    ));
   }
+
+  void loadImageFromGallery() async {
+    if (await Permission.storage.request().isGranted) {
+      var imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (imageFile != null) {
+        emit(state.duplicate(imagePath: imageFile.path));
+      }
+    }
+  }
+
+  void removeAttachedImage() => emit(state.duplicate(imagePath: null));
 }

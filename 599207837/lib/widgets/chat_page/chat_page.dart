@@ -1,18 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../database/database.dart' as db;
-import '../../entity/entities.dart' as entity;
+import '../../entity/entities.dart';
 import '../../main.dart';
-import '../widgets.dart' as custom;
+import '../widgets.dart';
 import 'chat_page_cubit.dart';
 import 'chat_page_state.dart';
 
 class ChatPage extends StatelessWidget {
-  final entity.Topic topic;
-  final Function onChange;
+  final Topic topic;
 
-  ChatPage({required this.topic, required this.onChange});
+  ChatPage({required this.topic});
 
   @override
   Widget build(BuildContext context) {
@@ -20,29 +21,18 @@ class ChatPage extends StatelessWidget {
       create: (context) => ChatPageCubit()..getElements(topic),
       child: _ChatPage(
         topic: topic,
-        onChange: onChange,
       ),
     );
   }
 }
 
 class _ChatPage extends StatelessWidget {
-  final entity.Topic topic;
-  final _scrollController = ScrollController();
-  final Function onChange;
+  final Topic topic;
 
-  _ChatPage({required this.topic, required this.onChange});
-
-  void _onScrollEvent(BuildContext context) {
-    final pixels = _scrollController.position.pixels;
-    if (pixels >= _scrollController.position.maxScrollExtent - 40) {
-      context.read<ChatPageCubit>().loadElements(topic);
-    }
-  }
+  _ChatPage({required this.topic});
 
   @override
   Widget build(BuildContext context) {
-    _scrollController.addListener(() => _onScrollEvent(context));
     final themeInherited = ThemeInherited.of(context)!;
     return BlocBuilder<ChatPageCubit, ChatPageState>(
       builder: (context, state) {
@@ -71,7 +61,7 @@ class _ChatPage extends StatelessWidget {
                         child: TextButton(
                           child: const Text('Move to'),
                           onPressed: () {
-                            custom.Alerts.moveAlert(
+                            Alerts.moveAlert(
                               context: context,
                               themeInherited: themeInherited,
                               currentTopic: topic,
@@ -97,39 +87,29 @@ class _ChatPage extends StatelessWidget {
                   ),
                 ),
               Expanded(
-                child: FutureBuilder<List<entity.Message>>(
-                  future: db.MessageLoader.loadElements(topic),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                        controller: _scrollController,
-                        reverse: true,
-                        itemCount: state.elements!.length,
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.only(top: 10, bottom: 10),
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return custom.ChatMessage(
-                            key: Key(state.elements![index].uuid.toString()),
-                            item: state.elements![index],
-                            onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
-                            onEdited: () => context
-                                .read<ChatPageCubit>()
-                                .startEditing(index, state.elements![index]),
-                            onSelection: () => context.read<ChatPageCubit>().setSelection(true),
-                            onSelected: () =>
-                                context.read<ChatPageCubit>().onSelect(state.elements![index]),
-                            selection: state.selectionFlag,
-                            themeInherited: themeInherited,
-                          );
-                        },
-                      );
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                child: ListView.builder(
+                  reverse: true,
+                  itemCount: state.messages.length,
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return ChatMessage(
+                      key: Key(state.messages[index].uuid.toString()),
+                      item: state.messages[index],
+                      onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
+                      onEdited: () =>
+                          context.read<ChatPageCubit>().startEditing(index, state.messages[index]),
+                      onSelection: () => context.read<ChatPageCubit>().setSelection(true),
+                      onSelected: () =>
+                          context.read<ChatPageCubit>().onSelect(state.messages[index]),
+                      selection: state.selectionFlag,
+                      themeInherited: themeInherited,
+                    );
                   },
                 ),
               ),
+              _attachments(state, context),
               _inputForm(state, context),
             ],
           ),
@@ -203,11 +183,7 @@ class _ChatPage extends StatelessWidget {
     return Row(
       children: <Widget>[
         IconButton(
-          onPressed: () {
-            context.read<ChatPageCubit>().onChatExit(topic);
-            onChange();
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
           icon: Icon(
             Icons.arrow_back,
             color: themeInherited.preset.colors.iconColor2,
@@ -272,6 +248,52 @@ class _ChatPage extends StatelessWidget {
     );
   }
 
+  Widget _attachments(ChatPageState state, BuildContext context) {
+    final themeInherited = ThemeInherited.of(context)!;
+    return state.imagePath == null
+        ? Container()
+        : Container(
+            constraints: const BoxConstraints(maxHeight: 80),
+            padding: const EdgeInsets.only(left: 10, right: 10),
+            decoration: BoxDecoration(
+              color: themeInherited.preset.colors.themeColor2,
+              border: Border(
+                bottom: BorderSide(width: 1.5, color: Colors.grey.shade600),
+              ),
+            ),
+            child: Row(
+              children: [
+                _attachedImage(state.imagePath!, context),
+              ],
+            ));
+  }
+
+  Widget _attachedImage(String imgPath, BuildContext context) {
+    final themeInherited = ThemeInherited.of(context)!;
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image.file(
+              File(imgPath),
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () => context.read<ChatPageCubit>().removeAttachedImage(),
+          child: Icon(
+            Icons.highlight_remove_outlined,
+            color: themeInherited.preset.colors.iconColor1,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _inputForm(ChatPageState state, BuildContext context) {
     switch (state.addedType) {
       case (0):
@@ -318,7 +340,7 @@ class _ChatPage extends StatelessWidget {
                 children: [
                   BlocBuilder<ChatPageCubit, ChatPageState>(
                     builder: (context, state) {
-                      return custom.DateTimePicker(
+                      return DateTimePicker(
                         selectTime: (value) => context.read<ChatPageCubit>().setSelectedTime(value),
                         selectDate: (value) => context.read<ChatPageCubit>().setSelectedDate(value),
                         selectedDate: state.selectedDate,
@@ -412,16 +434,24 @@ class _ChatPage extends StatelessWidget {
           const SizedBox(
             width: 15,
           ),
+          GestureDetector(
+            onTap: () => context.read<ChatPageCubit>().loadImageFromGallery(),
+            child: Icon(
+              Icons.photo_camera,
+              color: Colors.grey.shade600,
+              size: 28,
+            ),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
           FloatingActionButton(
             heroTag: 'sendMessage',
             backgroundColor: decorator.preset.colors.buttonColor,
             onPressed: () {
               FocusScope.of(context).requestFocus(FocusNode());
               if (!state.editingFlag && state.descriptionController!.text.isNotEmpty) {
-                context.read<ChatPageCubit>().add(
-                      isTask,
-                      topic,
-                    );
+                context.read<ChatPageCubit>().add(isTask, topic);
               } else if (state.descriptionController!.text.isNotEmpty) {
                 context.read<ChatPageCubit>().finishEditing(false);
               }

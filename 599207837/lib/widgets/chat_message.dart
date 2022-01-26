@@ -1,13 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:swipe_to/swipe_to.dart';
 
-import '../database/database.dart' as db;
-import '../entity/entities.dart' as entity;
+import '../database/database.dart';
+import '../entity/entities.dart';
 import '../main.dart';
 import 'alerts.dart';
 
 class ChatMessage extends StatefulWidget {
-  final entity.Message item;
+  final Message item;
   final void Function() onDeleted;
   final Function() onEdited;
   final Function() onSelection;
@@ -44,12 +46,7 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   void _onFavourite() {
-    widget.item.onFavourite();
-    if (widget.item.favourite) {
-      db.MessageLoader.addToFavourites(widget.item);
-    } else {
-      db.MessageLoader.removeFromFavourites(widget.item);
-    }
+    MessageRepository.onFavourite(widget.item);
     setState(() {
       _favIcon = widget.item.favourite ? Icons.star_rounded : Icons.star_border_rounded;
       _favColor =
@@ -90,16 +87,16 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   Widget _innerMessage() {
-    if (widget.item is entity.Task) {
-      return _taskMessage(widget.item as entity.Task);
-    } else if (widget.item is entity.Event) {
-      return _eventMessage(widget.item as entity.Event);
+    if (widget.item is Task) {
+      return _taskMessage(widget.item as Task);
+    } else if (widget.item is Event) {
+      return _eventMessage(widget.item as Event);
     } else {
-      return _noteMessage(widget.item as entity.Note);
+      return _noteMessage(widget.item as Note);
     }
   }
 
-  Widget _taskMessage(entity.Task task) {
+  Widget _taskMessage(Task task) {
     return GestureDetector(
       onTap: () {
         if (widget.selection) {
@@ -126,6 +123,7 @@ class _ChatMessageState extends State<ChatMessage> {
                   style: TextStyle(
                       fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
                 ),
+                _attachedImage(task.imgPath),
                 Container(
                   margin: const EdgeInsets.only(top: 5),
                   child: _taskMessageFooter(task),
@@ -144,7 +142,7 @@ class _ChatMessageState extends State<ChatMessage> {
     );
   }
 
-  Widget _taskMessageFooter(entity.Task task) {
+  Widget _taskMessageFooter(Task task) {
     if (!task.isCompleted) {
       return Row(
         children: [
@@ -154,11 +152,11 @@ class _ChatMessageState extends State<ChatMessage> {
               style: TextStyle(color: widget.themeInherited.preset.colors.blueTextColor),
             ),
             onPressed: () {
-              setState(() => task.complete());
+              setState(() => MessageRepository.completeTask(task));
             },
           ),
           Text(
-            entity.timeFormatter.format(task.timeCreated),
+            timeFormatter.format(task.timeCreated),
             style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
           ),
         ],
@@ -175,7 +173,7 @@ class _ChatMessageState extends State<ChatMessage> {
             ),
           ),
           Text(
-            '${entity.fullDateFormatter.format(task.timeCompleted!)}',
+            '${fullDateFormatter.format(task.timeCompleted!)}',
             style: TextStyle(
               color: widget.themeInherited.preset.colors.blueTextColor,
               fontSize: 13,
@@ -184,7 +182,7 @@ class _ChatMessageState extends State<ChatMessage> {
           Container(
             margin: const EdgeInsets.only(top: 5),
             child: Text(
-              entity.timeFormatter.format(task.timeCreated),
+              timeFormatter.format(task.timeCreated),
               style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
             ),
           ),
@@ -193,7 +191,7 @@ class _ChatMessageState extends State<ChatMessage> {
     }
   }
 
-  Widget _eventMessage(entity.Event event) {
+  Widget _eventMessage(Event event) {
     return GestureDetector(
       onTap: () {
         if (widget.selection) {
@@ -220,6 +218,7 @@ class _ChatMessageState extends State<ChatMessage> {
                   style: TextStyle(
                       fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
                 ),
+                _attachedImage(event.imgPath),
                 _eventSchedule(event),
                 _eventFooter(event),
               ],
@@ -236,7 +235,7 @@ class _ChatMessageState extends State<ChatMessage> {
     );
   }
 
-  Widget _eventSchedule(entity.Event event) {
+  Widget _eventSchedule(Event event) {
     final visited = event.isVisited;
     final missed = event.isMissed;
 
@@ -278,7 +277,7 @@ class _ChatMessageState extends State<ChatMessage> {
             ),
           ),
           Text(
-            entity.fullDateFormatter.format(event.scheduledTime!),
+            fullDateFormatter.format(event.scheduledTime!),
             style: TextStyle(
               color: visited
                   ? widget.themeInherited.preset.colors.greenTextColor
@@ -293,12 +292,12 @@ class _ChatMessageState extends State<ChatMessage> {
     );
   }
 
-  Widget _eventFooter(entity.Event event) {
+  Widget _eventFooter(Event event) {
     if (event.scheduledTime != null && event.scheduledTime!.compareTo(DateTime.now()) > 0) {
       return Container(
         margin: const EdgeInsets.only(top: 5),
         child: Text(
-          entity.timeFormatter.format(event.timeCreated),
+          timeFormatter.format(event.timeCreated),
           style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
         ),
       );
@@ -317,7 +316,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onPressed: () => setState(() => event.visit()),
+            onPressed: () => setState(() => MessageRepository.visitEvent(event)),
           ),
           TextButton(
             style: TextButton.styleFrom(
@@ -329,10 +328,10 @@ class _ChatMessageState extends State<ChatMessage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onPressed: () => setState(() => event.miss()),
+            onPressed: () => setState(() => MessageRepository.missEvent(event)),
           ),
           Text(
-            entity.timeFormatter.format(event.timeCreated),
+            timeFormatter.format(event.timeCreated),
             style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
           ),
         ],
@@ -341,13 +340,13 @@ class _ChatMessageState extends State<ChatMessage> {
     return Container(
       margin: const EdgeInsets.only(top: 5),
       child: Text(
-        entity.timeFormatter.format(event.timeCreated),
+        timeFormatter.format(event.timeCreated),
         style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
       ),
     );
   }
 
-  Widget _noteMessage(entity.Note note) {
+  Widget _noteMessage(Note note) {
     return GestureDetector(
       onTap: () {
         if (widget.selection) {
@@ -372,14 +371,19 @@ class _ChatMessageState extends State<ChatMessage> {
                 Text(
                   note.description,
                   style: TextStyle(
-                      fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
+                    fontSize: 15,
+                    color: widget.themeInherited.preset.colors.textColor2,
+                  ),
                 ),
+                _attachedImage(note.imgPath),
                 Container(
                   margin: const EdgeInsets.only(top: 5),
                   child: Text(
-                    entity.timeFormatter.format(note.timeCreated),
+                    timeFormatter.format(note.timeCreated),
                     style: TextStyle(
-                        fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
+                      fontSize: 15,
+                      color: widget.themeInherited.preset.colors.textColor1,
+                    ),
                   ),
                 ),
               ],
@@ -394,6 +398,19 @@ class _ChatMessageState extends State<ChatMessage> {
         ],
       ),
     );
+  }
+
+  Widget _attachedImage(String? imgPath) {
+    return imgPath == null
+        ? Container()
+        : Container(
+            constraints: const BoxConstraints(maxHeight: 200, maxWidth: 200),
+            padding: const EdgeInsets.only(top: 10, bottom: 5),
+            child: Image.file(
+              File(imgPath),
+              fit: BoxFit.contain,
+            ),
+          );
   }
 
   void _showMenu() {
@@ -469,7 +486,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 final added = widget.item.duplicate();
                 widget.onDeleted();
                 added.topic = topic;
-                db.MessageLoader.add(added);
+                MessageRepository.add(added);
                 Navigator.pop(context);
               },
             ),

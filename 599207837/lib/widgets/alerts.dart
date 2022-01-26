@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '../database/database.dart' as db;
+import '../database/database.dart';
 
-import '../entity/entities.dart' as entity;
+import '../entity/entities.dart';
 import '../main.dart';
 
 class Alerts {
   static void moveAlert({
     required BuildContext context,
     required ThemeInherited themeInherited,
-    required entity.Topic currentTopic,
-    required Function(entity.Topic topic) onMoved,
+    required Topic currentTopic,
+    required Function(Topic topic) onMoved,
   }) {
     showDialog(
       context: context,
@@ -43,11 +43,11 @@ class Alerts {
   }
 
   static Widget _topicList(
-    entity.Topic currentTopic,
+    Topic currentTopic,
     ThemeInherited themeInherited,
     Function onMoved,
   ) {
-    final items = db.topics.values.toList();
+    final items = topics.values.toList();
     return Container(
       width: 250.0,
       child: ListView.builder(

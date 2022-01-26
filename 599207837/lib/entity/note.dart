@@ -1,10 +1,11 @@
 import 'dart:math';
-import '../database/database.dart' as db;
-import 'entities.dart' as entity;
+import '../database/database.dart';
+import '../main.dart';
+import 'entities.dart';
 
-class Note implements entity.Message {
+class Note implements Message {
   @override
-  entity.Topic topic;
+  Topic topic;
 
   @override
   late DateTime timeCreated;
@@ -18,10 +19,13 @@ class Note implements entity.Message {
   @override
   String description;
 
-  int? _id;
+  @override
+  String nodeID;
 
-  static bool _firstLoad = true;
-  static late final db.MessageLoader mLoader = db.MessageLoader.type(Note);
+  @override
+  String? imgPath;
+
+  int? _id;
 
   Note({
     required this.description,
@@ -29,6 +33,8 @@ class Note implements entity.Message {
     this.favourite = false,
     DateTime? timeCreated_,
     int? id,
+    this.nodeID = '',
+    this.imgPath,
   }) {
     _id = id;
     timeCreated = timeCreated_ ?? DateTime.now();
@@ -42,31 +48,30 @@ class Note implements entity.Message {
 
   @override
   Map<String, dynamic> toJson() => {
+        'uid': userID,
         'id': uuid,
-        'type_id': entity.getTypeId(this),
+        'type_id': getTypeId(this),
+        'topic_id': topic.id,
         'description': description,
+        'imgPath': imgPath,
         'time_created': timeCreated.toString(),
         'favourite': favourite ? 1 : 0,
       };
 
-  static entity.Message fromJson(Map<String, dynamic> json, entity.Topic topic) => Note(
+  static Message fromJson(Map<String, dynamic> json, Topic? topic, {String nodeID = ''}) => Note(
         id: json['id'],
-        topic: topic,
+        nodeID: nodeID,
+        topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
+        imgPath: json['imgPath'] == 'null' ? null : json['imgPath'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
       );
 
-  static List<entity.Message> getFavouriteNotes() {
-    if (_firstLoad) {
-      mLoader.loadTypeFavourites();
-      _firstLoad = false;
-    }
-    return db.MessageLoader.favouriteMessages[2];
-  }
+  static Stream<List<Message>> getFavouriteNotes() => MessageRepository.loadTypeFavourites(2);
 
   @override
-  entity.Message duplicate() {
+  Message duplicate() {
     return Note(
       description: description,
       topic: topic,

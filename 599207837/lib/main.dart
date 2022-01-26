@@ -1,8 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'database/firebase_provider.dart';
 import 'entity/entities.dart' as entity;
-import 'widgets/widgets.dart' as custom;
+import 'widgets/widgets.dart';
 
-void main() => entity.Theme.lookUpToPreferences().whenComplete(() => runApp(const MyApp()));
+late final String userID;
+
+void main() => initApp().whenComplete(() => runApp(const MyApp()));
+
+Future<void> initApp() async {
+  await entity.Theme.lookUpToPreferences();
+  await FireBaseProvider.initFirebase();
+  await FirebaseAuth.instance.signInAnonymously();
+  var user = await FirebaseAuth.instance.currentUser;
+  userID = user!.uid;
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -12,7 +24,7 @@ class MyApp extends StatelessWidget {
     return ThemeUpdater(
       child: const MaterialApp(
         title: 'Flutter Demo',
-        home: custom.ItemsPage(),
+        home: ItemsPage(),
       ),
       theme: entity.Theme.defaultOne(),
     );
