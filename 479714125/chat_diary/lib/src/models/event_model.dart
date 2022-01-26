@@ -37,7 +37,7 @@ class EventModel {
     };
   }
 
-  factory EventModel.fromMap(Map<String, dynamic> eventMap) {
+  factory EventModel.fromMap(Map<dynamic, dynamic> eventMap) {
     return EventModel(
       pageId: eventMap['pageId'] as int,
       id: eventMap['id'] as int,

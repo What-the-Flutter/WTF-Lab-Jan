@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 
 import '../../../data/database_config.dart';
 import '../../../models/event_model.dart';
@@ -18,7 +17,6 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
     final listOfPages =
         await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
     listOfPages.forEach(print);
-    //final list = await DatabaseAccess.databaseProvider.retrievePages();
     emit(state.copyWith(
         listOfPages: listOfPages, newPageId: listOfPages.length));
   }
@@ -42,23 +40,20 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
   void addPage(PageModel page) async {
     state.listOfPages.add(page);
     await DatabaseAccess.instance.firebaseDBProvider.insertPage(page);
-    //await DatabaseAccess.instance.databaseProvider.insertPage(page);
     emit(state.copyWith(
         listOfPages: state.listOfPages, newPageId: state.newPageId + 1));
   }
 
   void editPage(PageModel page, PageModel oldPage) async {
     final newPage = page.copyWith(id: oldPage.id, events: oldPage.events);
-    //await DatabaseAccess.instance.databaseProvider.updatePage(newPage);
     await DatabaseAccess.instance.firebaseDBProvider.updatePage(newPage);
+    emit(state.copyWith(listOfPages: []));
     final pages =
         await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
-    //todo bug with updating not updated on the screen cause cubit thinks that list is the same
     emit(state.copyWith(listOfPages: pages));
   }
 
   void removePage(PageModel page) async {
-    //await DatabaseAccess.instance.databaseProvider.deletePage(page);
     await DatabaseAccess.instance.firebaseDBProvider.removePage(page.id);
     final pages =
         await DatabaseAccess.instance.firebaseDBProvider.retrievePages();

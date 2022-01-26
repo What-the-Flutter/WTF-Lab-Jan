@@ -1,7 +1,7 @@
 part of 'cubit.dart';
 
 class HomeScreenState {
-  List<PageModel> listOfPages;
+  final List<PageModel> listOfPages;
   final int newPageId;
 
   HomeScreenState({
@@ -17,5 +17,6 @@ class HomeScreenState {
   }
 
   @override
-  String toString() => listOfPages.map((e) => e.toString()).toString();
+  String toString() =>
+      '${listOfPages.map((e) => e.toString()).toString()} $newPageId';
 }

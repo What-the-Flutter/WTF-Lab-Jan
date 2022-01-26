@@ -22,7 +22,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
         ));
 
   void fetchAllEvents() async {
-    final list = await DatabaseAccess.instance.databaseProvider
+    final list = await DatabaseAccess.instance.firebaseDBProvider
         .retrieveEvents(state.page.id);
     final reversedList = list.reversed.toList();
     emit(state.copyWith(
@@ -32,7 +32,7 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   void addEvent(EventModel model) async {
-    await DatabaseAccess.instance.databaseProvider.insertEvent(model);
+    await DatabaseAccess.instance.firebaseDBProvider.addEvent(model);
     state.page.events.insert(0, model);
     state.page.nextEventId += 1;
     emit(state.copyWith(

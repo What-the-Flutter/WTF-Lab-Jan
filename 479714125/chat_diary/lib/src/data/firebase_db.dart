@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:chat_diary/src/models/event_model.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../models/page_model.dart';
@@ -16,13 +17,15 @@ class FirebaseDBProvider {
 
   Future<List<PageModel>> retrievePages() async {
     final event = await _refPages.once();
-    print(event.snapshot.value);
     var pages = <PageModel>[];
     try {
-      final listOfMaps = (event.snapshot.value as List<Object?>)
-          .where((element) => element != null)
-          .cast<Map<dynamic, dynamic>>();
-      pages = listOfMaps.map((e) => PageModel.fromMap(e)).toList();
+      final value = event.snapshot.value;
+      if (value != null) {
+        final listOfMaps = (value as List<Object?>)
+            .where((element) => element != null)
+            .cast<Map<dynamic, dynamic>>();
+        pages = listOfMaps.map((e) => PageModel.fromMap(e)).toList();
+      }
     } catch (e) {
       log(e.toString());
     }
@@ -41,5 +44,31 @@ class FirebaseDBProvider {
 
   Future<void> removePage(int id) async {
     await _refPages.child(id.toString()).remove();
+  }
+
+  Future<void> addEvent(EventModel event) async {
+    final eventJson = event.toMap();
+    await _refMessages
+        .child(event.pageId.toString())
+        .child(event.id.toString())
+        .set(eventJson);
+  }
+
+  Future<List<EventModel>> retrieveEvents(int pageId) async {
+    final databaseEvent = await _refMessages.child(pageId.toString()).once();
+    final value = databaseEvent.snapshot.value;
+    print(value);
+    var events = <EventModel>[];
+    if (value != null) {
+      try {
+        final listOfMaps = (value as List<Object?>)
+            .where((element) => element != null)
+            .cast<Map<dynamic, dynamic>>();
+        events = listOfMaps.map((e) => EventModel.fromMap(e)).toList();
+      } catch (e) {
+        log(e.toString());
+      }
+    }
+    return events;
   }
 }
