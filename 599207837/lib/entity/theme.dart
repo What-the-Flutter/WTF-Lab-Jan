@@ -4,19 +4,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Theme {
   final List<ColorSet> _colorSets = [];
   late ColorSet colors;
-  late int _theme;
+  late int themeNo;
   static SharedPreferences? _preferences;
 
   Theme({required this.colors}) {
-    _theme = _preferences?.getInt('theme') ?? 0;
+    themeNo = _preferences?.getInt('theme') ?? 0;
     _colorSets.add(colors);
   }
 
   Theme.defaultOne() {
-    _theme = _preferences?.getInt('theme') ?? 0;
+    themeNo = _preferences?.getInt('theme') ?? 0;
     _colorSets.add(ColorSet.lightDefault());
     _colorSets.add(ColorSet.darkDefault());
-    colors = _colorSets[_theme];
+    colors = _colorSets[themeNo];
   }
 
   static Future<void> lookUpToPreferences() async {
@@ -25,9 +25,9 @@ class Theme {
   }
 
   void changeTheme() {
-    _theme = (_theme + 1) % _colorSets.length;
-    _preferences!.setInt('theme', _theme);
-    colors = _colorSets[_theme];
+    themeNo = (themeNo + 1) % _colorSets.length;
+    _preferences!.setInt('theme', themeNo);
+    colors = _colorSets[themeNo];
   }
 }
 

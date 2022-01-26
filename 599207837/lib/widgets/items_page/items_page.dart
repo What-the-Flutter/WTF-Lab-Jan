@@ -31,9 +31,14 @@ class _ItemsPage extends StatelessWidget {
           title: const Text('ChatDiaryApp'),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.brightness_4_rounded),
+              icon: const Icon(Icons.settings_rounded),
               tooltip: 'Change theme',
-              onPressed: themeInherited.changeTheme,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (newContext) => SettingsPage(themeInherited.preset.themeNo),
+                ),
+              ),
             ),
           ],
         ),
