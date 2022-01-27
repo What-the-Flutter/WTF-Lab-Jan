@@ -7,6 +7,7 @@ class StatesEventPage {
   final int selectedNoteIndex;
   final bool isEventEditing;
   final bool isEventPressed;
+  final bool isEditingPhoto;
   final bool isWriting;
   final bool isChoosingCircleAvatar;
   final bool isTextSearch;
@@ -28,6 +29,7 @@ class StatesEventPage {
     this.isTextSearch = false,
     this.isChoosingCircleAvatar = false,
     this.isEventPressed = false,
+    this.isEditingPhoto = false,
     this.noteList = const [],
     this.eventList = const [],
   });
@@ -41,6 +43,7 @@ class StatesEventPage {
     bool? isChoosingCircleAvatar,
     bool? isTextSearch,
     bool? isEventPressed,
+    bool? isEditingPhoto,
     int? selectedEventIndex,
     int? selectedCircleAvatar,
     int? selectedNoteIndex,
@@ -61,6 +64,7 @@ class StatesEventPage {
       isTextSearch: isTextSearch ?? this.isTextSearch,
       isEventPressed: isEventPressed ?? this.isEventPressed,
       eventList: eventList ?? this.eventList,
+      isEditingPhoto: isEditingPhoto ?? this.isEditingPhoto,
     );
   }
 }

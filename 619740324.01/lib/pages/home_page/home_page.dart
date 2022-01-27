@@ -6,6 +6,7 @@ import '../../note.dart';
 import '../../theme/cubit_theme.dart';
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
+import '../settings_page/settings_page.dart';
 import 'cubit_home_page.dart';
 import 'states_home_page.dart';
 
@@ -98,13 +99,21 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           GestureDetector(
-            child: const ListTile(
-              leading: Icon(
+            child: ListTile(
+              leading: const Icon(
                 Icons.settings,
               ),
-              title: Text(
+              title: const Text(
                 'Settings',
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsPage(),
+                  ),
+                );
+              },
             ),
           ),
         ],

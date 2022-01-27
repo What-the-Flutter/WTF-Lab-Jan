@@ -1,147 +1,175 @@
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'dart:io';
+
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../event.dart';
 import '../note.dart';
 
-const String tableNotes = 'notes';
-const String columnId = 'id';
-const String columnNameOfNote = 'name';
-const String indexOfCircleAvatar = 'circle_avatar_index';
-const String columnNameOfSubTittle = 'sub_tittle_name';
+class FirebaseFailure implements Exception {
+  FirebaseFailure(this.message);
 
-const String tableEvents = 'events';
-const String columnEventId = 'event_id';
-const String columnNoteId = 'note_id';
-const String columnTime = 'time';
-const String columnText = 'text';
-const String indexOfEventCircleAvatar = 'event_circle_avatar';
-const String columnEventBookmarkIndex = 'bookmark_index';
-const String columnDate = 'date_format';
+  final String message;
+
+  @override
+  String toString() => '${runtimeType.toString()}: $message';
+}
 
 class DatabaseProvider {
-  static Database? _database;
-  static DatabaseProvider? _dbProvider;
+  final _firebase = FirebaseDatabase.instance;
+  FirebaseStorage storage = FirebaseStorage.instance;
 
-  DatabaseProvider._createInstance();
-
-  factory DatabaseProvider() {
-    return _dbProvider ?? DatabaseProvider._createInstance();
+  Future<void> downloadURL(Event event) async {
+    final downloadURL = await FirebaseStorage.instance
+        .ref('uploads/${event.id}')
+        .getDownloadURL();
+    event.imagePath = downloadURL;
   }
 
-  Future<Database> get database async {
-    return _database ?? await initDatabase();
+  Future<void> uploadFile(File file, Event event) async {
+    try {
+      await FirebaseStorage.instance.ref('uploads/${event.id}').putFile(file);
+      print(event.id);
+    } on FirebaseException catch (e) {
+      throw FirebaseFailure(e.toString());
+    }
   }
 
-  Future<Database> initDatabase() async {
-    return openDatabase(join(await getDatabasesPath(), 'database.db'),
-        version: 1, onCreate: (db, version) {
-      db.execute('''
-      create table $tableNotes(
-      $columnId integer primary key autoincrement,
-      $columnNameOfNote text not null,
-      $indexOfCircleAvatar integer,
-      $columnNameOfSubTittle text not null) 
-       ''');
-      db.execute('''
-         create table $tableEvents(
-        $columnEventId integer primary key autoincrement,
-        $columnNoteId integer,
-        $columnTime text not null,
-        $columnText text not null,
-        $indexOfEventCircleAvatar integer,
-        $columnEventBookmarkIndex integer,
-        $columnDate text not null)
-       ''');
+  void addNote(Note note) async {
+    final ref = _firebase.ref('Notes').push();
+    note.id = ref.key!;
+    await _firebase.ref('Notes/${note.id}').set(note.insertToMap());
+  }
+
+  void deleteNote(Note note) async {
+    final ref = _firebase.ref('Notes/${note.id}');
+    await ref.remove();
+  }
+
+  void updateNote(Note note) async {
+    final ref = _firebase.ref('Notes');
+    await ref.update({
+      '${note.id}/circle_avatar_index': note.indexOfCircleAvatar,
+      '${note.id}/name': note.eventName,
     });
   }
 
-  Future<int> insertNote(Note note) async {
-    final db = await database;
-    return db.insert(
-      tableNotes,
-      note.insertToMap(),
-    );
-  }
-
-  Future<int> deleteNote(Note note) async {
-    final db = await database;
-    return await db.delete(
-      tableNotes,
-      where: '$columnId = ?',
-      whereArgs: [note.id],
-    );
-  }
-
-  Future<int> updateNote(Note note) async {
-    final db = await database;
-    return await db.update(
-      tableNotes,
-      note.toMap(),
-      where: '$columnId = ?',
-      whereArgs: [note.id],
-    );
-  }
-
   Future<List<Note>> dbNotesList() async {
-    final db = await database;
+    final snap = await _firebase.ref('Notes').once();
     final noteList = <Note>[];
-    final dbNotesList = await db.query(tableNotes);
-    for (final element in dbNotesList) {
-      final note = Note.fromMap(element);
-      noteList.insert(0, note);
+    var circleAvatarIndex = -1;
+    var name = '';
+    var subTittleName = '';
+    final childKeyList = <dynamic>[];
+    DatabaseEvent snapNote;
+    for (var childSnapshot in snap.snapshot.children) {
+      final childKey = childSnapshot.key;
+      childKeyList.add(childKey);
+    }
+    for (var i = 0; i < childKeyList.length; i++) {
+      snapNote = await _firebase.ref('Notes/${childKeyList[i]}').once();
+      for (var childSnapshot in snapNote.snapshot.children) {
+        if (childSnapshot.key != 'Events') {
+          final childNoteKey = childSnapshot.key;
+          switch (childNoteKey) {
+            case 'name':
+              name = (childSnapshot.value as String?)!;
+              break;
+            case 'circle_avatar_index':
+              circleAvatarIndex = (childSnapshot.value as int?)!;
+              break;
+            case 'sub_tittle_name':
+              subTittleName = (childSnapshot.value as String?)!;
+              break;
+          }
+        }
+      }
+      noteList.add(
+        Note(
+          id: childKeyList[i],
+          eventName: name,
+          indexOfCircleAvatar: circleAvatarIndex,
+          subTittleEvent: subTittleName,
+        ),
+      );
     }
     return noteList;
   }
 
-  Future<int> insertEvent(Event event) async {
-    final db = await database;
-    return db.insert(
-      tableEvents,
-      event.insertToMap(),
-    );
+  void addEvent(Event event) async {
+    await _firebase
+        .ref('Notes/${event.idNote}/Events/${event.id}')
+        .set(event.insertToMap());
   }
 
-  Future<int> deleteEvent(Event event) async {
-    final db = await database;
-    return await db.delete(
-      tableEvents,
-      where: '$columnEventId = ?',
-      whereArgs: [event.id],
-    );
+  void deleteEvent(Event event) async {
+    final ref = _firebase.ref('Notes/${event.idNote}/Events/${event.id}');
+    await ref.remove();
+    await FirebaseStorage.instance.ref('uploads/${event.id}').delete();
   }
 
-  Future<int> updateEvent(Event event) async {
-    final db = await database;
-    return await db.update(
-      tableEvents,
-      event.toMap(),
-      where: '$columnEventId = ?',
-      whereArgs: [event.id],
-    );
+  void updateEvent(Event event) async {
+    final ref = _firebase.ref('Notes/${event.idNote}/Events');
+    await ref.update({
+      '${event.id}/event_circle_avatar': event.indexOfCircleAvatar,
+      '${event.id}/text': event.text,
+      '${event.id}/bookmark_index': event.bookmarkIndex,
+    });
   }
 
-  Future<List<Event>> dbEventList(int noteId) async {
-    final db = await database;
+  Future<List<Event>> dbEventList(String id) async {
     final eventList = <Event>[];
-    var dbEventsList = await db.rawQuery(
-      'SELECT * FROM $tableEvents WHERE $columnNoteId = ?',
-      [noteId],
-    );
-    for (final element in dbEventsList) {
-      final event = Event.fromMap(element);
-      eventList.insert(0, event);
+    final snap = await _firebase.ref('Notes/$id/Events').once();
+    final childKeyList = <dynamic>[];
+    var text = '';
+    var time = '';
+    var date = '';
+    var imagePath = '';
+    var indexOfCircleAvatar = -1;
+    var bookmarkIndex = -1;
+    DatabaseEvent snapEvent;
+    for (var childSnapshot in snap.snapshot.children) {
+      final childKey = childSnapshot.key;
+      childKeyList.add(childKey);
     }
-    return eventList;
-  }
-
-  Future<List<Event>> fetchFullEventsList() async {
-    final db = await database;
-    final eventList = <Event>[];
-    final dbEventsList = await db.query(tableEvents);
-    for (final element in dbEventsList) {
-      final event = Event.fromMap(element);
-      eventList.insert(0, event);
+    for (var i = 0; i < childKeyList.length; i++) {
+      snapEvent =
+          await _firebase.ref('Notes/$id/Events/${childKeyList[i]}').once();
+      for (var childSnapshot in snapEvent.snapshot.children) {
+        final childEventKey = childSnapshot.key;
+        switch (childEventKey) {
+          case 'text':
+            text = (childSnapshot.value as String?)!;
+            break;
+          case 'time':
+            time = (childSnapshot.value as String?)!;
+            break;
+          case 'date_format':
+            date = (childSnapshot.value as String?)!;
+            break;
+          case 'event_circle_avatar':
+            indexOfCircleAvatar = (childSnapshot.value as int?)!;
+            break;
+          case 'bookmark_index':
+            bookmarkIndex = (childSnapshot.value as int?)!;
+            break;
+          case 'image_path':
+            imagePath = (childSnapshot.value as String?)!;
+            break;
+        }
+      }
+      eventList.add(
+        Event(
+          idNote: id,
+          id: childKeyList[i],
+          imagePath: imagePath,
+          text: text,
+          time: time,
+          date: date,
+          indexOfCircleAvatar: indexOfCircleAvatar,
+          bookmarkIndex: bookmarkIndex,
+        ),
+      );
     }
     return eventList;
   }

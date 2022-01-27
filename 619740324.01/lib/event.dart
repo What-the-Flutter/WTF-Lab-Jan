@@ -2,27 +2,18 @@ class Event {
   String text;
   String time;
   String date;
-  int id;
-  int noteId;
+  String idNote;
+  String id;
+  String imagePath;
   int indexOfCircleAvatar;
   int bookmarkIndex;
   bool isSelected;
 
   Map<String, dynamic> insertToMap() {
     return {
-      'note_id': noteId,
-      'time': time,
-      'text': text,
-      'event_circle_avatar': indexOfCircleAvatar,
-      'bookmark_index': bookmarkIndex,
-      'date_format': date,
-    };
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
+      'image_path': imagePath,
       'event_id': id,
-      'note_id': noteId,
+      'note_id': idNote,
       'time': time,
       'text': text,
       'event_circle_avatar': indexOfCircleAvatar,
@@ -33,8 +24,9 @@ class Event {
 
   factory Event.fromMap(Map<String, dynamic> map) {
     return Event(
+      imagePath: map['image_path'],
       id: map['event_id'],
-      noteId: map['note_id'],
+      idNote: map['note_id'],
       time: map['time'],
       text: map['text'],
       indexOfCircleAvatar: map['event_circle_avatar'],
@@ -43,10 +35,10 @@ class Event {
     );
   }
 
-
   Event({
-    this.noteId = -1,
-    this.id = -1,
+    this.imagePath = '',
+    this.idNote = '-1',
+    this.id = '-1',
     this.date = '',
     this.bookmarkIndex = 0,
     this.text = '',

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "18420845220",
+    "firebase_url": "https://flutter-project-wtf-lab-default-rtdb.firebaseio.com",
+    "project_id": "flutter-project-wtf-lab",
+    "storage_bucket": "flutter-project-wtf-lab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18420845220:android:b020813ecd9dda9b66b431",
+        "android_client_info": {
+          "package_name": "com.my_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "18420845220-fml6irknvra7abevm4av1of3rr37n44t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIQaWCXlqe8tZe5GqS_GMRG3fPOw_U82Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "18420845220-fml6irknvra7abevm4av1of3rr37n44t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
