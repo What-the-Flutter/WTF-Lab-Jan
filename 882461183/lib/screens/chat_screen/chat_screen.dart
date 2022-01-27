@@ -25,13 +25,12 @@ class _ChatScreenState extends State<ChatScreen> {
     'Running': Icons.directions_run_rounded,
     'Laundry': Icons.local_laundry_service,
   };
-  late final int selectedChatIndex =
-      ModalRoute.of(context)?.settings.arguments as int;
-  UniqueKey? _key;
+  late final Chat selectedChat =
+      ModalRoute.of(context)?.settings.arguments as Chat;
 
   @override
   void didChangeDependencies() {
-    BlocProvider.of<ChatScreenCubit>(context).setMessages(selectedChatIndex);
+    BlocProvider.of<ChatScreenCubit>(context).showEvents(selectedChat.id);
     super.didChangeDependencies();
   }
 
@@ -47,10 +46,11 @@ class _ChatScreenState extends State<ChatScreen> {
               state.eventList.isEmpty && !state.isShowFavorites
                   ? !state.isSearching
                       ? _emptyListOfMessagess(
-                          'Add your first event to "${chatList[selectedChatIndex].elementName}"'
+                          'Add your first event to "${selectedChat.elementName}"'
                           ' page by entering some text box below and hitting the send button.'
                           'Long tap the send button to align the event in the opposite direction. '
                           'Tap on the bookmark icon on the top right corner to show the bookmarked events only',
+                          state,
                         )
                       : _emptyListOfSearchingMessages()
                   : _listOfMessagess(state),
@@ -140,74 +140,73 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget sendIcon(ChatScreenState state) {
-    return Flexible(
-      flex: 1,
-      child: state.isTextFieldEmpty
-          ? _CustomIcon(
-              !state.isEditing
-                  ? state.categoryIcon == Icons.close
-                      ? Icons.camera_enhance
-                      : Icons.send
-                  : Icons.close,
-              !state.isEditing
-                  ? () {
-                      if (state.categoryIcon == Icons.close) {
-                        BlocProvider.of<ChatScreenCubit>(context)
-                            .addImage(selectedChatIndex);
-                      } else {
-                        BlocProvider.of<ChatScreenCubit>(context)
-                            .addEventWithCategory(
-                          selectedChatIndex,
-                          _controller.text,
-                        );
-                      }
-                    }
-                  : () {
-                      BlocProvider.of<ChatScreenCubit>(context)
-                          .changeParameters(
-                        isEdit: false,
-                        isEmpty: true,
-                      );
-                      _controller.clear();
-                    },
-              Theme.of(context).colorScheme.secondary,
-            )
-          : _CustomIcon(
-              Icons.send,
-              !state.isEditing
-                  ? () {
-                      if (state.categoryIcon == Icons.close) {
-                        BlocProvider.of<ChatScreenCubit>(context)
-                            .addNewEvent(_controller.text, selectedChatIndex);
-                      } else {
-                        BlocProvider.of<ChatScreenCubit>(context)
-                            .addEventWithCategory(
-                          selectedChatIndex,
-                          _controller.text,
-                        );
-                      }
-                      _controller.clear();
-                    }
-                  : _confirmEditing,
-              Theme.of(context).colorScheme.secondary,
-            ),
-    );
+    if (state.isTextFieldEmpty) {
+      return Flexible(
+        flex: 1,
+        child: _CustomIcon(
+          !state.isEditing
+              ? state.categoryIcon == Icons.close
+                  ? Icons.camera_enhance
+                  : Icons.send
+              : Icons.close,
+          !state.isEditing
+              ? () {
+                  if (state.categoryIcon == Icons.close) {
+                    BlocProvider.of<ChatScreenCubit>(context)
+                        .addImage(selectedChat.id);
+                  } else {
+                    BlocProvider.of<ChatScreenCubit>(context)
+                        .addEventWithCategory(
+                      selectedChat.id,
+                      _controller.text,
+                    );
+                  }
+                }
+              : () {
+                  BlocProvider.of<ChatScreenCubit>(context).changeParameters(
+                    isEdit: false,
+                    isEmpty: true,
+                  );
+                  _controller.clear();
+                },
+          Theme.of(context).colorScheme.secondary,
+        ),
+      );
+    } else {
+      return Flexible(
+        flex: 1,
+        child: _CustomIcon(
+          Icons.send,
+          !state.isEditing
+              ? () {
+                  if (state.categoryIcon == Icons.close) {
+                    BlocProvider.of<ChatScreenCubit>(context)
+                        .addNewEvent(_controller.text, selectedChat.id);
+                  } else {
+                    BlocProvider.of<ChatScreenCubit>(context)
+                        .addEventWithCategory(
+                      selectedChat.id,
+                      _controller.text,
+                    );
+                  }
+                  _controller.clear();
+                }
+              : () {
+                  BlocProvider.of<ChatScreenCubit>(context)
+                      .confirmEditing(_controller.text);
+                  _controller.clear();
+                },
+          Theme.of(context).colorScheme.secondary,
+        ),
+      );
+    }
   }
 
   Widget _textField(ChatScreenState state) {
     return TextField(
       onChanged: (value) {
-        if (value.isEmpty) {
-          BlocProvider.of<ChatScreenCubit>(context)
-              .changeParameters(isEmpty: true);
-        } else {
-          BlocProvider.of<ChatScreenCubit>(context)
-              .changeParameters(isEmpty: false);
-        }
-        if (state.isSearching) {
-          BlocProvider.of<ChatScreenCubit>(context)
-              .searchingEventElements(selectedChatIndex, value);
-        }
+        BlocProvider.of<ChatScreenCubit>(context)
+            .isTextFiedEmpty(value, selectedChat.id);
       },
       keyboardType: TextInputType.multiline,
       maxLines: null,
@@ -233,9 +232,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _listOfMessagess(ChatScreenState state) {
-    if (state.eventList.isEmpty) {
-      return _emptyListOfMessagess('You dont seem to have any bookmarked'
-          'envents yet. You can bookmark an event by single tapping the event');
+    if (state.eventList.isEmpty && state.isShowFavorites) {
+      return _emptyListOfMessagess(
+        'You dont seem to have any bookmarked'
+        'envents yet. You can bookmark an event by single tapping the event',
+        state,
+      );
     }
 
     return Expanded(
@@ -261,10 +263,12 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             key: Key(index.toString()),
             child: GestureDetector(
-              onTap: () => BlocProvider.of<ChatScreenCubit>(context)
-                  .onTap(selectedChatIndex, index),
-              onLongPress: () => BlocProvider.of<ChatScreenCubit>(context)
-                  .onLongPress(selectedChatIndex, index),
+              onTap: () => BlocProvider.of<ChatScreenCubit>(context).onTap(
+                index,
+                selectedChat.id,
+              ),
+              onLongPress: () =>
+                  BlocProvider.of<ChatScreenCubit>(context).onLongPress(index),
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: _event(state, index),
@@ -278,17 +282,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _dismiss(ChatScreenState state, DismissDirection direction, int index) {
     if (state.selectedItemsCount == 0) {
-      if (direction == DismissDirection.startToEnd) {
-        _editMessageText(
-          state,
-          key: chatList[selectedChatIndex].eventList[index].key,
-          text: chatList[selectedChatIndex].eventList[index].text,
-        );
-      }
+      if (direction == DismissDirection.startToEnd) {}
       if (direction == DismissDirection.endToStart) {
-        BlocProvider.of<ChatScreenCubit>(context).deleteElement(
-          selectedChatIndex,
-          key: chatList[selectedChatIndex].eventList[index].key,
+        BlocProvider.of<ChatScreenCubit>(context).deleteFromDismiss(
+          index,
+          selectedChat.id,
         );
       }
     }
@@ -377,7 +375,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _emptyListOfMessagess(String subtext) {
+  Widget _emptyListOfMessagess(String subtext, ChatScreenState state) {
     return Expanded(
       child: SingleChildScrollView(
         child: Column(
@@ -393,7 +391,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Text(
                       'This is page where you can track everithing'
-                      ' about "${chatList[selectedChatIndex].elementName}"',
+                      ' about ""',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -414,45 +412,6 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
-  }
-
-  void _confirmEditing() {
-    var newText = _controller.text;
-    for (var i = 0;
-        i <= chatList[selectedChatIndex].eventList.length - 1;
-        i++) {
-      if (chatList[selectedChatIndex].eventList[i].key == _key) {
-        chatList[selectedChatIndex].eventList[i] =
-            chatList[selectedChatIndex].eventList[i].copyWith(text: newText);
-      }
-    }
-    for (var element in chatList[selectedChatIndex].eventList) {
-      if (element.key == _key) {
-        element = element.copyWith(text: newText);
-      }
-    }
-
-    _controller.clear();
-    BlocProvider.of<ChatScreenCubit>(context).changeParameters(
-      isEdit: false,
-      isEmpty: true,
-    );
-  }
-
-  void _editMessageText(ChatScreenState state, {UniqueKey? key, String? text}) {
-    for (var element in chatList[selectedChatIndex].eventList) {
-      if (element.isSelected || (key != null && text != null)) {
-        _key = key ?? element.key;
-        _controller.text = text ?? element.text;
-        _controller.selection = TextSelection.fromPosition(
-          TextPosition(offset: text?.length ?? _controller.text.length),
-        );
-        break;
-      }
-    }
-    BlocProvider.of<ChatScreenCubit>(context).changeParameters(isEdit: true);
-    BlocProvider.of<ChatScreenCubit>(context)
-        .unselectElements(selectedChatIndex);
   }
 
   PreferredSizeWidget _customAppBar(ChatScreenState state) {
@@ -484,8 +443,8 @@ class _ChatScreenState extends State<ChatScreen> {
           BlocProvider.of<ChatScreenCubit>(context).changeParameters(
             isSearching: false,
             isEmpty: true,
-            eventList: chatList[selectedChatIndex].eventList,
           );
+          BlocProvider.of<ChatScreenCubit>(context).showEvents(selectedChat.id);
         },
       ),
       title: _textField(state),
@@ -531,42 +490,44 @@ class _ChatScreenState extends State<ChatScreen> {
       foregroundColor: Theme.of(context).colorScheme.surface,
       leading: IconButton(
         icon: const Icon(Icons.close),
-        onPressed: () => BlocProvider.of<ChatScreenCubit>(context)
-            .unselectElements(selectedChatIndex),
+        onPressed: () =>
+            BlocProvider.of<ChatScreenCubit>(context).unselectElements(),
       ),
       title: Text('$selectedItemsCount'),
       actions: [
         IconButton(
-          onPressed: _choosePage,
+          onPressed: () => _choosePage(state),
           icon: const Icon(Icons.reply),
         ),
         selectedItemsCount == 1
             ? IconButton(
                 icon: const Icon(Icons.edit),
-                onPressed: () => _editMessageText(state),
+                onPressed: () {
+                  _controller.text = BlocProvider.of<ChatScreenCubit>(context)
+                      .editMessageText();
+                },
               )
             : Container(),
         IconButton(
-          onPressed: () => BlocProvider.of<ChatScreenCubit>(context)
-              .copyText(selectedChatIndex),
+          onPressed: () => BlocProvider.of<ChatScreenCubit>(context).copyText(),
           icon: const Icon(Icons.copy),
         ),
         IconButton(
           onPressed: () => BlocProvider.of<ChatScreenCubit>(context)
-              .addSelectedToFavorites(selectedChatIndex),
+              .addSelectedToFavorites(),
           icon: const Icon(Icons.bookmark_border),
         ),
         IconButton(
-          onPressed: () => BlocProvider.of<ChatScreenCubit>(context)
-              .deleteElement(selectedChatIndex),
+          onPressed: () =>
+              BlocProvider.of<ChatScreenCubit>(context).deleteElement(),
           icon: const Icon(Icons.delete),
         ),
       ],
     );
   }
 
-  Future _choosePage() {
-    var chosenIndex = selectedChatIndex;
+  Future _choosePage(ChatScreenState state) {
+    var chosenIndex = 0;
     return showDialog(
       context: context,
       builder: (context) {
@@ -579,10 +540,10 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 300,
               width: 300,
               child: ListView.builder(
-                itemCount: chatList.length,
+                itemCount: state.chatList.length,
                 itemBuilder: (context, index) {
                   return RadioListTile(
-                    title: Text(chatList[index].elementName),
+                    title: Text(state.chatList[index].elementName),
                     value: index,
                     groupValue: chosenIndex,
                     onChanged: (index) {
@@ -597,7 +558,7 @@ class _ChatScreenState extends State<ChatScreen> {
             TextButton(
               onPressed: () {
                 BlocProvider.of<ChatScreenCubit>(context)
-                    .moveMessageToAnotherChat(chosenIndex, selectedChatIndex);
+                    .moveMessageToAnotherChat(chosenIndex);
                 Navigator.pop(context);
               },
               child: Text(
@@ -619,15 +580,14 @@ class _ChatScreenState extends State<ChatScreen> {
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () {
-          if (chatList[selectedChatIndex].eventList.isNotEmpty) {
-            Navigator.pop(
-                context, chatList[selectedChatIndex].eventList[0].text);
+          if (state.eventList.isNotEmpty) {
+            Navigator.pop(context, state.eventList[0].text);
           } else {
             Navigator.pop(context, 'No events. Click to create one.');
           }
         },
       ),
-      title: Text(chatList[selectedChatIndex].elementName),
+      title: Text('${selectedChat.elementName}'),
       centerTitle: true,
       actions: [
         IconButton(
@@ -636,7 +596,6 @@ class _ChatScreenState extends State<ChatScreen> {
             BlocProvider.of<ChatScreenCubit>(context).changeParameters(
               isEmpty: true,
               isSearching: true,
-              eventList: [],
             );
           },
         ),
@@ -648,7 +607,7 @@ class _ChatScreenState extends State<ChatScreen> {
   IconButton _favoriteButton(ChatScreenState state) {
     return IconButton(
       onPressed: () => BlocProvider.of<ChatScreenCubit>(context)
-          .showAllFavorites(selectedChatIndex),
+          .showAllFavorites(selectedChat.id),
       icon: state.isShowFavorites == false
           ? const Icon(Icons.bookmark_border)
           : const Icon(

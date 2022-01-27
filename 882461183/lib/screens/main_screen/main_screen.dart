@@ -62,7 +62,12 @@ class _MainScreenState extends State<MainScreen> {
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.background,
           appBar: _customAppBar(),
-          body: _customListView(state),
+          body: StreamBuilder(
+            builder: (context, projectsnap) {
+              return _customListView(state);
+            },
+            stream: BlocProvider.of<MainScreenCubit>(context).showChats(),
+          ),
           floatingActionButton: _customFloatingActionButton(),
           bottomNavigationBar: _customBottomNavigationBar(state),
         );
@@ -72,13 +77,8 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _customFloatingActionButton() {
     return FloatingActionButton(
-      onPressed: () async {
-        final result = await Navigator.pushNamed(context, '/add_chat') as Chat?;
-        if (result != null) {
-          chatList.insert(0, result);
-          setState(() {});
-        }
-      },
+      onPressed: () async =>
+          await Navigator.pushNamed(context, '/add_chat') as Chat?,
       tooltip: 'New Page',
       child: const Icon(Icons.add),
       backgroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -89,7 +89,6 @@ class _MainScreenState extends State<MainScreen> {
 
   ListView _customListView(MainScreenState state) {
     BlocProvider.of<MainScreenCubit>(context).sortList(state.chatList);
-    final timeFormat = DateFormat('dd/M/y');
 
     return ListView.builder(
       itemCount: state.chatList.length,
@@ -98,13 +97,6 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             GestureDetector(
               child: ListTile(
-                trailing: state.chatList[index].eventList.isEmpty
-                    ? Container(height: 0, width: 0)
-                    : Text(
-                        timeFormat
-                            .format(state.chatList[index].eventList[0].date)
-                            .toString(),
-                      ),
                 leading: Stack(
                   alignment: Alignment.bottomRight,
                   children: [
@@ -140,7 +132,7 @@ class _MainScreenState extends State<MainScreen> {
                   final result = await Navigator.pushNamed(
                     context,
                     '/events',
-                    arguments: index,
+                    arguments: state.chatList[index],
                   ) as String;
                   BlocProvider.of<MainScreenCubit>(context)
                       .newSubname(index, result);
@@ -183,7 +175,8 @@ class _MainScreenState extends State<MainScreen> {
               ListTile(
                 onTap: () {
                   Navigator.pop(context);
-                  BlocProvider.of<MainScreenCubit>(context).pinUnpinChat(index);
+                  BlocProvider.of<MainScreenCubit>(context)
+                      .pinUnpinChat(pinnedElement);
                 },
                 leading: const Icon(Icons.attach_file, color: Colors.green),
                 title: Text(
@@ -217,8 +210,8 @@ class _MainScreenState extends State<MainScreen> {
                       TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
                 onTap: () {
-                  chatList.remove(pinnedElement);
-                  setState(() {});
+                  BlocProvider.of<MainScreenCubit>(context)
+                      .removeElement(pinnedElement);
                   Navigator.pop(context);
                 },
               ),
@@ -268,11 +261,6 @@ class _MainScreenState extends State<MainScreen> {
                   Text(creationDate),
                   const SizedBox(height: 20),
                   const Text('Last event:'),
-                  pinnedElement.eventList.isNotEmpty
-                      ? Text(timeFormat
-                          .format(pinnedElement.eventList[0].date)
-                          .toString())
-                      : const Text('No events yet'),
                 ],
               ),
               actions: [
@@ -296,11 +284,10 @@ class _MainScreenState extends State<MainScreen> {
 
   void _editChat(Chat pinnedElement) async {
     Navigator.pop(context);
-    final result = await Navigator.of(context).pushNamed(
+    await Navigator.of(context).pushNamed(
       '/add_chat',
       arguments: pinnedElement,
-    ) as Chat;
-    BlocProvider.of<MainScreenCubit>(context).editChat(result);
+    );
   }
 
   BottomNavigationBar _customBottomNavigationBar(MainScreenState state) {
