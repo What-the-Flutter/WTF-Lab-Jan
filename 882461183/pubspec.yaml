@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_bloc: ^8.0.1
   bloc: ^8.0.2
+  shared_preferences: ^2.0.12
 
 dev_dependencies:
   flutter_test:
@@ -43,6 +44,9 @@ dev_dependencies:
   font_awesome_flutter: ^9.2.0
   intl: ^0.17.0
   image_picker: ^0.8.4+4
+  sqflite: ^2.0.2
+  path: ^1.8.0
+  path_provider: ^2.0.8
 
 
   # The "flutter_lints" package below contains a set of recommended lints to

@@ -2,6 +2,8 @@ part of 'chat_screen_cubit.dart';
 
 class ChatScreenState {
   final List<Event> eventList;
+  final List<Chat> chatList;
+  final Event? editingEvent;
   final bool isEditing;
   final bool isTextFieldEmpty;
   final bool isShowFavorites;
@@ -12,6 +14,7 @@ class ChatScreenState {
   final IconData categoryIcon;
 
   ChatScreenState({
+    this.chatList = const [],
     this.eventList = const [],
     this.isEditing = false,
     this.isTextFieldEmpty = true,
@@ -21,10 +24,13 @@ class ChatScreenState {
     this.selectedItemsCount = 0,
     this.categoryName = 'Cansel',
     this.categoryIcon = Icons.close,
+    this.editingEvent,
   });
 
   ChatScreenState copyWith({
+    List<Chat>? chatList,
     List<Event>? eventList,
+    Event? editingEvent,
     bool? isEditing,
     bool? isTextFieldEmpty,
     bool? isShowFavorites,
@@ -36,6 +42,8 @@ class ChatScreenState {
   }) {
     return ChatScreenState(
       eventList: eventList ?? this.eventList,
+      chatList: chatList ?? this.chatList,
+      editingEvent: editingEvent ?? this.editingEvent,
       isEditing: isEditing ?? this.isEditing,
       isTextFieldEmpty: isTextFieldEmpty ?? this.isTextFieldEmpty,
       isShowFavorites: isShowFavorites ?? this.isShowFavorites,

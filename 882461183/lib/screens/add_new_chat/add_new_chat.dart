@@ -90,7 +90,7 @@ class _AddNewChatState extends State<AddNewChat> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _customTextField(_blocProvider, state),
+                  _customTextField(_blocProvider),
                   Expanded(
                     child: _customGridView(_blocProvider, state),
                   ),
@@ -129,9 +129,7 @@ class _AddNewChatState extends State<AddNewChat> {
     AddNewChatState state,
   ) {
     return FloatingActionButton(
-      onPressed: state.isTextFieldEmpty
-          ? () => Navigator.pop(context)
-          : () => _addNewChat(_blocProvider, state),
+      onPressed: () => returnToMainScreen(_blocProvider, state),
       child: state.isTextFieldEmpty
           ? const Icon(Icons.close)
           : const Icon(Icons.check),
@@ -141,19 +139,28 @@ class _AddNewChatState extends State<AddNewChat> {
     );
   }
 
-  Widget _customTextField(
+  void returnToMainScreen(
     AddNewChatCubit _blocProvider,
     AddNewChatState state,
   ) {
+    if (state.isTextFieldEmpty) {
+      Navigator.pop(context);
+    } else {
+      editingChat == null
+          ? _blocProvider.addChat(_controller.text, _iconsData)
+          : _blocProvider.editChat(
+              editingChat as Chat,
+              _controller.text,
+              _iconsData,
+            );
+      Navigator.pop(context);
+    }
+  }
+
+  Widget _customTextField(AddNewChatCubit _blocProvider) {
     return TextField(
       controller: _controller,
-      onChanged: (value) {
-        if (_controller.text.isEmpty) {
-          _blocProvider.isTextFieldEmpty(true);
-        } else {
-          _blocProvider.isTextFieldEmpty(false);
-        }
-      },
+      onChanged: (value) => _blocProvider.isTextFieldEmpty(value, _controller),
       autofocus: true,
       cursorColor: Colors.orange[400],
       decoration: InputDecoration(
@@ -217,32 +224,30 @@ class _AddNewChatState extends State<AddNewChat> {
     );
   }
 
-  void _addNewChat(AddNewChatCubit _blocProvider, AddNewChatState state) {
-    var date = DateTime.now();
-    Chat _newChatElement;
-    for (var i = 0; i < _iconsData.length - 1; i++) {
-      if (state.selectedIconIndex == i) {
-        if (editingChat == null) {
-          _newChatElement = Chat(
-            icon: _iconsData[i],
-            elementName: _controller.text,
-            creationDate: date,
-            key: UniqueKey(),
-            eventList: [],
-          );
-          Navigator.pop(context, _newChatElement);
-        } else {
-          Navigator.pop(
-            context,
-            editingChat?.copyWith(
-              icon: _iconsData[i],
-              elementName: _controller.text,
-            ),
-          );
-        }
-      }
-    }
-  }
+  // void _addNewChat(AddNewChatCubit _blocProvider, AddNewChatState state) {
+  //   var date = DateTime.now();
+  //   Chat _newChatElement;
+  //   for (var i = 0; i < _iconsData.length - 1; i++) {
+  //     if (state.selectedIconIndex == i) {
+  //       if (editingChat == null) {
+  //         _newChatElement = Chat(
+  //           icon: _iconsData[i],
+  //           elementName: _controller.text,
+  //           creationDate: date,
+  //         );
+  //         Navigator.pop(context, _newChatElement);
+  //       } else {
+  //         Navigator.pop(
+  //           context,
+  //           editingChat?.copyWith(
+  //             icon: _iconsData[i],
+  //             elementName: _controller.text,
+  //           ),
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
 
   @override
   void dispose() {
