@@ -8,7 +8,10 @@ class CubitTheme extends Cubit<StatesTheme> {
 
   void init() {
     emit(
-        state.copyWith(isLightTheme: SharedPreferencesProvider().fetchTheme()));
+      state.copyWith(
+        isLightTheme: SharedPreferencesProvider().fetchTheme(),
+      ),
+    );
     updateTheme();
   }
 

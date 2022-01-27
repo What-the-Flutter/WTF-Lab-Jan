@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 import '../../data/database_provider.dart';
 import '../../event.dart';
 import '../../note.dart';
@@ -15,9 +20,13 @@ class CubitEventPage extends Cubit<StatesEventPage> {
     setNoteList(noteList);
     setTextSearch(false);
     setEventEditing(false);
+    setEditingPhoto(false);
     removeSelectedCircleAvatar();
     initEventList();
   }
+
+  void setEditingPhoto(bool isEditingPhoto) =>
+      emit(state.copyWith(isEditingPhoto: isEditingPhoto));
 
   void initEventList() async {
     emit(
@@ -34,6 +43,44 @@ class CubitEventPage extends Cubit<StatesEventPage> {
     );
   }
 
+  void downloadURL(Event event) async {
+    await _databaseProvider.downloadURL(event);
+  }
+
+  Future<void> addImageEventFromResource(File image) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final fileName = path.basename(image.path);
+    final saved = await image.copy('${appDir.path}/$fileName');
+    final event = Event(
+      time: DateFormat.jms().format(DateTime.now()),
+      text: '',
+      id: const Uuid().v4(),
+      imagePath: saved.path,
+      bookmarkIndex: 0,
+      date: DateFormat.yMMMd().format(DateTime.now()),
+      idNote: state.note!.id,
+      isSelected: false,
+    );
+    await _databaseProvider.uploadFile(image, event);
+    await _databaseProvider.downloadURL(event);
+    _databaseProvider.addEvent(event);
+    state.eventList.insert(0, event);
+    setEditingPhoto(false);
+    emit(
+      state.copyWith(
+        eventList: state.eventList
+          ..sort(
+            (a, b) {
+              var aDate = DateFormat().add_yMMMd().parse(a.date);
+              var bDate = DateFormat().add_yMMMd().parse(b.date);
+              return bDate.compareTo(aDate);
+            },
+          ),
+      ),
+    );
+    emit(state.copyWith(note: state.note));
+  }
+
   void updateEvent(Event event) {
     _databaseProvider.updateEvent(event);
   }
@@ -41,15 +88,16 @@ class CubitEventPage extends Cubit<StatesEventPage> {
   void transferEvent(Event currentEvent, List<Note> noteList) {
     final event = Event(
       text: currentEvent.text,
+      id: currentEvent.id,
+      imagePath: currentEvent.imagePath,
       time: DateFormat.jms().format(DateTime.now()),
       date: currentEvent.date,
       bookmarkIndex: currentEvent.bookmarkIndex,
-      noteId: noteList[state.selectedNoteIndex].id,
+      idNote: noteList[state.selectedNoteIndex].id,
       indexOfCircleAvatar: currentEvent.indexOfCircleAvatar,
     );
     state.noteList[state.selectedNoteIndex].subTittleEvent = currentEvent.text;
-    _databaseProvider.insertEvent(event);
-    _databaseProvider.updateNote(noteList[state.selectedNoteIndex]);
+    _databaseProvider.addEvent(event);
   }
 
   void setWriting(bool isWriting) => emit(state.copyWith(isWriting: isWriting));
@@ -111,8 +159,10 @@ class CubitEventPage extends Cubit<StatesEventPage> {
   void sendEvent(String text) async {
     final event = Event(
       text: text,
+      imagePath: '',
+      id: const Uuid().v4(),
       indexOfCircleAvatar: state.selectedCircleAvatar,
-      noteId: state.note!.id,
+      idNote: state.note!.id,
       bookmarkIndex: 0,
       time: state.time == ''
           ? DateFormat.jms().format(DateTime.now())
@@ -129,10 +179,9 @@ class CubitEventPage extends Cubit<StatesEventPage> {
             return bDate.compareTo(aDate);
           },
         );
-      event.id = await _databaseProvider.insertEvent(event);
+      _databaseProvider.addEvent(event);
       setEventList(updatedList);
       state.note!.subTittleEvent = text;
-      _databaseProvider.updateNote(state.note!);
       setWriting(false);
       setEventPressed(false);
     }

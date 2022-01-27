@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../event.dart';
 
 import '../../icons.dart';
@@ -236,6 +239,14 @@ class _EventPageState extends State<EventPage> {
         Expanded(
           child: _listViewWithEvents(state),
         ),
+        if (state.isEditingPhoto)
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 10,
+              bottom: 10,
+            ),
+            child: _choiceImageSourceWrap,
+          ),
         state.isChoosingCircleAvatar
             ? Container(
                 height: 70,
@@ -249,6 +260,66 @@ class _EventPageState extends State<EventPage> {
           child: _textFieldArea(state),
         )
       ],
+    );
+  }
+
+  Wrap get _choiceImageSourceWrap {
+    return Wrap(
+      spacing: 25,
+      alignment: WrapAlignment.spaceAround,
+      children: [
+        _widgetForImagePick(
+          const ListTile(
+            leading: Icon(
+              Icons.add_a_photo_outlined,
+              color: Colors.white,
+            ),
+            title: Text(
+              'Open Camera',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+          ImageSource.camera,
+        ),
+        _widgetForImagePick(
+          const ListTile(
+            leading: Icon(
+              Icons.photo,
+              color: Colors.white,
+            ),
+            title: Text(
+              'Open Gallery',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+          ImageSource.gallery,
+        ),
+      ],
+    );
+  }
+
+  Widget _widgetForImagePick(ListTile listTile, ImageSource imageSource) {
+    return GestureDetector(
+      child: Container(
+        width: 160,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(80)),
+          color: Theme.of(context).primaryColor,
+        ),
+        child: listTile,
+      ),
+      onTap: () async {
+        final image = await ImagePicker().pickImage(source: imageSource);
+        if (image != null) {
+          BlocProvider.of<CubitEventPage>(context)
+              .addImageEventFromResource(File(image.path));
+        }
+      },
     );
   }
 
@@ -321,7 +392,10 @@ class _EventPageState extends State<EventPage> {
                   },
                 )
               : IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    BlocProvider.of<CubitEventPage>(context)
+                        .setEditingPhoto(!state.isEditingPhoto);
+                  },
                   icon: const Icon(
                     Icons.photo,
                     size: 40,
@@ -406,7 +480,9 @@ class _EventPageState extends State<EventPage> {
                         : CircleAvatar(
                             child: iconsList[event.indexOfCircleAvatar],
                           ),
-                    title: Text(event.text),
+                    title: event.imagePath != ''
+                        ? Image.network(event.imagePath)
+                        : Text(event.text),
                     subtitle: Align(
                       alignment: Alignment.bottomRight,
                       child: Text(event.time),

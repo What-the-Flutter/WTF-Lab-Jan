@@ -1,20 +1,12 @@
 class Note {
   String eventName;
-  int id;
+  String id;
   int indexOfCircleAvatar;
   String subTittleEvent;
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': eventName,
-      'circle_avatar_index': indexOfCircleAvatar,
-      'sub_tittle_name': subTittleEvent,
-    };
-  }
-
   Map<String, dynamic> insertToMap() {
     return {
+      'id': id,
       'name': eventName,
       'circle_avatar_index': indexOfCircleAvatar,
       'sub_tittle_name': subTittleEvent,
@@ -31,7 +23,7 @@ class Note {
   }
 
   Note({
-    this.id = -1,
+    this.id = '-1',
     this.eventName = '',
     this.indexOfCircleAvatar = 0,
     this.subTittleEvent = 'Add event',

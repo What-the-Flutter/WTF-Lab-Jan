@@ -9,8 +9,7 @@ class CubitHomePage extends Cubit<StatesHomePage> {
   final DatabaseProvider _databaseProvider = DatabaseProvider();
 
   Future<void> init() async {
-    _databaseProvider.initDatabase();
-    var noteList = await _databaseProvider.dbNotesList();
+    final noteList = await _databaseProvider.dbNotesList();
     setNoteList(noteList);
   }
 
@@ -37,7 +36,7 @@ class CubitHomePage extends Cubit<StatesHomePage> {
       subTittleEvent: 'Add event',
     );
     state.noteList.add(note);
-    note.id = await _databaseProvider.insertNote(note);
+    _databaseProvider.addNote(note);
     setNoteList(state.noteList);
   }
 }
