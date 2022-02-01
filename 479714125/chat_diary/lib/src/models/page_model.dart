@@ -25,7 +25,7 @@ class PageModel {
   });
 
   @override
-  String toString() => '$name $icon $id ${events.length}';
+  String toString() => '$name $icon $id ${events.length} $nextEventId';
 
   PageModel copyWith({
     String? name,
@@ -52,7 +52,7 @@ class PageModel {
     };
   }
 
-  factory PageModel.fromMap(Map<String, dynamic> pageMap) {
+  factory PageModel.fromMap(Map<dynamic, dynamic> pageMap) {
     return PageModel(
       id: pageMap['id'] as int,
       nextEventId: pageMap['nextEventId'] as int,

@@ -36,10 +36,6 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
           icon: const Icon(Icons.search),
         ),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.bookmark_outline),
-        ),
       ],
     );
   }
@@ -52,14 +48,12 @@ class MessageClickedAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   final void Function() copySelectedEvents;
   final void Function() findEventToEdit;
-  final void Function() addToFavorites;
   final void Function() migrateSelectedEvents;
 
   const MessageClickedAppBar({
     Key? key,
     required this.copySelectedEvents,
     required this.findEventToEdit,
-    required this.addToFavorites,
     required this.migrateSelectedEvents,
   }) : super(key: key);
   @override
@@ -81,10 +75,6 @@ class MessageClickedAppBar extends StatelessWidget
         IconButton(
           onPressed: copySelectedEvents,
           icon: const Icon(Icons.copy),
-        ),
-        IconButton(
-          onPressed: addToFavorites,
-          icon: const Icon(Icons.bookmark_outline),
         ),
         IconButton(
           onPressed: cubit.deleteSelectedEvents,

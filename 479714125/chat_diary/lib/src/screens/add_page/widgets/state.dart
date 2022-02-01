@@ -7,7 +7,7 @@ class IconGridViewState extends Equatable {
   IconGridViewState(this.iconsOfPages, this.selectedIcon);
 
   @override
-  List<Object?> get props => [selectedIcon];
+  List<Object?> get props => [selectedIcon, iconsOfPages];
 
   IconGridViewState copyWith({int? selectedIcon}) =>
       IconGridViewState(iconsOfPages, selectedIcon ?? this.selectedIcon);

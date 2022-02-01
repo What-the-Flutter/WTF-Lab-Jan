@@ -17,5 +17,6 @@ class HomeScreenState {
   }
 
   @override
-  String toString() => listOfPages.map((e) => e.toString()).toString();
+  String toString() =>
+      '${listOfPages.map((e) => e.toString()).toString()} $newPageId';
 }

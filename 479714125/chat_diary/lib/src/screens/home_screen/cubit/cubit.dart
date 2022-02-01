@@ -14,17 +14,14 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         ));
 
   void init() async {
-    final list = await databaseProvider.retrievePages();
-    emit(state.copyWith(listOfPages: list, newPageId: list.length));
-  }
-
-  void _emitStateWithEditedList() {
-    emit(state.copyWith(listOfPages: state.listOfPages));
+    final listOfPages =
+        await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
+    emit(state.copyWith(
+        listOfPages: listOfPages, newPageId: listOfPages.length));
   }
 
   void migrateEventsToPage(
       PageModel page, Iterable<EventModel> eventsToMigrate) async {
-    var index = state.listOfPages.indexOf(page);
     var id = page.nextEventId;
     for (var event in eventsToMigrate) {
       event.id = id;
@@ -32,28 +29,35 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       id += 1;
       page.nextEventId += 1;
     }
-    state.listOfPages[index].events.insertAll(0, eventsToMigrate);
-    await databaseProvider.insertEvents(eventsToMigrate);
-    _emitStateWithEditedList();
+
+    state.listOfPages[page.id].events.insertAll(0, eventsToMigrate);
+    for (var event in eventsToMigrate) {
+      await DatabaseAccess.instance.firebaseDBProvider.addEvent(event);
+    }
+
+    emit(state.copyWith(listOfPages: state.listOfPages));
   }
 
   void addPage(PageModel page) async {
     state.listOfPages.add(page);
-    await databaseProvider.insertPage(page);
+    await DatabaseAccess.instance.firebaseDBProvider.insertPage(page);
     emit(state.copyWith(
         listOfPages: state.listOfPages, newPageId: state.newPageId + 1));
   }
 
   void editPage(PageModel page, PageModel oldPage) async {
     final newPage = page.copyWith(id: oldPage.id, events: oldPage.events);
-    await databaseProvider.updatePage(newPage);
-    final pages = await databaseProvider.retrievePages();
+    await DatabaseAccess.instance.firebaseDBProvider.updatePage(newPage);
+    emit(state.copyWith(listOfPages: []));
+    final pages =
+        await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
     emit(state.copyWith(listOfPages: pages));
   }
 
   void removePage(PageModel page) async {
-    await databaseProvider.deletePage(page);
-    final pages = await databaseProvider.retrievePages();
+    await DatabaseAccess.instance.firebaseDBProvider.removePage(page.id);
+    final pages =
+        await DatabaseAccess.instance.firebaseDBProvider.retrievePages();
     emit(state.copyWith(listOfPages: pages));
   }
 }

@@ -16,5 +16,5 @@ class ThemeState extends Equatable {
       ThemeState(isDarkTheme: isDarkTheme ?? this.isDarkTheme);
 
   @override
-  List<Object?> get props => [isDarkTheme];
+  List<Object?> get props => [isDarkTheme, currentTheme];
 }

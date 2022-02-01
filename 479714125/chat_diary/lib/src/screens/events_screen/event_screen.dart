@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../models/event_model.dart';
 import '../../models/page_model.dart';
 import '../home_screen/cubit/cubit.dart';
 import 'cubit/cubit.dart';
@@ -23,7 +22,6 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
-  final List<EventModel> _favoriteEvents = <EventModel>[];
   final FocusNode _inputNode = FocusNode();
   final TextEditingController _inputController = TextEditingController();
   late final EventScreenCubit cubit;
@@ -51,7 +49,6 @@ class _EventScreenState extends State<EventScreen> {
           appBar: state.containsSelected
               ? MessageClickedAppBar(
                   migrateSelectedEvents: _showMigrateDialog,
-                  addToFavorites: _addToFavorites,
                   findEventToEdit: _findEventToEdit,
                   copySelectedEvents: _copySelectedEvents,
                 ) as PreferredSizeWidget
@@ -91,7 +88,6 @@ class _EventScreenState extends State<EventScreen> {
         ),
       );
     }
-    cubit.toggleAllSelected();
   }
 
   Future<void> _showMigrateDialog() async {
@@ -116,7 +112,6 @@ class _EventScreenState extends State<EventScreen> {
                           await eventScreenCubit.popSelectedEvents();
                       homeScreenCubit.migrateEventsToPage(
                           page, eventsToMigrate);
-
                       Navigator.pop(context);
                     },
                   ),
@@ -142,16 +137,6 @@ class _EventScreenState extends State<EventScreen> {
     _hideKeyboard();
     cubit.toggleSelected();
     cubit.setIsEditing();
-  }
-
-  void _addToFavorites() {
-    final cubit = BlocProvider.of<EventScreenCubit>(context);
-    final selectedEvents =
-        cubit.state.page.events.where((element) => element.isSelected);
-    _favoriteEvents.addAll(selectedEvents);
-    cubit.toggleAllSelected();
-    setState(() {});
-    _favoriteEvents.forEach(print);
   }
 
   void _showKeyboard() {
