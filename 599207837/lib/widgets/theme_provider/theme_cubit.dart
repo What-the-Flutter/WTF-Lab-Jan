@@ -16,6 +16,12 @@ class ThemeCubit extends Cubit<ThemeState> {
     _saveToPreferences('font_size', state.fSize.index);
   }
 
+  void resetSettings() {
+    emit(state.duplicate(tColor: ThemeColor.light, fSize: FontSize.medium));
+    _saveToPreferences('theme', ThemeColor.light.index);
+    _saveToPreferences('font_size', FontSize.medium.index);
+  }
+
   void _saveToPreferences(String key, int value) async {
     await Preferences.data!.setInt(key, value);
   }

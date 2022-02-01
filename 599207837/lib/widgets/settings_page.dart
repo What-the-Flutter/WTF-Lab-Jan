@@ -1,51 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_project/entity/theme.dart';
+import '../entity/theme.dart';
 
 import 'theme_provider/theme_cubit.dart';
 import 'theme_provider/theme_state.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  Widget build(BuildContext context) {
+    return _SettingsPage();
+  }
 }
 
-class _SettingsPageState extends State<SettingsPage> {
-  _SettingsPageState();
-
+class _SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<ThemeCubit>().state;
-    return Scaffold(
-      backgroundColor: theme.colors.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: theme.colors.themeColor1,
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            _switch((value) => setState(() => context.read<ThemeCubit>().changeThemeColor())),
-            const SizedBox(
-              height: 15,
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: state.colors.backgroundColor,
+          appBar: AppBar(
+            backgroundColor: state.colors.themeColor1,
+            title: const Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            _fontChooser((size) => setState(() => context.read<ThemeCubit>().changeFontSize(size))),
-          ],
-        ),
-      ),
+            actions: [
+              _resetButton(
+                onTap: () => context.read<ThemeCubit>().resetSettings(),
+                theme: state,
+              ),
+            ],
+          ),
+          body: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                _switch((value) => context.read<ThemeCubit>().changeThemeColor(), state),
+                const SizedBox(
+                  height: 15,
+                ),
+                _fontChooser((size) => context.read<ThemeCubit>().changeFontSize(size), state),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _switch(Function(bool value) onChange) {
-    final theme = context.read<ThemeCubit>().state;
+  Widget _switch(Function(bool value) onChange, ThemeState theme) {
     return Container(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: Row(
@@ -73,8 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _fontChooser(Function(FontSize value) onPressed) {
-    final theme = context.read<ThemeCubit>().state;
+  Widget _fontChooser(Function(FontSize value) onPressed, ThemeState theme) {
     return Container(
       padding: const EdgeInsets.only(left: 20, right: 10),
       child: Row(
@@ -85,6 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
             fontSize: FontSizeSet.defaultSmall,
             title: 'Small',
             fontSizeSet: FontSize.small,
+            theme: theme,
           ),
           const SizedBox(
             width: 5,
@@ -94,6 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
             fontSize: FontSizeSet.defaultMedium,
             title: 'Medium',
             fontSizeSet: FontSize.medium,
+            theme: theme,
           ),
           const SizedBox(
             width: 5,
@@ -103,6 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
             fontSize: FontSizeSet.defaultLarge,
             title: 'Large',
             fontSizeSet: FontSize.large,
+            theme: theme,
           ),
           const SizedBox(
             width: 25,
@@ -124,8 +134,8 @@ class _SettingsPageState extends State<SettingsPage> {
     required double fontSize,
     required String title,
     required FontSize fontSizeSet,
+    required ThemeState theme,
   }) {
-    final theme = context.read<ThemeCubit>().state;
     return GestureDetector(
       child: Text(
         'ABcd',
@@ -148,6 +158,25 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
       onTap: () => onPressed(fontSizeSet),
+    );
+  }
+
+  Widget _resetButton({required Function onTap, required ThemeState theme}) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.only(right: 5),
+        child: GestureDetector(
+          onTap: () => onTap(),
+          child: Text(
+            'Reset',
+            style: TextStyle(
+              fontSize: theme.fontSize.general,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
