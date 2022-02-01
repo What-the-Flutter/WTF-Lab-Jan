@@ -232,12 +232,17 @@ class ChatPageCubit extends Cubit<ChatPageState> {
     return null;
   }
 
-  void buildSearchBar() => emit(state.duplicate(
-        searchPage: true,
-        searchController: TextEditingController()..addListener(findElements),
-      ));
+  void startSearch({String? toSearch}) {
+    emit(state.duplicate(
+      searchPage: true,
+      searchController: TextEditingController()..addListener(findElements),
+    ));
+    if (toSearch != null) {
+      state.searchController!.text = toSearch;
+    }
+  }
 
-  void hideSearchBar() {
+  void finishSearch() {
     emit(state.duplicate(
       searchPage: false,
       searchController: null,

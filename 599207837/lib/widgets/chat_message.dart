@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swipe_to/swipe_to.dart';
@@ -6,6 +7,7 @@ import '../database/database.dart';
 import '../database/firebase/storage_provider.dart';
 import '../entity/entities.dart';
 import 'alerts.dart';
+import 'chat_page/chat_page_cubit.dart';
 import 'theme_provider/theme_cubit.dart';
 
 class ChatMessage extends StatefulWidget {
@@ -118,13 +120,7 @@ class _ChatMessageState extends State<ChatMessage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  task.description,
-                  style: TextStyle(
-                    color: theme.colors.textColor2,
-                    fontSize: theme.fontSize.general + 1,
-                  ),
-                ),
+                _richDescription(task.description),
                 _attachedImage(task.imageName, context),
                 Container(
                   margin: const EdgeInsets.only(top: 5),
@@ -142,6 +138,65 @@ class _ChatMessageState extends State<ChatMessage> {
         ],
       ),
     );
+  }
+
+  Widget _richDescription(String description) {
+    final theme = context.read<ThemeCubit>().state;
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(
+          color: theme.colors.textColor2,
+          fontSize: theme.fontSize.general + 1,
+        ),
+        children: _dispatchDescription(description)
+            .map((substring) => _magicTextSpan(text: substring))
+            .toList(),
+      ),
+    );
+  }
+
+  TextSpan _magicTextSpan({required String text}) {
+    final theme = context.read<ThemeCubit>().state;
+    if (text.startsWith('#')) {
+      return TextSpan(
+        text: text,
+        style: TextStyle(
+          color: theme.colors.blueTextColor,
+          fontSize: theme.fontSize.secondary,
+        ),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () => context.read<ChatPageCubit>().startSearch(toSearch: text),
+      );
+    } else {
+      return TextSpan(text: text);
+    }
+  }
+
+  List<String> _dispatchDescription(String input) {
+    final tag = RegExp('#[а-яА-Яa-zA-Z0-9_]+');
+
+    if (tag.firstMatch(input) == null) return [input];
+
+    final tagsFree = input.split(tag);
+    final tags = tag.allMatches(input).map((match) => match.group(0)!).toList();
+    final result = <String>[];
+
+    var start = 0;
+    if (tag.firstMatch(input)!.start == 0) {
+      result.add(tags[0]);
+      start = 1;
+    }
+
+    for (var i = start; i < tags.length; i++) {
+      result.add(tagsFree[i]);
+      result.add(tags[i]);
+    }
+
+    if (tagsFree.length > tags.length) {
+      result.add(tagsFree.last);
+    }
+
+    return result;
   }
 
   Widget _taskMessageFooter(Task task) {

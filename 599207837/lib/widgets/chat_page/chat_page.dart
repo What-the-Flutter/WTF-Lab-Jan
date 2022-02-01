@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_project/database/firebase/storage_provider.dart';
+import '../../database/firebase/storage_provider.dart';
 
 import '../../entity/entities.dart';
 import '../theme_provider/theme_cubit.dart';
@@ -168,7 +168,7 @@ class _ChatPage extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: () => context.read<ChatPageCubit>().hideSearchBar(),
+          onPressed: () => context.read<ChatPageCubit>().finishSearch(),
           icon: Icon(
             Icons.close_rounded,
             color: theme.colors.iconColor2,
@@ -233,7 +233,7 @@ class _ChatPage extends StatelessWidget {
           icon: const Icon(Icons.search_rounded),
           color: theme.colors.iconColor2,
           tooltip: 'Search messages',
-          onPressed: () => context.read<ChatPageCubit>().buildSearchBar(),
+          onPressed: () => context.read<ChatPageCubit>().startSearch(),
         ),
       ],
     );
