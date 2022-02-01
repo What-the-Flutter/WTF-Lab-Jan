@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_project/entity/theme.dart';
 
 import 'theme_provider/theme_cubit.dart';
 import 'theme_provider/theme_state.dart';
@@ -30,13 +31,13 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: Container(
         padding: const EdgeInsets.all(20),
-        child: Row(
+        child: Column(
           children: [
-            _switch(
-              (value) => setState(() {
-                context.read<ThemeCubit>().changeThemeColor();
-              }),
-            )
+            _switch((value) => setState(() => context.read<ThemeCubit>().changeThemeColor())),
+            const SizedBox(
+              height: 15,
+            ),
+            _fontChooser((size) => setState(() => context.read<ThemeCubit>().changeFontSize(size))),
           ],
         ),
       ),
@@ -44,6 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _switch(Function(bool value) onChange) {
+    final theme = context.read<ThemeCubit>().state;
     return Container(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: Row(
@@ -53,7 +55,7 @@ class _SettingsPageState extends State<SettingsPage> {
             activeTrackColor: Colors.indigo.shade800,
             inactiveThumbColor: Colors.yellow,
             inactiveTrackColor: Colors.lightBlueAccent,
-            value: context.read<ThemeCubit>().state.tColor != ThemeColor.light,
+            value: theme.tColor != ThemeColor.light,
             onChanged: (value) => onChange(value),
           ),
           const SizedBox(
@@ -62,12 +64,90 @@ class _SettingsPageState extends State<SettingsPage> {
           Text(
             'Change Theme',
             style: TextStyle(
-              color: context.read<ThemeCubit>().state.colors.textColor2,
-              fontSize: 15,
+              fontSize: theme.fontSize.general + 1,
+              color: theme.colors.textColor2,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _fontChooser(Function(FontSize value) onPressed) {
+    final theme = context.read<ThemeCubit>().state;
+    return Container(
+      padding: const EdgeInsets.only(left: 20, right: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _fontSizeOption(
+            onPressed: onPressed,
+            fontSize: FontSizeSet.defaultSmall,
+            title: 'Small',
+            fontSizeSet: FontSize.small,
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          _fontSizeOption(
+            onPressed: onPressed,
+            fontSize: FontSizeSet.defaultMedium,
+            title: 'Medium',
+            fontSizeSet: FontSize.medium,
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          _fontSizeOption(
+            onPressed: onPressed,
+            fontSize: FontSizeSet.defaultLarge,
+            title: 'Large',
+            fontSizeSet: FontSize.large,
+          ),
+          const SizedBox(
+            width: 25,
+          ),
+          Text(
+            'Change Font Size',
+            style: TextStyle(
+              fontSize: theme.fontSize.general + 1,
+              color: theme.colors.textColor2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _fontSizeOption({
+    required Function(FontSize value) onPressed,
+    required double fontSize,
+    required String title,
+    required FontSize fontSizeSet,
+  }) {
+    final theme = context.read<ThemeCubit>().state;
+    return GestureDetector(
+      child: Text(
+        'ABcd',
+        style: TextStyle(
+          fontSize: fontSize,
+          shadows: [
+            Shadow(
+              color: theme.fSize == fontSizeSet
+                  ? theme.colors.yellowAccent
+                  : theme.colors.underlineColor,
+              offset: const Offset(0, -5),
+            )
+          ],
+          color: Colors.transparent,
+          fontWeight: theme.fSize == fontSizeSet ? FontWeight.bold : null,
+          decoration: TextDecoration.underline,
+          decorationColor:
+              theme.fSize == fontSizeSet ? theme.colors.yellowAccent : theme.colors.underlineColor,
+          decorationThickness: 4,
+        ),
+      ),
+      onTap: () => onPressed(fontSizeSet),
     );
   }
 }

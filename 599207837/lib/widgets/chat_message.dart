@@ -120,7 +120,10 @@ class _ChatMessageState extends State<ChatMessage> {
               children: [
                 Text(
                   task.description,
-                  style: TextStyle(fontSize: 15, color: theme.colors.textColor2),
+                  style: TextStyle(
+                    color: theme.colors.textColor2,
+                    fontSize: theme.fontSize.general + 1,
+                  ),
                 ),
                 _attachedImage(task.imageName, context),
                 Container(
@@ -149,7 +152,10 @@ class _ChatMessageState extends State<ChatMessage> {
           TextButton(
             child: Text(
               'Complete',
-              style: TextStyle(color: theme.colors.blueTextColor),
+              style: TextStyle(
+                color: theme.colors.blueTextColor,
+                fontSize: theme.fontSize.general,
+              ),
             ),
             onPressed: () {
               setState(() => MessageRepository.completeTask(task));
@@ -157,7 +163,10 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
           Text(
             timeFormatter.format(task.timeCreated),
-            style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
+            style: TextStyle(
+              fontSize: theme.fontSize.general + 1,
+              color: theme.colors.textColor1,
+            ),
           ),
         ],
       );
@@ -169,21 +178,24 @@ class _ChatMessageState extends State<ChatMessage> {
             'Completed on:',
             style: TextStyle(
               color: theme.colors.blueTextColor,
-              fontSize: 12,
+              fontSize: theme.fontSize.secondary,
             ),
           ),
           Text(
             '${fullDateFormatter.format(task.timeCompleted!)}',
             style: TextStyle(
               color: theme.colors.blueTextColor,
-              fontSize: 13,
+              fontSize: theme.fontSize.secondary + 1,
             ),
           ),
           Container(
             margin: const EdgeInsets.only(top: 5),
             child: Text(
               timeFormatter.format(task.timeCreated),
-              style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
+              style: TextStyle(
+                fontSize: theme.fontSize.general + 1,
+                color: theme.colors.textColor1,
+              ),
             ),
           ),
         ],
@@ -217,7 +229,10 @@ class _ChatMessageState extends State<ChatMessage> {
               children: [
                 Text(
                   event.description,
-                  style: TextStyle(fontSize: 15, color: theme.colors.textColor2),
+                  style: TextStyle(
+                    fontSize: theme.fontSize.general + 1,
+                    color: theme.colors.textColor2,
+                  ),
                 ),
                 _attachedImage(event.imageName, context),
                 _eventSchedule(event),
@@ -250,7 +265,7 @@ class _ChatMessageState extends State<ChatMessage> {
             color: visited
                 ? theme.colors.greenTextColor
                 : (missed ? theme.colors.redTextColor : theme.colors.blueTextColor),
-            fontSize: 13,
+            fontSize: theme.fontSize.secondary + 1,
           ),
         ),
       );
@@ -271,7 +286,7 @@ class _ChatMessageState extends State<ChatMessage> {
               color: visited
                   ? theme.colors.greenTextColor
                   : (missed ? theme.colors.redTextColor : theme.colors.blueTextColor),
-              fontSize: 12,
+              fontSize: theme.fontSize.secondary,
             ),
           ),
           Text(
@@ -280,7 +295,7 @@ class _ChatMessageState extends State<ChatMessage> {
               color: visited
                   ? theme.colors.greenTextColor
                   : (missed ? theme.colors.redTextColor : theme.colors.blueTextColor),
-              fontSize: 13,
+              fontSize: theme.fontSize.secondary + 1,
             ),
           ),
         ],
@@ -295,7 +310,10 @@ class _ChatMessageState extends State<ChatMessage> {
         margin: const EdgeInsets.only(top: 5),
         child: Text(
           timeFormatter.format(event.timeCreated),
-          style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
+          style: TextStyle(
+            fontSize: theme.fontSize.general + 1,
+            color: theme.colors.textColor1,
+          ),
         ),
       );
     }
@@ -307,10 +325,11 @@ class _ChatMessageState extends State<ChatMessage> {
             style: TextButton.styleFrom(
               primary: theme.colors.greenTextColor,
             ),
-            child: const Text(
+            child: Text(
               'Visited',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
+                fontSize: theme.fontSize.general,
               ),
             ),
             onPressed: () => setState(() => MessageRepository.visitEvent(event)),
@@ -319,17 +338,21 @@ class _ChatMessageState extends State<ChatMessage> {
             style: TextButton.styleFrom(
               primary: theme.colors.redTextColor,
             ),
-            child: const Text(
+            child: Text(
               'Missed',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
+                fontSize: theme.fontSize.general,
               ),
             ),
             onPressed: () => setState(() => MessageRepository.missEvent(event)),
           ),
           Text(
             timeFormatter.format(event.timeCreated),
-            style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
+            style: TextStyle(
+              fontSize: theme.fontSize.general + 1,
+              color: theme.colors.textColor1,
+            ),
           ),
         ],
       );
@@ -338,7 +361,10 @@ class _ChatMessageState extends State<ChatMessage> {
       margin: const EdgeInsets.only(top: 5),
       child: Text(
         timeFormatter.format(event.timeCreated),
-        style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
+        style: TextStyle(
+          fontSize: theme.fontSize.general + 1,
+          color: theme.colors.textColor1,
+        ),
       ),
     );
   }
@@ -369,7 +395,7 @@ class _ChatMessageState extends State<ChatMessage> {
                 Text(
                   note.description,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: theme.fontSize.general + 1,
                     color: theme.colors.textColor2,
                   ),
                 ),
@@ -379,7 +405,7 @@ class _ChatMessageState extends State<ChatMessage> {
                   child: Text(
                     timeFormatter.format(note.timeCreated),
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: theme.fontSize.general + 1,
                       color: theme.colors.textColor1,
                     ),
                   ),
@@ -442,7 +468,10 @@ class _ChatMessageState extends State<ChatMessage> {
               const SizedBox(width: 5),
               Text(
                 'Delete',
-                style: TextStyle(color: theme.colors.textColor2),
+                style: TextStyle(
+                  color: theme.colors.textColor2,
+                  fontSize: theme.fontSize.general,
+                ),
               ),
             ],
           ),
@@ -459,7 +488,10 @@ class _ChatMessageState extends State<ChatMessage> {
               const SizedBox(width: 5),
               Text(
                 'Edit',
-                style: TextStyle(color: theme.colors.textColor2),
+                style: TextStyle(
+                  color: theme.colors.textColor2,
+                  fontSize: theme.fontSize.general,
+                ),
               ),
             ],
           ),
@@ -481,7 +513,10 @@ class _ChatMessageState extends State<ChatMessage> {
               const SizedBox(width: 5),
               Text(
                 'Select',
-                style: TextStyle(color: theme.colors.textColor2),
+                style: TextStyle(
+                  color: theme.colors.textColor2,
+                  fontSize: theme.fontSize.general,
+                ),
               ),
             ],
           ),
@@ -511,7 +546,10 @@ class _ChatMessageState extends State<ChatMessage> {
               const SizedBox(width: 5),
               Text(
                 'Move',
-                style: TextStyle(color: theme.colors.textColor2),
+                style: TextStyle(
+                  color: theme.colors.textColor2,
+                  fontSize: theme.fontSize.general,
+                ),
               ),
             ],
           ),

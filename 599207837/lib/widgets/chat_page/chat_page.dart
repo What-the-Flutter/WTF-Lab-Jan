@@ -211,7 +211,7 @@ class _ChatPage extends StatelessWidget {
               Text(
                 topic.name,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: theme.fontSize.primary,
                   fontWeight: FontWeight.w600,
                   color: theme.colors.textColor2,
                 ),
@@ -223,7 +223,7 @@ class _ChatPage extends StatelessWidget {
                 'Online',
                 style: TextStyle(
                   color: Colors.grey.shade600,
-                  fontSize: 13,
+                  fontSize: theme.fontSize.secondary,
                 ),
               ),
             ],
@@ -363,11 +363,17 @@ class _ChatPage extends StatelessWidget {
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: 'Write event description...',
-                        hintStyle: TextStyle(color: Colors.grey.shade600),
+                        hintStyle: TextStyle(
+                          color: theme.colors.minorTextColor,
+                          fontSize: theme.fontSize.primary,
+                        ),
                         border: InputBorder.none,
                       ),
                       controller: state.descriptionController,
-                      style: TextStyle(color: theme.colors.textColor2),
+                      style: TextStyle(
+                        color: theme.colors.textColor2,
+                        fontSize: theme.fontSize.primary,
+                      ),
                     ),
                   ),
                 ],
@@ -433,11 +439,17 @@ class _ChatPage extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: isTask ? 'Write task...' : 'Write note...',
-                hintStyle: TextStyle(color: Colors.grey.shade600),
+                hintStyle: TextStyle(
+                  color: theme.colors.minorTextColor,
+                  fontSize: theme.fontSize.primary,
+                ),
                 border: InputBorder.none,
               ),
               controller: state.descriptionController,
-              style: TextStyle(color: theme.colors.textColor2),
+              style: TextStyle(
+                color: theme.colors.textColor2,
+                fontSize: theme.fontSize.primary,
+              ),
             ),
           ),
           const SizedBox(

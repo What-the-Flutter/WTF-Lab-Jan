@@ -104,7 +104,7 @@ class _ChatCard extends StatelessWidget {
                               Text(
                                 '${topic.name} ',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: theme.fontSize.primary,
                                   color: theme.colors.textColor1,
                                 ),
                               ),
@@ -122,7 +122,7 @@ class _ChatCard extends StatelessWidget {
                           Text(
                             'widget.topic.lastMessage',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: theme.fontSize.secondary,
                               color: theme.colors.minorTextColor,
                               fontWeight: FontWeight.normal,
                             ),
@@ -137,7 +137,7 @@ class _ChatCard extends StatelessWidget {
             Text(
               topic.elements.toString(),
               style: TextStyle(
-                fontSize: 12,
+                fontSize: theme.fontSize.secondary,
                 fontWeight: FontWeight.normal,
                 color: theme.colors.textColor1,
               ),
@@ -164,6 +164,7 @@ class _ChatCard extends StatelessWidget {
             icon: Icons.info_outline_rounded,
             iconColor: Colors.teal,
             labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
           const Divider(),
           _cardMenuItem(
@@ -175,6 +176,7 @@ class _ChatCard extends StatelessWidget {
             icon: Icons.push_pin_outlined,
             iconColor: Colors.green,
             labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
           const Divider(),
           _cardMenuItem(
@@ -186,6 +188,7 @@ class _ChatCard extends StatelessWidget {
             icon: Icons.archive_outlined,
             iconColor: Colors.amberAccent,
             labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
           const Divider(),
           _cardMenuItem(
@@ -204,6 +207,7 @@ class _ChatCard extends StatelessWidget {
             icon: Icons.edit_outlined,
             iconColor: Colors.blue,
             labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
           const Divider(),
           _cardMenuItem(
@@ -218,6 +222,7 @@ class _ChatCard extends StatelessWidget {
             icon: Icons.delete_outline_rounded,
             iconColor: Colors.red,
             labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
         ],
       ),
@@ -282,7 +287,7 @@ class _ChatCard extends StatelessWidget {
         return AlertDialog(
           backgroundColor: theme.colors.backgroundColor,
           content: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 220),
+            constraints: const BoxConstraints(maxHeight: 240),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -302,7 +307,10 @@ class _ChatCard extends StatelessWidget {
                     ),
                     Text(
                       topic.name,
-                      style: TextStyle(fontSize: 20, color: theme.colors.textColor1),
+                      style: TextStyle(
+                        fontSize: theme.fontSize.primary + 2,
+                        color: theme.colors.textColor1,
+                      ),
                     ),
                   ],
                 ),
@@ -333,7 +341,7 @@ class _ChatCard extends StatelessWidget {
                 child: Text(
                   'Ok',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: theme.fontSize.primary,
                     color: theme.colors.underlineColor,
                   ),
                 ),
@@ -346,8 +354,11 @@ class _ChatCard extends StatelessWidget {
     );
   }
 
-  Widget _infoNode(
-      {required String topText, required String bottomText, required ThemeState theme}) {
+  Widget _infoNode({
+    required String topText,
+    required String bottomText,
+    required ThemeState theme,
+  }) {
     return Container(
       margin: const EdgeInsets.only(top: 12),
       child: Column(
@@ -355,14 +366,20 @@ class _ChatCard extends StatelessWidget {
         children: [
           Text(
             topText,
-            style: TextStyle(color: theme.colors.textColor1, fontSize: 13),
+            style: TextStyle(
+              color: theme.colors.textColor1,
+              fontSize: theme.fontSize.secondary + 1,
+            ),
           ),
           const SizedBox(
             height: 3,
           ),
           Text(
             bottomText,
-            style: TextStyle(color: theme.colors.textColor2, fontSize: 14),
+            style: TextStyle(
+              color: theme.colors.textColor2,
+              fontSize: theme.fontSize.general,
+            ),
           ),
         ],
       ),
@@ -375,6 +392,7 @@ class _ChatCard extends StatelessWidget {
     required IconData icon,
     required Color iconColor,
     required Color? labelColor,
+    required ThemeState theme,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -395,7 +413,10 @@ class _ChatCard extends StatelessWidget {
             ),
             Text(
               label,
-              style: TextStyle(color: labelColor, fontSize: 17),
+              style: TextStyle(
+                color: labelColor,
+                fontSize: theme.fontSize.primary,
+              ),
             ),
           ],
         ),

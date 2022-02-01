@@ -36,9 +36,6 @@ class _TopicMaker extends StatelessWidget {
             backgroundColor: theme.colors.themeColor1,
             title: Text(
               state.topic == null ? 'Create new topic' : 'Edit ${state.topic!.name}',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
             ),
           ),
           body: Container(
@@ -47,7 +44,10 @@ class _TopicMaker extends StatelessWidget {
               children: [
                 TextField(
                   decoration: InputDecoration(
-                    hintStyle: TextStyle(color: theme.colors.minorTextColor),
+                    hintStyle: TextStyle(
+                      color: theme.colors.minorTextColor,
+                      fontSize: theme.fontSize.general,
+                    ),
                     hintText: 'Enter topic name...',
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
@@ -65,6 +65,7 @@ class _TopicMaker extends StatelessWidget {
                   controller: state.nameController,
                   style: TextStyle(
                     color: theme.colors.textColor1,
+                    fontSize: theme.fontSize.general,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -88,8 +89,8 @@ class _TopicMaker extends StatelessWidget {
                   },
                   child: Text(
                     state.topic == null ? 'Add topic' : 'Save',
-                    style: const TextStyle(
-                      fontSize: 20,
+                    style: TextStyle(
+                      fontSize: theme.fontSize.general,
                     ),
                   ),
                 ),
