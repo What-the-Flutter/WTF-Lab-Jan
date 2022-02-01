@@ -50,7 +50,7 @@ class _ChatMessageState extends State<ChatMessage> {
     setState(() {
       _favIcon = widget.item.favourite ? Icons.star_rounded : Icons.star_border_rounded;
       _favColor =
-          widget.item.favourite ? Colors.amberAccent : const Color.fromARGB(255, 66, 66, 66);
+      widget.item.favourite ? Colors.amberAccent : const Color.fromARGB(255, 66, 66, 66);
     });
   }
 
@@ -82,9 +82,29 @@ class _ChatMessageState extends State<ChatMessage> {
         iconColor: theme.colors.textColor1,
         animationDuration: const Duration(milliseconds: 300),
         offsetDx: 0.25,
-        child: _innerMessage(),
+        child: _messageTile(),
       ),
     );
+  }
+
+  Widget _messageTile() {
+    if (context.read<ThemeCubit>().state.bubbleAlignment == MainAxisAlignment.start) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          _innerMessage(),
+          _favouriteButton(),
+        ],
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          _favouriteButton(),
+          _innerMessage(),
+        ],
+      );
+    }
   }
 
   Widget _innerMessage() {
@@ -95,6 +115,15 @@ class _ChatMessageState extends State<ChatMessage> {
     } else {
       return _noteMessage(widget.item as Note);
     }
+  }
+
+  Widget _favouriteButton() {
+    return IconButton(
+      icon: Icon(_favIcon),
+      onPressed: _onFavourite,
+      color: _favColor,
+      iconSize: 22,
+    );
   }
 
   Widget _taskMessage(Task task) {
@@ -109,33 +138,23 @@ class _ChatMessageState extends State<ChatMessage> {
         }
       },
       onLongPress: _showMenu,
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: theme.colors.chatTaskColor,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: theme.colors.chatTaskColor,
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _richDescription(task.description),
+            _attachedImage(task.imageName, context),
+            Container(
+              margin: const EdgeInsets.only(top: 5),
+              child: _taskMessageFooter(task),
             ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _richDescription(task.description),
-                _attachedImage(task.imageName, context),
-                Container(
-                  margin: const EdgeInsets.only(top: 5),
-                  child: _taskMessageFooter(task),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: Icon(_favIcon),
-            onPressed: _onFavourite,
-            color: _favColor,
-            iconSize: 22,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -271,37 +290,27 @@ class _ChatMessageState extends State<ChatMessage> {
         }
       },
       onLongPress: _showMenu,
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: (theme.colors.chatEventColor),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: (theme.colors.chatEventColor),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              event.description,
+              style: TextStyle(
+                fontSize: theme.fontSize.general + 1,
+                color: theme.colors.textColor2,
+              ),
             ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  event.description,
-                  style: TextStyle(
-                    fontSize: theme.fontSize.general + 1,
-                    color: theme.colors.textColor2,
-                  ),
-                ),
-                _attachedImage(event.imageName, context),
-                _eventSchedule(event),
-                _eventFooter(event),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: Icon(_favIcon),
-            onPressed: _onFavourite,
-            color: _favColor,
-            iconSize: 22,
-          ),
-        ],
+            _attachedImage(event.imageName, context),
+            _eventSchedule(event),
+            _eventFooter(event),
+          ],
+        ),
       ),
     );
   }
@@ -436,45 +445,35 @@ class _ChatMessageState extends State<ChatMessage> {
         }
       },
       onLongPress: _showMenu,
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: (theme.colors.chatNoteColor),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: (theme.colors.chatNoteColor),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              note.description,
+              style: TextStyle(
+                fontSize: theme.fontSize.general + 1,
+                color: theme.colors.textColor2,
+              ),
             ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  note.description,
-                  style: TextStyle(
-                    fontSize: theme.fontSize.general + 1,
-                    color: theme.colors.textColor2,
-                  ),
+            _attachedImage(note.imageName, context),
+            Container(
+              margin: const EdgeInsets.only(top: 5),
+              child: Text(
+                timeFormatter.format(note.timeCreated),
+                style: TextStyle(
+                  fontSize: theme.fontSize.general + 1,
+                  color: theme.colors.textColor1,
                 ),
-                _attachedImage(note.imageName, context),
-                Container(
-                  margin: const EdgeInsets.only(top: 5),
-                  child: Text(
-                    timeFormatter.format(note.timeCreated),
-                    style: TextStyle(
-                      fontSize: theme.fontSize.general + 1,
-                      color: theme.colors.textColor1,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          IconButton(
-            icon: Icon(_favIcon),
-            onPressed: _onFavourite,
-            color: _favColor,
-            iconSize: 22,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -483,25 +482,25 @@ class _ChatMessageState extends State<ChatMessage> {
     return imageName == null
         ? Container()
         : Container(
-            constraints: const BoxConstraints(maxHeight: 200, maxWidth: 200),
-            padding: const EdgeInsets.only(top: 10, bottom: 5),
-            child: FutureBuilder(
-              future: StorageProvider.getImageUrl(imageName),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Image.network(
-                    snapshot.data as String,
-                    fit: BoxFit.contain,
-                  );
-                } else {
-                  return const Center(
-                      child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ));
-                }
-              },
-            ),
-          );
+      constraints: const BoxConstraints(maxHeight: 200, maxWidth: 200),
+      padding: const EdgeInsets.only(top: 10, bottom: 5),
+      child: FutureBuilder(
+        future: StorageProvider.getImageUrl(imageName),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Image.network(
+              snapshot.data as String,
+              fit: BoxFit.contain,
+            );
+          } else {
+            return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ));
+          }
+        },
+      ),
+    );
   }
 
   void _showMenu() {
@@ -579,7 +578,7 @@ class _ChatMessageState extends State<ChatMessage> {
         PopupMenuItem(
           onTap: () => Future<void>.delayed(
             const Duration(),
-            () => Alerts.moveAlert(
+                () => Alerts.moveAlert(
               context: context,
               currentTopic: widget.item.topic,
               onMoved: (topic) {

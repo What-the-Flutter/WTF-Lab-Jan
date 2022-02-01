@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../../database/preferences.dart';
 
 import '../../entity/theme.dart';
@@ -20,6 +22,7 @@ class ThemeState {
   late final List<FontSizeSet> _fontSizeSets;
   late final ThemeColor tColor;
   late final FontSize fSize;
+  late final MainAxisAlignment bubbleAlignment;
 
   ColorSet get colors => _colorSets[tColor.index];
 
@@ -28,6 +31,7 @@ class ThemeState {
   ThemeState({
     this.tColor = ThemeColor.light,
     this.fSize = FontSize.medium,
+    this.bubbleAlignment = MainAxisAlignment.start,
     List<ColorSet>? colorSets,
     List<FontSizeSet>? fontSizeSets,
   }) {
@@ -45,12 +49,18 @@ class ThemeState {
     _fontSizeSets.add(FontSizeSet.large());
     tColor = ThemeColor.values[Preferences.data?.getInt('theme') ?? 0];
     fSize = FontSize.values[Preferences.data?.getInt('font_size') ?? 1];
+    bubbleAlignment = MainAxisAlignment.values[Preferences.data?.getInt('bubble_align') ?? 0];
   }
 
-  ThemeState duplicate({ThemeColor? tColor, FontSize? fSize}) {
+  ThemeState duplicate({
+    ThemeColor? tColor,
+    FontSize? fSize,
+    MainAxisAlignment? bubbleAlignment,
+  }) {
     return ThemeState(
       tColor: tColor ?? this.tColor,
       fSize: fSize ?? this.fSize,
+      bubbleAlignment: bubbleAlignment ?? this.bubbleAlignment,
       colorSets: _colorSets,
       fontSizeSets: _fontSizeSets,
     );

@@ -1,7 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../entity/theme.dart';
 
+import '../entity/theme.dart';
 import 'theme_provider/theme_cubit.dart';
 import 'theme_provider/theme_state.dart';
 
@@ -45,11 +47,89 @@ class _SettingsPage extends StatelessWidget {
                   height: 15,
                 ),
                 _fontChooser((size) => context.read<ThemeCubit>().changeFontSize(size), state),
+                const SizedBox(
+                  height: 15,
+                ),
+                _bubbleAlignChooser(context.read<ThemeCubit>()),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _bubbleAlignChooser(ThemeCubit themeCubit) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Text(
+            'Change Bubble Alignment',
+            style: TextStyle(
+              fontSize: themeCubit.state.fontSize.general + 1,
+              color: themeCubit.state.colors.textColor2,
+            ),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _bubbleAlignOption(
+                image: Image.asset('assets/images/bubble_left_${themeCubit.state.tColor.name}.jpg'),
+                themeCubit: themeCubit,
+                alignment: MainAxisAlignment.start,
+              ),
+              _bubbleAlignOption(
+                image: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(math.pi),
+                  child:
+                  Image.asset('assets/images/bubble_left_${themeCubit.state.tColor.name}.jpg'),
+                ),
+                themeCubit: themeCubit,
+                alignment: MainAxisAlignment.end,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _bubbleAlignOption({
+    required Widget image,
+    required ThemeCubit themeCubit,
+    required MainAxisAlignment alignment,
+  }) {
+    return Column(
+      children: [
+        Center(
+          child: Radio<MainAxisAlignment>(
+            value: alignment,
+            groupValue: themeCubit.state.bubbleAlignment,
+            fillColor: MaterialStateProperty.all(themeCubit.state.colors.underlineColor),
+            onChanged: (value) => themeCubit.changeBubbleAlignment(value!),
+          ),
+        ),
+        Container(
+          height: 105,
+          width: 140,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: themeCubit.state.colors.textColor1,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ClipRRect(
+            child: image,
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ],
     );
   }
 
@@ -153,7 +233,7 @@ class _SettingsPage extends StatelessWidget {
           fontWeight: theme.fSize == fontSizeSet ? FontWeight.bold : null,
           decoration: TextDecoration.underline,
           decorationColor:
-              theme.fSize == fontSizeSet ? theme.colors.yellowAccent : theme.colors.underlineColor,
+          theme.fSize == fontSizeSet ? theme.colors.yellowAccent : theme.colors.underlineColor,
           decorationThickness: 4,
         ),
       ),
