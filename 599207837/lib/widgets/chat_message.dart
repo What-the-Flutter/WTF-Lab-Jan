@@ -1,12 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swipe_to/swipe_to.dart';
 
 import '../database/database.dart';
+import '../database/firebase/storage_provider.dart';
 import '../entity/entities.dart';
-import '../main.dart';
 import 'alerts.dart';
+import 'theme_provider/theme_cubit.dart';
 
 class ChatMessage extends StatefulWidget {
   final Message item;
@@ -15,7 +15,6 @@ class ChatMessage extends StatefulWidget {
   final Function() onSelection;
   final Function() onSelected;
   final bool selection;
-  final ThemeInherited themeInherited;
 
   const ChatMessage({
     Key? key,
@@ -25,7 +24,6 @@ class ChatMessage extends StatefulWidget {
     required this.onSelection,
     required this.onSelected,
     required this.selection,
-    required this.themeInherited,
   }) : super(key: key);
 
   @override
@@ -68,6 +66,7 @@ class _ChatMessageState extends State<ChatMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.read<ThemeCubit>().state;
     return Container(
       decoration: BoxDecoration(
         color: widget.selection && _selected ? (Colors.blue.shade100) : null,
@@ -78,7 +77,7 @@ class _ChatMessageState extends State<ChatMessage> {
         onRightSwipe: widget.selection ? null : widget.onEdited,
         iconOnLeftSwipe: Icons.delete_outline_rounded,
         iconOnRightSwipe: Icons.edit_outlined,
-        iconColor: widget.themeInherited.preset.colors.textColor1,
+        iconColor: theme.colors.textColor1,
         animationDuration: const Duration(milliseconds: 300),
         offsetDx: 0.25,
         child: _innerMessage(),
@@ -97,6 +96,7 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   Widget _taskMessage(Task task) {
+    final theme = context.read<ThemeCubit>().state;
     return GestureDetector(
       onTap: () {
         if (widget.selection) {
@@ -112,7 +112,7 @@ class _ChatMessageState extends State<ChatMessage> {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: widget.themeInherited.preset.colors.chatTaskColor,
+              color: theme.colors.chatTaskColor,
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -120,10 +120,9 @@ class _ChatMessageState extends State<ChatMessage> {
               children: [
                 Text(
                   task.description,
-                  style: TextStyle(
-                      fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
+                  style: TextStyle(fontSize: 15, color: theme.colors.textColor2),
                 ),
-                _attachedImage(task.imgPath),
+                _attachedImage(task.imageName, context),
                 Container(
                   margin: const EdgeInsets.only(top: 5),
                   child: _taskMessageFooter(task),
@@ -143,13 +142,14 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   Widget _taskMessageFooter(Task task) {
+    final theme = context.read<ThemeCubit>().state;
     if (!task.isCompleted) {
       return Row(
         children: [
           TextButton(
             child: Text(
               'Complete',
-              style: TextStyle(color: widget.themeInherited.preset.colors.blueTextColor),
+              style: TextStyle(color: theme.colors.blueTextColor),
             ),
             onPressed: () {
               setState(() => MessageRepository.completeTask(task));
@@ -157,7 +157,7 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
           Text(
             timeFormatter.format(task.timeCreated),
-            style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
+            style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
           ),
         ],
       );
@@ -168,14 +168,14 @@ class _ChatMessageState extends State<ChatMessage> {
           Text(
             'Completed on:',
             style: TextStyle(
-              color: widget.themeInherited.preset.colors.blueTextColor,
+              color: theme.colors.blueTextColor,
               fontSize: 12,
             ),
           ),
           Text(
             '${fullDateFormatter.format(task.timeCompleted!)}',
             style: TextStyle(
-              color: widget.themeInherited.preset.colors.blueTextColor,
+              color: theme.colors.blueTextColor,
               fontSize: 13,
             ),
           ),
@@ -183,7 +183,7 @@ class _ChatMessageState extends State<ChatMessage> {
             margin: const EdgeInsets.only(top: 5),
             child: Text(
               timeFormatter.format(task.timeCreated),
-              style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
+              style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
             ),
           ),
         ],
@@ -192,6 +192,8 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   Widget _eventMessage(Event event) {
+    final theme = context.read<ThemeCubit>().state;
+
     return GestureDetector(
       onTap: () {
         if (widget.selection) {
@@ -207,7 +209,7 @@ class _ChatMessageState extends State<ChatMessage> {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: (widget.themeInherited.preset.colors.chatEventColor),
+              color: (theme.colors.chatEventColor),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -215,10 +217,9 @@ class _ChatMessageState extends State<ChatMessage> {
               children: [
                 Text(
                   event.description,
-                  style: TextStyle(
-                      fontSize: 15, color: widget.themeInherited.preset.colors.textColor2),
+                  style: TextStyle(fontSize: 15, color: theme.colors.textColor2),
                 ),
-                _attachedImage(event.imgPath),
+                _attachedImage(event.imageName, context),
                 _eventSchedule(event),
                 _eventFooter(event),
               ],
@@ -236,6 +237,7 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   Widget _eventSchedule(Event event) {
+    final theme = context.read<ThemeCubit>().state;
     final visited = event.isVisited;
     final missed = event.isMissed;
 
@@ -246,10 +248,8 @@ class _ChatMessageState extends State<ChatMessage> {
           visited ? 'Visited' : (missed ? 'Missed' : 'No date set'),
           style: TextStyle(
             color: visited
-                ? widget.themeInherited.preset.colors.greenTextColor
-                : (missed
-                    ? widget.themeInherited.preset.colors.redTextColor
-                    : widget.themeInherited.preset.colors.blueTextColor),
+                ? theme.colors.greenTextColor
+                : (missed ? theme.colors.redTextColor : theme.colors.blueTextColor),
             fontSize: 13,
           ),
         ),
@@ -269,10 +269,8 @@ class _ChatMessageState extends State<ChatMessage> {
                 : (visited ? 'Visited on' : (missed ? 'Missed on' : 'Passed on:')),
             style: TextStyle(
               color: visited
-                  ? widget.themeInherited.preset.colors.greenTextColor
-                  : (missed
-                      ? widget.themeInherited.preset.colors.redTextColor
-                      : widget.themeInherited.preset.colors.blueTextColor),
+                  ? theme.colors.greenTextColor
+                  : (missed ? theme.colors.redTextColor : theme.colors.blueTextColor),
               fontSize: 12,
             ),
           ),
@@ -280,10 +278,8 @@ class _ChatMessageState extends State<ChatMessage> {
             fullDateFormatter.format(event.scheduledTime!),
             style: TextStyle(
               color: visited
-                  ? widget.themeInherited.preset.colors.greenTextColor
-                  : (missed
-                      ? widget.themeInherited.preset.colors.redTextColor
-                      : widget.themeInherited.preset.colors.blueTextColor),
+                  ? theme.colors.greenTextColor
+                  : (missed ? theme.colors.redTextColor : theme.colors.blueTextColor),
               fontSize: 13,
             ),
           ),
@@ -293,12 +289,13 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   Widget _eventFooter(Event event) {
+    final theme = context.read<ThemeCubit>().state;
     if (event.scheduledTime != null && event.scheduledTime!.compareTo(DateTime.now()) > 0) {
       return Container(
         margin: const EdgeInsets.only(top: 5),
         child: Text(
           timeFormatter.format(event.timeCreated),
-          style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
+          style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
         ),
       );
     }
@@ -308,7 +305,7 @@ class _ChatMessageState extends State<ChatMessage> {
         children: <Widget>[
           TextButton(
             style: TextButton.styleFrom(
-              primary: widget.themeInherited.preset.colors.greenTextColor,
+              primary: theme.colors.greenTextColor,
             ),
             child: const Text(
               'Visited',
@@ -320,7 +317,7 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
           TextButton(
             style: TextButton.styleFrom(
-              primary: widget.themeInherited.preset.colors.redTextColor,
+              primary: theme.colors.redTextColor,
             ),
             child: const Text(
               'Missed',
@@ -332,7 +329,7 @@ class _ChatMessageState extends State<ChatMessage> {
           ),
           Text(
             timeFormatter.format(event.timeCreated),
-            style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
+            style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
           ),
         ],
       );
@@ -341,12 +338,13 @@ class _ChatMessageState extends State<ChatMessage> {
       margin: const EdgeInsets.only(top: 5),
       child: Text(
         timeFormatter.format(event.timeCreated),
-        style: TextStyle(fontSize: 15, color: widget.themeInherited.preset.colors.textColor1),
+        style: TextStyle(fontSize: 15, color: theme.colors.textColor1),
       ),
     );
   }
 
   Widget _noteMessage(Note note) {
+    final theme = context.read<ThemeCubit>().state;
     return GestureDetector(
       onTap: () {
         if (widget.selection) {
@@ -362,7 +360,7 @@ class _ChatMessageState extends State<ChatMessage> {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: (widget.themeInherited.preset.colors.chatNoteColor),
+              color: (theme.colors.chatNoteColor),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -372,17 +370,17 @@ class _ChatMessageState extends State<ChatMessage> {
                   note.description,
                   style: TextStyle(
                     fontSize: 15,
-                    color: widget.themeInherited.preset.colors.textColor2,
+                    color: theme.colors.textColor2,
                   ),
                 ),
-                _attachedImage(note.imgPath),
+                _attachedImage(note.imageName, context),
                 Container(
                   margin: const EdgeInsets.only(top: 5),
                   child: Text(
                     timeFormatter.format(note.timeCreated),
                     style: TextStyle(
                       fontSize: 15,
-                      color: widget.themeInherited.preset.colors.textColor1,
+                      color: theme.colors.textColor1,
                     ),
                   ),
                 ),
@@ -400,22 +398,35 @@ class _ChatMessageState extends State<ChatMessage> {
     );
   }
 
-  Widget _attachedImage(String? imgPath) {
-    return imgPath == null
+  Widget _attachedImage(String? imageName, BuildContext context) {
+    return imageName == null
         ? Container()
         : Container(
             constraints: const BoxConstraints(maxHeight: 200, maxWidth: 200),
             padding: const EdgeInsets.only(top: 10, bottom: 5),
-            child: Image.file(
-              File(imgPath),
-              fit: BoxFit.contain,
+            child: FutureBuilder(
+              future: StorageProvider.getImageUrl(imageName),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Image.network(
+                    snapshot.data as String,
+                    fit: BoxFit.contain,
+                  );
+                } else {
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ));
+                }
+              },
             ),
           );
   }
 
   void _showMenu() {
+    final theme = context.read<ThemeCubit>().state;
     showMenu(
-      color: widget.themeInherited.preset.colors.backgroundColor,
+      color: theme.colors.backgroundColor,
       context: context,
       position: const RelativeRect.fromLTRB(100.0, 100.0, 100.0, 100.0),
       items: <PopupMenuEntry>[
@@ -426,12 +437,12 @@ class _ChatMessageState extends State<ChatMessage> {
             children: <Widget>[
               Icon(
                 Icons.delete,
-                color: widget.themeInherited.preset.colors.textColor2,
+                color: theme.colors.textColor2,
               ),
               const SizedBox(width: 5),
               Text(
                 'Delete',
-                style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
+                style: TextStyle(color: theme.colors.textColor2),
               ),
             ],
           ),
@@ -443,12 +454,12 @@ class _ChatMessageState extends State<ChatMessage> {
             children: <Widget>[
               Icon(
                 Icons.edit,
-                color: widget.themeInherited.preset.colors.textColor2,
+                color: theme.colors.textColor2,
               ),
               const SizedBox(width: 5),
               Text(
                 'Edit',
-                style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
+                style: TextStyle(color: theme.colors.textColor2),
               ),
             ],
           ),
@@ -465,12 +476,12 @@ class _ChatMessageState extends State<ChatMessage> {
             children: <Widget>[
               Icon(
                 Icons.autofps_select,
-                color: widget.themeInherited.preset.colors.textColor2,
+                color: theme.colors.textColor2,
               ),
               const SizedBox(width: 5),
               Text(
                 'Select',
-                style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
+                style: TextStyle(color: theme.colors.textColor2),
               ),
             ],
           ),
@@ -480,7 +491,6 @@ class _ChatMessageState extends State<ChatMessage> {
             const Duration(),
             () => Alerts.moveAlert(
               context: context,
-              themeInherited: widget.themeInherited,
               currentTopic: widget.item.topic,
               onMoved: (topic) {
                 final added = widget.item.duplicate();
@@ -496,12 +506,12 @@ class _ChatMessageState extends State<ChatMessage> {
             children: <Widget>[
               Icon(
                 Icons.drive_file_move_outline,
-                color: widget.themeInherited.preset.colors.textColor2,
+                color: theme.colors.textColor2,
               ),
               const SizedBox(width: 5),
               Text(
                 'Move',
-                style: TextStyle(color: widget.themeInherited.preset.colors.textColor2),
+                style: TextStyle(color: theme.colors.textColor2),
               ),
             ],
           ),

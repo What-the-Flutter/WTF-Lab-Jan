@@ -2,7 +2,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../entity/entities.dart';
+import '../../entity/entities.dart';
 
 class DBProvider {
   static final DBProvider db = DBProvider._inner();
@@ -73,7 +73,7 @@ class DBProvider {
     deleteAllMessages(topic);
   }
 
-  Future<List<Topic>> getAllTopics() async {
+  Future<List<Topic>> loadTopics() async {
     final db = await database;
     final count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM Topic'));
     if (count == 0) {
@@ -85,19 +85,19 @@ class DBProvider {
     }
   }
 
-  Future<int> newMessage(Message o) async {
+  Future<int> newMessage(Message message) async {
     final db = await database;
-    final res = await db.insert('Message', o.toJson());
+    final res = await db.insert('Message', message.toJson());
     return res;
   }
 
-  Future<int> updateMessage(Message o) async {
+  Future<int> updateMessage(Message message) async {
     final db = await database;
-    final res = await db.update('Message', o.toJson(), where: 'id = ?', whereArgs: [o.uuid]);
+    final res = await db.update('Message', message.toJson(), where: 'id = ${message.uuid}');
     return res;
   }
 
-  Future<Message> getLastMessage(Topic topic) async {
+  Future<Message> loadLastMessage(Topic topic) async {
     final db = await database;
     final res = await db.query(
       'Message',
@@ -109,9 +109,9 @@ class DBProvider {
     return list[0];
   }
 
-  void deleteMessage(Message o) async {
+  void deleteMessage(Message message) async {
     final db = await database;
-    db.delete('Message', where: 'id = ${o.uuid}');
+    db.delete('Message', where: 'id = ${message.uuid}');
   }
 
   void deleteAllMessages(Topic topic) async {
@@ -119,7 +119,7 @@ class DBProvider {
     db.rawDelete('Delete from Message WHERE topic_id = ${topic.id}');
   }
 
-  Future<List<Message>> getTopicMessages(Topic topic) async {
+  Future<List<Message>> loadTopicMessages(Topic topic) async {
     final db = await database;
     final count = Sqflite.firstIntValue(await db.rawQuery(
       'SELECT COUNT(*) FROM Message WHERE topic_id = ${topic.id}',
@@ -137,7 +137,7 @@ class DBProvider {
     }
   }
 
-  Future<List<Message>> getTypeFavourites(int typeID) async {
+  Future<List<Message>> loadTypeFavourites(int typeID) async {
     final db = await database;
     final count = Sqflite.firstIntValue(await db.rawQuery(
       'SELECT COUNT(*) FROM Message WHERE type_id = $typeID AND favourite = 1',

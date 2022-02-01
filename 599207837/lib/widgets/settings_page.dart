@@ -1,30 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../main.dart';
+import 'theme_provider/theme_cubit.dart';
+import 'theme_provider/theme_state.dart';
 
 class SettingsPage extends StatefulWidget {
-  final int _currentTheme;
-
-  const SettingsPage(this._currentTheme, {Key? key}) : super(key: key);
+  const SettingsPage({Key? key}) : super(key: key);
 
   @override
-  _SettingsPageState createState() => _SettingsPageState(_currentTheme);
+  _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  late ThemeInherited themeInherited;
-
-  int currentTheme;
-
-  _SettingsPageState(this.currentTheme);
+  _SettingsPageState();
 
   @override
   Widget build(BuildContext context) {
-    themeInherited = ThemeInherited.of(context)!;
+    final theme = context.read<ThemeCubit>().state;
     return Scaffold(
-      backgroundColor: themeInherited.preset.colors.backgroundColor,
+      backgroundColor: theme.colors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: themeInherited.preset.colors.themeColor1,
+        backgroundColor: theme.colors.themeColor1,
         title: const Text(
           'Settings',
           style: TextStyle(
@@ -37,13 +33,10 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Row(
           children: [
             _switch(
-              (value) => setState(
-                () {
-                  themeInherited.onEdited();
-                  currentTheme = value ? 1 : 0;
-                },
-              ),
-            ),
+              (value) => setState(() {
+                context.read<ThemeCubit>().changeThemeColor();
+              }),
+            )
           ],
         ),
       ),
@@ -60,7 +53,7 @@ class _SettingsPageState extends State<SettingsPage> {
             activeTrackColor: Colors.indigo.shade800,
             inactiveThumbColor: Colors.yellow,
             inactiveTrackColor: Colors.lightBlueAccent,
-            value: currentTheme == 1,
+            value: context.read<ThemeCubit>().state.tColor != ThemeColor.light,
             onChanged: (value) => onChange(value),
           ),
           const SizedBox(
@@ -69,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Text(
             'Change Theme',
             style: TextStyle(
-              color: themeInherited.preset.colors.textColor2,
+              color: context.read<ThemeCubit>().state.colors.textColor2,
               fontSize: 15,
             ),
           ),

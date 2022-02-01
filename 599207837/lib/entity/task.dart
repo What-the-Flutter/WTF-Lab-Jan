@@ -23,7 +23,7 @@ class Task implements Message {
   String nodeID;
 
   @override
-  String? imgPath;
+  String? imageName;
 
   int? _id;
 
@@ -38,7 +38,7 @@ class Task implements Message {
     this.timeCompleted,
     int? id,
     this.nodeID = '',
-    this.imgPath,
+    this.imageName,
   }) {
     _id = id;
     timeCreated = timeCreated_ ?? DateTime.now();
@@ -68,7 +68,7 @@ class Task implements Message {
         'type_id': getTypeId(this),
         'topic_id': topic.id,
         'description': description,
-        'imgPath': imgPath,
+        'imgPath': imageName,
         'time_created': timeCreated.toString(),
         'favourite': favourite ? 1 : 0,
         'time_completed': timeCompleted.toString(),
@@ -79,7 +79,7 @@ class Task implements Message {
         nodeID: nodeID,
         topic: topic ?? TopicRepository.getTopicByID(json['topic_id']),
         description: json['description'],
-        imgPath: json['imgPath'] == 'null' ? null : json['imgPath'],
+        imageName: json['imgPath'] == 'null' ? null : json['imgPath'],
         favourite: json['favourite'] == 1 ? true : false,
         timeCreated_: DateTime.parse(json['time_created']),
         timeCompleted:

@@ -1,7 +1,7 @@
 import '../../entity/entities.dart';
 
 class ItemsPageState {
-  static const List listPlug = [];
+  static const List _listPlug = [];
 
   late final List<Message> favTasks;
   late final List<Message> favEvents;

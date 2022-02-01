@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../main.dart';
+import 'theme_provider/theme_cubit.dart';
 
 class DateTimePicker extends StatelessWidget {
   DateTimePicker({
@@ -13,7 +15,6 @@ class DateTimePicker extends StatelessWidget {
     required this.selectTime,
   });
 
-  late final ThemeInherited themeInherited;
   final String labelText;
   final DateTime? selectedDate;
   final TimeOfDay? selectedTime;
@@ -40,7 +41,6 @@ class DateTimePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    themeInherited = ThemeInherited.of(context)!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
@@ -50,7 +50,6 @@ class DateTimePicker extends StatelessWidget {
             labelText: labelText,
             valueText: selectedDate == null ? '' : DateFormat.yMMMd().format(selectedDate!),
             onPressed: () => _selectDate(context),
-            themeInherited: themeInherited,
           ),
         ),
         const SizedBox(width: 12.0),
@@ -60,7 +59,6 @@ class DateTimePicker extends StatelessWidget {
             labelText: 'Scheduled time',
             valueText: selectedTime == null ? '' : selectedTime!.format(context),
             onPressed: () => _selectTime(context),
-            themeInherited: themeInherited,
           ),
         ),
       ],
@@ -73,31 +71,30 @@ class _InputDropdown extends StatelessWidget {
     required this.labelText,
     required this.valueText,
     required this.onPressed,
-    required this.themeInherited,
   });
 
-  final ThemeInherited themeInherited;
   final String labelText;
   final String valueText;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.read<ThemeCubit>().state;
     return InkWell(
       onTap: onPressed,
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: TextStyle(color: themeInherited.preset.colors.minorTextColor),
+          labelStyle: TextStyle(color: theme.colors.minorTextColor),
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: themeInherited.preset.colors.minorTextColor,
+              color: theme.colors.minorTextColor,
               width: 1,
             ),
           ),
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: themeInherited.preset.colors.underlineColor,
+              color: theme.colors.underlineColor,
               width: 2,
             ),
           ),
@@ -108,11 +105,11 @@ class _InputDropdown extends StatelessWidget {
           children: <Widget>[
             Text(
               valueText,
-              style: TextStyle(color: themeInherited.preset.colors.textColor1),
+              style: TextStyle(color: theme.colors.textColor1),
             ),
             Icon(
               Icons.arrow_drop_down,
-              color: themeInherited.preset.colors.minorTextColor,
+              color: theme.colors.minorTextColor,
             ),
           ],
         ),

@@ -1,35 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class Theme {
-  final List<ColorSet> _colorSets = [];
-  late ColorSet colors;
-  late int themeNo;
-  static SharedPreferences? _preferences;
-
-  Theme({required this.colors}) {
-    themeNo = _preferences?.getInt('theme') ?? 0;
-    _colorSets.add(colors);
-  }
-
-  Theme.defaultOne() {
-    themeNo = _preferences?.getInt('theme') ?? 0;
-    _colorSets.add(ColorSet.lightDefault());
-    _colorSets.add(ColorSet.darkDefault());
-    colors = _colorSets[themeNo];
-  }
-
-  static Future<void> lookUpToPreferences() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    _preferences = await SharedPreferences.getInstance();
-  }
-
-  void changeTheme() {
-    themeNo = (themeNo + 1) % _colorSets.length;
-    _preferences!.setInt('theme', themeNo);
-    colors = _colorSets[themeNo];
-  }
-}
 
 class ColorSet {
   late Color avatarColor;
