@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../entity/entities.dart';
-import '../../main.dart';
+import '../theme_provider/theme_cubit.dart';
+import '../theme_provider/theme_state.dart';
 import 'topic_maker_cubit.dart';
 import 'topic_maker_state.dart';
 
@@ -21,36 +22,21 @@ class TopicMaker extends StatelessWidget {
 }
 
 class _TopicMaker extends StatelessWidget {
-  late final ThemeInherited themeInherited;
-
   _TopicMaker({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    themeInherited = ThemeInherited.of(context)!;
+    final theme = context.read<ThemeCubit>().state;
     return BlocBuilder<TopicMakerCubit, TopicMakerState>(
       builder: (context, state) {
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: themeInherited.preset.colors.backgroundColor,
+          backgroundColor: theme.colors.backgroundColor,
           appBar: AppBar(
-            backgroundColor: themeInherited.preset.colors.themeColor1,
+            backgroundColor: theme.colors.themeColor1,
             title: Text(
               state.topic == null ? 'Create new topic' : 'Edit ${state.topic!.name}',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
             ),
-            actions: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.brightness_4_rounded),
-                tooltip: 'Change theme',
-                onPressed: () {
-                  themeInherited.changeTheme();
-                  context.read<TopicMakerCubit>().update();
-                },
-              ),
-            ],
           ),
           body: Container(
             padding: const EdgeInsets.all(25),
@@ -58,11 +44,14 @@ class _TopicMaker extends StatelessWidget {
               children: [
                 TextField(
                   decoration: InputDecoration(
-                    hintStyle: TextStyle(color: themeInherited.preset.colors.minorTextColor),
+                    hintStyle: TextStyle(
+                      color: theme.colors.minorTextColor,
+                      fontSize: theme.fontSize.general,
+                    ),
                     hintText: 'Enter topic name...',
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
-                        color: themeInherited.preset.colors.minorTextColor,
+                        color: theme.colors.minorTextColor,
                         width: 1,
                       ),
                     ),
@@ -75,11 +64,12 @@ class _TopicMaker extends StatelessWidget {
                   ),
                   controller: state.nameController,
                   style: TextStyle(
-                    color: themeInherited.preset.colors.textColor1,
+                    color: theme.colors.textColor1,
+                    fontSize: theme.fontSize.general,
                   ),
                 ),
                 const SizedBox(height: 20),
-                _iconsGrid(),
+                _iconsGrid(theme),
                 const SizedBox(height: 35),
                 ElevatedButton(
                   style: ButtonStyle(
@@ -99,8 +89,8 @@ class _TopicMaker extends StatelessWidget {
                   },
                   child: Text(
                     state.topic == null ? 'Add topic' : 'Save',
-                    style: const TextStyle(
-                      fontSize: 20,
+                    style: TextStyle(
+                      fontSize: theme.fontSize.general,
                     ),
                   ),
                 ),
@@ -108,7 +98,7 @@ class _TopicMaker extends StatelessWidget {
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            backgroundColor: themeInherited.preset.colors.buttonColor,
+            backgroundColor: theme.colors.buttonColor,
             onPressed: () => Navigator.pop(context),
             child: const Icon(Icons.close_rounded),
           ),
@@ -117,7 +107,7 @@ class _TopicMaker extends StatelessWidget {
     );
   }
 
-  Widget _iconsGrid() {
+  Widget _iconsGrid(ThemeState theme) {
     return Container(
       width: 450,
       height: 450,
@@ -150,7 +140,7 @@ class _TopicMaker extends StatelessWidget {
                 index: index,
                 radius: 40,
                 iconColor: Colors.white,
-                backgroundColor: themeInherited.preset.colors.avatarColor,
+                backgroundColor: theme.colors.avatarColor,
                 onSelect: () => context.read<TopicMakerCubit>().changeSelected(index),
                 selected: state.selected,
               );

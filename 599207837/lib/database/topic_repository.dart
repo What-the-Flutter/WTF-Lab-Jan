@@ -35,8 +35,8 @@ class TopicRepository {
   static void _saveNewTopic(Topic topic) => FireBaseProvider.newTopic(topic);
 
   static Stream<List<Topic>> loadTopics() {
-    FireBaseProvider.getTopics().listen((event) => _topics.clear());
-    return FireBaseProvider.getTopics().map((s) {
+    FireBaseProvider.fetchTopics().listen((event) => _topics.clear());
+    return FireBaseProvider.fetchTopics().map((s) {
       return s.docs.map((doc) {
         return Topic.fromJson(doc.data(), nodeID: doc.id);
       }).toList();

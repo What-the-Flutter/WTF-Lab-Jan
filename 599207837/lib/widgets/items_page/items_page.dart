@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_project/widgets/theme_provider/theme_state.dart';
+import '../theme_provider/theme_cubit.dart';
 
-import '../../main.dart';
 import '../widgets.dart';
 import 'items_page_cubit.dart';
 import 'items_page_state.dart';
@@ -12,7 +13,7 @@ class ItemsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ItemsPageCubit()..subscribe(),
+      create: (context) => ItemsPageCubit()..subscribe(context.read<ThemeCubit>()),
       child: _ItemsPage(),
     );
   }
@@ -21,78 +22,78 @@ class ItemsPage extends StatelessWidget {
 class _ItemsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final themeInherited = ThemeInherited.of(context)!;
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        backgroundColor: themeInherited.preset.colors.backgroundColor,
-        appBar: AppBar(
-          backgroundColor: themeInherited.preset.colors.themeColor1,
-          title: const Text('ChatDiaryApp'),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.settings_rounded),
-              tooltip: 'Change theme',
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (newContext) => SettingsPage(themeInherited.preset.themeNo),
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, state) => DefaultTabController(
+        length: 4,
+        child: Scaffold(
+          backgroundColor: state.colors.backgroundColor,
+          appBar: AppBar(
+            backgroundColor: state.colors.themeColor1,
+            title: const Text('ChatDiaryApp'),
+            actions: <Widget>[
+              IconButton(
+                icon: const Icon(Icons.settings_rounded),
+                tooltip: 'Change theme',
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (newContext) => const SettingsPage(),
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        bottomNavigationBar: TabBar(
-          indicatorColor: themeInherited.preset.colors.underlineColor,
-          indicatorWeight: 3,
-          tabs: [
-            Tab(
-              icon: Icon(
-                Icons.amp_stories_rounded,
-                color: themeInherited.preset.colors.iconColor1,
-              ),
-            ),
-            Tab(
-              icon: Icon(
-                Icons.feed_rounded,
-                color: themeInherited.preset.colors.iconColor1,
-              ),
-            ),
-            Tab(
-              icon: Icon(
-                Icons.event_rounded,
-                color: themeInherited.preset.colors.iconColor1,
-              ),
-            ),
-            Tab(
-              icon: Icon(
-                Icons.drive_file_rename_outline,
-                color: themeInherited.preset.colors.iconColor1,
-              ),
-            ),
-          ],
-          labelColor: Theme.of(context).primaryColor,
-          unselectedLabelColor: Colors.black38,
-        ),
-        body: TabBarView(
-          children: [
-            const ChatList(
-              key: null,
-            ),
-            _itemsList('Tasks', 0),
-            _itemsList('Events', 1),
-            _itemsList('Notes', 2),
-          ],
-        ),
-        floatingActionButton: const AddingButton(
-          key: Key('MainButton'),
-          firstIcon: Icon(
-            Icons.add,
-            size: 30,
+            ],
           ),
-          secondIcon: Icon(
-            Icons.remove,
-            size: 30,
+          bottomNavigationBar: TabBar(
+            indicatorColor: state.colors.underlineColor,
+            indicatorWeight: 3,
+            tabs: [
+              Tab(
+                icon: Icon(
+                  Icons.amp_stories_rounded,
+                  color: state.colors.iconColor1,
+                ),
+              ),
+              Tab(
+                icon: Icon(
+                  Icons.feed_rounded,
+                  color: state.colors.iconColor1,
+                ),
+              ),
+              Tab(
+                icon: Icon(
+                  Icons.event_rounded,
+                  color: state.colors.iconColor1,
+                ),
+              ),
+              Tab(
+                icon: Icon(
+                  Icons.drive_file_rename_outline,
+                  color: state.colors.iconColor1,
+                ),
+              ),
+            ],
+            unselectedLabelColor: Colors.black38,
+          ),
+          body: TabBarView(
+            children: [
+              const ChatList(
+                key: null,
+              ),
+              _itemsList('Tasks', 0),
+              _itemsList('Events', 1),
+              _itemsList('Notes', 2),
+            ],
+          ),
+          floatingActionButton: const AddingButton(
+            key: Key('MainButton'),
+            firstIcon: Icon(
+              Icons.add,
+              size: 30,
+            ),
+            secondIcon: Icon(
+              Icons.remove,
+              size: 30,
+            ),
           ),
         ),
       ),

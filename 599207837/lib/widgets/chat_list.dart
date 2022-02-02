@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../entity/entities.dart';
-import '../main.dart';
 import '../widgets/widgets.dart';
 import 'items_page/items_page_cubit.dart';
 import 'items_page/items_page_state.dart';
+import 'theme_provider/theme_cubit.dart';
+import 'theme_provider/theme_state.dart';
 
 class ChatList extends StatelessWidget {
   const ChatList({Key? key}) : super(key: key);
@@ -25,7 +26,6 @@ class ChatList extends StatelessWidget {
                   state.topics[index].isPinned && !state.topics[index].isArchived
                       ? _ChatCard(
                           topic: state.topics[index],
-                          themeInherited: ThemeInherited.of(context)!,
                         )
                       : Container(),
             ),
@@ -37,7 +37,6 @@ class ChatList extends StatelessWidget {
                   !state.topics[index].isPinned && !state.topics[index].isArchived
                       ? _ChatCard(
                           topic: state.topics[index],
-                          themeInherited: ThemeInherited.of(context)!,
                         )
                       : Container(),
             ),
@@ -49,13 +48,13 @@ class ChatList extends StatelessWidget {
 }
 
 class _ChatCard extends StatelessWidget {
-  late final ThemeInherited themeInherited;
   final Topic topic;
 
-  _ChatCard({required this.topic, required this.themeInherited});
+  _ChatCard({required this.topic});
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.read<ThemeCubit>().state;
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -70,7 +69,7 @@ class _ChatCard extends StatelessWidget {
           borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
         ),
         constraints: const BoxConstraints(maxHeight: 330),
-        backgroundColor: themeInherited.preset.colors.backgroundColor,
+        backgroundColor: theme.colors.backgroundColor,
         builder: (newContext) => _chatCardMenu(context),
         context: context,
         isDismissible: true,
@@ -89,7 +88,7 @@ class _ChatCard extends StatelessWidget {
                       size: 30,
                     ),
                     radius: 30,
-                    backgroundColor: themeInherited.preset.colors.avatarColor,
+                    backgroundColor: theme.colors.avatarColor,
                   ),
                   const SizedBox(
                     width: 16,
@@ -105,15 +104,15 @@ class _ChatCard extends StatelessWidget {
                               Text(
                                 '${topic.name} ',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  color: themeInherited.preset.colors.textColor1,
+                                  fontSize: theme.fontSize.primary,
+                                  color: theme.colors.textColor1,
                                 ),
                               ),
                               if (topic.isPinned)
                                 Icon(
                                   Icons.push_pin_rounded,
                                   size: 15,
-                                  color: themeInherited.preset.colors.textColor1,
+                                  color: theme.colors.textColor1,
                                 ),
                             ],
                           ),
@@ -123,8 +122,8 @@ class _ChatCard extends StatelessWidget {
                           Text(
                             'widget.topic.lastMessage',
                             style: TextStyle(
-                              fontSize: 13,
-                              color: themeInherited.preset.colors.minorTextColor,
+                              fontSize: theme.fontSize.secondary,
+                              color: theme.colors.minorTextColor,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -138,9 +137,9 @@ class _ChatCard extends StatelessWidget {
             Text(
               topic.elements.toString(),
               style: TextStyle(
-                fontSize: 12,
+                fontSize: theme.fontSize.secondary,
                 fontWeight: FontWeight.normal,
-                color: themeInherited.preset.colors.textColor1,
+                color: theme.colors.textColor1,
               ),
             ),
           ],
@@ -150,6 +149,7 @@ class _ChatCard extends StatelessWidget {
   }
 
   Widget _chatCardMenu(BuildContext context) {
+    final theme = context.read<ThemeCubit>().state;
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
       child: Column(
@@ -163,7 +163,8 @@ class _ChatCard extends StatelessWidget {
             label: 'Info',
             icon: Icons.info_outline_rounded,
             iconColor: Colors.teal,
-            labelColor: themeInherited.preset.colors.textColor1,
+            labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
           const Divider(),
           _cardMenuItem(
@@ -174,7 +175,8 @@ class _ChatCard extends StatelessWidget {
             label: 'Pin/Unpin Topic',
             icon: Icons.push_pin_outlined,
             iconColor: Colors.green,
-            labelColor: themeInherited.preset.colors.textColor1,
+            labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
           const Divider(),
           _cardMenuItem(
@@ -185,7 +187,8 @@ class _ChatCard extends StatelessWidget {
             label: 'Archive Topic',
             icon: Icons.archive_outlined,
             iconColor: Colors.amberAccent,
-            labelColor: themeInherited.preset.colors.textColor1,
+            labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
           const Divider(),
           _cardMenuItem(
@@ -203,7 +206,8 @@ class _ChatCard extends StatelessWidget {
             label: 'Edit Topic',
             icon: Icons.edit_outlined,
             iconColor: Colors.blue,
-            labelColor: themeInherited.preset.colors.textColor1,
+            labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
           const Divider(),
           _cardMenuItem(
@@ -217,7 +221,8 @@ class _ChatCard extends StatelessWidget {
             label: 'Delete Topic',
             icon: Icons.delete_outline_rounded,
             iconColor: Colors.red,
-            labelColor: themeInherited.preset.colors.textColor1,
+            labelColor: theme.colors.textColor1,
+            theme: theme,
           ),
         ],
       ),
@@ -225,14 +230,16 @@ class _ChatCard extends StatelessWidget {
   }
 
   void _deleteAlert({required Function onDelete, required BuildContext context}) {
+    final theme = context.read<ThemeCubit>().state;
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: themeInherited.preset.colors.backgroundColor,
+          backgroundColor: theme.colors.backgroundColor,
           content: Text(
             'Are you sure you want to permanently delete ${topic.name}?',
-            style: TextStyle(fontSize: 20, color: themeInherited.preset.colors.textColor1),
+            style: TextStyle(fontSize: 20, color: theme.colors.textColor1),
           ),
           actions: <Widget>[
             Container(
@@ -243,7 +250,7 @@ class _ChatCard extends StatelessWidget {
                   'No',
                   style: TextStyle(
                     fontSize: 18,
-                    color: themeInherited.preset.colors.underlineColor,
+                    color: theme.colors.underlineColor,
                   ),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
@@ -257,7 +264,7 @@ class _ChatCard extends StatelessWidget {
                   'Yes',
                   style: TextStyle(
                     fontSize: 18,
-                    color: themeInherited.preset.colors.underlineColor,
+                    color: theme.colors.underlineColor,
                   ),
                 ),
                 onPressed: () {
@@ -273,13 +280,14 @@ class _ChatCard extends StatelessWidget {
   }
 
   void _showInfo(BuildContext context) {
+    final theme = context.read<ThemeCubit>().state;
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: themeInherited.preset.colors.backgroundColor,
+          backgroundColor: theme.colors.backgroundColor,
           content: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 220),
+            constraints: const BoxConstraints(maxHeight: 240),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -292,30 +300,35 @@ class _ChatCard extends StatelessWidget {
                         size: 35,
                       ),
                       radius: 35,
-                      backgroundColor: themeInherited.preset.colors.avatarColor,
+                      backgroundColor: theme.colors.avatarColor,
                     ),
                     const SizedBox(
                       width: 15,
                     ),
                     Text(
                       topic.name,
-                      style:
-                          TextStyle(fontSize: 20, color: themeInherited.preset.colors.textColor1),
+                      style: TextStyle(
+                        fontSize: theme.fontSize.primary + 2,
+                        color: theme.colors.textColor1,
+                      ),
                     ),
                   ],
                 ),
                 _infoNode(
                   topText: 'Message amount:',
                   bottomText: '${topic.elements}',
+                  theme: theme,
                 ),
                 if (topic.lastMessage != null)
                   _infoNode(
                     topText: 'Last message:',
                     bottomText: '${fullDateFormatter.format(topic.lastMessage!)}',
+                    theme: theme,
                   ),
                 _infoNode(
                   topText: 'Date created:',
                   bottomText: '${fullDateFormatter.format(topic.timeCreated)}',
+                  theme: theme,
                 ),
               ],
             ),
@@ -328,8 +341,8 @@ class _ChatCard extends StatelessWidget {
                 child: Text(
                   'Ok',
                   style: TextStyle(
-                    fontSize: 18,
-                    color: themeInherited.preset.colors.underlineColor,
+                    fontSize: theme.fontSize.primary,
+                    color: theme.colors.underlineColor,
                   ),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
@@ -341,7 +354,11 @@ class _ChatCard extends StatelessWidget {
     );
   }
 
-  Widget _infoNode({required String topText, required String bottomText}) {
+  Widget _infoNode({
+    required String topText,
+    required String bottomText,
+    required ThemeState theme,
+  }) {
     return Container(
       margin: const EdgeInsets.only(top: 12),
       child: Column(
@@ -349,14 +366,20 @@ class _ChatCard extends StatelessWidget {
         children: [
           Text(
             topText,
-            style: TextStyle(color: themeInherited.preset.colors.textColor1, fontSize: 13),
+            style: TextStyle(
+              color: theme.colors.textColor1,
+              fontSize: theme.fontSize.secondary + 1,
+            ),
           ),
           const SizedBox(
             height: 3,
           ),
           Text(
             bottomText,
-            style: TextStyle(color: themeInherited.preset.colors.textColor2, fontSize: 14),
+            style: TextStyle(
+              color: theme.colors.textColor2,
+              fontSize: theme.fontSize.general,
+            ),
           ),
         ],
       ),
@@ -369,6 +392,7 @@ class _ChatCard extends StatelessWidget {
     required IconData icon,
     required Color iconColor,
     required Color? labelColor,
+    required ThemeState theme,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -389,7 +413,10 @@ class _ChatCard extends StatelessWidget {
             ),
             Text(
               label,
-              style: TextStyle(color: labelColor, fontSize: 17),
+              style: TextStyle(
+                color: labelColor,
+                fontSize: theme.fontSize.primary,
+              ),
             ),
           ],
         ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'theme_provider/theme_state.dart';
 
 import '../database/database.dart';
 import '../entity/entities.dart';
-import '../main.dart';
+import 'theme_provider/theme_cubit.dart';
 import 'topic_maker/topic_maker.dart';
 
 class AddingButton extends StatefulWidget {
@@ -32,12 +34,11 @@ class _AddingButtonState extends State<AddingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final themeInherited = ThemeInherited.of(context)!;
-    return Builder(
-      builder: (ctxOfScaffold) {
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, state) {
         return FloatingActionButton(
           key: widget.key,
-          backgroundColor: themeInherited.preset.colors.buttonColor,
+          backgroundColor: state.colors.buttonColor,
           onPressed: () async {
             if (DefaultTabController.of(context)!.index == 0) {
               Navigator.push(
@@ -59,47 +60,52 @@ class _AddingButtonState extends State<AddingButton> {
   }
 
   Future _showBottomSheet() {
-    final themeInherited = ThemeInherited.of(context)!;
+    final theme = context
+        .read<ThemeCubit>()
+        .state;
     return showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (newContext) => Container(
-        padding: MediaQuery.of(context).viewInsets,
-        child: Stack(
-          clipBehavior: Clip.none,
-          fit: StackFit.expand,
-          children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                  color: themeInherited.preset.colors.backgroundColor,
+      builder: (newContext) =>
+          Container(
+            padding: MediaQuery
+                .of(context)
+                .viewInsets,
+            child: Stack(
+              clipBehavior: Clip.none,
+              fit: StackFit.expand,
+              children: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                      color: theme.colors.backgroundColor,
+                    ),
+                    child: _BottomForm(
+                      sheetState: this,
+                      currentPage: DefaultTabController.of(context)!.index,
+                      whenComplete: () {
+                        Navigator.pop(context);
+                        setState(() => _mainIcon = _firstIcon);
+                      },
+                    ),
+                  ),
                 ),
-                child: _BottomForm(
-                  sheetState: this,
-                  currentPage: DefaultTabController.of(context)!.index,
-                  whenComplete: () {
-                    Navigator.pop(context);
-                    setState(() => _mainIcon = _firstIcon);
-                  },
+                Positioned(
+                  bottom: 240,
+                  right: 16,
+                  child: FloatingActionButton(
+                    key: widget.key,
+                    backgroundColor: theme.colors.buttonColor,
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: 'Add new',
+                    child: _mainIcon,
+                  ),
                 ),
-              ),
+              ],
             ),
-            Positioned(
-              bottom: 240,
-              right: 16,
-              child: FloatingActionButton(
-                key: widget.key,
-                backgroundColor: themeInherited.preset.colors.buttonColor,
-                onPressed: () => Navigator.pop(context),
-                tooltip: 'Add new',
-                child: _mainIcon,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
       context: context,
       isDismissible: true,
     ).whenComplete(() {
@@ -148,11 +154,16 @@ class _BottomFormState extends State<_BottomForm> {
   }
 
   Widget _taskBottomForm() {
-    final themeInherited = ThemeInherited.of(context)!;
+    final theme = context
+        .read<ThemeCubit>()
+        .state;
     return Form(
       key: _formKey,
       child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(bottom: MediaQuery
+            .of(context)
+            .viewInsets
+            .bottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -167,10 +178,10 @@ class _BottomFormState extends State<_BottomForm> {
                 icon: const Icon(Icons.keyboard_arrow_down),
                 iconSize: 24,
                 elevation: 16,
-                style: TextStyle(color: themeInherited.preset.colors.textColor1),
+                style: TextStyle(color: theme.colors.textColor1),
                 underline: Container(
                   height: 2,
-                  color: themeInherited.preset.colors.underlineColor,
+                  color: theme.colors.underlineColor,
                 ),
                 onChanged: (newValue) {
                   setState(() => _comboBoxValue = newValue!);
@@ -186,8 +197,8 @@ class _BottomFormState extends State<_BottomForm> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                color: themeInherited.preset.colors.themeColor2,
-                border: Border.all(color: themeInherited.preset.colors.underlineColor),
+                color: theme.colors.themeColor2,
+                border: Border.all(color: theme.colors.underlineColor),
               ),
               margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
               padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),

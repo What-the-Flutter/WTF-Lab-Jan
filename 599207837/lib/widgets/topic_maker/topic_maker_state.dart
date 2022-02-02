@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../entity/topic.dart';
 
 class TopicMakerState {
-  static const Object? plug = Object();
+  static const Object? _plug = Object();
 
   late final int selected;
   final Topic? topic;
@@ -22,14 +22,14 @@ class TopicMakerState {
 
   TopicMakerState duplicate({
     int? selected,
-    Object? topic = plug,
-    Object? nameController = plug,
+    Object? topic = _plug,
+    Object? nameController = _plug,
   }) {
     return TopicMakerState(
       selected: selected ?? this.selected,
-      topic: topic == plug ? this.topic : topic as Topic?,
+      topic: topic == _plug ? this.topic : topic as Topic?,
       nameController:
-          nameController == plug ? this.nameController : nameController as TextEditingController?,
+          nameController == _plug ? this.nameController : nameController as TextEditingController?,
     );
   }
 

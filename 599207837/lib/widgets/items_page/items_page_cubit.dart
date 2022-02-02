@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 
 import '../../database/database.dart';
 import '../../entity/entities.dart';
+import '../theme_provider/theme_cubit.dart';
 import 'items_page_state.dart';
 
 class ItemsPageCubit extends Cubit<ItemsPageState> {
@@ -19,11 +20,12 @@ class ItemsPageCubit extends Cubit<ItemsPageState> {
     return super.close();
   }
 
-  void subscribe() async {
+  void subscribe(ThemeCubit theme) {
     _subs.add(TopicRepository.loadTopics().listen(_updateTopics));
     _subs.add(Task.getFavouriteTasks().listen(_updateTasks));
     _subs.add(Event.getFavouriteEvents().listen(_updateEvents));
     _subs.add(Note.getFavouriteNotes().listen(_updateNotes));
+    _subs.add(theme.stream.listen((event) => emit(state.duplicate())));
   }
 
   Future<void> _updateTopics(List<Topic> data) async {
