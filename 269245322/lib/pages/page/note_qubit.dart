@@ -1,14 +1,19 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../database/note_db_helper.dart';
+import 'package:path/path.dart';
+import '../../database/firebase_db_helper.dart';
 
 import '../../models/note_model.dart';
 import '../../models/page_model.dart';
 import 'note_state.dart';
 
 class NoteCubit extends Cubit<NoteState> {
-  final DBHelper _dbHelper = DBHelper();
+  //final DBHelper _dbHelper = DBHelper();
+  final FireBaseHelper _fireBaseHelper = FireBaseHelper();
 
   NoteCubit()
       : super(const NoteState(
@@ -102,7 +107,9 @@ class NoteCubit extends Cubit<NoteState> {
         if (note.heading == editableNote.heading) {
           newNoteList[noteCounter] =
               note.copyWith(data: controller.text, isChecked: false);
-          _dbHelper.updateNote(newNoteList[noteCounter], state.page!.title);
+          //_dbHelper.editNote(newNoteList[noteCounter], state.page!.title);
+          _fireBaseHelper.editNote(newNoteList[noteCounter], state.page!.title,
+              state.page!.dbTitle!);
         }
         noteCounter++;
       }
@@ -110,10 +117,12 @@ class NoteCubit extends Cubit<NoteState> {
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes + 1);
       emit(state.copyWith(page: newPage));
-      _dbHelper.updatePage(newPage, newPage.title);
-
+      //_dbHelper.updatePage(newPage, newPage.title);
+      _fireBaseHelper.editPage(newPage);
       newNoteList.add(newNote);
-      _dbHelper.insertNote(newNote, newPage.title);
+      //_dbHelper.insertNote(newNote, newPage.title);
+      _fireBaseHelper.insertNote(newNote, newPage.title, newPage.dbTitle!);
+      uploadFile(newNote.heading);
     }
     emit(state.copyWith(notesList: newNoteList));
 
@@ -178,13 +187,19 @@ class NoteCubit extends Cubit<NoteState> {
   }
 
   void deleteFromNoteList() {
-    final newNoreList = state.notesList!;
+    final newNoteList = state.notesList!;
     for (var currentNote in state.selcetedNotes!) {
-      newNoreList.remove(currentNote);
-      _dbHelper.deleteNote(currentNote);
+      newNoteList.remove(currentNote);
+      final newPage =
+          state.page!.copyWith(numOfNotes: state.page!.numOfNotes - 1);
+      emit(state.copyWith(page: newPage));
+      //_dbHelper.updatePage(newPage, newPage.title);
+      _fireBaseHelper.editPage(newPage);
+      //_dbHelper.deleteNote(currentNote);
+      _fireBaseHelper.deleteNote(state.page!.dbTitle!, currentNote.heading);
     }
 
-    emit(state.copyWith(notesList: newNoreList));
+    emit(state.copyWith(notesList: newNoteList));
     setAllNotesSelectedUnselected(false);
   }
 
@@ -194,11 +209,15 @@ class NoteCubit extends Cubit<NoteState> {
       if (currentNote.isFavorite == true) {
         var newNote = currentNote.copyWith(isFavorite: false, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
-        _dbHelper.updateNote(newNote, state.page!.title);
+        //_dbHelper.editNote(newNote, state.page!.title);
+        _fireBaseHelper.editNote(
+            newNote, state.page!.title, state.page!.dbTitle!);
       } else {
         var newNote = currentNote.copyWith(isFavorite: true, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
-        _dbHelper.updateNote(newNote, state.page!.title);
+        //_dbHelper.editNote(newNote, state.page!.title);
+        _fireBaseHelper.editNote(
+            newNote, state.page!.title, state.page!.dbTitle!);
       }
     }
     emit(state.copyWith(notesList: newNoreList));
@@ -239,5 +258,22 @@ class NoteCubit extends Cubit<NoteState> {
 
   bool getSerchBarDisplayedState() {
     return state.isSerchBarDisplayed;
+  }
+
+  Future selectFile() async {
+    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+    if (result == null) return;
+
+    final path = result.files.single.path!;
+    emit(state.copyWith(file: File(path)));
+  }
+
+  Future uploadFile(String heading) async {
+    if (state.file == null) return;
+
+    final fileName = basename(state.file!.path);
+    final destination = '$heading/$fileName';
+
+    _fireBaseHelper.uploadFile(destination, state.file!);
   }
 }

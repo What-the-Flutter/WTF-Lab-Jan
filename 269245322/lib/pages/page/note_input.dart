@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../main.dart';
 import 'note_qubit.dart';
 
@@ -25,7 +26,7 @@ class _NoteInputState extends State<NoteInput> {
             : Row(
                 children: <Widget>[],
               ),
-        _textInputPanel(widget.noteCubit, widget.controller)
+        _textInputPanel(widget.noteCubit, widget.controller, context)
       ],
     );
   }
@@ -72,17 +73,68 @@ Row _noteIconMenue(NoteCubit noteCubit, BuildContext context) {
   );
 }
 
-Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller) {
+Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller,
+    BuildContext context) {
   return Row(
     children: [
       Expanded(
         flex: 1,
-        child: IconButton(
-          icon: const Icon(
-            Icons.image,
-            color: Colors.blue,
-          ),
-          onPressed: () => noteCubit.showNoteIconMenu(true),
+        child: Column(
+          children: [
+            IconButton(
+              icon: const Icon(
+                Icons.photo_album,
+                color: Colors.blue,
+              ),
+              onPressed: () {
+                showDialog<String>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Upload image'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                                onPressed: noteCubit.selectFile,
+                                icon: const Icon(
+                                  Icons.photo,
+                                  size: 35.0,
+                                )),
+                            IconButton(
+                                onPressed: null,
+                                icon: const Icon(
+                                  Icons.upload,
+                                  size: 35.0,
+                                )),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10.0,
+                        ),
+                        const Text('data'),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Close'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.image,
+                color: Colors.blue,
+              ),
+              onPressed: () => noteCubit.showNoteIconMenu(true),
+            ),
+          ],
         ),
       ),
       Expanded(

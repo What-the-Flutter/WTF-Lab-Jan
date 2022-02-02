@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'database/note_db_helper.dart';
@@ -10,6 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferencesProvider.initialize();
   await DBHelper.initialize();
+  await Firebase.initializeApp();
   runApp(
     CustomTheme(
       key: UniqueKey(),

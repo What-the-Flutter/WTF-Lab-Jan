@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../models/note_model.dart';
 import '../../models/page_model.dart';
 
@@ -14,6 +16,8 @@ class NoteState {
   final List<NoteModel>? searchNotesList;
   final List<NoteModel>? selcetedNotes;
 
+  final File? file;
+
   const NoteState({
     this.page,
     this.notesList,
@@ -24,6 +28,7 @@ class NoteState {
     required this.showNoteIconMenue,
     required this.isSerchBarDisplayed,
     this.noteIcon,
+    this.file,
   });
 
   NoteState copyWith({
@@ -36,6 +41,7 @@ class NoteState {
     final bool? showNoteIconMenue,
     final bool? isSerchBarDisplayed,
     final int? noteIcon,
+    final File? file,
   }) {
     return NoteState(
       isUserEditingeNote: isUserEditingeNote ?? this.isUserEditingeNote,
@@ -47,6 +53,7 @@ class NoteState {
       showNoteIconMenue: showNoteIconMenue ?? this.showNoteIconMenue,
       isSerchBarDisplayed: isSerchBarDisplayed ?? this.isSerchBarDisplayed,
       noteIcon: noteIcon ?? this.noteIcon,
+      file: file ?? this.file,
     );
   }
 }

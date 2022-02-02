@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_lab_project/database/firebase_db_helper.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../style/custom_theme.dart';
 import '../../style/themes.dart';
+import '../settings/settings.dart';
 import 'page_constructor.dart';
 import 'page_qubit.dart';
 import 'page_state.dart';
@@ -17,10 +19,22 @@ class HomePage extends StatefulWidget {
 
 class _PageState extends State<HomePage> {
   final PageCubit _pageCubit = PageCubit();
+  final AuthService _auth = AuthService();
 
   @override
   void initState() {
     super.initState();
+    _anonumousAuthorization();
+  }
+
+  void _anonumousAuthorization() async {
+    dynamic result = await _auth.signInAnon();
+    if (result == null) {
+      print('error signing in');
+    } else {
+      print('signed in');
+      print(result);
+    }
   }
 
   @override
@@ -38,7 +52,7 @@ class _PageState extends State<HomePage> {
             ],
           ),
           floatingActionButton: _floatingActionButton(_pageCubit, context),
-          bottomNavigationBar: _bottomNavigationBar(state),
+          bottomNavigationBar: _bottomNavigationBar(state, context),
         );
       },
     );
@@ -103,20 +117,30 @@ void _floatingActionButtonEvent(
   );
 }
 
-BottomNavigationBar _bottomNavigationBar(PageState state) {
+BottomNavigationBar _bottomNavigationBar(
+    PageState state, BuildContext context) {
   return BottomNavigationBar(
-    items: const <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
-        icon: Icon(Icons.home),
+    items: <BottomNavigationBarItem>[
+      const BottomNavigationBarItem(
+        icon: IconButton(
+          onPressed: null,
+          icon: Icon(Icons.home),
+          padding: EdgeInsets.all(0.0),
+        ),
         label: 'Home',
       ),
       BottomNavigationBarItem(
-        icon: Icon(Icons.close),
-        label: 'Test',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.close),
-        label: 'Test',
+        icon: IconButton(
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              SettingsPage.routeName,
+            );
+          },
+          icon: const Icon(Icons.settings),
+          padding: EdgeInsets.zero,
+        ),
+        label: 'Settings',
       ),
     ],
     currentIndex: state.selectedPageIndex,

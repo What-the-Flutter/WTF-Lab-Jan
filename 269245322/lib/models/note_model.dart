@@ -55,4 +55,14 @@ class NoteModel {
       isChecked: map['is_checked'] == 0 ? false : true,
     );
   }
+  factory NoteModel.fromMapFireBase(Map<dynamic, dynamic> map) {
+    return NoteModel(
+      heading: map['heading'],
+      data: map['data'],
+      icon: map['icon'],
+      isFavorite: map['is_favorite'],
+      isSearched: map['is_searched'],
+      isChecked: map['is_checked'],
+    );
+  }
 }
