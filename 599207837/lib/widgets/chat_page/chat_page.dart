@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,77 +41,94 @@ class _ChatPage extends StatelessWidget {
         return Scaffold(
           backgroundColor: theme.colors.backgroundColor,
           appBar: _chatAppBar(theme, context),
-          body: Column(
-            children: <Widget>[
-              if (state.selectionFlag)
-                Container(
-                  decoration: BoxDecoration(color: theme.colors.backgroundColor),
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Expanded(
-                        child: TextButton(
-                          child: const Text('Delete'),
-                          onPressed: () {
-                            context.read<ChatPageCubit>().deleteSelected();
-                            context.read<ChatPageCubit>().setSelection(false);
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: TextButton(
-                          child: const Text('Move to'),
-                          onPressed: () {
-                            Alerts.moveAlert(
-                              context: context,
-                              currentTopic: topic,
-                              onMoved: (topic) {
-                                Navigator.pop(context);
-                                context.read<ChatPageCubit>().moveSelected(topic);
-                                context.read<ChatPageCubit>().setSelection(false);
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: TextButton(
-                          child: const Text('Cancel'),
-                          onPressed: () {
-                            context.read<ChatPageCubit>().clearSelection();
-                            context.read<ChatPageCubit>().setSelection(false);
-                          },
-                        ),
-                      ),
-                    ],
+          body: Container(
+            decoration: theme.backgroundPath == null
+                ? null
+                : BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(theme.backgroundPath!),
+                      fit: BoxFit.fitHeight,
+                    ),
                   ),
-                ),
-              Expanded(
-                child: ListView.builder(
-                  reverse: true,
-                  itemCount: state.messages.length,
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return ChatMessage(
-                      key: Key(state.messages[index].uuid.toString()),
-                      item: state.messages[index],
-                      onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
-                      onEdited: () =>
-                          context.read<ChatPageCubit>().startEditing(index, state.messages[index]),
-                      onSelection: () => context.read<ChatPageCubit>().setSelection(true),
-                      onSelected: () =>
-                          context.read<ChatPageCubit>().onSelect(state.messages[index]),
-                      selection: state.selectionFlag,
-                    );
-                  },
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Column(
+                  children: <Widget>[
+                    if (state.selectionFlag)
+                      Container(
+                        decoration: BoxDecoration(color: theme.colors.backgroundColor),
+                        height: 50,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Expanded(
+                              child: TextButton(
+                                child: const Text('Delete'),
+                                onPressed: () {
+                                  context.read<ChatPageCubit>().deleteSelected();
+                                  context.read<ChatPageCubit>().setSelection(false);
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: TextButton(
+                                child: const Text('Move to'),
+                                onPressed: () {
+                                  Alerts.moveAlert(
+                                    context: context,
+                                    currentTopic: topic,
+                                    onMoved: (topic) {
+                                      Navigator.pop(context);
+                                      context.read<ChatPageCubit>().moveSelected(topic);
+                                      context.read<ChatPageCubit>().setSelection(false);
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  context.read<ChatPageCubit>().clearSelection();
+                                  context.read<ChatPageCubit>().setSelection(false);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Expanded(
+                      child: ListView.builder(
+                        reverse: true,
+                        itemCount: state.messages.length,
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.only(top: 10, bottom: 10),
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return ChatMessage(
+                            key: Key(state.messages[index].uuid.toString()),
+                            item: state.messages[index],
+                            onDeleted: () => context.read<ChatPageCubit>().deleteMessage(index),
+                            onEdited: () => context
+                                .read<ChatPageCubit>()
+                                .startEditing(index, state.messages[index]),
+                            onSelection: () => context.read<ChatPageCubit>().setSelection(true),
+                            onSelected: () =>
+                                context.read<ChatPageCubit>().onSelect(state.messages[index]),
+                            selection: state.selectionFlag,
+                          );
+                        },
+                      ),
+                    ),
+                    _attachments(state, context),
+                    _inputForm(state, context),
+                  ],
                 ),
               ),
-              _attachments(state, context),
-              _inputForm(state, context),
-            ],
+            ),
           ),
         );
       },

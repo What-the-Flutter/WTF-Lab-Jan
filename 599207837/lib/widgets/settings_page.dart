@@ -53,7 +53,11 @@ class _SettingsPage extends StatelessWidget {
                 ),
                 _bubbleAlignChooser(context.read<ThemeCubit>()),
                 const SizedBox(
-                  height: 75,
+                  height: 15,
+                ),
+                _backgroundChooser(context.read<ThemeCubit>()),
+                const SizedBox(
+                  height: 55,
                 ),
                 _shareButton(context),
               ],
@@ -61,6 +65,76 @@ class _SettingsPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _backgroundChooser(ThemeCubit themeCubit) {
+    return Column(
+      children: [
+        Text(
+          'Change Background Image',
+          style: TextStyle(
+            fontSize: themeCubit.state.fontSize.general + 1,
+            color: themeCubit.state.colors.textColor2,
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: themeCubit.state.colors.minorTextColor,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          height: 150,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: chatBackPath.length,
+            itemBuilder: (context, index) => _backgroundOption(
+              themeCubit: themeCubit,
+              background: ChatBackground.values.elementAt(index + 1),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _backgroundOption({
+    required ChatBackground background,
+    required ThemeCubit themeCubit,
+  }) {
+    final path = chatBackPath[background]!;
+    return GestureDetector(
+      onTap: () {
+        if (themeCubit.state.chBackground != background) {
+          themeCubit.changeBackground(background);
+        } else {
+          themeCubit.changeBackground(ChatBackground.empty);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        height: 100,
+        width: 70,
+        decoration: themeCubit.state.chBackground == background
+            ? BoxDecoration(
+                border: Border.all(
+                  color: themeCubit.state.colors.textColor1,
+                  width: 3,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              )
+            : null,
+        child: ClipRRect(
+          child: Image(
+            image: AssetImage(path),
+            fit: BoxFit.cover,
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
     );
   }
 
@@ -142,13 +216,11 @@ class _SettingsPage extends StatelessWidget {
   }) {
     return Column(
       children: [
-        Center(
-          child: Radio<MainAxisAlignment>(
-            value: alignment,
-            groupValue: themeCubit.state.bubbleAlignment,
-            fillColor: MaterialStateProperty.all(themeCubit.state.colors.underlineColor),
-            onChanged: (value) => themeCubit.changeBubbleAlignment(value!),
-          ),
+        Radio<MainAxisAlignment>(
+          value: alignment,
+          groupValue: themeCubit.state.bubbleAlignment,
+          fillColor: MaterialStateProperty.all(themeCubit.state.colors.underlineColor),
+          onChanged: (value) => themeCubit.changeBubbleAlignment(value!),
         ),
         Container(
           height: 105,

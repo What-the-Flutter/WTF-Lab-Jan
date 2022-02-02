@@ -22,15 +22,22 @@ class ThemeCubit extends Cubit<ThemeState> {
     _saveToPreferences('bubble_align', state.bubbleAlignment.index);
   }
 
+  void changeBackground(ChatBackground background) {
+    emit(state.duplicate(chBackground: background));
+    _saveToPreferences('chat_back', state.chBackground.index);
+  }
+
   void resetSettings() {
     emit(state.duplicate(
       tColor: ThemeColor.light,
       fSize: FontSize.medium,
       bubbleAlignment: MainAxisAlignment.start,
+      chBackground: ChatBackground.empty,
     ));
     _saveToPreferences('theme', ThemeColor.light.index);
     _saveToPreferences('font_size', FontSize.medium.index);
     _saveToPreferences('bubble_align', MainAxisAlignment.start.index);
+    _saveToPreferences('chat_back', ChatBackground.empty.index);
   }
 
   void _saveToPreferences(String key, int value) async {
