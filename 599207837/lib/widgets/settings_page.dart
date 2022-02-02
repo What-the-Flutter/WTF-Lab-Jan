@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../entity/theme.dart';
+import 'alerts.dart';
 import 'theme_provider/theme_cubit.dart';
 import 'theme_provider/theme_state.dart';
 
@@ -51,11 +52,46 @@ class _SettingsPage extends StatelessWidget {
                   height: 15,
                 ),
                 _bubbleAlignChooser(context.read<ThemeCubit>()),
+                const SizedBox(
+                  height: 75,
+                ),
+                _shareButton(context),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _shareButton(BuildContext context) {
+    final theme = context.read<ThemeCubit>().state;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Share',
+          style: TextStyle(
+            fontSize: theme.fontSize.secondary,
+            color: theme.colors.minorTextColor,
+          ),
+        ),
+        IconButton(
+          onPressed: () => Alerts.shareAlert(context: context),
+          icon: Icon(
+            Icons.share_rounded,
+            color: theme.colors.textColor1,
+            size: 27,
+          ),
+        ),
+        Text(
+          'App',
+          style: TextStyle(
+            fontSize: theme.fontSize.secondary,
+            color: theme.colors.minorTextColor,
+          ),
+        ),
+      ],
     );
   }
 
@@ -87,7 +123,7 @@ class _SettingsPage extends StatelessWidget {
                   alignment: Alignment.center,
                   transform: Matrix4.rotationY(math.pi),
                   child:
-                  Image.asset('assets/images/bubble_left_${themeCubit.state.tColor.name}.jpg'),
+                      Image.asset('assets/images/bubble_left_${themeCubit.state.tColor.name}.jpg'),
                 ),
                 themeCubit: themeCubit,
                 alignment: MainAxisAlignment.end,
@@ -233,7 +269,7 @@ class _SettingsPage extends StatelessWidget {
           fontWeight: theme.fSize == fontSizeSet ? FontWeight.bold : null,
           decoration: TextDecoration.underline,
           decorationColor:
-          theme.fSize == fontSizeSet ? theme.colors.yellowAccent : theme.colors.underlineColor,
+              theme.fSize == fontSizeSet ? theme.colors.yellowAccent : theme.colors.underlineColor,
           decorationThickness: 4,
         ),
       ),
