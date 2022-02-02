@@ -91,10 +91,11 @@ class _SettingsPage extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: chatBackPath.length,
-            itemBuilder: (context, index) => _backgroundOption(
-              themeCubit: themeCubit,
-              background: ChatBackground.values.elementAt(index + 1),
-            ),
+            itemBuilder: (context, index) =>
+                _backgroundOption(
+                  themeCubit: themeCubit,
+                  background: ChatBackground.values.elementAt(index + 1),
+                ),
           ),
         ),
       ],
@@ -120,12 +121,12 @@ class _SettingsPage extends StatelessWidget {
         width: 70,
         decoration: themeCubit.state.chBackground == background
             ? BoxDecoration(
-                border: Border.all(
-                  color: themeCubit.state.colors.textColor1,
-                  width: 3,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              )
+          border: Border.all(
+            color: themeCubit.state.colors.underlineColor,
+            width: 3,
+          ),
+          borderRadius: BorderRadius.circular(13),
+        )
             : null,
         child: ClipRRect(
           child: Image(
@@ -139,7 +140,9 @@ class _SettingsPage extends StatelessWidget {
   }
 
   Widget _shareButton(BuildContext context) {
-    final theme = context.read<ThemeCubit>().state;
+    final theme = context
+        .read<ThemeCubit>()
+        .state;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -197,7 +200,7 @@ class _SettingsPage extends StatelessWidget {
                   alignment: Alignment.center,
                   transform: Matrix4.rotationY(math.pi),
                   child:
-                      Image.asset('assets/images/bubble_left_${themeCubit.state.tColor.name}.jpg'),
+                  Image.asset('assets/images/bubble_left_${themeCubit.state.tColor.name}.jpg'),
                 ),
                 themeCubit: themeCubit,
                 alignment: MainAxisAlignment.end,
@@ -341,7 +344,7 @@ class _SettingsPage extends StatelessWidget {
           fontWeight: theme.fSize == fontSizeSet ? FontWeight.bold : null,
           decoration: TextDecoration.underline,
           decorationColor:
-              theme.fSize == fontSizeSet ? theme.colors.yellowAccent : theme.colors.underlineColor,
+          theme.fSize == fontSizeSet ? theme.colors.yellowAccent : theme.colors.underlineColor,
           decorationThickness: 4,
         ),
       ),

@@ -51,9 +51,11 @@ class _ChatPage extends StatelessWidget {
                     ),
                   ),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+              filter: theme.backgroundPath == null
+                  ? ImageFilter.blur(sigmaX: 0, sigmaY: 0)
+                  : ImageFilter.blur(sigmaX: 3, sigmaY: 3),
               child: Container(
-                color: Colors.black.withOpacity(0.5),
+                color: theme.backgroundPath == null ? null : Colors.black.withOpacity(0.5),
                 child: Column(
                   children: <Widget>[
                     if (state.selectionFlag)
@@ -401,26 +403,41 @@ class _ChatPage extends StatelessWidget {
           const SizedBox(
             width: 15,
           ),
-          Container(
-            height: 40,
-            child: FloatingActionButton(
-              heroTag: 'sendMessage',
-              backgroundColor: theme.colors.buttonColor,
-              onPressed: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-                if (!state.editingFlag && state.descriptionController!.text.isNotEmpty) {
-                  context.read<ChatPageCubit>().addEvent(topic);
-                } else if (state.descriptionController!.text.isNotEmpty) {
-                  context.read<ChatPageCubit>().finishEditing(true);
-                }
-              },
-              child: const Icon(
-                Icons.send,
-                color: Colors.white,
-                size: 18,
+          Column(
+            children: [
+              GestureDetector(
+                onTap: () => context.read<ChatPageCubit>().loadImageFromGallery(),
+                child: Icon(
+                  Icons.photo_camera,
+                  color: Colors.grey.shade600,
+                  size: 28,
+                ),
               ),
-              elevation: 0,
-            ),
+              const SizedBox(
+                height: 15,
+              ),
+              Container(
+                height: 40,
+                child: FloatingActionButton(
+                  heroTag: 'sendMessage',
+                  backgroundColor: theme.colors.buttonColor,
+                  onPressed: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    if (!state.editingFlag && state.descriptionController!.text.isNotEmpty) {
+                      context.read<ChatPageCubit>().addEvent(topic);
+                    } else if (state.descriptionController!.text.isNotEmpty) {
+                      context.read<ChatPageCubit>().finishEditing(true);
+                    }
+                  },
+                  child: const Icon(
+                    Icons.send,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ],
           ),
         ],
       ),

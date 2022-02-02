@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'theme_provider/theme_state.dart';
 
 import '../database/database.dart';
 import '../entity/entities.dart';
@@ -33,12 +34,11 @@ class _AddingButtonState extends State<AddingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<ThemeCubit>().state;
-    return Builder(
-      builder: (ctxOfScaffold) {
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, state) {
         return FloatingActionButton(
           key: widget.key,
-          backgroundColor: theme.colors.buttonColor,
+          backgroundColor: state.colors.buttonColor,
           onPressed: () async {
             if (DefaultTabController.of(context)!.index == 0) {
               Navigator.push(
@@ -60,47 +60,52 @@ class _AddingButtonState extends State<AddingButton> {
   }
 
   Future _showBottomSheet() {
-    final theme = context.read<ThemeCubit>().state;
+    final theme = context
+        .read<ThemeCubit>()
+        .state;
     return showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (newContext) => Container(
-        padding: MediaQuery.of(context).viewInsets,
-        child: Stack(
-          clipBehavior: Clip.none,
-          fit: StackFit.expand,
-          children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                  color: theme.colors.backgroundColor,
+      builder: (newContext) =>
+          Container(
+            padding: MediaQuery
+                .of(context)
+                .viewInsets,
+            child: Stack(
+              clipBehavior: Clip.none,
+              fit: StackFit.expand,
+              children: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                      color: theme.colors.backgroundColor,
+                    ),
+                    child: _BottomForm(
+                      sheetState: this,
+                      currentPage: DefaultTabController.of(context)!.index,
+                      whenComplete: () {
+                        Navigator.pop(context);
+                        setState(() => _mainIcon = _firstIcon);
+                      },
+                    ),
+                  ),
                 ),
-                child: _BottomForm(
-                  sheetState: this,
-                  currentPage: DefaultTabController.of(context)!.index,
-                  whenComplete: () {
-                    Navigator.pop(context);
-                    setState(() => _mainIcon = _firstIcon);
-                  },
+                Positioned(
+                  bottom: 240,
+                  right: 16,
+                  child: FloatingActionButton(
+                    key: widget.key,
+                    backgroundColor: theme.colors.buttonColor,
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: 'Add new',
+                    child: _mainIcon,
+                  ),
                 ),
-              ),
+              ],
             ),
-            Positioned(
-              bottom: 240,
-              right: 16,
-              child: FloatingActionButton(
-                key: widget.key,
-                backgroundColor: theme.colors.buttonColor,
-                onPressed: () => Navigator.pop(context),
-                tooltip: 'Add new',
-                child: _mainIcon,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
       context: context,
       isDismissible: true,
     ).whenComplete(() {
@@ -149,11 +154,16 @@ class _BottomFormState extends State<_BottomForm> {
   }
 
   Widget _taskBottomForm() {
-    final theme = context.read<ThemeCubit>().state;
+    final theme = context
+        .read<ThemeCubit>()
+        .state;
     return Form(
       key: _formKey,
       child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(bottom: MediaQuery
+            .of(context)
+            .viewInsets
+            .bottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
