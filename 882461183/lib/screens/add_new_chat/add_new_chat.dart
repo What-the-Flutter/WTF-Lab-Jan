@@ -1,64 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '/icons.dart';
 import '/models/chat_model.dart';
 import 'add_new_chat_cubit.dart';
 
 class AddNewChat extends StatefulWidget {
-  const AddNewChat({Key? key}) : super(key: key);
+  final bool addCategory;
+
+  const AddNewChat({
+    Key? key,
+    this.addCategory = false,
+  }) : super(key: key);
 
   @override
   _AddNewChatState createState() => _AddNewChatState();
 }
 
 class _AddNewChatState extends State<AddNewChat> {
-  final List<IconData> _iconsData = [
-    Icons.text_fields,
-    FontAwesomeIcons.userAstronaut,
-    Icons.fitness_center,
-    Icons.account_balance,
-    Icons.fastfood,
-    FontAwesomeIcons.donate,
-    FontAwesomeIcons.wineGlassAlt,
-    Icons.domain,
-    Icons.account_balance_wallet,
-    FontAwesomeIcons.dollarSign,
-    Icons.shopping_cart,
-    Icons.radio,
-    Icons.videogame_asset,
-    Icons.local_laundry_service,
-    Icons.flag,
-    Icons.music_note,
-    FontAwesomeIcons.pills,
-    Icons.event_seat,
-    Icons.free_breakfast,
-    Icons.pets,
-    FontAwesomeIcons.lightbulb,
-    Icons.star,
-    FontAwesomeIcons.coins,
-    Icons.pool,
-    Icons.healing,
-    Icons.nature_people,
-    Icons.time_to_leave,
-    FontAwesomeIcons.book,
-    Icons.restaurant,
-    Icons.cake,
-    Icons.local_florist,
-    FontAwesomeIcons.chessRook,
-    Icons.weekend,
-    Icons.vpn_key,
-    FontAwesomeIcons.building,
-    Icons.import_contacts,
-    Icons.flight_takeoff,
-    FontAwesomeIcons.basketballBall,
-    Icons.access_time,
-    FontAwesomeIcons.cookieBite,
-    Icons.adjust,
-    Icons.save,
-    Icons.child_care,
-    Icons.highlight,
-  ];
   final _controller = TextEditingController();
   late final Chat? editingChat =
       ModalRoute.of(context)?.settings.arguments as Chat?;
@@ -69,7 +28,6 @@ class _AddNewChatState extends State<AddNewChat> {
       builder: (context, state) {
         final _blocProvider = BlocProvider.of<AddNewChatCubit>(context);
         return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.background,
           floatingActionButton:
               _customFloatingActionButton(_blocProvider, state),
           body: Center(
@@ -110,16 +68,16 @@ class _AddNewChatState extends State<AddNewChat> {
       _controller.selection = TextSelection.fromPosition(
         TextPosition(offset: _controller.text.length),
       );
-      for (var i = 0; i < _iconsData.length - 1; i++) {
-        if (_iconsData[i] == editingChat?.icon) {
+      for (var i = 0; i < iconsData.length - 1; i++) {
+        if (i == editingChat?.iconIndex) {
           BlocProvider.of<AddNewChatCubit>(context)
-              .initState(selectedIconIndex: i, isTextFieldEmpty: false);
+              .init(selectedIconIndex: i, isTextFieldEmpty: false);
           break;
         }
       }
     } else {
       BlocProvider.of<AddNewChatCubit>(context)
-          .initState(selectedIconIndex: 0, isTextFieldEmpty: true);
+          .init(selectedIconIndex: 0, isTextFieldEmpty: true);
     }
     super.didChangeDependencies();
   }
@@ -145,14 +103,13 @@ class _AddNewChatState extends State<AddNewChat> {
   ) {
     if (state.isTextFieldEmpty) {
       Navigator.pop(context);
+    } else if (widget.addCategory) {
+      _blocProvider.addCategory(_controller.text);
+      Navigator.pop(context);
     } else {
       editingChat == null
-          ? _blocProvider.addChat(_controller.text, _iconsData)
-          : _blocProvider.editChat(
-              editingChat as Chat,
-              _controller.text,
-              _iconsData,
-            );
+          ? _blocProvider.addChat(_controller.text)
+          : _blocProvider.editChat(editingChat as Chat, _controller.text);
       Navigator.pop(context);
     }
   }
@@ -165,7 +122,6 @@ class _AddNewChatState extends State<AddNewChat> {
       cursorColor: Colors.orange[400],
       decoration: InputDecoration(
         filled: true,
-        fillColor: Theme.of(context).colorScheme.primaryVariant,
         enabledBorder: UnderlineInputBorder(
           borderRadius: BorderRadius.circular(0),
           borderSide: const BorderSide(style: BorderStyle.none),
@@ -184,7 +140,7 @@ class _AddNewChatState extends State<AddNewChat> {
 
   Widget _customGridView(AddNewChatCubit _blocProvider, AddNewChatState state) {
     return GridView.builder(
-      itemCount: _iconsData.length,
+      itemCount: iconsData.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
       ),
@@ -200,7 +156,7 @@ class _AddNewChatState extends State<AddNewChat> {
                 child: IconButton(
                   onPressed: () => _blocProvider.selectIcon(index),
                   icon: Icon(
-                    _iconsData[index],
+                    iconsData[index],
                     size: 29,
                   ),
                   splashColor: Colors.transparent,
@@ -223,31 +179,6 @@ class _AddNewChatState extends State<AddNewChat> {
       },
     );
   }
-
-  // void _addNewChat(AddNewChatCubit _blocProvider, AddNewChatState state) {
-  //   var date = DateTime.now();
-  //   Chat _newChatElement;
-  //   for (var i = 0; i < _iconsData.length - 1; i++) {
-  //     if (state.selectedIconIndex == i) {
-  //       if (editingChat == null) {
-  //         _newChatElement = Chat(
-  //           icon: _iconsData[i],
-  //           elementName: _controller.text,
-  //           creationDate: date,
-  //         );
-  //         Navigator.pop(context, _newChatElement);
-  //       } else {
-  //         Navigator.pop(
-  //           context,
-  //           editingChat?.copyWith(
-  //             icon: _iconsData[i],
-  //             elementName: _controller.text,
-  //           ),
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
 
   @override
   void dispose() {

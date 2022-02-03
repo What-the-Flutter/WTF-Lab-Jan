@@ -1,27 +1,51 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 
+import '/data/repository/chat_repository.dart';
+import '/data/repository/event_repository.dart';
+import '/data/services/firebase_api.dart';
+import '/icons.dart';
 import '/models/chat_model.dart';
 import '/models/event_model.dart';
-import '../../database.dart';
 part 'chat_screen_state.dart';
 
 class ChatScreenCubit extends Cubit<ChatScreenState> {
   ChatScreenCubit() : super(ChatScreenState());
 
+  EventRepository eventRepository = EventRepository();
+  ChatRepository chatRepository = ChatRepository();
+
   Future<void> showEvents(String chatId, {String text = ''}) async {
-    List<Event> eventList;
-    if (state.isShowFavorites && !state.isSearching) {
-      eventList = await DatabaseHelper.db.fetchFavoritedEvents(chatId);
+    var eventList = await eventRepository.fetchEventList(chatId);
+    List<Chat>? chatList;
+    if (state.isTextFieldEmpty && state.isSearching) {
+      eventList = [];
     } else if (state.isSearching) {
-      eventList = await DatabaseHelper.db.fetchSearchedEvents(chatId, text);
-    } else {
-      eventList = await DatabaseHelper.db.fetchEventList(chatId);
+      eventList = eventList
+          .where(
+            (element) => element.text.toLowerCase().contains(
+                  text.toLowerCase(),
+                ),
+          )
+          .toList();
     }
-    final chatList = await DatabaseHelper.db.fetchChatList();
-    emit(state.copyWith(eventList: eventList, chatList: chatList));
+    if (text == '') {
+      chatList = await chatRepository.fetchChatList();
+    }
+    emit(
+      state.copyWith(
+        eventList: eventList,
+        chatList: chatList,
+      ),
+    );
+  }
+
+  void showEventsFromListen(List<Event> eventList) {
+    emit(state.copyWith(eventList: eventList));
   }
 
   void changeParameters({
@@ -49,14 +73,18 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image == null) return;
 
+    final file = File(image.path);
+    final imageName = basename(image.path);
+    await FirebaseApi.uploadFile('images/$imageName', file);
+
     final event = Event(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       chatId: chatId,
       text: 'Image Entry',
-      imagePath: image.path,
+      imagePath: imageName,
       date: DateTime.now(),
     );
-    DatabaseHelper.db.insertEvent(event);
+    eventRepository.insertEvent(event);
     showEvents(chatId);
   }
 
@@ -80,7 +108,7 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
           .copyWith(isFavorite: !state.eventList[eventIndex].isFavorite);
       emit(state.copyWith(eventList: state.eventList));
     }
-    DatabaseHelper.db.updateEvent(state.eventList[eventIndex]);
+    eventRepository.updateEvent(state.eventList[eventIndex]);
   }
 
   void onLongPress(int eventIndex) {
@@ -99,7 +127,7 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
               eventList: state.eventList,
             ),
           );
-    DatabaseHelper.db.updateEvent(state.eventList[eventIndex]);
+    eventRepository.updateEvent(state.eventList[eventIndex]);
   }
 
   void copyText() {
@@ -127,12 +155,8 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
       date: DateTime.now(),
     );
 
-    DatabaseHelper.db.insertEvent(event);
-    emit(
-      state.copyWith(
-        isTextFieldEmpty: true,
-      ),
-    );
+    eventRepository.insertEvent(event);
+    emit(state.copyWith(isTextFieldEmpty: true));
     showEvents(chatId);
   }
 
@@ -141,6 +165,12 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
     for (var element in state.eventList) {
       if (element.isSelected) {
         _messagessList.add(element);
+
+        if (element.imagePath != '') {
+          final imagePath = basename(element.imagePath);
+          final destination = 'images/$imagePath';
+          FirebaseApi.deleteFile(destination);
+        }
       }
     }
 
@@ -152,12 +182,17 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
       ),
     );
     for (var element in _messagessList) {
-      DatabaseHelper.db.deleteEvent(element);
+      eventRepository.deleteEvent(element);
     }
   }
 
   void deleteFromDismiss(int index, String chatId) {
-    DatabaseHelper.db.deleteEvent(state.eventList[index]);
+    if (state.eventList[index].imagePath != '') {
+      final imagePath = basename(state.eventList[index].imagePath);
+      final destination = 'images/$imagePath';
+      FirebaseApi.deleteFile(destination);
+    }
+    eventRepository.deleteEvent(state.eventList[index]);
     showEvents(chatId);
   }
 
@@ -176,7 +211,7 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
     for (var i = 0; i <= state.eventList.length - 1; i++) {
       if (state.eventList[i].isSelected) {
         state.eventList[i] = state.eventList[i].copyWith(isSelected: false);
-        DatabaseHelper.db.updateEvent(state.eventList[i]);
+        eventRepository.updateEvent(state.eventList[i]);
       }
     }
 
@@ -188,9 +223,17 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
     );
   }
 
-  void showAllFavorites(String chatId) {
-    emit(state.copyWith(isShowFavorites: !state.isShowFavorites));
-    showEvents(chatId);
+  void showAllFavorites(String chatId) async {
+    var eventList = await eventRepository.fetchEventList(chatId);
+    if (!state.isShowFavorites) {
+      eventList = eventList.where((element) => element.isFavorite).toList();
+    }
+    emit(
+      state.copyWith(
+        isShowFavorites: !state.isShowFavorites,
+        eventList: eventList,
+      ),
+    );
   }
 
   void moveMessageToAnotherChat(int newChatIndex) {
@@ -204,7 +247,7 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
       }
     }
     deleteElement();
-    DatabaseHelper.db.insertEvent(tempEvent);
+    eventRepository.insertEvent(tempEvent);
   }
 
   String editMessageText() {
@@ -239,24 +282,22 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
         isTextFieldEmpty: true,
       ),
     );
-    DatabaseHelper.db.insertEvent(event as Event);
+    eventRepository.insertEvent(event as Event);
   }
 
-  void setCategory(String text, IconData icon) {
-    if (text == 'Cansel') {
+  void setCategory(int categoryIndex) {
+    if (categoryIndex == 0) {
       emit(
         state.copyWith(
           isCategoriesOpened: false,
-          categoryIcon: Icons.close,
-          categoryName: 'Close',
+          categoryIndex: 0,
         ),
       );
     } else {
       emit(
         state.copyWith(
           isCategoriesOpened: false,
-          categoryName: text,
-          categoryIcon: icon,
+          categoryIndex: categoryIndex,
         ),
       );
     }
@@ -269,20 +310,19 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
     final event = Event(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       chatId: chatId,
-      text: text == '' ? state.categoryName : text,
+      text:
+          text == '' ? categoriesMap.keys.elementAt(state.categoryIndex) : text,
       date: DateTime.now(),
-      categoryName: state.categoryName,
-      categoryIcon: state.categoryIcon,
+      categoryIndex: state.categoryIndex,
     );
 
     state.eventList.insert(0, event);
-    DatabaseHelper.db.insertEvent(event);
+    eventRepository.insertEvent(event);
     emit(
       state.copyWith(
         eventList: state.eventList,
         isTextFieldEmpty: true,
-        categoryIcon: Icons.close,
-        categoryName: 'Close',
+        categoryIndex: 0,
       ),
     );
   }

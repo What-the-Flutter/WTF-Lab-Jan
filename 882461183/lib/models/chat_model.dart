@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 // List<Chat> chatList = [
 //   Chat(
 //     icon: Icons.flight_takeoff,
@@ -25,14 +23,14 @@ class Chat {
   final String id;
   final String elementName;
   final String elementSubname;
-  final IconData icon;
+  final int iconIndex;
   final DateTime creationDate;
   final bool isPinned;
 
   Chat({
     required this.id,
     required this.creationDate,
-    required this.icon,
+    required this.iconIndex,
     required this.elementName,
     this.isPinned = false,
     this.elementSubname = 'No events. Click to create one.',
@@ -40,14 +38,14 @@ class Chat {
 
   Chat copyWith({
     String? id,
-    IconData? icon,
+    int? iconIndex,
     String? elementName,
     String? elementSubname,
     bool? isPinned,
   }) {
     return Chat(
       id: id ?? this.id,
-      icon: icon ?? this.icon,
+      iconIndex: iconIndex ?? this.iconIndex,
       creationDate: creationDate,
       elementName: elementName ?? this.elementName,
       elementSubname: elementSubname ?? this.elementSubname,
@@ -55,23 +53,23 @@ class Chat {
     );
   }
 
-  factory Chat.fromMap(Map<String, dynamic> map) {
+  factory Chat.fromJson(Map<String, dynamic> map) {
     return Chat(
       id: map['id'],
       elementName: map['name'],
       elementSubname: map['subname'],
-      icon: IconData(int.parse(map['icon']), fontFamily: 'MaterialIcons'),
+      iconIndex: map['icon_index'],
       creationDate: DateTime.parse(map['creation_date']),
       isPinned: map['is_pinned'] == 1 ? true : false,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': elementName,
       'subname': elementSubname,
-      'icon': icon.codePoint,
+      'icon_index': iconIndex,
       'creation_date': creationDate.toString(),
       'is_pinned': isPinned ? 1 : 0,
     };

@@ -10,8 +10,7 @@ class ChatScreenState {
   final bool isSearching;
   final bool isCategoriesOpened;
   final int selectedItemsCount;
-  final String categoryName;
-  final IconData categoryIcon;
+  final int categoryIndex;
 
   ChatScreenState({
     this.chatList = const [],
@@ -22,8 +21,7 @@ class ChatScreenState {
     this.isSearching = false,
     this.isCategoriesOpened = false,
     this.selectedItemsCount = 0,
-    this.categoryName = 'Cansel',
-    this.categoryIcon = Icons.close,
+    this.categoryIndex = 0,
     this.editingEvent,
   });
 
@@ -37,8 +35,7 @@ class ChatScreenState {
     bool? isSearching,
     bool? isCategoriesOpened,
     int? selectedItemsCount,
-    String? categoryName,
-    IconData? categoryIcon,
+    int? categoryIndex,
   }) {
     return ChatScreenState(
       eventList: eventList ?? this.eventList,
@@ -50,8 +47,7 @@ class ChatScreenState {
       selectedItemsCount: selectedItemsCount ?? this.selectedItemsCount,
       isCategoriesOpened: isCategoriesOpened ?? this.isCategoriesOpened,
       isSearching: isSearching ?? this.isSearching,
-      categoryName: categoryName ?? this.categoryName,
-      categoryIcon: categoryIcon ?? this.categoryIcon,
+      categoryIndex: categoryIndex ?? this.categoryIndex,
     );
   }
 }

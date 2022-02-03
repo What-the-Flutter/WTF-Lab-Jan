@@ -1,9 +1,13 @@
-import 'dart:io';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '/data/services/firebase_api.dart';
+import '/icons.dart';
 import '/models/chat_model.dart';
+import '/models/event_model.dart';
 import 'chat_screen_cubit.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -16,21 +20,30 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _controller = TextEditingController();
   final _searchController = TextEditingController();
-  Map<String, IconData> categoriesMap = {
-    'Cansel': Icons.close,
-    'FastFood': Icons.fastfood,
-    'Movie': Icons.local_movies,
-    'Sports': Icons.sports_basketball,
-    'Workout': Icons.fitness_center,
-    'Running': Icons.directions_run_rounded,
-    'Laundry': Icons.local_laundry_service,
-  };
+  final _eventRef = FirebaseDatabase.instance.ref().child('Events/');
+
   late final Chat selectedChat =
       ModalRoute.of(context)?.settings.arguments as Chat;
 
   @override
   void didChangeDependencies() {
     BlocProvider.of<ChatScreenCubit>(context).showEvents(selectedChat.id);
+    _eventRef.onValue.listen(
+      (event) {
+        final eventList = <Event>[];
+        final result = event.snapshot.value as Map;
+        final list = result.values;
+        final finalList = list.toList();
+        for (var i = 0; i < finalList.length; i++) {
+          final map = Map<String, dynamic>.from(finalList[i]);
+          if (map.containsValue(selectedChat.id)) {
+            eventList.add(Event.fromJson(map));
+          }
+        }
+        BlocProvider.of<ChatScreenCubit>(context)
+            .showEventsFromListen(eventList);
+      },
+    );
     super.didChangeDependencies();
   }
 
@@ -39,7 +52,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return BlocBuilder<ChatScreenCubit, ChatScreenState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.background,
           appBar: _customAppBar(state),
           body: Column(
             children: [
@@ -81,9 +93,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     );
                   },
                   icon: Icon(
-                    state.categoryIcon == Icons.close
+                    state.categoryIndex == 0
                         ? Icons.bubble_chart
-                        : state.categoryIcon,
+                        : categoriesMap.values.elementAt(state.categoryIndex),
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                   splashColor: Colors.transparent,
@@ -119,8 +131,7 @@ class _ChatScreenState extends State<ChatScreen> {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () => BlocProvider.of<ChatScreenCubit>(context).setCategory(
-              categoriesMap.keys.elementAt(index),
-              categoriesMap.values.elementAt(index),
+              index,
             ),
             child: Column(
               children: [
@@ -145,13 +156,13 @@ class _ChatScreenState extends State<ChatScreen> {
         flex: 1,
         child: _CustomIcon(
           !state.isEditing
-              ? state.categoryIcon == Icons.close
+              ? state.categoryIndex == 0
                   ? Icons.camera_enhance
                   : Icons.send
               : Icons.close,
           !state.isEditing
               ? () {
-                  if (state.categoryIcon == Icons.close) {
+                  if (state.categoryIndex == 0) {
                     BlocProvider.of<ChatScreenCubit>(context)
                         .addImage(selectedChat.id);
                   } else {
@@ -179,7 +190,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Icons.send,
           !state.isEditing
               ? () {
-                  if (state.categoryIcon == Icons.close) {
+                  if (state.categoryIndex == 0) {
                     BlocProvider.of<ChatScreenCubit>(context)
                         .addNewEvent(_controller.text, selectedChat.id);
                   } else {
@@ -213,10 +224,8 @@ class _ChatScreenState extends State<ChatScreen> {
       controller: state.isSearching ? _searchController : _controller,
       cursorColor: Colors.orange[300],
       cursorWidth: 2.5,
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
       decoration: InputDecoration(
         filled: true,
-        fillColor: Theme.of(context).colorScheme.primaryVariant,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(0),
           borderSide: const BorderSide(style: BorderStyle.none),
@@ -226,7 +235,6 @@ class _ChatScreenState extends State<ChatScreen> {
           borderSide: const BorderSide(style: BorderStyle.none),
         ),
         hintText: 'Enter Event',
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
       ),
     );
   }
@@ -295,7 +303,6 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _event(ChatScreenState state, int index) {
     final unselectedColor = Theme.of(context).colorScheme.primaryVariant;
     final selectedColor = Theme.of(context).colorScheme.secondaryVariant;
-    final textColor = Theme.of(context).colorScheme.secondary;
     final timeFormat = DateFormat('h:mm a');
 
     return ConstrainedBox(
@@ -312,29 +319,16 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            state.eventList[index].categoryIcon == null
+            state.eventList[index].categoryIndex == 0
                 ? Container(height: 0, width: 0)
-                : Icon(state.eventList[index].categoryIcon),
+                : Icon(categoriesMap.values
+                    .elementAt(state.eventList[index].categoryIndex)),
             if (state.eventList[index].imagePath.isNotEmpty)
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        _FullSizeImage(state.eventList[index].imagePath),
-                  ),
-                ),
-                child: Hero(
-                  tag: 'imageHero',
-                  child: Image.file(
-                    File(state.eventList[index].imagePath),
-                  ),
-                ),
-              )
+              _image(index, state)
             else
               Text(
                 state.eventList[index].text,
-                style: TextStyle(fontSize: 16, color: textColor),
+                style: const TextStyle(fontSize: 16),
               ),
             Padding(
               padding: const EdgeInsets.only(top: 3, left: 5),
@@ -353,6 +347,37 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _image(int index, ChatScreenState state) {
+    return FutureBuilder(
+      future: FirebaseApi.getFile('images/${state.eventList[index].imagePath}'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          return GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    _FullSizeImage(state.eventList[index].imagePath),
+              ),
+            ),
+            child: Hero(
+              tag: 'imageHero',
+              child: Image.network(snapshot.data as String),
+            ),
+          );
+        }
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            !snapshot.hasData) {
+          return const CircularProgressIndicator(
+            color: Colors.white,
+          );
+        }
+        return Container();
+      },
     );
   }
 
@@ -391,12 +416,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Text(
                       'This is page where you can track everithing'
-                      ' about ""',
+                      ' about "${selectedChat.elementName}"',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      style: const TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 15),
                     Text(
@@ -434,8 +456,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   PreferredSizeWidget _searchAppBar(ChatScreenState state) {
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.surface,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () {
@@ -454,8 +474,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 onPressed: () {
                   _searchController.clear();
                   BlocProvider.of<ChatScreenCubit>(context)
-                      .changeParameters(isEmpty: true);
-                  _controller.clear();
+                      .changeParameters(isEmpty: true, eventList: []);
                 },
                 icon: const Icon(Icons.close))
             : Container()
@@ -465,11 +484,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   PreferredSizeWidget _editAppBar() {
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.surface,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
-        color: Theme.of(context).colorScheme.surface,
+        color: Colors.white,
         onPressed: () {
           _controller.clear();
           BlocProvider.of<ChatScreenCubit>(context)
@@ -486,8 +503,6 @@ class _ChatScreenState extends State<ChatScreen> {
     ChatScreenState state,
   ) {
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.surface,
       leading: IconButton(
         icon: const Icon(Icons.close),
         onPressed: () =>
@@ -575,8 +590,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   PreferredSizeWidget _unselectedAppBar(ChatScreenState state) {
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.surface,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () {
@@ -596,6 +609,7 @@ class _ChatScreenState extends State<ChatScreen> {
             BlocProvider.of<ChatScreenCubit>(context).changeParameters(
               isEmpty: true,
               isSearching: true,
+              eventList: [],
             );
           },
         ),
@@ -608,7 +622,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return IconButton(
       onPressed: () => BlocProvider.of<ChatScreenCubit>(context)
           .showAllFavorites(selectedChat.id),
-      icon: state.isShowFavorites == false
+      icon: !state.isShowFavorites
           ? const Icon(Icons.bookmark_border)
           : const Icon(
               Icons.bookmark_outlined,
@@ -678,14 +692,25 @@ class _FullSizeImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.pop(context),
-      child: Hero(
-        tag: 'imageHero',
-        child: Image.file(
-          File(imagePath),
-        ),
-      ),
+    return FutureBuilder(
+      future: FirebaseApi.getFile('images/$imagePath'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          return GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Hero(
+              tag: 'imageHero',
+              child: Image.network(snapshot.data.toString()),
+            ),
+          );
+        }
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            !snapshot.hasData) {
+          const CircularProgressIndicator();
+        }
+        return Container();
+      },
     );
   }
 }
