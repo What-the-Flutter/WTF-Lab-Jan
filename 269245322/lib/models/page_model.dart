@@ -2,6 +2,7 @@ import 'note_model.dart';
 
 class PageModel {
   final String title;
+  final String? dbTitle;
   final int icon;
   late final int numOfNotes;
   late final List<NoteModel> notesList;
@@ -18,10 +19,12 @@ class PageModel {
     required this.notesList,
     required this.numOfNotes,
     required this.lastModifedDate,
+    this.dbTitle,
   });
 
   PageModel copyWith({
     String? title,
+    String? dbTitle,
     int? icon,
     int? numOfNotes,
     String? lastModifedDate,
@@ -35,6 +38,7 @@ class PageModel {
       lastModifedDate: lastModifedDate ?? this.lastModifedDate,
       notesList: notesList ?? this.notesList,
       cretionDate: cretionDate ?? this.cretionDate,
+      dbTitle: this.dbTitle,
     );
   }
 
@@ -51,6 +55,19 @@ class PageModel {
   factory PageModel.fromMap(Map<String, dynamic> map) {
     return PageModel(
       title: map['title'] ?? ' ',
+      icon: map['icon'] ?? 0,
+      numOfNotes: map['num_of_notes'] ?? 0,
+      notesList: [],
+      cretionDate: map['cretion_date'] ?? ' ',
+      lastModifedDate: map['last_modifed_date'] ?? ' ',
+    );
+  }
+
+  factory PageModel.fromMapFireBase(
+      Map<dynamic, dynamic> map, String dbPageNum) {
+    return PageModel(
+      title: map['title'] ?? ' ',
+      dbTitle: dbPageNum,
       icon: map['icon'] ?? 0,
       numOfNotes: map['num_of_notes'] ?? 0,
       notesList: [],

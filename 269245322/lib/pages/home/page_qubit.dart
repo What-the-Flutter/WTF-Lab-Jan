@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../database/firebase_db_helper.dart';
 import '../../database/note_db_helper.dart';
 import '../../models/note_model.dart';
 
@@ -8,6 +9,7 @@ import 'page_state.dart';
 
 class PageCubit extends Cubit<PageState> {
   final DBHelper _dbHelper = DBHelper();
+  final FireBaseHelper _fireBaseHelper = FireBaseHelper();
 
   PageCubit()
       : super(const PageState(
@@ -19,7 +21,7 @@ class PageCubit extends Cubit<PageState> {
 
   void init() async {
     emit(
-      state.copyWith(listOfPages: await _dbHelper.dbPagesList()),
+      state.copyWith(listOfPages: await _fireBaseHelper.dbPagesList()),
     );
     emit(
       state.copyWith(pageSelectedtoMove: state.listOfPages!.first),
@@ -65,7 +67,8 @@ class PageCubit extends Cubit<PageState> {
       listOfPages: newListOfPages,
       selectedIcon: 0,
     ));
-    _dbHelper.insertPage(newPage);
+    //_dbHelper.insertPage(newPage);
+    _fireBaseHelper.insertPage(newPage);
   }
 
   void editExistingPage(TextEditingController textInpuyControllerText) {
