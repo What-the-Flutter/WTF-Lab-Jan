@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 
+import '/data/repository/chat_repository.dart';
 import '/models/chat_model.dart';
-import '../../database.dart';
 
 part 'main_screen_state.dart';
 
@@ -14,17 +14,19 @@ class MainScreenCubit extends Cubit<MainScreenState> {
           ),
         );
 
-  Stream<List> showChats() async* {
-    final chatList = await DatabaseHelper.db.fetchChatList();
-    emit(state.copyWith(chatList: chatList));
+  final ChatRepository chatRepository = ChatRepository();
 
-    yield chatList;
+  Future<void> showChats() async {
+    final chatList = await chatRepository.fetchChatList();
+    emit(state.copyWith(chatList: chatList));
+  }
+
+  void showChatsFromListen(List<Chat> chatList) {
+    emit(state.copyWith(chatList: chatList));
   }
 
   void removeElement(Chat chatElement) {
-    DatabaseHelper.db.deleteChat(chatElement);
-
-    state.chatList.remove(chatElement);
+    chatRepository.deleteChat(chatElement);
     emit(state.copyWith(chatList: state.chatList));
   }
 
@@ -42,14 +44,13 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     }
 
     emit(state.copyWith(chatList: state.chatList));
-    DatabaseHelper.db.updateChat(chat);
+    chatRepository.updateChat(chat);
   }
 
   void newSubname(int i, String newSubName) {
     state.chatList[i] = state.chatList[i].copyWith(elementSubname: newSubName);
     emit(state.copyWith(chatList: state.chatList));
-
-    DatabaseHelper.db.updateChat(state.chatList[i]);
+    chatRepository.updateChat(state.chatList[i]);
   }
 
   void selectTab(int i) {

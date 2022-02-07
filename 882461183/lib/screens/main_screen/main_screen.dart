@@ -1,20 +1,32 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-//import '/chat_bot_element.dart';
+import '/data/repository/chat_repository.dart';
+import '/data/repository/event_repository.dart';
+import '/data/services/auth.dart';
+import '/data/services/firebase_database.dart';
+import '/data/services/local_auth.dart';
+import '/icons.dart';
 import '/models/chat_model.dart';
-import '/theme/custom_theme.dart';
-import '/theme/theme_color.dart';
 import '../add_new_chat/add_new_chat.dart';
 import '../add_new_chat/add_new_chat_cubit.dart';
 import '../chat_screen/chat_screen.dart';
 import '../chat_screen/chat_screen_cubit.dart';
+import '../settings/settings_cubit.dart';
 import 'main_screen_cubit.dart';
 
 Widget startApp() {
-  return CustomTheme(
-    themeData: lightTheme,
+  return MultiRepositoryProvider(
+    providers: [
+      RepositoryProvider<EventRepository>(
+        create: (context) => EventRepository(),
+      ),
+      RepositoryProvider<ChatRepository>(
+        create: (context) => ChatRepository(),
+      ),
+    ],
     child: MultiBlocProvider(
       providers: [
         BlocProvider<MainScreenCubit>(
@@ -25,6 +37,9 @@ Widget startApp() {
         ),
         BlocProvider<AddNewChatCubit>(
           create: (context) => AddNewChatCubit(),
+        ),
+        BlocProvider<SettingsCubit>(
+          create: (context) => SettingsCubit(),
         ),
       ],
       child: MyApp(),
@@ -37,14 +52,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      routes: {
-        '/add_chat': (context) => const AddNewChat(),
-        '/events': (context) => ChatScreen(),
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        return MaterialApp(
+          routes: {
+            '/add_chat': (context) => const AddNewChat(),
+            '/events': (context) => ChatScreen(),
+          },
+          theme: state.theme,
+          title: 'Chat Journal',
+          home: MainScreen(),
+        );
       },
-      theme: CustomTheme.of(context),
-      title: 'Chat Journal',
-      home: MainScreen(),
     );
   }
 }
@@ -55,19 +74,38 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  final _auth = AuthService.instance;
+  final _chatRef = FirebaseDatabase.instance.ref().child('Chats/');
+
+  @override
+  void initState() {
+    super.initState();
+    _auth.signInAnon();
+    BlocProvider.of<SettingsCubit>(context).initSettings();
+    BlocProvider.of<MainScreenCubit>(context).showChats();
+    _chatRef.onValue.listen(
+      (event) {
+        final chatList = <Chat>[];
+        final result = event.snapshot.value as Map;
+        final list = result.values;
+        final finalList = list.toList();
+        for (var i = 0; i < finalList.length; i++) {
+          final map = Map<String, dynamic>.from(finalList[i]);
+          chatList.insert(0, Chat.fromJson(map));
+        }
+        BlocProvider.of<MainScreenCubit>(context).showChatsFromListen(chatList);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MainScreenCubit, MainScreenState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.background,
+          drawer: _drawer(),
           appBar: _customAppBar(),
-          body: StreamBuilder(
-            builder: (context, projectsnap) {
-              return _customListView(state);
-            },
-            stream: BlocProvider.of<MainScreenCubit>(context).showChats(),
-          ),
+          body: _customListView(state),
           floatingActionButton: _customFloatingActionButton(),
           bottomNavigationBar: _customBottomNavigationBar(state),
         );
@@ -77,13 +115,49 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _customFloatingActionButton() {
     return FloatingActionButton(
-      onPressed: () async =>
-          await Navigator.pushNamed(context, '/add_chat') as Chat?,
+      onPressed: () async {
+        await Navigator.pushNamed(context, '/add_chat');
+        BlocProvider.of<MainScreenCubit>(context).showChats();
+      },
       tooltip: 'New Page',
       child: const Icon(Icons.add),
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
-      foregroundColor: Colors.black,
       splashColor: Colors.transparent,
+    );
+  }
+
+  Widget _drawer() {
+    return Drawer(
+      child: Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 70),
+            ElevatedButton(
+              onPressed: () async {
+                final isAuthenticated = await LocalAuthApi.authenticate();
+                if (isAuthenticated) {
+                  print('auth');
+                } else {
+                  print('not auth');
+                }
+              },
+              child: const Text('Face Id'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const AddNewChat(addCategory: true)),
+                );
+              },
+              child: const Text('Add Category'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -104,8 +178,8 @@ class _MainScreenState extends State<MainScreen> {
                       radius: 30,
                       child: Center(
                         child: Icon(
-                          state.chatList[index].icon,
-                          color: Theme.of(context).colorScheme.surface,
+                          iconsData[state.chatList[index].iconIndex],
+                          color: const Color.fromRGBO(235, 254, 255, 1),
                           size: 29,
                         ),
                       ),
@@ -129,6 +203,11 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 subtitle: Text(state.chatList[index].elementSubname),
                 onTap: () async {
+                  final db = FBDatabase();
+                  BlocProvider.of<ChatScreenCubit>(context).changeParameters(
+                    eventList:
+                        await db.fetchEventList(state.chatList[index].id),
+                  );
                   final result = await Navigator.pushNamed(
                     context,
                     '/events',
@@ -153,7 +232,6 @@ class _MainScreenState extends State<MainScreen> {
 
   void _chatOptions(int index, MainScreenState state, Chat pinnedElement) {
     showModalBottomSheet(
-      backgroundColor: Theme.of(context).colorScheme.background,
       context: context,
       builder: (context) {
         return Container(
@@ -166,11 +244,7 @@ class _MainScreenState extends State<MainScreen> {
                   Icons.info,
                   color: Color.fromRGBO(121, 143, 154, 1),
                 ),
-                title: Text(
-                  'Info',
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+                title: const Text('Info'),
               ),
               ListTile(
                 onTap: () {
@@ -179,36 +253,21 @@ class _MainScreenState extends State<MainScreen> {
                       .pinUnpinChat(pinnedElement);
                 },
                 leading: const Icon(Icons.attach_file, color: Colors.green),
-                title: Text(
-                  'Pin/Unpin Page',
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+                title: const Text('Pin/Unpin Page'),
               ),
               ListTile(
                 leading: const Icon(Icons.archive, color: Colors.yellow),
-                title: Text(
-                  'Archive Page',
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+                title: const Text('Archive Page'),
+                onTap: () {},
               ),
               ListTile(
                 leading: const Icon(Icons.edit, color: Colors.blue),
-                title: Text(
-                  'Edit Page',
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+                title: const Text('Edit Page'),
                 onTap: () => _editChat(pinnedElement),
               ),
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: Text(
-                  'Delete Page',
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+                title: const Text('Delete Page'),
                 onTap: () {
                   BlocProvider.of<MainScreenCubit>(context)
                       .removeElement(pinnedElement);
@@ -240,8 +299,8 @@ class _MainScreenState extends State<MainScreen> {
                     radius: 30,
                     child: Center(
                       child: Icon(
-                        pinnedElement.icon,
-                        color: Theme.of(context).colorScheme.surface,
+                        iconsData[pinnedElement.iconIndex],
+                        color: const Color.fromRGBO(235, 254, 255, 1),
                         size: 29,
                       ),
                     ),
@@ -265,14 +324,8 @@ class _MainScreenState extends State<MainScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary),
-                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
                 ),
               ],
             ),
@@ -288,15 +341,13 @@ class _MainScreenState extends State<MainScreen> {
       '/add_chat',
       arguments: pinnedElement,
     );
+    BlocProvider.of<MainScreenCubit>(context).showChats();
   }
 
   BottomNavigationBar _customBottomNavigationBar(MainScreenState state) {
     return BottomNavigationBar(
       currentIndex: state.selectedTab,
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Theme.of(context).colorScheme.background,
-      unselectedItemColor: Theme.of(context).colorScheme.onSecondary,
-      selectedItemColor: Theme.of(context).colorScheme.onBackground,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.book),
@@ -326,22 +377,16 @@ class _MainScreenState extends State<MainScreen> {
 
   PreferredSizeWidget _customAppBar() {
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.surface,
-      leading: IconButton(
-        icon: const Icon(Icons.menu),
-        onPressed: () {},
-      ),
       title: const Center(
         child: Text('Home'),
       ),
       actions: [
         IconButton(
-          onPressed: CustomTheme.instanceOf(context).changeTheme,
+          onPressed: BlocProvider.of<SettingsCubit>(context).changeTheme,
           tooltip: 'Switch Theme',
-          icon: Icon(
+          icon: const Icon(
             Icons.invert_colors_on,
-            color: Theme.of(context).colorScheme.surface,
+            color: Color.fromRGBO(235, 254, 255, 1),
             size: 28,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 25),

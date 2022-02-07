@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "586862161092",
+    "firebase_url": "https://chat-journal-app-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "chat-journal-app",
+    "storage_bucket": "chat-journal-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:586862161092:android:39d81f8f79668b44372d91",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "586862161092-323hch5pio49akii45fnhkaa9us7t6bn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_application_1",
+            "certificate_hash": "08deaffdda22a03d1b8c28746ac28dacf4483595"
+          }
+        },
+        {
+          "client_id": "586862161092-2afjdjmfnc3cfjm3qr8elpa7ve06l15e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCickBki8efwIRHOhK16UYoagvFCLGvWrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "586862161092-2afjdjmfnc3cfjm3qr8elpa7ve06l15e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
