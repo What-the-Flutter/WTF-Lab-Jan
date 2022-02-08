@@ -51,7 +51,7 @@ class CustomThemeState extends State<CustomTheme> {
   void initState() {
     final _sharedPreferencesProvider = SharedPreferencesProvider();
 
-    _sharedPreferencesProvider.getTheme()
+    (_sharedPreferencesProvider.getTheme() == 0)
         ? _theme = MyThemes.getThemeFromKey(MyThemeKeys.light)
         : _theme = MyThemes.getThemeFromKey(MyThemeKeys.dark);
 
@@ -63,8 +63,8 @@ class CustomThemeState extends State<CustomTheme> {
       _theme = MyThemes.getThemeFromKey(themeKey);
       final _sharedPreferencesProvider = SharedPreferencesProvider();
       themeKey == MyThemeKeys.light
-          ? _sharedPreferencesProvider.changeTheme(true)
-          : _sharedPreferencesProvider.changeTheme(false);
+          ? SharedPreferencesProvider.changeTheme(0)
+          : SharedPreferencesProvider.changeTheme(1);
     });
   }
 

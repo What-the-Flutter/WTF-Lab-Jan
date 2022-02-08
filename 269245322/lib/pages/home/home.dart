@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../services/firebase_auth_service.dart';
-import '../../style/custom_theme.dart';
-import '../../style/themes.dart';
 import '../page_constructor/page_constructor.dart';
 import '../page_constructor/page_cubit.dart';
 import '../page_constructor/page_state.dart';
@@ -59,10 +56,6 @@ class _PageState extends State<HomePage> {
   }
 }
 
-void _changeTheme(BuildContext buildContext, MyThemeKeys key) {
-  CustomTheme.instanceOf(buildContext).changeTheme(key);
-}
-
 AppBar _appBar(BuildContext context) {
   return AppBar(
     title: const Center(child: Text('Home')),
@@ -70,31 +63,6 @@ AppBar _appBar(BuildContext context) {
       icon: Icon(Icons.menu),
       onPressed: null,
     ),
-    actions: <Widget>[
-      ToggleSwitch(
-        initialLabelIndex: 0,
-        cornerRadius: 20.0,
-        activeFgColor: Theme.of(context).toggleButtonsTheme.color,
-        inactiveBgColor: Theme.of(context).toggleButtonsTheme.selectedColor,
-        inactiveFgColor: Theme.of(context).toggleButtonsTheme.fillColor,
-        totalSwitches: 2,
-        icons: [
-          Icons.lightbulb,
-          Icons.lightbulb_outline,
-        ],
-        iconSize: 25.0,
-        activeBgColors: [
-          [Theme.of(context).toggleButtonsTheme.disabledColor!],
-          [Theme.of(context).toggleButtonsTheme.selectedColor!],
-        ],
-        onToggle: (index) {
-          print('switched to: $index');
-          (index == 0)
-              ? _changeTheme(context, MyThemeKeys.light)
-              : _changeTheme(context, MyThemeKeys.dark);
-        },
-      ),
-    ],
     backgroundColor: Theme.of(context).primaryColor,
   );
 }
