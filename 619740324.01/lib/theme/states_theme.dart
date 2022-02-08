@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 class StatesTheme {
   final bool? isLightTheme;
   final ThemeData? themeData;
+  final TextTheme? textTheme;
 
-  StatesTheme({this.isLightTheme, this.themeData});
+  StatesTheme({this.isLightTheme, this.themeData, this.textTheme});
 
   StatesTheme copyWith({
     final bool? isLightTheme,
     final ThemeData? themeData,
+    final TextTheme? textTheme,
   }) {
     return StatesTheme(
       isLightTheme: isLightTheme ?? this.isLightTheme,
       themeData: themeData ?? this.themeData,
+      textTheme: textTheme ?? this.textTheme,
     );
   }
 
@@ -20,6 +23,7 @@ class StatesTheme {
     return StatesTheme(
       isLightTheme: true,
       themeData: ThemeData(
+        textTheme: textTheme,
         backgroundColor: Colors.deepPurple,
         primarySwatch: Colors.deepPurple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -40,6 +44,7 @@ class StatesTheme {
           centerTitle: true,
         ),
       ),
+      textTheme: textTheme,
     );
   }
 
@@ -47,6 +52,7 @@ class StatesTheme {
     return StatesTheme(
       isLightTheme: false,
       themeData: ThemeData(
+        textTheme: textTheme,
         backgroundColor: Colors.black,
         primarySwatch: Colors.yellow,
         brightness: Brightness.dark,
@@ -66,6 +72,43 @@ class StatesTheme {
           centerTitle: true,
         ),
       ),
+      textTheme: textTheme,
     );
   }
+
+  static const TextTheme largeTextTheme = TextTheme(
+    subtitle1: TextStyle(
+      fontSize: 19,
+    ),
+    bodyText2: TextStyle(
+      fontSize: 17,
+    ),
+    bodyText1: TextStyle(
+      fontSize: 18,
+    ),
+  );
+
+  static const TextTheme defaultTextTheme = TextTheme(
+    subtitle1: TextStyle(
+      fontSize: 16,
+    ),
+    bodyText2: TextStyle(
+      fontSize: 14,
+    ),
+    bodyText1: TextStyle(
+      fontSize: 15,
+    ),
+  );
+
+  static const TextTheme smallTextTheme = TextTheme(
+    subtitle1: TextStyle(
+      fontSize: 12,
+    ),
+    bodyText2: TextStyle(
+      fontSize: 10,
+    ),
+    bodyText1: TextStyle(
+      fontSize: 12,
+    ),
+  );
 }
