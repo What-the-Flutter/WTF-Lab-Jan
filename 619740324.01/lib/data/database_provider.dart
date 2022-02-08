@@ -57,6 +57,10 @@ class DatabaseProvider {
   Future<List<Note>> dbNotesList() async {
     final snap = await _firebase.ref('Notes').once();
     final noteList = <Note>[];
+
+    // final resultList = <dynamic>[];
+    // final childNoteKeyList = <dynamic>[];
+
     var circleAvatarIndex = -1;
     var name = '';
     var subTittleName = '';
@@ -71,6 +75,10 @@ class DatabaseProvider {
       for (var childSnapshot in snapNote.snapshot.children) {
         if (childSnapshot.key != 'Events') {
           final childNoteKey = childSnapshot.key;
+
+          // childNoteKeyList.add(childNoteKey);
+          // resultList.add(snapNote.snapshot.child(childNoteKeyList[i]).value);
+
           switch (childNoteKey) {
             case 'name':
               name = (childSnapshot.value as String?)!;
@@ -84,6 +92,13 @@ class DatabaseProvider {
           }
         }
       }
+      // print(
+      //     'niteKeyList- ${childNoteKeyList[i]}   resltList- ${resultList[i]}');
+      // for(var i = 0; i < resultList.length; i++ ){
+      // noteList.add(Note.fromMap(Map<String, dynamic>.from(resultList[i])));
+      //
+      // print('noteListName - ${noteList[i].eventName}');
+      // }
       noteList.add(
         Note(
           id: childKeyList[i],
@@ -127,6 +142,8 @@ class DatabaseProvider {
     var imagePath = '';
     var indexOfCircleAvatar = -1;
     var bookmarkIndex = -1;
+    // final childEventKeyList = <dynamic>[];
+    // final resultList = <dynamic>[];
     DatabaseEvent snapEvent;
     for (var childSnapshot in snap.snapshot.children) {
       final childKey = childSnapshot.key;
@@ -137,6 +154,7 @@ class DatabaseProvider {
           await _firebase.ref('Notes/$id/Events/${childKeyList[i]}').once();
       for (var childSnapshot in snapEvent.snapshot.children) {
         final childEventKey = childSnapshot.key;
+
         switch (childEventKey) {
           case 'text':
             text = (childSnapshot.value as String?)!;
@@ -157,6 +175,9 @@ class DatabaseProvider {
             imagePath = (childSnapshot.value as String?)!;
             break;
         }
+
+        // childEventKeyList.add(childEventKey);
+        // resultList.add(snapEvent.snapshot.child(childEventKeyList[i]).value);
       }
       eventList.add(
         Event(
@@ -170,6 +191,8 @@ class DatabaseProvider {
           bookmarkIndex: bookmarkIndex,
         ),
       );
+      // final result = resultList[i];
+      // eventList.add(Event.fromMap(Map<String, dynamic>.from(result)));
     }
     return eventList;
   }

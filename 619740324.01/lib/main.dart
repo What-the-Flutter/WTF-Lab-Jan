@@ -1,13 +1,15 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'auth/cubit_auth.dart';
 import 'data/shared_preferences_provider.dart';
-
 import 'pages/create_page/cubit_create_page.dart';
 import 'pages/event_page/cubit_event_page.dart';
 import 'pages/home_page/cubit_home_page.dart';
 import 'pages/home_page/home_page.dart';
+import 'pages/settings_page/cubit_general_settings.dart';
 import 'theme/cubit_theme.dart';
 import 'theme/states_theme.dart';
 
@@ -32,6 +34,9 @@ void main() async {
         ),
         BlocProvider<CubitAuth>(
           create: (context) => CubitAuth(),
+        ),
+        BlocProvider<CubitGeneralSettings>(
+          create: (context) => CubitGeneralSettings(),
         ),
       ],
       child: const MyApp(),
@@ -61,7 +66,15 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         title: 'Flutter project',
         theme: state.themeData,
-        home: HomePage(),
+        home: AnimatedSplashScreen(
+          duration: 3000,
+          splash: const Text(
+            'WTF-Lab-Jan\n Chat Journal',
+          ),
+          nextScreen: HomePage(),
+          splashTransition: SplashTransition.sizeTransition,
+          backgroundColor: Colors.cyan,
+        ),
       ),
     );
   }

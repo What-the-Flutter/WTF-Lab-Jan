@@ -3,11 +3,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hashtagable/widgets/hashtag_text.dart';
+import 'package:hashtagable/widgets/hashtag_text_field.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../event.dart';
 
+import '../../event.dart';
 import '../../icons.dart';
 import '../../note.dart';
+import '../../theme/cubit_theme.dart';
+import '../settings_page/cubit_general_settings.dart';
 import 'cubit_event_page.dart';
 import 'states_event_page.dart';
 
@@ -77,8 +81,11 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  TextField _textFieldSearch(StatesEventPage state) {
-    return TextField(
+  HashTagTextField _textFieldSearch(StatesEventPage state) {
+    return HashTagTextField(
+      decoratedStyle: const TextStyle(
+        color: Colors.red,
+      ),
       controller: textSearchController,
       focusNode: _searchFocusNode,
       decoration: const InputDecoration(
@@ -345,7 +352,10 @@ class _EventPageState extends State<EventPage> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(left: 5.0, bottom: 5.0),
-            child: TextField(
+            child: HashTagTextField(
+              decoratedStyle: const TextStyle(
+                color: Colors.red,
+              ),
               controller: textController,
               focusNode: _focusNode,
               onChanged: (value) {
@@ -465,10 +475,32 @@ class _EventPageState extends State<EventPage> {
       padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
       child: Column(
         children: [
+          ListTile(
+            title: BlocProvider.of<CubitGeneralSettings>(context)
+                    .state
+                    .isCenterDateBubble
+                ? Center(
+                    child: Text(state.eventList[index].date),
+                  )
+                : Align(
+                    alignment: BlocProvider.of<CubitGeneralSettings>(context)
+                            .state
+                            .isBubbleAlignment
+                        ? Alignment.topRight
+                        : Alignment.topLeft,
+                    child: Text(
+                      state.eventList[index].date,
+                    ),
+                  ),
+          ),
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Align(
-              alignment: Alignment.topLeft,
+              alignment: BlocProvider.of<CubitGeneralSettings>(context)
+                      .state
+                      .isBubbleAlignment
+                  ? Alignment.topRight
+                  : Alignment.topLeft,
               child: Container(
                 width: 300,
                 child: Card(
@@ -482,7 +514,19 @@ class _EventPageState extends State<EventPage> {
                           ),
                     title: event.imagePath != ''
                         ? Image.network(event.imagePath)
-                        : Text(event.text),
+                        : HashTagText(
+                            decoratedStyle: const TextStyle(
+                              color: Colors.red,
+                            ),
+                            text: event.text,
+                            basicStyle: TextStyle(
+                              color: BlocProvider.of<CubitTheme>(context)
+                                      .state
+                                      .isLightTheme!
+                                  ? Colors.black
+                                  : Colors.white,
+                            ),
+                          ),
                     subtitle: Align(
                       alignment: Alignment.bottomRight,
                       child: Text(event.time),

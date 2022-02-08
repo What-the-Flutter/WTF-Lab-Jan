@@ -12,6 +12,23 @@ class CubitTheme extends Cubit<StatesTheme> {
         isLightTheme: SharedPreferencesProvider().fetchTheme(),
       ),
     );
+    setTextTheme(SharedPreferencesProvider().fetchFontSize());
+    updateTheme();
+  }
+
+  void setTextTheme(int fontSizeIndex) {
+    switch (fontSizeIndex) {
+      case 1:
+        emit(state.copyWith(textTheme: StatesTheme.smallTextTheme));
+        break;
+      case 2:
+        emit(state.copyWith(textTheme: StatesTheme.defaultTextTheme));
+        break;
+      case 3:
+        emit(state.copyWith(textTheme: StatesTheme.largeTextTheme));
+        break;
+    }
+    SharedPreferencesProvider().changeFontSize(fontSizeIndex);
     updateTheme();
   }
 

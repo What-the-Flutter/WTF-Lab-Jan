@@ -83,12 +83,7 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
             ),
-            child: const Text(
-              'Information',
-              style: TextStyle(
-                fontSize: 40,
-              ),
-            ),
+            child: const Text('Information'),
           ),
           GestureDetector(
             child: const ListTile(
@@ -103,9 +98,7 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(
                 Icons.settings,
               ),
-              title: const Text(
-                'Settings',
-              ),
+              title: const Text('Settings'),
               onTap: () {
                 Navigator.push(
                   context,
@@ -150,9 +143,6 @@ class _HomePageState extends State<HomePage> {
     return ListTile(
       title: Text(
         _note.eventName,
-        style: const TextStyle(
-          fontSize: 27,
-        ),
       ),
       leading: CircleAvatar(
         radius: 25,
@@ -160,9 +150,6 @@ class _HomePageState extends State<HomePage> {
       ),
       subtitle: Text(
         _note.subTittleEvent,
-        style: const TextStyle(
-          fontSize: 15,
-        ),
       ),
       onTap: () async {
         await Navigator.push(

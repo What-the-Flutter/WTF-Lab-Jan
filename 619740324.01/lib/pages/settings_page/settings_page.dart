@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_info_settings.dart';
 import 'general_settings_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -49,7 +50,14 @@ class _SettingsPageState extends State<SettingsPage> {
           leading: const Icon(Icons.info),
           title: const Text('App Info'),
           trailing: const Icon(Icons.navigate_next),
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AppInfoSettings(),
+              ),
+            );
+          },
         ),
       ],
     );

@@ -71,8 +71,8 @@ class CubitEventPage extends Cubit<StatesEventPage> {
         eventList: state.eventList
           ..sort(
             (a, b) {
-              var aDate = DateFormat().add_yMMMd().parse(a.date);
-              var bDate = DateFormat().add_yMMMd().parse(b.date);
+              final aDate = DateFormat().add_yMMMd().parse(a.date);
+              final bDate = DateFormat().add_yMMMd().parse(b.date);
               return bDate.compareTo(aDate);
             },
           ),
