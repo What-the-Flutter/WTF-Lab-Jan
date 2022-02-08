@@ -2,9 +2,10 @@ class NoteModel {
   final String heading;
   final String data;
   final int icon;
-  late final bool isFavorite;
-  late final bool isSearched;
-  late final bool isChecked;
+  final bool isFavorite;
+  final bool isSearched;
+  final bool isChecked;
+  final String? downloadURL;
 
   NoteModel({
     required this.heading,
@@ -13,6 +14,7 @@ class NoteModel {
     required this.isFavorite,
     required this.isSearched,
     required this.isChecked,
+    this.downloadURL,
   });
 
   NoteModel copyWith({
@@ -22,6 +24,7 @@ class NoteModel {
     bool? isFavorite,
     bool? isSearched,
     bool? isChecked,
+    String? downloadURL,
   }) {
     return NoteModel(
       heading: heading ?? this.heading,
@@ -30,6 +33,7 @@ class NoteModel {
       isFavorite: isFavorite ?? this.isFavorite,
       isSearched: isSearched ?? this.isSearched,
       isChecked: isChecked ?? this.isChecked,
+      downloadURL: downloadURL ?? this.downloadURL,
     );
   }
 
@@ -63,6 +67,7 @@ class NoteModel {
       isFavorite: map['is_favorite'],
       isSearched: map['is_searched'],
       isChecked: map['is_checked'],
+      downloadURL: map['download_URL'],
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../shared_preferences/sp_settings_helper.dart';
 import 'custom_theme_state.dart';
@@ -8,7 +9,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
   void initState() {
     final _sharedPreferencesProvider = SharedPreferencesProvider();
-    var initTheme;
+    ThemeData initTheme;
     _sharedPreferencesProvider.getTheme()
         ? initTheme = MyThemes.getThemeFromKey(MyThemeKeys.light)
         : initTheme = MyThemes.getThemeFromKey(MyThemeKeys.dark);

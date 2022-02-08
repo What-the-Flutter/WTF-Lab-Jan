@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../main.dart';
-import 'note_qubit.dart';
+import 'note_cubit.dart';
 
 class NoteInput extends StatefulWidget {
   final TextEditingController controller;
@@ -103,9 +103,9 @@ Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller,
                                   Icons.photo,
                                   size: 35.0,
                                 )),
-                            IconButton(
+                            const IconButton(
                                 onPressed: null,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.upload,
                                   size: 35.0,
                                 )),

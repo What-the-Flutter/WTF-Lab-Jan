@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import '../../main.dart';
 
+import '../../main.dart';
 import '../../models/page_model.dart';
-import '../home/page_qubit.dart';
+import '../page_constructor/page_cubit.dart';
 import 'note_input.dart';
-import 'note_qubit.dart';
+import 'note_cubit.dart';
 import 'note_state.dart';
 
 class CustomPage extends StatefulWidget {

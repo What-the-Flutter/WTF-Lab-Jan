@@ -5,15 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
-import '../../database/firebase_db_helper.dart';
 
+import '../../database/firebase_db_helper.dart';
 import '../../models/note_model.dart';
 import '../../models/page_model.dart';
+import '../../services/firebase_file_service.dart';
 import 'note_state.dart';
 
 class NoteCubit extends Cubit<NoteState> {
   //final DBHelper _dbHelper = DBHelper();
-  final FireBaseHelper _fireBaseHelper = FireBaseHelper();
+  final FireBaseNoteHelper _fireBaseNoteHelper = FireBaseNoteHelper();
+  final FireBasePageHelper _fireBasePageHelper = FireBasePageHelper();
 
   NoteCubit()
       : super(const NoteState(
@@ -85,7 +87,7 @@ class NoteCubit extends Cubit<NoteState> {
     }
   }
 
-  void addNoteToList(TextEditingController controller) {
+  void addNoteToList(TextEditingController controller) async {
     final noteInput = controller.text;
     final headingText = '${state.page!.title} ${state.page!.numOfNotes}';
     var noteCounter = 0;
@@ -108,8 +110,8 @@ class NoteCubit extends Cubit<NoteState> {
           newNoteList[noteCounter] =
               note.copyWith(data: controller.text, isChecked: false);
           //_dbHelper.editNote(newNoteList[noteCounter], state.page!.title);
-          _fireBaseHelper.editNote(newNoteList[noteCounter], state.page!.title,
-              state.page!.dbTitle!);
+          _fireBaseNoteHelper.update(newNoteList[noteCounter],
+              state.page!.title, state.page!.fireBaseTitle!);
         }
         noteCounter++;
       }
@@ -118,11 +120,16 @@ class NoteCubit extends Cubit<NoteState> {
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes + 1);
       emit(state.copyWith(page: newPage));
       //_dbHelper.updatePage(newPage, newPage.title);
-      _fireBaseHelper.editPage(newPage);
+      _fireBasePageHelper.update(newPage, null, null);
       newNoteList.add(newNote);
       //_dbHelper.insertNote(newNote, newPage.title);
-      _fireBaseHelper.insertNote(newNote, newPage.title, newPage.dbTitle!);
+      _fireBaseNoteHelper.insert(
+          newNote, newPage.title, newPage.fireBaseTitle!);
       uploadFile(newNote.heading);
+      var noteWithURL =
+          newNote.copyWith(downloadURL: await uploadFile(newNote.heading));
+      _fireBaseNoteHelper.update(
+          noteWithURL, state.page!.title, state.page!.fireBaseTitle!);
     }
     emit(state.copyWith(notesList: newNoteList));
 
@@ -194,9 +201,9 @@ class NoteCubit extends Cubit<NoteState> {
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes - 1);
       emit(state.copyWith(page: newPage));
       //_dbHelper.updatePage(newPage, newPage.title);
-      _fireBaseHelper.editPage(newPage);
+      _fireBasePageHelper.update(newPage, null, null);
       //_dbHelper.deleteNote(currentNote);
-      _fireBaseHelper.deleteNote(state.page!.dbTitle!, currentNote.heading);
+      _fireBaseNoteHelper.delete(currentNote, null, state.page!.fireBaseTitle!);
     }
 
     emit(state.copyWith(notesList: newNoteList));
@@ -210,14 +217,14 @@ class NoteCubit extends Cubit<NoteState> {
         var newNote = currentNote.copyWith(isFavorite: false, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
         //_dbHelper.editNote(newNote, state.page!.title);
-        _fireBaseHelper.editNote(
-            newNote, state.page!.title, state.page!.dbTitle!);
+        _fireBaseNoteHelper.update(
+            newNote, state.page!.title, state.page!.fireBaseTitle!);
       } else {
         var newNote = currentNote.copyWith(isFavorite: true, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
         //_dbHelper.editNote(newNote, state.page!.title);
-        _fireBaseHelper.editNote(
-            newNote, state.page!.title, state.page!.dbTitle!);
+        _fireBaseNoteHelper.update(
+            newNote, state.page!.title, state.page!.fireBaseTitle!);
       }
     }
     emit(state.copyWith(notesList: newNoreList));
@@ -268,12 +275,18 @@ class NoteCubit extends Cubit<NoteState> {
     emit(state.copyWith(file: File(path)));
   }
 
-  Future uploadFile(String heading) async {
-    if (state.file == null) return;
+  Future<String> uploadFile(String heading) async {
+    if (state.file == null) return '';
 
     final fileName = basename(state.file!.path);
     final destination = '$heading/$fileName';
 
-    _fireBaseHelper.uploadFile(destination, state.file!);
+    final fileService = FileService();
+    final task = await fileService.uploadFile(destination, state.file!);
+
+    if (task == null) return '';
+    final snapShot = await task.whenComplete(() {});
+    final downloadURL = await snapShot.ref.getDownloadURL();
+    return downloadURL;
   }
 }

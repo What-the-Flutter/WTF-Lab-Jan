@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'pages/home/home.dart';
-import 'pages/home/page_constructor.dart';
 import 'pages/page/custom_page.dart';
+import 'pages/page_constructor/page_constructor.dart';
 import 'pages/settings/settings.dart';
 import 'style/custom_theme.dart';
 import 'style/custom_theme_cubit.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../main.dart';
-import 'page_qubit.dart';
+import 'page_cubit.dart';
 import 'page_state.dart';
 
 class PageConstructor extends StatefulWidget {

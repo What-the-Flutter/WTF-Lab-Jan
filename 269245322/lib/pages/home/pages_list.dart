@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../main.dart';
 import '../../models/page_model.dart';
 import '../page/custom_page.dart';
+import '../page_constructor/page_constructor.dart';
+import '../page_constructor/page_cubit.dart';
 import 'home_cubit.dart';
 import 'home_state.dart';
-import 'page_constructor.dart';
-import 'page_qubit.dart';
 
 class PageList extends StatefulWidget {
   final PageCubit pageCubit;

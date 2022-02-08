@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_lab_project/database/firebase_db_helper.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
+import '../../services/firebase_auth_service.dart';
 import '../../style/custom_theme.dart';
 import '../../style/themes.dart';
+import '../page_constructor/page_constructor.dart';
+import '../page_constructor/page_cubit.dart';
+import '../page_constructor/page_state.dart';
 import '../settings/settings.dart';
-import 'page_constructor.dart';
-import 'page_qubit.dart';
-import 'page_state.dart';
 import 'pages_list.dart';
 
 class HomePage extends StatefulWidget {
