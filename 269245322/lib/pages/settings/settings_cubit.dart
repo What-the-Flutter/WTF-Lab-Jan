@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_lab_project/style/app_themes.dart';
-import 'package:my_lab_project/style/theme_cubit.dart';
+import 'package:flutter_share/flutter_share.dart';
 
 import '../../shared_preferences/sp_settings_helper.dart';
+import '../../style/app_themes.dart';
+import '../../style/theme_cubit.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
@@ -53,5 +53,13 @@ class SettingsCubit extends Cubit<SettingsState> {
   void resetSettings(ThemeCubit themeCubit) {
     SharedPreferencesProvider.resetSettings();
     changeTheme(0, themeCubit);
+  }
+
+  Future<void> share() async {
+    await FlutterShare.share(
+        title: 'Example share',
+        text: 'Example share text',
+        linkUrl: 'https://flutter.dev/',
+        chooserTitle: 'Example Chooser Title');
   }
 }

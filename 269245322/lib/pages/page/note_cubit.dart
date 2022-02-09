@@ -1,9 +1,11 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_lab_project/shared_preferences/sp_settings_helper.dart';
 import 'package:path/path.dart';
 
 import '../../database/firebase_db_helper.dart';
@@ -16,6 +18,8 @@ class NoteCubit extends Cubit<NoteState> {
   //final DBHelper _dbHelper = DBHelper();
   final FireBaseNoteHelper _fireBaseNoteHelper = FireBaseNoteHelper();
   final FireBasePageHelper _fireBasePageHelper = FireBasePageHelper();
+  final SharedPreferencesProvider _sharedPreferencesProvider =
+      SharedPreferencesProvider();
 
   NoteCubit()
       : super(const NoteState(
@@ -132,28 +136,26 @@ class NoteCubit extends Cubit<NoteState> {
         noteCounter++;
       }
     } else {
+      var noteWithURL =
+          newNote.copyWith(downloadURL: await uploadFile(newNote.heading));
+      _fireBaseNoteHelper.update(
+          noteWithURL, state.page!.title, state.page!.fireBaseTitle!);
+      var tagsStr = _getStringOfTagsFromStringInput(newNote.data);
+
+      var noteWithTags = noteWithURL.copyWith(tags: tagsStr);
+      _fireBaseNoteHelper.update(
+          noteWithTags, state.page!.title, state.page!.fireBaseTitle!);
+
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes + 1);
       emit(state.copyWith(page: newPage));
       //_dbHelper.updatePage(newPage, newPage.title);
       _fireBasePageHelper.update(newPage, null, null);
-      newNoteList.add(newNote);
+      newNoteList.add(noteWithTags);
       //_dbHelper.insertNote(newNote, newPage.title);
       _fireBaseNoteHelper.insert(
-          newNote, newPage.title, newPage.fireBaseTitle!);
-      uploadFile(newNote.heading);
-
-      var noteWithURL =
-          newNote.copyWith(downloadURL: await uploadFile(newNote.heading));
-      _fireBaseNoteHelper.update(
-          noteWithURL, state.page!.title, state.page!.fireBaseTitle!);
-
-      if (_getStringOfTagsFromStringInput(newNote.data).isNotEmpty) {
-        var noteWithTags = newNote.copyWith(
-            tags: _getStringOfTagsFromStringInput(newNote.data));
-        _fireBaseNoteHelper.update(
-            noteWithTags, state.page!.title, state.page!.fireBaseTitle!);
-      }
+          noteWithTags, newPage.title, newPage.fireBaseTitle!);
+      uploadFile(noteWithTags.heading);
     }
     emit(state.copyWith(notesList: newNoteList));
 
@@ -302,11 +304,11 @@ class NoteCubit extends Cubit<NoteState> {
     var tagsString = '';
     var numOfTags = 0;
 
-    for (var i = 0; i < tagsString.length; i++) {
-      if (tagsString[i] == '#') numOfTags++;
+    for (var i = 0; i < inputStr.length; i++) {
+      if (inputStr[i] == '#') numOfTags++;
     }
     var listOfTags = <String>[];
-    var listOfWords = tagsString.split(' ');
+    var listOfWords = inputStr.split(' ');
     for (var word in listOfWords) {
       if (word.contains('#')) listOfTags.add(word);
     }
@@ -314,7 +316,13 @@ class NoteCubit extends Cubit<NoteState> {
       tagsString += tag;
     }
     if (numOfTags != listOfTags.length) tagsString = '';
-
     return tagsString;
+  }
+
+  double getTextSize() {
+    var textSize = 10.0;
+    var factor = (_sharedPreferencesProvider.getTextSize() + 1) * 5;
+    textSize = textSize + factor;
+    return textSize;
   }
 }

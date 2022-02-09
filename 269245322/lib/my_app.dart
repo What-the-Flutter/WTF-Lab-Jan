@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_lab_project/style/theme_cubit.dart';
-import 'package:my_lab_project/style/theme_state.dart';
 
 import 'pages/home/home.dart';
 import 'pages/page/custom_page.dart';
 import 'pages/page_constructor/page_constructor.dart';
 import 'pages/settings/settings.dart';
+import 'style/theme_cubit.dart';
+import 'style/theme_state.dart';
 
 class MyApp extends StatelessWidget {
   final ThemeCubit _themeCubit = ThemeCubit();

@@ -1,5 +1,6 @@
-import 'package:my_lab_project/style/app_themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../style/app_themes.dart';
 
 enum aligment {
   bubbleAlignment,
@@ -136,7 +137,7 @@ class SharedPreferencesProvider {
 
   static void resetSettings() {
     _prefs.setString('theme', 'AppTheme.BlueLight');
-    _prefs.setString('text_size', 'textSize.medium');
+    _prefs.setString('text_size', 'textSize.small');
     _prefs.setString('aligment', 'aligment.bubbleAlignment');
   }
 }

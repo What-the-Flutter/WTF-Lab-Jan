@@ -117,11 +117,13 @@ void _onElementLongPress(BuildContext context, PageCubit pageCubit,
                       ),
                     ],
                     elevation: 1.0,
-                    backgroundColor: Theme.of(context).primaryColor,
                   ),
                 );
               },
-              icon: const Icon(Icons.info),
+              icon: Icon(
+                Icons.info,
+                color: Theme.of(context).primaryColorLight,
+              ),
               label: Text(
                 'Show page info',
                 style: TextStyle(
@@ -138,20 +140,33 @@ void _onElementLongPress(BuildContext context, PageCubit pageCubit,
                   PageConstructor.routeName,
                   arguments: pageCubit,
                 );
-                // setState(() {
-                //   Navigator.pop(context);
-                // });
               },
-              icon: const Icon(Icons.edit),
-              label: const Text('Edit page'),
+              icon: Icon(
+                Icons.edit,
+                color: Theme.of(context).primaryColorLight,
+              ),
+              label: Text(
+                'Edit page',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColorLight,
+                ),
+              ),
             ),
             TextButton.icon(
               onPressed: () {
                 homeCubit.deletePage(index, listOfPages[index]);
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.delete),
-              label: const Text('Delete page'),
+              icon: Icon(
+                Icons.delete,
+                color: Theme.of(context).primaryColorLight,
+              ),
+              label: Text(
+                'Delete page',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColorLight,
+                ),
+              ),
             ),
           ],
         ),

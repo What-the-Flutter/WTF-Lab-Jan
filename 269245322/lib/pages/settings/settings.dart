@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_lab_project/style/app_themes.dart';
-import 'package:my_lab_project/style/theme_cubit.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../services/firebase_auth_service.dart';
+import '../../style/theme_cubit.dart';
 import 'settings_cubit.dart';
 import 'settings_state.dart';
 
@@ -50,18 +49,6 @@ Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        ElevatedButton(
-          child: const Text('sign in anon'),
-          onPressed: () async {
-            dynamic result = await auth.signInAnon();
-            if (result == null) {
-              print('error signing in');
-            } else {
-              print('signed in');
-              print(result);
-            }
-          },
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -115,12 +102,26 @@ Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
           height: 40.0,
         ),
         ElevatedButton(
-          child: const Text('reset to zavodskie'),
+          child: const Text('Reset to zavodskie'),
           onPressed: () {
             settingsCubit.resetSettings(themeCubit);
             Navigator.pop(context);
           },
         ),
+        ElevatedButton(
+          child: const Text('Sign in anon'),
+          onPressed: () async {
+            dynamic result = await auth.signInAnon();
+            if (result == null) {
+              print('error signing in');
+            } else {
+              print('signed in');
+              print(result);
+            }
+          },
+        ),
+        ElevatedButton(
+            child: const Text('Share'), onPressed: settingsCubit.share),
       ],
     ),
   );
