@@ -55,6 +55,22 @@ class NoteCubit extends Cubit<NoteState> {
     return functionResult;
   }
 
+  void showSerchBar(bool dispalayed, TextEditingController searhController) {
+    bool newIsSerchBarDisplayed;
+
+    if (dispalayed) {
+      newIsSerchBarDisplayed = true;
+    } else {
+      newIsSerchBarDisplayed = false;
+      searhController.text = '';
+    }
+    emit(state.copyWith(isSerchBarDisplayed: newIsSerchBarDisplayed));
+  }
+
+  bool getSerchBarDisplayedState() {
+    return state.isSerchBarDisplayed;
+  }
+
   void copyDataToBuffer() {
     var bufferData = '';
     for (var currentNote in state.selcetedNotes!) {
@@ -126,10 +142,18 @@ class NoteCubit extends Cubit<NoteState> {
       _fireBaseNoteHelper.insert(
           newNote, newPage.title, newPage.fireBaseTitle!);
       uploadFile(newNote.heading);
+
       var noteWithURL =
           newNote.copyWith(downloadURL: await uploadFile(newNote.heading));
       _fireBaseNoteHelper.update(
           noteWithURL, state.page!.title, state.page!.fireBaseTitle!);
+
+      if (_getStringOfTagsFromStringInput(newNote.data).isNotEmpty) {
+        var noteWithTags = newNote.copyWith(
+            tags: _getStringOfTagsFromStringInput(newNote.data));
+        _fireBaseNoteHelper.update(
+            noteWithTags, state.page!.title, state.page!.fireBaseTitle!);
+      }
     }
     emit(state.copyWith(notesList: newNoteList));
 
@@ -251,22 +275,6 @@ class NoteCubit extends Cubit<NoteState> {
     return state.showNoteIconMenue;
   }
 
-  void showSerchBar(bool dispalayed, TextEditingController searhController) {
-    bool newIsSerchBarDisplayed;
-
-    if (dispalayed) {
-      newIsSerchBarDisplayed = true;
-    } else {
-      newIsSerchBarDisplayed = false;
-      searhController.text = '';
-    }
-    emit(state.copyWith(isSerchBarDisplayed: newIsSerchBarDisplayed));
-  }
-
-  bool getSerchBarDisplayedState() {
-    return state.isSerchBarDisplayed;
-  }
-
   Future selectFile() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: false);
     if (result == null) return;
@@ -288,5 +296,25 @@ class NoteCubit extends Cubit<NoteState> {
     final snapShot = await task.whenComplete(() {});
     final downloadURL = await snapShot.ref.getDownloadURL();
     return downloadURL;
+  }
+
+  String _getStringOfTagsFromStringInput(String inputStr) {
+    var tagsString = '';
+    var numOfTags = 0;
+
+    for (var i = 0; i < tagsString.length; i++) {
+      if (tagsString[i] == '#') numOfTags++;
+    }
+    var listOfTags = <String>[];
+    var listOfWords = tagsString.split(' ');
+    for (var word in listOfWords) {
+      if (word.contains('#')) listOfTags.add(word);
+    }
+    for (var tag in listOfTags) {
+      tagsString += tag;
+    }
+    if (numOfTags != listOfTags.length) tagsString = '';
+
+    return tagsString;
   }
 }

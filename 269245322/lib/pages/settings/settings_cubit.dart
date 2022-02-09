@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_lab_project/style/app_themes.dart';
+import 'package:my_lab_project/style/theme_cubit.dart';
 
 import '../../shared_preferences/sp_settings_helper.dart';
-import '../../style/custom_theme.dart';
-import '../../style/themes.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
@@ -16,6 +16,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   final SharedPreferencesProvider _sharedPreferencesProvider =
       SharedPreferencesProvider();
+
   void initState() {
     final initTextSize = _sharedPreferencesProvider.getTextSize();
     final initAligment = _sharedPreferencesProvider.getALigment();
@@ -39,19 +40,18 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(state.copyWith(aligment: newAligment));
   }
 
-  void changeTheme(int appTheme, BuildContext buildContext) {
+  void changeTheme(int appTheme, ThemeCubit themeCubit) {
     final newTheme = appTheme;
 
     SharedPreferencesProvider.changeTheme(newTheme);
     emit(state.copyWith(theme: newTheme));
     appTheme == 0
-        ? CustomTheme.instanceOf(buildContext).changeTheme(MyThemeKeys.light)
-        : CustomTheme.instanceOf(buildContext).changeTheme(MyThemeKeys.dark);
+        ? themeCubit.changeTheme(appThemeData[AppTheme.BlueLight]!)
+        : themeCubit.changeTheme(appThemeData[AppTheme.BlueDark]!);
   }
 
-  void resetSettings(BuildContext context) {
+  void resetSettings(ThemeCubit themeCubit) {
     SharedPreferencesProvider.resetSettings();
-    changeTheme(0, context);
-    Navigator.pop(context);
+    changeTheme(0, themeCubit);
   }
 }

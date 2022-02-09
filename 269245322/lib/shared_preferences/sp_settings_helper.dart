@@ -1,3 +1,4 @@
+import 'package:my_lab_project/style/app_themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum aligment {
@@ -8,10 +9,6 @@ enum textSize {
   small,
   medium,
   large,
-}
-enum theme {
-  light,
-  dark,
 }
 
 class SharedPreferencesProvider {
@@ -67,13 +64,13 @@ class SharedPreferencesProvider {
     String spTheme;
     switch (appTheme) {
       case 0:
-        spTheme = theme.light.toString();
+        spTheme = AppTheme.BlueLight.toString();
         break;
       case 1:
-        spTheme = theme.dark.toString();
+        spTheme = AppTheme.BlueDark.toString();
         break;
       default:
-        spTheme = theme.light.toString();
+        spTheme = AppTheme.BlueLight.toString();
         break;
     }
     _prefs.setString('theme', spTheme);
@@ -120,10 +117,10 @@ class SharedPreferencesProvider {
     var spTheme = _prefs.getString('theme');
     int appTheme;
     switch (spTheme) {
-      case 'theme.light':
+      case 'AppTheme.BlueLight':
         appTheme = 0;
         break;
-      case 'theme.dark':
+      case 'AppTheme.BlueDark':
         appTheme = 1;
         break;
       default:
@@ -133,8 +130,12 @@ class SharedPreferencesProvider {
     return appTheme;
   }
 
+  static AppTheme getEnumTheme() {
+    return _prefs.getString('theme') as AppTheme;
+  }
+
   static void resetSettings() {
-    _prefs.setString('theme', 'theme.light');
+    _prefs.setString('theme', 'AppTheme.BlueLight');
     _prefs.setString('text_size', 'textSize.medium');
     _prefs.setString('aligment', 'aligment.bubbleAlignment');
   }

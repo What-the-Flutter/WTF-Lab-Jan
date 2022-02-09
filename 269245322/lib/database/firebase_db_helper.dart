@@ -137,6 +137,7 @@ class FireBaseNoteHelper extends EntityRepository<NoteModel> {
       'is_searched': entity.isSearched,
       'is_checked': entity.isChecked,
       'download_URL': entity.downloadURL,
+      'tags': entity.tags,
     }).asStream();
   }
 
@@ -152,6 +153,7 @@ class FireBaseNoteHelper extends EntityRepository<NoteModel> {
       'is_searched': entity.isSearched,
       'is_checked': entity.isChecked,
       'download_URL': entity.downloadURL,
+      'tags': entity.tags,
     }).asStream();
   }
 

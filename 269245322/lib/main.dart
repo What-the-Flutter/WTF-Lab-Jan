@@ -5,7 +5,6 @@ import 'database/sqlite_db_helper.dart';
 import 'models/note_icon_menu_model.dart';
 import 'my_app.dart';
 import 'shared_preferences/sp_settings_helper.dart';
-import 'style/custom_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,10 +12,7 @@ void main() async {
   await DBHelper.initialize();
   await Firebase.initializeApp();
   runApp(
-    CustomTheme(
-      key: UniqueKey(),
-      child: MyApp(),
-    ),
+    MyApp(),
   );
 }
 

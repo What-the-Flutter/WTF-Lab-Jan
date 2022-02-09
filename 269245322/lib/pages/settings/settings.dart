@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_lab_project/style/app_themes.dart';
+import 'package:my_lab_project/style/theme_cubit.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../services/firebase_auth_service.dart';
@@ -7,7 +9,8 @@ import 'settings_cubit.dart';
 import 'settings_state.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  late final ThemeCubit themeCubit;
+  SettingsPage({Key? key, required this.themeCubit}) : super(key: key);
 
   static const routeName = '/pageSettings';
   @override
@@ -33,14 +36,15 @@ class _SettingsPageState extends State<SettingsPage> {
             appBar: AppBar(
               title: const Center(child: Text('Settings')),
             ),
-            body: settingsButtons(_auth, _settingsCubit, state, context),
+            body: settingsButtons(
+                _auth, _settingsCubit, state, context, widget.themeCubit),
           );
         });
   }
 }
 
 Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
-    SettingsState state, BuildContext context) {
+    SettingsState state, BuildContext context, ThemeCubit themeCubit) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: Column(
@@ -68,7 +72,7 @@ Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
               labels: ['Light', 'Dark'],
               animate: true,
               animationDuration: 150,
-              onToggle: (index) => settingsCubit.changeTheme(index, context),
+              onToggle: (index) => settingsCubit.changeTheme(index, themeCubit),
             ),
           ],
         ),
@@ -112,7 +116,10 @@ Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
         ),
         ElevatedButton(
           child: const Text('reset to zavodskie'),
-          onPressed: () => settingsCubit.resetSettings(context),
+          onPressed: () {
+            settingsCubit.resetSettings(themeCubit);
+            Navigator.pop(context);
+          },
         ),
       ],
     ),

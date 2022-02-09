@@ -189,7 +189,8 @@ Column _body(NoteState state, NoteCubit _noteCubit, PageCubit pageCubit,
                               ? Colors.green
                               : Colors.black),
                     ),
-                    subtitle: Text(state.page!.notesList[index].data),
+                    subtitle: Text(
+                        '${state.page!.notesList[index].data}/n${state.page!.notesList[index].tags}'),
                     isThreeLine: state.page!.notesList[index].data.length > 30
                         ? true
                         : false,

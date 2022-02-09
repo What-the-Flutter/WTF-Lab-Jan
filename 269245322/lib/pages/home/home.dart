@@ -21,6 +21,7 @@ class _PageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _pageCubit.init();
     _anonumousAuthorization();
   }
 

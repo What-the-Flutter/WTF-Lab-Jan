@@ -6,6 +6,7 @@ class NoteModel {
   final bool isSearched;
   final bool isChecked;
   final String? downloadURL;
+  final String? tags;
 
   NoteModel({
     required this.heading,
@@ -15,6 +16,7 @@ class NoteModel {
     required this.isSearched,
     required this.isChecked,
     this.downloadURL,
+    this.tags,
   });
 
   NoteModel copyWith({
@@ -25,6 +27,7 @@ class NoteModel {
     bool? isSearched,
     bool? isChecked,
     String? downloadURL,
+    String? tags,
   }) {
     return NoteModel(
       heading: heading ?? this.heading,
@@ -34,6 +37,7 @@ class NoteModel {
       isSearched: isSearched ?? this.isSearched,
       isChecked: isChecked ?? this.isChecked,
       downloadURL: downloadURL ?? this.downloadURL,
+      tags: tags ?? this.tags,
     );
   }
 
@@ -68,6 +72,7 @@ class NoteModel {
       isSearched: map['is_searched'],
       isChecked: map['is_checked'],
       downloadURL: map['download_URL'],
+      tags: map['tags'],
     );
   }
 }
