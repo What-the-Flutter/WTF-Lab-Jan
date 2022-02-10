@@ -2,11 +2,11 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class FirebaseApi {
-  static UploadTask? uploadFile(String destination, File file) {
+  static Future<UploadTask?> uploadFile(String destination, File file) async {
     try {
       final ref = FirebaseStorage.instance.ref(destination);
 
-      return ref.putFile(file);
+      await ref.putFile(file);
     } catch (e) {
       print(e);
       return null;

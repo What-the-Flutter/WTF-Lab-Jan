@@ -1,15 +1,17 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
-import '/data/services/firebase_database.dart';
+import '/data/repository/chat_repository.dart';
 import '/icons.dart';
 import '/models/chat_model.dart';
 
 part 'add_new_chat_state.dart';
 
 class AddNewChatCubit extends Cubit<AddNewChatState> {
-  AddNewChatCubit() : super(AddNewChatState(selectedIconIndex: 0));
-  final FBDatabase db = FBDatabase();
+  final ChatRepository chatRepository;
+
+  AddNewChatCubit(this.chatRepository)
+      : super(AddNewChatState(selectedIconIndex: 0));
 
   void init({
     required int selectedIconIndex,
@@ -19,7 +21,7 @@ class AddNewChatCubit extends Cubit<AddNewChatState> {
         AddNewChatState(
           selectedIconIndex: selectedIconIndex,
           isTextFieldEmpty: isTextFieldEmpty,
-          chatList: await db.fetchChatList(),
+          chatList: await chatRepository.fetchChatList(),
         ),
       );
 
@@ -50,12 +52,12 @@ class AddNewChatCubit extends Cubit<AddNewChatState> {
       creationDate: DateTime.now(),
       iconIndex: state.selectedIconIndex,
     );
-    await db.insertChat(chat);
+    chatRepository.insertChat(chat);
   }
 
   Future<void> editChat(Chat elementChat, String text) async {
     late final Chat chat;
-    for (var element in state.chatList) {
+    for (final element in state.chatList) {
       if (element.id == elementChat.id) {
         chat = element.copyWith(
           elementName: text,
@@ -64,6 +66,6 @@ class AddNewChatCubit extends Cubit<AddNewChatState> {
       }
     }
 
-    await db.updateChat(chat);
+    chatRepository.updateChat(chat);
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '/icons.dart';
 import '/models/chat_model.dart';
+import '../settings/settings_cubit.dart';
 import 'add_new_chat_cubit.dart';
 
 class AddNewChat extends StatefulWidget {
@@ -40,11 +41,13 @@ class _AddNewChatState extends State<AddNewChat> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 30),
-                  const Text(
+                  Text(
                     'Create a new Page',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 24,
+                      fontSize: BlocProvider.of<SettingsCubit>(context)
+                          .state
+                          .fontSize,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -132,7 +135,10 @@ class _AddNewChatState extends State<AddNewChat> {
         ),
         label: Text(
           'Name of the Page',
-          style: TextStyle(color: Colors.orange[400]),
+          style: TextStyle(
+            color: Colors.orange[400],
+            fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
+          ),
         ),
       ),
     );

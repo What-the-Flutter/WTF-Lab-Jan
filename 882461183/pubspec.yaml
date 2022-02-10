@@ -43,6 +43,14 @@ dependencies:
   local_auth: ^1.1.10
   firebase_auth: ^3.3.6
   cloud_firestore: ^3.1.7
+  flutter_native_splash: ^2.0.2
+  flutter_share: ^2.0.0
+  linkfy_text: ^1.1.5
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/flutter_logo.png
+  color_dark: "#B19204"
 
 dev_dependencies:
   flutter_test:
