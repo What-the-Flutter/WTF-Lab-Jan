@@ -22,7 +22,7 @@ class PageCubit extends Cubit<PageState> {
   void init() async {
     emit(
       state.copyWith(
-          listOfPages: await _fireBasePageHelper.getEntityList(null, null)),
+          listOfPages: await _fireBasePageHelper.getEntityList(null)),
     );
     emit(
       state.copyWith(pageSelectedtoMove: state.listOfPages!.first),
@@ -52,9 +52,16 @@ class PageCubit extends Cubit<PageState> {
     emit(state.copyWith(selectedIcon: newSelectedIcon));
   }
 
+  int createId() {
+    var id = int.parse(DateTime.now().toString().substring(20, 26));
+    print(id);
+    return id;
+  }
+
   void addNewPage(String textInpuyControllerText) async {
     final newListOfPages = state.listOfPages!;
     final newPage = PageModel(
+      id: createId(),
       title: textInpuyControllerText,
       icon: state.selectedIcon,
       cretionDate: DateTime.now().toString(),
@@ -69,7 +76,7 @@ class PageCubit extends Cubit<PageState> {
       selectedIcon: 0,
     ));
     //_dbHelper.insertPage(newPage);
-    _fireBasePageHelper.insert(newPage, null, null);
+    _fireBasePageHelper.insert(newPage, null);
   }
 
   void editExistingPage(TextEditingController textInpuyControllerText) {

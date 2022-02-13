@@ -125,13 +125,13 @@ AppBar _appBar(NoteCubit noteCubit, NoteState state,
             ]);
 }
 
-Column _body(NoteState state, NoteCubit _noteCubit, PageCubit pageCubit,
+Widget _body(NoteState state, NoteCubit _noteCubit, PageCubit pageCubit,
     TextEditingController _controller) {
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-      Expanded(
-        child: ListView.builder(
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
           itemCount: state.page!.notesList.length,
           itemBuilder: (context, index) {
             return Padding(
@@ -164,74 +164,87 @@ Column _body(NoteState state, NoteCubit _noteCubit, PageCubit pageCubit,
                     ),
                   ],
                 ),
-                child: Card(
-                  color: state.page!.notesList[index].isSearched
-                      ? Colors.green
-                      : Colors.white,
-                  child: ListTile(
-                    key: ValueKey(state.page!.notesList[index].heading),
-                    leading: Column(
-                      children: [
-                        Icon(
-                          pageIcons[state.page!.icon],
-                          color: Colors.black,
-                        ),
-                        Icon(
-                          noteMenuItemList[state.page!.notesList[index].icon]!
-                              .iconData,
-                        ),
-                      ],
-                    ),
-                    title: Text(
-                      'Note ${state.page!.notesList[index].heading}',
-                      style: TextStyle(
-                          color: state.page!.notesList[index].isFavorite
-                              ? Colors.green
-                              : Colors.black),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(state.page!.notesList[index].data,
-                            style: TextStyle(
-                              fontSize: _noteCubit.getTextSize(),
-                            )),
-                        Text(
-                          state.page!.notesList[index].tags!,
-                          style: TextStyle(
-                            color: Colors.blue[500],
+                child: Row(
+                  mainAxisAlignment: _noteCubit.isCenterAlignent()
+                      ? MainAxisAlignment.center
+                      : MainAxisAlignment.start,
+                  children: [
+                    Card(
+                      color: state.page!.notesList[index].isSearched
+                          ? Colors.green
+                          : Colors.white,
+                      child: IntrinsicWidth(
+                        child: ListTile(
+                          key: ValueKey(state.page!.notesList[index].heading),
+                          leading: Column(
+                            children: [
+                              Icon(
+                                pageIcons[state.page!.icon],
+                                color: Colors.black,
+                              ),
+                              Icon(
+                                noteMenuItemList[
+                                        state.page!.notesList[index].icon]!
+                                    .iconData,
+                              ),
+                            ],
                           ),
+                          title: Text(
+                            'Note ${state.page!.notesList[index].heading}',
+                            style: TextStyle(
+                                color: state.page!.notesList[index].isFavorite
+                                    ? Colors.green
+                                    : Colors.black),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(state.page!.notesList[index].data,
+                                  style: TextStyle(
+                                    fontSize: _noteCubit.getTextSize(),
+                                  )),
+                              Text(
+                                state.page!.notesList[index].tags!,
+                                style: TextStyle(
+                                  color: Colors.blue[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                          isThreeLine:
+                              state.page!.notesList[index].data.length > 30
+                                  ? true
+                                  : false,
+                          trailing: Checkbox(
+                            key: UniqueKey(),
+                            checkColor: Colors.white,
+                            value: state.notesList![index].isChecked,
+                            onChanged: (value) {
+                              _noteCubit.setSelectesCheckBoxState(
+                                  value!, index);
+                              value
+                                  ? _noteCubit.addNoteToSelectedNotesList(index)
+                                  : _noteCubit
+                                      .removeNoteFromSelectedNotesList(index);
+                            },
+                          ),
+                          onLongPress: () => _onElementLongPress(
+                              context, pageCubit, state, index, _noteCubit),
                         ),
-                      ],
+                      ),
                     ),
-                    isThreeLine: state.page!.notesList[index].data.length > 30
-                        ? true
-                        : false,
-                    trailing: Checkbox(
-                      key: UniqueKey(),
-                      checkColor: Colors.white,
-                      value: state.notesList![index].isChecked,
-                      onChanged: (value) {
-                        _noteCubit.setSelectesCheckBoxState(value!, index);
-                        value
-                            ? _noteCubit.addNoteToSelectedNotesList(index)
-                            : _noteCubit.removeNoteFromSelectedNotesList(index);
-                      },
-                    ),
-                    onLongPress: () => _onElementLongPress(
-                        context, pageCubit, state, index, _noteCubit),
-                  ),
+                  ],
                 ),
               ),
             );
           },
         ),
-      ),
-      NoteInput(
-        noteCubit: _noteCubit,
-        controller: _controller,
-      ),
-    ],
+        NoteInput(
+          noteCubit: _noteCubit,
+          controller: _controller,
+        ),
+      ],
+    ),
   );
 }
 

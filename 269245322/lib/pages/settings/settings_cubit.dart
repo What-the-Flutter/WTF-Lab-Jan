@@ -12,6 +12,7 @@ class SettingsCubit extends Cubit<SettingsState> {
           textSize: 0,
           aligment: 0,
           theme: 0,
+          database: 0,
         ));
 
   final SharedPreferencesProvider _sharedPreferencesProvider =
@@ -21,9 +22,14 @@ class SettingsCubit extends Cubit<SettingsState> {
     final initTextSize = _sharedPreferencesProvider.getTextSize();
     final initAligment = _sharedPreferencesProvider.getALigment();
     final initTheme = _sharedPreferencesProvider.getTheme();
+    final initDatabase = _sharedPreferencesProvider.getDatabase();
 
     emit(state.copyWith(
-        textSize: initTextSize, aligment: initAligment, theme: initTheme));
+      textSize: initTextSize,
+      aligment: initAligment,
+      theme: initTheme,
+      database: initDatabase,
+    ));
   }
 
   void changeTextSize(int appTextSize) {
@@ -46,8 +52,15 @@ class SettingsCubit extends Cubit<SettingsState> {
     SharedPreferencesProvider.changeTheme(newTheme);
     emit(state.copyWith(theme: newTheme));
     appTheme == 0
-        ? themeCubit.changeTheme(appThemeData[AppTheme.BlueLight]!)
-        : themeCubit.changeTheme(appThemeData[AppTheme.BlueDark]!);
+        ? themeCubit.changeTheme(appThemeData[AppTheme.blueLight]!)
+        : themeCubit.changeTheme(appThemeData[AppTheme.blueDark]!);
+  }
+
+  void changeDatabase(int appDatabase) {
+    final newDatabase = appDatabase;
+
+    SharedPreferencesProvider.changeDatabase(newDatabase);
+    emit(state.copyWith(database: newDatabase));
   }
 
   void resetSettings(ThemeCubit themeCubit) {

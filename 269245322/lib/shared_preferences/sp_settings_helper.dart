@@ -11,6 +11,10 @@ enum textSize {
   medium,
   large,
 }
+enum database {
+  firebase,
+  sqLite,
+}
 
 class SharedPreferencesProvider {
   static const SharedPreferencesProvider _sharedPreferencesProvider =
@@ -65,16 +69,32 @@ class SharedPreferencesProvider {
     String spTheme;
     switch (appTheme) {
       case 0:
-        spTheme = AppTheme.BlueLight.toString();
+        spTheme = AppTheme.blueLight.toString();
         break;
       case 1:
-        spTheme = AppTheme.BlueDark.toString();
+        spTheme = AppTheme.blueDark.toString();
         break;
       default:
-        spTheme = AppTheme.BlueLight.toString();
+        spTheme = AppTheme.blueLight.toString();
         break;
     }
     _prefs.setString('theme', spTheme);
+  }
+
+  static void changeDatabase(int appDatabase) {
+    String spDatabase;
+    switch (appDatabase) {
+      case 0:
+        spDatabase = database.firebase.toString();
+        break;
+      case 1:
+        spDatabase = database.sqLite.toString();
+        break;
+      default:
+        spDatabase = database.firebase.toString();
+        break;
+    }
+    _prefs.setString('database', spDatabase);
   }
 
   int getALigment() {
@@ -118,10 +138,10 @@ class SharedPreferencesProvider {
     var spTheme = _prefs.getString('theme');
     int appTheme;
     switch (spTheme) {
-      case 'AppTheme.BlueLight':
+      case 'AppTheme.blueLight':
         appTheme = 0;
         break;
-      case 'AppTheme.BlueDark':
+      case 'AppTheme.blueDark':
         appTheme = 1;
         break;
       default:
@@ -131,13 +151,31 @@ class SharedPreferencesProvider {
     return appTheme;
   }
 
+  int getDatabase() {
+    var spDatabase = _prefs.getString('database');
+    int appDatabase;
+    switch (spDatabase) {
+      case 'database.firebase':
+        appDatabase = 0;
+        break;
+      case 'database.sqLite':
+        appDatabase = 1;
+        break;
+      default:
+        appDatabase = 0;
+        break;
+    }
+    return appDatabase;
+  }
+
   static AppTheme getEnumTheme() {
     return _prefs.getString('theme') as AppTheme;
   }
 
   static void resetSettings() {
-    _prefs.setString('theme', 'AppTheme.BlueLight');
+    _prefs.setString('theme', 'AppTheme.blueLight');
     _prefs.setString('text_size', 'textSize.small');
     _prefs.setString('aligment', 'aligment.bubbleAlignment');
+    _prefs.setString('database', 'database.firebase');
   }
 }

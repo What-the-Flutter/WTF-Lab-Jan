@@ -13,8 +13,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   void init() async {
     emit(
-      state.copyWith(
-          listOfPages: await _fireBaseHelper.getEntityList(null, null)),
+      state.copyWith(listOfPages: await _fireBaseHelper.getEntityList(null)),
     );
   }
 
@@ -24,6 +23,6 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(listOfPages: newListOfPages));
     //_dbHelper.deleteAllNotesFromPage(page.title);
     //_dbHelper.deletePage(page);
-    _fireBaseHelper.delete(page, null, null);
+    _fireBaseHelper.delete(page, null);
   }
 }

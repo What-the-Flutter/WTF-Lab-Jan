@@ -69,6 +69,23 @@ Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            const Text('Database'),
+            ToggleSwitch(
+              initialLabelIndex: state.database,
+              totalSwitches: 2,
+              labels: ['Server', 'Local'],
+              animate: true,
+              animationDuration: 150,
+              onToggle: (index) => settingsCubit.changeDatabase(index),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10.0,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
             const Text('Aligment'),
             ToggleSwitch(
               minWidth: 150.0,

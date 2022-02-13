@@ -4,70 +4,51 @@ import '../models/note_model.dart';
 import '../models/page_model.dart';
 import '../services/entity_repository.dart';
 
+final String firebaseMainTable = 'pages';
+final String firebaseNotesTable = 'notes';
+
 class FireBasePageHelper extends EntityRepository<PageModel> {
   final referenceDatabase = FirebaseDatabase.instance;
-
-  void initFireBase() async {
-    final ref = referenceDatabase.ref();
-    await ref.child('pages').update({'num_of_pages': 0}).asStream();
-  }
-
-  Future<int> getNumOfPages() async {
-    final ref = referenceDatabase.ref();
-    var snapShot = await ref.child('pages').child('num_of_pages').get();
-    final value = snapShot.value as int;
-    final numOfPages = value;
-    return numOfPages;
-  }
+  final _pagesRef = FirebaseDatabase.instance.ref().child(firebaseMainTable);
 
   @override
-  Future<List<PageModel>> getEntityList(
-    String? dbPageTitle,
-    String? dbNoteTitle,
-  ) async {
+  Future<List<PageModel>> getEntityList(int? pageId) async {
     var fireBaseNoteHelper = FireBaseNoteHelper();
-    final numOfPages = await getNumOfPages();
-    final ref = referenceDatabase.ref();
-    final pagesList = <PageModel>[];
-    for (var i = 0; i < numOfPages; i++) {
-      var dbPage = await ref.child('pages').child('page $i').get();
-      final dbValue = dbPage.value as Map<dynamic, dynamic>;
-      var page = PageModel.fromMapFireBase(dbValue, 'page $i');
+    final pageList = <PageModel>[];
+    final pagesSnap = await _pagesRef.once();
+    for (var pageSnap in pagesSnap.snapshot.children) {
+      final dbValue = pageSnap.value as Map<dynamic, dynamic>;
+      var page = PageModel.fromMapFireBase(dbValue);
       page = page.copyWith(
-          notesList: await fireBaseNoteHelper.getEntityList(
-              page.fireBaseTitle!, page.title));
-      pagesList.add(page);
-      print(page.fireBaseTitle);
+          notesList: await fireBaseNoteHelper.getEntityList(page.id));
+      pageList.add(page);
     }
-    return pagesList;
+    return pageList;
   }
 
   @override
-  void insert(
-      PageModel entity, String? pageTitle, String? firebasePageTitle) async {
+  void insert(PageModel entity, int? pageId) async {
     final ref = referenceDatabase.ref();
 
     try {
-      await ref.child('pages').child('page ${await getNumOfPages()}').set({
+      await ref.child(firebaseMainTable).child('page ${entity.id}').set({
+        'id': entity.id,
         'title': entity.title,
         'icon': entity.icon,
         'num_of_notes': entity.numOfNotes,
         'cretion_date': entity.cretionDate,
         'last_modifed_date': entity.lastModifedDate,
       }).asStream();
-      // updating num of pages on the server after inserting a new one
-      await ref
-          .child('pages')
-          .update({'num_of_pages': await getNumOfPages() + 1}).asStream();
     } on Exception {
-      initFireBase();
+      print(Exception(':c'));
     }
   }
 
   @override
-  void update(PageModel entity, String? pageTitle, String? firebasePageTitle) {
+  void update(PageModel entity, int? pageId) {
     final ref = referenceDatabase.ref();
-    ref.child('pages').child(entity.fireBaseTitle!).update({
+    ref.child(firebaseMainTable).child('page ${entity.id}').update({
+      'id': entity.id,
       'title': entity.title,
       'icon': entity.icon,
       'num_of_notes': entity.numOfNotes,
@@ -77,18 +58,9 @@ class FireBasePageHelper extends EntityRepository<PageModel> {
   }
 
   @override
-  void delete(
-    PageModel entity,
-    String? pageTitle,
-    String? firebasePageTitle,
-  ) async {
+  void delete(PageModel entity, int? pageId) async {
     final ref = referenceDatabase.ref();
-    final firebasePageTitle = entity.fireBaseTitle;
-    ref.child('pages').child(firebasePageTitle!).remove().asStream();
-    // updating num of pages on the server after deleting existing
-    ref
-        .child('pages')
-        .update({'num_of_pages': await getNumOfPages() - 1}).asStream();
+    ref.child(firebaseMainTable).child('page ${entity.id}').remove().asStream();
   }
 }
 
@@ -97,28 +69,27 @@ class FireBaseNoteHelper extends EntityRepository<NoteModel> {
 
   Future<int> getNumOfNotes(String dbPageTitle) async {
     final ref = referenceDatabase.ref();
-    var snapShot =
-        await ref.child('pages').child(dbPageTitle).child('num_of_notes').get();
+    var snapShot = await ref
+        .child(firebaseMainTable)
+        .child(dbPageTitle)
+        .child('num_of_notes')
+        .get();
     final value = snapShot.value as int;
     final numOfPages = value;
     return numOfPages;
   }
 
   @override
-  Future<List<NoteModel>> getEntityList(
-    String? dbPageTitle,
-    String? dbNoteTitle,
-  ) async {
-    final ref = referenceDatabase.ref();
+  Future<List<NoteModel>> getEntityList(int? pageId) async {
+    final _notesRef = FirebaseDatabase.instance
+        .ref()
+        .child(firebaseMainTable)
+        .child('page $pageId')
+        .child(firebaseNotesTable);
     final notesList = <NoteModel>[];
-
-    for (var i = 0; i < await getNumOfNotes(dbPageTitle!); i++) {
-      var dbNote = await ref
-          .child('pages')
-          .child(dbPageTitle)
-          .child('$dbNoteTitle $i')
-          .get();
-      final dbValue = dbNote.value as Map<dynamic, dynamic>;
+    final notesSnap = await _notesRef.once();
+    for (var noteSnap in notesSnap.snapshot.children) {
+      final dbValue = noteSnap.value as Map<dynamic, dynamic>;
       var note = NoteModel.fromMapFireBase(dbValue);
       notesList.add(note);
     }
@@ -126,45 +97,56 @@ class FireBaseNoteHelper extends EntityRepository<NoteModel> {
   }
 
   @override
-  void insert(NoteModel entity, String? pageTitle, String? firebasePageTitle) {
+  void insert(NoteModel entity, int? pageId) {
     final ref = referenceDatabase.ref();
-    ref.child('pages').child(firebasePageTitle!).child(entity.heading).set({
-      'heading': entity.heading,
-      'title': pageTitle,
-      'data': entity.data,
-      'icon': entity.icon,
-      'is_favorite': entity.isFavorite,
-      'is_searched': entity.isSearched,
-      'is_checked': entity.isChecked,
-      'download_URL': entity.downloadURL,
-      'tags': entity.tags,
-    }).asStream();
-  }
-
-  @override
-  void update(NoteModel entity, String? pageTitle, String? firebasePageTitle) {
-    final ref = referenceDatabase.ref();
-    ref.child('pages').child(firebasePageTitle!).child(entity.heading).update({
-      'heading': entity.heading,
-      'title': pageTitle,
-      'data': entity.data,
-      'icon': entity.icon,
-      'is_favorite': entity.isFavorite,
-      'is_searched': entity.isSearched,
-      'is_checked': entity.isChecked,
-      'download_URL': entity.downloadURL,
-      'tags': entity.tags,
-    }).asStream();
-  }
-
-  @override
-  void delete(NoteModel entity, String? pageTitle, String? firebasePageTitle) {
-    final ref = referenceDatabase.ref();
-    final heading = entity.heading;
     ref
-        .child('pages')
-        .child(firebasePageTitle!)
-        .child(heading)
+        .child(firebaseMainTable)
+        .child('page $pageId')
+        .child(firebaseNotesTable)
+        .child('note ${entity.id}')
+        .set({
+      'id': entity.id,
+      'heading': entity.heading,
+      'data': entity.data,
+      'icon': entity.icon,
+      'is_favorite': entity.isFavorite,
+      'is_searched': entity.isSearched,
+      'is_checked': entity.isChecked,
+      'download_URL': entity.downloadURL,
+      'tags': entity.tags ?? ' ',
+    }).asStream();
+  }
+
+  @override
+  void update(NoteModel entity, int? pageId) {
+    final ref = referenceDatabase.ref();
+    ref
+        .child(firebaseMainTable)
+        .child('page $pageId')
+        .child(firebaseNotesTable)
+        .child('note ${entity.id}')
+        .update({
+      'id': entity.id,
+      'heading': entity.heading,
+      'data': entity.data,
+      'icon': entity.icon,
+      'is_favorite': entity.isFavorite,
+      'is_searched': entity.isSearched,
+      'is_checked': entity.isChecked,
+      'download_URL': entity.downloadURL,
+      'tags': entity.tags ?? ' ',
+    }).asStream();
+  }
+
+  @override
+  void delete(NoteModel entity, int? pageId) {
+    final ref = referenceDatabase.ref();
+    print('note ${entity.id}');
+    ref
+        .child(firebaseMainTable)
+        .child('page $pageId')
+        .child(firebaseNotesTable)
+        .child('note ${entity.id}')
         .remove()
         .asStream();
   }

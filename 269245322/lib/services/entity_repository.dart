@@ -1,6 +1,6 @@
 abstract class EntityRepository<T> {
-  Future<List<T>> getEntityList(String? dbPageTitle, String? dbNoteTitle);
-  void insert(T entity, String? pageTitle, String? firebasePageTitle);
-  void delete(T entity, String? pageTitle, String? firebasePageTitle);
-  void update(T entity, String? pageTitle, String? firebasePageTitle);
+  Future<List<T>> getEntityList(int? pageId);
+  void insert(T entity, int? pageId);
+  void delete(T entity, int? pageId);
+  void update(T entity, int? pageId);
 }

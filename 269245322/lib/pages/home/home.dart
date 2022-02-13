@@ -60,10 +60,6 @@ class _PageState extends State<HomePage> {
 AppBar _appBar(BuildContext context) {
   return AppBar(
     title: const Center(child: Text('Home')),
-    leading: const IconButton(
-      icon: Icon(Icons.menu),
-      onPressed: null,
-    ),
     backgroundColor: Theme.of(context).primaryColor,
   );
 }
@@ -94,7 +90,6 @@ BottomNavigationBar _bottomNavigationBar(
         icon: IconButton(
           onPressed: null,
           icon: Icon(Icons.home),
-          padding: EdgeInsets.all(0.0),
         ),
         label: 'Home',
       ),
@@ -107,7 +102,6 @@ BottomNavigationBar _bottomNavigationBar(
             );
           },
           icon: const Icon(Icons.settings),
-          padding: EdgeInsets.zero,
         ),
         label: 'Settings',
       ),
