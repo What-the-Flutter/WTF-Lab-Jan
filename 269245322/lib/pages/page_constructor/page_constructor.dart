@@ -38,7 +38,9 @@ class _PageConstructorState extends State<PageConstructor> {
       bloc: widget.pageCubit,
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(),
+          appBar: AppBar(
+            title: const Text('New page..'),
+          ),
           body: _body(_controller, widget.pageCubit, state, context),
           backgroundColor: Theme.of(context).backgroundColor,
         );
@@ -53,13 +55,6 @@ Padding _body(TextEditingController _controller, PageCubit pageCubit,
     padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
     child: Column(
       children: [
-        const Text(
-          'Create a new page',
-          style: TextStyle(
-            fontSize: 30.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         Container(
           padding: const EdgeInsets.all(5.0),
           child: TextField(
@@ -118,7 +113,7 @@ Padding _body(TextEditingController _controller, PageCubit pageCubit,
                         onChanged: (value) {
                           pageCubit.setNewSelectesIconValue(value!);
                         },
-                        activeColor: Theme.of(context).primaryColorLight,
+                        activeColor: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],

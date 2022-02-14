@@ -5,6 +5,7 @@ import '../models/note_model.dart';
 import '../models/page_model.dart';
 
 const String tablePages = 'pages';
+const String columnPageId = 'page_id';
 const String columnTitle = 'title';
 const String columnPageIcon = 'icon';
 const String columnNumOfNotes = 'num_of_notes';
@@ -12,6 +13,7 @@ const String columnCretionDate = 'cretion_date';
 const String columnLastModifedDate = 'last_modifed_date';
 
 const String tableNotes = 'notes';
+const String columnNoteId = 'note_id';
 const String columnHeading = 'heading';
 const String columnData = 'data';
 const String columnNoteIcon = 'icon';

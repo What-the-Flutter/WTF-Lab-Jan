@@ -131,12 +131,12 @@ void _onElementLongPress(BuildContext context, PageCubit pageCubit,
             },
             icon: Icon(
               Icons.info,
-              color: Theme.of(context).primaryColorLight,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             label: Text(
               'Show page info',
               style: TextStyle(
-                color: Theme.of(context).primaryColorLight,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -152,12 +152,12 @@ void _onElementLongPress(BuildContext context, PageCubit pageCubit,
             },
             icon: Icon(
               Icons.edit,
-              color: Theme.of(context).primaryColorLight,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             label: Text(
               'Edit page',
               style: TextStyle(
-                color: Theme.of(context).primaryColorLight,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -168,12 +168,12 @@ void _onElementLongPress(BuildContext context, PageCubit pageCubit,
             },
             icon: Icon(
               Icons.delete,
-              color: Theme.of(context).primaryColorLight,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             label: Text(
               'Delete page',
               style: TextStyle(
-                color: Theme.of(context).primaryColorLight,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),

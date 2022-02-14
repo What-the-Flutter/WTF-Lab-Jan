@@ -116,6 +116,8 @@ class NoteCubit extends Cubit<NoteState> {
     final noteInput = controller.text;
     final headingText = '${state.page!.title} ${state.page!.numOfNotes}';
     var noteCounter = 0;
+    var noteURL = await uploadFile(headingText);
+    var noteTags = _getStringOfTagsFromStringInput(noteInput);
 
     final newNote = NoteModel(
       id: createId(),
@@ -125,6 +127,8 @@ class NoteCubit extends Cubit<NoteState> {
       isSearched: false,
       isFavorite: false,
       isChecked: false,
+      downloadURL: noteURL,
+      tags: noteTags,
     );
 
     var newNoteList = state.notesList!;
@@ -141,23 +145,15 @@ class NoteCubit extends Cubit<NoteState> {
         noteCounter++;
       }
     } else {
-      var noteWithURL =
-          newNote.copyWith(downloadURL: await uploadFile(newNote.heading));
-      _fireBaseNoteHelper.update(noteWithURL, state.page!.id);
-      var tagsStr = _getStringOfTagsFromStringInput(newNote.data);
-
-      var noteWithTags = noteWithURL.copyWith(tags: tagsStr);
-      _fireBaseNoteHelper.update(noteWithTags, state.page!.id);
-
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes + 1);
       emit(state.copyWith(page: newPage));
       //_dbHelper.updatePage(newPage, newPage.title);
       _fireBasePageHelper.update(newPage, null);
-      newNoteList.add(noteWithTags);
+      newNoteList.add(newNote);
       //_dbHelper.insertNote(newNote, newPage.title);
-      _fireBaseNoteHelper.insert(noteWithTags, newPage.id);
-      uploadFile(noteWithTags.heading);
+      _fireBaseNoteHelper.insert(newNote, newPage.id);
+      uploadFile(newNote.heading);
     }
     emit(state.copyWith(notesList: newNoteList));
 

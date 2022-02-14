@@ -8,9 +8,24 @@ import 'shared_preferences/sp_settings_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferencesProvider.initialize();
-  await DBHelper.initialize();
-  await Firebase.initializeApp();
+  try {
+    await SharedPreferencesProvider.initialize();
+  } on Exception catch (e) {
+    print(e.toString());
+  }
+
+  try {
+    await DBHelper.initialize();
+  } on Exception catch (e) {
+    print(e.toString());
+  }
+
+  try {
+    await Firebase.initializeApp();
+  } on FirebaseException catch (e) {
+    print(e.toString());
+  }
+
   runApp(
     MyApp(),
   );

@@ -21,7 +21,7 @@ final appThemeData = {
       onSecondary: Colors.black,
       secondaryVariant: Color.fromRGBO(0, 77, 255, 0.8),
       background: Colors.black,
-      onBackground: Colors.black,
+      onBackground: Colors.white,
       surface: Colors.black,
       onSurface: Colors.black,
       brightness: Brightness.light,
@@ -40,7 +40,7 @@ final appThemeData = {
   ),
   AppTheme.blueDark: ThemeData(
     brightness: Brightness.dark,
-    backgroundColor: Colors.grey[800],
+    backgroundColor: Colors.grey[900],
     primaryColor: Colors.grey[900],
     primaryColorLight: Colors.white,
     primaryColorDark: Colors.yellow[400],
