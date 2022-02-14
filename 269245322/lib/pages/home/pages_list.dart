@@ -41,14 +41,25 @@ class _PageListState extends State<PageList> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 1.0, horizontal: 4.0),
                     child: ListTile(
+                      tileColor: Theme.of(context).backgroundColor,
                       key: ValueKey(state.listOfPages![index].cretionDate),
                       leading: Icon(
                         pageIcons[state.listOfPages![index].icon],
+                        color: Theme.of(context).iconTheme.color,
                       ),
-                      title: Text(state.listOfPages![index].title),
-                      subtitle: Text(state.listOfPages![index].notesList.isEmpty
-                          ? 'create your first note'
-                          : state.listOfPages![index].notesList.last.data),
+                      title: Text(
+                        state.listOfPages![index].title,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primaryVariant,
+                        ),
+                      ),
+                      subtitle: Text(
+                        state.listOfPages![index].notesList.isEmpty
+                            ? 'create your first note'
+                            : state.listOfPages![index].notesList.last.data,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary),
+                      ),
                       onTap: () async {
                         widget.pageCubit
                             .setCurrentPage(state.listOfPages![index]);
@@ -88,88 +99,85 @@ void _onElementLongPress(BuildContext context, PageCubit pageCubit,
   showModalBottomSheet<void>(
     context: context,
     builder: (context) {
-      return Container(
-        height: 200,
-        color: Theme.of(context).primaryColor,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-                showDialog<String>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Page info'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text('Created: ${listOfPages[index].getCretionDate}'),
-                        Text(
-                            'Last event: ${listOfPages[index].getlastModifedDate}'),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Close'),
-                      ),
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          TextButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              showDialog<String>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Page info'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text('Created: ${listOfPages[index].getCretionDate}'),
+                      Text(
+                          'Last event: ${listOfPages[index].getlastModifedDate}'),
                     ],
-                    elevation: 1.0,
                   ),
-                );
-              },
-              icon: Icon(
-                Icons.info,
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                  elevation: 1.0,
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.info,
+              color: Theme.of(context).primaryColorLight,
+            ),
+            label: Text(
+              'Show page info',
+              style: TextStyle(
                 color: Theme.of(context).primaryColorLight,
               ),
-              label: Text(
-                'Show page info',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColorLight,
-                ),
-              ),
             ),
-            TextButton.icon(
-              onPressed: () async {
-                pageCubit.setPageToEdit(listOfPages[index]);
-                pageCubit.setNewCreateNewPageChecker(false);
-                await Navigator.pushNamed(
-                  context,
-                  PageConstructor.routeName,
-                  arguments: pageCubit,
-                );
-              },
-              icon: Icon(
-                Icons.edit,
+          ),
+          TextButton.icon(
+            onPressed: () async {
+              pageCubit.setPageToEdit(listOfPages[index]);
+              pageCubit.setNewCreateNewPageChecker(false);
+              await Navigator.pushNamed(
+                context,
+                PageConstructor.routeName,
+                arguments: pageCubit,
+              );
+            },
+            icon: Icon(
+              Icons.edit,
+              color: Theme.of(context).primaryColorLight,
+            ),
+            label: Text(
+              'Edit page',
+              style: TextStyle(
                 color: Theme.of(context).primaryColorLight,
               ),
-              label: Text(
-                'Edit page',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColorLight,
-                ),
-              ),
             ),
-            TextButton.icon(
-              onPressed: () {
-                homeCubit.deletePage(index, listOfPages[index]);
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.delete,
+          ),
+          TextButton.icon(
+            onPressed: () {
+              homeCubit.deletePage(index, listOfPages[index]);
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.delete,
+              color: Theme.of(context).primaryColorLight,
+            ),
+            label: Text(
+              'Delete page',
+              style: TextStyle(
                 color: Theme.of(context).primaryColorLight,
               ),
-              label: Text(
-                'Delete page',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColorLight,
-                ),
-              ),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     },
   );

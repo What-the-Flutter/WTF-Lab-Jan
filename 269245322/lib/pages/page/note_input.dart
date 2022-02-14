@@ -82,9 +82,9 @@ Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller,
         child: Column(
           children: [
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.photo_album,
-                color: Colors.blue,
+                color: Theme.of(context).iconTheme.color,
               ),
               onPressed: () {
                 showDialog<String>(
@@ -98,17 +98,21 @@ Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             IconButton(
-                                onPressed: noteCubit.selectFile,
-                                icon: const Icon(
-                                  Icons.photo,
-                                  size: 35.0,
-                                )),
-                            const IconButton(
-                                onPressed: null,
-                                icon: Icon(
-                                  Icons.upload,
-                                  size: 35.0,
-                                )),
+                              onPressed: noteCubit.selectFile,
+                              icon: const Icon(
+                                Icons.photo,
+                                size: 35.0,
+                              ),
+                              color: Theme.of(context).iconTheme.color,
+                            ),
+                            IconButton(
+                              onPressed: null,
+                              icon: Icon(
+                                Icons.upload,
+                                size: 35.0,
+                                color: Theme.of(context).iconTheme.color,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(
@@ -128,9 +132,9 @@ Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller,
               },
             ),
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.image,
-                color: Colors.blue,
+                color: Theme.of(context).iconTheme.color,
               ),
               onPressed: () => noteCubit.showNoteIconMenu(true),
             ),
@@ -159,9 +163,9 @@ Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller,
       Expanded(
           flex: 1,
           child: IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.send,
-                color: Colors.blue,
+                color: Theme.of(context).iconTheme.color,
               ),
               onPressed: () => noteCubit.addNoteToList(controller))),
     ],

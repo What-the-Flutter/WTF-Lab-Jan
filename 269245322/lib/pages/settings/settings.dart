@@ -37,6 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             body: settingsButtons(
                 _auth, _settingsCubit, state, context, widget.themeCubit),
+            backgroundColor: Theme.of(context).backgroundColor,
           );
         });
   }
@@ -124,6 +125,9 @@ Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
             settingsCubit.resetSettings(themeCubit);
             Navigator.pop(context);
           },
+          style: ElevatedButton.styleFrom(
+            primary: Theme.of(context).primaryColor,
+          ),
         ),
         ElevatedButton(
           child: const Text('Sign in anon'),
@@ -136,9 +140,17 @@ Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
               print(result);
             }
           },
+          style: ElevatedButton.styleFrom(
+            primary: Theme.of(context).primaryColor,
+          ),
         ),
         ElevatedButton(
-            child: const Text('Share'), onPressed: settingsCubit.share),
+          child: const Text('Share'),
+          onPressed: settingsCubit.share,
+          style: ElevatedButton.styleFrom(
+            primary: Theme.of(context).primaryColor,
+          ),
+        ),
       ],
     ),
   );

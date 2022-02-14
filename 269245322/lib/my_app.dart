@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/',
       routes: {
-        '/': (context) => const HomePage(),
+        '/': (context) => HomePage(themeCubit: _themeCubit),
         PageConstructor.routeName: (context) => PageConstructor(),
         CustomPage.routeName: (context) => CustomPage(),
         SettingsPage.routeName: (context) =>

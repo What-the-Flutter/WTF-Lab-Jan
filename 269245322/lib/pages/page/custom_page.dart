@@ -45,17 +45,22 @@ class _CustomPageState extends State<CustomPage> {
       bloc: _noteCubit,
       builder: (context, state) {
         return Scaffold(
-          appBar:
-              _appBar(_noteCubit, state, _controller, widget.searchController),
+          appBar: _appBar(
+              _noteCubit, state, _controller, widget.searchController, context),
           body: _body(state, _noteCubit, widget.pageCubit, _controller),
+          backgroundColor: Theme.of(context).backgroundColor,
         );
       },
     );
   }
 }
 
-AppBar _appBar(NoteCubit noteCubit, NoteState state,
-    TextEditingController _controller, TextEditingController searchController) {
+AppBar _appBar(
+    NoteCubit noteCubit,
+    NoteState state,
+    TextEditingController _controller,
+    TextEditingController searchController,
+    BuildContext context) {
   return AppBar(
       title: Center(
         child: Text(state.page!.title),
@@ -65,14 +70,17 @@ AppBar _appBar(NoteCubit noteCubit, NoteState state,
               IconButton(
                 icon: const Icon(Icons.select_all),
                 onPressed: () => noteCubit.setAllNotesSelectedUnselected(true),
+                color: Theme.of(context).iconTheme.color,
               ),
               IconButton(
                 icon: const Icon(Icons.star),
                 onPressed: () => noteCubit.addNoteToFavorite(),
+                color: Theme.of(context).iconTheme.color,
               ),
               IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () => noteCubit.deleteFromNoteList(),
+                color: Theme.of(context).iconTheme.color,
               ),
               IconButton(
                 icon: const Icon(Icons.edit),
@@ -81,10 +89,12 @@ AppBar _appBar(NoteCubit noteCubit, NoteState state,
                         _controller.text = noteCubit.editNote();
                       }
                     : null,
+                color: Theme.of(context).iconTheme.color,
               ),
               IconButton(
                 icon: const Icon(Icons.copy),
                 onPressed: () => noteCubit.copyDataToBuffer(),
+                color: Theme.of(context).iconTheme.color,
               ),
             ]
           : <Widget>[
@@ -169,67 +179,84 @@ Widget _body(NoteState state, NoteCubit _noteCubit, PageCubit pageCubit,
                       ? MainAxisAlignment.center
                       : MainAxisAlignment.start,
                   children: [
-                    Card(
-                      color: state.page!.notesList[index].isSearched
-                          ? Colors.green
-                          : Colors.white,
-                      child: IntrinsicWidth(
-                        child: ListTile(
-                          key: ValueKey(state.page!.notesList[index].heading),
-                          leading: Column(
-                            children: [
-                              Icon(
-                                pageIcons[state.page!.icon],
-                                color: Colors.black,
-                              ),
-                              Icon(
-                                noteMenuItemList[
-                                        state.page!.notesList[index].icon]!
-                                    .iconData,
-                              ),
-                            ],
-                          ),
-                          title: Text(
-                            'Note ${state.page!.notesList[index].heading}',
-                            style: TextStyle(
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width - 10.0),
+                      child: Card(
+                        color: state.page!.notesList[index].isSearched
+                            ? Colors.green
+                            : Theme.of(context).cardColor,
+                        child: IntrinsicWidth(
+                          child: ListTile(
+                            key: ValueKey(state.page!.notesList[index].heading),
+                            leading: Column(
+                              children: [
+                                Icon(
+                                  pageIcons[state.page!.icon],
+                                  color:
+                                      Theme.of(context).primaryIconTheme.color,
+                                ),
+                                Icon(
+                                  noteMenuItemList[
+                                          state.page!.notesList[index].icon]!
+                                      .iconData,
+                                  color: Theme.of(context).iconTheme.color,
+                                ),
+                              ],
+                            ),
+                            title: Text(
+                              'Note ${state.page!.notesList[index].heading}',
+                              maxLines: 1,
+                              style: TextStyle(
                                 color: state.page!.notesList[index].isFavorite
                                     ? Colors.green
-                                    : Colors.black),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(state.page!.notesList[index].data,
-                                  style: TextStyle(
-                                    fontSize: _noteCubit.getTextSize(),
-                                  )),
-                              Text(
-                                state.page!.notesList[index].tags!,
-                                style: TextStyle(
-                                  color: Colors.blue[500],
-                                ),
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .primaryVariant,
                               ),
-                            ],
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(state.page!.notesList[index].data,
+                                    style: TextStyle(
+                                      fontSize: _noteCubit.getTextSize(),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    )),
+                                Text(
+                                  state.page!.notesList[index].tags!,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            isThreeLine:
+                                state.page!.notesList[index].data.length > 30
+                                    ? true
+                                    : false,
+                            trailing: Checkbox(
+                              key: UniqueKey(),
+                              checkColor: Theme.of(context).primaryColor,
+                              activeColor: Theme.of(context).indicatorColor,
+                              value: state.notesList![index].isChecked,
+                              onChanged: (value) {
+                                _noteCubit.setSelectesCheckBoxState(
+                                    value!, index);
+                                value
+                                    ? _noteCubit
+                                        .addNoteToSelectedNotesList(index)
+                                    : _noteCubit
+                                        .removeNoteFromSelectedNotesList(index);
+                              },
+                            ),
+                            onLongPress: () => _onElementLongPress(
+                                context, pageCubit, state, index, _noteCubit),
                           ),
-                          isThreeLine:
-                              state.page!.notesList[index].data.length > 30
-                                  ? true
-                                  : false,
-                          trailing: Checkbox(
-                            key: UniqueKey(),
-                            checkColor: Colors.white,
-                            value: state.notesList![index].isChecked,
-                            onChanged: (value) {
-                              _noteCubit.setSelectesCheckBoxState(
-                                  value!, index);
-                              value
-                                  ? _noteCubit.addNoteToSelectedNotesList(index)
-                                  : _noteCubit
-                                      .removeNoteFromSelectedNotesList(index);
-                            },
-                          ),
-                          onLongPress: () => _onElementLongPress(
-                              context, pageCubit, state, index, _noteCubit),
                         ),
                       ),
                     ),

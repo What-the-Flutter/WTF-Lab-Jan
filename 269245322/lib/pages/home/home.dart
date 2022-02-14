@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../services/firebase_auth_service.dart';
+import '../../style/theme_cubit.dart';
 import '../page_constructor/page_constructor.dart';
 import '../page_constructor/page_cubit.dart';
 import '../page_constructor/page_state.dart';
@@ -9,7 +10,11 @@ import '../settings/settings.dart';
 import 'pages_list.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final ThemeCubit themeCubit;
+  const HomePage({
+    Key? key,
+    required this.themeCubit,
+  }) : super(key: key);
   @override
   _PageState createState() => _PageState();
 }
@@ -22,6 +27,7 @@ class _PageState extends State<HomePage> {
   void initState() {
     super.initState();
     _pageCubit.init();
+    widget.themeCubit.initState();
     _anonumousAuthorization();
   }
 
@@ -50,7 +56,7 @@ class _PageState extends State<HomePage> {
             ],
           ),
           floatingActionButton: _floatingActionButton(_pageCubit, context),
-          bottomNavigationBar: _bottomNavigationBar(state, context),
+          backgroundColor: Theme.of(context).backgroundColor,
         );
       },
     );
@@ -59,7 +65,29 @@ class _PageState extends State<HomePage> {
 
 AppBar _appBar(BuildContext context) {
   return AppBar(
-    title: const Center(child: Text('Home')),
+    leading: Icon(
+      Icons.verified,
+      color: Theme.of(context).primaryColorLight,
+    ),
+    title: const Center(
+      child: Text(
+        'Home',
+      ),
+    ),
+    actions: [
+      IconButton(
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            SettingsPage.routeName,
+          );
+        },
+        icon: Icon(
+          Icons.settings,
+          color: Theme.of(context).primaryColorLight,
+        ),
+      ),
+    ],
     backgroundColor: Theme.of(context).primaryColor,
   );
 }
@@ -79,35 +107,5 @@ void _floatingActionButtonEvent(
     context,
     PageConstructor.routeName,
     arguments: _pageCubit,
-  );
-}
-
-BottomNavigationBar _bottomNavigationBar(
-    PageState state, BuildContext context) {
-  return BottomNavigationBar(
-    items: <BottomNavigationBarItem>[
-      const BottomNavigationBarItem(
-        icon: IconButton(
-          onPressed: null,
-          icon: Icon(Icons.home),
-        ),
-        label: 'Home',
-      ),
-      BottomNavigationBarItem(
-        icon: IconButton(
-          onPressed: () {
-            Navigator.pushNamed(
-              context,
-              SettingsPage.routeName,
-            );
-          },
-          icon: const Icon(Icons.settings),
-        ),
-        label: 'Settings',
-      ),
-    ],
-    currentIndex: state.selectedPageIndex,
-    selectedItemColor: Colors.amber[800],
-    onTap: null,
   );
 }

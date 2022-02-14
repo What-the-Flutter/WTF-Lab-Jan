@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/app_themes.dart';
@@ -168,8 +169,12 @@ class SharedPreferencesProvider {
     return appDatabase;
   }
 
-  static AppTheme getEnumTheme() {
-    return _prefs.getString('theme') as AppTheme;
+  static ThemeData getThemeData() {
+    ThemeData appTheme;
+    _prefs.getString('theme') == 'AppTheme.blueLight'
+        ? appTheme = appThemeData[AppTheme.blueLight]!
+        : appTheme = appThemeData[AppTheme.blueDark]!;
+    return appTheme;
   }
 
   static void resetSettings() {
