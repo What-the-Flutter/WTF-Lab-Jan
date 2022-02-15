@@ -19,10 +19,10 @@ class SettingsCubit extends Cubit<SettingsState> {
       SharedPreferencesProvider();
 
   void initState() {
-    final initTextSize = _sharedPreferencesProvider.getTextSize();
-    final initAligment = _sharedPreferencesProvider.getALigment();
-    final initTheme = _sharedPreferencesProvider.getTheme();
-    final initDatabase = _sharedPreferencesProvider.getDatabase();
+    final initTextSize = SharedPreferencesProvider.getTextSize();
+    final initAligment = SharedPreferencesProvider.getALigment();
+    final initTheme = SharedPreferencesProvider.getTheme();
+    final initDatabase = SharedPreferencesProvider.getDatabase();
 
     emit(state.copyWith(
       textSize: initTextSize,

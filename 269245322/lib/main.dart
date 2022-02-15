@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'database/sqlite_db_helper.dart';
+import 'database/sqlite_repository.dart';
 import 'models/note_icon_menu_model.dart';
 import 'my_app.dart';
 import 'shared_preferences/sp_settings_helper.dart';
@@ -15,7 +15,8 @@ void main() async {
   }
 
   try {
-    await DBHelper.initialize();
+    await SqlitePageRepository.initialize();
+    await SqliteNoteRepository.initialize();
   } on Exception catch (e) {
     print(e.toString());
   }

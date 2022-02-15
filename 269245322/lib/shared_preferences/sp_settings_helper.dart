@@ -98,7 +98,7 @@ class SharedPreferencesProvider {
     _prefs.setString('database', spDatabase);
   }
 
-  int getALigment() {
+  static int getALigment() {
     var spAligment = _prefs.getString('aligment');
     int appAligment;
     switch (spAligment) {
@@ -115,7 +115,7 @@ class SharedPreferencesProvider {
     return appAligment;
   }
 
-  int getTextSize() {
+  static int getTextSize() {
     var spSize = _prefs.getString('text_size');
     int textSize;
     switch (spSize) {
@@ -135,7 +135,7 @@ class SharedPreferencesProvider {
     return textSize;
   }
 
-  int getTheme() {
+  static int getTheme() {
     var spTheme = _prefs.getString('theme');
     int appTheme;
     switch (spTheme) {
@@ -152,7 +152,7 @@ class SharedPreferencesProvider {
     return appTheme;
   }
 
-  int getDatabase() {
+  static int getDatabase() {
     var spDatabase = _prefs.getString('database');
     int appDatabase;
     switch (spDatabase) {

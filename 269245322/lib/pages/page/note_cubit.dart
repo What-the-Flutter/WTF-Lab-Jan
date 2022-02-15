@@ -6,19 +6,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
 
-import '../../database/firebase_db_helper.dart';
+import '../../database/firebase_repository.dart';
+import '../../database/sqlite_repository.dart';
 import '../../models/note_model.dart';
 import '../../models/page_model.dart';
+import '../../services/entity_repository.dart';
 import '../../services/firebase_file_service.dart';
 import '../../shared_preferences/sp_settings_helper.dart';
 import 'note_state.dart';
 
 class NoteCubit extends Cubit<NoteState> {
-  //final DBHelper _dbHelper = DBHelper();
-  final FireBaseNoteHelper _fireBaseNoteHelper = FireBaseNoteHelper();
-  final FireBasePageHelper _fireBasePageHelper = FireBasePageHelper();
-  final SharedPreferencesProvider _sharedPreferencesProvider =
-      SharedPreferencesProvider();
+  IRepository<PageModel> dbPageHelper =
+      (SharedPreferencesProvider.getDatabase() == 0)
+          ? FireBasePageHelper()
+          : SqlitePageRepository();
+
+  IRepository<NoteModel> dbNoteHelper =
+      (SharedPreferencesProvider.getDatabase() == 0)
+          ? FireBaseNoteHelper()
+          : SqliteNoteRepository();
 
   NoteCubit()
       : super(const NoteState(
@@ -139,8 +145,7 @@ class NoteCubit extends Cubit<NoteState> {
         if (note.heading == editableNote.heading) {
           newNoteList[noteCounter] =
               note.copyWith(data: controller.text, isChecked: false);
-          //_dbHelper.editNote(newNoteList[noteCounter], state.page!.title);
-          _fireBaseNoteHelper.update(newNoteList[noteCounter], state.page!.id);
+          dbNoteHelper.update(newNoteList[noteCounter], state.page!.id);
         }
         noteCounter++;
       }
@@ -148,11 +153,9 @@ class NoteCubit extends Cubit<NoteState> {
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes + 1);
       emit(state.copyWith(page: newPage));
-      //_dbHelper.updatePage(newPage, newPage.title);
-      _fireBasePageHelper.update(newPage, null);
+      dbPageHelper.update(newPage, null);
       newNoteList.add(newNote);
-      //_dbHelper.insertNote(newNote, newPage.title);
-      _fireBaseNoteHelper.insert(newNote, newPage.id);
+      dbNoteHelper.insert(newNote, newPage.id);
       uploadFile(newNote.heading);
     }
     emit(state.copyWith(notesList: newNoteList));
@@ -224,10 +227,8 @@ class NoteCubit extends Cubit<NoteState> {
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes - 1);
       emit(state.copyWith(page: newPage));
-      //_dbHelper.updatePage(newPage, newPage.title);
-      _fireBasePageHelper.update(newPage, null);
-      //_dbHelper.deleteNote(currentNote);
-      _fireBaseNoteHelper.delete(currentNote, newPage.id);
+      dbPageHelper.update(newPage, null);
+      dbNoteHelper.delete(currentNote, newPage.id);
     }
 
     emit(state.copyWith(notesList: newNoteList));
@@ -240,13 +241,11 @@ class NoteCubit extends Cubit<NoteState> {
       if (currentNote.isFavorite == true) {
         var newNote = currentNote.copyWith(isFavorite: false, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
-        //_dbHelper.editNote(newNote, state.page!.title);
-        _fireBaseNoteHelper.update(newNote, state.page!.id);
+        dbNoteHelper.update(newNote, state.page!.id);
       } else {
         var newNote = currentNote.copyWith(isFavorite: true, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
-        //_dbHelper.editNote(newNote, state.page!.title);
-        _fireBaseNoteHelper.update(newNote, state.page!.id);
+        dbNoteHelper.update(newNote, state.page!.id);
       }
     }
     emit(state.copyWith(notesList: newNoreList));
@@ -317,14 +316,14 @@ class NoteCubit extends Cubit<NoteState> {
 
   double getTextSize() {
     var textSize = 10.0;
-    var factor = (_sharedPreferencesProvider.getTextSize() + 1) * 5;
+    var factor = (SharedPreferencesProvider.getTextSize() + 1) * 5;
     textSize = textSize + factor;
     return textSize;
   }
 
   bool isCenterAlignent() {
     final centerAligment =
-        (_sharedPreferencesProvider.getALigment() == 0) ? false : true;
+        (SharedPreferencesProvider.getALigment() == 0) ? false : true;
     return centerAligment;
   }
 }

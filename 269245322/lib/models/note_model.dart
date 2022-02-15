@@ -45,22 +45,23 @@ class NoteModel {
     );
   }
 
-  Map<String, dynamic> toMap(String pageTitle) {
+  Map<String, dynamic> toMap(int pageId) {
     return {
-      'id': id,
+      'note_id': id,
       'heading': heading,
-      'title': pageTitle,
+      'page_id': pageId,
       'data': data,
       'icon': icon,
       'is_favorite': isFavorite ? 1 : 0,
       'is_searched': isSearched ? 1 : 0,
       'is_checked': isChecked ? 1 : 0,
+      'tags': tags,
     };
   }
 
   factory NoteModel.fromMap(Map<String, dynamic> map) {
     return NoteModel(
-      id: map['id'],
+      id: map['note_id'],
       heading: map['heading'],
       data: map['data'],
       icon: map['icon'],

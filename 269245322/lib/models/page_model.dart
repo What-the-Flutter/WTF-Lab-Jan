@@ -44,7 +44,7 @@ class PageModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      'page_id': id,
       'title': title,
       'icon': icon,
       'num_of_notes': numOfNotes,
@@ -55,7 +55,7 @@ class PageModel {
 
   factory PageModel.fromMap(Map<String, dynamic> map) {
     return PageModel(
-      id: map['id'],
+      id: map['page_id'],
       title: map['title'] ?? ' ',
       icon: map['icon'] ?? 0,
       numOfNotes: map['num_of_notes'] ?? 0,

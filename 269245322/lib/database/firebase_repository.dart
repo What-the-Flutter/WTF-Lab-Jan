@@ -7,7 +7,7 @@ import '../services/entity_repository.dart';
 final String firebaseMainTable = 'pages';
 final String firebaseNotesTable = 'notes';
 
-class FireBasePageHelper extends EntityRepository<PageModel> {
+class FireBasePageHelper extends IRepository<PageModel> {
   final referenceDatabase = FirebaseDatabase.instance;
   final _pagesRef = FirebaseDatabase.instance.ref().child(firebaseMainTable);
 
@@ -64,7 +64,7 @@ class FireBasePageHelper extends EntityRepository<PageModel> {
   }
 }
 
-class FireBaseNoteHelper extends EntityRepository<NoteModel> {
+class FireBaseNoteHelper extends IRepository<NoteModel> {
   final referenceDatabase = FirebaseDatabase.instance;
 
   Future<int> getNumOfNotes(String dbPageTitle) async {
