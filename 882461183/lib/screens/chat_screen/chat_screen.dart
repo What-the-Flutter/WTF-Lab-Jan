@@ -1,13 +1,14 @@
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:linkfy_text/linkfy_text.dart';
 
 import '/data/services/firebase_api.dart';
 import '/icons.dart';
 import '/models/chat_model.dart';
-import '/models/event_model.dart';
+import '../settings/settings_cubit.dart';
 import 'chat_screen_cubit.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -20,30 +21,13 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _controller = TextEditingController();
   final _searchController = TextEditingController();
-  final _eventRef = FirebaseDatabase.instance.ref().child('Events/');
 
   late final Chat selectedChat =
       ModalRoute.of(context)?.settings.arguments as Chat;
 
   @override
   void didChangeDependencies() {
-    BlocProvider.of<ChatScreenCubit>(context).showEvents(selectedChat.id);
-    _eventRef.onValue.listen(
-      (event) {
-        final eventList = <Event>[];
-        final result = event.snapshot.value as Map;
-        final list = result.values;
-        final finalList = list.toList();
-        for (var i = 0; i < finalList.length; i++) {
-          final map = Map<String, dynamic>.from(finalList[i]);
-          if (map.containsValue(selectedChat.id)) {
-            eventList.add(Event.fromJson(map));
-          }
-        }
-        BlocProvider.of<ChatScreenCubit>(context)
-            .showEventsFromListen(eventList);
-      },
-    );
+    BlocProvider.of<ChatScreenCubit>(context).initCubit(selectedChat.id);
     super.didChangeDependencies();
   }
 
@@ -53,24 +37,49 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: _customAppBar(state),
-          body: Column(
-            children: [
-              state.eventList.isEmpty && !state.isShowFavorites
-                  ? !state.isSearching
-                      ? _emptyListOfMessagess(
-                          'Add your first event to "${selectedChat.elementName}"'
-                          ' page by entering some text box below and hitting the send button.'
-                          'Long tap the send button to align the event in the opposite direction. '
-                          'Tap on the bookmark icon on the top right corner to show the bookmarked events only',
-                          state,
-                        )
-                      : _emptyListOfSearchingMessages()
-                  : _listOfMessagess(state),
-              state.isSearching ? Container() : _bottomRow(state)
-            ],
-          ),
+          body: BlocProvider.of<SettingsCubit>(context)
+                      .state
+                      .backgroundImagePath ==
+                  ''
+              ? _body(state)
+              : _backgroundImageBody(state),
         );
       },
+    );
+  }
+
+  Widget _body(ChatScreenState state) {
+    return Column(
+      children: [
+        state.eventList.isEmpty && !state.isShowFavorites
+            ? !state.isSearching
+                ? _emptyListOfMessagess(
+                    'Add your first event to "${selectedChat.elementName}"'
+                    ' page by entering some text box below and hitting the send button.'
+                    'Long tap the send button to align the event in the opposite direction. '
+                    'Tap on the bookmark icon on the top right corner to show the bookmarked events only',
+                    state,
+                  )
+                : _emptyListOfSearchingMessages()
+            : _listOfMessagess(state),
+        state.isSearching ? Container() : _bottomRow(state)
+      ],
+    );
+  }
+
+  Widget _backgroundImageBody(ChatScreenState state) {
+    return Stack(
+      children: [
+        Image.file(
+          File(
+            BlocProvider.of<SettingsCubit>(context).state.backgroundImagePath,
+          ),
+          fit: BoxFit.cover,
+          height: double.infinity,
+          width: double.infinity,
+        ),
+        _body(state),
+      ],
     );
   }
 
@@ -140,7 +149,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   size: 35,
                   color: Theme.of(context).colorScheme.secondary,
                 ),
-                Text(categoriesMap.keys.elementAt(index)),
+                Text(
+                  categoriesMap.keys.elementAt(index),
+                  style: TextStyle(
+                      fontSize: BlocProvider.of<SettingsCubit>(context)
+                          .state
+                          .fontSize),
+                ),
                 const SizedBox(width: 80),
               ],
             ),
@@ -278,7 +293,11 @@ class _ChatScreenState extends State<ChatScreen> {
               onLongPress: () =>
                   BlocProvider.of<ChatScreenCubit>(context).onLongPress(index),
               child: Align(
-                alignment: Alignment.bottomLeft,
+                alignment: BlocProvider.of<SettingsCubit>(context)
+                        .state
+                        .isBubbleChatleft
+                    ? Alignment.bottomLeft
+                    : Alignment.bottomRight,
                 child: _event(state, index),
               ),
             ),
@@ -326,9 +345,15 @@ class _ChatScreenState extends State<ChatScreen> {
             if (state.eventList[index].imagePath.isNotEmpty)
               _image(index, state)
             else
-              Text(
+              LinkifyText(
                 state.eventList[index].text,
-                style: const TextStyle(fontSize: 16),
+                linkTypes: [LinkType.hashTag],
+                textStyle: TextStyle(
+                  fontSize:
+                      BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                ),
+                linkStyle: const TextStyle(color: Colors.blue),
+                onTap: (link) => print(link.value),
               ),
             Padding(
               padding: const EdgeInsets.only(top: 3, left: 5),
@@ -338,7 +363,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   if (state.eventList[index].isSelected) _isSelectedItem(),
                   Text(
                     timeFormat.format(state.eventList[index].date).toString(),
-                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: BlocProvider.of<SettingsCubit>(context)
+                          .state
+                          .fontSize,
+                    ),
                   ),
                   if (state.eventList[index].isFavorite) _isFavoriteItem(),
                 ],
@@ -390,9 +420,15 @@ class _ChatScreenState extends State<ChatScreen> {
           margin: const EdgeInsets.only(left: 40, right: 40, top: 15),
           color: Theme.of(context).colorScheme.primaryVariant,
           child: Column(
-            children: const [
-              Icon(Icons.search, size: 35),
-              Text('Please enter a search query to begin serching'),
+            children: [
+              const Icon(Icons.search, size: 35),
+              Text(
+                'Please enter a search query to begin serching',
+                style: TextStyle(
+                  fontSize:
+                      BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                ),
+              ),
             ],
           ),
         ),
@@ -418,12 +454,21 @@ class _ChatScreenState extends State<ChatScreen> {
                       'This is page where you can track everithing'
                       ' about "${selectedChat.elementName}"',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize,
+                      ),
                     ),
                     const SizedBox(height: 15),
                     Text(
                       subtext,
-                      style: const TextStyle(color: Colors.grey, fontSize: 15),
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -494,7 +539,12 @@ class _ChatScreenState extends State<ChatScreen> {
         },
       ),
       centerTitle: true,
-      title: const Text('Editing Mode'),
+      title: Text(
+        'Editing Mode',
+        style: TextStyle(
+          fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
+        ),
+      ),
     );
   }
 
@@ -508,7 +558,12 @@ class _ChatScreenState extends State<ChatScreen> {
         onPressed: () =>
             BlocProvider.of<ChatScreenCubit>(context).unselectElements(),
       ),
-      title: Text('$selectedItemsCount'),
+      title: Text(
+        '$selectedItemsCount',
+        style: TextStyle(
+          fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
+        ),
+      ),
       actions: [
         IconButton(
           onPressed: () => _choosePage(state),
@@ -547,8 +602,11 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(
+          title: Text(
             'Select the page you want to migrate the selected event(s) to!',
+            style: TextStyle(
+              fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
+            ),
           ),
           content: StatefulBuilder(builder: (context, setState) {
             return Container(
@@ -558,7 +616,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: state.chatList.length,
                 itemBuilder: (context, index) {
                   return RadioListTile(
-                    title: Text(state.chatList[index].elementName),
+                    title: Text(
+                      state.chatList[index].elementName,
+                      style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize,
+                      ),
+                    ),
                     value: index,
                     groupValue: chosenIndex,
                     onChanged: (index) {
@@ -578,8 +643,11 @@ class _ChatScreenState extends State<ChatScreen> {
               },
               child: Text(
                 'Ok',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize:
+                      BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                ),
               ),
             ),
           ],
@@ -600,7 +668,12 @@ class _ChatScreenState extends State<ChatScreen> {
           }
         },
       ),
-      title: Text('${selectedChat.elementName}'),
+      title: Text(
+        '${selectedChat.elementName}',
+        style: TextStyle(
+          fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
+        ),
+      ),
       centerTitle: true,
       actions: [
         IconButton(

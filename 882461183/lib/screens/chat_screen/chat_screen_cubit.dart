@@ -7,17 +7,24 @@ import 'package:path/path.dart';
 
 import '/data/repository/chat_repository.dart';
 import '/data/repository/event_repository.dart';
-import '/data/services/firebase_api.dart';
 import '/icons.dart';
 import '/models/chat_model.dart';
 import '/models/event_model.dart';
 part 'chat_screen_state.dart';
 
 class ChatScreenCubit extends Cubit<ChatScreenState> {
-  ChatScreenCubit() : super(ChatScreenState());
+  EventRepository eventRepository;
+  ChatRepository chatRepository;
 
-  EventRepository eventRepository = EventRepository();
-  ChatRepository chatRepository = ChatRepository();
+  ChatScreenCubit({
+    required this.chatRepository,
+    required this.eventRepository,
+  }) : super(ChatScreenState());
+
+  void initCubit(String id) {
+    showEvents(id);
+    unselectElements();
+  }
 
   Future<void> showEvents(String chatId, {String text = ''}) async {
     var eventList = await eventRepository.fetchEventList(chatId);
@@ -75,7 +82,7 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
 
     final file = File(image.path);
     final imageName = basename(image.path);
-    await FirebaseApi.uploadFile('images/$imageName', file);
+    await eventRepository.uploadFile('images/$imageName', file);
 
     final event = Event(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -95,14 +102,18 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
       state.eventList[eventIndex] = state.eventList[eventIndex]
           .copyWith(isSelected: !state.eventList[eventIndex].isSelected);
       state.eventList[eventIndex].isSelected
-          ? emit(state.copyWith(
-              selectedItemsCount: ++_itemsCount,
-              eventList: state.eventList,
-            ))
-          : emit(state.copyWith(
-              selectedItemsCount: --_itemsCount,
-              eventList: state.eventList,
-            ));
+          ? emit(
+              state.copyWith(
+                selectedItemsCount: ++_itemsCount,
+                eventList: state.eventList,
+              ),
+            )
+          : emit(
+              state.copyWith(
+                selectedItemsCount: --_itemsCount,
+                eventList: state.eventList,
+              ),
+            );
     } else {
       state.eventList[eventIndex] = state.eventList[eventIndex]
           .copyWith(isFavorite: !state.eventList[eventIndex].isFavorite);
@@ -162,14 +173,14 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
 
   void deleteElement() {
     var _messagessList = [];
-    for (var element in state.eventList) {
+    for (final element in state.eventList) {
       if (element.isSelected) {
         _messagessList.add(element);
 
         if (element.imagePath != '') {
           final imagePath = basename(element.imagePath);
           final destination = 'images/$imagePath';
-          FirebaseApi.deleteFile(destination);
+          eventRepository.deleteFile(destination);
         }
       }
     }
@@ -181,7 +192,7 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
         eventList: state.eventList,
       ),
     );
-    for (var element in _messagessList) {
+    for (final element in _messagessList) {
       eventRepository.deleteEvent(element);
     }
   }
@@ -190,7 +201,7 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
     if (state.eventList[index].imagePath != '') {
       final imagePath = basename(state.eventList[index].imagePath);
       final destination = 'images/$imagePath';
-      FirebaseApi.deleteFile(destination);
+      eventRepository.deleteFile(destination);
     }
     eventRepository.deleteEvent(state.eventList[index]);
     showEvents(chatId);
@@ -251,7 +262,7 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
   }
 
   String editMessageText() {
-    for (var element in state.eventList) {
+    for (final element in state.eventList) {
       if (element.isSelected) {
         emit(
           state.copyWith(

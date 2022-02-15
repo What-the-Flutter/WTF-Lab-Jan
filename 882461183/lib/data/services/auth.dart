@@ -7,8 +7,8 @@ class AuthService {
 
   Future<void> signInAnon() async {
     try {
-      var result = await _auth.signInAnonymously();
-      var user = result.user as User;
+      final result = await _auth.signInAnonymously();
+      final user = result.user as User;
       print(user.uid);
     } catch (e) {
       print(e.toString());

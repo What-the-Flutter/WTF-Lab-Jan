@@ -6,8 +6,6 @@ import 'package:intl/intl.dart';
 import '/data/repository/chat_repository.dart';
 import '/data/repository/event_repository.dart';
 import '/data/services/auth.dart';
-import '/data/services/firebase_database.dart';
-import '/data/services/local_auth.dart';
 import '/icons.dart';
 import '/models/chat_model.dart';
 import '../add_new_chat/add_new_chat.dart';
@@ -30,13 +28,20 @@ Widget startApp() {
     child: MultiBlocProvider(
       providers: [
         BlocProvider<MainScreenCubit>(
-          create: (context) => MainScreenCubit(),
+          create: (context) => MainScreenCubit(
+            RepositoryProvider.of<ChatRepository>(context),
+          ),
         ),
         BlocProvider<ChatScreenCubit>(
-          create: (context) => ChatScreenCubit(),
+          create: (context) => ChatScreenCubit(
+            chatRepository: RepositoryProvider.of<ChatRepository>(context),
+            eventRepository: RepositoryProvider.of<EventRepository>(context),
+          ),
         ),
         BlocProvider<AddNewChatCubit>(
-          create: (context) => AddNewChatCubit(),
+          create: (context) => AddNewChatCubit(
+            RepositoryProvider.of<ChatRepository>(context),
+          ),
         ),
         BlocProvider<SettingsCubit>(
           create: (context) => SettingsCubit(),
@@ -82,20 +87,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _auth.signInAnon();
     BlocProvider.of<SettingsCubit>(context).initSettings();
-    BlocProvider.of<MainScreenCubit>(context).showChats();
-    _chatRef.onValue.listen(
-      (event) {
-        final chatList = <Chat>[];
-        final result = event.snapshot.value as Map;
-        final list = result.values;
-        final finalList = list.toList();
-        for (var i = 0; i < finalList.length; i++) {
-          final map = Map<String, dynamic>.from(finalList[i]);
-          chatList.insert(0, Chat.fromJson(map));
-        }
-        BlocProvider.of<MainScreenCubit>(context).showChatsFromListen(chatList);
-      },
-    );
+    BlocProvider.of<MainScreenCubit>(context).initCubit(_chatRef);
   }
 
   @override
@@ -103,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
     return BlocBuilder<MainScreenCubit, MainScreenState>(
       builder: (context, state) {
         return Scaffold(
-          drawer: _drawer(),
+          drawer: _drawer(BlocProvider.of<SettingsCubit>(context).state),
           appBar: _customAppBar(),
           body: _customListView(state),
           floatingActionButton: _customFloatingActionButton(),
@@ -125,22 +117,18 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _drawer() {
+  Widget _drawer(SettingsState state) {
     return Drawer(
       child: Center(
         child: Column(
           children: [
             const SizedBox(height: 70),
             ElevatedButton(
-              onPressed: () async {
-                final isAuthenticated = await LocalAuthApi.authenticate();
-                if (isAuthenticated) {
-                  print('auth');
-                } else {
-                  print('not auth');
-                }
-              },
-              child: const Text('Face Id'),
+              onPressed: () => BlocProvider.of<SettingsCubit>(context).share(),
+              child: Text(
+                'Help spread the word',
+                style: TextStyle(fontSize: state.fontSize),
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -153,13 +141,76 @@ class _MainScreenState extends State<MainScreen> {
                           const AddNewChat(addCategory: true)),
                 );
               },
-              child: const Text('Add Category'),
+              child: Text(
+                'Add Category',
+                style: TextStyle(fontSize: state.fontSize),
+              ),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => BlocProvider.of<SettingsCubit>(context)
+                  .changeBubbleChatSide(),
+              child: Text(
+                'Change Chat Side',
+                style: TextStyle(fontSize: state.fontSize),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () =>
+                  BlocProvider.of<SettingsCubit>(context).addBGImage(),
+              child: Text(
+                'Change Chat Background Image',
+                style: TextStyle(fontSize: state.fontSize),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () =>
+                  BlocProvider.of<SettingsCubit>(context).resetBGImage(),
+              child: Text(
+                'Delete Chat Background Image',
+                style: TextStyle(fontSize: state.fontSize),
+              ),
+            ),
+            const SizedBox(height: 20),
+            DropdownButton(
+              hint: Text(
+                state.fontSizeString,
+                style: TextStyle(
+                  fontSize: state.fontSize,
+                  color: Colors.yellow,
+                ),
+              ),
+              items: ['Small', 'Medium', 'Large'].map(buildMenuItem).toList(),
+              onChanged: (size) => BlocProvider.of<SettingsCubit>(context)
+                  .changeFontSize(size.toString()),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: () =>
+                  BlocProvider.of<SettingsCubit>(context).resetSettings(),
+              child: Text(
+                'Reset Settings',
+                style: TextStyle(fontSize: state.fontSize),
+              ),
+            ),
+            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
+
+  DropdownMenuItem<String> buildMenuItem(String item) => DropdownMenuItem(
+        value: item,
+        child: Text(
+          item,
+          style: TextStyle(
+            fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
+          ),
+        ),
+      );
 
   ListView _customListView(MainScreenState state) {
     BlocProvider.of<MainScreenCubit>(context).sortList(state.chatList);
@@ -199,15 +250,20 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 title: Text(
                   state.chatList[index].elementName,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
                 ),
-                subtitle: Text(state.chatList[index].elementSubname),
+                subtitle: Text(
+                  state.chatList[index].elementSubname,
+                  style: TextStyle(
+                      fontSize: BlocProvider.of<SettingsCubit>(context)
+                          .state
+                          .fontSize),
+                ),
                 onTap: () async {
-                  final db = FBDatabase();
-                  BlocProvider.of<ChatScreenCubit>(context).changeParameters(
-                    eventList:
-                        await db.fetchEventList(state.chatList[index].id),
-                  );
                   final result = await Navigator.pushNamed(
                     context,
                     '/events',
@@ -244,7 +300,13 @@ class _MainScreenState extends State<MainScreen> {
                   Icons.info,
                   color: Color.fromRGBO(121, 143, 154, 1),
                 ),
-                title: const Text('Info'),
+                title: Text(
+                  'Info',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
               ),
               ListTile(
                 onTap: () {
@@ -253,21 +315,45 @@ class _MainScreenState extends State<MainScreen> {
                       .pinUnpinChat(pinnedElement);
                 },
                 leading: const Icon(Icons.attach_file, color: Colors.green),
-                title: const Text('Pin/Unpin Page'),
+                title: Text(
+                  'Pin/Unpin Page',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.archive, color: Colors.yellow),
-                title: const Text('Archive Page'),
+                title: Text(
+                  'Archive Page',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
                 onTap: () {},
               ),
               ListTile(
                 leading: const Icon(Icons.edit, color: Colors.blue),
-                title: const Text('Edit Page'),
+                title: Text(
+                  'Edit Page',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
                 onTap: () => _editChat(pinnedElement),
               ),
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Delete Page'),
+                title: Text(
+                  'Delete Page',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
                 onTap: () {
                   BlocProvider.of<MainScreenCubit>(context)
                       .removeElement(pinnedElement);
@@ -309,23 +395,50 @@ class _MainScreenState extends State<MainScreen> {
                   const SizedBox(width: 20),
                   Text(
                     pinnedElement.elementName,
-                    style: const TextStyle(fontSize: 20),
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
                   ),
                 ],
               ),
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Created:'),
-                  Text(creationDate),
+                  Text(
+                    'Created:',
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
+                  Text(
+                    creationDate,
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
                   const SizedBox(height: 20),
-                  const Text('Last event:'),
+                  Text(
+                    'Last event:',
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
                 ],
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
                 ),
               ],
             ),
@@ -377,8 +490,12 @@ class _MainScreenState extends State<MainScreen> {
 
   PreferredSizeWidget _customAppBar() {
     return AppBar(
-      title: const Center(
-        child: Text('Home'),
+      title: Center(
+        child: Text(
+          'Home',
+          style: TextStyle(
+              fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize),
+        ),
       ),
       actions: [
         IconButton(

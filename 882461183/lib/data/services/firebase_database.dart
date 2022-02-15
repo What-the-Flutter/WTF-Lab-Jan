@@ -35,7 +35,7 @@ class FBDatabase {
   Future<List<Chat>> fetchChatList() async {
     final chatList = <Chat>[];
     final snap = await _chatRef.once();
-    for (var elSnap in snap.snapshot.children) {
+    for (final elSnap in snap.snapshot.children) {
       final result = Map<String, dynamic>.from(elSnap.value as Map);
       chatList.insert(0, Chat.fromJson(Map<String, dynamic>.from(result)));
     }
@@ -45,7 +45,7 @@ class FBDatabase {
   Future<List<Event>> fetchEventList(String chatId) async {
     final eventList = <Event>[];
     final snap = await _eventRef.once();
-    for (var elSnap in snap.snapshot.children) {
+    for (final elSnap in snap.snapshot.children) {
       final result = Map<String, dynamic>.from(elSnap.value as Map);
       if (result.containsValue(chatId)) {
         eventList.insert(0, Event.fromJson(Map<String, dynamic>.from(result)));
