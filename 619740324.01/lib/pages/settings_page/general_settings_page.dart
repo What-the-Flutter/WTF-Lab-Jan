@@ -14,7 +14,7 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<CubitGeneralSettings>(context).updateState();
+    BlocProvider.of<CubitGeneralSettings>(context).init();
   }
 
   @override
@@ -107,8 +107,9 @@ class _GeneralSettingsPageState extends State<GeneralSettingsPage> {
           content: _dialogListView(),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK')),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),  
+            ),
           ],
         );
       },

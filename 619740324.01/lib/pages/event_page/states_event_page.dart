@@ -11,6 +11,7 @@ class StatesEventPage {
   final bool isWriting;
   final bool isChoosingCircleAvatar;
   final bool isTextSearch;
+  final bool isSortedByBookmarks;
   final Note? note;
   final String time;
   final String date;
@@ -18,6 +19,7 @@ class StatesEventPage {
   final List<Event> eventList;
 
   const StatesEventPage({
+    this.isSortedByBookmarks = false,
     this.isWriting = false,
     this.time = '',
     this.date = '',
@@ -44,6 +46,7 @@ class StatesEventPage {
     bool? isTextSearch,
     bool? isEventPressed,
     bool? isEditingPhoto,
+    bool? isSortedByBookmarks,
     int? selectedEventIndex,
     int? selectedCircleAvatar,
     int? selectedNoteIndex,
@@ -51,6 +54,7 @@ class StatesEventPage {
     List<Event>? eventList,
   }) {
     return StatesEventPage(
+      isSortedByBookmarks: isSortedByBookmarks ?? this.isSortedByBookmarks,
       isWriting: isWriting ?? this.isWriting,
       note: note ?? this.note,
       time: time ?? this.time,

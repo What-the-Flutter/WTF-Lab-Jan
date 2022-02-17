@@ -21,9 +21,13 @@ class CubitEventPage extends Cubit<StatesEventPage> {
     setTextSearch(false);
     setEventEditing(false);
     setEditingPhoto(false);
+    setSelectedEventIndex(-1);
     removeSelectedCircleAvatar();
     initEventList();
   }
+
+  void setSortedByBookmarksState(bool isSortedByBookmarks) =>
+      emit(state.copyWith(isSortedByBookmarks: isSortedByBookmarks));
 
   void setEditingPhoto(bool isEditingPhoto) =>
       emit(state.copyWith(isEditingPhoto: isEditingPhoto));

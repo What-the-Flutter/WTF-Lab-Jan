@@ -6,7 +6,7 @@ import 'states_general_settings.dart';
 class CubitGeneralSettings extends Cubit<StatesGeneralSettings> {
   CubitGeneralSettings() : super(StatesGeneralSettings());
 
-  void updateState() {
+  void init() {
     emit(
       state.copyWith(
         isDateTimeModification:
