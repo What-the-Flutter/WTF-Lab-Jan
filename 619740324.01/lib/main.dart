@@ -10,6 +10,7 @@ import 'pages/event_page/cubit_event_page.dart';
 import 'pages/home_page/cubit_home_page.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/settings_page/cubit_general_settings.dart';
+import 'pages/timeline_page/cubit_timeline_page.dart';
 import 'theme/cubit_theme.dart';
 import 'theme/states_theme.dart';
 
@@ -37,6 +38,9 @@ void main() async {
         ),
         BlocProvider<CubitGeneralSettings>(
           create: (context) => CubitGeneralSettings(),
+        ),
+        BlocProvider<CubitTimelinePage>(
+          create: (context) => CubitTimelinePage(),
         ),
       ],
       child: const MyApp(),

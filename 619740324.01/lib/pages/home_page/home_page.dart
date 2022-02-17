@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:page_transition/page_transition.dart';
 
 import '../../icons.dart';
 import '../../note.dart';
@@ -7,6 +9,7 @@ import '../../theme/cubit_theme.dart';
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
 import '../settings_page/settings_page.dart';
+import '../timeline_page/timeline_page.dart';
 import 'cubit_home_page.dart';
 import 'states_home_page.dart';
 
@@ -41,6 +44,15 @@ class _HomePageState extends State<HomePage> {
 
   BottomNavigationBar get _bottomNavigationBar {
     return BottomNavigationBar(
+      onTap: (value) {
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.rightToLeft,
+            child: TimelinePage(),
+          ),
+        );
+      },
       items: [
         BottomNavigationBarItem(
           backgroundColor: BlocProvider.of<CubitTheme>(context)
@@ -71,6 +83,7 @@ class _HomePageState extends State<HomePage> {
           label: 'Explore',
         ),
       ],
+      currentIndex: 0,
       showUnselectedLabels: true,
     );
   }
@@ -83,20 +96,53 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
             ),
-            child: const Text('Information'),
-          ),
-          GestureDetector(
-            child: const ListTile(
-              leading: Icon(
-                Icons.account_circle,
+            child: const Text(
+              'Information',
+              style: TextStyle(
+                fontSize: 45,
               ),
-              title: Text('Profile'),
             ),
           ),
           GestureDetector(
             child: ListTile(
-              leading: const Icon(
-                Icons.settings,
+              leading: Container(
+                height: 35,
+                width: 35,
+                child: BlocProvider.of<CubitTheme>(context).state.isLightTheme!
+                    ? Lottie.network(
+                        'https://assets4.lottiefiles.com/packages/lf20_hvxmoeqb.json',
+                        repeat: true,
+                        reverse: true,
+                        animate: true,
+                      )
+                    : Lottie.network(
+                        'https://assets5.lottiefiles.com/packages/lf20_i85votuf.json',
+                        repeat: true,
+                        reverse: true,
+                        animate: true,
+                      ),
+              ),
+              title: const Text('Profile'),
+            ),
+          ),
+          GestureDetector(
+            child: ListTile(
+              leading: Container(
+                height: 35,
+                width: 35,
+                child: BlocProvider.of<CubitTheme>(context).state.isLightTheme!
+                    ? Lottie.network(
+                        'https://assets10.lottiefiles.com/packages/lf20_6ctkb0oz.json',
+                        repeat: true,
+                        reverse: true,
+                        animate: true,
+                      )
+                    : Lottie.network(
+                        'https://assets4.lottiefiles.com/packages/lf20_nrjiwkxn.json',
+                        repeat: true,
+                        reverse: true,
+                        animate: true,
+                      ),
               ),
               title: const Text('Settings'),
               onTap: () {
@@ -116,9 +162,19 @@ class _HomePageState extends State<HomePage> {
 
   FloatingActionButton _floatingActionButton(StatesHomePage state) {
     return FloatingActionButton(
-      child: const Icon(
-        Icons.add,
-      ),
+      child: BlocProvider.of<CubitTheme>(context).state.isLightTheme!
+          ? Lottie.network(
+              'https://assets4.lottiefiles.com/packages/lf20_kcywyypy.json',
+              repeat: true,
+              reverse: true,
+              animate: true,
+            )
+          : Lottie.network(
+              'https://assets7.lottiefiles.com/packages/lf20_u0sqq9uw.json',
+              repeat: true,
+              reverse: true,
+              animate: true,
+            ),
       onPressed: () {
         Navigator.push(
           context,
@@ -154,8 +210,9 @@ class _HomePageState extends State<HomePage> {
       onTap: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => EventPage(
+          PageTransition(
+            type: PageTransitionType.bottomToTop,
+            child: EventPage(
               title: _note.eventName,
               note: _note,
               noteList: state.noteList,

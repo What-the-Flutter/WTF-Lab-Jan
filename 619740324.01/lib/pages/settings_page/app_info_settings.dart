@@ -25,13 +25,13 @@ class _AppInfoSettingsState extends State<AppInfoSettings> {
           leading: const Icon(Icons.share),
           title: const Text('Spread the word'),
           subtitle: const Text('Share the app with your friends'),
-          onTap: share,
+          onTap: _share,
         ),
       ],
     );
   }
 
-  void share() {
+  void _share() {
     const text = 'You can look at all the code on GitHab:'
         ' https://github.com/DenisHaritonovich ';
     Share.share(text);

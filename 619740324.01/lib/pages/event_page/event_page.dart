@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_animated/auto_animated.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,7 +57,7 @@ class _EventPageState extends State<EventPage> {
               ? _editingAppBar(state)
               : state.isTextSearch
                   ? searchAppBar(state)
-                  : _appBar,
+                  : _appBar(state),
           body: _eventPageBody(state),
         );
       },
@@ -104,6 +105,7 @@ class _EventPageState extends State<EventPage> {
       leading: IconButton(
         onPressed: () {
           BlocProvider.of<CubitEventPage>(context).setEventPressed(false);
+          BlocProvider.of<CubitEventPage>(context).setSelectedEventIndex(-1);
           textController.clear();
         },
         icon: const Icon(
@@ -161,7 +163,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  AppBar get _appBar {
+  AppBar _appBar(StatesEventPage state) {
     return AppBar(
       centerTitle: true,
       title: Text(
@@ -178,10 +180,11 @@ class _EventPageState extends State<EventPage> {
           ),
         ),
         IconButton(
-          onPressed: () {},
-          icon: const Icon(
-            Icons.bookmark_border,
-          ),
+          onPressed: () => BlocProvider.of<CubitEventPage>(context)
+              .setSortedByBookmarksState(!state.isSortedByBookmarks),
+          icon: state.isSortedByBookmarks
+              ? const Icon(Icons.bookmark)
+              : const Icon(Icons.bookmark_border),
         ),
       ],
     );
@@ -454,19 +457,30 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  ListView _listViewWithEvents(StatesEventPage state) {
+  LiveList _listViewWithEvents(StatesEventPage state) {
     final newEventList = state.isTextSearch
         ? state.eventList
             .where(
                 (element) => element.text.contains(textSearchController.text))
             .toList()
-        : state.eventList;
-    return ListView.builder(
+        : state.isSortedByBookmarks
+            ? state.eventList
+                .where((element) => element.bookmarkIndex == 1)
+                .toList()
+            : state.eventList;
+    return LiveList.options(
+      options: const LiveOptions(
+        visibleFraction: 0.025,
+      ),
       itemCount: newEventList.length,
       reverse: true,
       scrollDirection: Axis.vertical,
-      itemBuilder: (context, index) =>
-          _eventList(newEventList[index], index, state),
+      itemBuilder: (context, index, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: _eventList(newEventList[index], index, state),
+        );
+      },
     );
   }
 
@@ -505,53 +519,60 @@ class _EventPageState extends State<EventPage> {
                 width: 300,
                 child: Card(
                   elevation: 5,
-                  color: Colors.blueGrey,
-                  child: ListTile(
-                    leading: event.indexOfCircleAvatar == -1
-                        ? null
-                        : CircleAvatar(
-                            child: iconsList[event.indexOfCircleAvatar],
-                          ),
-                    title: event.imagePath != ''
-                        ? Image.network(event.imagePath)
-                        : HashTagText(
-                            decoratedStyle: const TextStyle(
-                              color: Colors.red,
-                            ),
-                            text: event.text,
-                            basicStyle: TextStyle(
-                              color: BlocProvider.of<CubitTheme>(context)
-                                      .state
-                                      .isLightTheme!
-                                  ? Colors.black
-                                  : Colors.white,
-                            ),
-                          ),
-                    subtitle: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text(event.time),
+                  child: AnimatedContainer(
+                    duration: const Duration(
+                      milliseconds: 200,
                     ),
-                    trailing: event.bookmarkIndex == 1
-                        ? const Icon(
-                            Icons.bookmark,
-                            size: 30,
-                          )
-                        : null,
-                    onTap: () {
-                      event.bookmarkIndex == 0
-                          ? event.bookmarkIndex = 1
-                          : event.bookmarkIndex = 0;
-                      BlocProvider.of<CubitEventPage>(context)
-                          .setNote(state.note);
-                      BlocProvider.of<CubitEventPage>(context)
-                          .updateEvent(event);
-                    },
-                    onLongPress: () {
-                      BlocProvider.of<CubitEventPage>(context)
-                          .setSelectedEventIndex(index);
-                      BlocProvider.of<CubitEventPage>(context)
-                          .setEventPressed(true);
-                    },
+                    color: state.selectedEventIndex == index
+                        ? Colors.orangeAccent
+                        : Colors.blueGrey,
+                    child: ListTile(
+                      leading: event.indexOfCircleAvatar == -1
+                          ? null
+                          : CircleAvatar(
+                              child: iconsList[event.indexOfCircleAvatar],
+                            ),
+                      title: event.imagePath != ''
+                          ? Image.network(event.imagePath)
+                          : HashTagText(
+                              decoratedStyle: const TextStyle(
+                                color: Colors.red,
+                              ),
+                              text: event.text,
+                              basicStyle: TextStyle(
+                                color: BlocProvider.of<CubitTheme>(context)
+                                        .state
+                                        .isLightTheme!
+                                    ? Colors.black
+                                    : Colors.white,
+                              ),
+                            ),
+                      subtitle: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Text(event.time),
+                      ),
+                      trailing: event.bookmarkIndex == 1
+                          ? const Icon(
+                              Icons.bookmark,
+                              size: 30,
+                            )
+                          : null,
+                      onTap: () {
+                        event.bookmarkIndex == 0
+                            ? event.bookmarkIndex = 1
+                            : event.bookmarkIndex = 0;
+                        BlocProvider.of<CubitEventPage>(context)
+                            .setNote(state.note);
+                        BlocProvider.of<CubitEventPage>(context)
+                            .updateEvent(event);
+                      },
+                      onLongPress: () {
+                        BlocProvider.of<CubitEventPage>(context)
+                            .setSelectedEventIndex(index);
+                        BlocProvider.of<CubitEventPage>(context)
+                            .setEventPressed(true);
+                      },
+                    ),
                   ),
                 ),
               ),
