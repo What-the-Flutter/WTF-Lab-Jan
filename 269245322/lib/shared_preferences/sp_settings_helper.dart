@@ -20,7 +20,7 @@ enum database {
 class SharedPreferencesProvider {
   static const SharedPreferencesProvider _sharedPreferencesProvider =
       SharedPreferencesProvider._createInstance();
-  static late final SharedPreferences _prefs;
+  static late final SharedPreferences spInstance;
 
   const SharedPreferencesProvider._createInstance();
 
@@ -29,158 +29,76 @@ class SharedPreferencesProvider {
   }
 
   static Future<void> initialize() async =>
-      _prefs = await SharedPreferences.getInstance();
+      spInstance = await SharedPreferences.getInstance();
 
-  static void changeALigment(int appAligment) {
-    String spAligment;
-    switch (appAligment) {
-      case 0:
-        spAligment = aligment.bubbleAlignment.toString();
-        break;
-      case 1:
-        spAligment = aligment.centerDateBubble.toString();
-        break;
-      default:
-        spAligment = aligment.bubbleAlignment.toString();
-        break;
-    }
-    _prefs.setString('aligment', spAligment);
+  void changeALigment(int appAligment) {
+    spInstance.setInt('aligment', appAligment);
   }
 
-  static void changeTextSize(int size) {
-    String spSize;
-    switch (size) {
-      case 0:
-        spSize = textSize.small.toString();
-        break;
-      case 1:
-        spSize = textSize.medium.toString();
-        break;
-      case 2:
-        spSize = textSize.large.toString();
-        break;
-      default:
-        spSize = textSize.medium.toString();
-        break;
-    }
-    _prefs.setString('text_size', spSize);
+  void changeTextSize(int size) {
+    spInstance.setInt('text_size', size);
   }
 
-  static void changeTheme(int appTheme) {
-    String spTheme;
-    switch (appTheme) {
-      case 0:
-        spTheme = AppTheme.blueLight.toString();
-        break;
-      case 1:
-        spTheme = AppTheme.blueDark.toString();
-        break;
-      default:
-        spTheme = AppTheme.blueLight.toString();
-        break;
-    }
-    _prefs.setString('theme', spTheme);
+  void changeTheme(int appTheme) {
+    spInstance.setInt('theme', appTheme);
   }
 
-  static void changeDatabase(int appDatabase) {
-    String spDatabase;
-    switch (appDatabase) {
-      case 0:
-        spDatabase = database.firebase.toString();
-        break;
-      case 1:
-        spDatabase = database.sqLite.toString();
-        break;
-      default:
-        spDatabase = database.firebase.toString();
-        break;
-    }
-    _prefs.setString('database', spDatabase);
+  void changeDatabase(int appDatabase) {
+    spInstance.setInt('database', appDatabase);
   }
 
-  static int getALigment() {
-    var spAligment = _prefs.getString('aligment');
-    int appAligment;
-    switch (spAligment) {
-      case 'aligment.bubbleAlignment':
-        appAligment = 0;
-        break;
-      case 'aligment.centerDateBubble':
-        appAligment = 1;
-        break;
-      default:
-        appAligment = 0;
-        break;
+  int getALigment() {
+    try {
+      spInstance.getInt('aligment');
+    } catch (e) {
+      spInstance.setInt('aligment', 0);
     }
-    return appAligment;
+    final appAligment = spInstance.getInt('aligment');
+    return appAligment!;
   }
 
-  static int getTextSize() {
-    var spSize = _prefs.getString('text_size');
-    int textSize;
-    switch (spSize) {
-      case 'textSize.small':
-        textSize = 0;
-        break;
-      case 'textSize.medium':
-        textSize = 1;
-        break;
-      case 'textSize.large':
-        textSize = 2;
-        break;
-      default:
-        textSize = 0;
-        break;
+  int getTextSize() {
+    try {
+      spInstance.getInt('text_size');
+    } catch (e) {
+      spInstance.setInt('text_size', 0);
     }
-    return textSize;
+    final textSize = spInstance.getInt('text_size');
+    return textSize!;
   }
 
-  static int getTheme() {
-    var spTheme = _prefs.getString('theme');
-    int appTheme;
-    switch (spTheme) {
-      case 'AppTheme.blueLight':
-        appTheme = 0;
-        break;
-      case 'AppTheme.blueDark':
-        appTheme = 1;
-        break;
-      default:
-        appTheme = 0;
-        break;
+  int getTheme() {
+    try {
+      spInstance.getInt('theme');
+    } catch (e) {
+      spInstance.setInt('theme', 0);
     }
-    return appTheme;
+    final appTheme = spInstance.getInt('theme');
+    return appTheme!;
   }
 
-  static int getDatabase() {
-    var spDatabase = _prefs.getString('database');
-    int appDatabase;
-    switch (spDatabase) {
-      case 'database.firebase':
-        appDatabase = 0;
-        break;
-      case 'database.sqLite':
-        appDatabase = 1;
-        break;
-      default:
-        appDatabase = 0;
-        break;
+  int getDatabase() {
+    try {
+      spInstance.getInt('database');
+    } catch (e) {
+      spInstance.setInt('database', 0);
     }
-    return appDatabase;
+    final appDatabase = spInstance.getInt('database');
+    return appDatabase!;
   }
 
-  static ThemeData getThemeData() {
+  ThemeData getThemeData() {
     ThemeData appTheme;
-    _prefs.getString('theme') == 'AppTheme.blueLight'
+    spInstance.getInt('theme') == 0
         ? appTheme = appThemeData[AppTheme.blueLight]!
         : appTheme = appThemeData[AppTheme.blueDark]!;
     return appTheme;
   }
 
-  static void resetSettings() {
-    _prefs.setString('theme', 'AppTheme.blueLight');
-    _prefs.setString('text_size', 'textSize.small');
-    _prefs.setString('aligment', 'aligment.bubbleAlignment');
-    _prefs.setString('database', 'database.firebase');
+  void resetSettings() {
+    spInstance.setInt('theme', 0);
+    spInstance.setInt('text_size', 0);
+    spInstance.setInt('aligment', 0);
+    spInstance.setInt('database', 0);
   }
 }

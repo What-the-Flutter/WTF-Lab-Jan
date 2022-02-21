@@ -36,15 +36,25 @@ class _SettingsPageState extends State<SettingsPage> {
               title: const Center(child: Text('Settings')),
             ),
             body: settingsButtons(
-                _auth, _settingsCubit, state, context, widget.themeCubit),
+              _auth,
+              _settingsCubit,
+              state,
+              context,
+              widget.themeCubit,
+            ),
             backgroundColor: Theme.of(context).backgroundColor,
           );
         });
   }
 }
 
-Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
-    SettingsState state, BuildContext context, ThemeCubit themeCubit) {
+Padding settingsButtons(
+  AuthService auth,
+  SettingsCubit settingsCubit,
+  SettingsState state,
+  BuildContext context,
+  ThemeCubit themeCubit,
+) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: Column(
@@ -146,7 +156,9 @@ Padding settingsButtons(AuthService auth, SettingsCubit settingsCubit,
         ),
         ElevatedButton(
           child: const Text('Share'),
-          onPressed: settingsCubit.share,
+          onPressed: () async {
+            //Share.share('check out my website https://example.com');
+          },
           style: ElevatedButton.styleFrom(
             primary: Theme.of(context).primaryColor,
           ),

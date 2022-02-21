@@ -43,7 +43,6 @@ dependencies:
   file_picker: ^4.3.3
   firebase_storage: ^10.2.6
   firebase_auth: ^3.3.6
-  flutter_share: ^2.0.0
   firebase_database_web: ^0.2.0+5
 
 dev_dependencies:

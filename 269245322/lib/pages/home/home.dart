@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_lab_project/pages/bookmarks.dart/bookmarks.dart';
 
 import '../../services/firebase_auth_service.dart';
 import '../../style/theme_cubit.dart';
@@ -65,10 +66,17 @@ class _PageState extends State<HomePage> {
 
 AppBar _appBar(BuildContext context) {
   return AppBar(
-    leading: Icon(
-      Icons.verified,
-      color: Theme.of(context).primaryColorLight,
-    ),
+    leading: IconButton(
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            BookmarksPage.routeName,
+          );
+        },
+        icon: Icon(
+          Icons.bookmark_border,
+          color: Theme.of(context).primaryColorLight,
+        )),
     title: const Center(
       child: Text(
         'Home',

@@ -16,25 +16,32 @@ import '../../shared_preferences/sp_settings_helper.dart';
 import 'note_state.dart';
 
 class NoteCubit extends Cubit<NoteState> {
-  IRepository<PageModel> dbPageHelper =
-      (SharedPreferencesProvider.getDatabase() == 0)
-          ? FireBasePageHelper()
-          : SqlitePageRepository();
+  final SharedPreferencesProvider _sharedPreferencesProvider =
+      SharedPreferencesProvider();
 
-  IRepository<NoteModel> dbNoteHelper =
-      (SharedPreferencesProvider.getDatabase() == 0)
-          ? FireBaseNoteHelper()
-          : SqliteNoteRepository();
+  late final IRepository<PageModel> dbPageHelper;
+
+  late final IRepository<NoteModel> dbNoteHelper;
 
   NoteCubit()
-      : super(const NoteState(
-          isUserEditingeNote: false,
-          selcetedNotes: [],
-          showNoteIconMenue: false,
-          isSerchBarDisplayed: false,
-        ));
+      : super(
+          const NoteState(
+            isUserEditingeNote: false,
+            selcetedNotes: [],
+            showNoteIconMenue: false,
+            isSerchBarDisplayed: false,
+          ),
+        );
 
   void initPage(PageModel page) {
+    dbPageHelper = (_sharedPreferencesProvider.getDatabase() == 0)
+        ? FireBasePageHelper()
+        : SqlitePageRepository();
+
+    dbNoteHelper = (_sharedPreferencesProvider.getDatabase() == 0)
+        ? FireBaseNoteHelper()
+        : SqliteNoteRepository();
+
     emit(
       state.copyWith(
         notesList: page.notesList,
@@ -82,7 +89,7 @@ class NoteCubit extends Cubit<NoteState> {
 
   void copyDataToBuffer() {
     var bufferData = '';
-    for (var currentNote in state.selcetedNotes!) {
+    for (final currentNote in state.selcetedNotes!) {
       bufferData += '${currentNote.data} ';
     }
     Clipboard.setData(ClipboardData(text: bufferData));
@@ -93,7 +100,7 @@ class NoteCubit extends Cubit<NoteState> {
     final newNoteList = state.page!.notesList;
     NoteModel newNote;
     if (searchString != '') {
-      for (var note in newNoteList) {
+      for (final note in newNoteList) {
         if (note.data.contains(searchString)) {
           newNote = note.copyWith(isSearched: true);
         } else {
@@ -103,7 +110,7 @@ class NoteCubit extends Cubit<NoteState> {
         emit(state.copyWith(notesList: newNoteList));
       }
     } else {
-      for (var note in newNoteList) {
+      for (final note in newNoteList) {
         newNote = note.copyWith(isSearched: false);
         newNoteList[newNoteList.indexOf(note)] = newNote;
       }
@@ -113,17 +120,17 @@ class NoteCubit extends Cubit<NoteState> {
   }
 
   int createId() {
-    var id = int.parse(DateTime.now().toString().substring(20, 26));
+    final id = int.parse(DateTime.now().toString().substring(20, 26));
     print(id);
     return id;
   }
 
   void addNoteToList(TextEditingController controller) async {
     final noteInput = controller.text;
-    final headingText = '${state.page!.title} ${state.page!.numOfNotes}';
+    final headingText = '${state.page!.title}';
     var noteCounter = 0;
-    var noteURL = await uploadFile(headingText);
-    var noteTags = _getStringOfTagsFromStringInput(noteInput);
+    final noteURL = await uploadFile(headingText);
+    final noteTags = _getStringOfTagsFromStringInput(noteInput);
 
     final newNote = NoteModel(
       id: createId(),
@@ -141,7 +148,7 @@ class NoteCubit extends Cubit<NoteState> {
     if (state.isUserEditingeNote) {
       final editableNote = state.selcetedNotes!.first;
       //findig user's selected note in the note list and changing it's data with new value
-      for (var note in newNoteList) {
+      for (final note in newNoteList) {
         if (note.heading == editableNote.heading) {
           newNoteList[noteCounter] =
               note.copyWith(data: controller.text, isChecked: false);
@@ -181,7 +188,7 @@ class NoteCubit extends Cubit<NoteState> {
 
   void addNoteToSelectedNotesList(int index) {
     var newSelectedList = <NoteModel>[];
-    for (var note in state.selcetedNotes!) {
+    for (final note in state.selcetedNotes!) {
       newSelectedList.add(note);
     }
     setSelectesCheckBoxState(true, index);
@@ -191,13 +198,13 @@ class NoteCubit extends Cubit<NoteState> {
 
   void removeNoteFromSelectedNotesList(int index) {
     var newSelectedList = <NoteModel>[];
-    for (var note in state.selcetedNotes!) {
+    for (final note in state.selcetedNotes!) {
       newSelectedList.add(note);
     }
 
     if (newSelectedList.isNotEmpty) {
-      var noteToDelete = state.page!.notesList[index];
-      for (var note in state.selcetedNotes!) {
+      final noteToDelete = state.page!.notesList[index];
+      for (final note in state.selcetedNotes!) {
         if (note.heading == noteToDelete.heading) {
           newSelectedList.remove(note);
         }
@@ -222,7 +229,7 @@ class NoteCubit extends Cubit<NoteState> {
 
   void deleteFromNoteList() {
     final newNoteList = state.notesList!;
-    for (var currentNote in state.selcetedNotes!) {
+    for (final currentNote in state.selcetedNotes!) {
       newNoteList.remove(currentNote);
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes - 1);
@@ -237,13 +244,15 @@ class NoteCubit extends Cubit<NoteState> {
 
   void addNoteToFavorite() {
     final newNoreList = state.notesList!;
-    for (var currentNote in state.selcetedNotes!) {
+    for (final currentNote in state.selcetedNotes!) {
       if (currentNote.isFavorite == true) {
-        var newNote = currentNote.copyWith(isFavorite: false, isChecked: false);
+        final newNote =
+            currentNote.copyWith(isFavorite: false, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
         dbNoteHelper.update(newNote, state.page!.id);
       } else {
-        var newNote = currentNote.copyWith(isFavorite: true, isChecked: false);
+        final newNote =
+            currentNote.copyWith(isFavorite: true, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
         dbNoteHelper.update(newNote, state.page!.id);
       }
@@ -303,11 +312,11 @@ class NoteCubit extends Cubit<NoteState> {
       if (inputStr[i] == '#') numOfTags++;
     }
     var listOfTags = <String>[];
-    var listOfWords = inputStr.split(' ');
-    for (var word in listOfWords) {
+    final listOfWords = inputStr.split(' ');
+    for (final word in listOfWords) {
       if (word.contains('#')) listOfTags.add(word);
     }
-    for (var tag in listOfTags) {
+    for (final tag in listOfTags) {
       tagsString += tag;
     }
     if (numOfTags != listOfTags.length) tagsString = '';
@@ -316,14 +325,14 @@ class NoteCubit extends Cubit<NoteState> {
 
   double getTextSize() {
     var textSize = 10.0;
-    var factor = (SharedPreferencesProvider.getTextSize() + 1) * 5;
+    final factor = (_sharedPreferencesProvider.getTextSize() + 1) * 5;
     textSize = textSize + factor;
     return textSize;
   }
 
   bool isCenterAlignent() {
     final centerAligment =
-        (SharedPreferencesProvider.getALigment() == 0) ? false : true;
+        (_sharedPreferencesProvider.getALigment() == 0) ? false : true;
     return centerAligment;
   }
 }

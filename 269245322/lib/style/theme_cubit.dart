@@ -5,11 +5,14 @@ import '../shared_preferences/sp_settings_helper.dart';
 import 'theme_state.dart';
 
 class ThemeCubit extends Cubit<ThemeState> {
+  final SharedPreferencesProvider _sharedPreferencesProvider =
+      SharedPreferencesProvider();
+
   ThemeCubit() : super(ThemeState());
 
   void initState() {
     changeTheme(
-      SharedPreferencesProvider.getThemeData(),
+      _sharedPreferencesProvider.getThemeData(),
     );
   }
 

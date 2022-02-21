@@ -94,8 +94,13 @@ class _PageListState extends State<PageList> {
   }
 }
 
-void _onElementLongPress(BuildContext context, PageCubit pageCubit,
-    List<PageModel> listOfPages, int index, HomeCubit homeCubit) {
+void _onElementLongPress(
+  BuildContext context,
+  PageCubit pageCubit,
+  List<PageModel> listOfPages,
+  int index,
+  HomeCubit homeCubit,
+) {
   showModalBottomSheet<void>(
     context: context,
     builder: (context) {
@@ -114,9 +119,12 @@ void _onElementLongPress(BuildContext context, PageCubit pageCubit,
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Text('Created: ${listOfPages[index].getCretionDate}'),
                       Text(
-                          'Last event: ${listOfPages[index].getlastModifedDate}'),
+                        'Created: ${listOfPages[index].getCretionDate}',
+                      ),
+                      Text(
+                        'Last event: ${listOfPages[index].getlastModifedDate}',
+                      ),
                     ],
                   ),
                   actions: [

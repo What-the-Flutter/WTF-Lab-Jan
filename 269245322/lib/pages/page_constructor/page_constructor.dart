@@ -49,8 +49,12 @@ class _PageConstructorState extends State<PageConstructor> {
   }
 }
 
-Padding _body(TextEditingController _controller, PageCubit pageCubit,
-    PageState state, BuildContext context) {
+Padding _body(
+  TextEditingController _controller,
+  PageCubit pageCubit,
+  PageState state,
+  BuildContext context,
+) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
     child: Column(

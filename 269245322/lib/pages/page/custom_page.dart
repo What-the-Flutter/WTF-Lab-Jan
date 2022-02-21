@@ -46,9 +46,19 @@ class _CustomPageState extends State<CustomPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: _appBar(
-              _noteCubit, state, _controller, widget.searchController, context),
-          body:
-              _body(context, state, _noteCubit, widget.pageCubit, _controller),
+            _noteCubit,
+            state,
+            _controller,
+            widget.searchController,
+            context,
+          ),
+          body: _body(
+            context,
+            state,
+            _noteCubit,
+            widget.pageCubit,
+            _controller,
+          ),
           backgroundColor: Theme.of(context).backgroundColor,
         );
       },
@@ -57,87 +67,94 @@ class _CustomPageState extends State<CustomPage> {
 }
 
 AppBar _appBar(
-    NoteCubit noteCubit,
-    NoteState state,
-    TextEditingController _controller,
-    TextEditingController searchController,
-    BuildContext context) {
+  NoteCubit noteCubit,
+  NoteState state,
+  TextEditingController _controller,
+  TextEditingController searchController,
+  BuildContext context,
+) {
   return AppBar(
-      title: Center(
-        child: Text(state.page!.title),
-      ),
-      actions: noteCubit.areAppBarActionsDisplayed()
-          ? <Widget>[
-              IconButton(
-                icon: const Icon(Icons.select_all),
-                onPressed: () => noteCubit.setAllNotesSelectedUnselected(true),
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              IconButton(
-                icon: const Icon(Icons.star),
-                onPressed: () => noteCubit.addNoteToFavorite(),
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => noteCubit.deleteFromNoteList(),
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: noteCubit.isEditIconEnable()
-                    ? () {
-                        _controller.text = noteCubit.editNote();
-                      }
-                    : null,
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              IconButton(
-                icon: const Icon(Icons.copy),
-                onPressed: () => noteCubit.copyDataToBuffer(),
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-            ]
-          : <Widget>[
-              noteCubit.getSerchBarDisplayedState()
-                  ? Row(
-                      children: [
-                        Container(
-                          width: 150.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: searchController,
-                            onChanged: (searchString) =>
-                                noteCubit.search(searchString),
-                            maxLines: 1,
-                            decoration: const InputDecoration(
-                              hintText: 'search..',
-                              fillColor: Colors.black12,
-                              filled: true,
-                            ),
+    title: Center(
+      child: Text(state.page!.title),
+    ),
+    actions: noteCubit.areAppBarActionsDisplayed()
+        ? <Widget>[
+            IconButton(
+              icon: const Icon(Icons.select_all),
+              onPressed: () => noteCubit.setAllNotesSelectedUnselected(true),
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+            IconButton(
+              icon: const Icon(Icons.star),
+              onPressed: () => noteCubit.addNoteToFavorite(),
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => noteCubit.deleteFromNoteList(),
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: noteCubit.isEditIconEnable()
+                  ? () {
+                      _controller.text = noteCubit.editNote();
+                    }
+                  : null,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+            IconButton(
+              icon: const Icon(Icons.copy),
+              onPressed: () => noteCubit.copyDataToBuffer(),
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+          ]
+        : <Widget>[
+            noteCubit.getSerchBarDisplayedState()
+                ? Row(
+                    children: [
+                      Container(
+                        width: 150.0,
+                        height: 40.0,
+                        child: TextField(
+                          controller: searchController,
+                          onChanged: (searchString) =>
+                              noteCubit.search(searchString),
+                          maxLines: 1,
+                          decoration: const InputDecoration(
+                            hintText: 'search..',
+                            fillColor: Colors.black12,
+                            filled: true,
                           ),
                         ),
-                        IconButton(
-                          onPressed: () =>
-                              noteCubit.showSerchBar(false, searchController),
-                          icon: const Icon(
-                            Icons.close,
-                            color: Colors.red,
-                          ),
+                      ),
+                      IconButton(
+                        onPressed: () =>
+                            noteCubit.showSerchBar(false, searchController),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.red,
                         ),
-                      ],
-                    )
-                  : IconButton(
-                      onPressed: () {
-                        noteCubit.showSerchBar(true, searchController);
-                      },
-                      icon: const Icon(Icons.search),
-                    )
-            ]);
+                      ),
+                    ],
+                  )
+                : IconButton(
+                    onPressed: () {
+                      noteCubit.showSerchBar(true, searchController);
+                    },
+                    icon: const Icon(Icons.search),
+                  ),
+          ],
+  );
 }
 
-Widget _body(BuildContext context, NoteState state, NoteCubit _noteCubit,
-    PageCubit pageCubit, TextEditingController _controller) {
+Widget _body(
+  BuildContext context,
+  NoteState state,
+  NoteCubit _noteCubit,
+  PageCubit pageCubit,
+  TextEditingController _controller,
+) {
   return SingleChildScrollView(
     child: ConstrainedBox(
       constraints:
@@ -145,7 +162,7 @@ Widget _body(BuildContext context, NoteState state, NoteCubit _noteCubit,
       child: Column(
         children: [
           Expanded(
-            flex: 13,
+            flex: 14,
             child: ListView.builder(
               shrinkWrap: true,
               itemCount: state.page!.notesList.length,
@@ -155,10 +172,15 @@ Widget _body(BuildContext context, NoteState state, NoteCubit _noteCubit,
             ),
           ),
           Expanded(
-            flex: 2,
-            child: NoteInput(
-              noteCubit: _noteCubit,
-              controller: _controller,
+            flex: 4,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                NoteInput(
+                  noteCubit: _noteCubit,
+                  controller: _controller,
+                ),
+              ],
             ),
           ),
         ],
@@ -210,7 +232,8 @@ Widget _listTile(
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width - 10.0),
+              maxWidth: MediaQuery.of(context).size.width - 10.0,
+            ),
             child: Card(
               color: state.page!.notesList[index].isSearched
                   ? Colors.green
@@ -243,11 +266,13 @@ Widget _listTile(
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(state.page!.notesList[index].data,
-                          style: TextStyle(
-                            fontSize: noteCubit.getTextSize(),
-                            color: Theme.of(context).colorScheme.secondary,
-                          )),
+                      Text(
+                        state.page!.notesList[index].data,
+                        style: TextStyle(
+                          fontSize: noteCubit.getTextSize(),
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
                       Text(
                         state.page!.notesList[index].tags!,
                         style: TextStyle(
@@ -283,8 +308,13 @@ Widget _listTile(
   );
 }
 
-void _onElementLongPress(BuildContext context, PageCubit pageCubit,
-    NoteState state, int index, NoteCubit noteCubit) {
+void _onElementLongPress(
+  BuildContext context,
+  PageCubit pageCubit,
+  NoteState state,
+  int index,
+  NoteCubit noteCubit,
+) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(

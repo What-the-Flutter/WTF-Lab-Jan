@@ -73,8 +73,11 @@ Row _noteIconMenue(NoteCubit noteCubit, BuildContext context) {
   );
 }
 
-Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller,
-    BuildContext context) {
+Row _textInputPanel(
+  NoteCubit noteCubit,
+  TextEditingController controller,
+  BuildContext context,
+) {
   return Row(
     children: [
       Expanded(
@@ -161,13 +164,14 @@ Row _textInputPanel(NoteCubit noteCubit, TextEditingController controller,
         ),
       ),
       Expanded(
-          flex: 1,
-          child: IconButton(
-              icon: Icon(
-                Icons.send,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              onPressed: () => noteCubit.addNoteToList(controller))),
+        flex: 1,
+        child: IconButton(
+            icon: Icon(
+              Icons.send,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            onPressed: () => noteCubit.addNoteToList(controller)),
+      ),
     ],
   );
 }

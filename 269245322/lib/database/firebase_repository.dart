@@ -13,14 +13,15 @@ class FireBasePageHelper extends IRepository<PageModel> {
 
   @override
   Future<List<PageModel>> getEntityList(int? pageId) async {
-    var fireBaseNoteHelper = FireBaseNoteHelper();
+    final fireBaseNoteHelper = FireBaseNoteHelper();
     final pageList = <PageModel>[];
     final pagesSnap = await _pagesRef.once();
-    for (var pageSnap in pagesSnap.snapshot.children) {
+    for (final pageSnap in pagesSnap.snapshot.children) {
       final dbValue = pageSnap.value as Map<dynamic, dynamic>;
       var page = PageModel.fromMapFireBase(dbValue);
       page = page.copyWith(
-          notesList: await fireBaseNoteHelper.getEntityList(page.id));
+        notesList: await fireBaseNoteHelper.getEntityList(page.id),
+      );
       pageList.add(page);
     }
     return pageList;
@@ -66,18 +67,7 @@ class FireBasePageHelper extends IRepository<PageModel> {
 
 class FireBaseNoteHelper extends IRepository<NoteModel> {
   final referenceDatabase = FirebaseDatabase.instance;
-
-  Future<int> getNumOfNotes(String dbPageTitle) async {
-    final ref = referenceDatabase.ref();
-    var snapShot = await ref
-        .child(firebaseMainTable)
-        .child(dbPageTitle)
-        .child('num_of_notes')
-        .get();
-    final value = snapShot.value as int;
-    final numOfPages = value;
-    return numOfPages;
-  }
+  final _pagesRef = FirebaseDatabase.instance.ref().child(firebaseMainTable);
 
   @override
   Future<List<NoteModel>> getEntityList(int? pageId) async {
@@ -88,12 +78,25 @@ class FireBaseNoteHelper extends IRepository<NoteModel> {
         .child(firebaseNotesTable);
     final notesList = <NoteModel>[];
     final notesSnap = await _notesRef.once();
-    for (var noteSnap in notesSnap.snapshot.children) {
+    for (final noteSnap in notesSnap.snapshot.children) {
       final dbValue = noteSnap.value as Map<dynamic, dynamic>;
-      var note = NoteModel.fromMapFireBase(dbValue);
+      final note = NoteModel.fromMapFireBase(dbValue);
       notesList.add(note);
     }
     return notesList;
+  }
+
+  Future<List<NoteModel>> getAllNotes() async {
+    final allNotesList = <NoteModel>[];
+    final pagesSnap = await _pagesRef.once();
+    for (final pageSnap in pagesSnap.snapshot.children) {
+      final dbValue = pageSnap.value as Map<dynamic, dynamic>;
+      var page = PageModel.fromMapFireBase(dbValue);
+      for (final note in await getEntityList(page.id)) {
+        allNotesList.add(note);
+      }
+    }
+    return allNotesList;
   }
 
   @override

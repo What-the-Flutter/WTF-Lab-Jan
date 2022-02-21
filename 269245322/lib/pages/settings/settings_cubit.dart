@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_share/flutter_share.dart';
 
 import '../../shared_preferences/sp_settings_helper.dart';
 import '../../style/app_themes.dart';
@@ -8,48 +7,52 @@ import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit()
-      : super(SettingsState(
-          textSize: 0,
-          aligment: 0,
-          theme: 0,
-          database: 0,
-        ));
+      : super(
+          SettingsState(
+            textSize: 0,
+            aligment: 0,
+            theme: 0,
+            database: 0,
+          ),
+        );
 
   final SharedPreferencesProvider _sharedPreferencesProvider =
       SharedPreferencesProvider();
 
   void initState() {
-    final initTextSize = SharedPreferencesProvider.getTextSize();
-    final initAligment = SharedPreferencesProvider.getALigment();
-    final initTheme = SharedPreferencesProvider.getTheme();
-    final initDatabase = SharedPreferencesProvider.getDatabase();
+    final initTextSize = _sharedPreferencesProvider.getTextSize();
+    final initAligment = _sharedPreferencesProvider.getALigment();
+    final initTheme = _sharedPreferencesProvider.getTheme();
+    final initDatabase = _sharedPreferencesProvider.getDatabase();
 
-    emit(state.copyWith(
-      textSize: initTextSize,
-      aligment: initAligment,
-      theme: initTheme,
-      database: initDatabase,
-    ));
+    emit(
+      state.copyWith(
+        textSize: initTextSize,
+        aligment: initAligment,
+        theme: initTheme,
+        database: initDatabase,
+      ),
+    );
   }
 
   void changeTextSize(int appTextSize) {
     final newTextSize = appTextSize;
 
-    SharedPreferencesProvider.changeTextSize(newTextSize);
+    _sharedPreferencesProvider.changeTextSize(newTextSize);
     emit(state.copyWith(textSize: newTextSize));
   }
 
   void changeAligment(int appAligment) {
     final newAligment = appAligment;
 
-    SharedPreferencesProvider.changeALigment(newAligment);
+    _sharedPreferencesProvider.changeALigment(newAligment);
     emit(state.copyWith(aligment: newAligment));
   }
 
   void changeTheme(int appTheme, ThemeCubit themeCubit) {
     final newTheme = appTheme;
 
-    SharedPreferencesProvider.changeTheme(newTheme);
+    _sharedPreferencesProvider.changeTheme(newTheme);
     emit(state.copyWith(theme: newTheme));
     appTheme == 0
         ? themeCubit.changeTheme(appThemeData[AppTheme.blueLight]!)
@@ -59,20 +62,12 @@ class SettingsCubit extends Cubit<SettingsState> {
   void changeDatabase(int appDatabase) {
     final newDatabase = appDatabase;
 
-    SharedPreferencesProvider.changeDatabase(newDatabase);
+    _sharedPreferencesProvider.changeDatabase(newDatabase);
     emit(state.copyWith(database: newDatabase));
   }
 
   void resetSettings(ThemeCubit themeCubit) {
-    SharedPreferencesProvider.resetSettings();
+    _sharedPreferencesProvider.resetSettings();
     changeTheme(0, themeCubit);
-  }
-
-  Future<void> share() async {
-    await FlutterShare.share(
-        title: 'Example share',
-        text: 'Example share text',
-        linkUrl: 'https://flutter.dev/',
-        chooserTitle: 'Example Chooser Title');
   }
 }

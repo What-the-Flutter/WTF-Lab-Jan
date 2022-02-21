@@ -10,8 +10,11 @@ import '../../shared_preferences/sp_settings_helper.dart';
 import 'page_state.dart';
 
 class PageCubit extends Cubit<PageState> {
-  IRepository<PageModel> dbPageHelper =
-      (SharedPreferencesProvider.getDatabase() == 0)
+  final SharedPreferencesProvider _sharedPreferencesProvider =
+      SharedPreferencesProvider();
+
+  late final IRepository<PageModel> dbPageHelper =
+      (_sharedPreferencesProvider.getDatabase() == 0)
           ? FireBasePageHelper()
           : SqlitePageRepository();
 
@@ -56,8 +59,7 @@ class PageCubit extends Cubit<PageState> {
   }
 
   int createId() {
-    var id = int.parse(DateTime.now().toString().substring(20, 26));
-    print(id);
+    final id = int.parse(DateTime.now().toString().substring(20, 26));
     return id;
   }
 
@@ -74,10 +76,12 @@ class PageCubit extends Cubit<PageState> {
     );
 
     newListOfPages.add(newPage);
-    emit(state.copyWith(
-      listOfPages: newListOfPages,
-      selectedIcon: 0,
-    ));
+    emit(
+      state.copyWith(
+        listOfPages: newListOfPages,
+        selectedIcon: 0,
+      ),
+    );
     dbPageHelper.insert(newPage, null);
   }
 
@@ -90,11 +94,13 @@ class PageCubit extends Cubit<PageState> {
     newListOfPages.remove(state.pageToEdit!);
     newListOfPages.add(editedPage);
     dbPageHelper.update(editedPage, null);
-    emit(state.copyWith(
-      listOfPages: newListOfPages,
-      pageToEdit: null,
-      selectedIcon: 0,
-    ));
+    emit(
+      state.copyWith(
+        listOfPages: newListOfPages,
+        pageToEdit: null,
+        selectedIcon: 0,
+      ),
+    );
   }
 
   void moveNoteTo(PageModel pageTo, NoteModel note) {

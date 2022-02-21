@@ -74,7 +74,7 @@ class SqlitePageRepository extends IRepository<PageModel> {
   @override
   void delete(PageModel entity, int? pageId) async {
     final db = await database;
-    var sqliteNoteRepository = SqliteNoteRepository();
+    final sqliteNoteRepository = SqliteNoteRepository();
     db.delete(
       tablePages,
       where: '$columnPageId = ?',
@@ -88,7 +88,7 @@ class SqlitePageRepository extends IRepository<PageModel> {
     final db = await database;
     final pagesList = <PageModel>[];
     final dbPagesList = await db.query(tablePages);
-    var sqliteNoteRepository = SqliteNoteRepository();
+    final sqliteNoteRepository = SqliteNoteRepository();
     for (final dbPage in dbPagesList) {
       var page = PageModel.fromMap(dbPage);
       page = page.copyWith(
@@ -190,7 +190,7 @@ class SqliteNoteRepository extends IRepository<NoteModel> {
   Future<List<NoteModel>> getEntityList(int? pageId) async {
     final db = await database;
     final notesList = <NoteModel>[];
-    var dbNotesList = await db.rawQuery(
+    final dbNotesList = await db.rawQuery(
       'SELECT * FROM $tableNotes WHERE $columnPageId = ?',
       [pageId],
     );

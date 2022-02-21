@@ -1,15 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_lab_project/services/entity_repository.dart';
-import 'package:my_lab_project/shared_preferences/sp_settings_helper.dart';
+
 import '../../database/firebase_repository.dart';
 import '../../database/sqlite_repository.dart';
-
 import '../../models/page_model.dart';
+import '../../services/entity_repository.dart';
+import '../../shared_preferences/sp_settings_helper.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  IRepository<PageModel> dbPageHelper =
-      (SharedPreferencesProvider.getDatabase() == 0)
+  final SharedPreferencesProvider _sharedPreferencesProvider =
+      SharedPreferencesProvider();
+
+  late final IRepository<PageModel> dbPageHelper =
+      (_sharedPreferencesProvider.getDatabase() == 0)
           ? FireBasePageHelper()
           : SqlitePageRepository();
 
@@ -22,7 +25,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void deletePage(int index, PageModel page) {
-    var newListOfPages = state.listOfPages!;
+    final newListOfPages = state.listOfPages!;
     newListOfPages.removeAt(index);
     emit(state.copyWith(listOfPages: newListOfPages));
 
