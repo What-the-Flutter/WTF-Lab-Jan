@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../main.dart';
-import 'page_qubit.dart';
+import 'page_cubit.dart';
 import 'page_state.dart';
 
 class PageConstructor extends StatefulWidget {
@@ -38,27 +38,27 @@ class _PageConstructorState extends State<PageConstructor> {
       bloc: widget.pageCubit,
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(),
+          appBar: AppBar(
+            title: const Text('New page..'),
+          ),
           body: _body(_controller, widget.pageCubit, state, context),
+          backgroundColor: Theme.of(context).backgroundColor,
         );
       },
     );
   }
 }
 
-Padding _body(TextEditingController _controller, PageCubit pageCubit,
-    PageState state, BuildContext context) {
+Padding _body(
+  TextEditingController _controller,
+  PageCubit pageCubit,
+  PageState state,
+  BuildContext context,
+) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
     child: Column(
       children: [
-        const Text(
-          'Create a new page',
-          style: TextStyle(
-            fontSize: 30.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         Container(
           padding: const EdgeInsets.all(5.0),
           child: TextField(
@@ -77,7 +77,7 @@ Padding _body(TextEditingController _controller, PageCubit pageCubit,
         ),
         const Divider(
           height: 50.0,
-          thickness: 2.0,
+          thickness: 1.0,
           indent: 10.0,
           endIndent: 10.0,
         ),
@@ -100,7 +100,7 @@ Padding _body(TextEditingController _controller, PageCubit pageCubit,
                   children: [
                     CircleAvatar(
                       radius: 25,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Theme.of(context).iconTheme.color,
                       key: UniqueKey(),
                       child: Icon(
                         pageIcons[index],
@@ -109,7 +109,7 @@ Padding _body(TextEditingController _controller, PageCubit pageCubit,
                       ),
                     ),
                     Positioned(
-                      top: 35.0,
+                      top: 30.0,
                       left: 30.0,
                       child: Radio<int>(
                         value: index,
@@ -117,6 +117,7 @@ Padding _body(TextEditingController _controller, PageCubit pageCubit,
                         onChanged: (value) {
                           pageCubit.setNewSelectesIconValue(value!);
                         },
+                        activeColor: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],
@@ -127,7 +128,7 @@ Padding _body(TextEditingController _controller, PageCubit pageCubit,
         ),
         Container(
           alignment: Alignment.centerRight,
-          child: TextButton(
+          child: ElevatedButton(
             onPressed: () {
               state.createNewPageChecker!
                   ? pageCubit.addNewPage(_controller.text)
@@ -136,6 +137,9 @@ Padding _body(TextEditingController _controller, PageCubit pageCubit,
               Navigator.pop(context);
             },
             child: Text(state.createNewPageChecker! ? 'create' : 'edit'),
+            style: ElevatedButton.styleFrom(
+              primary: Theme.of(context).primaryColor,
+            ),
           ),
         ),
       ],

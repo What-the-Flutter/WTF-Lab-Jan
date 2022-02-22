@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 class ThemeState {
-  late final ThemeData? theme;
+  final ThemeData? themeData;
 
   ThemeState({
-    this.theme,
+    this.themeData,
   });
 
   ThemeState copyWith({
-    final ThemeData? theme,
+    final ThemeData? themeData,
   }) {
     return ThemeState(
-      theme: theme ?? this.theme,
+      themeData: themeData ?? this.themeData,
     );
   }
 }

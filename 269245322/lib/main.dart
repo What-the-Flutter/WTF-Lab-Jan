@@ -1,22 +1,34 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'database/note_db_helper.dart';
+import 'database/sqlite_repository.dart';
 import 'models/note_icon_menu_model.dart';
 import 'my_app.dart';
 import 'shared_preferences/sp_settings_helper.dart';
-import 'style/custom_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferencesProvider.initialize();
-  await DBHelper.initialize();
-  await Firebase.initializeApp();
+  try {
+    await SharedPreferencesProvider.initialize();
+  } on Exception catch (e) {
+    print(e.toString());
+  }
+
+  try {
+    await SqlitePageRepository.initialize();
+    await SqliteNoteRepository.initialize();
+  } on Exception catch (e) {
+    print(e.toString());
+  }
+
+  try {
+    await Firebase.initializeApp();
+  } on FirebaseException catch (e) {
+    print(e.toString());
+  }
+
   runApp(
-    CustomTheme(
-      key: UniqueKey(),
-      child: MyApp(),
-    ),
+    MyApp(),
   );
 }
 

@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../database/firebase_db_helper.dart';
-import '../../database/note_db_helper.dart';
-import '../../models/note_model.dart';
 
+import '../../database/firebase_repository.dart';
+import '../../database/sqlite_repository.dart';
+import '../../models/note_model.dart';
 import '../../models/page_model.dart';
+import '../../services/entity_repository.dart';
+import '../../shared_preferences/sp_settings_helper.dart';
 import 'page_state.dart';
 
 class PageCubit extends Cubit<PageState> {
-  final DBHelper _dbHelper = DBHelper();
-  final FireBaseHelper _fireBaseHelper = FireBaseHelper();
+  final SharedPreferencesProvider _sharedPreferencesProvider =
+      SharedPreferencesProvider();
+
+  late final IRepository<PageModel> dbPageHelper =
+      (_sharedPreferencesProvider.getDatabase() == 0)
+          ? FireBasePageHelper()
+          : SqlitePageRepository();
 
   PageCubit()
       : super(const PageState(
@@ -21,7 +28,7 @@ class PageCubit extends Cubit<PageState> {
 
   void init() async {
     emit(
-      state.copyWith(listOfPages: await _fireBaseHelper.dbPagesList()),
+      state.copyWith(listOfPages: await dbPageHelper.getEntityList(null)),
     );
     emit(
       state.copyWith(pageSelectedtoMove: state.listOfPages!.first),
@@ -51,9 +58,15 @@ class PageCubit extends Cubit<PageState> {
     emit(state.copyWith(selectedIcon: newSelectedIcon));
   }
 
+  int createId() {
+    final id = int.parse(DateTime.now().toString().substring(20, 26));
+    return id;
+  }
+
   void addNewPage(String textInpuyControllerText) async {
     final newListOfPages = state.listOfPages!;
     final newPage = PageModel(
+      id: createId(),
       title: textInpuyControllerText,
       icon: state.selectedIcon,
       cretionDate: DateTime.now().toString(),
@@ -63,12 +76,13 @@ class PageCubit extends Cubit<PageState> {
     );
 
     newListOfPages.add(newPage);
-    emit(state.copyWith(
-      listOfPages: newListOfPages,
-      selectedIcon: 0,
-    ));
-    //_dbHelper.insertPage(newPage);
-    _fireBaseHelper.insertPage(newPage);
+    emit(
+      state.copyWith(
+        listOfPages: newListOfPages,
+        selectedIcon: 0,
+      ),
+    );
+    dbPageHelper.insert(newPage, null);
   }
 
   void editExistingPage(TextEditingController textInpuyControllerText) {
@@ -79,12 +93,14 @@ class PageCubit extends Cubit<PageState> {
         title: textInpuyControllerText.text, icon: state.selectedIcon);
     newListOfPages.remove(state.pageToEdit!);
     newListOfPages.add(editedPage);
-    _dbHelper.updatePage(editedPage, state.pageToEdit!.title);
-    emit(state.copyWith(
-      listOfPages: newListOfPages,
-      pageToEdit: null,
-      selectedIcon: 0,
-    ));
+    dbPageHelper.update(editedPage, null);
+    emit(
+      state.copyWith(
+        listOfPages: newListOfPages,
+        pageToEdit: null,
+        selectedIcon: 0,
+      ),
+    );
   }
 
   void moveNoteTo(PageModel pageTo, NoteModel note) {

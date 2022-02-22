@@ -5,25 +5,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
-import '../../database/firebase_db_helper.dart';
 
+import '../../database/firebase_repository.dart';
+import '../../database/sqlite_repository.dart';
 import '../../models/note_model.dart';
 import '../../models/page_model.dart';
+import '../../services/entity_repository.dart';
+import '../../services/firebase_file_service.dart';
+import '../../shared_preferences/sp_settings_helper.dart';
 import 'note_state.dart';
 
 class NoteCubit extends Cubit<NoteState> {
-  //final DBHelper _dbHelper = DBHelper();
-  final FireBaseHelper _fireBaseHelper = FireBaseHelper();
+  final SharedPreferencesProvider _sharedPreferencesProvider =
+      SharedPreferencesProvider();
+
+  late final IRepository<PageModel> dbPageHelper;
+
+  late final IRepository<NoteModel> dbNoteHelper;
 
   NoteCubit()
-      : super(const NoteState(
-          isUserEditingeNote: false,
-          selcetedNotes: [],
-          showNoteIconMenue: false,
-          isSerchBarDisplayed: false,
-        ));
+      : super(
+          const NoteState(
+            isUserEditingeNote: false,
+            selcetedNotes: [],
+            showNoteIconMenue: false,
+            isSerchBarDisplayed: false,
+          ),
+        );
 
   void initPage(PageModel page) {
+    dbPageHelper = (_sharedPreferencesProvider.getDatabase() == 0)
+        ? FireBasePageHelper()
+        : SqlitePageRepository();
+
+    dbNoteHelper = (_sharedPreferencesProvider.getDatabase() == 0)
+        ? FireBaseNoteHelper()
+        : SqliteNoteRepository();
+
     emit(
       state.copyWith(
         notesList: page.notesList,
@@ -53,9 +71,25 @@ class NoteCubit extends Cubit<NoteState> {
     return functionResult;
   }
 
+  void showSerchBar(bool dispalayed, TextEditingController searhController) {
+    bool newIsSerchBarDisplayed;
+
+    if (dispalayed) {
+      newIsSerchBarDisplayed = true;
+    } else {
+      newIsSerchBarDisplayed = false;
+      searhController.text = '';
+    }
+    emit(state.copyWith(isSerchBarDisplayed: newIsSerchBarDisplayed));
+  }
+
+  bool getSerchBarDisplayedState() {
+    return state.isSerchBarDisplayed;
+  }
+
   void copyDataToBuffer() {
     var bufferData = '';
-    for (var currentNote in state.selcetedNotes!) {
+    for (final currentNote in state.selcetedNotes!) {
       bufferData += '${currentNote.data} ';
     }
     Clipboard.setData(ClipboardData(text: bufferData));
@@ -66,7 +100,7 @@ class NoteCubit extends Cubit<NoteState> {
     final newNoteList = state.page!.notesList;
     NoteModel newNote;
     if (searchString != '') {
-      for (var note in newNoteList) {
+      for (final note in newNoteList) {
         if (note.data.contains(searchString)) {
           newNote = note.copyWith(isSearched: true);
         } else {
@@ -76,7 +110,7 @@ class NoteCubit extends Cubit<NoteState> {
         emit(state.copyWith(notesList: newNoteList));
       }
     } else {
-      for (var note in newNoteList) {
+      for (final note in newNoteList) {
         newNote = note.copyWith(isSearched: false);
         newNoteList[newNoteList.indexOf(note)] = newNote;
       }
@@ -85,31 +119,40 @@ class NoteCubit extends Cubit<NoteState> {
     }
   }
 
-  void addNoteToList(TextEditingController controller) {
+  int createId() {
+    final id = int.parse(DateTime.now().toString().substring(20, 26));
+    print(id);
+    return id;
+  }
+
+  void addNoteToList(TextEditingController controller) async {
     final noteInput = controller.text;
-    final headingText = '${state.page!.title} ${state.page!.numOfNotes}';
+    final headingText = '${state.page!.title}';
     var noteCounter = 0;
+    final noteURL = await uploadFile(headingText);
+    final noteTags = _getStringOfTagsFromStringInput(noteInput);
 
     final newNote = NoteModel(
+      id: createId(),
       heading: headingText,
       data: noteInput,
       icon: state.noteIcon!,
       isSearched: false,
       isFavorite: false,
       isChecked: false,
+      downloadURL: noteURL,
+      tags: noteTags,
     );
 
     var newNoteList = state.notesList!;
     if (state.isUserEditingeNote) {
       final editableNote = state.selcetedNotes!.first;
       //findig user's selected note in the note list and changing it's data with new value
-      for (var note in newNoteList) {
+      for (final note in newNoteList) {
         if (note.heading == editableNote.heading) {
           newNoteList[noteCounter] =
               note.copyWith(data: controller.text, isChecked: false);
-          //_dbHelper.editNote(newNoteList[noteCounter], state.page!.title);
-          _fireBaseHelper.editNote(newNoteList[noteCounter], state.page!.title,
-              state.page!.dbTitle!);
+          dbNoteHelper.update(newNoteList[noteCounter], state.page!.id);
         }
         noteCounter++;
       }
@@ -117,11 +160,9 @@ class NoteCubit extends Cubit<NoteState> {
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes + 1);
       emit(state.copyWith(page: newPage));
-      //_dbHelper.updatePage(newPage, newPage.title);
-      _fireBaseHelper.editPage(newPage);
+      dbPageHelper.update(newPage, null);
       newNoteList.add(newNote);
-      //_dbHelper.insertNote(newNote, newPage.title);
-      _fireBaseHelper.insertNote(newNote, newPage.title, newPage.dbTitle!);
+      dbNoteHelper.insert(newNote, newPage.id);
       uploadFile(newNote.heading);
     }
     emit(state.copyWith(notesList: newNoteList));
@@ -147,7 +188,7 @@ class NoteCubit extends Cubit<NoteState> {
 
   void addNoteToSelectedNotesList(int index) {
     var newSelectedList = <NoteModel>[];
-    for (var note in state.selcetedNotes!) {
+    for (final note in state.selcetedNotes!) {
       newSelectedList.add(note);
     }
     setSelectesCheckBoxState(true, index);
@@ -157,13 +198,13 @@ class NoteCubit extends Cubit<NoteState> {
 
   void removeNoteFromSelectedNotesList(int index) {
     var newSelectedList = <NoteModel>[];
-    for (var note in state.selcetedNotes!) {
+    for (final note in state.selcetedNotes!) {
       newSelectedList.add(note);
     }
 
     if (newSelectedList.isNotEmpty) {
-      var noteToDelete = state.page!.notesList[index];
-      for (var note in state.selcetedNotes!) {
+      final noteToDelete = state.page!.notesList[index];
+      for (final note in state.selcetedNotes!) {
         if (note.heading == noteToDelete.heading) {
           newSelectedList.remove(note);
         }
@@ -188,15 +229,13 @@ class NoteCubit extends Cubit<NoteState> {
 
   void deleteFromNoteList() {
     final newNoteList = state.notesList!;
-    for (var currentNote in state.selcetedNotes!) {
+    for (final currentNote in state.selcetedNotes!) {
       newNoteList.remove(currentNote);
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes - 1);
       emit(state.copyWith(page: newPage));
-      //_dbHelper.updatePage(newPage, newPage.title);
-      _fireBaseHelper.editPage(newPage);
-      //_dbHelper.deleteNote(currentNote);
-      _fireBaseHelper.deleteNote(state.page!.dbTitle!, currentNote.heading);
+      dbPageHelper.update(newPage, null);
+      dbNoteHelper.delete(currentNote, newPage.id);
     }
 
     emit(state.copyWith(notesList: newNoteList));
@@ -205,19 +244,17 @@ class NoteCubit extends Cubit<NoteState> {
 
   void addNoteToFavorite() {
     final newNoreList = state.notesList!;
-    for (var currentNote in state.selcetedNotes!) {
+    for (final currentNote in state.selcetedNotes!) {
       if (currentNote.isFavorite == true) {
-        var newNote = currentNote.copyWith(isFavorite: false, isChecked: false);
+        final newNote =
+            currentNote.copyWith(isFavorite: false, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
-        //_dbHelper.editNote(newNote, state.page!.title);
-        _fireBaseHelper.editNote(
-            newNote, state.page!.title, state.page!.dbTitle!);
+        dbNoteHelper.update(newNote, state.page!.id);
       } else {
-        var newNote = currentNote.copyWith(isFavorite: true, isChecked: false);
+        final newNote =
+            currentNote.copyWith(isFavorite: true, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
-        //_dbHelper.editNote(newNote, state.page!.title);
-        _fireBaseHelper.editNote(
-            newNote, state.page!.title, state.page!.dbTitle!);
+        dbNoteHelper.update(newNote, state.page!.id);
       }
     }
     emit(state.copyWith(notesList: newNoreList));
@@ -244,22 +281,6 @@ class NoteCubit extends Cubit<NoteState> {
     return state.showNoteIconMenue;
   }
 
-  void showSerchBar(bool dispalayed, TextEditingController searhController) {
-    bool newIsSerchBarDisplayed;
-
-    if (dispalayed) {
-      newIsSerchBarDisplayed = true;
-    } else {
-      newIsSerchBarDisplayed = false;
-      searhController.text = '';
-    }
-    emit(state.copyWith(isSerchBarDisplayed: newIsSerchBarDisplayed));
-  }
-
-  bool getSerchBarDisplayedState() {
-    return state.isSerchBarDisplayed;
-  }
-
   Future selectFile() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: false);
     if (result == null) return;
@@ -268,12 +289,50 @@ class NoteCubit extends Cubit<NoteState> {
     emit(state.copyWith(file: File(path)));
   }
 
-  Future uploadFile(String heading) async {
-    if (state.file == null) return;
+  Future<String> uploadFile(String heading) async {
+    if (state.file == null) return '';
 
     final fileName = basename(state.file!.path);
     final destination = '$heading/$fileName';
 
-    _fireBaseHelper.uploadFile(destination, state.file!);
+    final fileService = FileService();
+    final task = await fileService.uploadFile(destination, state.file!);
+
+    if (task == null) return '';
+    final snapShot = await task.whenComplete(() {});
+    final downloadURL = await snapShot.ref.getDownloadURL();
+    return downloadURL;
+  }
+
+  String _getStringOfTagsFromStringInput(String inputStr) {
+    var tagsString = '';
+    var numOfTags = 0;
+
+    for (var i = 0; i < inputStr.length; i++) {
+      if (inputStr[i] == '#') numOfTags++;
+    }
+    var listOfTags = <String>[];
+    final listOfWords = inputStr.split(' ');
+    for (final word in listOfWords) {
+      if (word.contains('#')) listOfTags.add(word);
+    }
+    for (final tag in listOfTags) {
+      tagsString += tag;
+    }
+    if (numOfTags != listOfTags.length) tagsString = '';
+    return tagsString;
+  }
+
+  double getTextSize() {
+    var textSize = 10.0;
+    final factor = (_sharedPreferencesProvider.getTextSize() + 1) * 5;
+    textSize = textSize + factor;
+    return textSize;
+  }
+
+  bool isCenterAlignent() {
+    final centerAligment =
+        (_sharedPreferencesProvider.getALigment() == 0) ? false : true;
+    return centerAligment;
   }
 }

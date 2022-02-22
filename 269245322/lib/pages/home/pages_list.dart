@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../main.dart';
 import '../../models/page_model.dart';
 import '../page/custom_page.dart';
+import '../page_constructor/page_constructor.dart';
+import '../page_constructor/page_cubit.dart';
 import 'home_cubit.dart';
 import 'home_state.dart';
-import 'page_constructor.dart';
-import 'page_qubit.dart';
 
 class PageList extends StatefulWidget {
   final PageCubit pageCubit;
@@ -41,14 +41,25 @@ class _PageListState extends State<PageList> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 1.0, horizontal: 4.0),
                     child: ListTile(
+                      tileColor: Theme.of(context).backgroundColor,
                       key: ValueKey(state.listOfPages![index].cretionDate),
                       leading: Icon(
                         pageIcons[state.listOfPages![index].icon],
+                        color: Theme.of(context).iconTheme.color,
                       ),
-                      title: Text(state.listOfPages![index].title),
-                      subtitle: Text(state.listOfPages![index].notesList.isEmpty
-                          ? 'create your first note'
-                          : state.listOfPages![index].notesList.last.data),
+                      title: Text(
+                        state.listOfPages![index].title,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primaryVariant,
+                        ),
+                      ),
+                      subtitle: Text(
+                        state.listOfPages![index].notesList.isEmpty
+                            ? 'create your first note'
+                            : state.listOfPages![index].notesList.last.data,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary),
+                      ),
                       onTap: () async {
                         widget.pageCubit
                             .setCurrentPage(state.listOfPages![index]);
@@ -83,78 +94,98 @@ class _PageListState extends State<PageList> {
   }
 }
 
-void _onElementLongPress(BuildContext context, PageCubit pageCubit,
-    List<PageModel> listOfPages, int index, HomeCubit homeCubit) {
+void _onElementLongPress(
+  BuildContext context,
+  PageCubit pageCubit,
+  List<PageModel> listOfPages,
+  int index,
+  HomeCubit homeCubit,
+) {
   showModalBottomSheet<void>(
     context: context,
     builder: (context) {
-      return Container(
-        height: 200,
-        color: Theme.of(context).primaryColor,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-                showDialog<String>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Page info'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text('Created: ${listOfPages[index].getCretionDate}'),
-                        Text(
-                            'Last event: ${listOfPages[index].getlastModifedDate}'),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Close'),
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          TextButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              showDialog<String>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Page info'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        'Created: ${listOfPages[index].getCretionDate}',
+                      ),
+                      Text(
+                        'Last event: ${listOfPages[index].getlastModifedDate}',
                       ),
                     ],
-                    elevation: 1.0,
-                    backgroundColor: Theme.of(context).primaryColor,
                   ),
-                );
-              },
-              icon: const Icon(Icons.info),
-              label: Text(
-                'Show page info',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColorLight,
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                  elevation: 1.0,
                 ),
+              );
+            },
+            icon: Icon(
+              Icons.info,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            label: Text(
+              'Show page info',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            TextButton.icon(
-              onPressed: () async {
-                pageCubit.setPageToEdit(listOfPages[index]);
-                pageCubit.setNewCreateNewPageChecker(false);
-                await Navigator.pushNamed(
-                  context,
-                  PageConstructor.routeName,
-                  arguments: pageCubit,
-                );
-                // setState(() {
-                //   Navigator.pop(context);
-                // });
-              },
-              icon: const Icon(Icons.edit),
-              label: const Text('Edit page'),
+          ),
+          TextButton.icon(
+            onPressed: () async {
+              pageCubit.setPageToEdit(listOfPages[index]);
+              pageCubit.setNewCreateNewPageChecker(false);
+              await Navigator.pushNamed(
+                context,
+                PageConstructor.routeName,
+                arguments: pageCubit,
+              );
+            },
+            icon: Icon(
+              Icons.edit,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
-            TextButton.icon(
-              onPressed: () {
-                homeCubit.deletePage(index, listOfPages[index]);
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.delete),
-              label: const Text('Delete page'),
+            label: Text(
+              'Edit page',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
-          ],
-        ),
+          ),
+          TextButton.icon(
+            onPressed: () {
+              homeCubit.deletePage(index, listOfPages[index]);
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.delete,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            label: Text(
+              'Delete page',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ],
       );
     },
   );

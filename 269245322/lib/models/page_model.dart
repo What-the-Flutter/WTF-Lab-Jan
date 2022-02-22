@@ -1,30 +1,30 @@
 import 'note_model.dart';
 
 class PageModel {
+  final int id;
   final String title;
-  final String? dbTitle;
   final int icon;
-  late final int numOfNotes;
-  late final List<NoteModel> notesList;
+  final int numOfNotes;
+  final List<NoteModel> notesList;
 
   final String cretionDate;
   String get getCretionDate => cretionDate;
-  late final String lastModifedDate;
+  final String lastModifedDate;
   String get getlastModifedDate => lastModifedDate;
 
   PageModel({
+    required this.id,
     required this.title,
     required this.icon,
     required this.cretionDate,
     required this.notesList,
     required this.numOfNotes,
     required this.lastModifedDate,
-    this.dbTitle,
   });
 
   PageModel copyWith({
+    int? id,
     String? title,
-    String? dbTitle,
     int? icon,
     int? numOfNotes,
     String? lastModifedDate,
@@ -32,18 +32,19 @@ class PageModel {
     List<NoteModel>? notesList,
   }) {
     return PageModel(
+      id: id ?? this.id,
       title: title ?? this.title,
       icon: icon ?? this.icon,
       numOfNotes: numOfNotes ?? this.numOfNotes,
       lastModifedDate: lastModifedDate ?? this.lastModifedDate,
       notesList: notesList ?? this.notesList,
       cretionDate: cretionDate ?? this.cretionDate,
-      dbTitle: this.dbTitle,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'page_id': id,
       'title': title,
       'icon': icon,
       'num_of_notes': numOfNotes,
@@ -54,6 +55,7 @@ class PageModel {
 
   factory PageModel.fromMap(Map<String, dynamic> map) {
     return PageModel(
+      id: map['page_id'],
       title: map['title'] ?? ' ',
       icon: map['icon'] ?? 0,
       numOfNotes: map['num_of_notes'] ?? 0,
@@ -63,11 +65,10 @@ class PageModel {
     );
   }
 
-  factory PageModel.fromMapFireBase(
-      Map<dynamic, dynamic> map, String dbPageNum) {
+  factory PageModel.fromMapFireBase(Map<dynamic, dynamic> map) {
     return PageModel(
+      id: map['id'],
       title: map['title'] ?? ' ',
-      dbTitle: dbPageNum,
       icon: map['icon'] ?? 0,
       numOfNotes: map['num_of_notes'] ?? 0,
       notesList: [],
