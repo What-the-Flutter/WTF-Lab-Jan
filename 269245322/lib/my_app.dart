@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_lab_project/pages/bookmarks.dart/bookmarks.dart';
+import 'pages/bookmarks.dart/bookmarks.dart';
+import 'pages/bookmarks.dart/filter_settings_page.dart';
 
 import 'pages/home/home.dart';
 import 'pages/page/custom_page.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         SettingsPage.routeName: (context) =>
             SettingsPage(themeCubit: _themeCubit),
         BookmarksPage.routeName: (context) => BookmarksPage(),
+        FilterSettingsPage.routeName: (context) => FilterSettingsPage(),
       },
       theme: state.themeData,
     );

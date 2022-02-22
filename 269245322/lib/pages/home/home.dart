@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_lab_project/pages/bookmarks.dart/bookmarks.dart';
 
 import '../../services/firebase_auth_service.dart';
 import '../../style/theme_cubit.dart';
+import '../bookmarks.dart/bookmarks.dart';
 import '../page_constructor/page_constructor.dart';
 import '../page_constructor/page_cubit.dart';
 import '../page_constructor/page_state.dart';
