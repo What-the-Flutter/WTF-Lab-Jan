@@ -1,34 +1,31 @@
-import 'dart:io';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:linkfy_text/linkfy_text.dart';
 
-import '/data/services/firebase_api.dart';
+import '/data/services/auth.dart';
 import '/icons.dart';
 import '/models/chat_model.dart';
+import '/screens/main_screen/main_screen_cubit.dart';
+import '../add_new_chat/add_new_chat.dart';
 import '../settings/settings_cubit.dart';
 import 'chat_screen_cubit.dart';
 
 class ChatScreen extends StatefulWidget {
-  ChatScreen({Key? key}) : super(key: key);
-
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final _controller = TextEditingController();
-  final _searchController = TextEditingController();
-
-  late final Chat selectedChat =
-      ModalRoute.of(context)?.settings.arguments as Chat;
+  final _auth = AuthService.instance;
+  final _chatRef = FirebaseDatabase.instance.ref().child('Chats/');
 
   @override
-  void didChangeDependencies() {
-    BlocProvider.of<ChatScreenCubit>(context).initCubit(selectedChat.id);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    _auth.signInAnon();
+    BlocProvider.of<SettingsCubit>(context).initSettings();
+    BlocProvider.of<ChatScreenCubit>(context).initCubit(_chatRef);
   }
 
   @override
@@ -36,754 +33,435 @@ class _ChatScreenState extends State<ChatScreen> {
     return BlocBuilder<ChatScreenCubit, ChatScreenState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: _customAppBar(state),
-          body: BlocProvider.of<SettingsCubit>(context)
-                      .state
-                      .backgroundImagePath ==
-                  ''
-              ? _body(state)
-              : _backgroundImageBody(state),
+          drawer: _drawer(BlocProvider.of<SettingsCubit>(context).state),
+          appBar: _customAppBar(),
+          body: _customListView(state),
+          floatingActionButton: _customFloatingActionButton(),
+          bottomNavigationBar: _customBottomNavigationBar(),
         );
       },
     );
   }
 
-  Widget _body(ChatScreenState state) {
-    return Column(
-      children: [
-        state.eventList.isEmpty && !state.isShowFavorites
-            ? !state.isSearching
-                ? _emptyListOfMessagess(
-                    'Add your first event to "${selectedChat.elementName}"'
-                    ' page by entering some text box below and hitting the send button.'
-                    'Long tap the send button to align the event in the opposite direction. '
-                    'Tap on the bookmark icon on the top right corner to show the bookmarked events only',
-                    state,
-                  )
-                : _emptyListOfSearchingMessages()
-            : _listOfMessagess(state),
-        state.isSearching ? Container() : _bottomRow(state)
-      ],
+  Widget _customFloatingActionButton() {
+    return FloatingActionButton(
+      onPressed: () async {
+        await Navigator.pushNamed(context, '/add_chat');
+        BlocProvider.of<ChatScreenCubit>(context).showChats();
+      },
+      tooltip: 'New Page',
+      child: const Icon(Icons.add),
+      splashColor: Colors.transparent,
     );
   }
 
-  Widget _backgroundImageBody(ChatScreenState state) {
-    return Stack(
-      children: [
-        Image.file(
-          File(
-            BlocProvider.of<SettingsCubit>(context).state.backgroundImagePath,
-          ),
-          fit: BoxFit.cover,
-          height: double.infinity,
-          width: double.infinity,
+  Widget _drawer(SettingsState state) {
+    return Drawer(
+      child: Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 70),
+            _drawerButton(
+              BlocProvider.of<SettingsCubit>(context).share,
+              'Help spread the word',
+              state,
+            ),
+            const SizedBox(height: 20),
+            _drawerButton(
+              () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddNewChat(addCategory: true),
+                  ),
+                );
+              },
+              'Add Category',
+              state,
+            ),
+            const SizedBox(height: 20),
+            _drawerButton(
+              BlocProvider.of<SettingsCubit>(context).changeBubbleChatSide,
+              'Change Chat Side',
+              state,
+            ),
+            const SizedBox(height: 20),
+            _drawerButton(
+              BlocProvider.of<SettingsCubit>(context).changeDateAlign,
+              'Change Date Align',
+              state,
+            ),
+            const SizedBox(height: 20),
+            _drawerButton(
+              BlocProvider.of<SettingsCubit>(context).addBGImage,
+              'Change Chat Background Image',
+              state,
+            ),
+            const SizedBox(height: 20),
+            _drawerButton(
+              BlocProvider.of<SettingsCubit>(context).resetBGImage,
+              'Delete Chat Background Image',
+              state,
+            ),
+            const SizedBox(height: 20),
+            _drawerDropdownButton(state),
+            const Spacer(),
+            _drawerButton(
+              BlocProvider.of<SettingsCubit>(context).resetSettings,
+              'Reset Settings',
+              state,
+            ),
+            const SizedBox(height: 30),
+          ],
         ),
-        _body(state),
-      ],
-    );
-  }
-
-  Widget _bottomRow(ChatScreenState state) {
-    return Container(
-      alignment: Alignment.bottomCenter,
-      child: Column(
-        children: [
-          state.isCategoriesOpened ? _categoryListView() : Container(height: 0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(width: 3),
-              Flexible(
-                flex: 1,
-                child: IconButton(
-                  onPressed: () {
-                    BlocProvider.of<ChatScreenCubit>(context).changeParameters(
-                      isCategoriesOpened: !state.isCategoriesOpened,
-                    );
-                  },
-                  icon: Icon(
-                    state.categoryIndex == 0
-                        ? Icons.bubble_chart
-                        : categoriesMap.values.elementAt(state.categoryIndex),
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-              ),
-              Flexible(
-                flex: 9,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 7,
-                    horizontal: 9,
-                  ),
-                  child: _textField(state),
-                ),
-              ),
-              sendIcon(state),
-              const SizedBox(width: 7),
-            ],
-          ),
-        ],
       ),
     );
   }
 
-  Widget _categoryListView() {
-    return Container(
-      height: 60,
-      alignment: Alignment.bottomCenter,
-      child: ListView.builder(
-        itemCount: categoriesMap.length,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () => BlocProvider.of<ChatScreenCubit>(context).setCategory(
-              index,
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  categoriesMap.values.elementAt(index),
-                  size: 35,
-                  color: Theme.of(context).colorScheme.secondary,
+  Widget _drawerDropdownButton(SettingsState state) {
+    final textStyle = TextStyle(fontSize: state.fontSize, color: Colors.yellow);
+
+    return DropdownButton(
+      hint: AnimatedDefaultTextStyle(
+        duration: const Duration(milliseconds: 250),
+        style: textStyle,
+        child: Text(state.fontSizeString),
+      ),
+      items: ['Small', 'Medium', 'Large'].map(buildMenuItem).toList(),
+      onChanged: (size) {
+        setState(() {});
+        BlocProvider.of<SettingsCubit>(context).changeFontSize(size.toString());
+      },
+    );
+  }
+
+  Widget _drawerButton(Function onPressed, String text, SettingsState state) {
+    final textStyle = TextStyle(fontSize: state.fontSize, color: Colors.yellow);
+
+    return ElevatedButton(
+      onPressed: () => onPressed(),
+      child: AnimatedDefaultTextStyle(
+        style: textStyle,
+        duration: const Duration(milliseconds: 250),
+        child: Text(text),
+      ),
+    );
+  }
+
+  DropdownMenuItem<String> buildMenuItem(String item) {
+    return DropdownMenuItem(
+      value: item,
+      child: Text(
+        item,
+        style: TextStyle(
+          fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
+        ),
+      ),
+    );
+  }
+
+  ListView _customListView(ChatScreenState state) {
+    BlocProvider.of<ChatScreenCubit>(context).sortList(state.chatList);
+
+    return ListView.builder(
+      itemCount: state.chatList.length,
+      itemBuilder: (context, index) {
+        return Column(
+          children: [
+            GestureDetector(
+              child: ListTile(
+                leading: _chatAvatar(state, index),
+                title: Text(
+                  state.chatList[index].elementName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
                 ),
-                Text(
-                  categoriesMap.keys.elementAt(index),
+                subtitle: Text(
+                  state.chatList[index].elementSubname,
                   style: TextStyle(
                       fontSize: BlocProvider.of<SettingsCubit>(context)
                           .state
                           .fontSize),
                 ),
-                const SizedBox(width: 80),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget sendIcon(ChatScreenState state) {
-    if (state.isTextFieldEmpty) {
-      return Flexible(
-        flex: 1,
-        child: _CustomIcon(
-          !state.isEditing
-              ? state.categoryIndex == 0
-                  ? Icons.camera_enhance
-                  : Icons.send
-              : Icons.close,
-          !state.isEditing
-              ? () {
-                  if (state.categoryIndex == 0) {
-                    BlocProvider.of<ChatScreenCubit>(context)
-                        .addImage(selectedChat.id);
-                  } else {
-                    BlocProvider.of<ChatScreenCubit>(context)
-                        .addEventWithCategory(
-                      selectedChat.id,
-                      _controller.text,
-                    );
-                  }
-                }
-              : () {
-                  BlocProvider.of<ChatScreenCubit>(context).changeParameters(
-                    isEdit: false,
-                    isEmpty: true,
-                  );
-                  _controller.clear();
-                },
-          Theme.of(context).colorScheme.secondary,
-        ),
-      );
-    } else {
-      return Flexible(
-        flex: 1,
-        child: _CustomIcon(
-          Icons.send,
-          !state.isEditing
-              ? () {
-                  if (state.categoryIndex == 0) {
-                    BlocProvider.of<ChatScreenCubit>(context)
-                        .addNewEvent(_controller.text, selectedChat.id);
-                  } else {
-                    BlocProvider.of<ChatScreenCubit>(context)
-                        .addEventWithCategory(
-                      selectedChat.id,
-                      _controller.text,
-                    );
-                  }
-                  _controller.clear();
-                }
-              : () {
-                  BlocProvider.of<ChatScreenCubit>(context)
-                      .confirmEditing(_controller.text);
-                  _controller.clear();
-                },
-          Theme.of(context).colorScheme.secondary,
-        ),
-      );
-    }
-  }
-
-  Widget _textField(ChatScreenState state) {
-    return TextField(
-      onChanged: (value) {
-        BlocProvider.of<ChatScreenCubit>(context)
-            .isTextFiedEmpty(value, selectedChat.id);
-      },
-      keyboardType: TextInputType.multiline,
-      maxLines: null,
-      controller: state.isSearching ? _searchController : _controller,
-      cursorColor: Colors.orange[300],
-      cursorWidth: 2.5,
-      decoration: InputDecoration(
-        filled: true,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
-          borderSide: const BorderSide(style: BorderStyle.none),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
-          borderSide: const BorderSide(style: BorderStyle.none),
-        ),
-        hintText: 'Enter Event',
-      ),
-    );
-  }
-
-  Widget _listOfMessagess(ChatScreenState state) {
-    if (state.eventList.isEmpty && state.isShowFavorites) {
-      return _emptyListOfMessagess(
-        'You dont seem to have any bookmarked'
-        'envents yet. You can bookmark an event by single tapping the event',
-        state,
-      );
-    }
-
-    return Expanded(
-      child: ListView.builder(
-        reverse: true,
-        itemCount: state.eventList.length,
-        itemBuilder: (context, index) {
-          return Dismissible(
-            confirmDismiss: (direction) async {
-              _dismiss(state, direction, index);
-            },
-            background: Container(
-              alignment: Alignment.centerLeft,
-              color: Colors.amber,
-              padding: const EdgeInsets.only(left: 30),
-              child: const Icon(Icons.edit_rounded),
-            ),
-            secondaryBackground: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 30),
-              child: const Icon(Icons.delete_rounded),
-            ),
-            key: Key(index.toString()),
-            child: GestureDetector(
-              onTap: () => BlocProvider.of<ChatScreenCubit>(context).onTap(
-                index,
-                selectedChat.id,
+                onTap: () => _onTap(state, index),
               ),
               onLongPress: () =>
-                  BlocProvider.of<ChatScreenCubit>(context).onLongPress(index),
-              child: Align(
-                alignment: BlocProvider.of<SettingsCubit>(context)
-                        .state
-                        .isBubbleChatleft
-                    ? Alignment.bottomLeft
-                    : Alignment.bottomRight,
-                child: _event(state, index),
-              ),
+                  _chatOptions(index, state, state.chatList[index]),
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  void _dismiss(ChatScreenState state, DismissDirection direction, int index) {
-    if (state.selectedItemsCount == 0) {
-      if (direction == DismissDirection.startToEnd) {}
-      if (direction == DismissDirection.endToStart) {
-        BlocProvider.of<ChatScreenCubit>(context).deleteFromDismiss(
-          index,
-          selectedChat.id,
-        );
-      }
-    }
-  }
-
-  Widget _event(ChatScreenState state, int index) {
-    final unselectedColor = Theme.of(context).colorScheme.primaryVariant;
-    final selectedColor = Theme.of(context).colorScheme.secondaryVariant;
-    final timeFormat = DateFormat('h:mm a');
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 369),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        padding: const EdgeInsets.only(right: 18, bottom: 6, top: 10, left: 8),
-        decoration: BoxDecoration(
-          color: state.eventList[index].isSelected
-              ? selectedColor
-              : unselectedColor,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            state.eventList[index].categoryIndex == 0
-                ? Container(height: 0, width: 0)
-                : Icon(categoriesMap.values
-                    .elementAt(state.eventList[index].categoryIndex)),
-            if (state.eventList[index].imagePath.isNotEmpty)
-              _image(index, state)
-            else
-              LinkifyText(
-                state.eventList[index].text,
-                linkTypes: [LinkType.hashTag],
-                textStyle: TextStyle(
-                  fontSize:
-                      BlocProvider.of<SettingsCubit>(context).state.fontSize,
-                ),
-                linkStyle: const TextStyle(color: Colors.blue),
-                onTap: (link) => print(link.value),
-              ),
-            Padding(
-              padding: const EdgeInsets.only(top: 3, left: 5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (state.eventList[index].isSelected) _isSelectedItem(),
-                  Text(
-                    timeFormat.format(state.eventList[index].date).toString(),
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: BlocProvider.of<SettingsCubit>(context)
-                          .state
-                          .fontSize,
-                    ),
-                  ),
-                  if (state.eventList[index].isFavorite) _isFavoriteItem(),
-                ],
-              ),
+            const Divider(
+              height: 18,
+              thickness: 1,
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _image(int index, ChatScreenState state) {
-    return FutureBuilder(
-      future: FirebaseApi.getFile('images/${state.eventList[index].imagePath}'),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          return GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    _FullSizeImage(state.eventList[index].imagePath),
-              ),
-            ),
-            child: Hero(
-              tag: 'imageHero',
-              child: Image.network(snapshot.data as String),
-            ),
-          );
-        }
-        if (snapshot.connectionState == ConnectionState.waiting ||
-            !snapshot.hasData) {
-          return const CircularProgressIndicator(
-            color: Colors.white,
-          );
-        }
-        return Container();
+        );
       },
     );
   }
 
-  Widget _emptyListOfSearchingMessages() {
-    return SingleChildScrollView(
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-          margin: const EdgeInsets.only(left: 40, right: 40, top: 15),
-          color: Theme.of(context).colorScheme.primaryVariant,
+  Widget _chatAvatar(ChatScreenState state, int index) {
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        CircleAvatar(
+          radius: 30,
+          child: Center(
+            child: Icon(
+              iconsData[state.chatList[index].iconIndex],
+              color: const Color.fromRGBO(235, 254, 255, 1),
+              size: 29,
+            ),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
+        if (state.chatList[index].isPinned)
+          CircleAvatar(
+            backgroundColor: Colors.transparent,
+            radius: 7,
+            child: Icon(
+              Icons.push_pin,
+              color: Theme.of(context).colorScheme.onSecondary,
+              size: 13,
+            ),
+          ),
+      ],
+    );
+  }
+
+  void _onTap(ChatScreenState state, int index) async {
+    final result = await Navigator.pushNamed(
+      context,
+      '/events',
+      arguments: state.chatList[index],
+    ) as String;
+    BlocProvider.of<ChatScreenCubit>(context).newSubname(index, result);
+  }
+
+  void _chatOptions(int index, ChatScreenState state, Chat pinnedElement) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 280,
           child: Column(
             children: [
-              const Icon(Icons.search, size: 35),
-              Text(
-                'Please enter a search query to begin serching',
-                style: TextStyle(
-                  fontSize:
-                      BlocProvider.of<SettingsCubit>(context).state.fontSize,
+              ListTile(
+                onTap: () => _showInfo(context, pinnedElement),
+                leading: const Icon(
+                  Icons.info,
+                  color: Color.fromRGBO(121, 143, 154, 1),
                 ),
+                title: Text(
+                  'Info',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
+              ),
+              ListTile(
+                onTap: () {
+                  Navigator.pop(context);
+                  BlocProvider.of<ChatScreenCubit>(context)
+                      .pinUnpinChat(pinnedElement);
+                },
+                leading: const Icon(Icons.attach_file, color: Colors.green),
+                title: Text(
+                  'Pin/Unpin Page',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.archive, color: Colors.yellow),
+                title: Text(
+                  'Archive Page',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
+                onTap: () {},
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit, color: Colors.blue),
+                title: Text(
+                  'Edit Page',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
+                onTap: () => _editChat(pinnedElement),
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: Text(
+                  'Delete Page',
+                  style: TextStyle(
+                    fontSize:
+                        BlocProvider.of<SettingsCubit>(context).state.fontSize,
+                  ),
+                ),
+                onTap: () {
+                  BlocProvider.of<ChatScreenCubit>(context)
+                      .removeElement(pinnedElement);
+                  Navigator.pop(context);
+                },
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _emptyListOfMessagess(String subtext, ChatScreenState state) {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                margin: const EdgeInsets.only(left: 40, right: 40, top: 15),
-                color: Theme.of(context).colorScheme.primaryVariant,
-                child: Column(
-                  children: [
-                    Text(
-                      'This is page where you can track everithing'
-                      ' about "${selectedChat.elementName}"',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: BlocProvider.of<SettingsCubit>(context)
-                            .state
-                            .fontSize,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      subtext,
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: BlocProvider.of<SettingsCubit>(context)
-                            .state
-                            .fontSize,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _customAppBar(ChatScreenState state) {
-    if (state.isEditing) {
-      return PreferredSize(
-        child: _editAppBar(),
-        preferredSize: const Size(double.infinity, kToolbarHeight),
-      );
-    }
-
-    return PreferredSize(
-      preferredSize: const Size(double.infinity, kToolbarHeight),
-      child: state.selectedItemsCount == 0
-          ? !state.isSearching
-              ? _unselectedAppBar(state)
-              : _searchAppBar(state)
-          : _selectedAppBar(state.selectedItemsCount, state),
-    );
-  }
-
-  PreferredSizeWidget _searchAppBar(ChatScreenState state) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          _searchController.clear();
-          BlocProvider.of<ChatScreenCubit>(context).changeParameters(
-            isSearching: false,
-            isEmpty: true,
-          );
-          BlocProvider.of<ChatScreenCubit>(context).showEvents(selectedChat.id);
-        },
-      ),
-      title: _textField(state),
-      actions: [
-        !state.isTextFieldEmpty
-            ? IconButton(
-                onPressed: () {
-                  _searchController.clear();
-                  BlocProvider.of<ChatScreenCubit>(context)
-                      .changeParameters(isEmpty: true, eventList: []);
-                },
-                icon: const Icon(Icons.close))
-            : Container()
-      ],
-    );
-  }
-
-  PreferredSizeWidget _editAppBar() {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        color: Colors.white,
-        onPressed: () {
-          _controller.clear();
-          BlocProvider.of<ChatScreenCubit>(context)
-              .changeParameters(isEdit: false);
-        },
-      ),
-      centerTitle: true,
-      title: Text(
-        'Editing Mode',
-        style: TextStyle(
-          fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
-        ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _selectedAppBar(
-    int selectedItemsCount,
-    ChatScreenState state,
-  ) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () =>
-            BlocProvider.of<ChatScreenCubit>(context).unselectElements(),
-      ),
-      title: Text(
-        '$selectedItemsCount',
-        style: TextStyle(
-          fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
-        ),
-      ),
-      actions: [
-        IconButton(
-          onPressed: () => _choosePage(state),
-          icon: const Icon(Icons.reply),
-        ),
-        selectedItemsCount == 1
-            ? IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  _controller.text = BlocProvider.of<ChatScreenCubit>(context)
-                      .editMessageText();
-                },
-              )
-            : Container(),
-        IconButton(
-          onPressed: () => BlocProvider.of<ChatScreenCubit>(context).copyText(),
-          icon: const Icon(Icons.copy),
-        ),
-        IconButton(
-          onPressed: () => BlocProvider.of<ChatScreenCubit>(context)
-              .addSelectedToFavorites(),
-          icon: const Icon(Icons.bookmark_border),
-        ),
-        IconButton(
-          onPressed: () =>
-              BlocProvider.of<ChatScreenCubit>(context).deleteElement(),
-          icon: const Icon(Icons.delete),
-        ),
-      ],
-    );
-  }
-
-  Future _choosePage(ChatScreenState state) {
-    var chosenIndex = 0;
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            'Select the page you want to migrate the selected event(s) to!',
-            style: TextStyle(
-              fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
-            ),
-          ),
-          content: StatefulBuilder(builder: (context, setState) {
-            return Container(
-              height: 300,
-              width: 300,
-              child: ListView.builder(
-                itemCount: state.chatList.length,
-                itemBuilder: (context, index) {
-                  return RadioListTile(
-                    title: Text(
-                      state.chatList[index].elementName,
-                      style: TextStyle(
-                        fontSize: BlocProvider.of<SettingsCubit>(context)
-                            .state
-                            .fontSize,
-                      ),
-                    ),
-                    value: index,
-                    groupValue: chosenIndex,
-                    onChanged: (index) {
-                      setState(() => chosenIndex = index as int);
-                    },
-                  );
-                },
-              ),
-            );
-          }),
-          actions: [
-            TextButton(
-              onPressed: () {
-                BlocProvider.of<ChatScreenCubit>(context)
-                    .moveMessageToAnotherChat(chosenIndex);
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Ok',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize:
-                      BlocProvider.of<SettingsCubit>(context).state.fontSize,
-                ),
-              ),
-            ),
-          ],
         );
       },
     );
   }
 
-  PreferredSizeWidget _unselectedAppBar(ChatScreenState state) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          if (state.eventList.isNotEmpty) {
-            Navigator.pop(context, state.eventList[0].text);
-          } else {
-            Navigator.pop(context, 'No events. Click to create one.');
-          }
-        },
-      ),
-      title: Text(
-        '${selectedChat.elementName}',
-        style: TextStyle(
-          fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
+  void _showInfo(context, Chat pinnedElement) {
+    Navigator.pop(context);
+    final timeFormat = DateFormat('dd/M/y h:mm a');
+    final creationDate =
+        timeFormat.format(pinnedElement.creationDate).toString();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Container(
+            height: 350,
+            child: AlertDialog(
+              title: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    child: Center(
+                      child: Icon(
+                        iconsData[pinnedElement.iconIndex],
+                        color: const Color.fromRGBO(235, 254, 255, 1),
+                        size: 29,
+                      ),
+                    ),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 20),
+                  Text(
+                    pinnedElement.elementName,
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
+                ],
+              ),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Created:',
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
+                  Text(
+                    creationDate,
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Last event:',
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                        fontSize: BlocProvider.of<SettingsCubit>(context)
+                            .state
+                            .fontSize),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _editChat(Chat pinnedElement) async {
+    Navigator.pop(context);
+    await Navigator.of(context).pushNamed(
+      '/add_chat',
+      arguments: pinnedElement,
+    );
+    BlocProvider.of<ChatScreenCubit>(context).showChats();
+  }
+
+  BottomNavigationBar _customBottomNavigationBar() {
+    return BottomNavigationBar(
+      currentIndex: BlocProvider.of<MainScreenCubit>(context).state.selectedTab,
+      type: BottomNavigationBarType.fixed,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.book),
+          label: 'Home',
+          tooltip: '',
         ),
-      ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.assignment_rounded),
+          label: 'Daily',
+          tooltip: '',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.map),
+          label: 'Timeline',
+          tooltip: '',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.explore),
+          label: 'Explore',
+          tooltip: '',
+        ),
+      ],
+      onTap: (index) =>
+          BlocProvider.of<MainScreenCubit>(context).selectTab(index),
+    );
+  }
+
+  PreferredSizeWidget _customAppBar() {
+    return AppBar(
       centerTitle: true,
+      title: Text(
+        'Home',
+        style: TextStyle(
+            fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize),
+      ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            BlocProvider.of<ChatScreenCubit>(context).changeParameters(
-              isEmpty: true,
-              isSearching: true,
-              eventList: [],
-            );
-          },
-        ),
-        _favoriteButton(state),
+          onPressed: BlocProvider.of<SettingsCubit>(context).changeTheme,
+          tooltip: 'Switch Theme',
+          icon: const Icon(
+            Icons.invert_colors_on,
+            color: Color.fromRGBO(235, 254, 255, 1),
+            size: 28,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+        )
       ],
-    );
-  }
-
-  IconButton _favoriteButton(ChatScreenState state) {
-    return IconButton(
-      onPressed: () => BlocProvider.of<ChatScreenCubit>(context)
-          .showAllFavorites(selectedChat.id),
-      icon: !state.isShowFavorites
-          ? const Icon(Icons.bookmark_border)
-          : const Icon(
-              Icons.bookmark_outlined,
-              color: Colors.yellow,
-            ),
-    );
-  }
-
-  Widget _isSelectedItem() {
-    return Row(
-      children: [
-        Icon(
-          Icons.check_circle,
-          color: Theme.of(context).colorScheme.secondary,
-          size: 15,
-        ),
-        const SizedBox(width: 6),
-      ],
-    );
-  }
-
-  Widget _isFavoriteItem() {
-    return Row(
-      children: [
-        const Icon(
-          Icons.bookmark,
-          color: Colors.yellow,
-          size: 15,
-        ),
-      ],
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _searchController.dispose();
-    super.dispose();
-  }
-}
-
-class _CustomIcon extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback func;
-  final Color color;
-
-  _CustomIcon(this.icon, this.func, this.color);
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        icon,
-        color: color,
-      ),
-      onPressed: func,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-    );
-  }
-}
-
-class _FullSizeImage extends StatelessWidget {
-  final String imagePath;
-
-  _FullSizeImage(this.imagePath);
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: FirebaseApi.getFile('images/$imagePath'),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          return GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Hero(
-              tag: 'imageHero',
-              child: Image.network(snapshot.data.toString()),
-            ),
-          );
-        }
-        if (snapshot.connectionState == ConnectionState.waiting ||
-            !snapshot.hasData) {
-          const CircularProgressIndicator();
-        }
-        return Container();
-      },
     );
   }
 }

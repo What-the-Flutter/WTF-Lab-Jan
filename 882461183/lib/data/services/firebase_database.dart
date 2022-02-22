@@ -54,4 +54,15 @@ class FBDatabase {
 
     return eventList;
   }
+
+  Future<List<Event>> fetchAllEventLists() async {
+    final eventList = <Event>[];
+    final snap = await _eventRef.once();
+    for (final elSnap in snap.snapshot.children) {
+      final result = Map<String, dynamic>.from(elSnap.value as Map);
+      eventList.insert(0, Event.fromJson(Map<String, dynamic>.from(result)));
+    }
+
+    return eventList;
+  }
 }

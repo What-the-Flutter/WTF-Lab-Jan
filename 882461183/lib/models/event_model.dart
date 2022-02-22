@@ -1,6 +1,7 @@
 class Event {
   final String id;
   final String chatId;
+  final String chatName;
   final String text;
   final String imagePath;
   final DateTime date;
@@ -11,6 +12,7 @@ class Event {
   Event({
     required this.id,
     required this.chatId,
+    required this.chatName,
     required this.text,
     required this.date,
     this.imagePath = '',
@@ -22,6 +24,7 @@ class Event {
   Event copyWith({
     String? id,
     String? chatId,
+    String? chatName,
     bool? isSelected,
     bool? isFavorite,
     String? text,
@@ -30,6 +33,7 @@ class Event {
       id: id ?? this.id,
       chatId: chatId ?? this.chatId,
       date: date,
+      chatName: chatName ?? this.chatName,
       text: text ?? this.text,
       isFavorite: isFavorite ?? this.isFavorite,
       isSelected: isSelected ?? this.isSelected,
@@ -42,6 +46,7 @@ class Event {
         id: map['id'],
         chatId: map['chat_id'],
         date: DateTime.parse(map['date']),
+        chatName: map['chat_name'],
         text: map['text'],
         imagePath: map['image_path'],
         categoryIndex: map['category_index'],
@@ -53,6 +58,7 @@ class Event {
     return {
       'id': id,
       'chat_id': chatId,
+      'chat_name': chatName,
       'date': date.toString(),
       'text': text,
       'image_path': imagePath,
