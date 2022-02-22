@@ -1,21 +1,11 @@
 part of 'main_screen_cubit.dart';
 
-class MainScreenState {
+class MainscreenState {
   final int selectedTab;
-  final List<Chat> chatList;
 
-  MainScreenState({
-    required this.selectedTab,
-    required this.chatList,
-  });
+  MainscreenState({this.selectedTab = 0});
 
-  MainScreenState copyWith({
-    int? selectedTab,
-    List<Chat>? chatList,
-  }) {
-    return MainScreenState(
-      selectedTab: selectedTab ?? this.selectedTab,
-      chatList: chatList ?? this.chatList,
-    );
+  MainscreenState copyWith({int? selectedTab}) {
+    return MainscreenState(selectedTab: selectedTab ?? this.selectedTab);
   }
 }
