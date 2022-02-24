@@ -8,6 +8,7 @@ import '../page_constructor/page_cubit.dart';
 import 'note_cubit.dart';
 import 'note_input.dart';
 import 'note_state.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 class CustomPage extends StatefulWidget {
   late final PageCubit pageCubit;

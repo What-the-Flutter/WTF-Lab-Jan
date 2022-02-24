@@ -15,8 +15,7 @@ void main() async {
   }
 
   try {
-    await SqlitePageRepository.initialize();
-    await SqliteNoteRepository.initialize();
+    await SqliteDataBaseOpenHelper.initialize();
   } on Exception catch (e) {
     print(e.toString());
   }

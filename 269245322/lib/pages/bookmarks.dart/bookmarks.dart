@@ -115,13 +115,14 @@ Widget _listTile(
         child: IntrinsicWidth(
           child: ListTile(
             key: ValueKey(state.notesListUI[index].id),
-            leading: Column(
-              children: [
-                Icon(
+            leading: ExcludeSemantics(
+              child: CircleAvatar(
+                backgroundColor: Theme.of(context).backgroundColor,
+                child: Icon(
                   noteMenuItemList[state.notesListUI[index].icon]!.iconData,
                   color: Theme.of(context).iconTheme.color,
                 ),
-              ],
+              ),
             ),
             title: Text(
               '${state.notesListUI[index].heading}',

@@ -101,10 +101,16 @@ AppBar _appBar(BuildContext context) {
 }
 
 FloatingActionButton _floatingActionButton(
-    PageCubit _pageCubit, BuildContext context) {
+  PageCubit _pageCubit,
+  BuildContext context,
+) {
   return FloatingActionButton(
     onPressed: () => _floatingActionButtonEvent(_pageCubit, context),
-    child: const Icon(Icons.add),
+    child: Icon(
+      Icons.add,
+      color: Theme.of(context).primaryColorLight,
+      size: 35,
+    ),
   );
 }
 

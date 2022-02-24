@@ -13,10 +13,36 @@ class FilterSettingsPage extends StatefulWidget {
   _FilterSettingsPageState createState() => _FilterSettingsPageState();
 }
 
-class _FilterSettingsPageState extends State<FilterSettingsPage> {
+class _FilterSettingsPageState extends State<FilterSettingsPage>
+    with TickerProviderStateMixin {
   bool idkHowToDoAnotherWay = false;
   late final BookmarksCubit _bookmarksCubit;
-  late final BookmarksState state;
+  late final BookmarksState _state;
+  late final AnimationController _animationController;
+  late Animation _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1500),
+    );
+    _animationController.repeat(reverse: true);
+    _animation = Tween(begin: 1.0, end: 13.0).animate(_animationController)
+      ..addListener(
+        () {
+          setState(() {});
+        },
+      );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _animation.isDismissed;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +50,7 @@ class _FilterSettingsPageState extends State<FilterSettingsPage> {
       final args =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       _bookmarksCubit = args['cubit'];
-      state = args['state'];
+      _state = args['state'];
       idkHowToDoAnotherWay = true;
     }
     return BlocBuilder<BookmarksCubit, BookmarksState>(
@@ -62,9 +88,26 @@ class _FilterSettingsPageState extends State<FilterSettingsPage> {
               _bookmarksCubit.applyFiltersToNotesList();
               Navigator.pop(context);
             },
-            child: Icon(
-              Icons.done,
-              color: Theme.of(context).primaryColorLight,
+            child: Container(
+              width: 100,
+              height: 100,
+              child: Icon(
+                Icons.done,
+                color: Theme.of(context).primaryColorLight,
+                size: 35,
+              ),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).primaryColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: _animation.value + _animation.value,
+                    spreadRadius: _animation.value,
+                    offset: Offset(_animation.value, _animation.value),
+                  ),
+                ],
+              ),
             ),
           ),
         );

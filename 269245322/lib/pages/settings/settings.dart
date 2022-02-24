@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../services/firebase_auth_service.dart';
 import '../../style/theme_cubit.dart';
@@ -161,6 +162,14 @@ Padding settingsButtons(
           },
           style: ElevatedButton.styleFrom(
             primary: Theme.of(context).primaryColor,
+          ),
+        ),
+        Container(
+          child: Lottie.asset(
+            'assets/lottieJSON/settings_animation.json',
+            width: 200,
+            height: 200,
+            fit: BoxFit.cover,
           ),
         ),
       ],
