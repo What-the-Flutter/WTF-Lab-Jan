@@ -1,8 +1,11 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../main.dart';
 import 'page_cubit.dart';
 import 'page_state.dart';
+import 'package:animated_button/animated_button.dart';
+import 'package:flutter/cupertino.dart';
 
 class PageConstructor extends StatefulWidget {
   late final PageCubit pageCubit;
@@ -58,7 +61,25 @@ Padding _body(
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, top: 10.0),
+          child: AnimatedTextKit(
+            animatedTexts: [
+              TypewriterAnimatedText(
+                'enter page title',
+                speed: const Duration(milliseconds: 150),
+                textStyle: const TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+            ],
+            isRepeatingAnimation: false,
+            displayFullTextOnTap: true,
+            stopPauseOnTap: true,
+          ),
+        ),
         Container(
           padding: const EdgeInsets.all(5.0),
           child: TextField(
@@ -127,8 +148,18 @@ Padding _body(
           ),
         ),
         Container(
+          padding: const EdgeInsets.only(bottom: 10.0),
           alignment: Alignment.centerRight,
-          child: ElevatedButton(
+          child: AnimatedButton(
+            width: 100.0,
+            height: 40.0,
+            child: Text(
+              state.createNewPageChecker! ? 'create' : 'edit',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            color: Theme.of(context).primaryColor,
             onPressed: () {
               state.createNewPageChecker!
                   ? pageCubit.addNewPage(_controller.text)
@@ -136,10 +167,8 @@ Padding _body(
 
               Navigator.pop(context);
             },
-            child: Text(state.createNewPageChecker! ? 'create' : 'edit'),
-            style: ElevatedButton.styleFrom(
-              primary: Theme.of(context).primaryColor,
-            ),
+            enabled: true,
+            shadowDegree: ShadowDegree.light,
           ),
         ),
       ],

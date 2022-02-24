@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_lab_project/main.dart';
-import 'package:my_lab_project/pages/bookmarks.dart/bookmarks_cubit.dart';
-import 'package:my_lab_project/pages/bookmarks.dart/bookmarks_state.dart';
-import 'package:toggle_switch/toggle_switch.dart';
-
-import '../../services/firebase_auth_service.dart';
-import '../../style/theme_cubit.dart';
+import '../../main.dart';
+import 'bookmarks_cubit.dart';
+import 'bookmarks_state.dart';
+import 'filter_settings_page.dart';
 
 class BookmarksPage extends StatefulWidget {
   BookmarksPage({Key? key}) : super(key: key);
@@ -35,18 +32,25 @@ class _BookmarksPageState extends State<BookmarksPage> {
               title: const Center(child: Text('Bookmarks')),
               actions: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: _bookmarksCubit.bookmarkButtonTap,
                   icon: Icon(
-                    Icons.bookmark_border,
+                    _bookmarksCubit.bookmarkButtonState()
+                        ? Icons.bookmark
+                        : Icons.bookmark_border,
                     color: Theme.of(context).primaryColorLight,
                   ),
                 ),
               ],
             ),
-            body: _bookmarksBody(
+            body: _bookmarksPageBody(
               _bookmarksCubit,
               state,
               context,
+            ),
+            floatingActionButton: _bookmarksPageFloatingActionButton(
+              context,
+              _bookmarksCubit,
+              state,
             ),
             backgroundColor: Theme.of(context).backgroundColor,
           );
@@ -54,16 +58,43 @@ class _BookmarksPageState extends State<BookmarksPage> {
   }
 }
 
-Widget _bookmarksBody(
+Widget _bookmarksPageBody(
   BookmarksCubit bookmarksCubit,
   BookmarksState state,
   BuildContext context,
 ) {
   return ListView.builder(
-    itemCount: state.notesList.length,
+    itemCount: state.notesListUI.length,
     itemBuilder: (context, index) {
       return _listTile(context, bookmarksCubit, state, index);
     },
+  );
+}
+
+FloatingActionButton _bookmarksPageFloatingActionButton(
+  BuildContext context,
+  BookmarksCubit bookmarksCubit,
+  BookmarksState state,
+) {
+  return FloatingActionButton(
+    onPressed: () =>
+        _bookmarksPageFloatingActionButtonEvent(context, bookmarksCubit, state),
+    child: const Icon(Icons.filter_alt),
+  );
+}
+
+void _bookmarksPageFloatingActionButtonEvent(
+  BuildContext context,
+  BookmarksCubit bookmarksCubit,
+  BookmarksState state,
+) {
+  final args = <String, dynamic>{};
+  args['cubit'] = bookmarksCubit;
+  args['state'] = state;
+  Navigator.pushNamed(
+    context,
+    FilterSettingsPage.routeName,
+    arguments: args,
   );
 }
 
@@ -83,20 +114,21 @@ Widget _listTile(
         color: Theme.of(context).cardColor,
         child: IntrinsicWidth(
           child: ListTile(
-            key: ValueKey(state.notesList[index].id),
-            leading: Column(
-              children: [
-                Icon(
-                  noteMenuItemList[state.notesList[index].icon]!.iconData,
+            key: ValueKey(state.notesListUI[index].id),
+            leading: ExcludeSemantics(
+              child: CircleAvatar(
+                backgroundColor: Theme.of(context).backgroundColor,
+                child: Icon(
+                  noteMenuItemList[state.notesListUI[index].icon]!.iconData,
                   color: Theme.of(context).iconTheme.color,
                 ),
-              ],
+              ),
             ),
             title: Text(
-              '${state.notesList[index].heading}',
+              '${state.notesListUI[index].heading}',
               maxLines: 1,
               style: TextStyle(
-                color: state.notesList[index].isFavorite
+                color: state.notesListUI[index].isFavorite
                     ? Colors.green
                     : Theme.of(context).colorScheme.primaryVariant,
               ),
@@ -105,20 +137,21 @@ Widget _listTile(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  state.notesList[index].data,
+                  state.notesListUI[index].data,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
                 Text(
-                  state.notesList[index].tags!,
+                  state.notesListUI[index].tags!,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondaryVariant,
                   ),
                 ),
               ],
             ),
-            isThreeLine: state.notesList[index].data.length > 30 ? true : false,
+            isThreeLine:
+                state.notesListUI[index].data.length > 30 ? true : false,
           ),
         ),
       ),

@@ -23,16 +23,8 @@ const String columnIsSearched = 'is_searched';
 const String columnIsChecked = 'is_checked';
 const String columnTags = 'tags';
 
-class SqlitePageRepository extends IRepository<PageModel> {
-  static final SqlitePageRepository _sqlitePageHelper =
-      SqlitePageRepository._createInstance();
+class SqliteDataBaseOpenHelper {
   static late final Database _database;
-
-  SqlitePageRepository._createInstance();
-
-  factory SqlitePageRepository() {
-    return _sqlitePageHelper;
-  }
 
   static Future<void> initialize() async => _database = await initDatabase();
 
@@ -70,10 +62,21 @@ class SqlitePageRepository extends IRepository<PageModel> {
     );
     return database;
   }
+}
+
+class SqlitePageRepository extends IRepository<PageModel> {
+  static final SqlitePageRepository _sqlitePageHelper =
+      SqlitePageRepository._createInstance();
+
+  SqlitePageRepository._createInstance();
+
+  factory SqlitePageRepository() {
+    return _sqlitePageHelper;
+  }
 
   @override
   void delete(PageModel entity, int? pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     final sqliteNoteRepository = SqliteNoteRepository();
     db.delete(
       tablePages,
@@ -85,7 +88,7 @@ class SqlitePageRepository extends IRepository<PageModel> {
 
   @override
   Future<List<PageModel>> getEntityList(int? pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     final pagesList = <PageModel>[];
     final dbPagesList = await db.query(tablePages);
     final sqliteNoteRepository = SqliteNoteRepository();
@@ -100,7 +103,7 @@ class SqlitePageRepository extends IRepository<PageModel> {
 
   @override
   void insert(PageModel entity, int? pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     db.insert(
       tablePages,
       entity.toMap(),
@@ -109,7 +112,7 @@ class SqlitePageRepository extends IRepository<PageModel> {
 
   @override
   void update(PageModel entity, int? pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     db.update(
       tablePages,
       entity.toMap(),
@@ -122,7 +125,6 @@ class SqlitePageRepository extends IRepository<PageModel> {
 class SqliteNoteRepository extends IRepository<NoteModel> {
   static final SqliteNoteRepository _sqlitePageHelper =
       SqliteNoteRepository._createInstance();
-  static late final Database _database;
 
   SqliteNoteRepository._createInstance();
 
@@ -130,45 +132,8 @@ class SqliteNoteRepository extends IRepository<NoteModel> {
     return _sqlitePageHelper;
   }
 
-  static Future<void> initialize() async => _database = await initDatabase();
-
-  static Database get database {
-    return _database;
-  }
-
-  static Future<Database> initDatabase() async {
-    final database = openDatabase(
-      join(await getDatabasesPath(), 'main5.db'),
-      version: 1,
-      onCreate: (db, version) {
-        db.execute('''
-         create table $tablePages(
-        $columnPageId integer primary key autoincrement,   
-        $columnTitle text,
-        $columnPageIcon integer,
-        $columnNumOfNotes integer,
-        $columnCretionDate text not null,
-        $columnLastModifedDate text not null)
-       ''');
-        db.execute('''
-         create table $tableNotes(
-        $columnNoteId integer primary key autoincrement,  
-        $columnHeading text,
-        $columnPageId integer not null,
-        $columnData text not null,
-        $columnNoteIcon integer not null,
-        $columnIsFavorite integer,
-        $columnIsSearched integer,
-        $columnIsChecked integer,
-        $columnTags text) 
-       ''');
-      },
-    );
-    return database;
-  }
-
   Future<int> deleteAllNotesFromPage(int pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     return await db.delete(
       tableNotes,
       where: '$columnPageId = ?',
@@ -178,7 +143,7 @@ class SqliteNoteRepository extends IRepository<NoteModel> {
 
   @override
   void delete(NoteModel entity, int? pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     db.delete(
       tableNotes,
       where: '$columnNoteId = ?',
@@ -188,7 +153,7 @@ class SqliteNoteRepository extends IRepository<NoteModel> {
 
   @override
   Future<List<NoteModel>> getEntityList(int? pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     final notesList = <NoteModel>[];
     final dbNotesList = await db.rawQuery(
       'SELECT * FROM $tableNotes WHERE $columnPageId = ?',
@@ -203,7 +168,7 @@ class SqliteNoteRepository extends IRepository<NoteModel> {
 
   @override
   void insert(NoteModel entity, int? pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     db.insert(
       tableNotes,
       entity.toMap(pageId!),
@@ -212,7 +177,7 @@ class SqliteNoteRepository extends IRepository<NoteModel> {
 
   @override
   void update(NoteModel entity, int? pageId) async {
-    final db = await database;
+    final db = await SqliteDataBaseOpenHelper.database;
     await db.update(
       tableNotes,
       entity.toMap(pageId!),

@@ -78,12 +78,15 @@ class SharedPreferencesProvider {
   }
 
   int getDatabase() {
+    if (spInstance.getInt('database') == null) resetSettings();
     try {
       spInstance.getInt('database');
     } catch (e) {
       spInstance.setInt('database', 0);
     }
+
     final appDatabase = spInstance.getInt('database');
+
     return appDatabase!;
   }
 

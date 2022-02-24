@@ -44,6 +44,10 @@ dependencies:
   firebase_storage: ^10.2.6
   firebase_auth: ^3.3.6
   firebase_database_web: ^0.2.0+5
+  animated_text_kit: 
+  animated_button: ^0.2.0
+  lottie: ^1.2.2
+  
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +74,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/1.png
+    - assets/lottieJSON/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
