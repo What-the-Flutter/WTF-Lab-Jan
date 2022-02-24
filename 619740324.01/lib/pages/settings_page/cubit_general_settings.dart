@@ -31,7 +31,7 @@ class CubitGeneralSettings extends Cubit<StatesGeneralSettings> {
 
   void changeDateTimeModification() {
     SharedPreferencesProvider()
-        .changeDateTimeModification(!state.isDateTimeModification);
+       .changeDateTimeModification(!state.isDateTimeModification);
     emit(state.copyWith(isDateTimeModification: !state.isDateTimeModification));
   }
 
@@ -42,7 +42,7 @@ class CubitGeneralSettings extends Cubit<StatesGeneralSettings> {
 
   void changeCenterDateBubble() {
     SharedPreferencesProvider()
-        .changeCenterDateBubble(!state.isCenterDateBubble);
+       .changeCenterDateBubble(!state.isCenterDateBubble);
     emit(state.copyWith(isCenterDateBubble: !state.isCenterDateBubble));
   }
 }

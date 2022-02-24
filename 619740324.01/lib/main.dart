@@ -10,6 +10,7 @@ import 'pages/event_page/cubit_event_page.dart';
 import 'pages/home_page/cubit_home_page.dart';
 import 'pages/home_page/home_page.dart';
 import 'pages/settings_page/cubit_general_settings.dart';
+import 'pages/statistic_page/cubit_statistics_page.dart';
 import 'pages/timeline_page/cubit_timeline_page.dart';
 import 'theme/cubit_theme.dart';
 import 'theme/states_theme.dart';
@@ -41,6 +42,9 @@ void main() async {
         ),
         BlocProvider<CubitTimelinePage>(
           create: (context) => CubitTimelinePage(),
+        ),
+        BlocProvider<CubitStatisticsPage>(
+          create: (context) => CubitStatisticsPage(),
         ),
       ],
       child: const MyApp(),
@@ -74,6 +78,7 @@ class _MyAppState extends State<MyApp> {
           duration: 3000,
           splash: const Text(
             'WTF-Lab-Jan\n Chat Journal',
+            key: Key('text'),
           ),
           nextScreen: HomePage(),
           splashTransition: SplashTransition.sizeTransition,

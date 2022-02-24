@@ -10,6 +10,7 @@ import '../../icons.dart';
 import '../../theme/cubit_theme.dart';
 import '../home_page/home_page.dart';
 import '../settings_page/settings_page.dart';
+import '../statistic_page/statistics_page.dart';
 import 'cubit_timeline_page.dart';
 import 'states_timeline_page.dart';
 
@@ -130,6 +131,24 @@ class _TimelinePageState extends State<TimelinePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => SettingsPage(),
+                  ),
+                );
+              },
+            ),
+          ),
+          GestureDetector(
+            child: ListTile(
+              leading: Container(
+                height: 35,
+                width: 35,
+                child: const Icon(Icons.multiline_chart),
+              ),
+              title: const Text('Statistics'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StatisticsPage(),
                   ),
                 );
               },

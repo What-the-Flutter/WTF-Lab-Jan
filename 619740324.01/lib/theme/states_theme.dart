@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-class StatesTheme {
+class StatesTheme extends Equatable {
   final bool? isLightTheme;
   final ThemeData? themeData;
   final TextTheme? textTheme;
@@ -111,4 +112,8 @@ class StatesTheme {
       fontSize: 12,
     ),
   );
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [isLightTheme, themeData, textTheme];
 }

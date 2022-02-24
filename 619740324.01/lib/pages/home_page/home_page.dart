@@ -9,6 +9,7 @@ import '../../theme/cubit_theme.dart';
 import '../create_page/create_page.dart';
 import '../event_page/event_page.dart';
 import '../settings_page/settings_page.dart';
+import '../statistic_page/statistics_page.dart';
 import '../timeline_page/timeline_page.dart';
 import 'cubit_home_page.dart';
 import 'states_home_page.dart';
@@ -144,12 +145,35 @@ class _HomePageState extends State<HomePage> {
                         animate: true,
                       ),
               ),
-              title: const Text('Settings'),
+              title: const Text(
+                'Settings',
+                key: Key(
+                  'settings',
+                ),
+              ),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => SettingsPage(),
+                  ),
+                );
+              },
+            ),
+          ),
+          GestureDetector(
+            child: ListTile(
+              leading: Container(
+                height: 35,
+                width: 35,
+                child: const Icon(Icons.multiline_chart),
+              ),
+              title: const Text('Statistics'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StatisticsPage(),
                   ),
                 );
               },
@@ -228,7 +252,10 @@ class _HomePageState extends State<HomePage> {
   AppBar get _appBar {
     return AppBar(
       title: const Center(
-        child: Text('Home'),
+        child: Text(
+          'Home',
+          key: Key('Home'),
+        ),
       ),
       actions: [
         IconButton(

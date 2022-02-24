@@ -3,6 +3,8 @@ import 'app_info_settings.dart';
 import 'general_settings_page.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({Key? key}) : super(key: key);
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
