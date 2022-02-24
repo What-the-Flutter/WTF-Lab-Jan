@@ -29,10 +29,11 @@ class EventPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _EventPageState createState() => _EventPageState(note, noteList);
+  _EventPageState createState() => _EventPageState(title, note, noteList);
 }
 
 class _EventPageState extends State<EventPage> {
+  final String title;
   final Note _note;
   final List<Note> _noteList;
   final TextEditingController textController = TextEditingController();
@@ -40,7 +41,7 @@ class _EventPageState extends State<EventPage> {
   final FocusNode _focusNode = FocusNode();
   final FocusNode _searchFocusNode = FocusNode();
 
-  _EventPageState(this._note, this._noteList);
+  _EventPageState(this.title, this._note, this._noteList);
 
   @override
   void initState() {
@@ -167,7 +168,7 @@ class _EventPageState extends State<EventPage> {
     return AppBar(
       centerTitle: true,
       title: Text(
-        widget.title,
+        title,
       ),
       actions: [
         IconButton(

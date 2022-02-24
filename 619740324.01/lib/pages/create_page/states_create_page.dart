@@ -1,4 +1,6 @@
-class StatesCreatePage {
+import 'package:equatable/equatable.dart';
+
+class StatesCreatePage extends Equatable {
   final int selectedIndex;
   final bool isWriting;
   final bool isEditing;
@@ -20,4 +22,7 @@ class StatesCreatePage {
       isWriting: isWriting ?? this.isWriting,
     );
   }
+
+  @override
+  List<Object?> get props => [selectedIndex, isWriting, isEditing];
 }

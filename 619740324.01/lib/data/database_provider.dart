@@ -16,7 +16,7 @@ class FirebaseFailure implements Exception {
 }
 
 class DatabaseProvider {
-  final _firebase = FirebaseDatabase.instance;
+  final firebase = FirebaseDatabase.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
 
   Future<void> downloadURL(Event event) async {
@@ -36,18 +36,18 @@ class DatabaseProvider {
   }
 
   void addNote(Note note) async {
-    final ref = _firebase.ref('Notes').push();
+    final ref = firebase.ref('Notes').push();
     note.id = ref.key!;
-    await _firebase.ref('Notes/${note.id}').set(note.insertToMap());
+    await firebase.ref('Notes/${note.id}').set(note.insertToMap());
   }
 
   void deleteNote(Note note) async {
-    final ref = _firebase.ref('Notes/${note.id}');
+    final ref = firebase.ref('Notes/${note.id}');
     await ref.remove();
   }
 
   void updateNote(Note note) async {
-    final ref = _firebase.ref('Notes');
+    final ref = firebase.ref('Notes');
     await ref.update({
       '${note.id}/circle_avatar_index': note.indexOfCircleAvatar,
       '${note.id}/name': note.eventName,
@@ -55,10 +55,11 @@ class DatabaseProvider {
   }
 
   Future<List<Note>> dbNotesList() async {
-    final snap = await _firebase.ref('Notes').once();
+    final snap = await firebase.ref('Notes').once();
     final noteList = <Note>[];
     var circleAvatarIndex = -1;
     var name = '';
+    var date = '';
     var subTittleName = '';
     final childKeyList = <dynamic>[];
     DatabaseEvent snapNote;
@@ -67,7 +68,7 @@ class DatabaseProvider {
       childKeyList.add(childKey);
     }
     for (var i = 0; i < childKeyList.length; i++) {
-      snapNote = await _firebase.ref('Notes/${childKeyList[i]}').once();
+      snapNote = await firebase.ref('Notes/${childKeyList[i]}').once();
       for (var childSnapshot in snapNote.snapshot.children) {
         if (childSnapshot.key != 'Events') {
           final childNoteKey = childSnapshot.key;
@@ -81,12 +82,16 @@ class DatabaseProvider {
             case 'sub_tittle_name':
               subTittleName = (childSnapshot.value as String?)!;
               break;
+            case 'date_format':
+              date = (childSnapshot.value as String?)!;
+              break;
           }
         }
       }
       noteList.add(
         Note(
           id: childKeyList[i],
+          date: date,
           eventName: name,
           indexOfCircleAvatar: circleAvatarIndex,
           subTittleEvent: subTittleName,
@@ -97,19 +102,19 @@ class DatabaseProvider {
   }
 
   void addEvent(Event event) async {
-    await _firebase
+    await firebase
         .ref('Notes/${event.idNote}/Events/${event.id}')
         .set(event.insertToMap());
   }
 
   void deleteEvent(Event event) async {
-    final ref = _firebase.ref('Notes/${event.idNote}/Events/${event.id}');
+    final ref = firebase.ref('Notes/${event.idNote}/Events/${event.id}');
     await ref.remove();
     await FirebaseStorage.instance.ref('uploads/${event.id}').delete();
   }
 
   void updateEvent(Event event) async {
-    final ref = _firebase.ref('Notes/${event.idNote}/Events');
+    final ref = firebase.ref('Notes/${event.idNote}/Events');
     await ref.update({
       '${event.id}/event_circle_avatar': event.indexOfCircleAvatar,
       '${event.id}/text': event.text,
@@ -119,7 +124,7 @@ class DatabaseProvider {
 
   Future<List<Event>> dbEventList(String id) async {
     final eventList = <Event>[];
-    final snap = await _firebase.ref('Notes/$id/Events').once();
+    final snap = await firebase.ref('Notes/$id/Events').once();
     final childKeyList = <dynamic>[];
     var text = '';
     var time = '';
@@ -134,7 +139,7 @@ class DatabaseProvider {
     }
     for (var i = 0; i < childKeyList.length; i++) {
       snapEvent =
-          await _firebase.ref('Notes/$id/Events/${childKeyList[i]}').once();
+          await firebase.ref('Notes/$id/Events/${childKeyList[i]}').once();
       for (var childSnapshot in snapEvent.snapshot.children) {
         final childEventKey = childSnapshot.key;
 
@@ -177,7 +182,7 @@ class DatabaseProvider {
 
   Future<List<Event>> fetchFullEventsList() async {
     var eventList = <Event>[];
-    final snap = await _firebase.ref('Notes').once();
+    final snap = await firebase.ref('Notes').once();
     final childKeyList = <dynamic>[];
     for (var childSnapshot in snap.snapshot.children) {
       final childKey = childSnapshot.key;

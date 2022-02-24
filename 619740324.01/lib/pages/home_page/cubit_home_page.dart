@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../../data/database_provider.dart';
 import '../../note.dart';
 import 'states_home_page.dart';
@@ -33,6 +34,7 @@ class CubitHomePage extends Cubit<StatesHomePage> {
     final note = Note(
       eventName: text,
       indexOfCircleAvatar: indexOfCircleAvatar,
+      date: DateFormat.yMMMd().format(DateTime.now()),
       subTittleEvent: 'Add event',
     );
     state.noteList.add(note);

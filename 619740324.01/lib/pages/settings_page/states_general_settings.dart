@@ -1,4 +1,6 @@
-class StatesGeneralSettings {
+import 'package:equatable/equatable.dart';
+
+class StatesGeneralSettings extends Equatable {
   final bool isDateTimeModification;
   final bool isBubbleAlignment;
   final bool isCenterDateBubble;
@@ -21,4 +23,8 @@ class StatesGeneralSettings {
       isCenterDateBubble: isCenterDateBubble ?? this.isCenterDateBubble,
     );
   }
+
+  @override
+  List<Object?> get props =>
+      [isDateTimeModification, isBubbleAlignment, isCenterDateBubble];
 }
