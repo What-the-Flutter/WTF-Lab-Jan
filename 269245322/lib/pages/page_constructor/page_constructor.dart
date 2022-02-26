@@ -1,11 +1,12 @@
+import 'package:animated_button/animated_button.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../main.dart';
 import 'page_cubit.dart';
 import 'page_state.dart';
-import 'package:animated_button/animated_button.dart';
-import 'package:flutter/cupertino.dart';
 
 class PageConstructor extends StatefulWidget {
   late final PageCubit pageCubit;
@@ -18,7 +19,7 @@ class PageConstructor extends StatefulWidget {
 }
 
 class _PageConstructorState extends State<PageConstructor> {
-  bool idkHowToDoAnotherWay = false;
+  bool _idkHowToDoAnotherWay = false;
 
   final TextEditingController _controller = TextEditingController();
 
@@ -29,13 +30,13 @@ class _PageConstructorState extends State<PageConstructor> {
 
   @override
   Widget build(BuildContext context) {
-    if (idkHowToDoAnotherWay != true) {
+    if (_idkHowToDoAnotherWay != true) {
       widget.pageCubit =
           (ModalRoute.of(context)!.settings.arguments as PageCubit);
       if (widget.pageCubit.state.createNewPageChecker == false) {
         _controller.text = widget.pageCubit.state.pageToEdit!.title;
       }
-      idkHowToDoAnotherWay = true;
+      _idkHowToDoAnotherWay = true;
     }
     return BlocBuilder<PageCubit, PageState>(
       bloc: widget.pageCubit,
@@ -44,7 +45,12 @@ class _PageConstructorState extends State<PageConstructor> {
           appBar: AppBar(
             title: const Text('New page..'),
           ),
-          body: _body(_controller, widget.pageCubit, state, context),
+          body: _body(
+            controller: _controller,
+            pageCubit: widget.pageCubit,
+            state: state,
+            context: context,
+          ),
           backgroundColor: Theme.of(context).backgroundColor,
         );
       },
@@ -52,12 +58,12 @@ class _PageConstructorState extends State<PageConstructor> {
   }
 }
 
-Padding _body(
-  TextEditingController _controller,
-  PageCubit pageCubit,
-  PageState state,
-  BuildContext context,
-) {
+Padding _body({
+  required TextEditingController controller,
+  required PageCubit pageCubit,
+  required PageState state,
+  required BuildContext context,
+}) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
     child: Column(
@@ -83,7 +89,7 @@ Padding _body(
         Container(
           padding: const EdgeInsets.all(5.0),
           child: TextField(
-            controller: _controller,
+            controller: controller,
             maxLines: 1,
             maxLength: 50,
             decoration: const InputDecoration(
@@ -162,8 +168,8 @@ Padding _body(
             color: Theme.of(context).primaryColor,
             onPressed: () {
               state.createNewPageChecker!
-                  ? pageCubit.addNewPage(_controller.text)
-                  : pageCubit.editExistingPage(_controller);
+                  ? pageCubit.addNewPage(controller.text)
+                  : pageCubit.editExistingPage(controller);
 
               Navigator.pop(context);
             },

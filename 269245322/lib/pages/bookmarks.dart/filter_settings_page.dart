@@ -15,9 +15,8 @@ class FilterSettingsPage extends StatefulWidget {
 
 class _FilterSettingsPageState extends State<FilterSettingsPage>
     with TickerProviderStateMixin {
-  bool idkHowToDoAnotherWay = false;
+  bool _idkHowToDoAnotherWay = false;
   late final BookmarksCubit _bookmarksCubit;
-  late final BookmarksState _state;
   late final AnimationController _animationController;
   late Animation _animation;
 
@@ -26,7 +25,7 @@ class _FilterSettingsPageState extends State<FilterSettingsPage>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     );
     _animationController.repeat(reverse: true);
     _animation = Tween(begin: 1.0, end: 13.0).animate(_animationController)
@@ -46,12 +45,10 @@ class _FilterSettingsPageState extends State<FilterSettingsPage>
 
   @override
   Widget build(BuildContext context) {
-    if (idkHowToDoAnotherWay != true) {
-      final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      _bookmarksCubit = args['cubit'];
-      _state = args['state'];
-      idkHowToDoAnotherWay = true;
+    if (_idkHowToDoAnotherWay != true) {
+      _bookmarksCubit =
+          ModalRoute.of(context)!.settings.arguments as BookmarksCubit;
+      _idkHowToDoAnotherWay = true;
     }
     return BlocBuilder<BookmarksCubit, BookmarksState>(
       bloc: _bookmarksCubit,
@@ -68,17 +65,17 @@ class _FilterSettingsPageState extends State<FilterSettingsPage>
               Expanded(
                 flex: 1,
                 child: _pageFilterButtons(
-                  state.pagesFilterMap,
+                  _bookmarksCubit.getPagesFilterMap(),
+                  _bookmarksCubit.getPagesFilterList(),
                   _bookmarksCubit,
-                  state,
                 ),
               ),
               Expanded(
                 flex: 1,
                 child: _iconsFilterButtons(
-                  state.iconsFilterMap,
+                  _bookmarksCubit.getIconsFilterMap(),
+                  _bookmarksCubit.getIconsFilterList(),
                   _bookmarksCubit,
-                  state,
                 ),
               )
             ],
@@ -117,24 +114,22 @@ class _FilterSettingsPageState extends State<FilterSettingsPage>
 }
 
 Widget _pageFilterButtons(
-  Map<String, bool> map,
+  Map<String, bool> pagesMap,
+  List<String> pagesList,
   BookmarksCubit bookmarksCubit,
-  BookmarksState state,
 ) {
   return ListView.builder(
-    itemCount: state.pagesFilterList.length,
+    itemCount: pagesList.length,
     itemBuilder: (context, index) {
       return FilterChip(
         key: ValueKey(index),
-        label: Text(state.pagesFilterList[index]),
+        label: Text(pagesList[index]),
         labelStyle: TextStyle(
-            color: state.pagesFilterMap[state.pagesFilterList.elementAt(index)]!
-                ? Colors.white
-                : Colors.white),
-        selected: state.pagesFilterMap[state.pagesFilterList.elementAt(index)]!,
+          color: Theme.of(context).primaryColorLight,
+        ),
+        selected: pagesMap[pagesList.elementAt(index)]!,
         onSelected: (selected) {
-          bookmarksCubit
-              .updatePagesFilterList(state.pagesFilterList.elementAt(index));
+          bookmarksCubit.updatePagesFilterList(pagesList.elementAt(index));
         },
         selectedColor: Colors.blue,
         checkmarkColor: Colors.white,
@@ -144,23 +139,22 @@ Widget _pageFilterButtons(
 }
 
 Widget _iconsFilterButtons(
-  Map<int, bool> map,
+  Map<int, bool> iconsMap,
+  List<int> iconsList,
   BookmarksCubit bookmarksCubit,
-  BookmarksState state,
 ) {
   return ListView.builder(
-    itemCount: state.iconsFilterList.length,
+    itemCount: iconsList.length,
     itemBuilder: (context, index) {
       return FilterChip(
         key: ValueKey(index),
         label: Icon(
-          noteMenuItemList[state.iconsFilterList[index]]!.iconData,
+          noteMenuItemList[iconsList[index]]!.iconData,
           color: Theme.of(context).primaryColorLight,
         ),
-        selected: state.iconsFilterMap[state.iconsFilterList.elementAt(index)]!,
+        selected: iconsMap[iconsList.elementAt(index)]!,
         onSelected: (selected) {
-          bookmarksCubit
-              .updateiconsFilterList(state.iconsFilterList.elementAt(index));
+          bookmarksCubit.updateiconsFilterList(iconsList.elementAt(index));
         },
         selectedColor: Colors.blue,
         checkmarkColor: Colors.white,

@@ -144,7 +144,7 @@ class NoteCubit extends Cubit<NoteState> {
       tags: noteTags,
     );
 
-    var newNoteList = state.notesList!;
+    final newNoteList = state.notesList!;
     if (state.isUserEditingeNote) {
       final editableNote = state.selcetedNotes!.first;
       //findig user's selected note in the note list and changing it's data with new value
@@ -187,17 +187,14 @@ class NoteCubit extends Cubit<NoteState> {
   }
 
   void addNoteToSelectedNotesList(int index) {
-    var newSelectedList = <NoteModel>[];
-    for (final note in state.selcetedNotes!) {
-      newSelectedList.add(note);
-    }
+    final newSelectedList = state.selcetedNotes!;
     setSelectesCheckBoxState(true, index);
     newSelectedList.add(state.page!.notesList[index]);
     emit(state.copyWith(selcetedNotes: newSelectedList));
   }
 
   void removeNoteFromSelectedNotesList(int index) {
-    var newSelectedList = <NoteModel>[];
+    final newSelectedList = <NoteModel>[];
     for (final note in state.selcetedNotes!) {
       newSelectedList.add(note);
     }
@@ -311,7 +308,7 @@ class NoteCubit extends Cubit<NoteState> {
     for (var i = 0; i < inputStr.length; i++) {
       if (inputStr[i] == '#') numOfTags++;
     }
-    var listOfTags = <String>[];
+    final listOfTags = <String>[];
     final listOfWords = inputStr.split(' ');
     for (final word in listOfWords) {
       if (word.contains('#')) listOfTags.add(word);

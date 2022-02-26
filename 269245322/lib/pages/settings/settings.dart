@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:toggle_switch/toggle_switch.dart';
 import 'package:lottie/lottie.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../services/firebase_auth_service.dart';
 import '../../style/theme_cubit.dart';
@@ -30,32 +30,33 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, SettingsState>(
-        bloc: _settingsCubit,
-        builder: (context, state) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Center(child: Text('Settings')),
-            ),
-            body: settingsButtons(
-              _auth,
-              _settingsCubit,
-              state,
-              context,
-              widget.themeCubit,
-            ),
-            backgroundColor: Theme.of(context).backgroundColor,
-          );
-        });
+      bloc: _settingsCubit,
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Center(child: Text('Settings')),
+          ),
+          body: settingsButtons(
+            authService: _auth,
+            settingsCubit: _settingsCubit,
+            state: state,
+            context: context,
+            themeCubit: widget.themeCubit,
+          ),
+          backgroundColor: Theme.of(context).backgroundColor,
+        );
+      },
+    );
   }
 }
 
-Padding settingsButtons(
-  AuthService auth,
-  SettingsCubit settingsCubit,
-  SettingsState state,
-  BuildContext context,
-  ThemeCubit themeCubit,
-) {
+Padding settingsButtons({
+  required AuthService authService,
+  required SettingsCubit settingsCubit,
+  required SettingsState state,
+  required BuildContext context,
+  required ThemeCubit themeCubit,
+}) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: Column(
@@ -143,7 +144,7 @@ Padding settingsButtons(
         ElevatedButton(
           child: const Text('Sign in anon'),
           onPressed: () async {
-            dynamic result = await auth.signInAnon();
+            dynamic result = await authService.signInAnon();
             if (result == null) {
               print('error signing in');
             } else {
@@ -165,10 +166,11 @@ Padding settingsButtons(
           ),
         ),
         Container(
+          alignment: Alignment.center,
           child: Lottie.asset(
             'assets/lottieJSON/settings_animation.json',
-            width: 200,
-            height: 200,
+            width: 300,
+            height: 300,
             fit: BoxFit.cover,
           ),
         ),

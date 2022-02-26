@@ -71,11 +71,12 @@ class _PageListState extends State<PageList> {
                         setState(() {});
                       },
                       onLongPress: () => _onElementLongPress(
-                          context,
-                          widget.pageCubit,
-                          state.listOfPages!,
-                          index,
-                          widget.homeCubit),
+                        context: context,
+                        pageCubit: widget.pageCubit,
+                        listOfPages: state.listOfPages!,
+                        index: index,
+                        homeCubit: widget.homeCubit,
+                      ),
                     ),
                   ),
                   const Divider(
@@ -94,13 +95,13 @@ class _PageListState extends State<PageList> {
   }
 }
 
-void _onElementLongPress(
-  BuildContext context,
-  PageCubit pageCubit,
-  List<PageModel> listOfPages,
-  int index,
-  HomeCubit homeCubit,
-) {
+void _onElementLongPress({
+  required BuildContext context,
+  required PageCubit pageCubit,
+  required List<PageModel> listOfPages,
+  required int index,
+  required HomeCubit homeCubit,
+}) {
   showModalBottomSheet<void>(
     context: context,
     builder: (context) {
