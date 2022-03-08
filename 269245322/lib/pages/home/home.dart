@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../services/firebase_auth_service.dart';
 import '../../style/theme_cubit.dart';
-import '../bookmarks.dart/bookmarks.dart';
+import '../bookmarks/bookmarks.dart';
 import '../page_constructor/page_constructor.dart';
 import '../page_constructor/page_cubit.dart';
 import '../page_constructor/page_state.dart';

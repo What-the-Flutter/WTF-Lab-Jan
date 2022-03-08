@@ -27,4 +27,26 @@ void main() {
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
   });
+
+  group('NoteCubit', () {
+    test('value should start at 0', () {
+      expect(NoteCubit().value, 0);
+    });
+
+    test('value should be incremented', () {
+      final counter = Counter();
+
+      counter.increment();
+
+      expect(counter.value, 1);
+    });
+
+    test('value should be decremented', () {
+      final counter = Counter();
+
+      counter.decrement();
+
+      expect(counter.value, -1);
+    });
+  });
 }
