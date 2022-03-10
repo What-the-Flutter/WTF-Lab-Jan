@@ -19,9 +19,9 @@ class NoteCubit extends Cubit<NoteState> {
   final SharedPreferencesProvider _sharedPreferencesProvider =
       SharedPreferencesProvider();
 
-  late final IRepository<PageModel> dbPageHelper;
+  late final IRepository<PageModel> _dbPageHelper;
 
-  late final IRepository<NoteModel> dbNoteHelper;
+  late final IRepository<NoteModel> _dbNoteHelper;
 
   NoteCubit()
       : super(
@@ -34,11 +34,11 @@ class NoteCubit extends Cubit<NoteState> {
         );
 
   void initPage(PageModel page) {
-    dbPageHelper = (_sharedPreferencesProvider.getDatabase() == 0)
+    _dbPageHelper = (_sharedPreferencesProvider.getDatabase() == 0)
         ? FireBasePageHelper()
         : SqlitePageRepository();
 
-    dbNoteHelper = (_sharedPreferencesProvider.getDatabase() == 0)
+    _dbNoteHelper = (_sharedPreferencesProvider.getDatabase() == 0)
         ? FireBaseNoteHelper()
         : SqliteNoteRepository();
 
@@ -144,7 +144,7 @@ class NoteCubit extends Cubit<NoteState> {
       tags: noteTags,
     );
 
-    var newNoteList = state.notesList!;
+    final newNoteList = state.notesList!;
     if (state.isUserEditingeNote) {
       final editableNote = state.selcetedNotes!.first;
       //findig user's selected note in the note list and changing it's data with new value
@@ -152,7 +152,7 @@ class NoteCubit extends Cubit<NoteState> {
         if (note.heading == editableNote.heading) {
           newNoteList[noteCounter] =
               note.copyWith(data: controller.text, isChecked: false);
-          dbNoteHelper.update(newNoteList[noteCounter], state.page!.id);
+          _dbNoteHelper.update(newNoteList[noteCounter], state.page!.id);
         }
         noteCounter++;
       }
@@ -160,9 +160,9 @@ class NoteCubit extends Cubit<NoteState> {
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes + 1);
       emit(state.copyWith(page: newPage));
-      dbPageHelper.update(newPage, null);
+      _dbPageHelper.update(newPage, null);
       newNoteList.add(newNote);
-      dbNoteHelper.insert(newNote, newPage.id);
+      _dbNoteHelper.insert(newNote, newPage.id);
       uploadFile(newNote.heading);
     }
     emit(state.copyWith(notesList: newNoteList));
@@ -187,9 +187,9 @@ class NoteCubit extends Cubit<NoteState> {
   }
 
   void addNoteToSelectedNotesList(int index) {
-    var newSelectedList = <NoteModel>[];
-    for (final note in state.selcetedNotes!) {
-      newSelectedList.add(note);
+    final newSelectedList = <NoteModel>[];
+    for (var element in state.selcetedNotes!) {
+      newSelectedList.add(element);
     }
     setSelectesCheckBoxState(true, index);
     newSelectedList.add(state.page!.notesList[index]);
@@ -197,7 +197,7 @@ class NoteCubit extends Cubit<NoteState> {
   }
 
   void removeNoteFromSelectedNotesList(int index) {
-    var newSelectedList = <NoteModel>[];
+    final newSelectedList = <NoteModel>[];
     for (final note in state.selcetedNotes!) {
       newSelectedList.add(note);
     }
@@ -234,8 +234,8 @@ class NoteCubit extends Cubit<NoteState> {
       final newPage =
           state.page!.copyWith(numOfNotes: state.page!.numOfNotes - 1);
       emit(state.copyWith(page: newPage));
-      dbPageHelper.update(newPage, null);
-      dbNoteHelper.delete(currentNote, newPage.id);
+      _dbPageHelper.update(newPage, null);
+      _dbNoteHelper.delete(currentNote, newPage.id);
     }
 
     emit(state.copyWith(notesList: newNoteList));
@@ -249,12 +249,12 @@ class NoteCubit extends Cubit<NoteState> {
         final newNote =
             currentNote.copyWith(isFavorite: false, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
-        dbNoteHelper.update(newNote, state.page!.id);
+        _dbNoteHelper.update(newNote, state.page!.id);
       } else {
         final newNote =
             currentNote.copyWith(isFavorite: true, isChecked: false);
         newNoreList[newNoreList.indexOf(currentNote)] = newNote;
-        dbNoteHelper.update(newNote, state.page!.id);
+        _dbNoteHelper.update(newNote, state.page!.id);
       }
     }
     emit(state.copyWith(notesList: newNoreList));
@@ -311,7 +311,7 @@ class NoteCubit extends Cubit<NoteState> {
     for (var i = 0; i < inputStr.length; i++) {
       if (inputStr[i] == '#') numOfTags++;
     }
-    var listOfTags = <String>[];
+    final listOfTags = <String>[];
     final listOfWords = inputStr.split(' ');
     for (final word in listOfWords) {
       if (word.contains('#')) listOfTags.add(word);

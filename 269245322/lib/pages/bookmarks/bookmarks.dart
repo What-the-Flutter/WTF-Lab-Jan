@@ -66,7 +66,7 @@ Widget _bookmarksPageBody(
   return ListView.builder(
     itemCount: state.notesListUI.length,
     itemBuilder: (context, index) {
-      return _listTile(context, bookmarksCubit, state, index);
+      return _listTile(context, state, index);
     },
   );
 }
@@ -88,19 +88,15 @@ void _bookmarksPageFloatingActionButtonEvent(
   BookmarksCubit bookmarksCubit,
   BookmarksState state,
 ) {
-  final args = <String, dynamic>{};
-  args['cubit'] = bookmarksCubit;
-  args['state'] = state;
   Navigator.pushNamed(
     context,
     FilterSettingsPage.routeName,
-    arguments: args,
+    arguments: bookmarksCubit,
   );
 }
 
 Widget _listTile(
   BuildContext context,
-  BookmarksCubit bookmarksCubit,
   BookmarksState state,
   int index,
 ) {

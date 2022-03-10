@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../services/firebase_auth_service.dart';
 import '../../style/theme_cubit.dart';
-import '../bookmarks.dart/bookmarks.dart';
+import '../bookmarks/bookmarks.dart';
 import '../page_constructor/page_constructor.dart';
 import '../page_constructor/page_cubit.dart';
 import '../page_constructor/page_state.dart';
@@ -67,6 +67,7 @@ class _PageState extends State<HomePage> {
 AppBar _appBar(BuildContext context) {
   return AppBar(
     leading: IconButton(
+        tooltip: 'iButton',
         onPressed: () {
           Navigator.pushNamed(
             context,
@@ -84,6 +85,7 @@ AppBar _appBar(BuildContext context) {
     ),
     actions: [
       IconButton(
+        tooltip: 'iButton2',
         onPressed: () {
           Navigator.pushNamed(
             context,
@@ -105,12 +107,14 @@ FloatingActionButton _floatingActionButton(
   BuildContext context,
 ) {
   return FloatingActionButton(
+    key: const Key('floatingButton'),
     onPressed: () => _floatingActionButtonEvent(_pageCubit, context),
     child: Icon(
       Icons.add,
       color: Theme.of(context).primaryColorLight,
       size: 35,
     ),
+    tooltip: 'addNewPage',
   );
 }
 

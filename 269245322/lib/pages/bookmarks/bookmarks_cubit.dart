@@ -14,6 +14,7 @@ class BookmarksCubit extends Cubit<BookmarksState> {
             notesListUI: [],
             notesList: [],
             bookmarkedNotesList: [],
+            pagesList: [],
             pagesFilterMap: {},
             iconsFilterMap: {},
             pagesFilterList: [],
@@ -22,77 +23,84 @@ class BookmarksCubit extends Cubit<BookmarksState> {
           ),
         );
 
-  void initState() async {
+  Future<void> initState() async {
     final initNotesList = await _fireBaseNoteHelper.getAllNotes();
-
+    //??????????????????????????????????????????????//
+    //final initPagesList = await _fireBasePageHelper.getEntityList(null);
     emit(
-      state.copyWith(notesList: initNotesList, notesListUI: initNotesList),
+      state.copyWith(
+        notesList: initNotesList,
+        notesListUI: initNotesList,
+        //pagesList: initPagesList,
+        pagesList: [],
+      ),
     );
     _initPagesFilterMap();
-    _initiconsFilterMap();
+    _initIconsFilterMap();
     _initBookMerkedNotesList();
   }
 
   void _initPagesFilterMap() async {
-    final pagesList = await _fireBasePageHelper.getEntityList(null);
-    var newPagesFilterMap = <String, bool>{};
-    for (final page in pagesList) {
+    final newPagesFilterMap = <String, bool>{};
+    for (final page in state.pagesList) {
       newPagesFilterMap[page.title] = true;
     }
     emit(
       state.copyWith(
         pagesFilterMap: newPagesFilterMap,
-        pagesFilterList: _initListFromMap(newPagesFilterMap) as List<String>,
+        pagesFilterList: _initListFromMap(newPagesFilterMap),
       ),
     );
   }
 
-  void updatePagesFilterList(String mapKey) {
-    var newPagesFilterMap = state.pagesFilterMap;
-    newPagesFilterMap[mapKey] = !newPagesFilterMap[mapKey]!;
+  void updatePagesFilterList(String key) {
+    final newPagesFilterMap = state.pagesFilterMap;
+    newPagesFilterMap[key] = !newPagesFilterMap[key]!;
     emit(
       state.copyWith(pagesFilterMap: newPagesFilterMap),
     );
   }
 
-  void _initiconsFilterMap() {
-    var newIconsFilterMap = <int, bool>{};
+  void _initIconsFilterMap() {
+    final newIconsFilterMap = <int, bool>{};
     for (final note in state.notesList) {
       newIconsFilterMap[note.icon] = true;
     }
     emit(
       state.copyWith(
         iconsFilterMap: newIconsFilterMap,
-        iconsFilterList: _initListFromMap(newIconsFilterMap) as List<int>,
+        iconsFilterList: _initListFromMap(newIconsFilterMap),
       ),
     );
   }
 
-  void updateiconsFilterList(int mapKey) {
-    var newIconsFilterMap = state.iconsFilterMap;
-    newIconsFilterMap[mapKey] = !newIconsFilterMap[mapKey]!;
+  void updateiconsFilterList(int key) {
+    final newIconsFilterMap = state.iconsFilterMap;
+    newIconsFilterMap[key] = !newIconsFilterMap[key]!;
     emit(
       state.copyWith(iconsFilterMap: newIconsFilterMap),
     );
   }
 
   void _initBookMerkedNotesList() {
-    var initBookMerkedNotesList = <NoteModel>[];
+    final initBookMerkedNotesList = <NoteModel>[];
     for (final note in state.notesList) {
       if (note.isFavorite == true) initBookMerkedNotesList.add(note);
     }
-    emit(state.copyWith(bookmarkedNotesList: initBookMerkedNotesList));
+    emit(
+      state.copyWith(bookmarkedNotesList: initBookMerkedNotesList),
+    );
     print(initBookMerkedNotesList.length);
   }
 
   void applyFiltersToNotesList() {
-    var newNotesListUI = <NoteModel>[];
+    final newNotesListUI = <NoteModel>[];
 
-    var resultpagesFilterList = <String>[];
+    final resultpagesFilterList = <String>[];
     state.pagesFilterMap.forEach((key, value) {
       if (value) resultpagesFilterList.add(key);
     });
-    var resultIconsFilterList = <int>[];
+    final resultIconsFilterList = <int>[];
     state.iconsFilterMap.forEach((key, value) {
       if (value) resultIconsFilterList.add(key);
     });
@@ -103,7 +111,6 @@ class BookmarksCubit extends Cubit<BookmarksState> {
         newNotesListUI.add(note);
       }
     }
-    print('a ${newNotesListUI.length}');
     emit(state.copyWith(notesListUI: newNotesListUI));
   }
 
@@ -121,24 +128,27 @@ class BookmarksCubit extends Cubit<BookmarksState> {
     return state.bookmarkButtonEnable;
   }
 
-  List<dynamic> _initListFromMap(Map<dynamic, bool> map) {
-    var resultList = <dynamic>[];
-    switch (map is Map<String, bool>) {
-      case true:
-        resultList = <String>[];
-        map.forEach((key, value) {
-          resultList.add(key);
-        });
-        break;
-      case false:
-        resultList = <int>[];
-        map.forEach((key, value) {
-          resultList.add(key);
-        });
-        break;
-      default:
-        break;
-    }
+  List<T> _initListFromMap<T>(Map<T, bool> map) {
+    final resultList = <T>[];
+    map.forEach((key, value) {
+      resultList.add(key);
+    });
     return resultList;
+  }
+
+  Map<String, bool> getPagesFilterMap() {
+    return state.pagesFilterMap;
+  }
+
+  List<String> getPagesFilterList() {
+    return state.pagesFilterList;
+  }
+
+  Map<int, bool> getIconsFilterMap() {
+    return state.iconsFilterMap;
+  }
+
+  List<int> getIconsFilterList() {
+    return state.iconsFilterList;
   }
 }
