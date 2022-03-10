@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../database/firebase_repository.dart';
 import '../../models/note_model.dart';
-import '../../models/page_model.dart';
 import 'bookmarks_state.dart';
 
 class BookmarksCubit extends Cubit<BookmarksState> {
@@ -151,23 +150,5 @@ class BookmarksCubit extends Cubit<BookmarksState> {
 
   List<int> getIconsFilterList() {
     return state.iconsFilterList;
-  }
-
-  Future<Map<String, dynamic>> getInfoForStatisticsPage() async {
-    final resultMap = <String, dynamic>{
-      'totalNotesCount': 0,
-      'totalPagesCount': 0,
-      'totalBookmarksCount': 0,
-      'pagesList': <PageModel>[],
-    };
-    resultMap['totalNotesCount'] = state.notesList.length;
-
-    resultMap['totalPagesCount'] = state.pagesList.length;
-
-    resultMap['totalBookmarksCount'] = state.bookmarkedNotesList.length;
-
-    resultMap['pagesList'] = state.pagesList;
-
-    return resultMap;
   }
 }

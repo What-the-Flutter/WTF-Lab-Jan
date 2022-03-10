@@ -5,7 +5,6 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../services/firebase_auth_service.dart';
 import '../../style/theme_cubit.dart';
-import '../bookmarks/bookmarks_cubit.dart';
 import '../statistic/statistics.dart';
 import 'settings_cubit.dart';
 import 'settings_state.dart';
@@ -40,13 +39,9 @@ class _SettingsPageState extends State<SettingsPage> {
             actions: [
               IconButton(
                 onPressed: () async {
-                  final bookmarksCubit = BookmarksCubit();
-                  await bookmarksCubit.initState();
-                  final args = await bookmarksCubit.getInfoForStatisticsPage();
                   Navigator.pushNamed(
                     context,
                     StatisticsPage.routeName,
-                    arguments: args,
                   );
                 },
                 icon: Icon(

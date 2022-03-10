@@ -1,12 +1,8 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:my_lab_project/pages/home/home.dart';
-import 'package:my_lab_project/style/theme_cubit.dart';
 
 import '../lib/main.dart' as app;
 import '../lib/my_app.dart';
-import '../lib/pages/home/home.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -17,10 +13,12 @@ void main() {
   group('end-to-end test', () {
     testWidgets('creating a new page', (tester) async {
       app.main();
+    });
+    testWidgets('creating a new page', (tester) async {
       await addDelay(10000);
       await tester.pumpWidget(MyApp());
       await tester.pumpAndSettle();
-      await addDelay(15000);
+      await addDelay(5000);
       expect(find.text('test_page'), findsNothing);
 
       final fab = find.byTooltip('iButton');
@@ -31,5 +29,20 @@ void main() {
       await addDelay(5000);
       expect(fab2, findsOneWidget);
     });
+  });
+
+  testWidgets('2', (tester) async {
+    await addDelay(10000);
+    await tester.pumpWidget(MyApp());
+    await tester.pumpAndSettle();
+    await addDelay(5000);
+
+    final fab = find.byTooltip('iButton2');
+
+    await tester.tap(fab);
+    await addDelay(5000);
+    final fab2 = (find.text('Settings'));
+    await addDelay(5000);
+    expect(fab2, findsOneWidget);
   });
 }

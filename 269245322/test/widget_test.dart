@@ -130,14 +130,4 @@ void main() async {
       expect(find.byType(Text), findsNWidgets(2));
     });
   });
-
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
-  group('end-to-end test', () {
-    testWidgets('tap on the floating action button, verify counter',
-        (WidgetTester tester) async {
-      app.main();
-      await tester.pumpAndSettle();
-    });
-  });
 }
