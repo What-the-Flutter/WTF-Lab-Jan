@@ -15,6 +15,7 @@ class BookmarksCubit extends Cubit<BookmarksState> {
             notesListUI: [],
             notesList: [],
             bookmarkedNotesList: [],
+            pagesList: [],
             pagesFilterMap: {},
             iconsFilterMap: {},
             pagesFilterList: [],
@@ -23,11 +24,17 @@ class BookmarksCubit extends Cubit<BookmarksState> {
           ),
         );
 
-  void initState() async {
+  Future<void> initState() async {
     final initNotesList = await _fireBaseNoteHelper.getAllNotes();
-
+    //??????????????????????????????????????????????//
+    //final initPagesList = await _fireBasePageHelper.getEntityList(null);
     emit(
-      state.copyWith(notesList: initNotesList, notesListUI: initNotesList),
+      state.copyWith(
+        notesList: initNotesList,
+        notesListUI: initNotesList,
+        //pagesList: initPagesList,
+        pagesList: [],
+      ),
     );
     _initPagesFilterMap();
     _initIconsFilterMap();
@@ -35,9 +42,8 @@ class BookmarksCubit extends Cubit<BookmarksState> {
   }
 
   void _initPagesFilterMap() async {
-    final pagesList = await _fireBasePageHelper.getEntityList(null);
     final newPagesFilterMap = <String, bool>{};
-    for (final page in pagesList) {
+    for (final page in state.pagesList) {
       newPagesFilterMap[page.title] = true;
     }
     emit(
@@ -82,7 +88,9 @@ class BookmarksCubit extends Cubit<BookmarksState> {
     for (final note in state.notesList) {
       if (note.isFavorite == true) initBookMerkedNotesList.add(note);
     }
-    emit(state.copyWith(bookmarkedNotesList: initBookMerkedNotesList));
+    emit(
+      state.copyWith(bookmarkedNotesList: initBookMerkedNotesList),
+    );
     print(initBookMerkedNotesList.length);
   }
 
@@ -152,15 +160,13 @@ class BookmarksCubit extends Cubit<BookmarksState> {
       'totalBookmarksCount': 0,
       'pagesList': <PageModel>[],
     };
-
     resultMap['totalNotesCount'] = state.notesList.length;
 
-    final pagesList = await _fireBasePageHelper.getEntityList(null);
-    resultMap['totalPagesCount'] = pagesList.length;
+    resultMap['totalPagesCount'] = state.pagesList.length;
 
     resultMap['totalBookmarksCount'] = state.bookmarkedNotesList.length;
 
-    resultMap['pagesList'] = pagesList;
+    resultMap['pagesList'] = state.pagesList;
 
     return resultMap;
   }

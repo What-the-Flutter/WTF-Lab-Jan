@@ -187,7 +187,10 @@ class NoteCubit extends Cubit<NoteState> {
   }
 
   void addNoteToSelectedNotesList(int index) {
-    final newSelectedList = state.selcetedNotes!;
+    final newSelectedList = <NoteModel>[];
+    for (var element in state.selcetedNotes!) {
+      newSelectedList.add(element);
+    }
     setSelectesCheckBoxState(true, index);
     newSelectedList.add(state.page!.notesList[index]);
     emit(state.copyWith(selcetedNotes: newSelectedList));

@@ -157,6 +157,7 @@ Padding _body({
           padding: const EdgeInsets.only(bottom: 10.0),
           alignment: Alignment.centerRight,
           child: AnimatedButton(
+            key: const ValueKey('LogoutKey'),
             width: 100.0,
             height: 40.0,
             child: Text(

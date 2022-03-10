@@ -13,6 +13,7 @@ import 'style/theme_state.dart';
 
 class MyApp extends StatelessWidget {
   final ThemeCubit _themeCubit = ThemeCubit();
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeState>(

@@ -67,6 +67,7 @@ class _PageState extends State<HomePage> {
 AppBar _appBar(BuildContext context) {
   return AppBar(
     leading: IconButton(
+        tooltip: 'iButton',
         onPressed: () {
           Navigator.pushNamed(
             context,
@@ -84,6 +85,7 @@ AppBar _appBar(BuildContext context) {
     ),
     actions: [
       IconButton(
+        tooltip: 'iButton2',
         onPressed: () {
           Navigator.pushNamed(
             context,
@@ -105,12 +107,14 @@ FloatingActionButton _floatingActionButton(
   BuildContext context,
 ) {
   return FloatingActionButton(
+    key: const Key('floatingButton'),
     onPressed: () => _floatingActionButtonEvent(_pageCubit, context),
     child: Icon(
       Icons.add,
       color: Theme.of(context).primaryColorLight,
       size: 35,
     ),
+    tooltip: 'addNewPage',
   );
 }
 

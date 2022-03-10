@@ -13,77 +13,53 @@ class StatisticsPage extends StatelessWidget {
     final info =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
-    final List<PageModel> pagesList = info['pagesList'];
+    final List<PageModel> pagesList;
+    pagesList = info['pagesList'] ?? [];
     int totalNotesCount = info['totalNotesCount'];
     int totalPagesCount = info['totalPagesCount'];
     int totalBookmarksCount = info['totalBookmarksCount'];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Center(child: Text('Statistics')),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 1,
-            child: Container(
-              margin: const EdgeInsets.all(10.0),
-              width: 230.0,
-              color: Colors.blue[200],
-              child: Column(
+        appBar: AppBar(
+          title: const Center(child: Text('Statistics')),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+                flex: 1,
+                child: staticticTile(
+                  color: Colors.blue[200] as Color,
+                  width: 230.0,
+                  staticticTileCount: totalNotesCount,
+                  staticticTileText: 'Total count',
+                )),
+            Expanded(
+              flex: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '$totalNotesCount',
-                    style: const TextStyle(fontSize: 40.0),
+                  staticticTile(
+                    color: Colors.yellow[300] as Color,
+                    width: 105.0,
+                    staticticTileCount: totalPagesCount,
+                    staticticTileText: 'Labels',
                   ),
-                  const Text('Total count'),
+                  staticticTile(
+                    color: Colors.green[300] as Color,
+                    width: 105.0,
+                    staticticTileCount: totalBookmarksCount,
+                    staticticTileText: 'Bookmarks',
+                  ),
                 ],
               ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  margin: const EdgeInsets.all(10.0),
-                  width: 105.0,
-                  color: Colors.yellow[300],
-                  child: Column(
-                    children: [
-                      Text(
-                        '$totalPagesCount',
-                        style: const TextStyle(fontSize: 40.0),
-                      ),
-                      const Text('Labels'),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10.0),
-                  width: 105.0,
-                  color: Colors.green[300],
-                  child: Column(
-                    children: [
-                      Text(
-                        '$totalBookmarksCount',
-                        style: const TextStyle(fontSize: 40.0),
-                      ),
-                      const Text('Bookmarks'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 6,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
-              child: GridView.builder(
+            Expanded(
+              flex: 6,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
+                child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 100.0,
                     childAspectRatio: 1.0,
@@ -115,11 +91,33 @@ class StatisticsPage extends StatelessWidget {
                         Text(pagesList[index].title),
                       ],
                     );
-                  }),
+                  },
+                ),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
+}
+
+Widget staticticTile({
+  required Color color,
+  required double width,
+  required int staticticTileCount,
+  required String staticticTileText,
+}) {
+  return Container(
+    margin: const EdgeInsets.all(10.0),
+    width: width,
+    color: color,
+    child: Column(
+      children: [
+        Text(
+          '$staticticTileCount',
+          style: const TextStyle(fontSize: 40.0),
+        ),
+        Text('$staticticTileText'),
+      ],
+    ),
+  );
 }

@@ -41,7 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
               IconButton(
                 onPressed: () async {
                   final bookmarksCubit = BookmarksCubit();
-                  bookmarksCubit.initState();
+                  await bookmarksCubit.initState();
                   final args = await bookmarksCubit.getInfoForStatisticsPage();
                   Navigator.pushNamed(
                     context,
@@ -176,15 +176,7 @@ Padding settingsButtons({
             primary: Theme.of(context).primaryColor,
           ),
         ),
-        ElevatedButton(
-          child: const Text('Share'),
-          onPressed: () async {
-            //Share.share('check out my website https://example.com');
-          },
-          style: ElevatedButton.styleFrom(
-            primary: Theme.of(context).primaryColor,
-          ),
-        ),
+        shareButton(),
         Container(
           alignment: Alignment.center,
           child: Lottie.asset(
@@ -196,5 +188,14 @@ Padding settingsButtons({
         ),
       ],
     ),
+  );
+}
+
+Widget shareButton() {
+  return ElevatedButton(
+    child: const Text('Share'),
+    onPressed: () async {
+      //Share.share('check out my website https://example.com');
+    },
   );
 }

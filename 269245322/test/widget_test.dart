@@ -7,46 +7,137 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
+
+import '../lib/models/page_model.dart';
+import '../lib/models/note_model.dart';
+import '../lib/pages/settings/settings.dart';
+import '../lib/pages/statistic/statistics.dart';
+import '../lib/main.dart' as app;
 
 import 'package:my_lab_project/main.dart';
 
-void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+void main() async {
+  group('unit testing', () {
+    test('Correct type of date time fields in page model objects', () {
+      final testPage = PageModel(
+        id: 1,
+        title: 'test',
+        icon: 1,
+        cretionDate: DateTime.now().toString(),
+        numOfNotes: 0,
+        notesList: [],
+        lastModifedDate: DateTime.now().toString(),
+      );
+      expect(testPage.cretionDate.runtimeType, String);
+    });
+    test('2', () {
+      final testNote = NoteModel(
+        id: 1,
+        heading: 'headingText',
+        data: 'dataText',
+        icon: 1,
+        isSearched: false,
+        isFavorite: false,
+        isChecked: false,
+        downloadURL: "noteURL",
+        tags: "noteTags",
+      );
+      expect(testNote.runtimeType, NoteModel);
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    test('3', () {
+      final testNote = NoteModel(
+        id: 1,
+        heading: 'headingText',
+        data: 'dataText',
+        icon: 1,
+        isSearched: false,
+        isFavorite: false,
+        isChecked: false,
+        downloadURL: "noteURL",
+        tags: "noteTags",
+      );
+      final testNoteMap = testNote.toMap(1);
+      expect(testNoteMap.length, 9);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('4', () {
+      final testPage = PageModel(
+        id: 1,
+        title: 'test',
+        icon: 1,
+        cretionDate: DateTime.now().toString(),
+        numOfNotes: 0,
+        notesList: [],
+        lastModifedDate: DateTime.now().toString(),
+      );
+      final testPageMap = testPage.toMap();
+      expect(testPageMap.length, 6);
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('5', () {
+      final testPage = PageModel(
+        id: 1,
+        title: 'test',
+        icon: 1,
+        cretionDate: DateTime.now().toString(),
+        numOfNotes: 0,
+        notesList: [],
+        lastModifedDate: DateTime.now().toString(),
+      );
+      final testPageMap = testPage.toMap();
+      final testPageFromMap = PageModel.fromMap(testPageMap);
+      expect(testPageFromMap.runtimeType, PageModel);
+    });
   });
 
-  group('NoteCubit', () {
-    test('value should start at 0', () {
-      expect(NoteCubit().value, 0);
+  Widget makeTestableWidget({required Widget child}) {
+    return MaterialApp(
+      home: child,
+    );
+  }
+
+  group('widget testing', () {
+    testWidgets('button has a title', (WidgetTester tester) async {
+      Widget testShareButton = shareButton();
+      await tester.pumpWidget(makeTestableWidget(child: testShareButton));
+      expect(find.text('Share'), findsOneWidget);
     });
 
-    test('value should be incremented', () {
-      final counter = Counter();
+    testWidgets('2', (WidgetTester tester) async {
+      Widget testStaticticTile = staticticTile(
+        color: Colors.black,
+        width: 100.0,
+        staticticTileCount: 0,
+        staticticTileText: 'testText',
+      );
+      await tester.pumpWidget(makeTestableWidget(child: testStaticticTile));
 
-      counter.increment();
-
-      expect(counter.value, 1);
+      expect(find.text('testText'), findsOneWidget);
+      expect(find.text('0'), findsOneWidget);
     });
 
-    test('value should be decremented', () {
-      final counter = Counter();
+    testWidgets('3', (WidgetTester tester) async {
+      Widget testStaticticTile = staticticTile(
+        color: Colors.black,
+        width: 100.0,
+        staticticTileCount: 0,
+        staticticTileText: 'testText',
+      );
+      await tester.pumpWidget(makeTestableWidget(child: testStaticticTile));
 
-      counter.decrement();
+      expect(find.byType(Text), findsNWidgets(2));
+    });
+  });
 
-      expect(counter.value, -1);
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  group('end-to-end test', () {
+    testWidgets('tap on the floating action button, verify counter',
+        (WidgetTester tester) async {
+      app.main();
+      await tester.pumpAndSettle();
     });
   });
 }
