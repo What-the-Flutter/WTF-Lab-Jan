@@ -35,7 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   flutter_bloc: ^8.0.1
-  bloc: ^8.0.2
+  bloc: ^8.0.3
   shared_preferences: ^2.0.12
   firebase_core: ^1.12.0
   firebase_database: ^9.0.6
@@ -47,6 +47,8 @@ dependencies:
   flutter_share: ^2.0.0
   linkfy_text: ^1.1.5
   lottie: ^1.2.2
+  syncfusion_flutter_charts: ^20.1.47+1
+  bloc_test: ^9.0.3
 
 flutter_native_splash:
   color: "#ffffff"
@@ -56,12 +58,15 @@ flutter_native_splash:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test: 
+    sdk: flutter
   font_awesome_flutter: ^9.2.0
   intl: ^0.17.0
   image_picker: ^0.8.4+4
   sqflite: ^2.0.2
   path: ^1.8.0
   path_provider: ^2.0.8
+  test:
 
 
 

@@ -152,7 +152,7 @@ class _FilterScreenState extends State<FilterScreen> {
     );
   }
 
-  Widget _startContainer(String text) {
+  Widget _infoMessage(String text) {
     return Column(
       children: [
         Align(
@@ -183,7 +183,7 @@ class _FilterScreenState extends State<FilterScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _startContainer(text),
+          _infoMessage(text),
           _pageTagsList(state),
         ],
       ),
@@ -197,7 +197,7 @@ class _FilterScreenState extends State<FilterScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _startContainer(text),
+          _infoMessage(text),
         ],
       ),
     );
@@ -210,7 +210,7 @@ class _FilterScreenState extends State<FilterScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _startContainer(text),
+          _infoMessage(text),
           _categoryList(state),
         ],
       ),

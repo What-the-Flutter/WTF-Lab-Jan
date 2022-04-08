@@ -368,8 +368,7 @@ class _EventScreenState extends State<EventScreen>
       ),
       key: Key(index.toString()),
       child: GestureDetector(
-        onTap: () => BlocProvider.of<EventScreenCubit>(context)
-            .onTap(index, selectedChat.id),
+        onTap: () => BlocProvider.of<EventScreenCubit>(context).onTap(index),
         onLongPress: () =>
             BlocProvider.of<EventScreenCubit>(context).onLongPress(index),
         child: Align(
@@ -415,8 +414,11 @@ class _EventScreenState extends State<EventScreen>
           children: [
             state.eventList[index].categoryIndex == 0
                 ? Container(height: 0, width: 0)
-                : Icon(categoriesMap.values
-                    .elementAt(state.eventList[index].categoryIndex)),
+                : Icon(
+                    categoriesMap.values
+                        .elementAt(state.eventList[index].categoryIndex),
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
             if (state.eventList[index].imagePath.isNotEmpty)
               _image(index, state)
             else
@@ -585,7 +587,7 @@ class _EventScreenState extends State<EventScreen>
     }
 
     if (state.selectedItemsCount > 0) {
-      return _searchAppBar(state);
+      return _selectedAppBar(state);
     }
 
     return PreferredSize(

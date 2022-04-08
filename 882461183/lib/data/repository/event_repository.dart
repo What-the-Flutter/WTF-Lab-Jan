@@ -25,6 +25,10 @@ class EventRepository {
     return await _database.fetchEventList(chatId);
   }
 
+  Future<List<Event>> fetchAllEventList() async {
+    return await _database.fetchAllEventLists();
+  }
+
   Future<UploadTask?> uploadFile(String destination, File file) async {
     await FirebaseApi.uploadFile(destination, file);
   }

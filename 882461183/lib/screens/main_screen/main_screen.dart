@@ -8,6 +8,8 @@ import '/screens/chat_screen/chat_screen.dart';
 import '/screens/chat_screen/chat_screen_cubit.dart';
 import '/screens/filter_screen/filter_screen_cubit.dart';
 import '/screens/main_screen/main_screen_cubit.dart';
+import '/screens/statistic_filter_screen/statistic_filter_screen_cubit.dart';
+import '/screens/statistic_screen/statistic_screen_cubit.dart';
 import '/screens/timeline_screen/timeline_screen.dart';
 import '/screens/timeline_screen/timeline_screen_cubit.dart';
 import '../add_new_chat/add_new_chat.dart';
@@ -61,6 +63,16 @@ Widget startApp() {
         BlocProvider<FilterScreenCubit>(
           create: (context) => FilterScreenCubit(
             RepositoryProvider.of<EventRepository>(context),
+            RepositoryProvider.of<ChatRepository>(context),
+          ),
+        ),
+        BlocProvider<StatisticsCubit>(
+          create: (context) => StatisticsCubit(
+            RepositoryProvider.of<EventRepository>(context),
+          ),
+        ),
+        BlocProvider<StatisticsFiltersCubit>(
+          create: (context) => StatisticsFiltersCubit(
             RepositoryProvider.of<ChatRepository>(context),
           ),
         ),

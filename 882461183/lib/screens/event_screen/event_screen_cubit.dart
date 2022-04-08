@@ -96,50 +96,41 @@ class EventScreenCubit extends Cubit<EventScreenState> {
     showEvents(chatId);
   }
 
-  void onTap(int eventIndex, String chatId) {
-    var _itemsCount = state.selectedItemsCount;
-    if (state.eventList[eventIndex].isSelected ||
-        state.selectedItemsCount > 0) {
-      state.eventList[eventIndex] = state.eventList[eventIndex]
-          .copyWith(isSelected: !state.eventList[eventIndex].isSelected);
-      state.eventList[eventIndex].isSelected
-          ? emit(
-              state.copyWith(
-                selectedItemsCount: ++_itemsCount,
-                eventList: state.eventList,
-              ),
-            )
-          : emit(
-              state.copyWith(
-                selectedItemsCount: --_itemsCount,
-                eventList: state.eventList,
-              ),
-            );
+  void onTap(int i) {
+    final eventList = state.eventList;
+    var itemsCount = state.selectedItemsCount;
+    if (itemsCount > 0) {
+      eventList[i] =
+          eventList[i].copyWith(isSelected: !eventList[i].isSelected);
+
+      emit(
+        state.copyWith(
+          selectedItemsCount:
+              eventList[i].isSelected ? ++itemsCount : --itemsCount,
+          eventList: eventList,
+        ),
+      );
     } else {
-      state.eventList[eventIndex] = state.eventList[eventIndex]
-          .copyWith(isFavorite: !state.eventList[eventIndex].isFavorite);
-      emit(state.copyWith(eventList: state.eventList));
+      eventList[i] =
+          eventList[i].copyWith(isFavorite: !eventList[i].isFavorite);
+      emit(state.copyWith(eventList: eventList));
     }
-    eventRepository.updateEvent(state.eventList[eventIndex]);
+    eventRepository.updateEvent(eventList[i]);
   }
 
-  void onLongPress(int eventIndex) {
-    state.eventList[eventIndex] = state.eventList[eventIndex]
-        .copyWith(isSelected: !state.eventList[eventIndex].isSelected);
-    state.eventList[eventIndex].isSelected
-        ? emit(
-            state.copyWith(
-              selectedItemsCount: state.selectedItemsCount + 1,
-              eventList: state.eventList,
-            ),
-          )
-        : emit(
-            state.copyWith(
-              selectedItemsCount: state.selectedItemsCount - 1,
-              eventList: state.eventList,
-            ),
-          );
-    eventRepository.updateEvent(state.eventList[eventIndex]);
+  void onLongPress(int i) {
+    var itemsCount = state.selectedItemsCount;
+    var eventList = state.eventList;
+    eventList[i] = eventList[i].copyWith(isSelected: !eventList[i].isSelected);
+    emit(
+      state.copyWith(
+        selectedItemsCount:
+            eventList[i].isSelected ? ++itemsCount : --itemsCount,
+        eventList: eventList,
+      ),
+    );
+
+    eventRepository.updateEvent(eventList[i]);
   }
 
   void copyText() {
@@ -174,11 +165,12 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   void deleteElement() {
-    var _messagessList = [];
-    for (final element in state.eventList) {
+    final messagessList = [];
+    final finalList = state.eventList;
+    for (final element in finalList) {
       if (element.isSelected) {
-        _messagessList.add(element);
-
+        messagessList.add(element);
+        eventRepository.deleteEvent(element);
         if (element.imagePath != '') {
           final imagePath = basename(element.imagePath);
           final destination = 'images/$imagePath';
@@ -187,16 +179,13 @@ class EventScreenCubit extends Cubit<EventScreenState> {
       }
     }
 
-    state.eventList.removeWhere((e) => _messagessList.contains(e));
+    finalList.removeWhere(messagessList.contains);
     emit(
       state.copyWith(
         selectedItemsCount: 0,
-        eventList: state.eventList,
+        eventList: finalList,
       ),
     );
-    for (final element in _messagessList) {
-      eventRepository.deleteEvent(element);
-    }
   }
 
   void deleteFromDismiss(int index, String chatId) {
@@ -210,13 +199,15 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   void addSelectedToFavorites() {
-    for (var i = 0; i <= state.eventList.length - 1; i++) {
-      if (state.eventList[i].isSelected) {
-        state.eventList[i] = state.eventList[i].copyWith(
-          isFavorite: !state.eventList[i].isFavorite,
+    final eventList = state.eventList;
+    for (var i = 0; i < eventList.length; i++) {
+      if (eventList[i].isSelected) {
+        eventList[i] = eventList[i].copyWith(
+          isFavorite: !eventList[i].isFavorite,
         );
       }
     }
+    emit(state.copyWith(eventList: eventList));
     unselectElements();
   }
 
@@ -344,11 +335,8 @@ class EventScreenCubit extends Cubit<EventScreenState> {
   }
 
   void isTextFieldEmpty(String value, String chatId) {
-    if (value.isEmpty) {
-      changeParameters(isEmpty: true);
-    } else {
-      changeParameters(isEmpty: false);
-    }
+    changeParameters(isEmpty: value.isEmpty);
+
     if (state.isSearching) {
       showEvents(chatId, text: value);
     }

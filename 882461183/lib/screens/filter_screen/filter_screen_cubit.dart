@@ -37,13 +37,10 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
     emit(state.copyWith(chatList: chatList));
   }
 
-  bool isChatSelected(Chat chat) {
-    return state.filterChatList.contains(chat);
-  }
+  bool isChatSelected(Chat chat) => state.filterChatList.contains(chat);
 
-  bool isCategorySelected(int index) {
-    return state.filterCategoryList.contains(index);
-  }
+  bool isCategorySelected(int index) =>
+      state.filterCategoryList.contains(index);
 
   void onCategorySelected(int categoryIndex) {
     final categoryList = state.filterCategoryList;
@@ -72,20 +69,15 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
     if (state.filterChatList.isNotEmpty ||
         state.filterTagList.isNotEmpty ||
         state.filterCategoryList.isNotEmpty) {
-      emit(state.copyWith(isFilterOn: true));
-    }
-    print(state.isFilterOn);
-  }
-
-  void isTextFieldEmpty(String value) {
-    if (value.isEmpty) {
-      emit(state.copyWith(isTextfieldEmpty: true));
-    } else {
-      emit(state.copyWith(isTextfieldEmpty: false));
+      emit(
+        state.copyWith(isFilterOn: true),
+      );
     }
   }
 
-  void clearTextField() {
-    emit(state.copyWith(isTextfieldEmpty: true));
-  }
+  void isTextFieldEmpty(String value) => emit(
+        state.copyWith(isTextfieldEmpty: value.isEmpty),
+      );
+
+  void clearTextField() => emit(state.copyWith(isTextfieldEmpty: true));
 }
