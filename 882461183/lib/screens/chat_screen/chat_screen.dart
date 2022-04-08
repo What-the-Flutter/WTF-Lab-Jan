@@ -7,7 +7,7 @@ import '/data/services/auth.dart';
 import '/icons.dart';
 import '/models/chat_model.dart';
 import '/screens/main_screen/main_screen_cubit.dart';
-import '../add_new_chat/add_new_chat.dart';
+import '/widgets/custom_drawer.dart';
 import '../settings/settings_cubit.dart';
 import 'chat_screen_cubit.dart';
 
@@ -33,7 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return BlocBuilder<ChatScreenCubit, ChatScreenState>(
       builder: (context, state) {
         return Scaffold(
-          drawer: _drawer(BlocProvider.of<SettingsCubit>(context).state),
+          drawer: const CustomDrawer(),
           appBar: _customAppBar(),
           body: _customListView(state),
           floatingActionButton: _customFloatingActionButton(),
@@ -52,112 +52,6 @@ class _ChatScreenState extends State<ChatScreen> {
       tooltip: 'New Page',
       child: const Icon(Icons.add),
       splashColor: Colors.transparent,
-    );
-  }
-
-  Widget _drawer(SettingsState state) {
-    return Drawer(
-      child: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 70),
-            _drawerButton(
-              BlocProvider.of<SettingsCubit>(context).share,
-              'Help spread the word',
-              state,
-            ),
-            const SizedBox(height: 20),
-            _drawerButton(
-              () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddNewChat(addCategory: true),
-                  ),
-                );
-              },
-              'Add Category',
-              state,
-            ),
-            const SizedBox(height: 20),
-            _drawerButton(
-              BlocProvider.of<SettingsCubit>(context).changeBubbleChatSide,
-              'Change Chat Side',
-              state,
-            ),
-            const SizedBox(height: 20),
-            _drawerButton(
-              BlocProvider.of<SettingsCubit>(context).changeDateAlign,
-              'Change Date Align',
-              state,
-            ),
-            const SizedBox(height: 20),
-            _drawerButton(
-              BlocProvider.of<SettingsCubit>(context).addBGImage,
-              'Change Chat Background Image',
-              state,
-            ),
-            const SizedBox(height: 20),
-            _drawerButton(
-              BlocProvider.of<SettingsCubit>(context).resetBGImage,
-              'Delete Chat Background Image',
-              state,
-            ),
-            const SizedBox(height: 20),
-            _drawerDropdownButton(state),
-            const Spacer(),
-            _drawerButton(
-              BlocProvider.of<SettingsCubit>(context).resetSettings,
-              'Reset Settings',
-              state,
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _drawerDropdownButton(SettingsState state) {
-    final textStyle = TextStyle(fontSize: state.fontSize, color: Colors.yellow);
-
-    return DropdownButton(
-      hint: AnimatedDefaultTextStyle(
-        duration: const Duration(milliseconds: 250),
-        style: textStyle,
-        child: Text(state.fontSizeString),
-      ),
-      items: ['Small', 'Medium', 'Large'].map(buildMenuItem).toList(),
-      onChanged: (size) {
-        setState(() {});
-        BlocProvider.of<SettingsCubit>(context).changeFontSize(size.toString());
-      },
-    );
-  }
-
-  Widget _drawerButton(Function onPressed, String text, SettingsState state) {
-    final textStyle = TextStyle(fontSize: state.fontSize, color: Colors.yellow);
-
-    return ElevatedButton(
-      onPressed: () => onPressed(),
-      child: AnimatedDefaultTextStyle(
-        style: textStyle,
-        duration: const Duration(milliseconds: 250),
-        child: Text(text),
-      ),
-    );
-  }
-
-  DropdownMenuItem<String> buildMenuItem(String item) {
-    return DropdownMenuItem(
-      value: item,
-      child: Text(
-        item,
-        style: TextStyle(
-          fontSize: BlocProvider.of<SettingsCubit>(context).state.fontSize,
-        ),
-      ),
     );
   }
 

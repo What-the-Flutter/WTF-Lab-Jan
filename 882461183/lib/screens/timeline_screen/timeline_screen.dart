@@ -10,6 +10,7 @@ import '/screens/filter_screen/filter_screen.dart';
 import '/screens/filter_screen/filter_screen_cubit.dart';
 import '/screens/main_screen/main_screen_cubit.dart';
 import '/screens/settings/settings_cubit.dart';
+import '/widgets/custom_drawer.dart';
 import '../../icons.dart';
 import 'timeline_screen_cubit.dart';
 
@@ -39,11 +40,13 @@ class _TimelineScreenState extends State<TimelineScreen>
       vsync: this,
       duration: const Duration(seconds: 3),
     );
-    _animController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _animController.reset();
-      }
-    });
+    _animController.addStatusListener(
+      (status) {
+        if (status == AnimationStatus.completed) {
+          _animController.reset();
+        }
+      },
+    );
     super.initState();
   }
 
@@ -58,7 +61,7 @@ class _TimelineScreenState extends State<TimelineScreen>
           body: state.eventList.isEmpty
               ? _emptyEventList(state)
               : _eventListView(state),
-          drawer: const Drawer(),
+          drawer: const CustomDrawer(),
           bottomNavigationBar: _customBottomNavigationBar(),
           floatingActionButton: _customFloatingActionButton(),
         );
@@ -527,6 +530,12 @@ class _TimelineScreenState extends State<TimelineScreen>
       onTap: (index) =>
           BlocProvider.of<MainScreenCubit>(context).selectTab(index),
     );
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 }
 

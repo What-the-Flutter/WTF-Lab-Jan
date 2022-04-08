@@ -38,29 +38,27 @@ class ChatScreenCubit extends Cubit<ChatScreenState> {
     emit(state.copyWith(chatList: chatList));
   }
 
-  void showChatsFromListen(List<Chat> chatList) {
-    emit(state.copyWith(chatList: chatList));
-  }
+  void showChatsFromListen(List<Chat> chatList) =>
+      emit(state.copyWith(chatList: chatList));
 
   void removeElement(Chat chatElement) {
     chatRepository.deleteChat(chatElement);
     emit(state.copyWith(chatList: state.chatList));
   }
 
-  void sortList(List<Chat> chat) {
-    chat.sort((a, b) => b.isPinned ? 1 : -1);
-  }
+  void sortList(List<Chat> chat) => chat.sort((a, b) => b.isPinned ? 1 : -1);
 
   void pinUnpinChat(Chat chat) {
-    for (var i = 0; i < state.chatList.length; i++) {
-      if (chat.id == state.chatList[i].id) {
-        chat =
-            state.chatList[i].copyWith(isPinned: !state.chatList[i].isPinned);
-        state.chatList[i] = chat;
+    final chatList = state.chatList;
+    for (var i = 0; i < chatList.length; i++) {
+      if (chat.id == chatList[i].id) {
+        chat = chatList[i].copyWith(isPinned: !state.chatList[i].isPinned);
+        chatList[i] = chat;
+        break;
       }
     }
 
-    emit(state.copyWith(chatList: state.chatList));
+    emit(state.copyWith(chatList: chatList));
     chatRepository.updateChat(chat);
   }
 
